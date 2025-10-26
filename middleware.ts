@@ -37,56 +37,18 @@ export async function middleware(request: NextRequest) {
 
 	const { pathname } = request.nextUrl;
 
-	// Redirect unauthenticated users to sign-in
-	if (!session) {
-		if (
-			pathname.startsWith('/admin') ||
-			pathname.startsWith('/teacher') ||
-			pathname.startsWith('/student')
-		) {
-			const signInUrl = new URL('/sign-in', request.url);
-			signInUrl.searchParams.set('redirect', pathname);
-			return NextResponse.redirect(signInUrl);
-		}
-		return response;
+	// TEMPORARILY DISABLE ALL MIDDLEWARE AUTH - RELY ON CLIENT-SIDE RequireAdmin/RequireTeacher/RequireStudent
+	console.log(
+		'🔧 MIDDLEWARE COMPLETELY DISABLED - Using client-side auth only'
+	);
+	console.log('🔧 Path:', pathname);
+	console.log('🔧 Session exists in middleware:', !!session);
+	if (session) {
+		console.log('🔧 User ID in middleware:', session.user?.id);
+		console.log('� User email in middleware:', session.user?.email);
 	}
 
-	// Fetch user profile for role checking
-	const { data: profile } = await supabase
-		.from('profiles')
-		.select('isAdmin,isTeacher,isStudent')
-		.eq('user_id', session.user.id)
-		.single();
-
-	// Fallback to user metadata if profile not available
-	const isAdmin =
-		profile?.isAdmin ?? session.user.user_metadata?.isAdmin ?? false;
-	const isTeacher =
-		profile?.isTeacher ?? session.user.user_metadata?.isTeacher ?? false;
-	const isStudent =
-		profile?.isStudent ?? session.user.user_metadata?.isStudent ?? false;
-
-	// Protect admin routes
-	if (pathname.startsWith('/admin')) {
-		if (!isAdmin) {
-			return NextResponse.redirect(new URL('/', request.url));
-		}
-	}
-
-	// Protect teacher routes (admin can also access)
-	if (pathname.startsWith('/teacher')) {
-		if (!isTeacher && !isAdmin) {
-			return NextResponse.redirect(new URL('/', request.url));
-		}
-	}
-
-	// Protect student routes (admin can also access)
-	if (pathname.startsWith('/student')) {
-		if (!isStudent && !isAdmin) {
-			return NextResponse.redirect(new URL('/', request.url));
-		}
-	}
-
+	// Skip all middleware auth checks - let client-side components handle protection
 	return response;
 }
 

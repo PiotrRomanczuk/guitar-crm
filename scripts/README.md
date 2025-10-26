@@ -16,7 +16,10 @@ npm run seed         # Populate database with sample data
 
 ```bash
 npm run new-feature  # Create new feature branch (with TDD reminder)
-npm run tdd          # Start test-driven development mode
+npm run tdd          # Start test-driven development mode (branch-specific)
+npm run test:branch  # Run tests for current branch only
+npm run test:branch:watch # Watch tests for current branch
+npm run test:categories  # List all test categories and mappings
 npm run dev:server   # Manage development servers
 npm run quality      # Run code quality checks
 npm run e2e          # Run Cypress E2E (headless)
@@ -77,6 +80,31 @@ npm run e2e:open     # Open Cypress runner (interactive)
 
 ---
 
+### `test-branch.sh`
+
+**Purpose**: Run tests based on current branch or specified category
+**Usage**: `npm run test:branch` or `./scripts/test-branch.sh [category] [--watch] [--coverage]`
+
+**What it does**:
+
+- Automatically detects current branch and runs relevant tests only
+- Supports dependency resolution (e.g., auth tests include core tests)
+- Dramatically reduces test execution time for focused development
+- Supports watch mode and coverage for branch-specific tests
+
+**Examples**:
+
+```bash
+./scripts/test-branch.sh           # Auto-detect branch
+./scripts/test-branch.sh auth      # Run auth category tests
+./scripts/test-branch.sh --list    # Show all categories
+./scripts/test-branch.sh core --watch  # Watch core tests only
+```
+
+**Configuration**: Uses `jest.config.branches.json` for category definitions and branch mappings
+
+---
+
 ### `tdd-reminder.sh`
 
 **Purpose**: Display TDD guidelines and best practices
@@ -87,6 +115,8 @@ npm run e2e:open     # Open Cypress runner (interactive)
 - TDD cycle explanation (Red-Green-Refactor)
 - Testing commands and file locations
 - Links to documentation
+
+**Integration**: Now integrated with branch-based testing for focused TDD workflow
 
 ---
 
@@ -315,5 +345,6 @@ set -e  # Exit on error
 ## 📚 Additional Resources
 
 - [TDD Guide](../docs/TDD_GUIDE.md) - Complete TDD documentation
+- [Branch-Based Testing](../docs/BRANCH_TESTING.md) - Test organization system
 - [Project Overview](../PROJECT_OVERVIEW.md) - Architecture and structure
 - [Contributing Guidelines](../CONTRIBUTING.md) - Development standards
