@@ -4,15 +4,25 @@ import { AuthProvider, useAuth } from '@/components/auth/AuthProvider';
 import { ReactNode } from 'react';
 
 // Mock Supabase client
-jest.mock('@/lib/supabase', () => ({
-	supabase: {
-		auth: {
-			getSession: jest.fn(),
-			onAuthStateChange: jest.fn(),
-			signOut: jest.fn(),
+jest.mock('@/lib/supabase', () => {
+	const chain = {
+		select: jest.fn().mockReturnThis(),
+		eq: jest.fn().mockReturnThis(),
+		single: jest
+			.fn()
+			.mockResolvedValue({ data: null, error: { message: 'skip in tests' } }),
+	};
+	return {
+		supabase: {
+			auth: {
+				getSession: jest.fn(),
+				onAuthStateChange: jest.fn(),
+				signOut: jest.fn(),
+			},
+			from: jest.fn(() => chain),
 		},
-	},
-}));
+	};
+});
 
 import { supabase } from '@/lib/supabase';
 

@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/components/auth';
 import { useRouter } from 'next/navigation';
+import { RoleBasedNav } from './RoleBasedNav';
 
 export default function Header() {
 	const { user, loading, signOut, isAdmin, isTeacher, isStudent } = useAuth();
@@ -28,6 +29,13 @@ export default function Header() {
 					>
 						🎸 Guitar CRM
 					</button>
+
+					{/* Navigation */}
+					{user && (
+						<div className='flex-1 mx-8'>
+							<RoleBasedNav />
+						</div>
+					)}
 
 					{/* Auth Controls */}
 					<div className='flex items-center gap-4'>
