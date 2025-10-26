@@ -11,7 +11,17 @@
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --coverage",
 		"test:ci": "jest --ci --coverage --watchAll=false",
-		"test:debug": "jest --detectOpenHandles --verbose"
+		"test:debug": "jest --detectOpenHandles --verbose",
+		"tdd": "./scripts/tdd-reminder.sh && npm run test:watch",
+		"new-feature": "./scripts/new-feature.sh",
+		"setup": "./scripts/setup-env.sh",
+		"setup:db": "./scripts/setup-db.sh",
+		"quality": "./scripts/quality-check.sh",
+		"backup": "./scripts/backup-db.sh",
+		"seed": "./scripts/seed-db.sh",
+		"dev:server": "./scripts/dev-server.sh",
+		"pre-commit": "./scripts/pre-commit.sh",
+		"deploy:check": "./scripts/deploy-check.sh"
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.76.1",
