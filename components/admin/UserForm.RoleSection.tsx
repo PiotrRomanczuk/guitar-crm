@@ -1,4 +1,5 @@
 import { CheckboxInput } from './UserForm.CheckboxInput';
+import { Label } from '@/components/ui/label';
 
 interface UserRoleSectionProps {
 	isAdmin: boolean;
@@ -17,11 +18,9 @@ export function UserRoleSection({
 }: UserRoleSectionProps) {
 	return (
 		<>
-			<div>
-				<label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3'>
-					User Roles
-				</label>
-				<div className='space-y-2'>
+			<div className='space-y-3'>
+				<Label className='text-sm font-medium'>User Roles</Label>
+				<div className='space-y-3'>
 					<CheckboxInput
 						id='isAdmin'
 						label='Admin'
@@ -46,14 +45,14 @@ export function UserRoleSection({
 				</div>
 			</div>
 
-			<div>
+			<div className='space-y-2'>
 				<CheckboxInput
 					id='isActive'
 					label='Active User'
 					checked={isActive}
 					onChange={(checked) => onChange('isActive', checked)}
 				/>
-				<p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+				<p className='text-xs text-muted-foreground'>
 					Inactive users cannot sign in to the system
 				</p>
 			</div>
