@@ -117,6 +117,31 @@ export const SongInputSchema = z.object({
 });
 ```
 
+### Small Components Policy (MANDATORY)
+
+Always split UI and logic into the smallest reasonable, composable pieces. Avoid monolithic components and files.
+
+- Prefer multiple focused components over one large component
+- Extract presentational pieces (pure UI) from containers (data/side-effects)
+- Co-locate tiny helpers/hooks next to their usage (`useX.ts`, `X.helpers.ts`)
+- Keep files short and focused: one responsibility per file
+- Co-locate tests with the same name under `__tests__/components/...`
+
+Recommended structure for new UI work:
+
+- `components/<domain>/<Feature>/`
+  - `index.ts` — re-exports
+  - `Feature.tsx` — thin composition component
+  - `Feature.Header.tsx`, `Feature.Item.tsx`, `Feature.Empty.tsx` — small UI units
+  - `useFeature.ts` — hook for local state/effects
+  - `Feature.helpers.ts` — pure helpers (pure functions only)
+
+Enforcement:
+
+- ESLint enforces max file length and function length in app/lib/components
+- Quality script warns on oversized files
+- PRs should prefer decomposition commits over growing a single file
+
 ### Common Enums & Patterns
 
 Import shared validation from `schemas/CommonSchema.ts`:
@@ -148,6 +173,7 @@ const { data, error } = await supabase
 
 - `/app`: Next.js App Router pages (minimal, mostly layout)
 - `/components`: React components (none implemented yet)
+  - Follow the Small Components Policy; split views into small composables
 - `/lib`: Utilities, Supabase client config
 - `/schemas`: Zod validation (comprehensive, well-documented)
 - `/types`: TypeScript definitions + generated DB types
@@ -218,6 +244,7 @@ npm run dev          # Start development
 4. **Implement minimal code** to pass tests
 5. **Refactor** while keeping tests green
 6. **Run `npm run quality`** before committing
+7. Split any large component into smaller ones before opening a PR
 
 ### When Creating New Schemas
 
@@ -240,6 +267,7 @@ npm run dev          # Start development
 2. Use Tailwind CSS classes (config in `postcss.config.mjs`)
 3. Follow accessibility best practices
 4. Create stories/examples if complex
+5. Decompose aggressively: keep files <300 LOC and functions <80 LOC
 
 ## Key Constraints & Gotchas
 
