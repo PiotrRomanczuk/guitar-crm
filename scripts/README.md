@@ -19,6 +19,8 @@ npm run new-feature  # Create new feature branch (with TDD reminder)
 npm run tdd          # Start test-driven development mode
 npm run dev:server   # Manage development servers
 npm run quality      # Run code quality checks
+npm run e2e          # Run Cypress E2E (headless)
+npm run e2e:open     # Open Cypress runner (interactive)
 ```
 
 ## 📋 Script Reference
@@ -196,6 +198,32 @@ chmod +x .git/hooks/pre-commit
 - Performance analysis
 
 **Output**: Detailed report with pass/fail status for each check
+
+---
+
+### `e2e.sh` and `cypress-open.sh`
+
+**Purpose**: Run Cypress end-to-end tests against the local dev server
+
+**Usage**:
+
+```bash
+# Headless run
+npm run e2e
+./scripts/e2e.sh
+
+# Interactive runner
+npm run e2e:open
+./scripts/cypress-open.sh
+
+# With a custom base URL
+CYPRESS_BASE_URL=http://127.0.0.1:3000 npm run e2e
+```
+
+**Notes**:
+
+- Uses `start-server-and-test` to boot Next.js and wait for `http://localhost:3000` before running tests
+- For tests needing the database, use `npm run e2e:db` to start Supabase and the app together
 
 ## 🔄 Recommended Workflow
 
