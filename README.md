@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Guitar CRM
+
+A comprehensive Customer Relationship Management system for guitar teachers, built with Next.js, TypeScript, and Supabase.
 
 ## Getting Started
 
@@ -34,3 +36,72 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Development Workflow
+
+### Starting a New Feature
+
+This project uses a feature branch workflow. To start working on a new feature:
+
+```bash
+# Use the helper script
+./scripts/new-feature.sh your-feature-name
+
+# Or manually:
+git checkout main
+git pull origin main  # (when remote is configured)
+git checkout -b feature/your-feature-name
+```
+
+### Completing a Feature
+
+```bash
+# Add and commit your changes
+git add .
+git commit -m "feat: add your feature description"
+
+# Switch back to main and merge
+git checkout main
+git merge feature/your-feature-name
+
+# Clean up the feature branch
+git branch -d feature/your-feature-name
+
+# Push to remote (when configured)
+git push origin main
+```
+
+### Git Setup
+
+If you haven't set up a remote repository yet:
+
+```bash
+# Add your remote repository
+git remote add origin <your-repository-url>
+
+# Push for the first time
+git push -u origin main
+```
+
+## Project Structure
+
+- `/app` - Next.js 13+ app directory
+- `/components` - Reusable React components
+- `/lib` - Utility functions and configurations
+- `/schemas` - Zod validation schemas
+- `/types` - TypeScript type definitions
+- `/supabase` - Database migrations and configuration
+- `/docs` - Project documentation
+- `/__tests__` - Test files
+
+## Database
+
+This project uses Supabase as the backend. Database backups and sensitive information are automatically excluded from git commits.
+
+## Testing
+
+Run tests with:
+
+```bash
+npm test
+```
