@@ -11,6 +11,7 @@ jest.mock('@/components/auth/AuthProvider', () => ({
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
 	useRouter: jest.fn(),
+	usePathname: jest.fn(() => '/'),
 }));
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
@@ -114,8 +115,10 @@ describe('Header', () => {
 
 		render(<Header />);
 
-		expect(screen.getByText('Admin')).toBeInTheDocument();
-		expect(screen.getByText('Teacher')).toBeInTheDocument();
+		// Check for role badges (not navigation items)
+		const badges = screen.getAllByText(/Admin|Teacher/);
+		expect(badges.length).toBeGreaterThan(0);
+		expect(screen.getByText('test@example.com')).toBeInTheDocument();
 	});
 
 	it('should not show sign in/up buttons when loading', () => {

@@ -74,7 +74,25 @@ fi
 
 echo ""
 
-# 5. Check bundle size (if built)
+# 5. Small Components Policy check (advisory)
+echo "🧩 Checking component file sizes (advisory)..."
+OVERSIZED=$(find app components lib -type f \( -name "*.ts" -o -name "*.tsx" \) -maxdepth 5 2>/dev/null | while read -r file; do
+    LINES=$(wc -l < "$file" 2>/dev/null || echo 0)
+    if [ "$LINES" -gt 300 ]; then
+        echo "$file ($LINES lines)"
+    fi
+done)
+if [ -n "$OVERSIZED" ]; then
+    echo -e "${YELLOW}⚠️  The following files exceed 300 lines:${NC}"
+    echo "$OVERSIZED" | head -20
+    echo "Consider splitting into smaller, composable components."
+else
+    print_status 0 "All component files are within 300 lines"
+fi
+
+echo ""
+
+# 6. Check bundle size (if built)
 if [ -d ".next" ]; then
     echo "📦 Checking bundle size..."
     du -sh .next/static/chunks/* 2>/dev/null | sort -hr | head -5
@@ -82,7 +100,7 @@ fi
 
 echo ""
 
-# 6. Optional: Lighthouse audit (if development server is running)
+# 7. Optional: Lighthouse audit (if development server is running)
 echo "🚢 Checking for Lighthouse audit availability..."
 if curl -s --head "http://localhost:3000" > /dev/null 2>&1; then
     echo -e "${YELLOW}💡 Development server detected. Run Lighthouse audit:${NC}"

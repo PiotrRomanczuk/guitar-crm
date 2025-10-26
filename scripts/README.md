@@ -240,6 +240,16 @@ npm run new-feature my-feature
 npm run tdd  # Start TDD mode
 ```
 
+### Small Components Policy (MANDATORY)
+
+- Prefer many tiny, composable components over monoliths
+- Extract presentational UI from containers and side-effects
+- Co-locate hooks/helpers next to usage (useX.ts, X.helpers.ts)
+- Keep files < 300 LOC and functions < 80 LOC in `app/`, `components/`, `lib/`
+- Tests mirror structure under `__tests__/components/`
+
+This is enforced by ESLint and surfaced by `npm run quality`.
+
 ### Before Committing
 
 ```bash
