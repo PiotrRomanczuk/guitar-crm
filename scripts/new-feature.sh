@@ -11,6 +11,34 @@ fi
 
 FEATURE_NAME=$1
 
+# Check for unstaged changes
+echo "Checking for unstaged changes..."
+if ! git diff-index --quiet HEAD --; then
+    echo "❌ Error: You have unstaged changes in your working directory."
+    echo ""
+    echo "Please commit or stash your changes before creating a new feature branch:"
+    echo "• To commit: git add . && git commit -m 'Your commit message'"
+    echo "• To stash: git stash"
+    echo ""
+    echo "Current unstaged changes:"
+    git status --porcelain
+    exit 1
+fi
+
+# Check for staged but uncommitted changes
+if ! git diff-index --quiet --cached HEAD --; then
+    echo "❌ Error: You have staged but uncommitted changes."
+    echo ""
+    echo "Please commit your staged changes before creating a new feature branch:"
+    echo "• To commit: git commit -m 'Your commit message'"
+    echo ""
+    echo "Current staged changes:"
+    git diff --cached --name-only
+    exit 1
+fi
+
+echo "✅ Working directory is clean"
+
 # Ensure we're on main branch and it's up to date
 echo "Switching to main branch..."
 git checkout main
@@ -44,6 +72,10 @@ echo "• Extract presentational pieces from containers"
 echo "• Co-locate hooks/helpers next to usage (useX.ts, X.helpers.ts)"
 echo "• Keep files < 300 LOC and functions < 80 LOC"
 echo "• Place tests under __tests__/components mirroring structure"
+echo ""
+echo "📋 PREREQUISITES:"
+echo "• Working directory must be clean (no unstaged/uncommitted changes)"
+echo "• Script will check git status before creating branch"
 echo ""
 echo "When ready to merge:"
 echo "1. Ensure all tests pass: npm test"

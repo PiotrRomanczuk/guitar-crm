@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+/// <reference types="@testing-library/cypress" />
 
 // You can add global Cypress configuration and
 // behavior that modifies Cypress here.
@@ -10,7 +11,7 @@ import '@testing-library/cypress/add-commands';
 beforeEach(() => {
 	cy.clearCookies();
 	cy.clearLocalStorage();
-	
+
 	// Clear Supabase auth from localStorage
 	cy.window().then((win) => {
 		Object.keys(win.localStorage).forEach((key) => {
