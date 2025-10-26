@@ -2,7 +2,26 @@
 
 A comprehensive Customer Relationship Management system for guitar teachers, built with Next.js, TypeScript, and Supabase.
 
+## Quick Start
+
+### Initial Setup
+```bash
+npm run setup        # Set up development environment
+npm run setup:db     # Set up Supabase database  
+npm run seed         # Add sample data
+```
+
+### Start Development
+```bash
+npm run new-feature my-feature-name  # Create feature branch
+npm run tdd          # Start test-driven development
+# or
+npm run dev          # Start development server only
+```
+
 ## Getting Started
+
+For detailed setup instructions, see [Scripts Guide](./scripts/README.md).
 
 First, run the development server:
 
@@ -98,10 +117,27 @@ git push -u origin main
 
 This project uses Supabase as the backend. Database backups and sensitive information are automatically excluded from git commits.
 
-## Testing
+## Testing & TDD
 
-Run tests with:
+This project follows **Test-Driven Development (TDD)** practices. See the [TDD Guide](./docs/TDD_GUIDE.md) for detailed instructions.
+
+### Quick Start
 
 ```bash
+# Run all tests
 npm test
+
+# Run tests in watch mode
+npm test -- --watch
+
+# Run with coverage
+npm test -- --coverage
 ```
+
+### TDD Workflow
+
+1. 🔴 Write failing test first
+2. 🟢 Write minimal code to pass
+3. 🔵 Refactor while keeping tests green
+
+**Remember**: Always write tests before implementing features!
