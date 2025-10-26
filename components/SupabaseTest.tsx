@@ -11,6 +11,16 @@ export default function SupabaseTest() {
 
 	useEffect(() => {
 		async function fetchProfiles() {
+			// Check if Supabase is properly configured
+			const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+			const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+			
+			if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('placeholder')) {
+				setError('Supabase environment variables not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+				setLoading(false);
+				return;
+			}
+
 			try {
 				const { data, error } = await supabase
 					.from('profiles')

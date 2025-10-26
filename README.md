@@ -5,13 +5,15 @@ A comprehensive Customer Relationship Management system for guitar teachers, bui
 ## Quick Start
 
 ### Initial Setup
+
 ```bash
 npm run setup        # Set up development environment
-npm run setup:db     # Set up Supabase database  
+npm run setup:db     # Set up Supabase database
 npm run seed         # Add sample data
 ```
 
 ### Start Development
+
 ```bash
 npm run new-feature my-feature-name  # Create feature branch
 npm run tdd          # Start test-driven development
