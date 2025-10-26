@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# supabase sensitive data
+supabase/backups/
+supabase/tables\ information/
