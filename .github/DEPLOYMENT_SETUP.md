@@ -13,26 +13,13 @@ You need to add these secrets to your GitHub repository:
 3. Give it a name like "GitHub Actions"
 4. Copy the token
 
-### 2. Get Vercel Organization ID
+### 2. Vercel Organization ID
 
-From your terminal, run:
-```bash
-cat .vercel/project.json
-```
+Your **VERCEL_ORG_ID**: `62aRO89O4vzRpaUYPZBCDnAX`
 
-You'll see something like:
-```json
-{
-  "projectId": "prj_xxxxxxxxxxxxx",
-  "orgId": "team_xxxxxxxxxxxxx"
-}
-```
+### 3. Vercel Project ID
 
-The `orgId` is your **VERCEL_ORG_ID**.
-
-### 3. Get Vercel Project ID
-
-From the same file above, the `projectId` is your **VERCEL_PROJECT_ID**.
+Your **VERCEL_PROJECT_ID**: `8FBpmeImltXNxm0jktxbZF29`
 
 ## Adding Secrets to GitHub
 
@@ -44,12 +31,13 @@ From the same file above, the `projectId` is your **VERCEL_PROJECT_ID**.
 | Secret Name | Value | Description |
 |-------------|-------|-------------|
 | `VERCEL_TOKEN` | Your Vercel token from step 1 | Authentication token |
-| `VERCEL_ORG_ID` | The orgId from .vercel/project.json | Organization identifier |
-| `VERCEL_PROJECT_ID` | The projectId from .vercel/project.json | Project identifier |
+| `VERCEL_ORG_ID` | `62aRO89O4vzRpaUYPZBCDnAX` | Organization identifier |
+| `VERCEL_PROJECT_ID` | `8FBpmeImltXNxm0jktxbZF29` | Project identifier |
 
 ## Optional: Environment Variables
 
 If you want to add environment variables for your deployment, add them as secrets with these prefixes:
+
 - `VERCEL_ENV_NEXT_PUBLIC_SUPABASE_URL`
 - `VERCEL_ENV_NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `VERCEL_ENV_SUPABASE_SERVICE_ROLE_KEY`
@@ -59,6 +47,7 @@ If you want to add environment variables for your deployment, add them as secret
 Once set up, the workflow will:
 
 ### On Push to Main Branch:
+
 1. ✅ Checkout code
 2. ✅ Install dependencies
 3. ✅ Run tests
@@ -67,6 +56,7 @@ Once set up, the workflow will:
 6. 🚀 Deploy to Vercel production
 
 ### On Pull Requests:
+
 1. ✅ Checkout code
 2. ✅ Install dependencies
 3. ✅ Run tests
@@ -100,11 +90,12 @@ The workflow is defined in: `.github/workflows/deploy.yml`
 ✅ **Quality gates** (tests and linting must pass)  
 ✅ **Build verification** before deployment  
 ✅ **No manual intervention** required  
-✅ **Full deployment history** in GitHub Actions  
+✅ **Full deployment history** in GitHub Actions
 
 ## Troubleshooting
 
 If the deployment fails:
+
 1. Check the **Actions** tab in your GitHub repository
 2. Click on the failed workflow to see logs
 3. Common issues:
