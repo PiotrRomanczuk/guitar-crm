@@ -56,6 +56,13 @@ const config: Config = {
 		'^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
 	},
 
+	// Use separate TypeScript config for tests
+	globals: {
+		'ts-jest': {
+			tsconfig: 'tsconfig.test.json',
+		},
+	},
+
 	// Watch plugins for better developer experience (disabled due to version conflict)
 	// watchPlugins: [
 	// 	'jest-watch-typeahead/filename',

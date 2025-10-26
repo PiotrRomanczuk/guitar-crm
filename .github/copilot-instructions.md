@@ -142,6 +142,37 @@ Enforcement:
 - Quality script warns on oversized files
 - PRs should prefer decomposition commits over growing a single file
 
+### Mobile-First Styling Patterns
+
+All new components follow mobile-first approach:
+
+**Tailwind Structure:**
+
+```tsx
+// ❌ WRONG: Desktop-first
+className = 'text-lg px-6 py-4 grid-cols-3 ...';
+
+// ✅ CORRECT: Mobile-first (default = mobile, then scale up)
+className =
+	'text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3';
+```
+
+**Input Field Example:**
+
+```tsx
+<input className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500' />
+```
+
+**Key Principles:**
+
+- Base classes apply to mobile (375px - 424px)
+- `sm:` for small screens (425px+)
+- `md:` for tablets/medium (768px+)
+- `lg:` for desktops (1024px+)
+- Always include dark mode with `dark:` prefix
+- Use responsive spacing and typography
+- Touch targets minimum 44x44px on mobile
+
 ### Common Enums & Patterns
 
 Import shared validation from `schemas/CommonSchema.ts`:
@@ -264,10 +295,18 @@ npm run dev          # Start development
 ### When Building UI Components
 
 1. Write component tests first (React Testing Library)
-2. Use Tailwind CSS classes (config in `postcss.config.mjs`)
-3. Follow accessibility best practices
-4. Create stories/examples if complex
-5. Decompose aggressively: keep files <300 LOC and functions <80 LOC
+2. **MOBILE-FIRST DEVELOPMENT**: All components must be created with mobile phones as the primary target
+   - Start with mobile layout (default Tailwind classes)
+   - Use responsive prefixes for larger screens: `sm:`, `md:`, `lg:`
+   - Test on mobile viewports first (375px, 425px)
+   - Ensure touch-friendly spacing: minimum 44px tap targets
+   - Prioritize performance on mobile networks
+   - Use responsive typography: smaller base sizes with `sm:text-*` for desktop
+3. Use Tailwind CSS classes (config in `postcss.config.mjs`)
+4. Follow accessibility best practices
+5. Create stories/examples if complex
+6. Decompose aggressively: keep files <300 LOC and functions <80 LOC
+7. Maintain dark mode support with `dark:` prefix throughout
 
 ## Key Constraints & Gotchas
 
