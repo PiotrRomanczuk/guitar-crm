@@ -12,7 +12,11 @@
 		"test:coverage": "jest --coverage",
 		"test:ci": "jest --ci --coverage --watchAll=false",
 		"test:debug": "jest --detectOpenHandles --verbose",
-		"tdd": "./scripts/tdd-reminder.sh && npm run test:watch",
+		"test:branch": "./scripts/test-branch.sh",
+		"test:branch:watch": "./scripts/test-branch.sh --watch",
+		"test:branch:coverage": "./scripts/test-branch.sh --coverage",
+		"test:categories": "./scripts/test-branch.sh --list",
+		"tdd": "./scripts/tdd-reminder.sh && npm run test:branch:watch",
 		"new-feature": "./scripts/new-feature.sh",
 		"setup": "./scripts/setup-env.sh",
 		"setup:db": "./scripts/setup-db.sh",
@@ -34,9 +38,13 @@
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.76.1",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"lucide-react": "^0.548.0",
 		"next": "16.0.0",
 		"react": "19.2.0",
 		"react-dom": "19.2.0",
+		"tailwind-merge": "^3.3.1",
 		"zod": "^3.25.76"
 	},
 	"devDependencies": {
@@ -60,6 +68,7 @@
 		"tailwindcss": "^4",
 		"ts-jest": "^29.4.5",
 		"ts-node": "^10.9.2",
+		"tw-animate-css": "^1.4.0",
 		"typescript": "^5"
 	}
 }
