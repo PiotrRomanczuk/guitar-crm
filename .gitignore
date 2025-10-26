@@ -43,3 +43,8 @@ next-env.d.ts
 # supabase sensitive data
 supabase/backups/
 supabase/tables\ information/
+
+# lighthouse reports
+lighthouse-reports/
+lighthouse-results.json
+lighthouse-simple.html
