@@ -1,0 +1,67 @@
+{
+	"testCategories": {
+		"core": {
+			"description": "Core functionality tests that should always run",
+			"patterns": ["__tests__/setup.test.ts", "__tests__/schemas"],
+			"dependencies": []
+		},
+		"auth": {
+			"description": "Authentication and authorization tests",
+			"patterns": ["__tests__/components/auth"],
+			"dependencies": ["core"],
+			"branches": [
+				"feature/authorization",
+				"feature/auth",
+				"feature/authentication"
+			]
+		},
+		"navigation": {
+			"description": "Navigation and layout tests",
+			"patterns": ["__tests__/components/navigation"],
+			"dependencies": ["core", "auth"],
+			"branches": ["feature/navigation", "feature/layout", "feature/ui"]
+		},
+		"admin": {
+			"description": "Admin functionality tests",
+			"patterns": ["__tests__/components/admin", "__tests__/app/admin"],
+			"dependencies": ["core", "auth", "navigation"],
+			"branches": [
+				"feature/admin-user-management",
+				"feature/admin",
+				"feature/user-management"
+			]
+		},
+		"songs": {
+			"description": "Song management tests",
+			"patterns": ["__tests__/components/songs", "__tests__/app/songs"],
+			"dependencies": ["core", "auth"],
+			"branches": ["feature/song-management", "feature/songs"]
+		},
+		"lessons": {
+			"description": "Lesson management tests",
+			"patterns": ["__tests__/components/lessons", "__tests__/app/lessons"],
+			"dependencies": ["core", "auth", "songs"],
+			"branches": ["feature/lesson-management", "feature/lessons"]
+		},
+		"ui": {
+			"description": "UI components and design system tests",
+			"patterns": ["__tests__/components/ui"],
+			"dependencies": ["core"],
+			"branches": [
+				"feature/ui-components",
+				"feature/design-system",
+				"feature/ui"
+			]
+		}
+	},
+	"branchMapping": {
+		"main": ["core"],
+		"feature/authorization": ["core", "auth"],
+		"feature/admin-user-management": ["core", "auth", "navigation", "admin"],
+		"feature/song-management": ["core", "auth", "songs"],
+		"feature/lesson-management": ["core", "auth", "songs", "lessons"],
+		"feature/ui-components": ["core", "ui"],
+		"feature/navigation": ["core", "auth", "navigation"],
+		"feature/user-management": ["core", "auth", "admin"]
+	}
+}
