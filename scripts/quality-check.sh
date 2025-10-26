@@ -81,6 +81,17 @@ if [ -d ".next" ]; then
 fi
 
 echo ""
+
+# 6. Optional: Lighthouse audit (if development server is running)
+echo "🚢 Checking for Lighthouse audit availability..."
+if curl -s --head "http://localhost:3000" > /dev/null 2>&1; then
+    echo -e "${YELLOW}💡 Development server detected. Run Lighthouse audit:${NC}"
+    echo "   npm run lighthouse"
+else
+    echo -e "${YELLOW}💡 Start dev server (npm run dev) and run: npm run lighthouse${NC}"
+fi
+
+echo ""
 echo "======================"
 
 if [ $OVERALL_STATUS -eq 0 ]; then
