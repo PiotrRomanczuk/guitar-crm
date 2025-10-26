@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { RequireAdmin } from '@/components/auth';
 import { UserList } from '@/components/admin/UserList';
 import { UserForm } from '@/components/admin/UserForm';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import type { User } from '@/schemas/UserSchema';
 
@@ -139,38 +140,40 @@ export default function UsersPage() {
 
 	return (
 		<RequireAdmin>
-			<div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-				<div className='container mx-auto px-4 py-8 max-w-7xl'>
-					<header className='mb-8'>
-						<h1 className='text-4xl font-bold text-gray-900 dark:text-white mb-2'>
+			<div className='min-h-screen bg-background'>
+				<div className='container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-7xl'>
+					<header className='mb-6 sm:mb-8'>
+						<h1 className='text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2'>
 							👥 User Management
 						</h1>
-						<p className='text-lg text-gray-600 dark:text-gray-300'>
+						<p className='text-xs sm:text-base lg:text-lg text-muted-foreground'>
 							Manage users, roles, and permissions
 						</p>
 					</header>
 
 					{error && (
-						<div className='mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4'>
-							<p className='text-red-800 dark:text-red-200 font-semibold'>
+						<div className='mb-6 rounded-lg border border-destructive bg-destructive/10 p-4'>
+							<p className='font-semibold text-destructive text-sm sm:text-base'>
 								Error Loading Users
 							</p>
-							<p className='text-red-700 dark:text-red-300 mt-1'>{error}</p>
+							<p className='text-destructive mt-1 text-xs sm:text-sm'>
+								{error}
+							</p>
 						</div>
 					)}
 
-					<div className='mb-6 flex justify-between items-center'>
-						<div className='text-sm text-gray-600 dark:text-gray-400'>
+					<div className='mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4'>
+						<div className='text-xs sm:text-sm text-muted-foreground'>
 							{loading
 								? 'Loading users...'
 								: `${users.length} user${users.length !== 1 ? 's' : ''} found`}
 						</div>
-						<button
+						<Button
 							onClick={() => setShowCreateForm(true)}
-							className='bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors'
+							className='w-full sm:w-auto'
 						>
 							Create User
-						</button>
+						</Button>
 					</div>
 
 					<UserList
@@ -182,8 +185,8 @@ export default function UsersPage() {
 					/>
 
 					{showCreateForm && (
-						<div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50'>
-							<div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto'>
+						<div className='fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50'>
+							<div className='bg-background rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto border'>
 								<UserForm
 									mode='create'
 									onSubmit={handleCreateUser}
@@ -194,8 +197,8 @@ export default function UsersPage() {
 					)}
 
 					{editingUser && (
-						<div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50'>
-							<div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto'>
+						<div className='fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50'>
+							<div className='bg-background rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto border'>
 								<UserForm
 									mode='edit'
 									user={editingUser}

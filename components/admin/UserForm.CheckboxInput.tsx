@@ -1,3 +1,6 @@
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+
 interface CheckboxInputProps {
 	id: string;
 	label: string;
@@ -14,18 +17,23 @@ export function CheckboxInput({
 	onChange,
 }: CheckboxInputProps) {
 	return (
-		<label className='flex items-center'>
-			<input
-				type='checkbox'
+		<div className='flex items-top space-x-2'>
+			<Checkbox
 				id={id}
 				checked={checked}
-				onChange={(e) => onChange(e.target.checked)}
-				className='rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500'
+				onCheckedChange={(checked) => onChange(checked === true)}
 			/>
-			<span className='ml-2 text-sm text-gray-700 dark:text-gray-300'>
-				{label}
-				{description && ` - ${description}`}
-			</span>
-		</label>
+			<div className='grid gap-1.5 leading-none'>
+				<Label
+					htmlFor={id}
+					className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+				>
+					{label}
+				</Label>
+				{description && (
+					<p className='text-xs text-muted-foreground'>{description}</p>
+				)}
+			</div>
+		</div>
 	);
 }

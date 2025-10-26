@@ -1,5 +1,7 @@
 {
+	"extends": "./tsconfig.json",
 	"compilerOptions": {
+		"types": ["jest", "@testing-library/jest-dom", "node"],
 		"target": "ES2017",
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"allowJs": true,
@@ -12,24 +14,10 @@
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"jsx": "react-jsx",
-		"incremental": true,
-		"plugins": [
-			{
-				"name": "next"
-			}
-		],
 		"paths": {
 			"@/*": ["./*"]
 		}
 	},
-	"include": [
-		"next-env.d.ts",
-		"**/*.ts",
-		"**/*.tsx",
-		".next/types/**/*.ts",
-		".next/dev/types/**/*.ts",
-		"**/*.mts",
-		"types/jest.d.ts"
-	],
-	"exclude": ["node_modules", "cypress.config.ts", "cypress/**/*"]
+	"include": ["__tests__/**/*", "jest.setup.js", "types/jest.d.ts"],
+	"exclude": ["cypress", "cypress.config.ts", "node_modules"]
 }

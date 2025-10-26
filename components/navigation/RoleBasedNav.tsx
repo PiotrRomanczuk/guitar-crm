@@ -18,13 +18,13 @@ function NavLink({ href, label, icon }: NavLinkProps) {
 	return (
 		<Link
 			href={href}
-			className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+			className={`flex items-center gap-2 px-2 sm:px-4 py-2 rounded-lg transition-colors text-xs sm:text-sm whitespace-nowrap ${
 				isActive
 					? 'bg-blue-600 text-white'
 					: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
 			}`}
 		>
-			{icon && <span>{icon}</span>}
+			{icon && <span className='hidden sm:inline'>{icon}</span>}
 			<span>{label}</span>
 		</Link>
 	);
@@ -70,7 +70,7 @@ export function RoleBasedNav() {
 	}
 
 	return (
-		<nav className='flex flex-col gap-1'>
+		<nav className='flex flex-wrap gap-1 sm:flex-col'>
 			{navItems.map((item) => (
 				<NavLink key={item.href} {...item} />
 			))}

@@ -8,12 +8,12 @@ export default function AdminDashboard() {
 	return (
 		<RequireAdmin>
 			<div className='min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800'>
-				<main className='container mx-auto px-4 py-8 max-w-7xl'>
-					<header className='mb-8'>
-						<h1 className='text-4xl font-bold text-gray-900 dark:text-white mb-2'>
+				<main className='container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-7xl'>
+					<header className='mb-6 sm:mb-8'>
+						<h1 className='text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2'>
 							⚙️ Admin Dashboard
 						</h1>
-						<p className='text-lg text-gray-600 dark:text-gray-300'>
+						<p className='text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-300'>
 							System administration and user management
 						</p>
 					</header>
@@ -29,7 +29,7 @@ export default function AdminDashboard() {
 
 function QuickStats() {
 	return (
-		<div className='grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
+		<div className='grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8'>
 			<AdminStatCard icon='👥' value='--' label='Total Users' />
 			<AdminStatCard icon='👨‍🏫' value='--' label='Teachers' />
 			<AdminStatCard icon='👨‍🎓' value='--' label='Students' />
@@ -85,7 +85,7 @@ function AdminActions() {
 	];
 
 	return (
-		<div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8'>
+		<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8'>
 			{actions.map((action) => (
 				<AdminActionCard key={action.href} {...action} />
 			))}
