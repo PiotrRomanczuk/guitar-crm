@@ -66,11 +66,13 @@ npm run e2e:open     # Open Cypress runner (interactive)
 
 **What it does**:
 
+- **Checks for unstaged/uncommitted changes** (exits if found)
 - Switches to main branch and pulls latest changes
 - Creates new feature branch (`feature/<name>`)
 - Displays TDD workflow reminder
 - Shows commands for testing and merging
 
+**Prerequisites**: Working directory must be clean (no unstaged or uncommitted changes)
 **TDD Integration**: Automatically reminds developers about Red-Green-Refactor cycle
 
 ---
