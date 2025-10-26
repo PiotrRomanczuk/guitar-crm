@@ -15,10 +15,10 @@ export default function Home() {
 						Built with Next.js, TypeScript & Supabase
 					</p>
 				</header>
-				
+
 				<div className='space-y-8'>
 					<SupabaseTest />
-					
+
 					<div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-6'>
 						<h2 className='text-2xl font-bold mb-4 text-gray-900 dark:text-white'>
 							🚀 Development Ready
@@ -44,10 +44,30 @@ export default function Home() {
 									🛠️ Development Scripts
 								</h3>
 								<ul className='space-y-2 text-gray-600 dark:text-gray-300'>
-									<li><code className='bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm'>npm run setup</code> - Environment setup</li>
-									<li><code className='bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm'>npm run new-feature</code> - Create feature branch</li>
-									<li><code className='bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm'>npm run tdd</code> - Start TDD mode</li>
-									<li><code className='bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm'>npm run quality</code> - Code quality checks</li>
+									<li>
+										<code className='bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm'>
+											npm run setup
+										</code>{' '}
+										- Environment setup
+									</li>
+									<li>
+										<code className='bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm'>
+											npm run new-feature
+										</code>{' '}
+										- Create feature branch
+									</li>
+									<li>
+										<code className='bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm'>
+											npm run tdd
+										</code>{' '}
+										- Start TDD mode
+									</li>
+									<li>
+										<code className='bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm'>
+											npm run quality
+										</code>{' '}
+										- Code quality checks
+									</li>
 								</ul>
 							</div>
 						</div>

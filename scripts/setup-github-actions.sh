@@ -13,8 +13,8 @@ echo "https://github.com/PiotrRomanczuk/guitar-crm/settings/secrets/actions"
 echo ""
 
 echo "🔑 Secret Values:"
-echo "VERCEL_ORG_ID: $(cat .vercel/project.json | grep -o '"orgId":"[^"]*' | cut -d'"' -f4)"
-echo "VERCEL_PROJECT_ID: $(cat .vercel/project.json | grep -o '"projectId":"[^"]*' | cut -d'"' -f4)"
+echo "VERCEL_ORG_ID: 62aRO89O4vzRpaUYPZBCDnAX"
+echo "VERCEL_PROJECT_ID: 8FBpmeImltXNxm0jktxbZF29"
 echo ""
 
 echo "🎟️  VERCEL_TOKEN: You need to create this at:"

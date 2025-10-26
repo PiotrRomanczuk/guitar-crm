@@ -63,6 +63,7 @@ The application is automatically deployed to Vercel on every push to the `main` 
 The project is configured for automatic deployment on Vercel. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions and environment variable setup.
 
 ### Quick Deploy
+
 ```bash
 vercel --prod  # Deploy to production
 ```
