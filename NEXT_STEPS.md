@@ -6,6 +6,8 @@ _Last Updated: October 26, 2025_
 
 **Phase 1-2 Progress: 85% Complete** ✅
 
+> **Note:** The most important next steps are implementing the CRUD for Songs and Lessons. Admin/User management and profile come after. Loading/Error Handling and Dark Mode are lowest priority.
+
 ### ✅ Recently Completed (Excellent Progress!)
 
 - **Complete authentication system** with sign-up/sign-in forms and validation
@@ -16,44 +18,27 @@ _Last Updated: October 26, 2025_
 - **Database integration** with Supabase and RLS policies
 - **TypeScript type safety** with Zod schemas
 
-### 🎯 Immediate Next Steps (Next 1-2 Weeks)
+### 🎯 Immediate Next Steps (Revised Priority)
 
-## 1. 🚀 Loading States & Error Handling (Priority: HIGH)
+## 1. 🎵 Song & Lesson CRUD (Priority: HIGHEST)
 
-**Estimated: 1-2 days**
+**Estimated: 3-4 days**
 
-### Loading Components Needed:
+### Features to Implement:
 
-```bash
-components/ui/
-├── LoadingSpinner.tsx      # Reusable spinner component
-├── LoadingSkeleton.tsx     # Skeleton placeholders
-├── LoadingButton.tsx       # Button with loading state
-├── ErrorBoundary.tsx       # React error boundary
-├── Toast.tsx              # Success/error notifications
-└── NotFound.tsx           # 404 page component
-```
-
-### Files to Create:
-
-1. **Loading Spinner** - Replace inline spinners in `SupabaseTest` and auth forms
-2. **Skeleton Components** - For user lists, song lists, lesson cards
-3. **Error Boundary** - Catch React errors gracefully
-4. **Toast System** - User feedback for actions (success/error messages)
-5. **404 Pages** - User-friendly error pages
+- **Song CRUD operations** (create, read, update, delete)
+- **Lesson CRUD operations** (create, read, update, delete)
+- **Song library** with search/filtering
+- **Integration with lessons system**
+- **Music theory features** (keys, difficulty levels)
 
 ### Implementation Steps:
 
-```bash
-# 1. Start with TDD for UI components
-npm run new-feature ui-components
-npm run tdd
-
-# 2. Create loading components first
-# 3. Replace existing loading states
-# 4. Add error boundaries to layout
-# 5. Implement toast notifications
-```
+1. Start with TDD for Song and Lesson schemas/components
+2. Implement backend integration with Supabase
+3. Build UI for song and lesson management
+4. Add search, filtering, and linking between songs and lessons
+5. Ensure all CRUD operations are fully tested
 
 ---
 
@@ -61,39 +46,7 @@ npm run tdd
 
 **Estimated: 2-3 days**
 
-### Pages to Create:
-
-```bash
-app/admin/
-├── users/
-│   ├── page.tsx           # User list with search/filter
-│   ├── create/
-│   │   └── page.tsx       # Create new user form
-│   └── [id]/
-│       ├── page.tsx       # View user details
-│       └── edit/
-│           └── page.tsx   # Edit user form
-```
-
-### Components Needed:
-
-```bash
-components/admin/
-├── UserList.tsx           # Paginated user list
-├── UserCard.tsx           # User display card
-├── UserForm.tsx           # Create/edit user form
-├── UserSearch.tsx         # Search and filters
-├── UserRoleToggle.tsx     # Role management UI
-└── BulkUserActions.tsx    # Bulk operations (delete, etc.)
-```
-
-### API Integration:
-
-- **User CRUD operations** with Supabase
-- **Role management** (admin, teacher, student flags)
-- **Search and filtering** by name, email, role
-- **Pagination** for large user lists
-- **Bulk operations** (activate/deactivate, delete)
+...existing code...
 
 ---
 
@@ -101,42 +54,23 @@ components/admin/
 
 **Estimated: 2 days**
 
-### Files to Create:
-
-```bash
-app/profile/
-├── page.tsx               # User profile view/edit
-└── settings/
-    └── page.tsx           # Account settings
-
-components/profile/
-├── ProfileForm.tsx        # Edit profile information
-├── ProfilePicture.tsx     # Avatar upload component
-├── PasswordChange.tsx     # Change password form
-└── AccountSettings.tsx    # Preferences & settings
-```
-
-### Features to Implement:
-
-- **Profile editing** (name, bio, contact info)
-- **Profile picture upload** (with Supabase Storage)
-- **Password change** functionality
-- **User preferences** (theme, notifications)
-- **Account deactivation** option
+...existing code...
 
 ---
 
-## 4. 🎨 Dark/Light Mode Toggle (Priority: LOW)
+## 4. 🚀 Loading States & Error Handling (Priority: LOW)
+
+**Estimated: 1-2 days**
+
+...existing code...
+
+---
+
+## 5. 🎨 Dark/Light Mode Toggle (Priority: LOWEST)
 
 **Estimated: 1 day**
 
-### Implementation Plan:
-
-1. **Create theme context** (`contexts/ThemeContext.tsx`)
-2. **Add toggle component** (`components/ui/ThemeToggle.tsx`)
-3. **Update layout** to include theme provider
-4. **Test all components** with dark mode
-5. **Store preference** in localStorage
+...existing code...
 
 ---
 
