@@ -1,12 +1,18 @@
 # Guitar CRM - Next Development Steps 🎯
 
-_Last Updated: October 26, 2025_
+_Last Updated: October 27, 2025_
 
 ## 📊 Current Project Status
 
 **Phase 1-2 Progress: 85% Complete** ✅
 
 > **Note:** The most important next steps are implementing the CRUD for Songs and Lessons. Admin/User management and profile come after. Loading/Error Handling and Dark Mode are lowest priority.
+
+### 📝 October 27, 2025 Update
+
+- **Snapshot:** Core schemas, Supabase integration, and TDD scaffolding are solid, establishing a strong foundation for upcoming CRUD work.
+- **Weak Points:** User-facing CRUD flows, comprehensive component/E2E testing, shared loading/error primitives, and performance/security hardening remain largely unimplemented.
+- **Next Focus:** Ship Song and Lesson CRUD end to end, deliver admin user management flows, backfill Jest/RTL and Cypress coverage, and introduce reusable loading/error components before resuming lower-priority polish.
 
 ### ✅ Recently Completed (Excellent Progress!)
 
