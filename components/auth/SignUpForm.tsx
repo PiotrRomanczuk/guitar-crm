@@ -1,162 +1,221 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useSignUpLogic } from './useSignUpLogic';
 
 interface SignUpFormProps {
 	onSuccess?: () => void;
 }
 
-export default function SignUpForm({ onSuccess }: SignUpFormProps) {
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
-	const [firstName, setFirstName] = useState('');
-	const [lastName, setLastName] = useState('');
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const [success, setSuccess] = useState(false);
-	const [touched, setTouched] = useState({
-		email: false,
-		password: false,
-		firstName: false,
-		lastName: false,
-	});
-
-	const validate = () => {
-		if (touched.firstName && !firstName) return 'First name is required';
-		if (touched.lastName && !lastName) return 'Last name is required';
-		if (touched.email && email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-			return 'Invalid email';
-		if (touched.password && password && password.length < 6)
-			return 'Password must be at least 6 characters';
-		return null;
-	};
-
-	const validationError = validate();
-
-	const handleSubmit = async (e: FormEvent) => {
-		e.preventDefault();
-
-		// Mark all fields as touched
-		setTouched({
-			email: true,
-			password: true,
-			firstName: true,
-			lastName: true,
-		});
-
-		// Validate before submission
-		if (!firstName || !lastName || !email || password.length < 6) {
-			return;
-		}
-
-		setLoading(true);
-		setError(null);
-		setSuccess(false);
-
-		const { data, error: signUpError } = await supabase.auth.signUp({
-			email,
-			password,
-			options: {
-				data: {
-					first_name: firstName,
-					last_name: lastName,
-				},
-			},
-		});
-
-		setLoading(false);
-
-		if (signUpError) {
-			setError(signUpError.message);
-			return;
-		}
-
-		// Check if user already exists - Supabase returns user with empty identities array
-		if (
-			data.user &&
-			(!data.user.identities || data.user.identities.length === 0)
-		) {
-			setError('This email is already registered. Please sign in instead.');
-			return;
-		}
-
-		if (data.user) {
-			setSuccess(true);
-			if (onSuccess) {
-				onSuccess();
-			}
-		}
-	};
-
+function NameInputs({
+	firstName,
+	lastName,
+	onFirstNameChange,
+	onLastNameChange,
+	onFirstNameBlur,
+	onLastNameBlur,
+}: {
+	firstName: string;
+	lastName: string;
+	onFirstNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	onLastNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	onFirstNameBlur: () => void;
+	onLastNameBlur: () => void;
+}) {
 	return (
-		<form onSubmit={handleSubmit}>
-			<div>
-				<label htmlFor='firstName'>First Name</label>
+		<div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
+			<div className='space-y-1 sm:space-y-2'>
+				<label
+					htmlFor='firstName'
+					className='block text-xs sm:text-sm font-medium text-gray-900 dark:text-white'
+				>
+					First Name
+				</label>
 				<input
 					id='firstName'
 					name='firstName'
 					type='text'
 					value={firstName}
-					onChange={(e) => setFirstName(e.target.value)}
-					onBlur={() => setTouched({ ...touched, firstName: true })}
+					onChange={onFirstNameChange}
+					onBlur={onFirstNameBlur}
 					required
+					className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500'
 				/>
 			</div>
 
-			<div>
-				<label htmlFor='lastName'>Last Name</label>
+			<div className='space-y-1 sm:space-y-2'>
+				<label
+					htmlFor='lastName'
+					className='block text-xs sm:text-sm font-medium text-gray-900 dark:text-white'
+				>
+					Last Name
+				</label>
 				<input
 					id='lastName'
 					name='lastName'
 					type='text'
 					value={lastName}
-					onChange={(e) => setLastName(e.target.value)}
-					onBlur={() => setTouched({ ...touched, lastName: true })}
+					onChange={onLastNameChange}
+					onBlur={onLastNameBlur}
 					required
+					className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500'
 				/>
 			</div>
+		</div>
+	);
+}
 
-			<div>
-				<label htmlFor='email'>Email</label>
-				<input
-					id='email'
-					name='email'
-					type='email'
-					value={email}
-					onChange={(e) => setEmail(e.target.value)}
-					onBlur={() => setTouched({ ...touched, email: true })}
-					required
+function EmailInput({
+	value,
+	onChange,
+	onBlur,
+}: {
+	value: string;
+	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	onBlur: () => void;
+}) {
+	return (
+		<div className='space-y-1 sm:space-y-2'>
+			<label
+				htmlFor='email'
+				className='block text-xs sm:text-sm font-medium text-gray-900 dark:text-white'
+			>
+				Email Address
+			</label>
+			<input
+				id='email'
+				name='email'
+				type='email'
+				value={value}
+				onChange={onChange}
+				onBlur={onBlur}
+				required
+				className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500'
+			/>
+		</div>
+	);
+}
+
+function PasswordInput({
+	value,
+	onChange,
+	onBlur,
+}: {
+	value: string;
+	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	onBlur: () => void;
+}) {
+	return (
+		<div className='space-y-1 sm:space-y-2'>
+			<label
+				htmlFor='password'
+				className='block text-xs sm:text-sm font-medium text-gray-900 dark:text-white'
+			>
+				Password
+			</label>
+			<input
+				id='password'
+				name='password'
+				type='password'
+				value={value}
+				onChange={onChange}
+				onBlur={onBlur}
+				required
+				minLength={6}
+				className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500'
+			/>
+			<p className='text-xs text-gray-600 dark:text-gray-400'>
+				Minimum 6 characters
+			</p>
+		</div>
+	);
+}
+
+function AlertMessage({
+	message,
+	type = 'error',
+}: {
+	message: string;
+	type?: 'error' | 'success';
+}) {
+	const roleAttr = type === 'error' ? 'alert' : 'status';
+	return (
+		<div
+			role={roleAttr}
+			className={`p-2 sm:p-3 text-xs sm:text-sm rounded-lg border ${
+				type === 'error'
+					? 'bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-200 border-red-200 dark:border-red-800'
+					: 'bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-200 border-green-200 dark:border-green-800'
+			}`}
+		>
+			{message}
+		</div>
+	);
+}
+
+function SignUpFooter() {
+	return (
+		<p className='text-center text-xs sm:text-sm text-gray-600 dark:text-gray-400'>
+			Already have an account?{' '}
+			<a
+				href='/sign-in'
+				className='text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300'
+			>
+				Sign in
+			</a>
+		</p>
+	);
+}
+
+export default function SignUpForm({ onSuccess }: SignUpFormProps) {
+	const state = useSignUpLogic(onSuccess);
+
+	return (
+		<form onSubmit={state.handleSubmit} className='space-y-4 sm:space-y-6'>
+			<NameInputs
+				firstName={state.firstName}
+				lastName={state.lastName}
+				onFirstNameChange={(e) => state.setFirstName(e.target.value)}
+				onLastNameChange={(e) => state.setLastName(e.target.value)}
+				onFirstNameBlur={() =>
+					state.setTouched({ ...state.touched, firstName: true })
+				}
+				onLastNameBlur={() =>
+					state.setTouched({ ...state.touched, lastName: true })
+				}
+			/>
+
+			<EmailInput
+				value={state.email}
+				onChange={(e) => state.setEmail(e.target.value)}
+				onBlur={() => state.setTouched({ ...state.touched, email: true })}
+			/>
+
+			<PasswordInput
+				value={state.password}
+				onChange={(e) => state.setPassword(e.target.value)}
+				onBlur={() => state.setTouched({ ...state.touched, password: true })}
+			/>
+
+			{state.validationError && (
+				<AlertMessage message={state.validationError} />
+			)}
+			{state.error && <AlertMessage message={state.error} />}
+			{state.success && (
+				<AlertMessage
+					message='Check your email for confirmation'
+					type='success'
 				/>
-			</div>
+			)}
 
-			<div>
-				<label htmlFor='password'>Password</label>
-				<input
-					id='password'
-					name='password'
-					type='password'
-					value={password}
-					onChange={(e) => setPassword(e.target.value)}
-					onBlur={() => setTouched({ ...touched, password: true })}
-					required
-					minLength={6}
-				/>
-				<small>Minimum 6 characters</small>
-			</div>
-
-			{validationError && <div role='alert'>{validationError}</div>}
-			{error && <div role='alert'>{error}</div>}
-
-			{success && <div role='status'>Check your email for confirmation</div>}
-
-			<button type='submit' disabled={loading}>
-				{loading ? 'Signing up...' : 'Sign Up'}
+			<button
+				type='submit'
+				disabled={state.loading}
+				className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors'
+			>
+				{state.loading ? 'Signing up...' : 'Sign Up'}
 			</button>
 
-			<p>
-				Already have an account? <a href='/sign-in'>Sign in</a>
-			</p>
+			<SignUpFooter />
 		</form>
 	);
 }
