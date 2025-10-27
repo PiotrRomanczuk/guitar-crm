@@ -269,13 +269,22 @@ npm run dev          # Start development
 
 ### When Adding New Features
 
+**Always implement features as small and as concise as possible.**
+
+**Every new feature or change should be split into the smallest reasonable, composable units. Avoid bundling multiple concerns or enhancements in a single PR or commit.**
+
+**For every place where you see a possible future enhancement, always add a `TODO:` comment describing the improvement.**
+
+Workflow:
+
 1. **Create test file first** in `__tests__/` matching source path
 2. **Write failing tests** for expected behavior
 3. **Run `npm run tdd`** to start watch mode
-4. **Implement minimal code** to pass tests
-5. **Refactor** while keeping tests green
-6. **Run `npm run quality`** before committing
-7. Split any large component into smaller ones before opening a PR
+4. **Implement minimal code** to pass tests (keep it as small and focused as possible)
+5. **Add `TODO:` comments for any future enhancements or refactors you identify**
+6. **Refactor** while keeping tests green
+7. **Run `npm run quality`** before committing
+8. Split any large component into smaller ones before opening a PR
 
 ### When Creating New Schemas
 
