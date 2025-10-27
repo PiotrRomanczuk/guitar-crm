@@ -1,6 +1,10 @@
 'use client';
 
 import type { User } from '@/schemas/UserSchema';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 interface UserCardProps {
 	user: User;
@@ -14,16 +18,16 @@ const getInitials = (firstName?: string, lastName?: string) => {
 	return `${first}${last}`.toUpperCase();
 };
 
-const getRoleColor = (role: string) => {
+const getRoleVariant = (role: string) => {
 	switch (role) {
 		case 'Admin':
-			return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300';
+			return 'destructive' as const;
 		case 'Teacher':
-			return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
+			return 'default' as const;
 		case 'Student':
-			return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
+			return 'secondary' as const;
 		default:
-			return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
+			return 'outline' as const;
 	}
 };
 
@@ -39,76 +43,80 @@ export function UserCard({ user, onEdit, onDelete }: UserCardProps) {
 	const roles = getUserRoles(user);
 
 	return (
-		<div className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:shadow-lg transition-shadow'>
-			<div className='flex items-start space-x-4'>
-				{/* Avatar */}
-				<div className='w-12 h-12 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm'>
-					{getInitials(user.firstName, user.lastName)}
-				</div>
+		<Card className='hover:shadow-lg transition-shadow'>
+			<CardContent className='p-3 sm:p-4'>
+				<div className='flex items-start space-x-3 sm:space-x-4'>
+					{/* Avatar */}
+					<Avatar className='w-10 h-10 sm:w-12 sm:h-12'>
+						<AvatarFallback className='bg-linear-to-br from-blue-500 to-purple-600 text-white font-semibold text-xs sm:text-sm'>
+							{getInitials(user.firstName, user.lastName)}
+						</AvatarFallback>
+					</Avatar>
 
-				{/* User Info */}
-				<div className='flex-1 min-w-0'>
-					<h3 className='text-lg font-semibold text-gray-900 dark:text-white truncate'>
-						{user.firstName} {user.lastName}
-					</h3>
-					<p className='text-sm text-gray-600 dark:text-gray-400 truncate'>
-						{user.email}
-					</p>
+					{/* User Info */}
+					<div className='flex-1 min-w-0'>
+						<h3 className='text-base sm:text-lg font-semibold truncate'>
+							{user.firstName} {user.lastName}
+						</h3>
+						<p className='text-xs sm:text-sm text-muted-foreground truncate'>
+							{user.email}
+						</p>
 
-					{/* Status */}
-					<div className='flex items-center mt-2'>
-						<div
-							className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-								user.isActive
-									? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
-									: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
-							}`}
-						>
-							{user.isActive ? '✓ Active' : '✗ Inactive'}
+						{/* Status */}
+						<div className='flex items-center mt-1 sm:mt-2'>
+							<Badge
+								variant={user.isActive ? 'default' : 'destructive'}
+								className='text-xs'
+							>
+								{user.isActive ? '✓ Active' : '✗ Inactive'}
+							</Badge>
 						</div>
+
+						{/* Roles */}
+						{roles.length > 0 && (
+							<div className='flex flex-wrap gap-1 mt-1 sm:mt-2'>
+								{roles.map((role) => (
+									<Badge
+										key={role}
+										variant={getRoleVariant(role)}
+										className='text-xs'
+									>
+										{role}
+									</Badge>
+								))}
+							</div>
+						)}
+
+						{/* Created Date */}
+						<p className='text-xs text-muted-foreground mt-1 sm:mt-2'>
+							Created:{' '}
+							{user.created_at
+								? new Date(user.created_at).toLocaleDateString()
+								: 'Unknown'}
+						</p>
 					</div>
-
-					{/* Roles */}
-					{roles.length > 0 && (
-						<div className='flex flex-wrap gap-1 mt-2'>
-							{roles.map((role) => (
-								<span
-									key={role}
-									className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(
-										role
-									)}`}
-								>
-									{role}
-								</span>
-							))}
-						</div>
-					)}
-
-					{/* Created Date */}
-					<p className='text-xs text-gray-500 dark:text-gray-400 mt-2'>
-						Created:{' '}
-						{user.created_at
-							? new Date(user.created_at).toLocaleDateString()
-							: 'Unknown'}
-					</p>
 				</div>
-			</div>
 
-			{/* Actions */}
-			<div className='flex justify-end space-x-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700'>
-				<button
-					onClick={() => onEdit()}
-					className='px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors'
-				>
-					Edit
-				</button>
-				<button
-					onClick={() => onDelete()}
-					className='px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors'
-				>
-					{user.isActive ? 'Deactivate' : 'Activate'}
-				</button>
-			</div>
-		</div>
+				{/* Actions */}
+				<div className='flex flex-col gap-2 sm:flex-row sm:justify-end sm:space-x-2 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t'>
+					<Button
+						variant='ghost'
+						size='sm'
+						className='w-full sm:w-auto'
+						onClick={() => onEdit()}
+					>
+						Edit
+					</Button>
+					<Button
+						variant={user.isActive ? 'destructive' : 'default'}
+						size='sm'
+						className='w-full sm:w-auto'
+						onClick={() => onDelete()}
+					>
+						{user.isActive ? 'Deactivate' : 'Activate'}
+					</Button>
+				</div>
+			</CardContent>
+		</Card>
 	);
 }

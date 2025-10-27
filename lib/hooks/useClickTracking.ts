@@ -18,32 +18,22 @@ export function useClickTracking() {
 		async (buttonId: string, buttonText?: string, data?: ActivityData) => {
 			await logButtonClick(buttonId, buttonText, data);
 		},
-		[]
+		[],
 	);
 
-	const trackLinkClick = useCallback(
-		async (linkHref: string, linkText?: string) => {
-			await logLinkClick(linkHref, linkText);
-		},
-		[]
-	);
+	const trackLinkClick = useCallback(async (linkHref: string, linkText?: string) => {
+		await logLinkClick(linkHref, linkText);
+	}, []);
 
-	const trackFormSubmit = useCallback(
-		async (formId: string, formData?: Record<string, unknown>) => {
-			await logFormSubmit(formId, formData);
-		},
-		[]
-	);
+	const trackFormSubmit = useCallback(async (formId: string, formData?: Record<string, unknown>) => {
+		await logFormSubmit(formId, formData);
+	}, []);
 
 	const trackFormChange = useCallback(
-		async (
-			formId: string,
-			fieldName: string,
-			fieldValue?: string | number | boolean | null
-		) => {
+		async (formId: string, fieldName: string, fieldValue?: string | number | boolean | null) => {
 			await logFormChange(formId, fieldName, fieldValue);
 		},
-		[]
+		[],
 	);
 
 	return {

@@ -28,7 +28,8 @@
 		"**/*.tsx",
 		".next/types/**/*.ts",
 		".next/dev/types/**/*.ts",
-		"**/*.mts"
+		"**/*.mts",
+		"types/jest.d.ts"
 	],
-	"exclude": ["node_modules", "cypress.config.ts"]
+	"exclude": ["node_modules", "cypress.config.ts", "cypress/**/*"]
 }
