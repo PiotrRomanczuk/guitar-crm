@@ -295,7 +295,7 @@ describe('SignInForm', () => {
 
 			const passwordInput = screen.getByLabelText(/password/i);
 			const toggleButton = screen.getByRole('button', {
-				name: /show password/i,
+				name: /show/i,
 			});
 
 			expect(passwordInput).toHaveAttribute('type', 'password');

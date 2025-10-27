@@ -1,29 +1,20 @@
 import { supabase } from '@/lib/supabase';
+import { ActivityLogInputSchema, type ActivityLogInput, type ActivityLog } from '@/schemas/ActivityLogSchema';
 
 interface ActivityData {
-	[key: string]: unknown;
+	[key: string]: string | number | boolean | null | undefined | Record<string, unknown>;
 }
-
-// TODO: Replace 'unknown' with proper types when ActivityLog schema is implemented
-type ActivityLogInput = unknown;
-type ActivityLog = unknown;
-const ActivityLogInputSchema = { parse: (x: unknown) => x };
 
 function getSessionId(): string {
 	if (typeof window === 'undefined') return 'server-session';
 	const stored = localStorage.getItem('session_id');
 	if (stored) return stored;
-	const newId = `session_${Date.now()}_${Math.random()
-		.toString(36)
-		.substr(2, 9)}`;
+	const newId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 	localStorage.setItem('session_id', newId);
 	return newId;
 }
 
-function prepareActivityData(
-	eventName: string,
-	data?: ActivityData
-): ActivityData {
+function prepareActivityData(eventName: string, data?: ActivityData): ActivityData {
 	const baseData: ActivityData = {
 		timestamp: new Date().toISOString(),
 		url: typeof window !== 'undefined' ? window.location.href : '',
@@ -34,14 +25,10 @@ function prepareActivityData(
 	return baseData;
 }
 
-export async function logActivity(
-	activity: ActivityLogInput
-): Promise<{ success: boolean; error?: string }> {
+export async function logActivity(activity: ActivityLogInput): Promise<{ success: boolean; error?: string }> {
 	try {
 		const validated = ActivityLogInputSchema.parse(activity);
-		const { error } = await supabase
-			.from('user_activity_logs')
-			.insert([validated]);
+		const { error } = await supabase.from('user_activity_logs').insert([validated]);
 		if (error) {
 			console.error('Error logging activity:', error);
 			return { success: false, error: error.message };
@@ -49,17 +36,11 @@ export async function logActivity(
 		return { success: true };
 	} catch (error) {
 		console.error('Error in logActivity:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
+		return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
 	}
 }
 
-export async function logPageView(
-	pagePath: string,
-	pageTitle?: string
-): Promise<{ success: boolean; error?: string }> {
+export async function logPageView(pagePath: string, pageTitle?: string): Promise<{ success: boolean; error?: string }> {
 	const data = prepareActivityData('Page View', {
 		page_path: pagePath,
 		page_title: pageTitle || document.title,
@@ -75,16 +56,13 @@ export async function logPageView(
 export async function logButtonClick(
 	buttonId: string,
 	buttonText?: string,
-	data?: ActivityData
+	data?: ActivityData,
 ): Promise<{ success: boolean; error?: string }> {
-	const preparedData = prepareActivityData(
-		`Button clicked: ${buttonText || buttonId}`,
-		{
-			button_id: buttonId,
-			button_text: buttonText,
-			...data,
-		}
-	);
+	const preparedData = prepareActivityData(`Button clicked: ${buttonText || buttonId}`, {
+		button_id: buttonId,
+		button_text: buttonText,
+		...data,
+	});
 	return logActivity({
 		activity_type: 'button_click',
 		event_name: `Button clicked: ${buttonText || buttonId}`,
@@ -93,17 +71,11 @@ export async function logButtonClick(
 	});
 }
 
-export async function logLinkClick(
-	linkHref: string,
-	linkText?: string
-): Promise<{ success: boolean; error?: string }> {
-	const preparedData = prepareActivityData(
-		`Link clicked: ${linkText || linkHref}`,
-		{
-			link_href: linkHref,
-			link_text: linkText,
-		}
-	);
+export async function logLinkClick(linkHref: string, linkText?: string): Promise<{ success: boolean; error?: string }> {
+	const preparedData = prepareActivityData(`Link clicked: ${linkText || linkHref}`, {
+		link_href: linkHref,
+		link_text: linkText,
+	});
 	return logActivity({
 		activity_type: 'link_click',
 		event_name: `Link clicked: ${linkText || linkHref}`,
@@ -112,10 +84,7 @@ export async function logLinkClick(
 	});
 }
 
-export async function logFormSubmit(
-	formId: string,
-	formData?: Record<string, unknown>
-): Promise<{ success: boolean; error?: string }> {
+export async function logFormSubmit(formId: string, formData?: Record<string, unknown>): Promise<{ success: boolean; error?: string }> {
 	const preparedData = prepareActivityData(`Form submitted: ${formId}`, {
 		form_id: formId,
 		form_data: formData,
@@ -131,7 +100,7 @@ export async function logFormSubmit(
 export async function logFormChange(
 	formId: string,
 	fieldName: string,
-	fieldValue?: string | number | boolean | null
+	fieldValue?: string | number | boolean | null,
 ): Promise<{ success: boolean; error?: string }> {
 	const preparedData = prepareActivityData(`Form field changed: ${fieldName}`, {
 		form_id: formId,
@@ -149,7 +118,7 @@ export async function logFormChange(
 export async function getUserActivityLogs(
 	userId: string,
 	limit: number = 50,
-	offset: number = 0
+	offset: number = 0,
 ): Promise<{ success: boolean; data?: ActivityLog[]; error?: string }> {
 	try {
 		const { data, error } = await supabase
@@ -165,21 +134,14 @@ export async function getUserActivityLogs(
 		return { success: true, data: data as ActivityLog[] };
 	} catch (error) {
 		console.error('Error in getUserActivityLogs:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
+		return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
 	}
 }
 
 export async function getUserActivityStats(
 	userId: string,
-	days: number = 7
-): Promise<{
-	success: boolean;
-	data?: Record<string, unknown>;
-	error?: string;
-}> {
+	days: number = 7,
+): Promise<{ success: boolean; data?: Record<string, unknown>; error?: string }> {
 	try {
 		const startDate = new Date();
 		startDate.setDate(startDate.getDate() - days);
@@ -198,24 +160,17 @@ export async function getUserActivityStats(
 			events_by_name: {} as Record<string, number>,
 		};
 		data?.forEach((log: { activity_type: string; event_name: string }) => {
-			stats.events_by_type[log.activity_type] =
-				(stats.events_by_type[log.activity_type] || 0) + 1;
-			stats.events_by_name[log.event_name] =
-				(stats.events_by_name[log.event_name] || 0) + 1;
+			stats.events_by_type[log.activity_type] = (stats.events_by_type[log.activity_type] || 0) + 1;
+			stats.events_by_name[log.event_name] = (stats.events_by_name[log.event_name] || 0) + 1;
 		});
 		return { success: true, data: stats };
 	} catch (error) {
 		console.error('Error in getUserActivityStats:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
+		return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
 	}
 }
 
-export async function deleteOldActivityLogs(
-	beforeDate: Date
-): Promise<{ success: boolean; count?: number; error?: string }> {
+export async function deleteOldActivityLogs(beforeDate: Date): Promise<{ success: boolean; count?: number; error?: string }> {
 	try {
 		const { data: countData, error: countError } = await supabase
 			.from('user_activity_logs')
@@ -230,9 +185,6 @@ export async function deleteOldActivityLogs(
 		return { success: true, count: countData?.length || 0 };
 	} catch (error) {
 		console.error('Error in deleteOldActivityLogs:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
+		return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
 	}
 }
