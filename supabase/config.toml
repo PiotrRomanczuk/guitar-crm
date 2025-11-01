@@ -53,9 +53,14 @@ schema_paths = []
 [db.seed]
 # If enabled, seeds the database after migrations during a db reset.
 enabled = true
-# Specifies an ordered list of seed files to load during db reset.
+# Step by step: Now adding lesson_songs after lessons
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
-sql_paths = ["./seed.sql"]
+sql_paths = [
+  "./seed_sql/seed_songs.sql",
+  "./seed_sql/seed_profiles.sql",
+  "./seed_sql/seed_lessons.sql",
+  "./seed_sql/seed_lesson_songs.sql"
+]
 
 [realtime]
 enabled = true
