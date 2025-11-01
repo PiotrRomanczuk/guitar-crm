@@ -18,7 +18,13 @@ export const metadata: Metadata = {
 	title: 'Guitar CRM - Student Management System',
 	description:
 		'Guitar teacher CRM for managing students, lessons, and progress tracking',
-	viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
+	// viewport removed, now exported separately
+};
+
+export const viewport = {
+	width: 'device-width',
+	initialScale: 1,
+	maximumScale: 5,
 };
 
 export default function RootLayout({

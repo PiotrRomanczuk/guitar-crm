@@ -130,12 +130,14 @@ export async function GET(req: NextRequest) {
 		const songIdToStatus = lessonSongs.reduce(
 			(
 				acc: Record<string, string>,
-				ls: { song_id: string; song_status: string }
+				ls: { song_id: string; song_status: string | null }
 			) => {
-				acc[ls.song_id] = ls.song_status;
+				if (ls.song_status) {
+					acc[ls.song_id] = ls.song_status;
+				}
 				return acc;
 			},
-			{}
+			{} as Record<string, string>
 		);
 		const songIds = lessonSongs.map((ls: { song_id: string }) => ls.song_id);
 		console.log('[user-songs][DEBUG] songIds:', songIds);
