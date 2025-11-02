@@ -6,4 +6,4 @@ export * from "./TaskSchema";
 export * from "./AssignmentSchema";
 export * from "./UserSchema";
 export * from "./UserFavoriteSchema";
-export * from "./contactFormSchema"; 
+export * from './SettingsSchema'; 
