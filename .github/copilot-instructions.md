@@ -267,6 +267,35 @@ npm run dev          # Start development
 
 ## Implementation Guidelines
 
+### CRUD Operations (MANDATORY)
+
+**All CRUD operations MUST follow the standardized patterns documented in `docs/CRUD_STANDARDS.md`.**
+
+When implementing any new entity (lessons, assignments, etc.):
+
+1. **Check `docs/CRUD_QUICK_REFERENCE.md`** for copy-paste templates
+2. **Follow the exact structure** shown in CRUD_STANDARDS.md:
+   - `/app/api/[entity]/route.ts` - Main HTTP endpoints
+   - `/app/api/[entity]/handlers.ts` - Pure business logic
+   - `/app/api/[entity]/[id]/route.ts` - Single item operations
+   - Role-specific routes (admin-_, student-_)
+   - Components split into small, focused pieces
+   - Custom hooks for data fetching
+3. **Use the checklist** in CRUD_STANDARDS.md to ensure nothing is missed
+4. **Reference songs implementation** as working example (but check SONGS_CRUD_REVIEW.md for known issues)
+
+**Key CRUD Requirements:**
+
+- ✅ Always use `headers()` and `createClient(headersList)` for auth
+- ✅ Always verify user authentication and roles
+- ✅ Separate business logic into handlers.ts
+- ✅ Use Zod for all input validation
+- ✅ Return consistent error responses with status codes
+- ✅ Use `useAuth()` hook in components for role checking
+- ✅ Split components into small, focused pieces
+- ✅ Provide refresh functionality in hooks
+- ✅ Handle loading, error, and empty states
+
 ### When Adding New Features
 
 **Always implement features as small and as concise as possible.**
@@ -277,14 +306,15 @@ npm run dev          # Start development
 
 Workflow:
 
-1. **Create test file first** in `__tests__/` matching source path
-2. **Write failing tests** for expected behavior
-3. **Run `npm run tdd`** to start watch mode
-4. **Implement minimal code** to pass tests (keep it as small and focused as possible)
-5. **Add `TODO:` comments for any future enhancements or refactors you identify**
-6. **Refactor** while keeping tests green
-7. **Run `npm run quality`** before committing
-8. Split any large component into smaller ones before opening a PR
+1. **Check CRUD standards** if implementing data operations
+2. **Create test file first** in `__tests__/` matching source path
+3. **Write failing tests** for expected behavior
+4. **Run `npm run tdd`** to start watch mode
+5. **Implement minimal code** to pass tests (keep it as small and focused as possible)
+6. **Add `TODO:` comments for any future enhancements or refactors you identify**
+7. **Refactor** while keeping tests green
+8. **Run `npm run quality`** before committing
+9. Split any large component into smaller ones before opening a PR
 
 ### When Creating New Schemas
 
@@ -328,7 +358,19 @@ Workflow:
 
 ## Documentation Resources
 
-- **TDD Guide**: `docs/TDD_GUIDE.md` - Comprehensive testing practices
+📂 **[docs/README.md](../docs/README.md)** - Complete documentation index with category navigation
+
+### Role-Based CRUD Documentation (START HERE for new entities)
+
+- **CRUD Implementation Checklist**: `docs/architecture/CRUD_IMPLEMENTATION_CHECKLIST.md` - **Complete step-by-step checklist** with time estimates (~8 hours total)
+- **Role-Based Architecture**: `docs/architecture/ROLE_BASED_ARCHITECTURE.md` - Visual guide to three-tier role system (Admin/Teacher/Student)
+- **CRUD Standards**: `docs/architecture/CRUD_STANDARDS.md` - Complete guide for implementing CRUD operations consistently with role-based access
+- **CRUD Quick Reference**: `docs/architecture/CRUD_QUICK_REFERENCE.md` - Fast templates and copy-paste patterns with role logic
+- **Songs CRUD Review**: `docs/completed-features/SONGS_CRUD_REVIEW.md` - Current status and fixes needed
+
+### General Development Documentation
+
+- **TDD Guide**: `docs/guides/TDD_GUIDE.md` - Comprehensive testing practices
 - **Scripts Guide**: `scripts/README.md` - All automation commands explained
 - **Schema Docs**: `schemas/README.md` - Validation patterns + examples
 - **Project Overview**: `PROJECT_OVERVIEW.md` - Architecture deep dive

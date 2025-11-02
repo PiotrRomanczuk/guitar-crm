@@ -3,15 +3,33 @@
 import React from 'react';
 import { RequireTeacher } from '@/components/auth/RequireRole';
 import SongForm from './SongForm';
-import { Song } from '@/schemas/SongSchema';
+import useSong from './useSong';
 
 interface Props {
 	mode: 'create' | 'edit';
-	song?: Song;
+	songId?: string;
 	onSuccess?: () => void;
 }
 
-export default function SongFormGuard({ mode, song, onSuccess }: Props) {
+export default function SongFormGuard({ mode, songId, onSuccess }: Props) {
+	const { song, loading, error } = useSong(songId || '');
+
+	if (mode === 'edit' && loading) {
+		return (
+			<div className='min-h-screen flex items-center justify-center'>
+				<div className='text-xl text-gray-600'>Loading...</div>
+			</div>
+		);
+	}
+
+	if (mode === 'edit' && error) {
+		return (
+			<div className='min-h-screen flex items-center justify-center'>
+				<div className='text-xl text-red-600'>Error: {error}</div>
+			</div>
+		);
+	}
+
 	return (
 		<RequireTeacher
 			loadingComponent={

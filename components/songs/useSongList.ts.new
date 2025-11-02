@@ -1,0 +1,54 @@
+import { useEffect, useState, useCallback } from 'react';
+import type { Tables } from '@/lib/supabase';
+import { useAuth } from '@/components/auth';
+
+type Song = Tables<'songs'>;
+
+export default function useSongList() {
+    const { user, isTeacher, isAdmin } = useAuth();
+    const [songs, setSongs] = useState<Song[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [filterLevel, setFilterLevel] = useState<string | null>(null);
+
+    const loadSongs = useCallback(async () => {
+        if (!user?.id) {
+            setError('User not authenticated');
+            setLoading(false);
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Choose the appropriate endpoint based on user role
+            const endpoint = isAdmin || isTeacher ? '/api/song/admin-songs' : '/api/song/student-songs';
+            const queryParams = new URLSearchParams();
+            
+            if (filterLevel) {
+                queryParams.append('level', filterLevel);
+            }
+            queryParams.append('userId', user.id);
+
+            const response = await fetch(`${endpoint}?${queryParams.toString()}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch songs');
+            }
+
+            const data = await response.json();
+            setSongs(data || []);
+        } catch (err) {
+            console.error('Error loading songs:', err);
+            setError('Failed to load songs');
+        } finally {
+            setLoading(false);
+        }
+    }, [user?.id, isAdmin, isTeacher, filterLevel]);
+
+    useEffect(() => {
+        loadSongs();
+    }, [loadSongs]);
+
+    return { songs, loading, error, filterLevel, setFilterLevel };
+}

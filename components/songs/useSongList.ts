@@ -1,43 +1,74 @@
 import { useEffect, useState, useCallback } from 'react';
-import { supabase, Tables } from '@/lib/supabase';
+import type { Tables } from '@/lib/supabase';
+import { useAuth } from '@/components/auth';
 
-type Song = Tables<'songs'>;
+export type SongWithStatus = Tables<'songs'> & {
+	status?: 'to_learn' | 'started' | 'remembered' | 'with_author' | 'mastered';
+};
+
+export type SongLevel = 'beginner' | 'intermediate' | 'advanced';
 
 export default function useSongList() {
-	const [songs, setSongs] = useState<Song[]>([]);
+	const { user, isTeacher, isAdmin } = useAuth();
+	const [songs, setSongs] = useState<SongWithStatus[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [filterLevel, setFilterLevel] = useState<string | null>(null);
+	const [filterLevel, setFilterLevel] = useState<SongLevel | null>(null);
 
 	const loadSongs = useCallback(async () => {
-		setLoading(true);
-		setError(null);
+		if (!user?.id) {
+			setError('Not authenticated');
+			setLoading(false);
+			return;
+		}
 
 		try {
-			let query = supabase.from('songs').select('*');
+			setLoading(true);
+			setError(null);
+
+			const params = new URLSearchParams({
+				userId: user.id,
+			});
 
 			if (filterLevel) {
-				query = query.eq('level', filterLevel);
+				params.append('level', filterLevel);
 			}
 
-			const { data, error: fetchError } = await query;
+			// Choose endpoint based on role
+			const endpoint =
+				isAdmin || isTeacher
+					? '/api/song/admin-songs'
+					: '/api/song/student-songs';
 
-			if (fetchError) {
-				setError('Failed to load songs');
-				return;
+			const response = await fetch(`${endpoint}?${params}`);
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || 'Failed to fetch songs');
 			}
 
-			setSongs(data || []);
-		} catch {
-			setError('Failed to load songs');
+			const data = await response.json();
+			setSongs(data);
+			setError(null);
+		} catch (err) {
+			console.error('Error loading songs:', err);
+			setError(err instanceof Error ? err.message : 'Failed to load songs');
+			setSongs([]);
 		} finally {
 			setLoading(false);
 		}
-	}, [filterLevel]);
+	}, [filterLevel, isAdmin, isTeacher, user?.id]);
 
 	useEffect(() => {
-		loadSongs();
+		void loadSongs();
 	}, [loadSongs]);
 
-	return { songs, loading, error, filterLevel, setFilterLevel };
+	return {
+		songs,
+		loading,
+		error,
+		filterLevel,
+		setFilterLevel,
+		refresh: loadSongs,
+	};
 }
