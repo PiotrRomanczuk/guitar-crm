@@ -202,6 +202,20 @@ export function DashboardCardGrid({
 }) {
 	return (
 		<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8'>
+			{/* User Account Section - Always visible */}
+			<DashboardCard
+				emoji='👤'
+				title='Edit Profile'
+				description='Update your personal information and bio'
+				href='/profile'
+			/>
+			<DashboardCard
+				emoji='⚙️'
+				title='Settings'
+				description='Manage preferences, notifications, and privacy'
+				href='/settings'
+			/>
+
 			{(isTeacher || isAdmin) && (
 				<>
 					<DashboardCard
@@ -237,7 +251,7 @@ export function DashboardCardGrid({
 
 			{isAdmin && (
 				<DashboardCard
-					emoji='⚙️'
+					emoji='🔧'
 					title='Admin Panel'
 					description='Manage users, settings, and system configuration'
 					href='/admin'
