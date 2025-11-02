@@ -1,14 +1,6 @@
 import React from 'react';
 import { render as rtlRender, screen, waitFor } from '@testing-library/react';
 import SongList from '@/components/songs/SongList';
-import { supabase } from '@/lib/supabase';
-
-// Mock Supabase
-jest.mock('@/lib/supabase', () => ({
-	supabase: {
-		from: jest.fn(),
-	},
-}));
 
 // Mock AuthProvider to avoid useAuth errors in tests
 jest.mock('@/components/auth/AuthProvider', () => ({
@@ -30,48 +22,44 @@ const render = (component: React.ReactElement) => rtlRender(component);
 describe('SongList Component - Core Tests', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		// Reset fetch mock
+		(global.fetch as jest.Mock).mockClear();
 	});
 
 	it('should render loading state initially', () => {
-		const mockFrom = jest.fn().mockReturnValue({
-			select: jest.fn().mockReturnValue(
+		// Mock fetch to never resolve (perpetual loading)
+		(global.fetch as jest.Mock).mockImplementation(
+			() =>
 				new Promise(() => {
-					// Never resolves - perpetual loading
+					// Never resolves
 				})
-			),
-		});
+		);
 
-		(supabase.from as jest.Mock).mockImplementation(mockFrom);
 		render(<SongList />);
-
 		expect(screen.getByTestId('song-list-loading')).toBeInTheDocument();
 	});
 
 	it('should display error message on fetch failure', async () => {
-		const mockFrom = jest.fn().mockReturnValue({
-			select: jest.fn().mockResolvedValue({
-				data: null,
-				error: new Error('Database connection failed'),
-			}),
-		});
+		// Mock fetch to reject
+		(global.fetch as jest.Mock).mockRejectedValueOnce(
+			new Error('Failed to fetch')
+		);
 
-		(supabase.from as jest.Mock).mockImplementation(mockFrom);
 		render(<SongList />);
 
 		await waitFor(() => {
-			expect(screen.getByText(/failed to load songs/i)).toBeInTheDocument();
+			expect(screen.getByText(/failed to fetch/i)).toBeInTheDocument();
 		});
 	});
 
 	it('should display empty state when no songs exist', async () => {
-		const mockFrom = jest.fn().mockReturnValue({
-			select: jest.fn().mockResolvedValue({
-				data: [],
-				error: null,
-			}),
+		// Mock fetch to return empty array
+		(global.fetch as jest.Mock).mockResolvedValueOnce({
+			ok: true,
+			status: 200,
+			json: async () => [],
 		});
 
-		(supabase.from as jest.Mock).mockImplementation(mockFrom);
 		render(<SongList />);
 
 		await waitFor(() => {
@@ -93,14 +81,13 @@ describe('SongList Component - Core Tests', () => {
 			},
 		];
 
-		const mockFrom = jest.fn().mockReturnValue({
-			select: jest.fn().mockResolvedValue({
-				data: mockSongs,
-				error: null,
-			}),
+		// Mock fetch to return songs
+		(global.fetch as jest.Mock).mockResolvedValueOnce({
+			ok: true,
+			status: 200,
+			json: async () => mockSongs,
 		});
 
-		(supabase.from as jest.Mock).mockImplementation(mockFrom);
 		render(<SongList />);
 
 		await waitFor(() => {

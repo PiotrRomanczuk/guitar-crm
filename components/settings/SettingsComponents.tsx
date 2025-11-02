@@ -19,13 +19,19 @@ interface SettingsSectionProps {
 	children: React.ReactNode;
 }
 
-export function SettingsSection({ title, description, children }: SettingsSectionProps) {
+export function SettingsSection({
+	title,
+	description,
+	children,
+}: SettingsSectionProps) {
 	return (
 		<div className='border-b border-gray-200 dark:border-gray-700 pb-6 mb-6 last:border-b-0'>
 			<div className='mb-4'>
 				<h2 className='text-lg sm:text-xl font-semibold mb-1'>{title}</h2>
 				{description && (
-					<p className='text-xs sm:text-sm text-muted-foreground'>{description}</p>
+					<p className='text-xs sm:text-sm text-muted-foreground'>
+						{description}
+					</p>
 				)}
 			</div>
 			<div className='space-y-4'>{children}</div>
@@ -53,11 +59,16 @@ export function ToggleSetting({
 	return (
 		<div className='flex items-start justify-between gap-4'>
 			<div className='flex-1'>
-				<Label htmlFor={id} className='text-sm sm:text-base font-medium cursor-pointer'>
+				<Label
+					htmlFor={id}
+					className='text-sm sm:text-base font-medium cursor-pointer'
+				>
 					{label}
 				</Label>
 				{description && (
-					<p className='text-xs sm:text-sm text-muted-foreground mt-1'>{description}</p>
+					<p className='text-xs sm:text-sm text-muted-foreground mt-1'>
+						{description}
+					</p>
 				)}
 			</div>
 			<button
@@ -110,7 +121,9 @@ export function SelectSetting({
 				{label}
 			</Label>
 			{description && (
-				<p className='text-xs sm:text-sm text-muted-foreground'>{description}</p>
+				<p className='text-xs sm:text-sm text-muted-foreground'>
+					{description}
+				</p>
 			)}
 			<select
 				id={id}
