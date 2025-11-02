@@ -1,6 +1,7 @@
 # Manual Testing Checklist - November 2, 2025
 
 ## Testing Environment
+
 - **Date**: November 2, 2025
 - **Branch**: feature/phase-1-2-completion
 - **Testing Role**: Admin User (p.romanczuk@gmail.com / test123_admin)
@@ -8,6 +9,7 @@
 ## Pre-Testing Setup
 
 1. **Start Development Server**
+
    ```bash
    npm run dev
    ```
@@ -21,9 +23,11 @@
 ## Page-by-Page Testing
 
 ### ✅ 1. Home/Dashboard Page (/)
+
 **URL**: http://localhost:3000/
 
 **What to Check**:
+
 - [ ] Dashboard header displays with correct user email
 - [ ] Role badges show "Admin, Teacher" correctly
 - [ ] Four stat cards display with correct icons and values:
@@ -48,9 +52,11 @@
 ---
 
 ### ✅ 2. Admin Dashboard (/admin)
+
 **URL**: http://localhost:3000/admin
 
 **What to Check**:
+
 - [ ] Page loads without errors
 - [ ] Header shows "⚙️ Admin Dashboard"
 - [ ] Stats display correctly (4 cards):
@@ -74,15 +80,18 @@
 - [ ] Mobile responsiveness
 
 **Known Issues**:
+
 - 5 out of 6 admin action cards link to unimplemented pages
 - Recent Activity section is placeholder only
 
 ---
 
 ### ✅ 3. User Management (/admin/users)
+
 **URL**: http://localhost:3000/admin/users
 
 **What to Check**:
+
 - [ ] Page loads without errors
 - [ ] Header shows "👥 User Management"
 - [ ] User list displays with all columns:
@@ -117,9 +126,11 @@
 ---
 
 ### ✅ 4. Songs List (/songs)
+
 **URL**: http://localhost:3000/songs
 
 **What to Check**:
+
 - [ ] Page loads without errors
 - [ ] Header shows "🎵 Songs Library"
 - [ ] Filter by level dropdown:
@@ -147,9 +158,11 @@
 ---
 
 ### ✅ 5. Song Detail (/songs/[id])
+
 **URL**: http://localhost:3000/songs/[id] (pick any song ID)
 
 **What to Check**:
+
 - [ ] Page loads without errors
 - [ ] Song details display:
   - [ ] Title
@@ -169,9 +182,11 @@
 ---
 
 ### ✅ 6. Create Song (/songs/new)
+
 **URL**: http://localhost:3000/songs/new
 
 **What to Check**:
+
 - [ ] Page loads without errors
 - [ ] Header shows "Add New Song"
 - [ ] Form fields present:
@@ -196,9 +211,11 @@
 ---
 
 ### ✅ 7. Edit Song (/songs/[id]/edit)
+
 **URL**: http://localhost:3000/songs/[id]/edit (pick any song ID)
 
 **What to Check**:
+
 - [ ] Page loads without errors
 - [ ] Form pre-filled with song data
 - [ ] All fields editable
@@ -214,9 +231,11 @@
 ---
 
 ### ✅ 8. Profile Page (/profile)
+
 **URL**: http://localhost:3000/profile
 
 **What to Check**:
+
 - [ ] Page loads without errors
 - [ ] Header shows "👤 Your Profile"
 - [ ] User email displays (read-only)
@@ -238,9 +257,11 @@
 ---
 
 ### ✅ 9. Settings Page (/settings)
+
 **URL**: http://localhost:3000/settings
 
 **What to Check**:
+
 - [ ] Page loads without errors
 - [ ] Header shows "⚙️ Settings"
 - [ ] Three sections visible:
@@ -268,9 +289,11 @@
 ---
 
 ### ⚠️ 10. Teacher Dashboard (/teacher)
+
 **URL**: http://localhost:3000/teacher
 
 **What to Check**:
+
 - [ ] Page loads without errors
 - [ ] Header shows "👨‍🏫 Teacher Dashboard"
 - [ ] Stats cards display:
@@ -287,15 +310,18 @@
 - [ ] Dark mode
 
 **Expected Issues**:
+
 - Stats may show 0 if no lessons/students created yet
 - Components may be placeholders (need to check implementation)
 
 ---
 
 ### ⚠️ 11. Student Dashboard (/student)
+
 **URL**: http://localhost:3000/student
 
 **What to Check**:
+
 - [ ] Page loads without errors (admin can access)
 - [ ] Header shows "🎵 Your Learning Dashboard"
 - [ ] Stats cards display:
@@ -312,6 +338,7 @@
 - [ ] Dark mode
 
 **Expected Issues**:
+
 - Stats may show 0 if admin user has no student lessons
 - Components may be placeholders (need to check implementation)
 
@@ -320,7 +347,9 @@
 ## Navigation Testing
 
 ### ✅ Header Navigation
+
 **What to Check**:
+
 - [ ] Logo "🎸 Guitar CRM" navigates to /
 - [ ] Desktop navigation visible on wide screens
 - [ ] Mobile menu button appears on small screens
@@ -339,6 +368,7 @@
 - [ ] Active page highlighting works
 
 **Known Issues**:
+
 - /students and /lessons routes referenced in RoleBasedNav but may not be implemented
 - /my-lessons and /progress routes for students may not be implemented
 
@@ -347,7 +377,9 @@
 ## Cross-Cutting Concerns
 
 ### Dark Mode
+
 **What to Check**:
+
 - [ ] Can toggle dark mode from settings
 - [ ] Dark mode persists across page navigation
 - [ ] All pages support dark mode properly
@@ -355,13 +387,16 @@
 - [ ] Text remains readable
 
 ### Mobile Responsiveness
+
 **Test at these breakpoints**:
+
 - [ ] 375px (iPhone SE)
 - [ ] 425px (small mobile)
 - [ ] 768px (tablet)
 - [ ] 1024px (desktop)
 
 **What to Check**:
+
 - [ ] Layout adapts properly
 - [ ] Touch targets are minimum 44x44px
 - [ ] Text is readable
@@ -370,14 +405,18 @@
 - [ ] Forms are usable
 
 ### Loading States
+
 **What to Check**:
+
 - [ ] Loading spinners show when fetching data
 - [ ] Skeleton screens where appropriate
 - [ ] No flash of wrong content
 - [ ] Loading states are visually consistent
 
 ### Error Handling
+
 **What to Check**:
+
 - [ ] API errors display user-friendly messages
 - [ ] Network errors handled gracefully
 - [ ] Form validation errors are clear
@@ -389,16 +428,20 @@
 ## API Testing
 
 ### Dashboard Stats API
+
 **Endpoint**: GET /api/dashboard/stats
 
 **What to Check**:
+
 - [ ] Returns correct stats for admin role
 - [ ] Returns correct stats for teacher role (when testing teacher)
 - [ ] Returns correct stats for student role (when testing student)
 - [ ] Handles unauthenticated requests
 
 ### Songs API
-**Endpoints**: 
+
+**Endpoints**:
+
 - GET /api/song
 - POST /api/song/create
 - GET /api/song/[id]
@@ -406,6 +449,7 @@
 - DELETE /api/song/[id]
 
 **What to Check**:
+
 - [ ] CRUD operations work
 - [ ] Filtering works
 - [ ] Search works
@@ -417,17 +461,21 @@
 ## Known Missing Features
 
 ### ❌ Not Implemented (High Priority)
+
 1. **Lessons Management**
+
    - No /lessons route
    - No lesson CRUD operations
    - Lessons table exists in DB but no UI
 
 2. **Student Management**
+
    - No /students route mentioned in nav but not implemented
    - No student assignment to teachers
    - No student-teacher relationship management
 
 3. **Admin Action Pages**
+
    - /admin/settings - Not implemented
    - /admin/reports - Not implemented
    - /admin/database - Not implemented
@@ -435,6 +483,7 @@
    - /admin/security - Not implemented
 
 4. **Student Routes**
+
    - /my-lessons - Referenced in nav but not implemented
    - /progress - Referenced in nav but not implemented
 
@@ -445,12 +494,15 @@
    - Grade management
 
 ### ⚠️ Partially Implemented (Medium Priority)
+
 1. **Teacher Dashboard Components**
+
    - TeacherStudentsList - needs verification
    - TeacherLessonSchedule - needs verification
    - TeacherRecentLessons - needs verification
 
 2. **Student Dashboard Components**
+
    - StudentUpcomingLessons - needs verification
    - StudentRecentLessons - needs verification
    - StudentProgressOverview - needs verification
@@ -459,6 +511,7 @@
    - Placeholder only on admin dashboard
 
 ### ✅ Fully Implemented
+
 1. Authentication (sign in, sign up, forgot password)
 2. User Management (admin)
 3. Songs CRUD (all roles)
@@ -472,20 +525,21 @@
 
 ## Test Results Summary
 
-**Date Tested**: _________________
+**Date Tested**: ********\_********
 
-**Tester**: _________________
+**Tester**: ********\_********
 
-**Overall Status**: 
+**Overall Status**:
+
 - [ ] Pass
 - [ ] Pass with Minor Issues
 - [ ] Fail
 
-**Critical Issues Found**: ___________________________________________
+**Critical Issues Found**: ********************\_\_\_********************
 
-**Non-Critical Issues Found**: ___________________________________________
+**Non-Critical Issues Found**: ********************\_\_\_********************
 
-**Notes**: ___________________________________________
+**Notes**: ********************\_\_\_********************
 
 ---
 
