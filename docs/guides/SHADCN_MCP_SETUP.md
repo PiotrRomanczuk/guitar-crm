@@ -32,6 +32,7 @@ export GITHUB_PERSONAL_ACCESS_TOKEN=ghp_your_token_here
 Then reload: `source ~/.zshrc`
 
 **Alternative**: Create `.env.local` in project root (gitignored):
+
 ```
 GITHUB_PERSONAL_ACCESS_TOKEN=ghp_your_token_here
 ```
@@ -79,6 +80,7 @@ echo '{"method": "tools/call", "params": {"name": "get_component_source", "argum
 ### Server Not Responding
 
 1. Check if server builds correctly:
+
    ```bash
    cd .mcp/shadcn-server
    npm run build
@@ -91,6 +93,7 @@ echo '{"method": "tools/call", "params": {"name": "get_component_source", "argum
 ### Rate Limit Issues
 
 If you see "rate limit exceeded":
+
 - Set up your GitHub token (see Prerequisites)
 - Verify the token is exported: `echo $GITHUB_PERSONAL_ACCESS_TOKEN`
 
