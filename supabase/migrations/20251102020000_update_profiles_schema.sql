@@ -16,15 +16,15 @@ ADD
 ALTER TABLE
   public.profiles
 ADD
-  COLUMN IF NOT EXISTS canEdit BOOLEAN NOT NULL DEFAULT FALSE;
+  COLUMN IF NOT EXISTS "canEdit" BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE
   public.profiles
 ADD
-  COLUMN IF NOT EXISTS isActive BOOLEAN DEFAULT TRUE;
+  COLUMN IF NOT EXISTS "isActive" BOOLEAN DEFAULT TRUE;
 ALTER TABLE
   public.profiles
 ADD
-  COLUMN IF NOT EXISTS isTest BOOLEAN DEFAULT FALSE;
+  COLUMN IF NOT EXISTS "isTest" BOOLEAN DEFAULT FALSE;
 -- Rename columns to match expected schema
   -- No need to rename columns as they already use lowercase
   -- ALTER TABLE public.profiles RENAME COLUMN firstname TO "firstName";
