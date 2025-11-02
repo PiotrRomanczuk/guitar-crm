@@ -38,7 +38,10 @@ export async function GET(request: Request) {
 		let query = supabase.from('songs').select('*');
 
 		if (level) {
-			query = query.eq('level', level as 'beginner' | 'intermediate' | 'advanced');
+			query = query.eq(
+				'level',
+				level as 'beginner' | 'intermediate' | 'advanced'
+			);
 		}
 
 		const { data: songs, error: songsError } = await query;
