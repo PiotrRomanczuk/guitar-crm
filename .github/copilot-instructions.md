@@ -34,6 +34,51 @@ Core entities: `profiles` (users with role flags), `songs`, `lessons`, `lesson_s
 
 ## Critical Development Workflows
 
+### Todo List Management (MANDATORY)
+
+**ALWAYS maintain and update todo lists during development work.**
+
+When working on multi-step features or phases:
+
+1. **Create dated todo list files** in `docs/copilot-todos/` using format: `YYYY-MM-DD-description.md`
+2. **Update todo lists after each significant task completion** (commit, PR, feature implementation)
+3. **Include comprehensive details** in todo files:
+   - Task status (✅ completed, [ ] not started, [-] in progress)
+   - Commit hashes for completed work
+   - PR links and status
+   - File lists for each feature
+   - Development standards followed
+   - Next actions
+4. **Use the manage_todo_list tool** for real-time tracking during complex work
+5. **Document TODOs in code** for future enhancements using `TODO:` comments
+
+**Todo List Workflow:**
+```bash
+# Start of work session: Create/review current todo list
+# docs/copilot-todos/2025-11-02-phase-1-2-completion.md
+
+# BEFORE EVERY COMMIT: Run quality checks
+npm run quality  # OR ./scripts/ci/quality-check.sh
+
+# After completing task: Update todo file with details
+# After creating PR: Document PR link and status
+# End of session: Ensure all progress is documented
+```
+
+**CRITICAL: Quality Checks Before Commits (MANDATORY)**
+
+**NEVER commit code without running quality checks first.**
+
+Before every commit:
+1. **Run `npm run quality` or `./scripts/ci/quality-check.sh`**
+2. **Fix ALL failing tests**
+3. **Fix ALL linting errors**
+4. **Fix ALL TypeScript errors**
+5. **Ensure coverage thresholds met** (70% branches/functions/lines/statements)
+6. **Only then commit**
+
+If quality checks fail, DO NOT COMMIT. Fix issues first.
+
 ### TDD Workflow (MANDATORY)
 
 This project strictly follows Test-Driven Development. **Write tests before implementation.**

@@ -12,11 +12,19 @@ import {
 	PrivacySection,
 } from '@/components/settings/SettingsSections';
 
-function SettingsAlert({ type, message }: { type: 'error' | 'success'; message: string }) {
+function SettingsAlert({
+	type,
+	message,
+}: {
+	type: 'error' | 'success';
+	message: string;
+}) {
 	if (type === 'error') {
 		return (
 			<div className='mb-6 rounded-lg border border-destructive bg-destructive/10 p-4'>
-				<p className='font-semibold text-destructive text-sm sm:text-base'>Error</p>
+				<p className='font-semibold text-destructive text-sm sm:text-base'>
+					Error
+				</p>
 				<p className='text-destructive mt-1 text-xs sm:text-sm'>{message}</p>
 			</div>
 		);
@@ -46,7 +54,11 @@ function SettingsActions({
 }) {
 	return (
 		<div className='flex flex-col sm:flex-row gap-3 pt-4'>
-			<Button onClick={onSave} disabled={!hasChanges || saving} className='w-full sm:w-auto'>
+			<Button
+				onClick={onSave}
+				disabled={!hasChanges || saving}
+				className='w-full sm:w-auto'
+			>
 				{saving ? (
 					<>
 						<Spinner size='sm' className='mr-2' />
@@ -80,7 +92,16 @@ function SettingsActions({
 
 export default function SettingsPage() {
 	const router = useRouter();
-	const { user, loading, saving, settings, hasChanges, updateSetting, saveSettings, resetSettings } = useSettings();
+	const {
+		user,
+		loading,
+		saving,
+		settings,
+		hasChanges,
+		updateSetting,
+		saveSettings,
+		resetSettings,
+	} = useSettings();
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState(false);
 
@@ -116,11 +137,19 @@ export default function SettingsPage() {
 				<SettingsHeader />
 
 				{error && <SettingsAlert type='error' message={error} />}
-				{success && <SettingsAlert type='success' message='Settings saved successfully' />}
+				{success && (
+					<SettingsAlert type='success' message='Settings saved successfully' />
+				)}
 
 				<div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6'>
-					<NotificationsSection settings={settings} updateSetting={updateSetting} />
-					<AppearanceSection settings={settings} updateSetting={updateSetting} />
+					<NotificationsSection
+						settings={settings}
+						updateSetting={updateSetting}
+					/>
+					<AppearanceSection
+						settings={settings}
+						updateSetting={updateSetting}
+					/>
 					<PrivacySection settings={settings} updateSetting={updateSetting} />
 					<SettingsActions
 						hasChanges={hasChanges}
