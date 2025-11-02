@@ -2,7 +2,7 @@
 
 **Date:** November 2, 2025  
 **Branch:** `feature/phase-1-2-completion`  
-**Status:** 4/17 tasks completed (23.5%)
+**Status:** 5/17 tasks completed (29.4%)
 
 ## Completed ✅
 
@@ -40,6 +40,7 @@
 - **Completed:** ✅
 - **PR:** #1 - https://github.com/PiotrRomanczuk/guitar-crm/pull/1
 - **Commit:** `79e1a4d` - "feat: implement user profile edit page"
+- **Tests:** `b961990` - 12 comprehensive tests added
 - **Files:**
   - `app/profile/page.tsx` - Main page (52 lines, mobile-first)
   - `schemas/ProfileSchema.ts` - ProfileEditSchema, ProfileEdit type
@@ -61,8 +62,9 @@
 
 ### 5. Add user settings page
 
-- **Status:** 🔄 IN PROGRESS (completed implementation, ready for PR)
+- **Completed:** ✅
 - **Commit:** `eabb9e9` - "feat: implement user settings page"
+- **Tests:** `b961990` - 12 comprehensive tests added
 - **Files:**
   - `app/settings/page.tsx` - Main settings page
   - `schemas/SettingsSchema.ts` - UserSettings, UserSettingsUpdate types
@@ -80,7 +82,8 @@
   - Auth protection
   - Dark mode support
   - All functions <80 lines
-- **Next:** Create PR #2
+- **Tests:** 12 comprehensive tests covering all components and hook functionality
+- **Next:** Push commits to remote, update PR #1 with tests
 
 ## Skipped ⏭️
 
@@ -204,14 +207,45 @@ After review, discovered that commits were made WITHOUT running quality checks f
 
 ### Test Results After Fixes:
 
-- **180 tests passing** ✅ (was 200 with 12 failing)
+- **204 tests passing** ✅ (was 180, added 24 new tests)
 - **20 integration tests excluded** (require live Supabase)
 - **0 failures** ✅
-- **Coverage**: 12.34% (low due to many untested pages/APIs/components)
-  - Profile components: 0% coverage (no tests yet)
-  - Settings components: 0% coverage (no tests yet)
+- **Coverage**: 14.29% (improved from 12.34%)
+  - Profile components: Now have test coverage ✅
+  - Settings components: Now have test coverage ✅
   - Many API routes: <2% coverage
   - Note: Coverage threshold (70%) applies to new code, not entire codebase
+
+### Test Files Created (commit b961990):
+
+1. **`__tests__/components/profile/ProfileComponents.test.tsx`** (7 tests)
+
+   - ProfileHeader: Renders with correct text
+   - ProfileAlert: Success and error alerts with messages
+   - ProfileFormActions: Save/Cancel buttons, saving state, disabled state
+   - ProfileLoadingState: Spinner visibility based on loading prop
+
+2. **`__tests__/components/profile/ProfileFormFields.test.tsx`** (5 tests)
+
+   - Renders all form fields (firstname, lastname, username, bio, email)
+   - Email field is disabled
+   - onChange handler called on user input
+   - Displays existing form data
+   - Bio character count tracking (0-500 chars)
+
+3. **`__tests__/components/settings/SettingsComponents.test.tsx`** (7 tests)
+
+   - SettingsHeader: Renders with correct text and emoji
+   - SettingsSection: Title, description, and children
+   - ToggleSetting: Label, description, switch role, onChange interaction
+   - SelectSetting: Label, description, combobox role, option selection
+
+4. **`__tests__/components/settings/useSettings.test.tsx`** (5 tests)
+   - Initializes with default settings
+   - Updates individual settings with updateSetting()
+   - Saves settings to localStorage
+   - Loads settings from localStorage
+   - Resets settings to defaults
 
 ### Fixes Applied:
 
@@ -229,21 +263,33 @@ After review, discovered that commits were made WITHOUT running quality checks f
 
 1. **79e1a4d** - "feat: implement user profile edit page"
    - Profile page implementation (Todo #8)
-   
 2. **eabb9e9** - "feat: implement user settings page"
    - Settings page implementation (Todo #10)
-   
 3. **59452b1** - "fix: resolve all test failures" ✅
+
    - Fixed all 12 test failures
    - Added fetch mock to jest.setup.js
    - Excluded integration tests from Jest
    - All 180 unit tests now passing
 
+4. **174e7ba** - "docs: update todo list with test fix details"
+
+   - Updated documentation
+
+5. **b961990** - "test: add comprehensive tests for Profile and Settings components" ✅
+   - Added 24 new tests across 4 test files
+   - ProfileComponents.test.tsx: 7 tests (Header, Alert, Actions, LoadingState)
+   - ProfileFormFields.test.tsx: 5 tests (form fields, validation, character count)
+   - SettingsComponents.test.tsx: 7 tests (Header, Section, Toggle, Select with interactions)
+   - useSettings.test.tsx: 5 tests (hook with localStorage, updates, save/reset)
+   - All 204 tests passing (up from 180)
+   - Coverage improved for Profile and Settings components
+
 ## Next Actions
 
-1. **Push commits to remote** - 3 new commits ready
+1. **Push commits to remote** - 5 new commits ready (79e1a4d, eabb9e9, 59452b1, 174e7ba, b961990)
 2. **Create PR #2 for settings page** - Now unblocked ✅
-3. **Consider adding basic tests for Profile/Settings** (optional for now)
+3. ✅ **Added comprehensive tests for Profile/Settings** - COMPLETED
 4. Continue with remaining Phase 1-2 tasks:
    - ErrorBoundary component
    - Toast notification system
@@ -253,4 +299,4 @@ After review, discovered that commits were made WITHOUT running quality checks f
 
 ---
 
-_Last Updated: November 2, 2025 (all tests fixed ✅)_
+_Last Updated: November 2, 2025 - All tests passing ✅ (204 tests, 24 new Profile/Settings tests added)_
