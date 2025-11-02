@@ -6,14 +6,16 @@ export const UserSettingsSchema = z.object({
 	emailNotifications: z.boolean().default(true),
 	pushNotifications: z.boolean().default(false),
 	lessonReminders: z.boolean().default(true),
-	
+
 	// Display preferences
 	theme: z.enum(['light', 'dark', 'system']).default('system'),
 	language: z.enum(['en', 'pl', 'es', 'de', 'fr']).default('en'),
 	timezone: z.string().default('UTC'),
-	
+
 	// Privacy preferences
-	profileVisibility: z.enum(['public', 'private', 'contacts']).default('public'),
+	profileVisibility: z
+		.enum(['public', 'private', 'contacts'])
+		.default('public'),
 	showEmail: z.boolean().default(false),
 	showLastSeen: z.boolean().default(true),
 });

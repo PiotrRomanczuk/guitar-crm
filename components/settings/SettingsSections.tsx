@@ -1,12 +1,22 @@
-import { SettingsSection, ToggleSetting, SelectSetting } from './SettingsComponents';
+import {
+	SettingsSection,
+	ToggleSetting,
+	SelectSetting,
+} from './SettingsComponents';
 import type { UserSettings } from '@/schemas/SettingsSchema';
 
 interface NotificationsSectionProps {
 	settings: UserSettings;
-	updateSetting: <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => void;
+	updateSetting: <K extends keyof UserSettings>(
+		key: K,
+		value: UserSettings[K]
+	) => void;
 }
 
-export function NotificationsSection({ settings, updateSetting }: NotificationsSectionProps) {
+export function NotificationsSection({
+	settings,
+	updateSetting,
+}: NotificationsSectionProps) {
 	return (
 		<SettingsSection
 			title='Notifications'
@@ -39,12 +49,21 @@ export function NotificationsSection({ settings, updateSetting }: NotificationsS
 
 interface AppearanceSectionProps {
 	settings: UserSettings;
-	updateSetting: <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => void;
+	updateSetting: <K extends keyof UserSettings>(
+		key: K,
+		value: UserSettings[K]
+	) => void;
 }
 
-export function AppearanceSection({ settings, updateSetting }: AppearanceSectionProps) {
+export function AppearanceSection({
+	settings,
+	updateSetting,
+}: AppearanceSectionProps) {
 	return (
-		<SettingsSection title='Appearance' description='Customize how the app looks and feels'>
+		<SettingsSection
+			title='Appearance'
+			description='Customize how the app looks and feels'
+		>
 			<SelectSetting
 				id='theme'
 				label='Theme'
@@ -55,7 +74,9 @@ export function AppearanceSection({ settings, updateSetting }: AppearanceSection
 					{ value: 'dark', label: 'Dark' },
 					{ value: 'system', label: 'System Default' },
 				]}
-				onChange={(value) => updateSetting('theme', value as 'light' | 'dark' | 'system')}
+				onChange={(value) =>
+					updateSetting('theme', value as 'light' | 'dark' | 'system')
+				}
 			/>
 			<SelectSetting
 				id='language'
@@ -69,7 +90,9 @@ export function AppearanceSection({ settings, updateSetting }: AppearanceSection
 					{ value: 'de', label: 'Deutsch' },
 					{ value: 'fr', label: 'Français' },
 				]}
-				onChange={(value) => updateSetting('language', value as 'en' | 'pl' | 'es' | 'de' | 'fr')}
+				onChange={(value) =>
+					updateSetting('language', value as 'en' | 'pl' | 'es' | 'de' | 'fr')
+				}
 			/>
 		</SettingsSection>
 	);
@@ -77,10 +100,16 @@ export function AppearanceSection({ settings, updateSetting }: AppearanceSection
 
 interface PrivacySectionProps {
 	settings: UserSettings;
-	updateSetting: <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => void;
+	updateSetting: <K extends keyof UserSettings>(
+		key: K,
+		value: UserSettings[K]
+	) => void;
 }
 
-export function PrivacySection({ settings, updateSetting }: PrivacySectionProps) {
+export function PrivacySection({
+	settings,
+	updateSetting,
+}: PrivacySectionProps) {
 	return (
 		<SettingsSection
 			title='Privacy'
@@ -97,7 +126,10 @@ export function PrivacySection({ settings, updateSetting }: PrivacySectionProps)
 					{ value: 'private', label: 'Private' },
 				]}
 				onChange={(value) =>
-					updateSetting('profileVisibility', value as 'public' | 'private' | 'contacts')
+					updateSetting(
+						'profileVisibility',
+						value as 'public' | 'private' | 'contacts'
+					)
 				}
 			/>
 			<ToggleSetting
