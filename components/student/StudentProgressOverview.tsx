@@ -12,7 +12,8 @@ export function StudentProgressOverview() {
 				</span>
 			</h2>
 			<p className='text-gray-600 dark:text-gray-300'>
-				Progress tracking and achievements are under development. Check back soon!
+				Progress tracking and achievements are under development. Check back
+				soon!
 			</p>
 		</div>
 	);
