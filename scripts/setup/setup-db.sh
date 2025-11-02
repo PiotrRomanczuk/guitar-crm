@@ -14,10 +14,39 @@ if ! command -v supabase &> /dev/null; then
     npm install -g supabase
 fi
 
-# Check if Docker is running (required for local Supabase)
-if ! docker info &> /dev/null; then
-    echo "❌ Docker is not running. Please start Docker Desktop first."
-    exit 1
+# Function to check if Docker is running
+check_docker() {
+    docker info &> /dev/null
+}
+
+# Check if Docker is running and try to start it if not
+if ! check_docker; then
+    echo "⚠️ Docker is not running. Attempting to start Docker Desktop..."
+    
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS specific - try to start Docker Desktop
+        open -a Docker
+        
+        # Wait for Docker to start (max 60 seconds)
+        echo "⏳ Waiting for Docker to start..."
+        for i in {1..60}; do
+            if check_docker; then
+                echo "✅ Docker started successfully!"
+                break
+            fi
+            if [ $i -eq 60 ]; then
+                echo "❌ Docker failed to start within 60 seconds."
+                echo "Please start Docker Desktop manually and try again."
+                exit 1
+            fi
+            sleep 1
+            echo -n "."
+        done
+        echo ""
+    else
+        echo "❌ Docker is not running. Please start Docker Desktop first."
+        exit 1
+    fi
 fi
 
 echo "✅ Docker is running"
