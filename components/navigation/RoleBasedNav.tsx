@@ -69,6 +69,12 @@ export function RoleBasedNav() {
 		navItems.push({ href: '/songs', label: 'Songs', icon: '🎵' });
 	}
 
+	// Everyone can access Profile and Settings
+	navItems.push(
+		{ href: '/profile', label: 'Profile', icon: '👤' },
+		{ href: '/settings', label: 'Settings', icon: '⚙️' }
+	);
+
 	return (
 		<nav className='flex flex-wrap gap-1 sm:flex-col'>
 			{navItems.map((item) => (
