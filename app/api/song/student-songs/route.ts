@@ -1,88 +1,82 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/clients/server';
+import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 
-export async function GET(req: NextRequest) {
-	console.log('[GET] /api/(main)/song/student-songs called with url:', req.url);
-	const { searchParams } = new URL(req.url);
-	const userId = searchParams.get('userId');
-	console.log('Extracted userId:', userId);
-
-	if (!userId) {
-		console.warn('No userId provided in query params');
-		return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
-	}
-
-	const supabase = await createClient();
-	console.log('Supabase client created');
-
+export async function GET(request: Request) {
 	try {
-		// 1. Get songs by user using the RPC function
-		console.log("Calling supabase.rpc('get_songs_by_user') with:", {
-			p_user_id: userId,
-		});
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const { data: userSongsID, error: rpcError } = await (supabase as any).rpc(
-			'get_songs_by_user',
-			{
-				p_user_id: userId,
-			}
-		);
-		console.log('RPC result:', { userSongsID, rpcError });
+		const { searchParams } = new URL(request.url);
+		const userId = searchParams.get('userId');
+		const level = searchParams.get('level');
 
-		if (rpcError) {
-			console.error('Error fetching student songs:', rpcError);
+		if (!userId) {
 			return NextResponse.json(
-				{ error: 'Error fetching student songs' },
+				{ error: 'User ID is required' },
+				{ status: 400 }
+			);
+		}
+
+		const headersList = headers();
+		const supabase = createClient(headersList);
+
+		// 1. Verify user exists and has student role
+		const { data: profile, error: profileError } = await supabase
+			.from('profiles')
+			.select('is_student')
+			.eq('user_id', userId)
+			.single();
+
+		if (profileError || !profile) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+		}
+
+		// 2. Get assigned songs from lesson_songs table
+		const { data: lessonSongs, error: lessonError } = await supabase
+			.from('lesson_songs')
+			.select('song_id, status')
+			.in(
+				'lesson_id',
+				supabase.from('lessons').select('id').eq('student_id', userId)
+			);
+
+		if (lessonError) {
+			return NextResponse.json(
+				{ error: 'Failed to fetch assigned songs' },
 				{ status: 500 }
 			);
 		}
 
-		if (!userSongsID || userSongsID.length === 0) {
-			console.log('No songs found for user', userId);
-			return NextResponse.json({ songs: [], total: 0 });
+		if (!lessonSongs || lessonSongs.length === 0) {
+			return NextResponse.json([]);
 		}
 
-		// 2. Get song details for the user's songs
-		const songIds = userSongsID.map(
-			(song: { song_id: string }) => song.song_id
-		);
-		console.log('Fetching song details for IDs:', songIds);
-		const { data: songs, error: songsError } = await supabase
-			.from('songs')
-			.select('*')
-			.in('id', songIds);
-		console.log('Songs fetch result:', { songs, songsError });
+		// 3. Get full song details
+		const songIds = [...new Set(lessonSongs.map((ls) => ls.song_id))];
+		let query = supabase.from('songs').select('*').in('id', songIds);
+
+		if (level) {
+			query = query.eq('level', level);
+		}
+
+		const { data: songs, error: songsError } = await query;
 
 		if (songsError) {
-			console.error('Error fetching songs details:', songsError);
 			return NextResponse.json(
-				{ error: 'Error fetching songs details' },
+				{ error: 'Failed to fetch songs' },
 				{ status: 500 }
 			);
 		}
 
-		// 3. Create a map of song_id to status for quick lookup
-		const statusMap = new Map(
-			userSongsID.map((song: { song_id: string; song_status: string }) => [
-				song.song_id,
-				song.song_status,
-			])
-		);
-		console.log('Status map:', Array.from(statusMap.entries()));
+		// 4. Merge song details with status
+		const statusMap = new Map(lessonSongs.map((ls) => [ls.song_id, ls.status]));
 
-		// 4. Merge songs with their status
-		const songsWithStatus = songs.map((song: Record<string, unknown>) => ({
+		const songsWithStatus = songs.map((song) => ({
 			...song,
-			status: statusMap.get((song as { id: string }).id) || 'to learn',
+			status: statusMap.get(song.id) || 'to_learn',
 		}));
-		console.log('Final songsWithStatus:', songsWithStatus);
 
-		return NextResponse.json({
-			songs: songsWithStatus,
-			total: songsWithStatus.length,
-		});
+		return NextResponse.json(songsWithStatus);
 	} catch (error) {
-		console.error('Unexpected error while fetching student songs:', error);
+		console.error('Error in student-songs route:', error);
 		return NextResponse.json(
 			{ error: 'Internal server error' },
 			{ status: 500 }
