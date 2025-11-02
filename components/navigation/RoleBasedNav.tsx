@@ -49,22 +49,22 @@ export function RoleBasedNav() {
 	}
 
 	// Teacher navigation
-	if (isTeacher || isAdmin) {
-		navItems.push(
-			{ href: '/students', label: 'Students', icon: '👨‍🎓' },
-			{ href: '/lessons', label: 'Lessons', icon: '📚' }
-		);
+	if (isTeacher && !isAdmin) {
+		navItems.push({ href: '/teacher', label: 'Teacher Dashboard', icon: '👨‍🏫' });
+		// TODO: Implement these routes
+		// { href: '/students', label: 'Students', icon: '👨‍🎓' },
+		// { href: '/lessons', label: 'Lessons', icon: '📚' }
 	}
 
 	// Student navigation
-	if (isStudent) {
-		navItems.push(
-			{ href: '/my-lessons', label: 'My Lessons', icon: '📖' },
-			{ href: '/progress', label: 'My Progress', icon: '📈' }
-		);
+	if (isStudent && !isAdmin && !isTeacher) {
+		navItems.push({ href: '/student', label: 'Student Dashboard', icon: '👨‍🎓' });
+		// TODO: Implement these routes
+		// { href: '/my-lessons', label: 'My Lessons', icon: '📖' },
+		// { href: '/progress', label: 'My Progress', icon: '📈' }
 	}
 
-	// Everyone can access songs
+	// Everyone can access songs (if not admin - admins already have it)
 	if (!isAdmin) {
 		navItems.push({ href: '/songs', label: 'Songs', icon: '🎵' });
 	}
