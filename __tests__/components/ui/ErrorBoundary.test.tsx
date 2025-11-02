@@ -60,7 +60,9 @@ describe('ErrorBoundary', () => {
 			</ErrorBoundary>
 		);
 
-		expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+		expect(
+			screen.getByRole('button', { name: /try again/i })
+		).toBeInTheDocument();
 	});
 
 	it('should allow custom fallback component', () => {

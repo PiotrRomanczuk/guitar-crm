@@ -10,13 +10,13 @@ describe('Spinner', () => {
 	});
 
 	it('should render with small size', () => {
-		render(<Spinner size="sm" />);
+		render(<Spinner size='sm' />);
 		const spinner = screen.getByRole('status');
 		expect(spinner).toHaveClass('h-4', 'w-4');
 	});
 
 	it('should render with large size', () => {
-		render(<Spinner size="lg" />);
+		render(<Spinner size='lg' />);
 		const spinner = screen.getByRole('status');
 		expect(spinner).toHaveClass('h-12', 'w-12');
 	});
@@ -27,7 +27,7 @@ describe('Spinner', () => {
 	});
 
 	it('should accept custom className', () => {
-		render(<Spinner className="custom-class" />);
+		render(<Spinner className='custom-class' />);
 		const spinner = screen.getByRole('status');
 		expect(spinner).toHaveClass('custom-class');
 	});

@@ -358,19 +358,17 @@ Workflow:
 
 ## Documentation Resources
 
-📂 **[docs/README.md](../docs/README.md)** - Complete documentation index with category navigation
-
 ### Role-Based CRUD Documentation (START HERE for new entities)
 
-- **CRUD Implementation Checklist**: `docs/architecture/CRUD_IMPLEMENTATION_CHECKLIST.md` - **Complete step-by-step checklist** with time estimates (~8 hours total)
-- **Role-Based Architecture**: `docs/architecture/ROLE_BASED_ARCHITECTURE.md` - Visual guide to three-tier role system (Admin/Teacher/Student)
-- **CRUD Standards**: `docs/architecture/CRUD_STANDARDS.md` - Complete guide for implementing CRUD operations consistently with role-based access
-- **CRUD Quick Reference**: `docs/architecture/CRUD_QUICK_REFERENCE.md` - Fast templates and copy-paste patterns with role logic
-- **Songs CRUD Review**: `docs/completed-features/SONGS_CRUD_REVIEW.md` - Current status and fixes needed
+- **CRUD Implementation Checklist**: `docs/CRUD_IMPLEMENTATION_CHECKLIST.md` - **Complete step-by-step checklist** with time estimates (~8 hours total)
+- **Role-Based Architecture**: `docs/ROLE_BASED_ARCHITECTURE.md` - Visual guide to three-tier role system (Admin/Teacher/Student)
+- **CRUD Standards**: `docs/CRUD_STANDARDS.md` - Complete guide for implementing CRUD operations consistently with role-based access
+- **CRUD Quick Reference**: `docs/CRUD_QUICK_REFERENCE.md` - Fast templates and copy-paste patterns with role logic
+- **Songs CRUD Review**: `docs/SONGS_CRUD_REVIEW.md` - Current status and fixes needed
 
 ### General Development Documentation
 
-- **TDD Guide**: `docs/guides/TDD_GUIDE.md` - Comprehensive testing practices
+- **TDD Guide**: `docs/TDD_GUIDE.md` - Comprehensive testing practices
 - **Scripts Guide**: `scripts/README.md` - All automation commands explained
 - **Schema Docs**: `schemas/README.md` - Validation patterns + examples
 - **Project Overview**: `PROJECT_OVERVIEW.md` - Architecture deep dive

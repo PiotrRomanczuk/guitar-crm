@@ -16,10 +16,14 @@ const sizeClasses = {
 export function Spinner({ size = 'md', className }: SpinnerProps) {
 	return (
 		<div
-			role="status"
-			className={cn('animate-spin rounded-full border-2 border-gray-300 border-t-primary', sizeClasses[size], className)}
+			role='status'
+			className={cn(
+				'animate-spin rounded-full border-2 border-gray-300 border-t-primary',
+				sizeClasses[size],
+				className
+			)}
 		>
-			<span className="sr-only">Loading...</span>
+			<span className='sr-only'>Loading...</span>
 		</div>
 	);
 }
