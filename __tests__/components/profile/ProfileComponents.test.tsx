@@ -20,14 +20,16 @@ describe('ProfileComponents', () => {
 
 	describe('ProfileAlert', () => {
 		it('should render success alert with message', () => {
-			render(<ProfileAlert type="success" message="Profile saved successfully!" />);
+			render(
+				<ProfileAlert type='success' message='Profile saved successfully!' />
+			);
 			expect(
 				screen.getByText(/Profile saved successfully!/)
 			).toBeInTheDocument();
 		});
 
 		it('should render error alert with message', () => {
-			render(<ProfileAlert type="error" message="Save failed" />);
+			render(<ProfileAlert type='error' message='Save failed' />);
 			expect(screen.getByText('Error')).toBeInTheDocument();
 			expect(screen.getByText('Save failed')).toBeInTheDocument();
 		});

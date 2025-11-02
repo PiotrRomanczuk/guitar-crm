@@ -21,7 +21,7 @@ describe('ProfileFormFields', () => {
 		render(
 			<ProfileFormFields
 				formData={defaultFormData}
-				userEmail="test@example.com"
+				userEmail='test@example.com'
 				onChange={mockOnChange}
 			/>
 		);
@@ -37,7 +37,7 @@ describe('ProfileFormFields', () => {
 		render(
 			<ProfileFormFields
 				formData={defaultFormData}
-				userEmail="test@example.com"
+				userEmail='test@example.com'
 				onChange={mockOnChange}
 			/>
 		);
@@ -51,7 +51,7 @@ describe('ProfileFormFields', () => {
 		render(
 			<ProfileFormFields
 				formData={defaultFormData}
-				userEmail="test@example.com"
+				userEmail='test@example.com'
 				onChange={mockOnChange}
 			/>
 		);
@@ -73,7 +73,7 @@ describe('ProfileFormFields', () => {
 		render(
 			<ProfileFormFields
 				formData={existingData}
-				userEmail="test@example.com"
+				userEmail='test@example.com'
 				onChange={mockOnChange}
 			/>
 		);
@@ -95,7 +95,7 @@ describe('ProfileFormFields', () => {
 		render(
 			<ProfileFormFields
 				formData={dataWithBio}
-				userEmail="test@example.com"
+				userEmail='test@example.com'
 				onChange={mockOnChange}
 			/>
 		);

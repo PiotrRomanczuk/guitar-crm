@@ -53,6 +53,7 @@ When working on multi-step features or phases:
 5. **Document TODOs in code** for future enhancements using `TODO:` comments
 
 **Todo List Workflow:**
+
 ```bash
 # Start of work session: Create/review current todo list
 # docs/copilot-todos/2025-11-02-phase-1-2-completion.md
@@ -70,6 +71,7 @@ npm run quality  # OR ./scripts/ci/quality-check.sh
 **NEVER commit code without running quality checks first.**
 
 Before every commit:
+
 1. **Run `npm run quality` or `./scripts/ci/quality-check.sh`**
 2. **Fix ALL failing tests**
 3. **Fix ALL linting errors**
