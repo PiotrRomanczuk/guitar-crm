@@ -4,8 +4,6 @@ import { useAuth } from '@/components/auth';
 import {
 	LoadingScreen,
 	LandingPage,
-	DashboardCard,
-	QuickActionButton,
 	DashboardHeader,
 	DashboardCardGrid,
 	QuickActionsSection,
@@ -45,6 +43,10 @@ function DashboardPageContent({
 
 export default function Home() {
 	const { user, loading, isAdmin, isTeacher, isStudent } = useAuth();
+
+	// TODO: Replace this redirect logic with the smart dashboard index
+	// For now, we're keeping the multi-role landing page as the home
+	// Future: Redirect admins→/admin, teachers→/teacher, students→/student
 
 	if (loading) {
 		return <LoadingScreen />;
