@@ -1,45 +1,63 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/clients/server";
-import { Song } from "@/types/Song";
+import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const currentUserId = searchParams.get("currentUserId");
-  const targetUserId = searchParams.get("targetUserId");
-  if (!currentUserId || !targetUserId) {
-    return NextResponse.json(
-      { error: "Missing currentUserId or targetUserId" },
-      { status: 400 },
-    );
-  }
-  const supabase = await createClient();
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("isAdmin")
-    .eq("user_id", currentUserId)
-    .single();
-  if (profileError) {
-    return NextResponse.json(
-      { error: "Error fetching user profile" },
-      { status: 500 },
-    );
-  }
-  if (!profile?.isAdmin) {
-    return NextResponse.json(
-      { error: "User is not an admin" },
-      { status: 403 },
-    );
-  }
-  const { data, error } = await supabase
-    .from("user_favorites")
-    .select("song:song_id(*)")
-    .eq("user_id", targetUserId);
-  if (error) {
-    return NextResponse.json(
-      { error: "Error fetching songs: " + error.message },
-      { status: 500 },
-    );
-  }
-  const songs = data?.map((fav: unknown) => (fav as { song: Song }).song) || [];
-  return NextResponse.json(songs);
+export async function GET(request: Request) {
+	try {
+		const { searchParams } = new URL(request.url);
+		const userId = searchParams.get('userId');
+		const level = searchParams.get('level');
+
+		if (!userId) {
+			return NextResponse.json(
+				{ error: 'User ID is required' },
+				{ status: 400 }
+			);
+		}
+
+		const headersList = headers();
+		const supabase = createClient(headersList);
+
+		// 1. Verify user has teacher or admin role
+		const { data: profile, error: profileError } = await supabase
+			.from('profiles')
+			.select('is_admin, is_teacher')
+			.eq('user_id', userId)
+			.single();
+
+		if (profileError || !profile) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+		}
+
+		if (!profile.is_admin && !profile.is_teacher) {
+			return NextResponse.json(
+				{ error: 'Insufficient permissions' },
+				{ status: 403 }
+			);
+		}
+
+		// 2. Fetch all songs (teachers and admins can see all)
+		let query = supabase.from('songs').select('*');
+
+		if (level) {
+			query = query.eq('level', level);
+		}
+
+		const { data: songs, error: songsError } = await query;
+
+		if (songsError) {
+			return NextResponse.json(
+				{ error: 'Failed to fetch songs' },
+				{ status: 500 }
+			);
+		}
+
+		return NextResponse.json(songs || []);
+	} catch (error) {
+		console.error('Error in admin-songs route:', error);
+		return NextResponse.json(
+			{ error: 'Internal server error' },
+			{ status: 500 }
+		);
+	}
 }
