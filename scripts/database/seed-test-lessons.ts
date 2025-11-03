@@ -8,11 +8,17 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321';
-const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabaseUrl =
+	process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321';
+const supabaseServiceKey =
+	process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ||
+	process.env.SUPABASE_SERVICE_ROLE_KEY ||
+	'';
 
 if (!supabaseServiceKey) {
-	console.error('❌ NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY not set in .env.local');
+	console.error(
+		'❌ NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY not set in .env.local'
+	);
 	process.exit(1);
 }
 
@@ -60,7 +66,9 @@ async function seedTestLessons() {
 			process.exit(1);
 		}
 
-		console.log(`📊 Current lessons in database: ${existingLessons?.length || 0}`);
+		console.log(
+			`📊 Current lessons in database: ${existingLessons?.length || 0}`
+		);
 
 		// Clear existing test lessons if any
 		if (existingLessons && existingLessons.length > 0) {
@@ -88,7 +96,9 @@ async function seedTestLessons() {
 				student_id: student.user_id,
 				creator_user_id: teacher.user_id,
 				status: 'COMPLETED',
-				date: new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks ago
+				date: new Date(
+					today.getTime() - 14 * 24 * 60 * 60 * 1000
+				).toISOString(), // 2 weeks ago
 				notes: 'Covered basic chords and strumming patterns',
 			});
 
@@ -123,7 +133,9 @@ async function seedTestLessons() {
 			process.exit(1);
 		}
 
-		console.log(`✅ Successfully inserted ${insertedLessons?.length || 0} lessons`);
+		console.log(
+			`✅ Successfully inserted ${insertedLessons?.length || 0} lessons`
+		);
 
 		// Display summary
 		console.log('\n📊 Lessons Summary:');
@@ -138,7 +150,9 @@ async function seedTestLessons() {
 			const completed = stats.filter((l) => l.status === 'COMPLETED').length;
 			const scheduled = stats.filter((l) => l.status === 'SCHEDULED').length;
 			const cancelled = stats.filter((l) => l.status === 'CANCELLED').length;
-			const rescheduled = stats.filter((l) => l.status === 'RESCHEDULED').length;
+			const rescheduled = stats.filter(
+				(l) => l.status === 'RESCHEDULED'
+			).length;
 
 			console.log(`Completed:   ${completed}`);
 			console.log(`Scheduled:   ${scheduled}`);

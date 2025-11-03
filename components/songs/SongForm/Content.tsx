@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { SongInputSchema, Song } from '@/schemas/SongSchema';
-import { ZodError } from 'zod';
-import SongFormFields from './SongForm.Fields';
+import SongFormFields from './Fields';
+import { createFormData, clearFieldError, parseZodErrors } from './helpers';
 
 interface Props {
 	mode: 'create' | 'edit';
@@ -12,30 +12,31 @@ interface Props {
 	onSuccess?: () => void;
 }
 
-export default function SongFormContent({ mode, song, onSuccess }: Props) {
-	const [formData, setFormData] = useState({
-		title: song?.title || '',
-		author: song?.author || '',
-		level: song?.level || ('beginner' as const),
-		key: song?.key || ('C' as const),
-		ultimate_guitar_link: song?.ultimate_guitar_link || '',
-		chords: song?.chords || '',
-		short_title: song?.short_title || '',
-	});
+async function saveSong(
+	mode: 'create' | 'edit',
+	data: unknown,
+	songId?: string
+) {
+	const supabase = getSupabaseBrowserClient();
+	if (mode === 'create') {
+		return await supabase.from('songs').insert([data]);
+	}
+	if (songId) {
+		return await supabase.from('songs').update(data).eq('id', songId);
+	}
+	return { error: new Error('No song ID provided') };
+}
 
+export default function SongFormContent({ mode, song, onSuccess }: Props) {
+	const [formData, setFormData] = useState(createFormData(song));
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitError, setSubmitError] = useState<string | null>(null);
 
 	const handleChange = (field: string, value: string) => {
 		setFormData((prev) => ({ ...prev, [field]: value }));
-		// Clear error for this field on change
 		if (errors[field]) {
-			setErrors((prev) => {
-				const newErrors = { ...prev };
-				delete newErrors[field];
-				return newErrors;
-			});
+			setErrors((prev) => clearFieldError(prev, field));
 		}
 	};
 
@@ -46,36 +47,18 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
 		setIsSubmitting(true);
 
 		try {
-			// Validate form data
 			const validatedData = SongInputSchema.parse(formData);
+			const { error } = await saveSong(mode, validatedData, song?.id);
 
-			if (mode === 'create') {
-				const { error } = await supabase.from('songs').insert([validatedData]);
-
-				if (error) {
-					setSubmitError('Failed to save song');
-					return;
-				}
-			} else if (song?.id) {
-				const { error } = await supabase
-					.from('songs')
-					.update(validatedData)
-					.eq('id', song.id);
-
-				if (error) {
-					setSubmitError('Failed to save song');
-					return;
-				}
+			if (error) {
+				setSubmitError('Failed to save song');
+				return;
 			}
 
 			onSuccess?.();
 		} catch (err) {
-			if (err instanceof ZodError) {
-				const fieldErrors: Record<string, string> = {};
-				err.errors.forEach((error) => {
-					const field = error.path[0] as string;
-					fieldErrors[field] = error.message;
-				});
+			const fieldErrors = parseZodErrors(err);
+			if (Object.keys(fieldErrors).length > 0) {
 				setErrors(fieldErrors);
 			} else {
 				setSubmitError('Failed to save song');

@@ -1,5 +1,6 @@
-import SongFormFieldText from './SongForm.FieldText';
-import SongFormFieldSelect from './SongForm.FieldSelect';
+import SongFormFieldText from './FieldText';
+import SongFormFieldSelect from './FieldSelect';
+import { MUSIC_KEY_OPTIONS, LEVEL_OPTIONS } from './options';
 
 interface Props {
 	formData: Record<string, string>;
@@ -35,11 +36,7 @@ export default function SongFormFields({ formData, errors, onChange }: Props) {
 					value={formData.level}
 					error={errors.level}
 					onChange={(value) => onChange('level', value)}
-					options={[
-						{ value: 'beginner', label: 'Beginner' },
-						{ value: 'intermediate', label: 'Intermediate' },
-						{ value: 'advanced', label: 'Advanced' },
-					]}
+					options={LEVEL_OPTIONS}
 					required
 				/>
 
@@ -49,32 +46,7 @@ export default function SongFormFields({ formData, errors, onChange }: Props) {
 					value={formData.key}
 					error={errors.key}
 					onChange={(value) => onChange('key', value)}
-					options={[
-						{ value: 'C', label: 'C' },
-						{ value: 'C#', label: 'C#' },
-						{ value: 'D', label: 'D' },
-						{ value: 'D#', label: 'D#' },
-						{ value: 'E', label: 'E' },
-						{ value: 'F', label: 'F' },
-						{ value: 'F#', label: 'F#' },
-						{ value: 'G', label: 'G' },
-						{ value: 'G#', label: 'G#' },
-						{ value: 'A', label: 'A' },
-						{ value: 'A#', label: 'A#' },
-						{ value: 'B', label: 'B' },
-						{ value: 'Cm', label: 'Cm' },
-						{ value: 'C#m', label: 'C#m' },
-						{ value: 'Dm', label: 'Dm' },
-						{ value: 'D#m', label: 'D#m' },
-						{ value: 'Em', label: 'Em' },
-						{ value: 'Fm', label: 'Fm' },
-						{ value: 'F#m', label: 'F#m' },
-						{ value: 'Gm', label: 'Gm' },
-						{ value: 'G#m', label: 'G#m' },
-						{ value: 'Am', label: 'Am' },
-						{ value: 'A#m', label: 'A#m' },
-						{ value: 'Bm', label: 'Bm' },
-					]}
+					options={MUSIC_KEY_OPTIONS}
 					required
 				/>
 			</div>

@@ -1,9 +1,18 @@
+import type { SongFilters } from '../types';
+
 interface Props {
-	filterLevel: string | null;
-	onFilterChange: (level: string | null) => void;
+	filters: SongFilters;
+	onChange: (filters: SongFilters) => void;
 }
 
-export default function SongListFilter({ filterLevel, onFilterChange }: Props) {
+export default function SongListFilter({ filters, onChange }: Props) {
+	const handleLevelChange = (level: string) => {
+		onChange({
+			...filters,
+			level: level === '' ? null : (level as SongFilters['level']),
+		});
+	};
+
 	return (
 		<div className='py-4'>
 			<label htmlFor='level-filter' className='block mb-2 font-medium'>
@@ -11,8 +20,8 @@ export default function SongListFilter({ filterLevel, onFilterChange }: Props) {
 			</label>
 			<select
 				id='level-filter'
-				value={filterLevel || ''}
-				onChange={(e) => onFilterChange(e.target.value || null)}
+				value={filters.level || ''}
+				onChange={(e) => handleLevelChange(e.target.value)}
 				className='px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500'
 			>
 				<option value=''>All Levels</option>
