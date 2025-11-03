@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import SongFormContent from './SongForm.Content';
+import SongFormContent from './Content';
 import { Song } from '@/schemas/SongSchema';
 
 interface Props {

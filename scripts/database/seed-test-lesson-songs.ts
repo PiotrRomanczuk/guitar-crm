@@ -8,17 +8,29 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321';
-const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabaseUrl =
+	process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321';
+const supabaseServiceKey =
+	process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ||
+	process.env.SUPABASE_SERVICE_ROLE_KEY ||
+	'';
 
 if (!supabaseServiceKey) {
-	console.error('❌ NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY not set in .env.local');
+	console.error(
+		'❌ NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY not set in .env.local'
+	);
 	process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-const SONG_STATUSES = ['to_learn', 'started', 'remembered', 'with_author', 'mastered'] as const;
+const SONG_STATUSES = [
+	'to_learn',
+	'started',
+	'remembered',
+	'with_author',
+	'mastered',
+] as const;
 
 async function seedTestLessonSongs() {
 	console.log('🎵 Seeding test lesson-songs...');
@@ -61,7 +73,9 @@ async function seedTestLessonSongs() {
 			process.exit(1);
 		}
 
-		console.log(`📊 Current lesson-song associations: ${existingLessonSongs?.length || 0}`);
+		console.log(
+			`📊 Current lesson-song associations: ${existingLessonSongs?.length || 0}`
+		);
 
 		// Clear existing lesson-songs if any
 		if (existingLessonSongs && existingLessonSongs.length > 0) {
@@ -87,7 +101,7 @@ async function seedTestLessonSongs() {
 		for (let i = 0; i < lessons.length; i++) {
 			const lesson = lessons[i];
 			const isCompleted = lesson.status === 'COMPLETED';
-			
+
 			// Assign 2-3 songs per lesson
 			const numSongs = Math.floor(Math.random() * 2) + 2; // 2 or 3 songs
 
@@ -111,7 +125,7 @@ async function seedTestLessonSongs() {
 
 				// Determine status based on lesson status
 				let songStatus: (typeof SONG_STATUSES)[number];
-				
+
 				if (isCompleted) {
 					// Completed lessons should have progressed songs
 					const statusIndex = Math.min(j + 2, SONG_STATUSES.length - 1);
@@ -131,7 +145,9 @@ async function seedTestLessonSongs() {
 			}
 		}
 
-		console.log(`\n🌱 Inserting ${lessonSongs.length} lesson-song associations...`);
+		console.log(
+			`\n🌱 Inserting ${lessonSongs.length} lesson-song associations...`
+		);
 		const { data: insertedLessonSongs, error: insertError } = await supabase
 			.from('lesson_songs')
 			.insert(lessonSongs)
@@ -143,7 +159,11 @@ async function seedTestLessonSongs() {
 			process.exit(1);
 		}
 
-		console.log(`✅ Successfully inserted ${insertedLessonSongs?.length || 0} lesson-song associations`);
+		console.log(
+			`✅ Successfully inserted ${
+				insertedLessonSongs?.length || 0
+			} lesson-song associations`
+		);
 
 		// Display summary
 		console.log('\n📊 Lesson-Songs Summary:');
@@ -155,13 +175,10 @@ async function seedTestLessonSongs() {
 			.order('song_status');
 
 		if (stats) {
-			const statusCounts = SONG_STATUSES.reduce(
-				(acc, status) => {
-					acc[status] = stats.filter((ls) => ls.song_status === status).length;
-					return acc;
-				},
-				{} as Record<string, number>
-			);
+			const statusCounts = SONG_STATUSES.reduce((acc, status) => {
+				acc[status] = stats.filter((ls) => ls.song_status === status).length;
+				return acc;
+			}, {} as Record<string, number>);
 
 			console.log(`To Learn:     ${statusCounts.to_learn || 0}`);
 			console.log(`Started:      ${statusCounts.started || 0}`);

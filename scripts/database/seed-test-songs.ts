@@ -8,11 +8,17 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321';
-const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabaseUrl =
+	process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321';
+const supabaseServiceKey =
+	process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ||
+	process.env.SUPABASE_SERVICE_ROLE_KEY ||
+	'';
 
 if (!supabaseServiceKey) {
-	console.error('❌ NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY not set in .env.local');
+	console.error(
+		'❌ NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY not set in .env.local'
+	);
 	process.exit(1);
 }
 
@@ -26,15 +32,17 @@ const testSongs = [
 		level: 'beginner',
 		key: 'Em',
 		chords: 'Em, G, D, A7sus4',
-		ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/oasis/wonderwall-chords-64011',
+		ultimate_guitar_link:
+			'https://tabs.ultimate-guitar.com/tab/oasis/wonderwall-chords-64011',
 	},
 	{
-		title: 'Knockin\' on Heaven\'s Door',
+		title: "Knockin' on Heaven's Door",
 		author: 'Bob Dylan',
 		level: 'beginner',
 		key: 'G',
 		chords: 'G, D, Am, C',
-		ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/bob-dylan/knockin-on-heavens-door-chords-46792',
+		ultimate_guitar_link:
+			'https://tabs.ultimate-guitar.com/tab/bob-dylan/knockin-on-heavens-door-chords-46792',
 	},
 	{
 		title: 'Horse With No Name',
@@ -42,7 +50,8 @@ const testSongs = [
 		level: 'beginner',
 		key: 'Em',
 		chords: 'Em, D6/9',
-		ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/america/a-horse-with-no-name-chords-10513',
+		ultimate_guitar_link:
+			'https://tabs.ultimate-guitar.com/tab/america/a-horse-with-no-name-chords-10513',
 	},
 	{
 		title: 'Stand By Me',
@@ -50,7 +59,8 @@ const testSongs = [
 		level: 'beginner',
 		key: 'A',
 		chords: 'A, F#m, D, E',
-		ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/ben-e-king/stand-by-me-chords-5789',
+		ultimate_guitar_link:
+			'https://tabs.ultimate-guitar.com/tab/ben-e-king/stand-by-me-chords-5789',
 	},
 	{
 		title: 'Zombie',
@@ -58,7 +68,8 @@ const testSongs = [
 		level: 'beginner',
 		key: 'Em',
 		chords: 'Em, Cmaj7, G6, D/F#',
-		ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/the-cranberries/zombie-chords-46025',
+		ultimate_guitar_link:
+			'https://tabs.ultimate-guitar.com/tab/the-cranberries/zombie-chords-46025',
 	},
 
 	// Intermediate songs (5)
@@ -68,7 +79,8 @@ const testSongs = [
 		level: 'intermediate',
 		key: 'Bm',
 		chords: 'Bm, F#, A, E, G, D, Em',
-		ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/eagles/hotel-california-chords-8163',
+		ultimate_guitar_link:
+			'https://tabs.ultimate-guitar.com/tab/eagles/hotel-california-chords-8163',
 	},
 	{
 		title: 'Tears in Heaven',
@@ -76,7 +88,8 @@ const testSongs = [
 		level: 'intermediate',
 		key: 'A',
 		chords: 'A, E/G#, F#m, A/E, D/F#, E7sus4, E7',
-		ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/eric-clapton/tears-in-heaven-chords-6234',
+		ultimate_guitar_link:
+			'https://tabs.ultimate-guitar.com/tab/eric-clapton/tears-in-heaven-chords-6234',
 	},
 	{
 		title: 'Nothing Else Matters',
@@ -84,7 +97,8 @@ const testSongs = [
 		level: 'intermediate',
 		key: 'Em',
 		chords: 'Em, D, C, G, B7, Am',
-		ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/metallica/nothing-else-matters-chords-8752',
+		ultimate_guitar_link:
+			'https://tabs.ultimate-guitar.com/tab/metallica/nothing-else-matters-chords-8752',
 	},
 	{
 		title: 'Blackbird',
@@ -92,7 +106,8 @@ const testSongs = [
 		level: 'intermediate',
 		key: 'G',
 		chords: 'G, A7, C, D, Em, Cm',
-		ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/the-beatles/blackbird-chords-9821',
+		ultimate_guitar_link:
+			'https://tabs.ultimate-guitar.com/tab/the-beatles/blackbird-chords-9821',
 	},
 	{
 		title: 'Under the Bridge',
@@ -100,7 +115,8 @@ const testSongs = [
 		level: 'intermediate',
 		key: 'E',
 		chords: 'E, B, C#m, A, G#m, F#',
-		ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/red-hot-chili-peppers/under-the-bridge-chords-7845',
+		ultimate_guitar_link:
+			'https://tabs.ultimate-guitar.com/tab/red-hot-chili-peppers/under-the-bridge-chords-7845',
 	},
 
 	// Advanced songs (3)
@@ -110,7 +126,8 @@ const testSongs = [
 		level: 'advanced',
 		key: 'Am',
 		chords: 'Am, G#, C/G, D/F#, Fmaj7, G, Am7, D, Dsus4, C, F, Am',
-		ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/led-zeppelin/stairway-to-heaven-chords-3528',
+		ultimate_guitar_link:
+			'https://tabs.ultimate-guitar.com/tab/led-zeppelin/stairway-to-heaven-chords-3528',
 	},
 	{
 		title: 'Little Wing',
@@ -118,7 +135,8 @@ const testSongs = [
 		level: 'advanced',
 		key: 'Em',
 		chords: 'Em, G, Am, Bm, B♭, C, D, D#dim',
-		ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/jimi-hendrix/little-wing-chords-4731',
+		ultimate_guitar_link:
+			'https://tabs.ultimate-guitar.com/tab/jimi-hendrix/little-wing-chords-4731',
 	},
 	{
 		title: 'Classical Gas',
@@ -126,7 +144,8 @@ const testSongs = [
 		level: 'advanced',
 		key: 'Am',
 		chords: 'Am, G, F, E, Dm, C, B7',
-		ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/mason-williams/classical-gas-chords-2341',
+		ultimate_guitar_link:
+			'https://tabs.ultimate-guitar.com/tab/mason-williams/classical-gas-chords-2341',
 	},
 ];
 
@@ -187,7 +206,9 @@ async function seedTestSongs() {
 
 		if (stats) {
 			const beginner = stats.filter((s) => s.level === 'beginner').length;
-			const intermediate = stats.filter((s) => s.level === 'intermediate').length;
+			const intermediate = stats.filter(
+				(s) => s.level === 'intermediate'
+			).length;
 			const advanced = stats.filter((s) => s.level === 'advanced').length;
 
 			console.log(`Beginner:     ${beginner}`);

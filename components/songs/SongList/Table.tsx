@@ -1,7 +1,5 @@
 import Link from 'next/link';
-import { Tables } from '@/lib/supabase';
-
-type Song = Tables<'songs'>;
+import type { Song } from '../types';
 
 interface Props {
 	songs: Song[];

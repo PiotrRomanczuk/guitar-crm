@@ -2,9 +2,23 @@
 
 **Date:** November 2, 2025  
 **Branch:** `feature/phase-1-2-completion`  
-**Status:** 6/18 tasks completed (33.3%)
+**Status:** 7/18 tasks completed (38.9%)
 
 ## Completed ✅
+
+### 7. Fix song list visibility for admin accounts
+
+- **Completed:** ✅
+- **Details:**
+  - Fixed role mapping in `components/auth/AuthProvider.tsx` to use DB fields `isadmin/isteacher/isstudent`
+  - Added backend logging in `app/api/song/{admin-songs,student-songs}/route.ts`
+  - Enforced student-only access on `student-songs` (returns 403 for non-students)
+  - Verified admin user sees full song list; student without lessons sees empty list by design
+- **Files Modified:**
+  - `components/auth/AuthProvider.tsx`
+  - `app/api/song/admin-songs/route.ts`
+  - `app/api/song/student-songs/route.ts`
+- **Notes:** Base song list working; pagination and advanced search remain TODOs (see Phase 3 docs)
 
 ### 1. Fix failing user seeding test
 
@@ -320,7 +334,5 @@ After review, discovered that commits were made WITHOUT running quality checks f
    - 404 and error pages
    - Dark mode toggle
    - And 10 more...
-
----
 
 _Last Updated: November 2, 2025 - All tests passing ✅ (204 tests, 24 new Profile/Settings tests added)_

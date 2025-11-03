@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { Song } from '@/schemas/SongSchema';
 
 export default function useSong(songId: string) {
@@ -20,6 +20,7 @@ export default function useSong(songId: string) {
 
 			setLoading(true);
 			try {
+				const supabase = getSupabaseBrowserClient();
 				const { data, error: fetchError } = await supabase
 					.from('songs')
 					.select('*')
