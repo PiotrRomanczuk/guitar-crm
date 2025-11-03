@@ -151,11 +151,22 @@ npm run e2e:open     # Open Cypress runner (interactive)
 
 **Checks performed**:
 
-- TypeScript type checking
-- ESLint code style validation
-- All tests execution
-- TODO/FIXME comment detection
-- Bundle size analysis (if built)
+1. TypeScript type checking
+2. ESLint code style validation
+3. Jest unit/integration tests with coverage
+4. TODO/FIXME comment detection
+5. Component file size analysis (advisory)
+6. Bundle size analysis (if built)
+7. Database quality validation
+8. **Cypress E2E tests** (runs in headless mode)
+9. Lighthouse performance scores
+
+**E2E Testing**:
+
+- Automatically starts dev server if not running
+- Runs all Cypress tests in headless Chrome
+- Provides helpful tips on failure
+- Use `npm run e2e:open` to debug interactively
 
 **Exit codes**: 0 = all checks pass, 1 = issues found
 

@@ -7,6 +7,8 @@ export async function GET(request: Request) {
 		const userId = searchParams.get('userId');
 		const level = searchParams.get('level');
 
+		console.log('[admin-songs] params', { userId, level });
+
 		if (!userId) {
 			return NextResponse.json(
 				{ error: 'User ID is required' },
@@ -24,10 +26,12 @@ export async function GET(request: Request) {
 			.single();
 
 		if (profileError || !profile) {
+			console.log('[admin-songs] unauthorized', { profileError, profile });
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 		}
 
 		if (!profile.isadmin && !profile.isteacher) {
+			console.log('[admin-songs] insufficient permissions', profile);
 			return NextResponse.json(
 				{ error: 'Insufficient permissions' },
 				{ status: 403 }
@@ -53,6 +57,7 @@ export async function GET(request: Request) {
 			);
 		}
 
+		console.log('[admin-songs] result', { count: songs?.length ?? 0 });
 		return NextResponse.json(songs || []);
 	} catch (error) {
 		console.error('Error in admin-songs route:', error);

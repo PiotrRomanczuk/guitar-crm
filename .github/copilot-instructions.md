@@ -189,6 +189,131 @@ Enforcement:
 - Quality script warns on oversized files
 - PRs should prefer decomposition commits over growing a single file
 
+### Component Organization Structure (MANDATORY)
+
+**All new component features MUST follow this organized folder structure.** Reference `components/songs/` as the canonical example.
+
+**Required Structure for Entity Components:**
+
+```
+components/<entity>/
+├── <Entity>List/              # List/index view
+│   ├── components/            # List-specific sub-components
+│   │   ├── Header.tsx         # Header with actions (create button, etc.)
+│   │   ├── Table.tsx          # Table/grid display
+│   │   ├── Empty.tsx          # Empty state component
+│   │   └── Filter.tsx         # Filter controls
+│   ├── hooks/                 # List-specific hooks
+│   │   └── use<Entity>List.ts # List data fetching hook
+│   └── index.tsx              # Main composition component
+│
+├── <Entity>Form/              # Create/edit form
+│   ├── components/            # Form-specific sub-components
+│   │   ├── Fields.tsx         # All form fields composition
+│   │   ├── FieldText.tsx      # Reusable text input
+│   │   └── FieldSelect.tsx    # Reusable select dropdown
+│   ├── helpers/               # Form helper functions
+│   │   └── validation.ts      # Form-specific validation helpers
+│   ├── options/               # Form constants and options
+│   │   └── fieldOptions.ts    # Dropdown options, constants
+│   ├── validators.ts          # Form validation schemas
+│   ├── Content.tsx            # Form logic and submission
+│   └── index.tsx              # Form wrapper
+│
+├── <Entity>Detail/            # Detail view
+│   ├── components/            # Detail-specific sub-components
+│   │   ├── Header.tsx         # Title/heading display
+│   │   ├── Info.tsx           # Information display
+│   │   └── Actions.tsx        # Action buttons (edit, delete, etc.)
+│   ├── use<Entity>Detail.ts  # Business logic hook
+│   └── index.tsx              # Main composition component
+│
+├── hooks/                     # Shared entity hooks
+│   ├── index.ts               # Hook exports
+│   ├── use<Entity>.ts         # Single item fetching hook
+│   └── use<Entity>Mutations.ts # Create/update/delete operations
+│
+├── types/                     # TypeScript types
+│   ├── index.ts               # Type exports
+│   ├── <entity>.types.ts      # Entity type definitions
+│   └── api.types.ts           # API request/response types
+│
+├── services/                  # API service layer
+│   ├── index.ts               # Service exports
+│   ├── <entity>Api.ts         # API calls (CRUD operations)
+│   └── <entity>Queries.ts     # Query builders
+│
+├── utils/                     # Utility functions
+│   ├── index.ts               # Utility exports
+│   ├── formatters.ts          # Data formatting functions
+│   └── transformers.ts        # Data transformation functions
+│
+├── tests/                     # Component tests
+│   ├── <Entity>List.test.tsx
+│   ├── <Entity>Form.test.tsx
+│   └── <Entity>Detail.test.tsx
+│
+├── constants.ts               # Entity-level constants
+├── config.ts                  # Entity configuration
+├── <Entity>FormGuard.tsx      # Role-based access wrapper
+├── index.ts                   # Main exports (components, hooks, types)
+└── README.md                  # Component documentation
+```
+
+**Key Requirements:**
+
+1. **Folder-based organization**: Each major component (List, Form, Detail) gets its own folder with sub-folders
+2. **Small files**: All files must be < 80 lines, functions < 80 lines, complexity < 10
+3. **Separation of concerns**:
+   - UI components in `components/` sub-folders
+   - Business logic in `hooks/` folders
+   - Pure functions in `helpers/` folders
+   - Constants in `options/` folders or `constants.ts`
+   - API calls in `services/` folder
+   - Utilities in `utils/` folder
+4. **Shared types**: All types in dedicated `types/` folder with separate files per concern
+5. **Clean exports**: Main `index.ts` exports all public APIs (components, hooks, types, services)
+6. **Testing**: Co-located tests in `tests/` folder
+7. **Documentation**: Every entity folder must have a README.md
+
+**Directory Purpose:**
+
+- `<Entity>List/`, `<Entity>Form/`, `<Entity>Detail/` - Feature-specific folders with their own components and hooks
+- `hooks/` - Shared hooks across all entity features
+- `types/` - TypeScript type definitions
+- `services/` - API service layer (data fetching, mutations)
+- `utils/` - Utility functions (formatters, transformers)
+- `tests/` - Component and hook tests
+- `constants.ts` - Entity-level constants
+- `config.ts` - Entity configuration
+
+**Example from Songs Implementation:**
+
+See `components/songs/README.md` for comprehensive documentation. Note: Songs currently uses the simpler structure; new entities should follow the enhanced structure above.
+
+**Benefits of This Structure:**
+
+- ✅ Easy navigation (clear folder hierarchy with logical grouping)
+- ✅ Maintainable (small, focused files organized by purpose)
+- ✅ Testable (isolated units with co-located tests)
+- ✅ Reusable (extracted helpers, services, and utilities)
+- ✅ Type-safe (centralized, organized type definitions)
+- ✅ Scalable (feature folders grow independently)
+- ✅ Documented (README per entity)
+
+**When Creating New Entity Components:**
+
+1. Start with the structure template above
+2. Replace `<Entity>` with your entity name (e.g., `Lesson`, `Assignment`)
+3. Create feature folders (List, Form, Detail) with their sub-folders
+4. Extract components into `components/` sub-folders
+5. Extract hooks into feature or shared `hooks/` folders
+6. Create `services/` for API operations
+7. Create `utils/` for formatting and transformation
+8. Keep all files small and focused (< 80 lines)
+9. Extract helpers when complexity > 10
+10. Create comprehensive README.md documenting structure and usage
+
 ### Mobile-First Styling Patterns
 
 All new components follow mobile-first approach:

@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useAuth } from '@/components/auth';
 import { usePathname } from 'next/navigation';
 
 interface NavLinkProps {
@@ -30,9 +29,17 @@ function NavLink({ href, label, icon }: NavLinkProps) {
 	);
 }
 
-export function RoleBasedNav() {
-	const { user, isAdmin, isTeacher, isStudent } = useAuth();
-
+export function RoleBasedNav({
+	user,
+	isAdmin,
+	isTeacher,
+	isStudent,
+}: {
+	user: { email?: string } | null;
+	isAdmin: boolean;
+	isTeacher: boolean;
+	isStudent: boolean;
+}) {
 	if (!user) {
 		return null;
 	}

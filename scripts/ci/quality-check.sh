@@ -260,9 +260,43 @@ else
     OVERALL_STATUS=1
 fi
 
-# 8. Lighthouse scores
+# 8. Cypress E2E Tests
 echo ""
-echo "� Lighthouse Scores"
+echo "🎭 Running E2E Tests with Cypress..."
+
+# Check if development server is running
+if curl -s http://localhost:3000 > /dev/null 2>&1; then
+    echo "✓ Development server is already running"
+    SERVER_WAS_RUNNING=true
+    
+    # Run Cypress tests directly
+    if npm run cypress:run -- --headless --browser chrome 2>&1; then
+        print_status 0 "E2E tests passed"
+    else
+        print_status 1 "E2E tests failed"
+        echo "💡 Tip: Run 'npm run e2e:open' to debug tests interactively"
+        OVERALL_STATUS=1
+    fi
+else
+    echo "Starting development server for E2E tests..."
+    SERVER_WAS_RUNNING=false
+    
+    # Run E2E tests with server start/stop
+    if npm run e2e:db 2>&1; then
+        print_status 0 "E2E tests passed"
+    else
+        print_status 1 "E2E tests failed"
+        echo "💡 Tip: Ensure database is running with 'npm run setup:db'"
+        echo "💡 Run 'npm run e2e:open' to debug tests interactively"
+        OVERALL_STATUS=1
+    fi
+fi
+
+echo ""
+
+# 9. Lighthouse scores
+echo ""
+echo "🚦 Lighthouse Scores"
 echo "======================="
 
 if [ -f "lighthouse-results.json" ]; then

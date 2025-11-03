@@ -1,17 +1,18 @@
 # Script Execution Summary
 
-Last updated: 2025-11-02 14:38:26
+Last updated: 2025-11-03 16:37:34
 
 | Timestamp | Script | Category | Duration | Status | Details | Git Branch |
 |-----------|---------|----------|-----------|---------|----------|------------|
 |  | `` | ci |  | ❌ |  | `` |
-| /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected | `update_summary.sh: line 51: [: : integer expression expected` | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
-database
+| /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected | `/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected` | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+ci
 /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected | ❌ |  | `/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected` |
 | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
-/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected | `update_summary.sh: line 51: [: : integer expression expected: integer expression expected` | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected | `/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected` | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
 /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected
-database
+ci
 /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
 /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
 /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected | ❌ |  | `/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
@@ -88,6 +89,90 @@ database
 /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
 
 /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected` |
+| /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summar | `update_summar` | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summardatabase
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summar | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summar | ❌ |  | `/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summar` |
+| /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summar | `update_summar` | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summardatabase
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summar | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summar | ❌ |  | `/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summar` |
 | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
 /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected: integer expression expected
 /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
@@ -586,12 +671,12 @@ database
 ### Executions by Category
 
 - **database**: 6 executions
-- **ci**: 11 executions
+- **ci**: 13 executions
 - **development**: 0 executions
 - **testing**: 0 executions
-- **Total**: 17 executions
+- **Total**: 19 executions
 
 ### Most Frequently Run Scripts
 
-- `quality-check`: 11 times
+- `quality-check`: 13 times
 - `db-reset`: 6 times
