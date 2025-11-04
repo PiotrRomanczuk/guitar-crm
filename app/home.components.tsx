@@ -148,11 +148,29 @@ export function QuickActionButton({
 	emoji,
 	title,
 	description,
+	href,
 }: {
 	emoji: string;
 	title: string;
 	description: string;
+	href?: string;
 }) {
+	if (href) {
+		return (
+			<Link
+				href={href}
+				className='text-left p-3 sm:p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 transition-colors w-full block'
+			>
+				<div className='font-semibold text-gray-900 dark:text-white mb-1 text-sm sm:text-base'>
+					{emoji} {title}
+				</div>
+				<div className='text-xs sm:text-sm text-gray-600 dark:text-gray-400'>
+					{description}
+				</div>
+			</Link>
+		);
+	}
+
 	return (
 		<button className='text-left p-3 sm:p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 transition-colors w-full'>
 			<div className='font-semibold text-gray-900 dark:text-white mb-1 text-sm sm:text-base'>
@@ -200,6 +218,13 @@ export function DashboardCardGrid({
 	isTeacher: boolean;
 	isStudent: boolean;
 }) {
+	// Determine role-specific lesson route
+	const lessonsHref = isAdmin
+		? '/admin/lessons'
+		: isTeacher
+		? '/teacher/lessons'
+		: '/student/lessons';
+
 	return (
 		<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8'>
 			{(isTeacher || isAdmin) && (
@@ -214,9 +239,17 @@ export function DashboardCardGrid({
 						emoji='📚'
 						title='Lessons'
 						description='Schedule and manage your lessons'
-						href='/lessons'
+						href={lessonsHref}
 					/>
 				</>
+			)}
+			{isStudent && !isTeacher && !isAdmin && (
+				<DashboardCard
+					emoji='📚'
+					title='My Lessons'
+					description='View your scheduled lessons'
+					href='/student/lessons'
+				/>
 			)}
 
 			<DashboardCard
@@ -254,6 +287,8 @@ export function QuickActionsSection({
 	isAdmin: boolean;
 	isTeacher: boolean;
 }) {
+	const newLessonHref = isAdmin ? '/admin/lessons/new' : '/teacher/lessons/new';
+
 	return (
 		<div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6'>
 			<h2 className='text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-gray-900 dark:text-white'>
@@ -261,28 +296,17 @@ export function QuickActionsSection({
 			</h2>
 			<div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
 				{(isTeacher || isAdmin) && (
-					<>
-						<QuickActionButton
-							emoji='📅'
-							title='Schedule Lesson'
-							description='Create a new lesson with a student'
-						/>
-						<QuickActionButton
-							emoji='➕'
-							title='Add Student'
-							description='Register a new student'
-						/>
-					</>
+					<QuickActionButton
+						emoji='📅'
+						title='Schedule Lesson'
+						description='Create a new lesson with a student'
+						href={newLessonHref}
+					/>
 				)}
 				<QuickActionButton
 					emoji='🎸'
 					title='Add Song'
 					description='Add a new song to the library'
-				/>
-				<QuickActionButton
-					emoji='⭐'
-					title='View Favorites'
-					description='See your favorite songs'
 				/>
 			</div>
 		</div>

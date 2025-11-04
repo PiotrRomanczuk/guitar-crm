@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/utils/supabase/clients/server';
 
 export async function GET(request: Request) {
 	try {
@@ -15,13 +15,13 @@ export async function GET(request: Request) {
 			);
 		}
 
-		const headersList = headers();
-		const supabase = createClient(headersList);
+		await headers();
+		const supabase = await createClient();
 
 		// 1. Verify user exists and has student role
 		const { data: profile, error: profileError } = await supabase
 			.from('profiles')
-			.select('is_student')
+			.select('isStudent')
 			.eq('user_id', userId)
 			.single();
 

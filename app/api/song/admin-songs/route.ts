@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/utils/supabase/clients/server';
 
 export async function GET(request: Request) {
 	try {
@@ -15,13 +15,13 @@ export async function GET(request: Request) {
 			);
 		}
 
-		const headersList = headers();
-		const supabase = createClient(headersList);
+		await headers();
+		const supabase = await createClient();
 
 		// 1. Verify user has teacher or admin role
 		const { data: profile, error: profileError } = await supabase
 			.from('profiles')
-			.select('is_admin, is_teacher')
+			.select('isAdmin, isTeacher')
 			.eq('user_id', userId)
 			.single();
 
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 		}
 
-		if (!profile.is_admin && !profile.is_teacher) {
+		if (!profile.isAdmin && !profile.isTeacher) {
 			return NextResponse.json(
 				{ error: 'Insufficient permissions' },
 				{ status: 403 }
