@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 
-// This middleware runs on the Edge runtime
 export async function middleware(request: NextRequest) {
 	const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 	const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -12,43 +11,42 @@ export async function middleware(request: NextRequest) {
 		return NextResponse.next();
 	}
 
-	// Create a Supabase client with the request cookies
-	const response = NextResponse.next();
-	const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-		auth: {
-			storage: {
-				getItem: async (key: string) => {
-					return request.cookies.get(key)?.value ?? null;
-				},
-				setItem: async (key: string, value: string) => {
-					response.cookies.set(key, value);
-				},
-				removeItem: async (key: string) => {
-					response.cookies.delete(key);
-				},
+	// Create response we'll modify
+	let response = NextResponse.next({
+		request: {
+			headers: request.headers,
+		},
+	});
+
+	// Create Supabase client for Edge runtime using @supabase/ssr
+	const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+		cookies: {
+			getAll() {
+				return request.cookies.getAll();
+			},
+			setAll(
+				cookiesToSet: Array<{
+					name: string;
+					value: string;
+					options?: Record<string, unknown>;
+				}>
+			) {
+				cookiesToSet.forEach(({ name, value }) =>
+					request.cookies.set(name, value)
+				);
+				response = NextResponse.next({
+					request,
+				});
+				cookiesToSet.forEach(({ name, value, options }) =>
+					response.cookies.set(name, value, options)
+				);
 			},
 		},
 	});
 
-	// Get the current session
-	const {
-		data: { session },
-	} = await supabase.auth.getSession();
+	// Refresh session if expired - this also handles cookie renewal
+	await supabase.auth.getUser();
 
-	const { pathname } = request.nextUrl;
-
-	// TEMPORARILY DISABLE ALL MIDDLEWARE AUTH - RELY ON CLIENT-SIDE RequireAdmin/RequireTeacher/RequireStudent
-	console.log(
-		'🔧 MIDDLEWARE COMPLETELY DISABLED - Using client-side auth only'
-	);
-	console.log('🔧 Path:', pathname);
-	console.log('🔧 Session exists in middleware:', !!session);
-	if (session) {
-		console.log('🔧 User ID in middleware:', session.user?.id);
-		console.log('� User email in middleware:', session.user?.email);
-	}
-
-	// Skip all middleware auth checks - let client-side components handle protection
 	return response;
 }
 
