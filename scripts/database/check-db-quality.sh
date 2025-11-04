@@ -105,6 +105,47 @@ if [ "$NO_DUE_DATE" -gt 0 ]; then
     echo -e "${YELLOW}⚠️  $NO_DUE_DATE assignments missing due dates${NC}"
 fi
 
+# Check task management
+echo -e "\n${YELLOW}Checking task management:${NC}"
+TASKS_COUNT=$(run_query "SELECT COUNT(*) FROM public.task_management;")
+echo "Total tasks: $TASKS_COUNT"
+
+# Check task status distribution
+echo "Task status distribution:"
+run_query "SELECT status, COUNT(*) FROM public.task_management GROUP BY status ORDER BY status;"
+
+# Check task priority distribution
+echo "Task priority distribution:"
+run_query "SELECT priority, COUNT(*) FROM public.task_management GROUP BY priority ORDER BY 
+    CASE 
+        WHEN priority = 'LOW' THEN 1
+        WHEN priority = 'MEDIUM' THEN 2
+        WHEN priority = 'HIGH' THEN 3
+    END;"
+
+# Check overdue tasks
+OVERDUE_TASKS=$(run_query "
+    SELECT COUNT(*) 
+    FROM public.task_management 
+    WHERE status NOT IN ('COMPLETED', 'CANCELLED') 
+    AND due_date IS NOT NULL 
+    AND due_date < CURRENT_DATE;
+")
+if [ "$OVERDUE_TASKS" -gt 0 ]; then
+    echo -e "${YELLOW}⚠️  $OVERDUE_TASKS overdue tasks${NC}"
+fi
+
+# Check unassigned open tasks
+UNASSIGNED_TASKS=$(run_query "
+    SELECT COUNT(*) 
+    FROM public.task_management 
+    WHERE status = 'OPEN' 
+    AND assigned_to IS NULL;
+")
+if [ "$UNASSIGNED_TASKS" -gt 0 ]; then
+    echo -e "${YELLOW}⚠️  $UNASSIGNED_TASKS unassigned open tasks${NC}"
+fi
+
 # Check for orphaned records
 echo -e "\n${YELLOW}Checking for orphaned records:${NC}"
 ORPHANED_LESSON_SONGS=$(run_query "
@@ -141,6 +182,8 @@ echo "Test Users: $TEST_USERS"
 echo "Songs: $SONGS_COUNT"
 echo "Lessons: $LESSONS_COUNT"
 echo "Lesson-Song Associations: $LESSON_SONGS_COUNT"
+echo "Assignments: $ASSIGNMENTS_COUNT"
+echo "Tasks: $TASKS_COUNT"
 echo "Profiles: $PROFILES_COUNT"
 
 # Check for any critical issues

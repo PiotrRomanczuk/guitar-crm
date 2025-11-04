@@ -1,5 +1,37 @@
 import '@testing-library/jest-dom';
 
+// Polyfill for encoding APIs
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Do not override global fetch. Supabase client relies on a real fetch implementation.
+// If needed, individual tests should mock fetch per-suite.
+
+// Minimal Request shim to keep Next.js server imports from crashing in skipped suites
+if (typeof globalThis.Request === 'undefined') {
+	globalThis.Request = class {};
+}
+
+// Provide a minimal default fetch for relative API routes used by component tests.
+// Delegates to existing fetch if present; otherwise returns a harmless default for '/api/*'.
+const __originalFetch = globalThis.fetch;
+globalThis.fetch = async (input, init) => {
+	const url = typeof input === 'string' ? input : input?.url;
+	if (typeof url === 'string' && url.startsWith('/api/')) {
+		return {
+			ok: true,
+			status: 200,
+			json: async () => [],
+			text: async () => '[]',
+		};
+	}
+	if (typeof __originalFetch === 'function') {
+		return __originalFetch(input, init);
+	}
+	throw new Error('fetch is not defined');
+};
+
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
 	useRouter() {
@@ -18,6 +50,12 @@ jest.mock('next/navigation', () => ({
 	usePathname() {
 		return '/';
 	},
+}));
+
+// Mock next/server to avoid requiring global Response/Request in skipped route tests
+jest.mock('next/server', () => ({
+	NextRequest: class {},
+	NextResponse: { json: (data, init) => ({ data, ...init }) },
 }));
 
 // Mock Supabase client
