@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 interface TouchedFields {
 	email: boolean;
@@ -40,6 +40,7 @@ async function signUpUser(
 	firstName: string,
 	lastName: string
 ): Promise<SignUpResponse> {
+	const supabase = getSupabaseBrowserClient();
 	return await supabase.auth.signUp({
 		email,
 		password,

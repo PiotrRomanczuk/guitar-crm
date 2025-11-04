@@ -1,52 +1,80 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
+import type { Database } from '@/types/database.types';
 
 // This middleware runs on the Edge runtime
 export async function middleware(request: NextRequest) {
 	const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 	const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+	const { pathname } = request.nextUrl;
+
+	console.log('🔧 [MIDDLEWARE] ===== START =====');
+	console.log('🔧 [MIDDLEWARE] Path:', pathname);
+	console.log('🔧 [MIDDLEWARE] Supabase URL:', supabaseUrl);
+	console.log('🔧 [MIDDLEWARE] Has Anon Key:', !!supabaseAnonKey);
+
 	// Skip middleware if Supabase is not configured
 	if (!supabaseUrl || !supabaseAnonKey) {
+		console.log('🔧 [MIDDLEWARE] Supabase not configured, skipping');
 		return NextResponse.next();
 	}
 
-	// Create a Supabase client with the request cookies
-	const response = NextResponse.next();
-	const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-		auth: {
-			storage: {
-				getItem: async (key: string) => {
-					return request.cookies.get(key)?.value ?? null;
-				},
-				setItem: async (key: string, value: string) => {
-					response.cookies.set(key, value);
-				},
-				removeItem: async (key: string) => {
-					response.cookies.delete(key);
-				},
+	// Get all cookies from request
+	const allCookies = request.cookies.getAll();
+	console.log('🔧 [MIDDLEWARE] Request cookies count:', allCookies.length);
+	console.log(
+		'🔧 [MIDDLEWARE] Cookie names:',
+		allCookies.map((c) => c.name)
+	);
+
+	// Create a response that we can mutate
+	const response = NextResponse.next({
+		request: {
+			headers: request.headers,
+		},
+	});
+
+	// Create a Supabase client using @supabase/ssr for proper cookie handling
+	const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+		cookies: {
+			getAll() {
+				return request.cookies.getAll();
+			},
+			setAll(cookiesToSet) {
+				cookiesToSet.forEach(({ name, value, options }) => {
+					request.cookies.set(name, value);
+					response.cookies.set(name, value, options);
+				});
 			},
 		},
 	});
 
 	// Get the current session
+	console.log('🔧 [MIDDLEWARE] Calling getSession()...');
 	const {
 		data: { session },
+		error,
 	} = await supabase.auth.getSession();
 
-	const { pathname } = request.nextUrl;
+	console.log('🔧 [MIDDLEWARE] Session result:', {
+		hasSession: !!session,
+		hasError: !!error,
+		error: error ? error.message : null,
+	});
 
-	// TEMPORARILY DISABLE ALL MIDDLEWARE AUTH - RELY ON CLIENT-SIDE RequireAdmin/RequireTeacher/RequireStudent
-	console.log(
-		'🔧 MIDDLEWARE COMPLETELY DISABLED - Using client-side auth only'
-	);
-	console.log('🔧 Path:', pathname);
-	console.log('🔧 Session exists in middleware:', !!session);
 	if (session) {
-		console.log('🔧 User ID in middleware:', session.user?.id);
-		console.log('� User email in middleware:', session.user?.email);
+		console.log('🔧 [MIDDLEWARE] Session details:', {
+			userId: session.user?.id,
+			email: session.user?.email,
+			expiresAt: session.expires_at,
+		});
+	} else {
+		console.log('🔧 [MIDDLEWARE] No session found');
 	}
+
+	console.log('🔧 [MIDDLEWARE] ===== END =====');
 
 	// Skip all middleware auth checks - let client-side components handle protection
 	return response;

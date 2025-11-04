@@ -1,12 +1,15 @@
 import { SongList } from '@/components/songs';
-import { ProtectedRoute } from '@/components/auth';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { redirect } from 'next/navigation';
 
-export default function SongsPage() {
+export default async function SongsPage() {
+	const { user } = await getUserWithRolesSSR();
+	if (!user) {
+		redirect('/sign-in');
+	}
 	return (
-		<ProtectedRoute>
-			<div className='container mx-auto px-4 py-8'>
-				<SongList />
-			</div>
-		</ProtectedRoute>
+		<div className='container mx-auto px-4 py-8'>
+			<SongList />
+		</div>
 	);
 }

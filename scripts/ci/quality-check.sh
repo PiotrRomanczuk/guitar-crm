@@ -3,7 +3,14 @@
 # Code Quality Check Script
 # Runs linting, formatting, type checking, and tests with coverage
 
-set -e
+# DON'T use set -e here because we want to run all checks and log even on failures
+
+# Start timing and capture output
+START_TIME=$(date +%s)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TEMP_OUTPUT=$(mktemp)
+exec 1> >(tee -a "$TEMP_OUTPUT")
+exec 2>&1
 
 echo "🔍 CODE QUALITY CHECK"
 echo "===================="
@@ -253,9 +260,43 @@ else
     OVERALL_STATUS=1
 fi
 
-# 8. Lighthouse scores
+# 8. Cypress E2E Tests
 echo ""
-echo "� Lighthouse Scores"
+echo "🎭 Running E2E Tests with Cypress..."
+
+# Check if development server is running
+if curl -s http://localhost:3000 > /dev/null 2>&1; then
+    echo "✓ Development server is already running"
+    SERVER_WAS_RUNNING=true
+    
+    # Run Cypress tests directly
+    if npm run cypress:run -- --headless --browser chrome 2>&1; then
+        print_status 0 "E2E tests passed"
+    else
+        print_status 1 "E2E tests failed"
+        echo "💡 Tip: Run 'npm run e2e:open' to debug tests interactively"
+        OVERALL_STATUS=1
+    fi
+else
+    echo "Starting development server for E2E tests..."
+    SERVER_WAS_RUNNING=false
+    
+    # Run E2E tests with server start/stop
+    if npm run e2e:db 2>&1; then
+        print_status 0 "E2E tests passed"
+    else
+        print_status 1 "E2E tests failed"
+        echo "💡 Tip: Ensure database is running with 'npm run setup:db'"
+        echo "💡 Run 'npm run e2e:open' to debug tests interactively"
+        OVERALL_STATUS=1
+    fi
+fi
+
+echo ""
+
+# 9. Lighthouse scores
+echo ""
+echo "🚦 Lighthouse Scores"
 echo "======================="
 
 if [ -f "lighthouse-results.json" ]; then
@@ -301,11 +342,30 @@ generate_terminal_summary "coverage/coverage-summary.json" "lighthouse-results.j
 echo ""
 echo "======================"
 
+# Calculate duration and log execution
+END_TIME=$(date +%s)
+DURATION=$((END_TIME - START_TIME))
+
+# Close the tee process and capture final output
+exec 1>&-
+exec 2>&-
+
+# Read captured output
+OUTPUT=$(cat "$TEMP_OUTPUT")
+
+# Log this execution
+source "$SCRIPT_DIR/../utils/log_history.sh"
+log_execution "$0" "$OVERALL_STATUS" "$OUTPUT" "$DURATION"
+
+# Clean up temp file
+rm -f "$TEMP_OUTPUT"
+
+# Print final status to stderr (not captured)
 if [ $OVERALL_STATUS -eq 0 ]; then
-    echo -e "${GREEN}🎉 ALL QUALITY CHECKS PASSED!${NC}"
-    echo "Your code is ready for commit."
+    echo -e "${GREEN}🎉 ALL QUALITY CHECKS PASSED!${NC}" >&2
+    echo "Your code is ready for commit." >&2
 else
-    echo -e "${RED}❌ QUALITY CHECKS FAILED${NC}"
-    echo "Please fix the issues above before committing."
+    echo -e "${RED}❌ QUALITY CHECKS FAILED${NC}" >&2
+    echo "Please fix the issues above before committing." >&2
     exit 1
 fi

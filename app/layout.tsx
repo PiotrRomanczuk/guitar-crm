@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { AuthProvider } from '@/components/auth/AuthProvider';
+
 import Header from '@/components/navigation/Header';
+import ClientProviders from './ClientProviders';
 import './globals.css';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -27,20 +29,27 @@ export const viewport = {
 	maximumScale: 5,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
+	console.log(user, isAdmin, isTeacher, isStudent);
 	return (
 		<html lang='en'>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
-				<AuthProvider>
-					<Header />
+				<ClientProviders>
+					<Header
+						user={user}
+						isAdmin={isAdmin}
+						isTeacher={isTeacher}
+						isStudent={isStudent}
+					/>
 					{children}
-				</AuthProvider>
+				</ClientProviders>
 			</body>
 		</html>
 	);
