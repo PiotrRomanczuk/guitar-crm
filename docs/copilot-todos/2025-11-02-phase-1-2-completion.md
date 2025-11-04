@@ -2,9 +2,23 @@
 
 **Date:** November 2, 2025  
 **Branch:** `feature/phase-1-2-completion`  
-**Status:** 4/17 tasks completed (23.5%)
+**Status:** 7/18 tasks completed (38.9%)
 
 ## Completed ✅
+
+### 7. Fix song list visibility for admin accounts
+
+- **Completed:** ✅
+- **Details:**
+  - Fixed role mapping in `components/auth/AuthProvider.tsx` to use DB fields `isadmin/isteacher/isstudent`
+  - Added backend logging in `app/api/song/{admin-songs,student-songs}/route.ts`
+  - Enforced student-only access on `student-songs` (returns 403 for non-students)
+  - Verified admin user sees full song list; student without lessons sees empty list by design
+- **Files Modified:**
+  - `components/auth/AuthProvider.tsx`
+  - `app/api/song/admin-songs/route.ts`
+  - `app/api/song/student-songs/route.ts`
+- **Notes:** Base song list working; pagination and advanced search remain TODOs (see Phase 3 docs)
 
 ### 1. Fix failing user seeding test
 
@@ -40,6 +54,7 @@
 - **Completed:** ✅
 - **PR:** #1 - https://github.com/PiotrRomanczuk/guitar-crm/pull/1
 - **Commit:** `79e1a4d` - "feat: implement user profile edit page"
+- **Tests:** `b961990` - 12 comprehensive tests added
 - **Files:**
   - `app/profile/page.tsx` - Main page (52 lines, mobile-first)
   - `schemas/ProfileSchema.ts` - ProfileEditSchema, ProfileEdit type
@@ -61,8 +76,9 @@
 
 ### 5. Add user settings page
 
-- **Status:** 🔄 IN PROGRESS (completed implementation, ready for PR)
+- **Completed:** ✅
 - **Commit:** `eabb9e9` - "feat: implement user settings page"
+- **Tests:** `b961990` - 12 comprehensive tests added
 - **Files:**
   - `app/settings/page.tsx` - Main settings page
   - `schemas/SettingsSchema.ts` - UserSettings, UserSettingsUpdate types
@@ -80,7 +96,8 @@
   - Auth protection
   - Dark mode support
   - All functions <80 lines
-- **Next:** Create PR #2
+- **Tests:** 12 comprehensive tests covering all components and hook functionality
+- **Next:** Push commits to remote, update PR #1 with tests
 
 ## Skipped ⏭️
 
@@ -88,47 +105,61 @@
 
 - User requested to skip this feature and continue with other tasks
 
+### 6. Update dashboard with navigation to Profile and Settings
+
+- **Completed:** ✅
+- **Commit:** `b952787` - "feat: add Profile and Settings navigation to dashboard and header"
+- **Problem Solved:** Users can now navigate to `/profile` and `/settings` from frontend
+- **Files Modified:**
+  - `app/home.components.tsx` - Added Profile (👤) and Settings (⚙️) cards to dashboard grid (always visible, top position)
+  - `components/navigation/RoleBasedNav.tsx` - Added Profile and Settings links to header navigation
+- **Navigation Access Points:**
+  1. **Dashboard Cards** - Profile and Settings cards at top of dashboard grid
+  2. **Header Navigation** - Profile and Settings links in RoleBasedNav (desktop and mobile)
+  3. **All User Roles** - Accessible to Admin, Teacher, and Student roles
+- **Testing:** All navigation tests passing (6/6)
+
 ## Not Started ⏳
 
-### 6. Implement ErrorBoundary component
+### 7. Implement ErrorBoundary component
 
 - Create `components/ui/ErrorBoundary.tsx` with React error boundary pattern for graceful error handling throughout the app
 
-### 7. Add Toast notification system
+### 8. Add Toast notification system
 
 - Implement toast/notification system using shadcn/ui or similar for success/error feedback
 - Add to `components/ui/toast.tsx` with ToastProvider
 
-### 8. Create 404 and error pages
+### 9. Create 404 and error pages
 
 - Build `app/not-found.tsx` and `app/error.tsx` with proper styling and navigation back to home
 
-### 9. Implement dark/light mode toggle
+### 10. Implement dark/light mode toggle
 
 - Add ThemeProvider context
 - Create theme toggle component in navigation
 - Implement system preference detection
 - Ensure all components support dark mode
 
-### 10. Create account deactivation flow
+### 11. Create account deactivation flow
 
 - Implement account deactivation feature with confirmation dialog and proper data handling
 
-### 11. Add breadcrumb navigation
+### 12. Add breadcrumb navigation
 
 - Create Breadcrumb component in `components/navigation/` for better page navigation context
 
-### 12. Create footer component
+### 13. Create footer component
 
 - Build Footer.tsx with app info, links, copyright
 - Add to layout.tsx
 
-### 13. Enhance admin user list with bulk operations
+### 14. Enhance admin user list with bulk operations
 
 - Add bulk select/delete/update functionality to admin user management page
 - Currently only single user operations exist
 
-### 14. Create personalized dashboards for each role
+### 15. Create personalized dashboards for each role
 
 - Build role-specific dashboard pages:
   - `app/admin/dashboard`
@@ -136,17 +167,17 @@
   - `app/student/dashboard`
 - Include relevant widgets and stats for each role
 
-### 15. Implement global search functionality
+### 16. Implement global search functionality
 
 - Create site-wide search bar in header with search results page
 - Use existing SongFilterSchema patterns for other entities
 
-### 16. Add user activity history
+### 17. Add user activity history
 
 - Add activity logging system
 - Display user activity history on profile pages
 
-### 17. Implement calendar integration
+### 18. Implement calendar integration
 
 - Add calendar view for lessons/events in user dashboards
 - Use existing LessonSchema for data
@@ -204,14 +235,45 @@ After review, discovered that commits were made WITHOUT running quality checks f
 
 ### Test Results After Fixes:
 
-- **180 tests passing** ✅ (was 200 with 12 failing)
+- **204 tests passing** ✅ (was 180, added 24 new tests)
 - **20 integration tests excluded** (require live Supabase)
 - **0 failures** ✅
-- **Coverage**: 12.34% (low due to many untested pages/APIs/components)
-  - Profile components: 0% coverage (no tests yet)
-  - Settings components: 0% coverage (no tests yet)
+- **Coverage**: 14.29% (improved from 12.34%)
+  - Profile components: Now have test coverage ✅
+  - Settings components: Now have test coverage ✅
   - Many API routes: <2% coverage
   - Note: Coverage threshold (70%) applies to new code, not entire codebase
+
+### Test Files Created (commit b961990):
+
+1. **`__tests__/components/profile/ProfileComponents.test.tsx`** (7 tests)
+
+   - ProfileHeader: Renders with correct text
+   - ProfileAlert: Success and error alerts with messages
+   - ProfileFormActions: Save/Cancel buttons, saving state, disabled state
+   - ProfileLoadingState: Spinner visibility based on loading prop
+
+2. **`__tests__/components/profile/ProfileFormFields.test.tsx`** (5 tests)
+
+   - Renders all form fields (firstname, lastname, username, bio, email)
+   - Email field is disabled
+   - onChange handler called on user input
+   - Displays existing form data
+   - Bio character count tracking (0-500 chars)
+
+3. **`__tests__/components/settings/SettingsComponents.test.tsx`** (7 tests)
+
+   - SettingsHeader: Renders with correct text and emoji
+   - SettingsSection: Title, description, and children
+   - ToggleSetting: Label, description, switch role, onChange interaction
+   - SelectSetting: Label, description, combobox role, option selection
+
+4. **`__tests__/components/settings/useSettings.test.tsx`** (5 tests)
+   - Initializes with default settings
+   - Updates individual settings with updateSetting()
+   - Saves settings to localStorage
+   - Loads settings from localStorage
+   - Resets settings to defaults
 
 ### Fixes Applied:
 
@@ -229,28 +291,48 @@ After review, discovered that commits were made WITHOUT running quality checks f
 
 1. **79e1a4d** - "feat: implement user profile edit page"
    - Profile page implementation (Todo #8)
-   
 2. **eabb9e9** - "feat: implement user settings page"
    - Settings page implementation (Todo #10)
-   
 3. **59452b1** - "fix: resolve all test failures" ✅
+
    - Fixed all 12 test failures
    - Added fetch mock to jest.setup.js
    - Excluded integration tests from Jest
    - All 180 unit tests now passing
 
+4. **174e7ba** - "docs: update todo list with test fix details"
+
+   - Updated documentation
+
+5. **b961990** - "test: add comprehensive tests for Profile and Settings components" ✅
+
+   - Added 24 new tests across 4 test files
+   - ProfileComponents.test.tsx: 7 tests (Header, Alert, Actions, LoadingState)
+   - ProfileFormFields.test.tsx: 5 tests (form fields, validation, character count)
+   - SettingsComponents.test.tsx: 7 tests (Header, Section, Toggle, Select with interactions)
+   - useSettings.test.tsx: 5 tests (hook with localStorage, updates, save/reset)
+   - All 204 tests passing (up from 180)
+   - Coverage improved for Profile and Settings components
+
+6. **5350b6c** - "docs: update todo list with Profile/Settings test additions"
+
+   - Documentation update
+
+7. **b952787** - "feat: add Profile and Settings navigation to dashboard and header" ✅
+   - Added Profile (👤) and Settings (⚙️) cards to dashboard (top position, always visible)
+   - Added Profile and Settings links to header navigation (RoleBasedNav)
+   - Users can now access /profile and /settings from dashboard and header
+   - All 6 navigation tests passing
+
 ## Next Actions
 
-1. **Push commits to remote** - 3 new commits ready
+1. **Push commits to remote** - 7 new commits ready (79e1a4d, eabb9e9, 59452b1, 174e7ba, b961990, 5350b6c, b952787)
 2. **Create PR #2 for settings page** - Now unblocked ✅
-3. **Consider adding basic tests for Profile/Settings** (optional for now)
-4. Continue with remaining Phase 1-2 tasks:
+3. Continue with remaining Phase 1-2 tasks:
    - ErrorBoundary component
    - Toast notification system
    - 404 and error pages
    - Dark mode toggle
-   - And 9 more...
+   - And 10 more...
 
----
-
-_Last Updated: November 2, 2025 (all tests fixed ✅)_
+_Last Updated: November 2, 2025 - All tests passing ✅ (204 tests, 24 new Profile/Settings tests added)_

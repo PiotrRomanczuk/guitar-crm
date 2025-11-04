@@ -62,48 +62,8 @@ echo -e "\n${YELLOW}Checking lesson-songs:${NC}"
 LESSON_SONGS_COUNT=$(run_query "SELECT COUNT(*) FROM public.lesson_songs;")
 echo "Total lesson-song associations: $LESSON_SONGS_COUNT"
 
-# Check assignments
-echo -e "\n${YELLOW}Checking assignments:${NC}"
-ASSIGNMENTS_COUNT=$(run_query "SELECT COUNT(*) FROM public.assignments;")
-echo "Total assignments: $ASSIGNMENTS_COUNT"
-
-# Check assignment distribution by status
-echo "Assignment status distribution:"
-run_query "SELECT status, COUNT(*) FROM public.assignments GROUP BY status ORDER BY status;"
-
-# Check average practice minutes by level
-echo -e "\n${YELLOW}Average practice minutes by song level:${NC}"
-run_query "
-    SELECT s.level, 
-           ROUND(AVG(a.practice_minutes)) as avg_minutes,
-           COUNT(*) as assignment_count
-    FROM public.assignments a
-    JOIN public.songs s ON s.id = a.song_id
-    GROUP BY s.level
-    ORDER BY 
-        CASE 
-            WHEN s.level = 'beginner' THEN 1
-            WHEN s.level = 'intermediate' THEN 2
-            WHEN s.level = 'advanced' THEN 3
-        END;
-"
-
-# Check assignments without feedback
-PENDING_REVIEW=$(run_query "
-    SELECT COUNT(*) 
-    FROM public.assignments 
-    WHERE status = 'completed' 
-    AND (feedback IS NULL OR reviewed_at IS NULL);
-")
-if [ "$PENDING_REVIEW" -gt 0 ]; then
-    echo -e "${YELLOW}⚠️  $PENDING_REVIEW completed assignments pending review${NC}"
-fi
-
-# Check for assignments without due dates
-NO_DUE_DATE=$(run_query "SELECT COUNT(*) FROM public.assignments WHERE due_date IS NULL;")
-if [ "$NO_DUE_DATE" -gt 0 ]; then
-    echo -e "${YELLOW}⚠️  $NO_DUE_DATE assignments missing due dates${NC}"
-fi
+# TODO: Add assignments table checks when implemented
+# Current schema doesn't have assignments table yet
 
 # Check for orphaned records
 echo -e "\n${YELLOW}Checking for orphaned records:${NC}"
@@ -143,11 +103,46 @@ echo "Lessons: $LESSONS_COUNT"
 echo "Lesson-Song Associations: $LESSON_SONGS_COUNT"
 echo "Profiles: $PROFILES_COUNT"
 
+# Track issues
+ISSUES_FOUND=0
+
 # Check for any critical issues
-if [ "$REAL_EMAILS" -gt 0 ] || [ "$ORPHANED_LESSON_SONGS" -gt 0 ]; then
-    echo -e "\n${RED}⚠️  CRITICAL ISSUES FOUND${NC}"
-    echo "Please review the warnings above"
+if [ "$REAL_EMAILS" -gt 0 ]; then
+    echo -e "\n${RED}❌ CRITICAL: Real email addresses found in database${NC}"
+    ISSUES_FOUND=1
+fi
+
+if [ "$ORPHANED_LESSON_SONGS" -gt 0 ]; then
+    echo -e "\n${RED}❌ CRITICAL: Orphaned lesson-song records found${NC}"
+    ISSUES_FOUND=1
+fi
+
+# Check for minimum test data requirements
+if [ "$SONGS_COUNT" -lt 10 ]; then
+    echo -e "\n${YELLOW}⚠️  WARNING: Insufficient test data - only $SONGS_COUNT songs (minimum 10 recommended)${NC}"
+    echo "   Run: npm run seed"
+    ISSUES_FOUND=1
+fi
+
+if [ "$TEST_USERS" -lt 3 ]; then
+    echo -e "\n${YELLOW}⚠️  WARNING: Insufficient test users - only $TEST_USERS (minimum 3 recommended)${NC}"
+    echo "   Need at least: 1 admin, 1 teacher, 1 student"
+    ISSUES_FOUND=1
+fi
+
+if [ "$PROFILES_COUNT" -lt "$TEST_USERS" ]; then
+    echo -e "\n${RED}❌ CRITICAL: Profiles count ($PROFILES_COUNT) less than users count ($TEST_USERS)${NC}"
+    echo "   Some users don't have profiles"
+    ISSUES_FOUND=1
+fi
+
+# Final verdict
+echo ""
+if [ "$ISSUES_FOUND" -eq 1 ]; then
+    echo -e "${RED}❌ DATABASE QUALITY CHECK FAILED${NC}"
+    echo "Please review the issues above before committing"
     exit 1
 else
-    echo -e "\n${GREEN}✅ DATABASE QUALITY CHECK PASSED${NC}"
+    echo -e "${GREEN}✅ DATABASE QUALITY CHECK PASSED${NC}"
+    echo "Database contains sufficient test data and no critical issues"
 fi
