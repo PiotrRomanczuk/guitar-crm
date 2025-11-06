@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 interface ForgotPasswordFormProps {
 	onSuccess?: () => void;
@@ -38,6 +38,7 @@ export default function ForgotPasswordForm({
 		setError(null);
 		setSuccess(false);
 
+		const supabase = getSupabaseBrowserClient();
 		const { error: resetError } = await supabase.auth.resetPasswordForEmail(
 			email,
 			{

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 interface ResetPasswordFormProps {
 	onSuccess?: () => void;
@@ -65,6 +65,7 @@ export default function ResetPasswordForm({
 			return;
 		}
 
+		const supabase = getSupabaseBrowserClient();
 		const { error: updateError } = await supabase.auth.updateUser({
 			password: newPassword,
 		});
