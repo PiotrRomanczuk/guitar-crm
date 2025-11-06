@@ -1,10 +1,10 @@
 'use client';
 
 import { RequireTeacher } from '@/components/auth';
-import { TeacherDashboardStats } from '@/components/teacher/TeacherDashboardStats';
-import { TeacherStudentsList } from '@/components/teacher/TeacherStudentsList';
-import { TeacherRecentLessons } from '@/components/teacher/TeacherRecentLessons';
-import { TeacherLessonSchedule } from '@/components/teacher/TeacherLessonSchedule';
+import { TeacherDashboardStats } from '@/components/dashboard/teacher/TeacherDashboardStats';
+import { TeacherStudentsList } from '@/components/dashboard/teacher/TeacherStudentsList';
+import { TeacherRecentLessons } from '@/components/dashboard/teacher/TeacherRecentLessons';
+import { TeacherLessonSchedule } from '@/components/dashboard/teacher/TeacherLessonSchedule';
 
 export default function TeacherDashboard() {
 	return (
