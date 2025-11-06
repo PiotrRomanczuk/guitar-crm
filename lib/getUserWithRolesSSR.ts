@@ -1,41 +1,19 @@
-import { cookies } from 'next/headers';
-import { createServerClient } from '@supabase/ssr';
-import type { Database } from '@/types/database.types';
+import { createClient } from '@/lib/supabase/server';
 
 export async function getUserWithRolesSSR() {
-	console.log('[SSR DEBUG] getUserWithRolesSSR called');
-	const cookieStore = await cookies();
-
-	console.log('[SSR DEBUG] Cookie store:', cookieStore);
-	const supabase = createServerClient<Database>(
-		process.env.NEXT_PUBLIC_SUPABASE_URL!,
-		process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-		{
-			cookies: {
-				getAll() {
-					return cookieStore.getAll();
-				},
-				setAll(cookiesToSet) {
-					try {
-						cookiesToSet.forEach(({ name, value, options }) =>
-							cookieStore.set(name, value, options)
-						);
-					} catch {
-						// Server component - cannot set cookies
-					}
-				},
-			},
-		}
-	);
-
+	const supabase = await createClient();
 	const {
 		data: { user },
 		error: userError,
 	} = await supabase.auth.getUser();
-
-	console.log('[SSR DEBUG] Supabase user:', user);
 	if (userError) {
-		console.log('[SSR DEBUG] Supabase user error:', userError);
+		// Optionally log or handle error
+		return {
+			user: null,
+			isAdmin: false,
+			isTeacher: false,
+			isStudent: false,
+		};
 	}
 
 	if (!user) {
@@ -51,31 +29,36 @@ export async function getUserWithRolesSSR() {
 	const { data: profile, error: profileError } = await supabase
 		.from('profiles')
 		.select('isAdmin, isTeacher, isStudent')
-		.eq('user_id', user.id as string)
+		.eq('user_id', user.id)
 		.single();
 
-	console.log('[SSR DEBUG] Supabase profile:', profile);
 	if (profileError) {
-		console.log('[SSR DEBUG] Supabase profile error:', profileError);
+		console.error('Profile query error:', profileError);
 	}
 
-	// Type guard for profile
-	type ProfileRoles = {
-		isAdmin: boolean;
-		isTeacher: boolean;
-		isStudent: boolean;
-	};
+	if (profile) {
+		return {
+			user,
+			isAdmin: !!profile.isAdmin,
+			isTeacher: !!profile.isTeacher,
+			isStudent: !!profile.isStudent,
+		};
+	}
+
+	// Fallback: if user is development admin, set isAdmin true
+	if (user.email === 'p.romanczuk@gmail.com') {
+		return {
+			user,
+			isAdmin: true,
+			isTeacher: true,
+			isStudent: false,
+		};
+	}
 
 	return {
 		user,
-		isAdmin: profile
-			? (profile as unknown as ProfileRoles).isAdmin ?? false
-			: false,
-		isTeacher: profile
-			? (profile as unknown as ProfileRoles).isTeacher ?? false
-			: false,
-		isStudent: profile
-			? (profile as unknown as ProfileRoles).isStudent ?? false
-			: false,
+		isAdmin: false,
+		isTeacher: false,
+		isStudent: false,
 	};
 }

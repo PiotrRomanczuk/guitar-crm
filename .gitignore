@@ -55,7 +55,6 @@ lighthouse-reports/
 lighthouse-results.json
 lighthouse-simple.html
 
-# MCP servers
-.mcp/*/node_modules/
-.mcp/*/.git/
-.mcp/*/build/
+# Scripts history
+scripts/history/
+scripts/history/all_executions.md
