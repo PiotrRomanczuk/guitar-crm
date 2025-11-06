@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { headers } from 'next/headers';
-import { createClient } from '@/lib/supabase';
+
+import { createClient } from '@/lib/supabase/client';
 
 export async function LandingHeader() {
 	// SSR: fetch user from Supabase using server headers
-	const hdrs = await headers();
-	const supabase = createClient(hdrs);
+
+	const supabase = await createClient();
 	const {
 		data: { user },
 	} = await supabase.auth.getUser();

@@ -1,7 +1,1 @@
-'use client';
-
-import { AuthProvider } from '@/components/auth';
-
-export default function Providers({ children }: { children: React.ReactNode }) {
-	return <AuthProvider>{children}</AuthProvider>;
-}
+// DELETED: Providers.tsx is not needed in this project
