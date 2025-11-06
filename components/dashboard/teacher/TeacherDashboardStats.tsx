@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AdminStatCard } from '@/components/admin/AdminStatCard';
+import { AdminStatCard } from '@/components/dashboard/admin/AdminStatCard';
 
 interface TeacherStats {
 	myStudents: number;

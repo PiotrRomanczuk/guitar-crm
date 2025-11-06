@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { RequireAdmin } from '@/components/auth';
-import { AdminStatCard } from '@/components/admin/AdminStatCard';
-import { AdminActionCard } from '@/components/admin/AdminActionCard';
+import { AdminStatCard } from '@/components/dashboard/admin/AdminStatCard';
+import { AdminActionCard } from '@/components/dashboard/admin/AdminActionCard';
 
 type DebugView = 'admin' | 'teacher' | 'student';
 

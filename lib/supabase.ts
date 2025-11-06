@@ -1,17 +1,21 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient as supabaseCreateClient } from '@supabase/supabase-js';
 import { Database } from '@/types/database.types.generated';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 // Create a fallback client for build time
-const createSupabaseClient = () => {
+
+export const createSupabaseClient = () => {
 	if (!supabaseUrl || !supabaseAnonKey) {
 		// Return a mock client for build time
 		console.warn('Supabase environment variables not set. Using mock client.');
-		return createClient('https://placeholder.supabase.co', 'placeholder-key');
+		return supabaseCreateClient(
+			'https://placeholder.supabase.co',
+			'placeholder-key'
+		);
 	}
-	return createClient<Database>(supabaseUrl, supabaseAnonKey);
+	return supabaseCreateClient<Database>(supabaseUrl, supabaseAnonKey);
 };
 
 export const supabase = createSupabaseClient();

@@ -1,4 +1,4 @@
-import { UserList, UserForm, UserCard } from '@/components/admin';
+import { UserList, UserForm, UserCard } from '@/components/dashboard/admin';
 
 describe('Admin Components', () => {
 	it('should export admin components correctly', () => {

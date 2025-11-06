@@ -54,3 +54,5 @@ supabase/tables\ information/
 lighthouse-reports/
 lighthouse-results.json
 lighthouse-simple.html
+
+.mcp
