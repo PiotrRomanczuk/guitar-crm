@@ -59,8 +59,8 @@ jest.mock('next/server', () => ({
 }));
 
 // Mock Supabase client
-jest.mock('@/lib/supabase', () => ({
-	supabase: {
+jest.mock('@/lib/supabase/client', () => ({
+	createClient: jest.fn(() => ({
 		from: jest.fn(() => ({
 			select: jest.fn().mockReturnThis(),
 			insert: jest.fn().mockReturnThis(),
@@ -85,7 +85,7 @@ jest.mock('@/lib/supabase', () => ({
 				data: { subscription: { unsubscribe: jest.fn() } },
 			})),
 		},
-	},
+	})),
 }));
 
 // Mock window.matchMedia

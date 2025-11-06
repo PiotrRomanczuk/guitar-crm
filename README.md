@@ -1,5 +1,7 @@
 # Guitar CRM
 
+[![CI/CD Pipeline](https://github.com/PiotrRomanczuk/guitar-crm/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/PiotrRomanczuk/guitar-crm/actions)
+
 A comprehensive Customer Relationship Management system for guitar teachers, built with Next.js, TypeScript, and Supabase.
 
 ## Quick Start
