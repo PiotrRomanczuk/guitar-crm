@@ -55,4 +55,7 @@ lighthouse-reports/
 lighthouse-results.json
 lighthouse-simple.html
 
-.mcp
+# MCP servers
+.mcp/*/node_modules/
+.mcp/*/.git/
+.mcp/*/build/

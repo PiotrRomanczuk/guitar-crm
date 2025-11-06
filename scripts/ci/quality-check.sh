@@ -3,7 +3,14 @@
 # Code Quality Check Script
 # Runs linting, formatting, type checking, and tests with coverage
 
-set -e
+# DON'T use set -e here because we want to run all checks and log even on failures
+
+# Start timing and capture output
+START_TIME=$(date +%s)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TEMP_OUTPUT=$(mktemp)
+exec 1> >(tee -a "$TEMP_OUTPUT")
+exec 2>&1
 
 echo "🔍 CODE QUALITY CHECK"
 echo "===================="
@@ -255,7 +262,7 @@ fi
 
 # 8. Lighthouse scores
 echo ""
-echo "� Lighthouse Scores"
+echo "🚦 Lighthouse Scores"
 echo "======================="
 
 if [ -f "lighthouse-results.json" ]; then
@@ -301,11 +308,30 @@ generate_terminal_summary "coverage/coverage-summary.json" "lighthouse-results.j
 echo ""
 echo "======================"
 
+# Calculate duration and log execution
+END_TIME=$(date +%s)
+DURATION=$((END_TIME - START_TIME))
+
+# Close the tee process and capture final output
+exec 1>&-
+exec 2>&-
+
+# Read captured output
+OUTPUT=$(cat "$TEMP_OUTPUT")
+
+# Log this execution
+source "$SCRIPT_DIR/../utils/log_history.sh"
+log_execution "$0" "$OVERALL_STATUS" "$OUTPUT" "$DURATION"
+
+# Clean up temp file
+rm -f "$TEMP_OUTPUT"
+
+# Print final status to stderr (not captured)
 if [ $OVERALL_STATUS -eq 0 ]; then
-    echo -e "${GREEN}🎉 ALL QUALITY CHECKS PASSED!${NC}"
-    echo "Your code is ready for commit."
+    echo -e "${GREEN}🎉 ALL QUALITY CHECKS PASSED!${NC}" >&2
+    echo "Your code is ready for commit." >&2
 else
-    echo -e "${RED}❌ QUALITY CHECKS FAILED${NC}"
-    echo "Please fix the issues above before committing."
+    echo -e "${RED}❌ QUALITY CHECKS FAILED${NC}" >&2
+    echo "Please fix the issues above before committing." >&2
     exit 1
 fi

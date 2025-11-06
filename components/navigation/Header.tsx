@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/components/auth';
+// SSR: user/roles are passed as props from RootLayout
 import { useRouter } from 'next/navigation';
 import { RoleBasedNav } from './RoleBasedNav';
 
@@ -124,6 +124,9 @@ function MobileMenu({
 	onSignOut,
 	onSignIn,
 	onSignUp,
+	isAdmin,
+	isTeacher,
+	isStudent,
 }: {
 	open: boolean;
 	user: { email?: string } | null;
@@ -132,6 +135,9 @@ function MobileMenu({
 	onSignOut: () => void;
 	onSignIn: () => void;
 	onSignUp: () => void;
+	isAdmin: boolean;
+	isTeacher: boolean;
+	isStudent: boolean;
 }) {
 	if (!open) return null;
 
@@ -139,7 +145,12 @@ function MobileMenu({
 		<div className='md:hidden mt-4 pb-4 border-t border-gray-200 dark:border-gray-700 pt-4'>
 			{user && (
 				<div className='mb-4'>
-					<RoleBasedNav />
+					<RoleBasedNav
+						user={user}
+						isAdmin={isAdmin}
+						isTeacher={isTeacher}
+						isStudent={isStudent}
+					/>
 				</div>
 			)}
 
@@ -182,13 +193,22 @@ function MobileMenu({
 	);
 }
 
-export default function Header() {
-	const { user, loading, signOut, isAdmin, isTeacher, isStudent } = useAuth();
+export default function Header({
+	user,
+	isAdmin,
+	isTeacher,
+	isStudent,
+}: {
+	user: { email?: string } | null;
+	isAdmin: boolean;
+	isTeacher: boolean;
+	isStudent: boolean;
+}) {
 	const router = useRouter();
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+	// SSR: no loading state, signOut just redirects
 	const handleSignOut = async () => {
-		await signOut();
 		router.push('/sign-in');
 		setMobileMenuOpen(false);
 	};
@@ -218,7 +238,12 @@ export default function Header() {
 					{/* Navigation - Hidden on mobile */}
 					{user && (
 						<div className='hidden md:flex flex-1 mx-8'>
-							<RoleBasedNav />
+							<RoleBasedNav
+								user={user}
+								isAdmin={isAdmin}
+								isTeacher={isTeacher}
+								isStudent={isStudent}
+							/>
 						</div>
 					)}
 
@@ -231,7 +256,7 @@ export default function Header() {
 					{/* Desktop Auth Controls */}
 					<DesktopAuthControls
 						user={user}
-						loading={loading}
+						loading={false}
 						roles={roles}
 						onSignOut={handleSignOut}
 						onSignIn={() => handleNavigation('/sign-in')}
@@ -243,11 +268,14 @@ export default function Header() {
 				<MobileMenu
 					open={mobileMenuOpen}
 					user={user}
-					loading={loading}
+					loading={false}
 					roles={roles}
 					onSignOut={handleSignOut}
 					onSignIn={() => handleNavigation('/sign-in')}
 					onSignUp={() => handleNavigation('/sign-up')}
+					isAdmin={isAdmin}
+					isTeacher={isTeacher}
+					isStudent={isStudent}
 				/>
 			</div>
 		</header>

@@ -74,9 +74,12 @@ describe('User Seeding Tests', () => {
 			for (const expectedUser of expectedUsers) {
 				const profile = profiles?.find((p) => p.email === expectedUser.email);
 				expect(profile).toBeDefined();
-				expect(profile?.isAdmin).toBe(expectedUser.role.isAdmin);
-				expect(profile?.isTeacher).toBe(expectedUser.role.isTeacher);
-				expect(profile?.isStudent).toBe(expectedUser.role.isStudent);
+				// @ts-expect-error - using lowercase column names from database
+				expect(profile?.isadmin).toBe(expectedUser.role.isAdmin);
+				// @ts-expect-error - lowercase column name
+				expect(profile?.isteacher).toBe(expectedUser.role.isTeacher);
+				// @ts-expect-error - lowercase column name
+				expect(profile?.isstudent).toBe(expectedUser.role.isStudent);
 			}
 		});
 
@@ -90,7 +93,8 @@ describe('User Seeding Tests', () => {
 				);
 
 			profiles?.forEach((profile) => {
-				expect(profile.isDevelopment).toBe(true);
+				// @ts-expect-error - using lowercase column names from database
+				expect(profile.isdevelopment).toBe(true);
 			});
 		});
 
@@ -99,6 +103,7 @@ describe('User Seeding Tests', () => {
 				.from('profiles')
 				.select('email');
 
+			// @ts-expect-error - profiles has email column
 			const emails = profiles?.map((p) => p.email) || [];
 			const uniqueEmails = new Set(emails);
 			expect(emails.length).toBe(uniqueEmails.size);
