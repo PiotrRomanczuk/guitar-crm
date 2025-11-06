@@ -49,9 +49,15 @@ Welcome to the Guitar CRM documentation. All project documentation is organized 
   - Jest configuration and usage
 
 - **[REMOTE_DATABASE_SEEDING.md](./guides/REMOTE_DATABASE_SEEDING.md)**
+
   - How to seed remote databases
   - Data migration patterns
   - Backup and restore procedures
+
+- **[SHADCN_MCP_SETUP.md](./guides/SHADCN_MCP_SETUP.md)** 🆕
+  - shadcn MCP server integration for Copilot
+  - Enables AI-assisted component generation
+  - Setup guide and usage instructions
 
 ---
 

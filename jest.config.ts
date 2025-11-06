@@ -49,7 +49,12 @@ const config: Config = {
 	},
 
 	// Ignore patterns
-	testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
+	testPathIgnorePatterns: [
+		'<rootDir>/.next/',
+		'<rootDir>/node_modules/',
+		'<rootDir>/__tests__/auth/credentials.test.ts', // Integration tests - require live database
+		'<rootDir>/__tests__/database/user-seeding.test.ts', // Integration tests - require live database
+	],
 
 	// Transform files
 	transform: {

@@ -3,7 +3,7 @@
 import React from 'react';
 import { RequireTeacher } from '@/components/auth/RequireRole';
 import SongForm from './SongForm';
-import useSong from './useSong';
+import { useSong } from './hooks';
 
 interface Props {
 	mode: 'create' | 'edit';

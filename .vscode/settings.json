@@ -1,0 +1,16 @@
+{
+	"github.copilot.chat.codeGeneration.instructions": [
+		{
+			"text": "When using shadcn/ui components, always use the @shadcn-ui MCP tool to fetch the latest component code and examples."
+		}
+	],
+	"github.copilot.chat.modelContextProtocol.mcpServers": {
+		"shadcn-ui": {
+			"command": "node",
+			"args": ["${workspaceFolder}/.mcp/shadcn-server/build/index.js"],
+			"env": {
+				"GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_PERSONAL_ACCESS_TOKEN}"
+			}
+		}
+	}
+}

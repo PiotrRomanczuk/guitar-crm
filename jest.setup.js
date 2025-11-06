@@ -119,6 +119,27 @@ global.ResizeObserver = class ResizeObserver {
 	unobserve() {}
 };
 
+// Mock fetch API for Jest tests
+global.fetch = jest.fn(() =>
+	Promise.resolve({
+		ok: true,
+		status: 200,
+		json: () => Promise.resolve({ data: [], error: null }),
+		text: () => Promise.resolve(''),
+		headers: new Headers(),
+		redirected: false,
+		statusText: 'OK',
+		type: 'basic',
+		url: '',
+		clone: jest.fn(),
+		body: null,
+		bodyUsed: false,
+		arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+		blob: () => Promise.resolve(new Blob()),
+		formData: () => Promise.resolve(new FormData()),
+	})
+);
+
 // Global test utilities
 global.testUtils = {
 	// Helper to create mock user data

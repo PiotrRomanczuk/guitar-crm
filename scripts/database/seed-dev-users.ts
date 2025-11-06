@@ -160,15 +160,16 @@ async function createDevUser(
 			{
 				user_id: id,
 				email: user.email,
-				firstName: user.firstName,
-				lastName: user.lastName,
-				isAdmin: user.isAdmin,
-				isTeacher: user.isTeacher,
-				isStudent: user.isStudent,
+				firstname: user.firstName,
+				lastname: user.lastName,
+				isadmin: user.isAdmin,
+				isteacher: user.isTeacher,
+				isstudent: user.isStudent,
 				isActive: true,
 				bio: user.notes,
 				isTest: false,
 				canEdit: user.isAdmin || user.isTeacher,
+				isdevelopment: true,
 			} satisfies ProfileInsert,
 			{ onConflict: 'user_id' }
 		);
@@ -189,15 +190,16 @@ async function createDevUser(
 		{
 			user_id: userId,
 			email: user.email,
-			firstName: user.firstName,
-			lastName: user.lastName,
-			isAdmin: user.isAdmin,
-			isTeacher: user.isTeacher,
-			isStudent: user.isStudent,
+			firstname: user.firstName,
+			lastname: user.lastName,
+			isadmin: user.isAdmin,
+			isteacher: user.isTeacher,
+			isstudent: user.isStudent,
 			isActive: true,
 			bio: user.notes,
 			isTest: false,
 			canEdit: user.isAdmin || user.isTeacher,
+			isdevelopment: true,
 		} satisfies ProfileInsert,
 		{ onConflict: 'user_id' }
 	);

@@ -2,25 +2,14 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { SignInForm, useAuth } from '@/components/auth';
+import { SignInForm } from '@/components/auth';
 
 export default function SignInPage() {
 	const router = useRouter();
-	const { user } = useAuth();
-
-	useEffect(() => {
-		if (user) {
-			router.push('/');
-		}
-	}, [user, router]);
 
 	const handleSuccess = () => {
 		router.push('/');
 	};
-
-	if (user) {
-		return null;
-	}
 
 	return (
 		<div className='min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-3 sm:px-4 py-4 sm:py-8'>

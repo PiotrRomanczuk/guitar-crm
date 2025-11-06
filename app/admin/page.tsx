@@ -171,6 +171,7 @@ function AdminActions() {
 			title: 'User Management',
 			description: 'Create, edit, and manage user accounts and roles',
 			linkText: 'Manage Users',
+			comingSoon: false,
 		},
 		{
 			href: '/admin/settings',
@@ -178,6 +179,7 @@ function AdminActions() {
 			title: 'System Settings',
 			description: 'Configure system-wide settings and preferences',
 			linkText: 'Open Settings',
+			comingSoon: true,
 		},
 		{
 			href: '/admin/reports',
@@ -185,6 +187,7 @@ function AdminActions() {
 			title: 'Reports & Analytics',
 			description: 'View system usage and performance metrics',
 			linkText: 'View Reports',
+			comingSoon: true,
 		},
 		{
 			href: '/admin/database',
@@ -192,6 +195,7 @@ function AdminActions() {
 			title: 'Database Management',
 			description: 'Backup, restore, and maintain database',
 			linkText: 'Manage Database',
+			comingSoon: true,
 		},
 		{
 			href: '/admin/logs',
@@ -199,6 +203,7 @@ function AdminActions() {
 			title: 'Activity Logs',
 			description: 'Monitor system activity and user actions',
 			linkText: 'View Logs',
+			comingSoon: true,
 		},
 		{
 			href: '/admin/security',
@@ -206,6 +211,7 @@ function AdminActions() {
 			title: 'Security & Permissions',
 			description: 'Manage RLS policies and access control',
 			linkText: 'Security Settings',
+			comingSoon: true,
 		},
 	];
 
@@ -221,11 +227,14 @@ function AdminActions() {
 function RecentActivity() {
 	return (
 		<div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-6'>
-			<h2 className='text-2xl font-bold mb-4 text-gray-900 dark:text-white'>
-				Recent Activity
+			<h2 className='text-2xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2'>
+				📋 Recent Activity
+				<span className='text-xs px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 font-normal'>
+					Coming Soon
+				</span>
 			</h2>
 			<p className='text-gray-600 dark:text-gray-300'>
-				Activity tracking coming soon...
+				Activity logging and audit trail features are under development.
 			</p>
 		</div>
 	);

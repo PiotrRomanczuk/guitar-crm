@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 interface SignInFormProps {
 	onSuccess?: () => void;
@@ -164,6 +164,7 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
 		setLoading(true);
 		setError(null);
 
+		const supabase = getSupabaseBrowserClient();
 		const { data, error: signInError } = await supabase.auth.signInWithPassword(
 			{
 				email,

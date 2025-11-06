@@ -20,7 +20,10 @@ const supabase = createClient<Database>(
 	process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
 );
 
-describe('Development Credentials Authentication Tests', () => {
+// Skip these integration tests if database is not available or in CI
+const describeIfDb = process.env.SKIP_DB_TESTS ? describe.skip : describe;
+
+describeIfDb('Development Credentials Authentication Tests', () => {
 	// Test credentials from development_credentials.txt
 	const testUsers = [
 		{

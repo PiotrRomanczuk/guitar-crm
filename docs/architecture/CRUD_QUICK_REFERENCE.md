@@ -480,9 +480,59 @@ _Note: Times assume familiarity with patterns. First implementation may take lon
 
 ---
 
-## 📞 Need Help?
+## � Component Structure Quick Reference
+
+**MANDATORY**: All entity components must follow this folder structure:
+
+```
+components/<entity>/
+├── <Entity>List/
+│   ├── components/       # Header, Table, Empty, Filter
+│   ├── hooks/            # use<Entity>List
+│   └── index.tsx
+├── <Entity>Form/
+│   ├── components/       # Fields, FieldText, FieldSelect
+│   ├── helpers/          # validation.ts
+│   ├── options/          # fieldOptions.ts
+│   ├── validators.ts
+│   ├── Content.tsx
+│   └── index.tsx
+├── <Entity>Detail/
+│   ├── components/       # Header, Info, Actions
+│   ├── use<Entity>Detail.ts
+│   └── index.tsx
+├── hooks/                # use<Entity>, use<Entity>Mutations
+├── types/                # <entity>.types.ts, api.types.ts
+├── services/             # <entity>Api.ts, <entity>Queries.ts
+├── utils/                # formatters.ts, transformers.ts
+├── tests/                # Component and hook tests
+├── constants.ts
+├── config.ts
+├── <Entity>FormGuard.tsx
+├── index.ts
+└── README.md
+```
+
+**Requirements:**
+
+- All files < 80 lines, functions < 80 lines, complexity < 10
+- Folder-based organization with sub-folders
+- Separate concerns: components/, hooks/, helpers/, options/, services/, utils/
+- Co-located tests in tests/ folder
+- Comprehensive README.md per entity
+
+**See:**
+
+- `components/songs/` - Current implementation (simpler structure)
+- New entities should use the enhanced structure above
+- `docs/completed-features/SONGS_COMPONENT_REFACTORING.md` - Migration example
+
+---
+
+## �📞 Need Help?
 
 1. Check [CRUD_STANDARDS.md](./CRUD_STANDARDS.md) for detailed guide
-2. Look at existing songs implementation as reference
-3. Check [TDD_GUIDE.md](./TDD_GUIDE.md) for testing help
-4. Review [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md) for architecture
+2. Look at `components/songs/` as the canonical component structure example
+3. Review [SONGS_COMPONENT_REFACTORING.md](../completed-features/SONGS_COMPONENT_REFACTORING.md) for structure details
+4. Check [TDD_GUIDE.md](./TDD_GUIDE.md) for testing help
+5. Review [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md) for architecture
