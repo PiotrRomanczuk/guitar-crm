@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import Header from '@/components/navigation/Header';
-import ClientProviders from './ClientProviders';
+
 import './globals.css';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
@@ -41,15 +41,13 @@ export default async function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
-				<ClientProviders>
-					<Header
-						user={user}
-						isAdmin={isAdmin}
-						isTeacher={isTeacher}
-						isStudent={isStudent}
-					/>
-					{children}
-				</ClientProviders>
+				<Header
+					user={user}
+					isAdmin={isAdmin}
+					isTeacher={isTeacher}
+					isStudent={isStudent}
+				/>
+				{children}
 			</body>
 		</html>
 	);

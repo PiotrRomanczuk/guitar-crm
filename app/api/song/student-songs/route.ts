@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { SongWithLessonsSchema, type SongWithLessons } from '@/schemas/SongSchema';
+import {
+	SongWithLessonsSchema,
+	type SongWithLessons,
+} from '@/schemas/SongSchema';
 import { supabase } from '@/lib/supabase';
 
 const querySchema = z.object({
@@ -33,10 +36,12 @@ export async function GET(request: Request) {
 	}
 
 	// Map lesson_songs to SongWithStatus
-	const mapped: SongWithLessons[] = data.map((ls: { songs: SongWithLessons; status: string }) => ({
-		...ls.songs,
-		status: ls.status,
-	}));
+	const mapped: SongWithLessons[] = data.map(
+		(ls: { songs: SongWithLessons; status: string }) => ({
+			...ls.songs,
+			status: ls.status,
+		})
+	);
 
 	// Optionally filter by level
 	const filtered = level
