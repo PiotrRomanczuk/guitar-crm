@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { supabase } from '@/lib/supabase';
+
+import { createClient } from '@/lib/supabase/client';
 import { ProfileEditSchema, type ProfileEdit } from '@/schemas/ProfileSchema';
 
 async function loadProfileFromDb(userId: string): Promise<ProfileEdit> {
+	const supabase = createClient();
 	const { data, error } = await supabase
 		.from('profiles')
 		.select('*')
@@ -30,6 +31,7 @@ async function loadProfileFromDb(userId: string): Promise<ProfileEdit> {
 async function saveProfileToDb(userId: string, profileData: ProfileEdit) {
 	const validatedData = ProfileEditSchema.parse(profileData);
 
+	const supabase = createClient();
 	const { data: existingProfile } = await supabase
 		.from('profiles')
 		.select('id')
@@ -50,8 +52,7 @@ async function saveProfileToDb(userId: string, profileData: ProfileEdit) {
 	}
 }
 
-export function useProfileData() {
-	const { user } = useAuth();
+export function useProfileData(user: { id: string } | null) {
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState<string | null>(null);

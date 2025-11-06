@@ -1,179 +1,221 @@
-'use client';
+// 'use client';
 
-import { useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from './AuthProvider';
+// import { useEffect, useState, ReactNode } from 'react';
+// import { useRouter } from 'next/navigation';
+// import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
 interface RequireRoleProps {
-	children: ReactNode;
-	redirectTo?: string;
-	loadingComponent?: ReactNode;
+  children: React.ReactNode;
+  redirectTo?: string;
+  loadingComponent?: React.ReactNode;
 }
 
-/**
- * Base component for authentication requirement
- * Ensures user is logged in before rendering children
- */
-export function RequireAuth({
-	children,
-	redirectTo = '/sign-in',
-	loadingComponent,
-}: RequireRoleProps) {
-	const { user, loading } = useAuth();
-	const router = useRouter();
+// /**
+//  * Base component for authentication requirement
+//  * Ensures user is logged in before rendering children
+//  */
+//        children,
+//        redirectTo = '/sign-in',
+//        loadingComponent,
+export function RequireAuth({ children, redirectTo = '/sign-in', loadingComponent }: RequireRoleProps) {
+//        useEffect(() => {
+// 	       let mounted = true;
+// 	       setLoading(true);
+// 	       getUserWithRolesSSR().then((result) => {
+// 		       if (mounted) {
+// 			       setUser(result.user);
+// 			       setLoading(false);
+// 		       }
+// 	       });
+// 	       return () => { mounted = false; };
+//        }, []);
 
-	useEffect(() => {
-		if (!loading && !user) {
-			router.push(redirectTo);
-		}
-	}, [user, loading, router, redirectTo]);
+//        useEffect(() => {
+// 	       if (!loading && !user) {
+// 		       router.push(redirectTo);
+// 	       }
+//        }, [user, loading, router, redirectTo]);
 
-	if (loading) {
-		return (
-			<>
-				{loadingComponent || (
-					<div className='min-h-screen flex items-center justify-center'>
-						<div className='text-xl text-gray-600 dark:text-gray-300'>
-							Loading...
-						</div>
-					</div>
-				)}
-			</>
-		);
-	}
+//        if (loading) {
+// 	       return (
+// 		       <>
+// 			       {loadingComponent || (
+// 				       <div className='min-h-screen flex items-center justify-center'>
+// 					       <div className='text-xl text-gray-600 dark:text-gray-300'>
+// 						       Loading...
+// 					       </div>
+// 				       </div>
+// 			       )}
+// 		       </>
+// 	       );
+//        }
 
-	if (!user) {
-		return null;
-	}
+//        if (!user) {
+// 	       return null;
+//        }
 
-	return <>{children}</>;
-}
+//        return <>{children}</>;
+// }
 
-/**
- * Requires user to be an admin
- * Redirects non-admins to home page, unauthenticated to sign-in
- */
-export function RequireAdmin({
-	children,
-	redirectTo,
-	loadingComponent,
-}: RequireRoleProps) {
-	const { user, loading, isAdmin } = useAuth();
-	const router = useRouter();
+// /**
+//  * Requires user to be an admin
+//  * Redirects non-admins to home page, unauthenticated to sign-in
+//  */
+//        children,
+//        redirectTo,
+//        loadingComponent,
+export function RequireAdmin({ children, redirectTo, loadingComponent }: RequireRoleProps) {
 
-	useEffect(() => {
-		if (!loading) {
-			if (!user) {
-				router.push(redirectTo || '/sign-in');
-			} else if (!isAdmin) {
-				router.push(redirectTo || '/');
-			}
-		}
-	}, [user, loading, isAdmin, router, redirectTo]);
+//        useEffect(() => {
+// 	       let mounted = true;
+// 	       setLoading(true);
+// 	       getUserWithRolesSSR().then((result) => {
+// 		       if (mounted) {
+// 			       setUser(result.user);
+// 			       setIsAdmin(result.isAdmin);
+// 			       setLoading(false);
+// 		       }
+// 	       });
+// 	       return () => { mounted = false; };
+//        }, []);
 
-	if (loading) {
-		return (
-			<>
-				{loadingComponent || (
-					<div className='min-h-screen flex items-center justify-center'>
-						<div className='text-xl text-gray-600 dark:text-gray-300'>
-							Loading...
-						</div>
-					</div>
-				)}
-			</>
-		);
-	}
+//        useEffect(() => {
+// 	       if (!loading) {
+// 		       if (!user) {
+// 			       router.push(redirectTo || '/sign-in');
+// 		       } else if (!isAdmin) {
+// 			       router.push(redirectTo || '/');
+// 		       }
+// 	       }
+//        }, [user, isAdmin, loading, router, redirectTo]);
 
-	if (!user || !isAdmin) {
-		return null;
-	}
+//        if (loading) {
+// 	       return (
+// 		       <>
+// 			       {loadingComponent || (
+// 				       <div className='min-h-screen flex items-center justify-center'>
+// 					       <div className='text-xl text-gray-600 dark:text-gray-300'>
+// 						       Loading...
+// 					       </div>
+// 				       </div>
+// 			       )}
+// 		       </>
+// 	       );
+//        }
 
-	return <>{children}</>;
-}
+//        if (!user || !isAdmin) {
+// 	       return null;
+//        }
 
-/**
- * Requires user to be a teacher or admin
- * Teachers can access, admins can access everything
- */
-export function RequireTeacher({
-	children,
-	redirectTo,
-	loadingComponent,
-}: RequireRoleProps) {
-	const { user, loading, isTeacher, isAdmin } = useAuth();
-	const router = useRouter();
+//        return <>{children}</>;
+// }
 
-	useEffect(() => {
-		if (!loading) {
-			if (!user) {
-				router.push(redirectTo || '/sign-in');
-			} else if (!isTeacher && !isAdmin) {
-				router.push(redirectTo || '/');
-			}
-		}
-	}, [user, loading, isTeacher, isAdmin, router, redirectTo]);
+// /**
+//  * Requires user to be a teacher or admin
+//  * Teachers can access, admins can access everything
+//  */
+//        children,
+//        redirectTo,
+//        loadingComponent,
+export function RequireTeacher({ children, redirectTo, loadingComponent }: RequireRoleProps) {
+//        const router = useRouter();
 
-	if (loading) {
-		return (
-			<>
-				{loadingComponent || (
-					<div className='min-h-screen flex items-center justify-center'>
-						<div className='text-xl text-gray-600 dark:text-gray-300'>
-							Loading...
-						</div>
-					</div>
-				)}
-			</>
-		);
-	}
+//        useEffect(() => {
+// 	       let mounted = true;
+// 	       setLoading(true);
+// 	       getUserWithRolesSSR().then((result) => {
+// 		       if (mounted) {
+// 			       setUser(result.user);
+// 			       setIsTeacher(result.isTeacher);
+// 			       setIsAdmin(result.isAdmin);
+// 			       setLoading(false);
+// 		       }
+// 	       });
+// 	       return () => { mounted = false; };
+//        }, []);
 
-	if (!user || (!isTeacher && !isAdmin)) {
-		return null;
-	}
+//        useEffect(() => {
+// 	       if (!loading) {
+// 		       if (!user) {
+// 			       router.push(redirectTo || '/sign-in');
+// 		       } else if (!isTeacher && !isAdmin) {
+// 			       router.push(redirectTo || '/');
+// 		       }
+// 	       }
+//        }, [user, isTeacher, isAdmin, loading, router, redirectTo]);
 
-	return <>{children}</>;
-}
+//        if (loading) {
+// 	       return (
+// 		       <>
+// 			       {loadingComponent || (
+// 				       <div className='min-h-screen flex items-center justify-center'>
+// 					       <div className='text-xl text-gray-600 dark:text-gray-300'>
+// 						       Loading...
+// 					       </div>
+// 				       </div>
+// 			       )}
+// 		       </>
+// 	       );
+//        }
 
-/**
- * Requires user to be a student or admin
- * Students can access, admins can access everything
- */
-export function RequireStudent({
-	children,
-	redirectTo,
-	loadingComponent,
-}: RequireRoleProps) {
-	const { user, loading, isStudent, isAdmin } = useAuth();
-	const router = useRouter();
+//        if (!user || (!isTeacher && !isAdmin)) {
+// 	       return null;
+//        }
 
-	useEffect(() => {
-		if (!loading) {
-			if (!user) {
-				router.push(redirectTo || '/sign-in');
-			} else if (!isStudent && !isAdmin) {
-				router.push(redirectTo || '/');
-			}
-		}
-	}, [user, loading, isStudent, isAdmin, router, redirectTo]);
+//        return <>{children}</>;
+// }
 
-	if (loading) {
-		return (
-			<>
-				{loadingComponent || (
-					<div className='min-h-screen flex items-center justify-center'>
-						<div className='text-xl text-gray-600 dark:text-gray-300'>
-							Loading...
-						</div>
-					</div>
-				)}
-			</>
-		);
-	}
+// /**
+//  * Requires user to be a student or admin
+//  * Students can access, admins can access everything
+//  */
+//        children,
+//        redirectTo,
+//        loadingComponent,
+export function RequireStudent({ children, redirectTo, loadingComponent }: RequireRoleProps) {
+//        const router = useRouter();
 
-	if (!user || (!isStudent && !isAdmin)) {
-		return null;
-	}
+//        useEffect(() => {
+// 	       let mounted = true;
+// 	       setLoading(true);
+// 	       getUserWithRolesSSR().then((result) => {
+// 		       if (mounted) {
+// 			       setUser(result.user);
+// 			       setIsStudent(result.isStudent);
+// 			       setIsAdmin(result.isAdmin);
+// 			       setLoading(false);
+// 		       }
+// 	       });
+// 	       return () => { mounted = false; };
+//        }, []);
 
-	return <>{children}</>;
-}
+//        useEffect(() => {
+// 	       if (!loading) {
+// 		       if (!user) {
+// 			       router.push(redirectTo || '/sign-in');
+// 		       } else if (!isStudent && !isAdmin) {
+// 			       router.push(redirectTo || '/');
+// 		       }
+// 	       }
+//        }, [user, isStudent, isAdmin, loading, router, redirectTo]);
+
+//        if (loading) {
+// 	       return (
+// 		       <>
+// 			       {loadingComponent || (
+// 				       <div className='min-h-screen flex items-center justify-center'>
+// 					       <div className='text-xl text-gray-600 dark:text-gray-300'>
+// 						       Loading...
+// 					       </div>
+// 				       </div>
+// 			       )}
+// 		       </>
+// 	       );
+//        }
+
+//        if (!user || (!isStudent && !isAdmin)) {
+// 	       return null;
+//        }
+
+//        return <>{children}</>;
+// }

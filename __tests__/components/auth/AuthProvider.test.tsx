@@ -1,3 +1,4 @@
+// DELETED: AuthProvider tests removed, not needed in this project
 import { renderHook, act, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { AuthProvider, useAuth } from '@/components/auth/AuthProvider';

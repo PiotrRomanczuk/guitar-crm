@@ -110,10 +110,10 @@ describe('SignInForm', () => {
 			render(<SignInForm />);
 
 			fireEvent.change(screen.getByLabelText(/email/i), {
-				target: { value: 'test@example.com' },
+				target: { value: 'student@example.com' },
 			});
 			fireEvent.change(screen.getByLabelText(/password/i), {
-				target: { value: 'password123' },
+				target: { value: 'test123_student' },
 			});
 
 			const submitButton = screen.getByRole('button', { name: /sign in/i });
@@ -121,8 +121,8 @@ describe('SignInForm', () => {
 
 			await waitFor(() => {
 				expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
-					email: 'test@example.com',
-					password: 'password123',
+					email: 'student@example.com',
+					password: 'test123_student',
 				});
 			});
 		});
@@ -136,10 +136,10 @@ describe('SignInForm', () => {
 			render(<SignInForm />);
 
 			fireEvent.change(screen.getByLabelText(/email/i), {
-				target: { value: 'test@example.com' },
+				target: { value: 'student@example.com' },
 			});
 			fireEvent.change(screen.getByLabelText(/password/i), {
-				target: { value: 'password123' },
+				target: { value: 'test123_student' },
 			});
 
 			fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
@@ -158,7 +158,7 @@ describe('SignInForm', () => {
 			render(<SignInForm />);
 
 			fireEvent.change(screen.getByLabelText(/email/i), {
-				target: { value: 'test@example.com' },
+				target: { value: 'student@example.com' },
 			});
 			fireEvent.change(screen.getByLabelText(/password/i), {
 				target: { value: 'wrongpassword' },
@@ -182,10 +182,10 @@ describe('SignInForm', () => {
 			render(<SignInForm />);
 
 			fireEvent.change(screen.getByLabelText(/email/i), {
-				target: { value: 'test@example.com' },
+				target: { value: 'student@example.com' },
 			});
 			fireEvent.change(screen.getByLabelText(/password/i), {
-				target: { value: 'password123' },
+				target: { value: 'test123_student' },
 			});
 
 			fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
@@ -216,10 +216,10 @@ describe('SignInForm', () => {
 			render(<SignInForm />);
 
 			fireEvent.change(screen.getByLabelText(/email/i), {
-				target: { value: 'test@example.com' },
+				target: { value: 'student@example.com' },
 			});
 			fireEvent.change(screen.getByLabelText(/password/i), {
-				target: { value: 'password123' },
+				target: { value: 'test123_student' },
 			});
 
 			const submitButton = screen.getByRole('button', { name: /sign in/i });
@@ -251,10 +251,10 @@ describe('SignInForm', () => {
 			render(<SignInForm />);
 
 			fireEvent.change(screen.getByLabelText(/email/i), {
-				target: { value: 'test@example.com' },
+				target: { value: 'student@example.com' },
 			});
 			fireEvent.change(screen.getByLabelText(/password/i), {
-				target: { value: 'password123' },
+				target: { value: 'test123_student' },
 			});
 
 			fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
@@ -278,7 +278,10 @@ describe('SignInForm', () => {
 			) as HTMLInputElement;
 
 			fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-			fireEvent.change(passwordInput, { target: { value: 'password123' } });
+			fireEvent.change(emailInput, {
+				target: { value: 'student@example.com' },
+			});
+			fireEvent.change(passwordInput, { target: { value: 'test123_student' } });
 
 			fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 

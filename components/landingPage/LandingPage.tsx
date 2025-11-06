@@ -1,3 +1,5 @@
+import AllSongs from '../home/testing/AllSongs';
+import AllUsers from '../home/testing/AllUsers';
 import SupabaseTest from '../SupabaseTest';
 import { FeaturesSection } from './featuresSection';
 import { LandingHeader } from './LandingHeader';
@@ -9,8 +11,11 @@ export function LandingPage() {
 				<LandingHeader />
 
 				<div className='space-y-6 sm:space-y-8'>
-					<SupabaseTest />
-					<FeaturesSection />
+					{/* <SupabaseTest /> */}
+					<AllUsers />
+					<AllSongs />
+
+					{/* <FeaturesSection /> */}
 				</div>
 			</main>
 		</div>

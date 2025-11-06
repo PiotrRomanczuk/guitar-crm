@@ -83,7 +83,7 @@ export function RoleBasedNav({
 	);
 
 	return (
-		<nav className='flex flex-wrap gap-1 sm:flex-col'>
+		<nav className='flex flex-row flex-wrap gap-1 md:gap-2 lg:gap-3'>
 			{navItems.map((item) => (
 				<NavLink key={item.href} {...item} />
 			))}

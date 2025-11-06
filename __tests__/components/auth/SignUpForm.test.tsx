@@ -124,10 +124,10 @@ describe('SignUpForm', () => {
 			render(<SignUpForm />);
 
 			fireEvent.change(screen.getByLabelText(/email/i), {
-				target: { value: 'test@example.com' },
+				target: { value: 'student@example.com' },
 			});
 			fireEvent.change(screen.getByLabelText(/password/i), {
-				target: { value: 'password123' },
+				target: { value: 'test123_student' },
 			});
 			fireEvent.change(screen.getByLabelText(/first name/i), {
 				target: { value: 'John' },
@@ -141,8 +141,8 @@ describe('SignUpForm', () => {
 
 			await waitFor(() => {
 				expect(supabase.auth.signUp).toHaveBeenCalledWith({
-					email: 'test@example.com',
-					password: 'password123',
+					email: 'student@example.com',
+					password: 'test123_student',
 					options: {
 						data: {
 							first_name: 'John',
@@ -168,10 +168,10 @@ describe('SignUpForm', () => {
 			render(<SignUpForm />);
 
 			fireEvent.change(screen.getByLabelText(/email/i), {
-				target: { value: 'test@example.com' },
+				target: { value: 'student@example.com' },
 			});
 			fireEvent.change(screen.getByLabelText(/password/i), {
-				target: { value: 'password123' },
+				target: { value: 'test123_student' },
 			});
 			fireEvent.change(screen.getByLabelText(/first name/i), {
 				target: { value: 'John' },
@@ -198,10 +198,10 @@ describe('SignUpForm', () => {
 			render(<SignUpForm />);
 
 			fireEvent.change(screen.getByLabelText(/email/i), {
-				target: { value: 'test@example.com' },
+				target: { value: 'student@example.com' },
 			});
 			fireEvent.change(screen.getByLabelText(/password/i), {
-				target: { value: 'password123' },
+				target: { value: 'test123_student' },
 			});
 			fireEvent.change(screen.getByLabelText(/first name/i), {
 				target: { value: 'John' },
@@ -234,10 +234,10 @@ describe('SignUpForm', () => {
 			render(<SignUpForm />);
 
 			fireEvent.change(screen.getByLabelText(/email/i), {
-				target: { value: 'existing@example.com' },
+				target: { value: 'student@example.com' },
 			});
 			fireEvent.change(screen.getByLabelText(/password/i), {
-				target: { value: 'password123' },
+				target: { value: 'test123_student' },
 			});
 			fireEvent.change(screen.getByLabelText(/first name/i), {
 				target: { value: 'John' },
@@ -281,10 +281,10 @@ describe('SignUpForm', () => {
 			render(<SignUpForm />);
 
 			fireEvent.change(screen.getByLabelText(/email/i), {
-				target: { value: 'test@example.com' },
+				target: { value: 'student@example.com' },
 			});
 			fireEvent.change(screen.getByLabelText(/password/i), {
-				target: { value: 'password123' },
+				target: { value: 'test123_student' },
 			});
 			fireEvent.change(screen.getByLabelText(/first name/i), {
 				target: { value: 'John' },
@@ -325,10 +325,10 @@ describe('SignUpForm', () => {
 			render(<SignUpForm />);
 
 			fireEvent.change(screen.getByLabelText(/email/i), {
-				target: { value: 'test@example.com' },
+				target: { value: 'student@example.com' },
 			});
 			fireEvent.change(screen.getByLabelText(/password/i), {
-				target: { value: 'password123' },
+				target: { value: 'test123_student' },
 			});
 			fireEvent.change(screen.getByLabelText(/first name/i), {
 				target: { value: 'John' },
