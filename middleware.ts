@@ -7,26 +7,14 @@ export async function middleware(request: NextRequest) {
 	const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 	const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-	const { pathname } = request.nextUrl;
-
-	console.log('🔧 [MIDDLEWARE] ===== START =====');
-	console.log('🔧 [MIDDLEWARE] Path:', pathname);
-	console.log('🔧 [MIDDLEWARE] Supabase URL:', supabaseUrl);
-	console.log('🔧 [MIDDLEWARE] Has Anon Key:', !!supabaseAnonKey);
+	// ...existing code...
 
 	// Skip middleware if Supabase is not configured
 	if (!supabaseUrl || !supabaseAnonKey) {
-		console.log('🔧 [MIDDLEWARE] Supabase not configured, skipping');
 		return NextResponse.next();
 	}
 
-	// Get all cookies from request
-	const allCookies = request.cookies.getAll();
-	console.log('🔧 [MIDDLEWARE] Request cookies count:', allCookies.length);
-	console.log(
-		'🔧 [MIDDLEWARE] Cookie names:',
-		allCookies.map((c) => c.name)
-	);
+	// ...existing code...
 
 	// Create a response that we can mutate
 	const response = NextResponse.next({
@@ -51,29 +39,13 @@ export async function middleware(request: NextRequest) {
 	});
 
 	// Get the current session
-	console.log('🔧 [MIDDLEWARE] Calling getSession()...');
 	const {
 		data: { session },
-		error,
 	} = await supabase.auth.getSession();
 
-	console.log('🔧 [MIDDLEWARE] Session result:', {
-		hasSession: !!session,
-		hasError: !!error,
-		error: error ? error.message : null,
-	});
-
 	if (session) {
-		console.log('🔧 [MIDDLEWARE] Session details:', {
-			userId: session.user?.id,
-			email: session.user?.email,
-			expiresAt: session.expires_at,
-		});
 	} else {
-		console.log('🔧 [MIDDLEWARE] No session found');
 	}
-
-	console.log('🔧 [MIDDLEWARE] ===== END =====');
 
 	// Skip all middleware auth checks - let client-side components handle protection
 	// Refresh session if expired - this also handles cookie renewal

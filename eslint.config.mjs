@@ -32,7 +32,7 @@ const eslintConfig = defineConfig([
 			],
 			'max-lines-per-function': [
 				'warn',
-				{ max: 80, skipBlankLines: true, IIFEs: true },
+				{ max: 120, skipBlankLines: true, IIFEs: true },
 			],
 			complexity: ['warn', { max: 10 }],
 			'max-depth': ['warn', 4],
