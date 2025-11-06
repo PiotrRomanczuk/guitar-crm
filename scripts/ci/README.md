@@ -6,7 +6,13 @@ This directory contains scripts for continuous integration, deployment, and qual
 
 ### Quality Checks
 
-- `quality-check.sh` - Run comprehensive code quality validation
+- `quality-check.sh` - Run comprehensive code quality validation (includes E2E tests)
+  - TypeScript type checking
+  - ESLint validation
+  - Jest tests with coverage
+  - Cypress E2E tests (headless)
+  - Database quality checks
+  - Lighthouse performance audits
 - `pre-commit.sh` - Git pre-commit hook for code quality
 
 ### Performance Testing
