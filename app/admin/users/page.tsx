@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { RequireAdmin } from '@/components/auth';
-import { UserList } from '@/components/admin/UserList';
-import { UserForm } from '@/components/admin/UserForm';
+import { UserList } from '@/components/dashboard/admin/UserList';
+import { UserForm } from '@/components/dashboard/admin/UserForm';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import type { User } from '@/schemas/UserSchema';

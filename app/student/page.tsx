@@ -1,10 +1,10 @@
 'use client';
 
 import { RequireStudent } from '@/components/auth';
-import { StudentDashboardStats } from '@/components/student/StudentDashboardStats';
-import { StudentRecentLessons } from '@/components/student/StudentRecentLessons';
-import { StudentProgressOverview } from '@/components/student/StudentProgressOverview';
-import { StudentUpcomingLessons } from '@/components/student/StudentUpcomingLessons';
+import { StudentDashboardStats } from '@/components/dashboard/student/StudentDashboardStats';
+import { StudentRecentLessons } from '@/components/dashboard/student/StudentRecentLessons';
+import { StudentProgressOverview } from '@/components/dashboard/student/StudentProgressOverview';
+import { StudentUpcomingLessons } from '@/components/dashboard/student/StudentUpcomingLessons';
 
 export default function StudentDashboard() {
 	return (
