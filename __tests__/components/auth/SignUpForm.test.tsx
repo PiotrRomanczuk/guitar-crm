@@ -2,16 +2,16 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import SignUpForm from '@/components/auth/SignUpForm';
 
-// Mock Supabase client
-jest.mock('@/lib/supabase', () => ({
-	supabase: {
-		auth: {
-			signUp: jest.fn(),
-		},
-	},
-}));
+// Mock Supabase browser client
+const mockSignUp = jest.fn();
 
-import { supabase } from '@/lib/supabase';
+jest.mock('@/lib/supabase-browser', () => ({
+	getSupabaseBrowserClient: jest.fn(() => ({
+		auth: {
+			signUp: mockSignUp,
+		},
+	})),
+}));
 
 describe('SignUpForm', () => {
 	beforeEach(() => {
@@ -103,14 +103,14 @@ describe('SignUpForm', () => {
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
-				expect(supabase.auth.signUp).not.toHaveBeenCalled();
+				expect(mockSignUp).not.toHaveBeenCalled();
 			});
 		});
 	});
 
 	describe('Form Submission', () => {
 		it('should call signUp with correct data on valid submission', async () => {
-			(supabase.auth.signUp as jest.Mock).mockResolvedValue({
+			mockSignUp.mockResolvedValue({
 				data: {
 					user: {
 						id: '123',
@@ -140,7 +140,7 @@ describe('SignUpForm', () => {
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
-				expect(supabase.auth.signUp).toHaveBeenCalledWith({
+				expect(mockSignUp).toHaveBeenCalledWith({
 					email: 'student@example.com',
 					password: 'test123_student',
 					options: {
@@ -154,7 +154,7 @@ describe('SignUpForm', () => {
 		});
 
 		it('should show success message on successful sign up', async () => {
-			(supabase.auth.signUp as jest.Mock).mockResolvedValue({
+			mockSignUp.mockResolvedValue({
 				data: {
 					user: {
 						id: '123',
@@ -190,7 +190,7 @@ describe('SignUpForm', () => {
 		});
 
 		it('should show error message on sign up failure', async () => {
-			(supabase.auth.signUp as jest.Mock).mockResolvedValue({
+			mockSignUp.mockResolvedValue({
 				data: { user: null, session: null },
 				error: { message: 'User already registered' },
 			});
@@ -220,7 +220,7 @@ describe('SignUpForm', () => {
 		});
 
 		it('should show user-friendly error when user already exists', async () => {
-			(supabase.auth.signUp as jest.Mock).mockResolvedValue({
+			mockSignUp.mockResolvedValue({
 				data: {
 					user: {
 						id: '123',
@@ -258,7 +258,7 @@ describe('SignUpForm', () => {
 		});
 
 		it('should disable submit button while submitting', async () => {
-			(supabase.auth.signUp as jest.Mock).mockImplementation(
+			mockSignUp.mockImplementation(
 				() =>
 					new Promise((resolve) =>
 						setTimeout(
@@ -302,7 +302,7 @@ describe('SignUpForm', () => {
 		});
 
 		it('should show loading state while submitting', async () => {
-			(supabase.auth.signUp as jest.Mock).mockImplementation(
+			mockSignUp.mockImplementation(
 				() =>
 					new Promise((resolve) =>
 						setTimeout(

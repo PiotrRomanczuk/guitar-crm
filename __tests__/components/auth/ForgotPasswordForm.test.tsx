@@ -2,16 +2,16 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm';
 
-// Mock Supabase client
-jest.mock('@/lib/supabase', () => ({
-	supabase: {
-		auth: {
-			resetPasswordForEmail: jest.fn(),
-		},
-	},
-}));
+// Mock Supabase browser client
+const mockResetPasswordForEmail = jest.fn();
 
-import { supabase } from '@/lib/supabase';
+jest.mock('@/lib/supabase-browser', () => ({
+	getSupabaseBrowserClient: jest.fn(() => ({
+		auth: {
+			resetPasswordForEmail: mockResetPasswordForEmail,
+		},
+	})),
+}));
 
 describe('ForgotPasswordForm', () => {
 	beforeEach(() => {
@@ -78,14 +78,14 @@ describe('ForgotPasswordForm', () => {
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
-				expect(supabase.auth.resetPasswordForEmail).not.toHaveBeenCalled();
+				expect(mockResetPasswordForEmail).not.toHaveBeenCalled();
 			});
 		});
 	});
 
 	describe('Form Submission', () => {
 		it('should call resetPasswordForEmail with correct email', async () => {
-			(supabase.auth.resetPasswordForEmail as jest.Mock).mockResolvedValue({
+			mockResetPasswordForEmail.mockResolvedValue({
 				data: {},
 				error: null,
 			});
@@ -99,7 +99,7 @@ describe('ForgotPasswordForm', () => {
 			fireEvent.click(screen.getByRole('button', { name: /send reset link/i }));
 
 			await waitFor(() => {
-				expect(supabase.auth.resetPasswordForEmail).toHaveBeenCalledWith(
+				expect(mockResetPasswordForEmail).toHaveBeenCalledWith(
 					'test@example.com',
 					expect.objectContaining({
 						redirectTo: expect.stringContaining('/reset-password'),
@@ -109,7 +109,7 @@ describe('ForgotPasswordForm', () => {
 		});
 
 		it('should show success message on successful submission', async () => {
-			(supabase.auth.resetPasswordForEmail as jest.Mock).mockResolvedValue({
+			mockResetPasswordForEmail.mockResolvedValue({
 				data: {},
 				error: null,
 			});
@@ -130,7 +130,7 @@ describe('ForgotPasswordForm', () => {
 		});
 
 		it('should show error message on failure', async () => {
-			(supabase.auth.resetPasswordForEmail as jest.Mock).mockResolvedValue({
+			mockResetPasswordForEmail.mockResolvedValue({
 				data: null,
 				error: { message: 'User not found' },
 			});
@@ -149,7 +149,7 @@ describe('ForgotPasswordForm', () => {
 		});
 
 		it('should disable submit button while submitting', async () => {
-			(supabase.auth.resetPasswordForEmail as jest.Mock).mockImplementation(
+			mockResetPasswordForEmail.mockImplementation(
 				() =>
 					new Promise((resolve) =>
 						setTimeout(() => resolve({ data: {}, error: null }), 100)
@@ -173,7 +173,7 @@ describe('ForgotPasswordForm', () => {
 		});
 
 		it('should show loading state while submitting', async () => {
-			(supabase.auth.resetPasswordForEmail as jest.Mock).mockImplementation(
+			mockResetPasswordForEmail.mockImplementation(
 				() =>
 					new Promise((resolve) =>
 						setTimeout(() => resolve({ data: {}, error: null }), 100)
