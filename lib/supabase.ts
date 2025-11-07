@@ -1,33 +1,19 @@
-import { createClient } from '@supabase/supabase-js';
-import { Database } from '@/types/database.types.generated';
+// Compatibility layer for components importing from @/lib/supabase
+// This file re-exports the browser client with the 'supabase' name
+import { createClient } from './supabase/client';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Export as named export for components expecting { supabase }
+export const supabase = createClient();
 
-// Create a fallback client for build time
-const createSupabaseClient = () => {
-	if (!supabaseUrl || !supabaseAnonKey) {
-		// Return a mock client for build time
-		console.warn('Supabase environment variables not set. Using mock client.');
-		return createClient('https://placeholder.supabase.co', 'placeholder-key');
-	}
-	return createClient<Database>(supabaseUrl, supabaseAnonKey);
-};
+// Also export the factory function
+export { createClient };
+export { createClient as createBrowserClient };
 
-export const supabase = createSupabaseClient();
-
-// Type exports for convenience
-export type Tables<T extends keyof Database['public']['Tables']> =
-	Database['public']['Tables'][T]['Row'];
-export type InsertTables<T extends keyof Database['public']['Tables']> =
-	Database['public']['Tables'][T]['Insert'];
-export type UpdateTables<T extends keyof Database['public']['Tables']> =
-	Database['public']['Tables'][T]['Update'];
-
-// Common table types
-export type Profile = Tables<'profiles'>;
-export type Lesson = Tables<'lessons'>;
-export type Song = Tables<'songs'>;
-export type LessonSong = Tables<'lesson_songs'>;
-export type TaskManagement = Tables<'task_management'>;
-export type UserFavorite = Tables<'user_favorites'>;
+// Re-export types for compatibility
+export type {
+	Database,
+	Tables,
+	TablesInsert,
+	TablesUpdate,
+} from '@/types/database.types';
+export type { Tables as InsertTables } from '@/types/database.types';
