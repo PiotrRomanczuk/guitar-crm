@@ -7,14 +7,15 @@ import {
 } from '@/app/api/lessons/handlers';
 
 describe('Lesson API Handlers', () => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const mockSupabase: any = {
 		from: jest.fn(),
 	};
 
 	const mockUser = { id: 'user-123' };
-	const adminProfile = { role: 'admin' };
-	const teacherProfile = { role: 'teacher' };
-	const studentProfile = { role: 'student' };
+	const adminProfile = { isAdmin: true, isTeacher: null, isStudent: null };
+	const teacherProfile = { isAdmin: false, isTeacher: true, isStudent: null };
+	const studentProfile = { isAdmin: false, isTeacher: null, isStudent: true };
 
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -37,21 +38,36 @@ describe('Lesson API Handlers', () => {
 
 	describe('getLessonsHandler', () => {
 		it('returns 401 without user', async () => {
-			const result = await getLessonsHandler(mockSupabase, null, {});
+			const result = await getLessonsHandler(mockSupabase, null, null, {});
 			expect(result).toEqual({ error: 'Unauthorized', status: 401 });
 		});
 
 		it('applies filters, sort and pagination', async () => {
-			const mockQuery = {
+			// Mock main lessons base query (select *, count: exact)
+			const baseQueryMock = {
 				select: jest.fn().mockReturnThis(),
+				in: jest.fn().mockReturnThis(),
 				or: jest.fn().mockReturnThis(),
 				eq: jest.fn().mockReturnThis(),
 				order: jest.fn().mockReturnThis(),
 				range: jest.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
 			};
-			mockSupabase.from.mockReturnValue(mockQuery);
 
-			await getLessonsHandler(mockSupabase, mockUser, {
+			// Mock teacher's students ID query (inside getTeacherStudentIds)
+			const studentQueryMock = {
+				select: jest.fn().mockReturnThis(),
+				eq: jest.fn().mockResolvedValue({
+					data: [{ student_id: 's1' }, { student_id: 's2' }],
+					error: null,
+				}),
+			};
+
+			// First call: base query, second call: teacher students query
+			mockSupabase.from
+				.mockReturnValueOnce(baseQueryMock)
+				.mockReturnValueOnce(studentQueryMock);
+
+			await getLessonsHandler(mockSupabase, mockUser, teacherProfile, {
 				userId: 'u1',
 				studentId: 's1',
 				filter: 'SCHEDULED',
@@ -61,27 +77,61 @@ describe('Lesson API Handlers', () => {
 				limit: 10,
 			});
 
-			expect(mockSupabase.from).toHaveBeenCalledWith('lessons');
-			expect(mockQuery.or).toHaveBeenCalled();
-			expect(mockQuery.eq).toHaveBeenCalledWith('student_id', 's1');
-			expect(mockQuery.order).toHaveBeenCalledWith('date', { ascending: true });
-			expect(mockQuery.range).toHaveBeenCalled();
-		});
+			// Verify main base query was created
+			expect(mockSupabase.from).toHaveBeenNthCalledWith(1, 'lessons');
+			expect(baseQueryMock.select).toHaveBeenCalledWith('*', {
+				count: 'exact',
+			});
 
+			// Verify getTeacherStudentIds was called
+			expect(mockSupabase.from).toHaveBeenNthCalledWith(2, 'lessons');
+			expect(studentQueryMock.select).toHaveBeenCalledWith('student_id');
+			expect(studentQueryMock.eq).toHaveBeenCalledWith(
+				'teacher_id',
+				'user-123'
+			);
+
+			// Verify filters applied to base query
+			expect(baseQueryMock.in).toHaveBeenCalledWith('student_id', ['s1', 's2']);
+			expect(baseQueryMock.eq).toHaveBeenCalledWith('status', 'SCHEDULED');
+			expect(baseQueryMock.order).toHaveBeenCalledWith('date', {
+				ascending: true,
+			});
+			expect(baseQueryMock.range).toHaveBeenCalled();
+		});
 		it('handles database error', async () => {
-			const mockQuery = {
+			// Mock main lessons base query
+			const baseQueryMock = {
 				select: jest.fn().mockReturnThis(),
+				in: jest.fn().mockReturnThis(),
 				or: jest.fn().mockReturnThis(),
 				eq: jest.fn().mockReturnThis(),
 				order: jest.fn().mockReturnThis(),
 				range: jest
 					.fn()
-					.mockResolvedValue({ data: null, error: { message: 'db' } }),
+					.mockResolvedValue({ data: null, error: { message: 'db error' } }),
 			};
-			mockSupabase.from.mockReturnValue(mockQuery);
 
-			const result = await getLessonsHandler(mockSupabase, mockUser, {});
-			expect(result).toEqual({ error: 'db', status: 500 });
+			// Mock teacher's students query
+			const studentQueryMock = {
+				select: jest.fn().mockReturnThis(),
+				eq: jest.fn().mockResolvedValue({
+					data: [{ student_id: 's1' }],
+					error: null,
+				}),
+			};
+
+			mockSupabase.from
+				.mockReturnValueOnce(baseQueryMock)
+				.mockReturnValueOnce(studentQueryMock);
+
+			const result = await getLessonsHandler(
+				mockSupabase,
+				mockUser,
+				teacherProfile,
+				{}
+			);
+			expect(result).toEqual({ error: 'db error', status: 500 });
 		});
 	});
 
@@ -180,12 +230,10 @@ describe('Lesson API Handlers', () => {
 				update: jest.fn().mockReturnThis(),
 				eq: jest.fn().mockReturnThis(),
 				select: jest.fn().mockReturnThis(),
-				single: jest
-					.fn()
-					.mockResolvedValue({
-						data: { id: 'l-1', title: 'New' },
-						error: null,
-					}),
+				single: jest.fn().mockResolvedValue({
+					data: { id: 'l-1', title: 'New' },
+					error: null,
+				}),
 			};
 			mockSupabase.from.mockReturnValue(mockQuery);
 

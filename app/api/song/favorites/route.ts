@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/clients/server';
+import { createClient } from '@/lib/supabase/server';
 import { UserFavoriteInputSchema } from '@/schemas/UserFavoriteSchema';
 
 export async function GET(req: NextRequest) {
@@ -28,11 +28,11 @@ export async function GET(req: NextRequest) {
 		// Check if user is requesting their own favorites or is admin
 		const { data: profile } = await supabase
 			.from('profiles')
-			.select('isAdmin')
+			.select('is_admin')
 			.eq('user_id', user.id)
 			.single();
 
-		if (user.id !== userId && !profile?.isAdmin) {
+		if (user.id !== userId && !profile?.is_admin) {
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 		}
 
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
         song:song_id(*)
       `
 			)
-			.eq('user_id', userId)
+			.eq('id', userId)
 			.order('created_at', { ascending: false });
 
 		if (error) {
@@ -93,11 +93,11 @@ export async function POST(req: NextRequest) {
 		// Check if user is adding their own favorite or is admin
 		const { data: profile } = await supabase
 			.from('profiles')
-			.select('isAdmin')
+			.select('is_admin')
 			.eq('user_id', user.id)
 			.single();
 
-		if (user.id !== user_id && !profile?.isAdmin) {
+		if (user.id !== user_id && !profile?.is_admin) {
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 		}
 
@@ -179,11 +179,11 @@ export async function DELETE(req: NextRequest) {
 		// Check if user is removing their own favorite or is admin
 		const { data: profile } = await supabase
 			.from('profiles')
-			.select('isAdmin')
+			.select('is_admin')
 			.eq('user_id', user.id)
 			.single();
 
-		if (user.id !== userId && !profile?.isAdmin) {
+		if (user.id !== userId && !profile?.is_admin) {
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 		}
 
@@ -191,7 +191,7 @@ export async function DELETE(req: NextRequest) {
 		const { error } = await supabase
 			.from('user_favorites')
 			.delete()
-			.eq('user_id', userId)
+			.eq('id', userId)
 			.eq('song_id', songId);
 
 		if (error) {

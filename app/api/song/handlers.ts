@@ -39,7 +39,7 @@ export interface AuthResult {
 export function validateMutationPermission(
 	profile: { isAdmin?: boolean; isTeacher?: boolean } | null
 ): boolean {
-	return !!(profile?.isAdmin || profile?.isTeacher);
+	return !!(profile?.is_admin || profile?.is_teacher);
 }
 
 /**

@@ -17,9 +17,9 @@ fi
 
 echo "✅ Supabase is running"
 
-# Run the TypeScript seeding script
-echo "🌱 Creating development users..."
-npx ts-node ./scripts/database/seed-dev-users.ts
+# Run the Node.js API seeding script
+echo "🌱 Creating development users via Supabase Auth API..."
+node ./scripts/database/seed-dev-users-via-api.js
 
 # Verify users were created by checking profiles table
 echo ""
