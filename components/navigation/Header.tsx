@@ -209,7 +209,7 @@ export default function Header({
 	isTeacher,
 	isStudent,
 }: {
-	user: { email?: string } | null;
+	user: { id?: string; email?: string } | null;
 	isAdmin: boolean;
 	isTeacher: boolean;
 	isStudent: boolean;
