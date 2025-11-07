@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useSettings } from '@/components/settings/useSettings';
-import { AuthProvider } from '@/components/auth/AuthProvider';
+import AuthProvider from '@/components/auth/AuthProvider';
 import type { User } from '@supabase/supabase-js';
 
 const mockUser: Partial<User> = {
