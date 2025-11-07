@@ -5,7 +5,7 @@ import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 export default async function Home() {
 	const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
 
-	console.log(user, isAdmin, isTeacher, isStudent);
+	// console.log(user, isAdmin, isTeacher, isStudent);
 
 	// If not authenticated, show the marketing/landing page
 	if (!user) {

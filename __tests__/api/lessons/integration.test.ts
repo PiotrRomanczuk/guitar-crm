@@ -4,6 +4,7 @@
  */
 
 describe('Lesson API Integration Tests', () => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const createMockSupabase = (overrides: any = {}) => ({
 		auth: {
 			getUser: jest

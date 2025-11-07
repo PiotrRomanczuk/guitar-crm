@@ -1,4 +1,9 @@
-// /* eslint-disable max-lines-per-function */
+// Placeholder component - originally used for testing Supabase connection
+export default function SupabaseTest() {
+	return null;
+}
+
+// ARCHIVED CODE - Original SupabaseTest implementation
 // 'use client';
 
 // import { useEffect, useState } from 'react';

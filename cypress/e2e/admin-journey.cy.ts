@@ -39,7 +39,8 @@ describe('Admin User Journey', () => {
 		cy.url().should('include', '/songs');
 
 		// Wait for loading to complete (either table or empty state)
-		cy.get('[data-testid="song-list-loading"]', { timeout: 1000 }).should(
+		// Give more time for auth + songs fetch
+		cy.get('[data-testid="song-list-loading"]', { timeout: 10000 }).should(
 			'not.exist'
 		);
 
@@ -76,11 +77,22 @@ describe('Admin User Journey', () => {
 		cy.visit('/songs');
 
 		// Wait for loading to complete
-		cy.get('[data-testid="song-list-loading"]', { timeout: 2000 }).should(
+		cy.get('[data-testid="song-list-loading"]', { timeout: 10000 }).should(
 			'not.exist'
 		);
 
 		// Check if table is visible (songs are loaded) OR empty state
+		// Using should with a callback allows Cypress to retry
+		cy.get('body').should(($body) => {
+			const hasTable = $body.find('table').length > 0;
+			const hasEmptyState = $body.text().match(/no songs|empty/i);
+
+			if (!hasTable && !hasEmptyState) {
+				throw new Error('Expected either table or empty state message');
+			}
+		});
+
+		// Then verify the specific content based on what's present
 		cy.get('body').then(($body) => {
 			if ($body.find('table').length > 0) {
 				// Verify table has expected columns

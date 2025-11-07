@@ -1,8 +1,10 @@
 // Script to create initial development users with roles
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const path = require('path');
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 // Load .env.local in development
 const envLocalPath = path.resolve(process.cwd(), '.env.local');

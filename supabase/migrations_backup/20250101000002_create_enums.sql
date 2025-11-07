@@ -56,3 +56,5 @@ CREATE TYPE public.task_status AS ENUM (
   'CANCELLED',
   'BLOCKED'
 );
+-- Create user_role ENUM type
+CREATE TYPE public.user_role AS ENUM ('admin', 'teacher', 'student');

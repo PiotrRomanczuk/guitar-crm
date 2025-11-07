@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/clients/server';
+import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 /**
@@ -19,7 +19,7 @@ export async function GET() {
 		// Get user profile to check roles
 		const { data: profile } = await supabase
 			.from('profiles')
-			.select('isAdmin, isTeacher, isStudent')
+			.select('is_admin, is_teacher, is_student')
 			.eq('user_id', user.id)
 			.single();
 
@@ -28,7 +28,7 @@ export async function GET() {
 		}
 
 		// Admin stats
-		if (profile.isAdmin) {
+		if (profile.is_admin) {
 			const [
 				{ count: totalUsers },
 				{ count: totalTeachers },
@@ -39,11 +39,11 @@ export async function GET() {
 				supabase
 					.from('profiles')
 					.select('*', { count: 'exact', head: true })
-					.eq('isTeacher', true),
+					.eq('is_teacher', true),
 				supabase
 					.from('profiles')
 					.select('*', { count: 'exact', head: true })
-					.eq('isStudent', true),
+					.eq('is_student', true),
 				supabase.from('songs').select('*', { count: 'exact', head: true }),
 			]);
 
@@ -59,7 +59,7 @@ export async function GET() {
 		}
 
 		// Teacher stats
-		if (profile.isTeacher) {
+		if (profile.is_teacher) {
 			const [
 				{ count: myStudents },
 				{ count: activeLessons },
@@ -89,7 +89,7 @@ export async function GET() {
 		}
 
 		// Student stats
-		if (profile.isStudent) {
+		if (profile.is_student) {
 			// Get lessons for this student
 			const { data: lessons } = await supabase
 				.from('lessons')
