@@ -1,5 +1,37 @@
 import '@testing-library/jest-dom';
 
+// Polyfill for encoding APIs
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Do not override global fetch. Supabase client relies on a real fetch implementation.
+// If needed, individual tests should mock fetch per-suite.
+
+// Minimal Request shim to keep Next.js server imports from crashing in skipped suites
+if (typeof globalThis.Request === 'undefined') {
+	globalThis.Request = class {};
+}
+
+// Provide a minimal default fetch for relative API routes used by component tests.
+// Delegates to existing fetch if present; otherwise returns a harmless default for '/api/*'.
+const __originalFetch = globalThis.fetch;
+globalThis.fetch = async (input, init) => {
+	const url = typeof input === 'string' ? input : input?.url;
+	if (typeof url === 'string' && url.startsWith('/api/')) {
+		return {
+			ok: true,
+			status: 200,
+			json: async () => [],
+			text: async () => '[]',
+		};
+	}
+	if (typeof __originalFetch === 'function') {
+		return __originalFetch(input, init);
+	}
+	throw new Error('fetch is not defined');
+};
+
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
 	useRouter() {
@@ -20,9 +52,15 @@ jest.mock('next/navigation', () => ({
 	},
 }));
 
+// Mock next/server to avoid requiring global Response/Request in skipped route tests
+jest.mock('next/server', () => ({
+	NextRequest: class {},
+	NextResponse: { json: (data, init) => ({ data, ...init }) },
+}));
+
 // Mock Supabase client
-jest.mock('@/lib/supabase', () => ({
-	supabase: {
+jest.mock('@/lib/supabase/client', () => ({
+	createClient: jest.fn(() => ({
 		from: jest.fn(() => ({
 			select: jest.fn().mockReturnThis(),
 			insert: jest.fn().mockReturnThis(),
@@ -34,13 +72,20 @@ jest.mock('@/lib/supabase', () => ({
 			single: jest.fn().mockReturnThis(),
 		})),
 		auth: {
-			getUser: jest.fn(),
+			getUser: jest
+				.fn()
+				.mockResolvedValue({ data: { user: null }, error: null }),
+			getSession: jest
+				.fn()
+				.mockResolvedValue({ data: { session: null }, error: null }),
 			signIn: jest.fn(),
 			signOut: jest.fn(),
 			signUp: jest.fn(),
-			onAuthStateChange: jest.fn(),
+			onAuthStateChange: jest.fn(() => ({
+				data: { subscription: { unsubscribe: jest.fn() } },
+			})),
 		},
-	},
+	})),
 }));
 
 // Mock window.matchMedia
@@ -73,6 +118,27 @@ global.ResizeObserver = class ResizeObserver {
 	observe() {}
 	unobserve() {}
 };
+
+// Mock fetch API for Jest tests
+global.fetch = jest.fn(() =>
+	Promise.resolve({
+		ok: true,
+		status: 200,
+		json: () => Promise.resolve({ data: [], error: null }),
+		text: () => Promise.resolve(''),
+		headers: new Headers(),
+		redirected: false,
+		statusText: 'OK',
+		type: 'basic',
+		url: '',
+		clone: jest.fn(),
+		body: null,
+		bodyUsed: false,
+		arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+		blob: () => Promise.resolve(new Blob()),
+		formData: () => Promise.resolve(new FormData()),
+	})
+);
 
 // Global test utilities
 global.testUtils = {

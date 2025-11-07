@@ -16,9 +16,14 @@ npm run seed         # Populate database with sample data
 
 ```bash
 npm run new-feature  # Create new feature branch (with TDD reminder)
-npm run tdd          # Start test-driven development mode
+npm run tdd          # Start test-driven development mode (branch-specific)
+npm run test:branch  # Run tests for current branch only
+npm run test:branch:watch # Watch tests for current branch
+npm run test:categories  # List all test categories and mappings
 npm run dev:server   # Manage development servers
 npm run quality      # Run code quality checks
+npm run e2e          # Run Cypress E2E (headless)
+npm run e2e:open     # Open Cypress runner (interactive)
 ```
 
 ## 📋 Script Reference
@@ -64,12 +69,39 @@ npm run quality      # Run code quality checks
 
 **What it does**:
 
+- **Checks for unstaged/uncommitted changes** (exits if found)
 - Switches to main branch and pulls latest changes
 - Creates new feature branch (`feature/<name>`)
 - Displays TDD workflow reminder
 - Shows commands for testing and merging
 
+**Prerequisites**: Working directory must be clean (no unstaged or uncommitted changes)
 **TDD Integration**: Automatically reminds developers about Red-Green-Refactor cycle
+
+---
+
+### `test-branch.sh`
+
+**Purpose**: Run tests based on current branch or specified category
+**Usage**: `npm run test:branch` or `./scripts/test-branch.sh [category] [--watch] [--coverage]`
+
+**What it does**:
+
+- Automatically detects current branch and runs relevant tests only
+- Supports dependency resolution (e.g., auth tests include core tests)
+- Dramatically reduces test execution time for focused development
+- Supports watch mode and coverage for branch-specific tests
+
+**Examples**:
+
+```bash
+./scripts/test-branch.sh           # Auto-detect branch
+./scripts/test-branch.sh auth      # Run auth category tests
+./scripts/test-branch.sh --list    # Show all categories
+./scripts/test-branch.sh core --watch  # Watch core tests only
+```
+
+**Configuration**: Uses `jest.config.branches.json` for category definitions and branch mappings
 
 ---
 
@@ -83,6 +115,8 @@ npm run quality      # Run code quality checks
 - TDD cycle explanation (Red-Green-Refactor)
 - Testing commands and file locations
 - Links to documentation
+
+**Integration**: Now integrated with branch-based testing for focused TDD workflow
 
 ---
 
@@ -117,11 +151,22 @@ npm run quality      # Run code quality checks
 
 **Checks performed**:
 
-- TypeScript type checking
-- ESLint code style validation
-- All tests execution
-- TODO/FIXME comment detection
-- Bundle size analysis (if built)
+1. TypeScript type checking
+2. ESLint code style validation
+3. Jest unit/integration tests with coverage
+4. TODO/FIXME comment detection
+5. Component file size analysis (advisory)
+6. Bundle size analysis (if built)
+7. Database quality validation
+8. **Cypress E2E tests** (runs in headless mode)
+9. Lighthouse performance scores
+
+**E2E Testing**:
+
+- Automatically starts dev server if not running
+- Runs all Cypress tests in headless Chrome
+- Provides helpful tips on failure
+- Use `npm run e2e:open` to debug interactively
 
 **Exit codes**: 0 = all checks pass, 1 = issues found
 
@@ -197,6 +242,32 @@ chmod +x .git/hooks/pre-commit
 
 **Output**: Detailed report with pass/fail status for each check
 
+---
+
+### `e2e.sh` and `cypress-open.sh`
+
+**Purpose**: Run Cypress end-to-end tests against the local dev server
+
+**Usage**:
+
+```bash
+# Headless run
+npm run e2e
+./scripts/e2e.sh
+
+# Interactive runner
+npm run e2e:open
+./scripts/cypress-open.sh
+
+# With a custom base URL
+CYPRESS_BASE_URL=http://127.0.0.1:3000 npm run e2e
+```
+
+**Notes**:
+
+- Uses `start-server-and-test` to boot Next.js and wait for `http://localhost:3000` before running tests
+- For tests needing the database, use `npm run e2e:db` to start Supabase and the app together
+
 ## 🔄 Recommended Workflow
 
 ### Starting Development
@@ -211,6 +282,16 @@ npm run seed
 npm run new-feature my-feature
 npm run tdd  # Start TDD mode
 ```
+
+### Small Components Policy (MANDATORY)
+
+- Prefer many tiny, composable components over monoliths
+- Extract presentational UI from containers and side-effects
+- Co-locate hooks/helpers next to usage (useX.ts, X.helpers.ts)
+- Keep files < 300 LOC and functions < 80 LOC in `app/`, `components/`, `lib/`
+- Tests mirror structure under `__tests__/components/`
+
+This is enforced by ESLint and surfaced by `npm run quality`.
 
 ### Before Committing
 
@@ -275,5 +356,6 @@ set -e  # Exit on error
 ## 📚 Additional Resources
 
 - [TDD Guide](../docs/TDD_GUIDE.md) - Complete TDD documentation
+- [Branch-Based Testing](../docs/BRANCH_TESTING.md) - Test organization system
 - [Project Overview](../PROJECT_OVERVIEW.md) - Architecture and structure
 - [Contributing Guidelines](../CONTRIBUTING.md) - Development standards
