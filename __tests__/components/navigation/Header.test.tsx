@@ -29,17 +29,7 @@ describe('Header', () => {
 	});
 
 	it('should render sign in and sign up buttons when user is not authenticated', () => {
-		mockUseAuth.mockReturnValue({
-			user: null,
-			session: null,
-			loading: false,
-			signOut: mockSignOut,
-			isAdmin: false,
-			isTeacher: false,
-			isStudent: false,
-		});
-
-		render(<Header />);
+		render(<Header user={null} isAdmin={false} isTeacher={false} isStudent={false} />);
 
 		expect(screen.getByText('Sign In')).toBeInTheDocument();
 		expect(screen.getByText('Sign Up')).toBeInTheDocument();
@@ -47,16 +37,16 @@ describe('Header', () => {
 
 	it('should render user email when authenticated', () => {
 		mockUseAuth.mockReturnValue({
-			user: { id: 'test-user', email: 'test@example.com' } as never,
-			session: {} as never,
+			user: { id: 'test-user', email: 'test@example.com' },
+			
 			loading: false,
-			signOut: mockSignOut,
+			
 			isAdmin: false,
 			isTeacher: false,
 			isStudent: false,
 		});
 
-		render(<Header />);
+		render(<Header user={{ id: 'test-user', email: 'test@example.com' }} isAdmin={false} isTeacher={false} isStudent={false} />);
 
 		expect(screen.getByText('test@example.com')).toBeInTheDocument();
 	});
@@ -64,16 +54,16 @@ describe('Header', () => {
 	it('should call signOut when sign out button is clicked', async () => {
 		mockSignOut.mockResolvedValue(undefined);
 		mockUseAuth.mockReturnValue({
-			user: { id: 'test-user', email: 'test@example.com' } as never,
-			session: {} as never,
+			user: { id: 'test-user', email: 'test@example.com' },
+			
 			loading: false,
-			signOut: mockSignOut,
+			
 			isAdmin: false,
 			isTeacher: false,
 			isStudent: false,
 		});
 
-		render(<Header />);
+		render(<Header user={{ id: 'test-user', email: 'test@example.com' }} isAdmin={false} isTeacher={false} isStudent={false} />);
 
 		const signOutButton = screen.getByText('Sign Out');
 		fireEvent.click(signOutButton);
@@ -86,15 +76,15 @@ describe('Header', () => {
 	it('should navigate to home when logo is clicked', () => {
 		mockUseAuth.mockReturnValue({
 			user: null,
-			session: null,
+			
 			loading: false,
-			signOut: mockSignOut,
+			
 			isAdmin: false,
 			isTeacher: false,
 			isStudent: false,
 		});
 
-		render(<Header />);
+		render(<Header user={{ id: 'test-user', email: 'test@example.com' }} isAdmin={false} isTeacher={false} isStudent={false} />);
 
 		const logo = screen.getByText('🎸 Guitar CRM');
 		fireEvent.click(logo);
@@ -104,16 +94,16 @@ describe('Header', () => {
 
 	it('should show role badges for authenticated users', () => {
 		mockUseAuth.mockReturnValue({
-			user: { id: 'test-user', email: 'test@example.com' } as never,
-			session: {} as never,
+			user: { id: 'test-user', email: 'test@example.com' },
+			
 			loading: false,
-			signOut: mockSignOut,
+			
 			isAdmin: true,
 			isTeacher: true,
 			isStudent: false,
 		});
 
-		render(<Header />);
+		render(<Header user={{ id: 'test-user', email: 'test@example.com' }} isAdmin={false} isTeacher={false} isStudent={false} />);
 
 		// Check for role badges (not navigation items)
 		const badges = screen.getAllByText(/Admin|Teacher/);
@@ -124,15 +114,15 @@ describe('Header', () => {
 	it('should not show sign in/up buttons when loading', () => {
 		mockUseAuth.mockReturnValue({
 			user: null,
-			session: null,
+			
 			loading: true,
-			signOut: mockSignOut,
+			
 			isAdmin: false,
 			isTeacher: false,
 			isStudent: false,
 		});
 
-		render(<Header />);
+		render(<Header user={{ id: 'test-user', email: 'test@example.com' }} isAdmin={false} isTeacher={false} isStudent={false} />);
 
 		expect(screen.queryByText('Sign In')).not.toBeInTheDocument();
 		expect(screen.queryByText('Sign Up')).not.toBeInTheDocument();
