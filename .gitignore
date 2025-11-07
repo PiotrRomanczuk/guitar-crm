@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /.pnp
+/.mcp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -40,6 +41,20 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# credentials and sensitive data
+development_credentials.txt
+local_passwords.txt
+
 # supabase sensitive data
+supabase/seed_sql/
 supabase/backups/
 supabase/tables\ information/
+
+# lighthouse reports
+lighthouse-reports/
+lighthouse-results.json
+lighthouse-simple.html
+
+# Scripts history
+scripts/history/
+scripts/history/all_executions.md

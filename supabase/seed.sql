@@ -1,9 +1,10 @@
--- Seed file to populate local database with production data
--- Generated on $(date +%Y-%m-%d)
--- This script will import all the data from the remote StudentsManager project
--- Run with: supabase db reset
-BEGIN;
--- Insert profiles data
--- Note: We'll need to process the JSON files and convert them to SQL inserts
--- This is a placeholder - the actual data will be inserted via a script
-COMMIT;
+-- Seed file to populate the database with production data
+-- This file is processed by Supabase CLI during db reset
+-- Note: Profiles must be seeded first before other tables due to foreign key constraints
+-- The seed files are loaded in this order:
+-- 1. profiles (users)
+-- 2. songs
+-- 3. lessons
+-- 4. lesson_songs
+-- 5. task_management
+-- Each individual seed file is a separate transaction

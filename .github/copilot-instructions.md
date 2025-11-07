@@ -1,0 +1,580 @@
+# Guitar CRM - AI Development Guide
+
+## Project Overview
+
+Guitar CRM is a Next.js 16 + TypeScript application for guitar teachers to manage students, lessons, songs, and progress tracking. It uses Supabase (PostgreSQL) for backend/auth and follows strict Test-Driven Development (TDD) practices.
+
+**Status**: ~45% complete - Foundation and core schemas implemented. Auth, UI, and lesson management pending.
+
+## Architecture & Stack
+
+### Core Technologies
+
+- **Frontend**: Next.js 16.0.0 (App Router), React 19.2.0, Tailwind CSS 4.0
+- **Backend**: Supabase (PostgreSQL + Auth + RLS)
+- **Validation**: Zod schemas for all entities (`schemas/` directory)
+- **Testing**: Jest + React Testing Library (strict TDD workflow)
+- **Deployment**: Vercel (auto-deploy from `main` branch)
+
+### Database Schema
+
+Core entities: `profiles` (users with role flags), `songs`, `lessons`, `lesson_songs`, `task_management`, `user_favorites`
+
+- Users have multiple role flags: `isAdmin`, `isTeacher`, `isStudent` (not mutually exclusive)
+- Lessons link students + teachers and auto-increment `lesson_teacher_number` per teacher-student pair
+- Songs have `level` (beginner/intermediate/advanced) and `key` (musical keys) enums
+- Lesson songs track progress: to_learn → started → remembered → with_author → mastered
+
+### Type Safety Strategy
+
+1. **Database types**: Generated in `types/database.types.generated.ts` and `types/database.types.ts`
+2. **Zod schemas**: Validation + input/update/filter schemas in `schemas/` (SongSchema, LessonSchema, TaskSchema, etc.)
+3. **Type exports**: Helper types in `lib/supabase.ts` (`Tables<'songs'>`, `InsertTables<'lessons'>`, etc.)
+4. **Pattern**: Always use Zod for runtime validation, TypeScript for compile-time safety
+
+## Critical Development Workflows
+
+### Todo List Management (MANDATORY)
+
+**ALWAYS maintain and update todo lists during development work.**
+
+When working on multi-step features or phases:
+
+1. **Create dated todo list files** in `docs/copilot-todos/` using format: `YYYY-MM-DD-description.md`
+2. **Update todo lists after each significant task completion** (commit, PR, feature implementation)
+3. **Include comprehensive details** in todo files:
+   - Task status (✅ completed, [ ] not started, [-] in progress)
+   - Commit hashes for completed work
+   - PR links and status
+   - File lists for each feature
+   - Development standards followed
+   - Next actions
+4. **Use the manage_todo_list tool** for real-time tracking during complex work
+5. **Document TODOs in code** for future enhancements using `TODO:` comments
+
+**Todo List Workflow:**
+
+```bash
+# Start of work session: Create/review current todo list
+# docs/copilot-todos/2025-11-02-phase-1-2-completion.md
+
+# BEFORE EVERY COMMIT: Run quality checks
+npm run quality  # OR ./scripts/ci/quality-check.sh
+
+# After completing task: Update todo file with details
+# After creating PR: Document PR link and status
+# End of session: Ensure all progress is documented
+```
+
+**CRITICAL: Quality Checks Before Commits (MANDATORY)**
+
+**NEVER commit code without running quality checks first.**
+
+Before every commit:
+
+1. **Run `npm run quality` or `./scripts/ci/quality-check.sh`**
+2. **Fix ALL failing tests**
+3. **Fix ALL linting errors**
+4. **Fix ALL TypeScript errors**
+5. **Ensure coverage thresholds met** (70% branches/functions/lines/statements)
+6. **Only then commit**
+
+If quality checks fail, DO NOT COMMIT. Fix issues first.
+
+### TDD Workflow (MANDATORY)
+
+This project strictly follows Test-Driven Development. **Write tests before implementation.**
+
+```bash
+# Starting new feature
+npm run new-feature feature-name  # Creates branch + shows TDD reminder
+npm run tdd                         # Watch mode with coverage
+
+# TDD cycle: 🔴 Red → 🟢 Green → 🔵 Refactor
+```
+
+**Test file locations**:
+
+- Components: `__tests__/components/ComponentName.test.tsx`
+- Schemas: `__tests__/schemas/SchemaName.test.ts`
+- Utils: `__tests__/utils/utilName.test.ts`
+
+**Schema testing pattern** (see `__tests__/schemas/SongSchema.test.ts`):
+
+```typescript
+describe('SongInputSchema', () => {
+  it('should validate a valid song input', () => {
+    const validSong = { title: 'Song', author: 'Artist', level: 'intermediate', key: 'C', ultimate_guitar_link: 'https://...' };
+    expect(() => SongInputSchema.parse(validSong)).not.toThrow();
+  });
+
+  it('should reject song input with missing title', () => {
+    expect(() => SongInputSchema.parse({ author: 'Artist', ... })).toThrow();
+  });
+});
+```
+
+### Database Development
+
+```bash
+# Local Supabase setup (requires Docker Desktop running)
+npm run setup:db     # Start Supabase stack
+npm run seed         # Populate with sample data
+npm run backup       # Create anonymized backup (excludes PII)
+
+# Supabase runs on:
+# - Database: localhost:54322
+# - API: localhost:54321
+# - Studio: localhost:54323
+```
+
+**Migration pattern**: Migrations in `supabase/migrations/` with timestamp prefixes (e.g., `20251026111826_baseline.sql`)
+
+### Development Commands
+
+```bash
+npm run dev          # Start Next.js dev server
+npm run quality      # Pre-commit checks (lint, types, tests, TODOs)
+npm run deploy:check # Production readiness validation
+npm run dev:server start all  # Start Next.js + Supabase together
+```
+
+## Project Conventions
+
+### Schema Patterns
+
+All entities follow this structure in `schemas/`:
+
+- **Base schema**: Full validation (`SongSchema`)
+- **Input schema**: For creating new records (`SongInputSchema`)
+- **Update schema**: Partial updates with required ID (`SongUpdateSchema`)
+- **Filter/Sort schemas**: Query parameter validation (`SongFilterSchema`, `SongSortSchema`)
+- **With relations**: Extended schemas with joined data (`SongWithLessonsSchema`)
+
+Example from `schemas/SongSchema.ts`:
+
+```typescript
+export const SongInputSchema = z.object({
+	title: z.string().min(1, 'Title is required').max(200),
+	author: z.string().min(1, 'Author is required'),
+	level: DifficultyLevelEnum, // From CommonSchema
+	key: MusicKeyEnum,
+	ultimate_guitar_link: URLField,
+	chords: z.string().optional(),
+});
+```
+
+### Small Components Policy (MANDATORY)
+
+Always split UI and logic into the smallest reasonable, composable pieces. Avoid monolithic components and files.
+
+- Prefer multiple focused components over one large component
+- Extract presentational pieces (pure UI) from containers (data/side-effects)
+- Co-locate tiny helpers/hooks next to their usage (`useX.ts`, `X.helpers.ts`)
+- Keep files short and focused: one responsibility per file
+- Co-locate tests with the same name under `__tests__/components/...`
+
+Recommended structure for new UI work:
+
+- `components/<domain>/<Feature>/`
+  - `index.ts` — re-exports
+  - `Feature.tsx` — thin composition component
+  - `Feature.Header.tsx`, `Feature.Item.tsx`, `Feature.Empty.tsx` — small UI units
+  - `useFeature.ts` — hook for local state/effects
+  - `Feature.helpers.ts` — pure helpers (pure functions only)
+
+Enforcement:
+
+- ESLint enforces max file length and function length in app/lib/components
+- Quality script warns on oversized files
+- PRs should prefer decomposition commits over growing a single file
+
+### Component Organization Structure (MANDATORY)
+
+**All new component features MUST follow this organized folder structure.** Reference `components/songs/` as the canonical example.
+
+**Required Structure for Entity Components:**
+
+```
+components/<entity>/
+├── <Entity>List/              # List/index view
+│   ├── components/            # List-specific sub-components
+│   │   ├── Header.tsx         # Header with actions (create button, etc.)
+│   │   ├── Table.tsx          # Table/grid display
+│   │   ├── Empty.tsx          # Empty state component
+│   │   └── Filter.tsx         # Filter controls
+│   ├── hooks/                 # List-specific hooks
+│   │   └── use<Entity>List.ts # List data fetching hook
+│   └── index.tsx              # Main composition component
+│
+├── <Entity>Form/              # Create/edit form
+│   ├── components/            # Form-specific sub-components
+│   │   ├── Fields.tsx         # All form fields composition
+│   │   ├── FieldText.tsx      # Reusable text input
+│   │   └── FieldSelect.tsx    # Reusable select dropdown
+│   ├── helpers/               # Form helper functions
+│   │   └── validation.ts      # Form-specific validation helpers
+│   ├── options/               # Form constants and options
+│   │   └── fieldOptions.ts    # Dropdown options, constants
+│   ├── validators.ts          # Form validation schemas
+│   ├── Content.tsx            # Form logic and submission
+│   └── index.tsx              # Form wrapper
+│
+├── <Entity>Detail/            # Detail view
+│   ├── components/            # Detail-specific sub-components
+│   │   ├── Header.tsx         # Title/heading display
+│   │   ├── Info.tsx           # Information display
+│   │   └── Actions.tsx        # Action buttons (edit, delete, etc.)
+│   ├── use<Entity>Detail.ts  # Business logic hook
+│   └── index.tsx              # Main composition component
+│
+├── hooks/                     # Shared entity hooks
+│   ├── index.ts               # Hook exports
+│   ├── use<Entity>.ts         # Single item fetching hook
+│   └── use<Entity>Mutations.ts # Create/update/delete operations
+│
+├── types/                     # TypeScript types
+│   ├── index.ts               # Type exports
+│   ├── <entity>.types.ts      # Entity type definitions
+│   └── api.types.ts           # API request/response types
+│
+├── services/                  # API service layer
+│   ├── index.ts               # Service exports
+│   ├── <entity>Api.ts         # API calls (CRUD operations)
+│   └── <entity>Queries.ts     # Query builders
+│
+├── utils/                     # Utility functions
+│   ├── index.ts               # Utility exports
+│   ├── formatters.ts          # Data formatting functions
+│   └── transformers.ts        # Data transformation functions
+│
+├── tests/                     # Component tests
+│   ├── <Entity>List.test.tsx
+│   ├── <Entity>Form.test.tsx
+│   └── <Entity>Detail.test.tsx
+│
+├── constants.ts               # Entity-level constants
+├── config.ts                  # Entity configuration
+├── <Entity>FormGuard.tsx      # Role-based access wrapper
+├── index.ts                   # Main exports (components, hooks, types)
+└── README.md                  # Component documentation
+```
+
+**Key Requirements:**
+
+1. **Folder-based organization**: Each major component (List, Form, Detail) gets its own folder with sub-folders
+2. **Small files**: All files must be < 80 lines, functions < 80 lines, complexity < 10
+3. **Separation of concerns**:
+   - UI components in `components/` sub-folders
+   - Business logic in `hooks/` folders
+   - Pure functions in `helpers/` folders
+   - Constants in `options/` folders or `constants.ts`
+   - API calls in `services/` folder
+   - Utilities in `utils/` folder
+4. **Shared types**: All types in dedicated `types/` folder with separate files per concern
+5. **Clean exports**: Main `index.ts` exports all public APIs (components, hooks, types, services)
+6. **Testing**: Co-located tests in `tests/` folder
+7. **Documentation**: Every entity folder must have a README.md
+
+**Directory Purpose:**
+
+- `<Entity>List/`, `<Entity>Form/`, `<Entity>Detail/` - Feature-specific folders with their own components and hooks
+- `hooks/` - Shared hooks across all entity features
+- `types/` - TypeScript type definitions
+- `services/` - API service layer (data fetching, mutations)
+- `utils/` - Utility functions (formatters, transformers)
+- `tests/` - Component and hook tests
+- `constants.ts` - Entity-level constants
+- `config.ts` - Entity configuration
+
+**Example from Songs Implementation:**
+
+See `components/songs/README.md` for comprehensive documentation. Note: Songs currently uses the simpler structure; new entities should follow the enhanced structure above.
+
+**Benefits of This Structure:**
+
+- ✅ Easy navigation (clear folder hierarchy with logical grouping)
+- ✅ Maintainable (small, focused files organized by purpose)
+- ✅ Testable (isolated units with co-located tests)
+- ✅ Reusable (extracted helpers, services, and utilities)
+- ✅ Type-safe (centralized, organized type definitions)
+- ✅ Scalable (feature folders grow independently)
+- ✅ Documented (README per entity)
+
+**When Creating New Entity Components:**
+
+1. Start with the structure template above
+2. Replace `<Entity>` with your entity name (e.g., `Lesson`, `Assignment`)
+3. Create feature folders (List, Form, Detail) with their sub-folders
+4. Extract components into `components/` sub-folders
+5. Extract hooks into feature or shared `hooks/` folders
+6. Create `services/` for API operations
+7. Create `utils/` for formatting and transformation
+8. Keep all files small and focused (< 80 lines)
+9. Extract helpers when complexity > 10
+10. Create comprehensive README.md documenting structure and usage
+
+### Mobile-First Styling Patterns
+
+All new components follow mobile-first approach:
+
+**Tailwind Structure:**
+
+```tsx
+// ❌ WRONG: Desktop-first
+className = 'text-lg px-6 py-4 grid-cols-3 ...';
+
+// ✅ CORRECT: Mobile-first (default = mobile, then scale up)
+className =
+	'text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3';
+```
+
+**Input Field Example:**
+
+```tsx
+<input className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500' />
+```
+
+**Key Principles:**
+
+- Base classes apply to mobile (375px - 424px)
+- `sm:` for small screens (425px+)
+- `md:` for tablets/medium (768px+)
+- `lg:` for desktops (1024px+)
+- Always include dark mode with `dark:` prefix
+- Use responsive spacing and typography
+- Touch targets minimum 44x44px on mobile
+
+### Common Enums & Patterns
+
+Import shared validation from `schemas/CommonSchema.ts`:
+
+- `DifficultyLevelEnum`: beginner | intermediate | advanced
+- `MusicKeyEnum`: All musical keys (C, C#, D, ..., Bm)
+- `URLField`, `EmailField`, `UUIDField`: Pre-configured validators
+- Utility functions: `validateUUID()`, `validateEmail()`, `validateDate()`
+
+### Supabase Client Usage
+
+Import from `lib/supabase.ts`:
+
+```typescript
+import { supabase, Tables, InsertTables } from '@/lib/supabase';
+
+// Type-safe queries
+const { data, error } = await supabase
+	.from('songs')
+	.select('*')
+	.eq('level', 'intermediate');
+
+// Type: Song[] (from Tables<'songs'>)
+```
+
+**Mock client fallback**: Supabase client returns mock in build/test when env vars missing (prevents build failures)
+
+### File Organization
+
+- `/app`: Next.js App Router pages (minimal, mostly layout)
+- `/components`: React components (none implemented yet)
+  - Follow the Small Components Policy; split views into small composables
+- `/lib`: Utilities, Supabase client config
+- `/schemas`: Zod validation (comprehensive, well-documented)
+- `/types`: TypeScript definitions + generated DB types
+- `/supabase`: Migrations, seeds, backups
+- `/scripts`: Automation scripts (setup, TDD reminders, quality checks)
+- `/__tests__`: Test files mirroring source structure
+
+### User Roles & Permissions
+
+Users can have **multiple roles simultaneously** (flags, not enums):
+
+- Admin: `isAdmin=true` - Full system access, task management
+- Teacher: `isTeacher=true` - Student/lesson/song management
+- Student: `isStudent=true` - View assigned lessons/songs
+
+**Important**: Don't treat roles as mutually exclusive. Teachers can also be students.
+
+## Code Quality Standards
+
+### Linting & Formatting
+
+- ESLint config: `eslint.config.mjs`
+- No console.log in production code (caught by pre-commit)
+- TypeScript strict mode enforced
+
+### Testing Requirements
+
+- Coverage thresholds: 70% branches/functions/lines/statements
+- Watch plugins disabled due to version conflicts
+- All schemas must have tests covering valid/invalid cases
+
+### Git Workflow
+
+```bash
+git checkout -b feature/feature-name  # Feature branches
+npm run pre-commit                     # Manual pre-commit check
+# Git hooks can be set up: echo '#!/bin/sh\n./scripts/pre-commit.sh' > .git/hooks/pre-commit
+```
+
+## Environment Setup
+
+### Required Environment Variables
+
+Create `.env.local` (gitignored):
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321  # Or production URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # For admin operations
+```
+
+### First-Time Setup
+
+```bash
+npm run setup        # Install deps, create env template
+npm run setup:db     # Start Supabase (Docker required)
+npm run seed         # Add sample data
+npm run dev          # Start development
+```
+
+## Implementation Guidelines
+
+### CRUD Operations (MANDATORY)
+
+**All CRUD operations MUST follow the standardized patterns documented in `docs/CRUD_STANDARDS.md`.**
+
+When implementing any new entity (lessons, assignments, etc.):
+
+1. **Check `docs/CRUD_QUICK_REFERENCE.md`** for copy-paste templates
+2. **Follow the exact structure** shown in CRUD_STANDARDS.md:
+   - `/app/api/[entity]/route.ts` - Main HTTP endpoints
+   - `/app/api/[entity]/handlers.ts` - Pure business logic
+   - `/app/api/[entity]/[id]/route.ts` - Single item operations
+   - Role-specific routes (admin-_, student-_)
+   - Components split into small, focused pieces
+   - Custom hooks for data fetching
+3. **Use the checklist** in CRUD_STANDARDS.md to ensure nothing is missed
+4. **Reference songs implementation** as working example (but check SONGS_CRUD_REVIEW.md for known issues)
+
+**Key CRUD Requirements:**
+
+- ✅ Always use `headers()` and `createClient(headersList)` for auth
+- ✅ Always verify user authentication and roles
+- ✅ Separate business logic into handlers.ts
+- ✅ Use Zod for all input validation
+- ✅ Return consistent error responses with status codes
+- ✅ Use `useAuth()` hook in components for role checking
+- ✅ Split components into small, focused pieces
+- ✅ Provide refresh functionality in hooks
+- ✅ Handle loading, error, and empty states
+
+### When Adding New Features
+
+**Always implement features as small and as concise as possible.**
+
+**Every new feature or change should be split into the smallest reasonable, composable units. Avoid bundling multiple concerns or enhancements in a single PR or commit.**
+
+**For every place where you see a possible future enhancement, always add a `TODO:` comment describing the improvement.**
+
+Workflow:
+
+1. **Check CRUD standards** if implementing data operations
+2. **Create test file first** in `__tests__/` matching source path
+3. **Write failing tests** for expected behavior
+4. **Run `npm run tdd`** to start watch mode
+5. **Implement minimal code** to pass tests (keep it as small and focused as possible)
+6. **Add `TODO:` comments for any future enhancements or refactors you identify**
+7. **Refactor** while keeping tests green
+8. **Run `npm run quality`** before committing
+9. Split any large component into smaller ones before opening a PR
+
+### When Creating New Schemas
+
+1. Define in `schemas/` using common patterns from `CommonSchema.ts`
+2. Export base, input, update, filter schemas
+3. Create test file in `__tests__/schemas/` with valid/invalid cases
+4. Update `schemas/index.ts` exports
+5. Add usage examples to `schemas/README.md`
+
+### When Modifying Database
+
+1. Create migration in `supabase/migrations/` with timestamp prefix
+2. Update types: `supabase gen types typescript --local > types/database.types.generated.ts`
+3. Update corresponding Zod schemas if needed
+4. Test migration locally before deploying
+
+### When Building UI Components
+
+1. Write component tests first (React Testing Library)
+2. **MOBILE-FIRST DEVELOPMENT**: All components must be created with mobile phones as the primary target
+   - Start with mobile layout (default Tailwind classes)
+   - Use responsive prefixes for larger screens: `sm:`, `md:`, `lg:`
+   - Test on mobile viewports first (375px, 425px)
+   - Ensure touch-friendly spacing: minimum 44px tap targets
+   - Prioritize performance on mobile networks
+   - Use responsive typography: smaller base sizes with `sm:text-*` for desktop
+3. Use Tailwind CSS classes (config in `postcss.config.mjs`)
+4. Follow accessibility best practices
+5. Create stories/examples if complex
+6. Decompose aggressively: keep files <300 LOC and functions <80 LOC
+7. Maintain dark mode support with `dark:` prefix throughout
+
+## Key Constraints & Gotchas
+
+- **No authentication implemented yet** - Skip auth checks in early development
+- **Supabase RLS enabled** on profiles/tasks - Account for in tests
+- **Lesson numbering is automatic** - Don't manually set `lesson_teacher_number`
+- **Song status is enum** - Must use exact values: to_learn, started, remembered, with_author, mastered
+- **Ultimate Guitar links required** - All songs must have this field
+- **Test watch plugins disabled** - Known Jest version conflict, functionality still works
+
+## Documentation Resources
+
+### Role-Based CRUD Documentation (START HERE for new entities)
+
+- **CRUD Implementation Checklist**: `docs/CRUD_IMPLEMENTATION_CHECKLIST.md` - **Complete step-by-step checklist** with time estimates (~8 hours total)
+- **Role-Based Architecture**: `docs/ROLE_BASED_ARCHITECTURE.md` - Visual guide to three-tier role system (Admin/Teacher/Student)
+- **CRUD Standards**: `docs/CRUD_STANDARDS.md` - Complete guide for implementing CRUD operations consistently with role-based access
+- **CRUD Quick Reference**: `docs/CRUD_QUICK_REFERENCE.md` - Fast templates and copy-paste patterns with role logic
+- **Songs CRUD Review**: `docs/SONGS_CRUD_REVIEW.md` - Current status and fixes needed
+
+### General Development Documentation
+
+- **TDD Guide**: `docs/TDD_GUIDE.md` - Comprehensive testing practices
+- **Scripts Guide**: `scripts/README.md` - All automation commands explained
+- **Schema Docs**: `schemas/README.md` - Validation patterns + examples
+- **Project Overview**: `PROJECT_OVERVIEW.md` - Architecture deep dive
+- **TODO System**: `docs/todos/` - Phased development roadmap
+
+## Common Tasks Quick Reference
+
+```bash
+# Create new feature with TDD workflow
+npm run new-feature my-feature && npm run tdd
+
+# Run specific test file
+npm test -- SongSchema.test.ts
+
+# Check code quality before commit
+npm run quality
+
+# Start full dev environment
+npm run dev:server start all
+
+# Create database backup (anonymized)
+npm run backup
+
+# Production deployment check
+npm run deploy:check
+
+# View Supabase Studio
+# Open http://localhost:54323 after npm run setup:db
+```
+
+## When In Doubt
+
+1. **Check existing patterns** in `schemas/` and `__tests__/schemas/` - well-established
+2. **Run `npm run quality`** frequently to catch issues early
+3. **Follow TDD strictly** - This project has strong testing culture
+4. **Reference `scripts/README.md`** for workflow commands
+5. **Look at TODO.md** for planned features and context

@@ -7,151 +7,85 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
-      deleted_songs_audit: {
-        Row: {
-          deleted_at: string
-          id: string
-          song_id: string
-          title: string | null
-        }
-        Insert: {
-          deleted_at?: string
-          id?: string
-          song_id: string
-          title?: string | null
-        }
-        Update: {
-          deleted_at?: string
-          id?: string
-          song_id?: string
-          title?: string | null
-        }
-        Relationships: []
-      }
-      development_tasks: {
-        Row: {
-          assignee_id: string | null
-          category: string
-          completed_at: string | null
-          created_at: string
-          created_by: string
-          description: string | null
-          due_date: string | null
-          estimated_effort: string | null
-          external_link: string | null
-          id: string
-          notes: string | null
-          priority: Database["public"]["Enums"]["TaskPriority"]
-          status: Database["public"]["Enums"]["TaskStatus"]
-          tags: string[] | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          assignee_id?: string | null
-          category: string
-          completed_at?: string | null
-          created_at?: string
-          created_by: string
-          description?: string | null
-          due_date?: string | null
-          estimated_effort?: string | null
-          external_link?: string | null
-          id?: string
-          notes?: string | null
-          priority?: Database["public"]["Enums"]["TaskPriority"]
-          status?: Database["public"]["Enums"]["TaskStatus"]
-          tags?: string[] | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          assignee_id?: string | null
-          category?: string
-          completed_at?: string | null
-          created_at?: string
-          created_by?: string
-          description?: string | null
-          due_date?: string | null
-          estimated_effort?: string | null
-          external_link?: string | null
-          id?: string
-          notes?: string | null
-          priority?: Database["public"]["Enums"]["TaskPriority"]
-          status?: Database["public"]["Enums"]["TaskStatus"]
-          tags?: string[] | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "task_management_assignee_id_fkey"
-            columns: ["assignee_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "task_management_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
       lesson_songs: {
         Row: {
           created_at: string
           lesson_id: string
           song_id: string
-          song_status: Database["public"]["Enums"]["LearningSongStatus"] | null
+          song_status: Database["public"]["Enums"]["learning_status"]
           student_id: string | null
           teacher_id: string | null
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
           lesson_id: string
           song_id: string
-          song_status?: Database["public"]["Enums"]["LearningSongStatus"] | null
+          song_status?: Database["public"]["Enums"]["learning_status"]
           student_id?: string | null
           teacher_id?: string | null
-          updated_at?: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
           lesson_id?: string
           song_id?: string
-          song_status?: Database["public"]["Enums"]["LearningSongStatus"] | null
+          song_status?: Database["public"]["Enums"]["learning_status"]
           student_id?: string | null
           teacher_id?: string | null
-          updated_at?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "fk_lesson"
+            foreignKeyName: "lesson_songs_lesson_id_fkey"
             columns: ["lesson_id"]
             isOneToOne: false
             referencedRelation: "lessons"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "fk_song"
+            foreignKeyName: "lesson_songs_song_id_fkey"
             columns: ["song_id"]
             isOneToOne: false
             referencedRelation: "songs"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "fk_teacher"
+            foreignKeyName: "lesson_songs_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "lesson_songs_teacher_id_fkey"
             columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -162,48 +96,48 @@ export type Database = {
       lessons: {
         Row: {
           created_at: string
-          creator_user_id: string | null
-          date: string | null
+          creator_user_id: string
+          date: string
           id: string
           lesson_number: number | null
           lesson_teacher_number: number | null
           notes: string | null
           start_time: string | null
-          status: Database["public"]["Enums"]["LessonStatus"] | null
+          status: Database["public"]["Enums"]["lesson_status"]
           student_id: string
           teacher_id: string
           title: string | null
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
-          creator_user_id?: string | null
-          date?: string | null
+          creator_user_id: string
+          date: string
           id?: string
           lesson_number?: number | null
           lesson_teacher_number?: number | null
           notes?: string | null
           start_time?: string | null
-          status?: Database["public"]["Enums"]["LessonStatus"] | null
+          status?: Database["public"]["Enums"]["lesson_status"]
           student_id: string
           teacher_id: string
           title?: string | null
-          updated_at?: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
-          creator_user_id?: string | null
-          date?: string | null
+          creator_user_id?: string
+          date?: string
           id?: string
           lesson_number?: number | null
           lesson_teacher_number?: number | null
           notes?: string | null
           start_time?: string | null
-          status?: Database["public"]["Enums"]["LessonStatus"] | null
+          status?: Database["public"]["Enums"]["lesson_status"]
           student_id?: string
           teacher_id?: string
           title?: string | null
-          updated_at?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -233,196 +167,158 @@ export type Database = {
         Row: {
           bio: string | null
           canEdit: boolean
-          created_at: string | null
+          created_at: string
           email: string | null
-          firstName: string | null
+          firstname: string | null
           id: number
           isActive: boolean | null
-          isAdmin: boolean
-          isStudent: boolean | null
-          isTeacher: boolean | null
+          isadmin: boolean
+          isdevelopment: boolean | null
+          isstudent: boolean
+          isteacher: boolean
           isTest: boolean | null
-          lastName: string | null
+          lastname: string | null
+          notes: string | null
           updated_at: string | null
-          user_id: string | null
+          user_id: string
           username: string | null
         }
         Insert: {
           bio?: string | null
           canEdit?: boolean
-          created_at?: string | null
+          created_at?: string
           email?: string | null
-          firstName?: string | null
-          id?: never
+          firstname?: string | null
+          id?: number
           isActive?: boolean | null
-          isAdmin?: boolean
-          isStudent?: boolean | null
-          isTeacher?: boolean | null
+          isadmin?: boolean
+          isdevelopment?: boolean | null
+          isstudent?: boolean
+          isteacher?: boolean
           isTest?: boolean | null
-          lastName?: string | null
+          lastname?: string | null
+          notes?: string | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
           username?: string | null
         }
         Update: {
           bio?: string | null
           canEdit?: boolean
-          created_at?: string | null
+          created_at?: string
           email?: string | null
-          firstName?: string | null
-          id?: never
+          firstname?: string | null
+          id?: number
           isActive?: boolean | null
-          isAdmin?: boolean
-          isStudent?: boolean | null
-          isTeacher?: boolean | null
+          isadmin?: boolean
+          isdevelopment?: boolean | null
+          isstudent?: boolean
+          isteacher?: boolean
           isTest?: boolean | null
-          lastName?: string | null
+          lastname?: string | null
+          notes?: string | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
           username?: string | null
         }
         Relationships: []
       }
       songs: {
         Row: {
-          audio_files: Json | null
-          author: string | null
+          audio_files: string[] | null
+          author: string
           chords: string | null
           created_at: string
           id: string
-          key: string | null
-          level: string | null
+          key: Database["public"]["Enums"]["music_key"]
+          level: Database["public"]["Enums"]["difficulty_level"]
           short_title: string | null
-          title: string | null
-          ultimate_guitar_link: string | null
+          title: string
+          ultimate_guitar_link: string
           updated_at: string | null
         }
         Insert: {
-          audio_files?: Json | null
-          author?: string | null
+          audio_files?: string[] | null
+          author: string
           chords?: string | null
           created_at?: string
           id?: string
-          key?: string | null
-          level?: string | null
+          key: Database["public"]["Enums"]["music_key"]
+          level: Database["public"]["Enums"]["difficulty_level"]
           short_title?: string | null
-          title?: string | null
-          ultimate_guitar_link?: string | null
+          title: string
+          ultimate_guitar_link: string
           updated_at?: string | null
         }
         Update: {
-          audio_files?: Json | null
-          author?: string | null
+          audio_files?: string[] | null
+          author?: string
           chords?: string | null
           created_at?: string
           id?: string
-          key?: string | null
-          level?: string | null
+          key?: Database["public"]["Enums"]["music_key"]
+          level?: Database["public"]["Enums"]["difficulty_level"]
           short_title?: string | null
-          title?: string | null
-          ultimate_guitar_link?: string | null
+          title?: string
+          ultimate_guitar_link?: string
           updated_at?: string | null
         }
         Relationships: []
       }
       task_management: {
         Row: {
-          assignee_id: string | null
-          category: string
+          assigned_to: string | null
           completed_at: string | null
           created_at: string
           created_by: string
           description: string | null
           due_date: string | null
-          estimated_effort: string | null
-          external_link: string | null
           id: string
-          notes: string | null
-          priority: Database["public"]["Enums"]["TaskPriority"]
-          status: Database["public"]["Enums"]["TaskStatus"]
-          tags: string[] | null
+          priority: Database["public"]["Enums"]["task_priority"]
+          status: Database["public"]["Enums"]["task_status"]
           title: string
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
-          assignee_id?: string | null
-          category: string
+          assigned_to?: string | null
           completed_at?: string | null
           created_at?: string
           created_by: string
           description?: string | null
           due_date?: string | null
-          estimated_effort?: string | null
-          external_link?: string | null
           id?: string
-          notes?: string | null
-          priority?: Database["public"]["Enums"]["TaskPriority"]
-          status?: Database["public"]["Enums"]["TaskStatus"]
-          tags?: string[] | null
+          priority?: Database["public"]["Enums"]["task_priority"]
+          status?: Database["public"]["Enums"]["task_status"]
           title: string
-          updated_at?: string
+          updated_at?: string | null
         }
         Update: {
-          assignee_id?: string | null
-          category?: string
+          assigned_to?: string | null
           completed_at?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
           due_date?: string | null
-          estimated_effort?: string | null
-          external_link?: string | null
           id?: string
-          notes?: string | null
-          priority?: Database["public"]["Enums"]["TaskPriority"]
-          status?: Database["public"]["Enums"]["TaskStatus"]
-          tags?: string[] | null
+          priority?: Database["public"]["Enums"]["task_priority"]
+          status?: Database["public"]["Enums"]["task_status"]
           title?: string
-          updated_at?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "task_management_assignee_id_fkey1"
-            columns: ["assignee_id"]
+            foreignKeyName: "task_management_assigned_to_fkey"
+            columns: ["assigned_to"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
           {
-            foreignKeyName: "task_management_created_by_fkey1"
+            foreignKeyName: "task_management_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      user_favorites: {
-        Row: {
-          created_at: string
-          id: string
-          song_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          song_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          song_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_song"
-            columns: ["song_id"]
-            isOneToOne: false
-            referencedRelation: "songs"
-            referencedColumns: ["id"]
           },
         ]
       }
@@ -431,54 +327,57 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      auto_fill_username: { Args: { email: string }; Returns: undefined }
-      auto_fill_usernames: { Args: never; Returns: undefined }
-      get_lesson_stats: {
-        Args: { p_user_id: string }
-        Returns: {
-          cancelled_lessons: number
-          completed_lessons: number
-          total_lessons: number
-          upcoming_lessons: number
-        }[]
-      }
-      get_lessons_with_profiles: {
-        Args: {
-          p_date_from?: string
-          p_date_to?: string
-          p_status?: string
-          p_user_id?: string
-        }
-        Returns: {
-          lesson_data: Json
-          student_profile: Json
-          teacher_profile: Json
-        }[]
-      }
-      get_songs_by_student: {
-        Args: { p_student_id: string }
-        Returns: {
-          song_id: string
-          song_status: string
-        }[]
-      }
-      increment_lesson_number: {
-        Args: { p_student_id: string; p_teacher_id: string }
-        Returns: number
-      }
-      update_past_lessons_status: { Args: never; Returns: undefined }
+      [_ in never]: never
     }
     Enums: {
-      LearningSongStatus:
-        | "TO_LEARN"
-        | "STARTED"
-        | "REMEMBERED"
-        | "WITH_AUTHOR"
-        | "MASTERED"
-      lessonstatus: "SCHEDULED" | "COMPLETED" | "CANCELLED"
-      LessonStatus: "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED"
-      TaskPriority: "Critical" | "High" | "Medium" | "Low"
-      TaskStatus: "Not Started" | "In Progress" | "Completed" | "Blocked"
+      difficulty_level: "beginner" | "intermediate" | "advanced"
+      learning_status:
+        | "to_learn"
+        | "started"
+        | "remembered"
+        | "with_author"
+        | "mastered"
+      lesson_status: "SCHEDULED" | "COMPLETED" | "CANCELLED" | "RESCHEDULED"
+      music_key:
+        | "C"
+        | "C#"
+        | "Db"
+        | "D"
+        | "D#"
+        | "Eb"
+        | "E"
+        | "F"
+        | "F#"
+        | "Gb"
+        | "G"
+        | "G#"
+        | "Ab"
+        | "A"
+        | "A#"
+        | "Bb"
+        | "B"
+        | "Cm"
+        | "C#m"
+        | "Dm"
+        | "D#m"
+        | "Ebm"
+        | "Em"
+        | "Fm"
+        | "F#m"
+        | "Gm"
+        | "G#m"
+        | "Am"
+        | "A#m"
+        | "Bbm"
+        | "Bm"
+      task_priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT"
+      task_status:
+        | "OPEN"
+        | "IN_PROGRESS"
+        | "PENDING_REVIEW"
+        | "COMPLETED"
+        | "CANCELLED"
+        | "BLOCKED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -604,19 +503,63 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
-      LearningSongStatus: [
-        "TO_LEARN",
-        "STARTED",
-        "REMEMBERED",
-        "WITH_AUTHOR",
-        "MASTERED",
+      difficulty_level: ["beginner", "intermediate", "advanced"],
+      learning_status: [
+        "to_learn",
+        "started",
+        "remembered",
+        "with_author",
+        "mastered",
       ],
-      lessonstatus: ["SCHEDULED", "COMPLETED", "CANCELLED"],
-      LessonStatus: ["SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELLED"],
-      TaskPriority: ["Critical", "High", "Medium", "Low"],
-      TaskStatus: ["Not Started", "In Progress", "Completed", "Blocked"],
+      lesson_status: ["SCHEDULED", "COMPLETED", "CANCELLED", "RESCHEDULED"],
+      music_key: [
+        "C",
+        "C#",
+        "Db",
+        "D",
+        "D#",
+        "Eb",
+        "E",
+        "F",
+        "F#",
+        "Gb",
+        "G",
+        "G#",
+        "Ab",
+        "A",
+        "A#",
+        "Bb",
+        "B",
+        "Cm",
+        "C#m",
+        "Dm",
+        "D#m",
+        "Ebm",
+        "Em",
+        "Fm",
+        "F#m",
+        "Gm",
+        "G#m",
+        "Am",
+        "A#m",
+        "Bbm",
+        "Bm",
+      ],
+      task_priority: ["LOW", "MEDIUM", "HIGH", "URGENT"],
+      task_status: [
+        "OPEN",
+        "IN_PROGRESS",
+        "PENDING_REVIEW",
+        "COMPLETED",
+        "CANCELLED",
+        "BLOCKED",
+      ],
     },
   },
 } as const
+

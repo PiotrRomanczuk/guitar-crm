@@ -1,0 +1,451 @@
+Script: /Users/piotrromanczuk/Desktop/guitar-crm/scripts/ci/quality-check.sh
+Timestamp: 2025-11-02 01:34:24
+Duration: 16s
+Exit Code: 1
+Git Branch: feature/song-crud-implementation
+Git Commit: 5289899051846808ffcc6eda269330e382560bfe
+User: piotrromanczuk
+Node Version: v23.11.0
+System: Darwin macbookair.home 25.0.0 Darwin Kernel Version 25.0.0: Wed Sep 17 21:41:39 PDT 2025; root:xnu-12377.1.9~141/RELEASE_ARM64_T8103 arm64
+----------------------------------------
+Output:
+🔍 CODE QUALITY CHECK
+====================
+🔧 Running TypeScript type check...
+[0;32m✅ TypeScript types are valid[0m
+
+🧹 Running ESLint...
+
+> guitar-crm@0.1.0 lint
+> eslint
+
+
+/Users/piotrromanczuk/Desktop/guitar-crm/app/admin/users/page.tsx
+  11:16  warning  Function 'UsersPage' has too many lines (179). Maximum allowed is 80  max-lines-per-function
+
+/Users/piotrromanczuk/Desktop/guitar-crm/app/api/dashboard/stats/route.ts
+  8:8  warning  Async function 'GET' has too many lines (112). Maximum allowed is 80  max-lines-per-function
+  8:8  warning  Async function 'GET' has a complexity of 21. Maximum allowed is 10    complexity
+
+/Users/piotrromanczuk/Desktop/guitar-crm/app/api/song/bulk/route.ts
+    9:8  warning  Async function 'POST' has too many lines (152). Maximum allowed is 80  max-lines-per-function
+    9:8  warning  Async function 'POST' has a complexity of 19. Maximum allowed is 10    complexity
+  114:6  warning  Blocks are nested too deeply (5). Maximum allowed is 4                 max-depth
+  137:6  warning  Blocks are nested too deeply (5). Maximum allowed is 4                 max-depth
+
+/Users/piotrromanczuk/Desktop/guitar-crm/app/api/song/export/route.ts
+  5:8  warning  Async function 'GET' has too many lines (112). Maximum allowed is 80  max-lines-per-function
+  5:8  warning  Async function 'GET' has a complexity of 22. Maximum allowed is 10    complexity
+
+/Users/piotrromanczuk/Desktop/guitar-crm/app/api/song/favorites/route.ts
+  5:8  warning  Async function 'GET' has a complexity of 11. Maximum allowed is 10  complexity
+
+/Users/piotrromanczuk/Desktop/guitar-crm/app/api/song/search/route.ts
+  6:8  warning  Async function 'GET' has a complexity of 17. Maximum allowed is 10  complexity
+
+/Users/piotrromanczuk/Desktop/guitar-crm/app/api/song/stats/route.ts
+  4:8  warning  Async function 'GET' has too many lines (113). Maximum allowed is 80  max-lines-per-function
+  4:8  warning  Async function 'GET' has a complexity of 21. Maximum allowed is 10    complexity
+
+/Users/piotrromanczuk/Desktop/guitar-crm/app/api/song/user-songs/route.ts
+  4:8  warning  Async function 'GET' has too many lines (201). Maximum allowed is 80  max-lines-per-function
+  4:8  warning  Async function 'GET' has a complexity of 26. Maximum allowed is 10    complexity
+
+/Users/piotrromanczuk/Desktop/guitar-crm/app/api/song/user-test-song/route.ts
+  4:8  warning  Async function 'GET' has a complexity of 11. Maximum allowed is 10  complexity
+
+/Users/piotrromanczuk/Desktop/guitar-crm/components/SupabaseTest.tsx
+  7:16  warning  Function 'SupabaseTest' has too many lines (105). Maximum allowed is 80  max-lines-per-function
+
+/Users/piotrromanczuk/Desktop/guitar-crm/components/admin/UserForm.tsx
+  19:8  warning  Function 'UserForm' has too many lines (92). Maximum allowed is 80  max-lines-per-function
+  19:8  warning  Function 'UserForm' has a complexity of 15. Maximum allowed is 10   complexity
+
+/Users/piotrromanczuk/Desktop/guitar-crm/components/auth/AuthProvider.tsx
+  25:8   warning  Function 'AuthProvider' has a complexity of 17. Maximum allowed is 10  complexity
+  57:32  warning  Async arrow function has a complexity of 11. Maximum allowed is 10     complexity
+
+/Users/piotrromanczuk/Desktop/guitar-crm/components/auth/ForgotPasswordForm.tsx
+  10:16  warning  Function 'ForgotPasswordForm' has too many lines (106). Maximum allowed is 80  max-lines-per-function
+
+/Users/piotrromanczuk/Desktop/guitar-crm/components/auth/ProtectedRoute.tsx
+  14:16  warning  Function 'ProtectedRoute' has a complexity of 11. Maximum allowed is 10  complexity
+
+/Users/piotrromanczuk/Desktop/guitar-crm/components/auth/ResetPasswordForm.tsx
+  10:16  warning  Function 'ResetPasswordForm' has too many lines (118). Maximum allowed is 80  max-lines-per-function
+  10:16  warning  Function 'ResetPasswordForm' has a complexity of 11. Maximum allowed is 10    complexity
+
+/Users/piotrromanczuk/Desktop/guitar-crm/components/auth/useSignUpLogic.ts
+  18:1  warning  Function 'getValidationError' has a complexity of 11. Maximum allowed is 10  complexity
+
+/Users/piotrromanczuk/Desktop/guitar-crm/components/songs/SongDetail.tsx
+  16:16  warning  Function 'SongDetail' has too many lines (116). Maximum allowed is 80  max-lines-per-function
+
+/Users/piotrromanczuk/Desktop/guitar-crm/components/songs/SongForm.Content.tsx
+  15:16  warning  Function 'SongFormContent' has too many lines (86). Maximum allowed is 80  max-lines-per-function
+  15:16  warning  Function 'SongFormContent' has a complexity of 17. Maximum allowed is 10   complexity
+
+/Users/piotrromanczuk/Desktop/guitar-crm/components/songs/SongForm.Fields.tsx
+  10:16  warning  Function 'SongFormFields' has too many lines (96). Maximum allowed is 80  max-lines-per-function
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/database/create-test-users.ts
+  4:7  warning  'supabaseAnonKey' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/piotrromanczuk/Desktop/guitar-crm/scripts/database/seed-assignments.ts
+  145:10  warning  'songsByLevel' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/piotrromanczuk/Desktop/guitar-crm/set_passwords_from_file.js
+  52:11  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 33 problems (0 errors, 33 warnings)
+
+[0;32m✅ ESLint passed[0m
+
+🧪 Running tests with coverage...
+
+> guitar-crm@0.1.0 test
+> jest --coverage --watchAll=false
+
+PASS __tests__/components/songs/SongForm.test.tsx
+PASS __tests__/components/navigation/Header.test.tsx
+PASS __tests__/components/auth/ForgotPasswordForm.test.tsx
+PASS __tests__/components/auth/AuthProvider.test.tsx
+  ● Console
+
+    console.error
+      An update to AuthProvider inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      37 | 			setSession(session);
+      38 | 			setUser(session?.user ?? null);
+    > 39 | 			setLoading(false);
+         | 			^
+      40 | 		});
+      41 |
+      42 | 		// Listen for auth changes
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setLoading (components/auth/AuthProvider.tsx:39:4)
+
+    console.error
+      An update to AuthProvider inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      37 | 			setSession(session);
+      38 | 			setUser(session?.user ?? null);
+    > 39 | 			setLoading(false);
+         | 			^
+      40 | 		});
+      41 |
+      42 | 		// Listen for auth changes
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setLoading (components/auth/AuthProvider.tsx:39:4)
+
+    console.error
+      An update to AuthProvider inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      70 | 			if (error) {
+      71 | 				// Fall back silently to user metadata if fetching profile fails due to RLS or network
+    > 72 | 				setProfileRoles(null);
+         | 				^
+      73 | 				return;
+      74 | 			}
+      75 |
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setProfileRoles (components/auth/AuthProvider.tsx:72:5)
+
+PASS __tests__/components/auth/ResetPasswordForm.test.tsx
+PASS __tests__/components/auth/SignInForm.test.tsx
+PASS __tests__/components/auth/SignUpForm.test.tsx
+PASS __tests__/components/auth/RequireRole.test.tsx
+PASS __tests__/components/admin/index.test.tsx
+PASS __tests__/api/song/handlers.test.ts
+PASS __tests__/schemas/SongSchema.test.ts
+PASS __tests__/components/songs/SongList.test.tsx
+PASS __tests__/components/songs/SongDetail.test.tsx
+  ● Console
+
+    console.error
+      An update to SongDetail inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      34 |
+      35 | 			if (fetchError || !data || data.length === 0) {
+    > 36 | 				setError('Song not found');
+         | 				^
+      37 | 				return;
+      38 | 			}
+      39 |
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setError (components/songs/SongDetail.tsx:36:5)
+
+    console.error
+      An update to SongDetail inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      42 | 			setError('Failed to load song');
+      43 | 		} finally {
+    > 44 | 			setLoading(false);
+         | 			^
+      45 | 		}
+      46 | 	}, [songId]);
+      47 |
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setLoading (components/songs/SongDetail.tsx:44:4)
+
+PASS __tests__/components/auth/ProtectedRoute.test.tsx
+PASS __tests__/setup.test.ts
+PASS __tests__/api/song/integration.test.ts
+-----------------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------
+File                                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                       
+-----------------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------
+All files                                |   28.12 |    71.23 |   36.59 |   28.12 |                                                                         
+ guitar-crm                              |    0.47 |        0 |       0 |    0.47 |                                                                         
+  cypress.config.ts                      |       0 |        0 |       0 |       0 | 1-19                                                                    
+  jest.config.simple.ts                  |       0 |        0 |       0 |       0 | 1-47                                                                    
+  jest.config.ts                         |       0 |        0 |       0 |       0 | 1-74                                                                    
+  middleware.ts                          |    1.31 |        0 |       0 |    1.31 | 1-75                                                                    
+  next.config.ts                         |       0 |        0 |       0 |       0 | 1-7                                                                     
+  set_passwords_from_file.js             |       0 |        0 |       0 |       0 | 1-87                                                                    
+  show-lighthouse-results.js             |    0.91 |        0 |       0 |    0.91 | 1-108                                                                   
+ guitar-crm/app                          |       0 |        0 |       0 |       0 |                                                                         
+  home.components.tsx                    |       0 |        0 |       0 |       0 | 1-290                                                                   
+  layout.tsx                             |       0 |        0 |       0 |       0 | 1-47                                                                    
+  page.tsx                               |       0 |        0 |       0 |       0 | 1-67                                                                    
+ guitar-crm/app/admin                    |    0.35 |        0 |       0 |    0.35 |                                                                         
+  page.tsx                               |    0.35 |        0 |       0 |    0.35 | 1-280                                                                   
+ guitar-crm/app/admin/users              |       0 |        0 |       0 |       0 |                                                                         
+  page.tsx                               |       0 |        0 |       0 |       0 | 1-215                                                                   
+ guitar-crm/app/api/admin/set-passwords  |       0 |        0 |       0 |       0 |                                                                         
+  route.ts                               |       0 |        0 |       0 |       0 | 1-83                                                                    
+ guitar-crm/app/api/dashboard/stats      |    0.71 |        0 |       0 |    0.71 |                                                                         
+  route.ts                               |    0.71 |        0 |       0 |    0.71 | 1-138                                                                   
+ guitar-crm/app/api/song                 |   43.14 |    79.16 |   88.88 |   43.14 |                                                                         
+  handlers.ts                            |   96.74 |    80.85 |     100 |   96.74 | 163-164,175-176,212-213,217-218                                         
+  route.ts                               |    0.32 |        0 |       0 |    0.32 | 1-307                                                                   
+ guitar-crm/app/api/song/[id]            |       2 |        0 |       0 |       2 |                                                                         
+  route.ts                               |       2 |        0 |       0 |       2 | 1-49                                                                    
+ guitar-crm/app/api/song/admin-favorites |       0 |        0 |       0 |       0 |                                                                         
+  route.ts                               |       0 |        0 |       0 |       0 | 1-42                                                                    
+ guitar-crm/app/api/song/admin-songs     |       0 |        0 |       0 |       0 |                                                                         
+  route.ts                               |       0 |        0 |       0 |       0 | 1-45                                                                    
+ guitar-crm/app/api/song/bulk            |    0.42 |        0 |       0 |    0.42 |                                                                         
+  route.ts                               |    0.42 |        0 |       0 |    0.42 | 1-237                                                                   
+ guitar-crm/app/api/song/create          |    1.47 |        0 |       0 |    1.47 |                                                                         
+  route.ts                               |    1.47 |        0 |       0 |    1.47 | 1-67                                                                    
+ guitar-crm/app/api/song/export          |     0.7 |        0 |       0 |     0.7 |                                                                         
+  route.ts                               |     0.7 |        0 |       0 |     0.7 | 1-140                                                                   
+ guitar-crm/app/api/song/favorites       |    0.46 |        0 |       0 |    0.46 |                                                                         
+  route.ts                               |    0.46 |        0 |       0 |    0.46 | 1-216                                                                   
+ guitar-crm/app/api/song/search          |    1.03 |        0 |       0 |    1.03 |                                                                         
+  route.ts                               |    1.03 |        0 |       0 |    1.03 | 1-96                                                                    
+ guitar-crm/app/api/song/stats           |     0.7 |        0 |       0 |     0.7 |                                                                         
+  route.ts                               |     0.7 |        0 |       0 |     0.7 | 1-140                                                                   
+ guitar-crm/app/api/song/student-songs   |    1.02 |        0 |       0 |    1.02 |                                                                         
+  route.ts                               |    1.02 |        0 |       0 |    1.02 | 1-97                                                                    
+ guitar-crm/app/api/song/update          |    1.42 |        0 |       0 |    1.42 |                                                                         
+  route.ts                               |    1.42 |        0 |       0 |    1.42 | 1-69                                                                    
+ guitar-crm/app/api/song/user-songs      |    0.45 |        0 |       0 |    0.45 |                                                                         
+  route.ts                               |    0.45 |        0 |       0 |    0.45 | 1-218                                                                   
+ guitar-crm/app/api/song/user-test-song  |       0 |        0 |       0 |       0 |                                                                         
+  route.ts                               |       0 |        0 |       0 |       0 | 1-82                                                                    
+ guitar-crm/app/debug-auth               |       0 |        0 |       0 |       0 |                                                                         
+  page.tsx                               |       0 |        0 |       0 |       0 | 1-174                                                                   
+ guitar-crm/app/forgot-password          |       0 |        0 |       0 |       0 |                                                                         
+  page.tsx                               |       0 |        0 |       0 |       0 | 1-21                                                                    
+ guitar-crm/app/sign-in                  |       0 |        0 |       0 |       0 |                                                                         
+  page.tsx                               |       0 |        0 |       0 |       0 | 1-40                                                                    
+ guitar-crm/app/sign-up                  |       0 |        0 |       0 |       0 |                                                                         
+  page.tsx                               |       0 |        0 |       0 |       0 | 1-44                                                                    
+ guitar-crm/app/student                  |       0 |        0 |       0 |       0 |                                                                         
+  page.tsx                               |       0 |        0 |       0 |       0 | 1-33                                                                    
+ guitar-crm/app/teacher                  |       0 |        0 |       0 |       0 |                                                                         
+  page.tsx                               |       0 |        0 |       0 |       0 | 1-37                                                                    
+ guitar-crm/components                   |       0 |        0 |       0 |       0 |                                                                         
+  SupabaseTest.tsx                       |       0 |        0 |       0 |       0 | 1-119                                                                   
+ guitar-crm/components/admin             |    24.1 |        0 |       0 |    24.1 |                                                                         
+  AdminActionCard.tsx                    |   31.42 |      100 |       0 |   31.42 | 12-35                                                                   
+  AdminStatCard.tsx                      |   36.84 |      100 |       0 |   36.84 | 8-19                                                                    
+  UserCard.tsx                           |   17.21 |      100 |       0 |   17.21 | 16-19,22-32,35-40,43-122                                                
+  UserForm.Actions.tsx                   |   32.25 |      100 |       0 |   32.25 | 11-31                                                                   
+  UserForm.CheckboxInput.tsx             |   30.76 |      100 |       0 |   30.76 | 13-39                                                                   
+  UserForm.Header.tsx                    |   25.64 |      100 |       0 |   25.64 | 11-39                                                                   
+  UserForm.RoleSection.tsx               |   19.67 |      100 |       0 |   19.67 | 13-61                                                                   
+  UserForm.TextInput.tsx                 |   36.58 |      100 |       0 |   36.58 | 16-41                                                                   
+  UserForm.helpers.ts                    |   56.25 |      100 |       0 |   56.25 | 14-21,24-29                                                             
+  UserForm.tsx                           |   15.83 |      100 |       0 |   15.83 | 20-120                                                                  
+  UserList.helpers.ts                    |       0 |        0 |       0 |       0 | 1-9                                                                     
+  UserList.tsx                           |   20.93 |      100 |       0 |   20.93 | 26-78,81-129                                                            
+  UserListEmptyState.tsx                 |   33.33 |      100 |       0 |   33.33 | 8-21                                                                    
+  UserListLoadingState.tsx               |   17.24 |      100 |       0 |   17.24 | 6-29                                                                    
+  UserTableRow.tsx                       |   20.79 |      100 |       0 |   20.79 | 16-19,22-32,35-40,43-101                                                
+  index.ts                               |     100 |      100 |     100 |     100 |                                                                         
+ guitar-crm/components/auth              |   95.93 |    87.65 |     100 |   95.93 |                                                                         
+  AuthProvider.tsx                       |   96.72 |     64.1 |     100 |   96.72 | 75-76,119-120                                                           
+  ForgotPasswordForm.tsx                 |   96.92 |    89.47 |     100 |   96.92 | 34-35,57-58                                                             
+  ProtectedRoute.tsx                     |     100 |      100 |     100 |     100 |                                                                         
+  RequireRole.tsx                        |   85.47 |    89.18 |     100 |   85.47 | 110,118-129,153,161-172                                                 
+  ResetPasswordForm.tsx                  |   94.44 |    92.68 |     100 |   94.44 | 47-48,63-66,81-82                                                       
+  SignInForm.tsx                         |   97.72 |    91.17 |     100 |   97.72 | 98,161-162,185-186                                                      
+  SignUpForm.tsx                         |     100 |      100 |     100 |     100 |                                                                         
+  index.ts                               |     100 |      100 |     100 |     100 |                                                                         
+  useSignUpLogic.ts                      |   97.31 |    86.66 |     100 |   97.31 | 62-63,98-99                                                             
+ guitar-crm/components/navigation        |    95.2 |    82.75 |   66.66 |    95.2 |                                                                         
+  Header.tsx                             |   96.47 |    83.33 |   61.53 |   96.47 | 28-34,148-149                                                           
+  RoleBasedNav.tsx                       |   91.13 |    81.81 |     100 |   91.13 | 37-38,61-65                                                             
+ guitar-crm/components/songs             |   82.78 |       75 |   42.85 |   82.78 |                                                                         
+  SongDetail.tsx                         |   77.85 |     37.5 |   33.33 |   77.85 | 39-42,53-80,85                                                          
+  SongForm.Content.tsx                   |   51.35 |    92.85 |   33.33 |   51.35 | 31-40,43-86                                                             
+  SongForm.FieldSelect.tsx               |     100 |    66.66 |      50 |     100 | 36                                                                      
+  SongForm.FieldText.tsx                 |     100 |       50 |      50 |     100 | 35                                                                      
+  SongForm.Fields.tsx                    |     100 |      100 |    12.5 |     100 |                                                                         
+  SongForm.tsx                           |     100 |      100 |     100 |     100 |                                                                         
+  SongFormGuard.tsx                      |       0 |        0 |       0 |       0 | 1-26                                                                    
+  SongList.Empty.tsx                     |     100 |      100 |     100 |     100 |                                                                         
+  SongList.Filter.tsx                    |     100 |      100 |      50 |     100 |                                                                         
+  SongList.Header.tsx                    |     100 |       50 |     100 |     100 | 8                                                                       
+  SongList.Table.tsx                     |     100 |      100 |     100 |     100 |                                                                         
+  SongList.tsx                           |     100 |      100 |     100 |     100 |                                                                         
+  index.ts                               |       0 |        0 |       0 |       0 | 1-4                                                                     
+  useSongList.ts                         |   93.02 |    72.72 |     100 |   93.02 | 20-21,32                                                                
+ guitar-crm/components/student           |    0.78 |        0 |       0 |    0.78 |                                                                         
+  StudentDashboardStats.tsx              |    1.26 |        0 |       0 |    1.26 | 1-78                                                                    
+  StudentProgressOverview.tsx            |       0 |        0 |       0 |       0 | 1-16                                                                    
+  StudentRecentLessons.tsx               |       0 |        0 |       0 |       0 | 1-16                                                                    
+  StudentUpcomingLessons.tsx             |       0 |        0 |       0 |       0 | 1-16                                                                    
+ guitar-crm/components/teacher           |    0.78 |        0 |       0 |    0.78 |                                                                         
+  TeacherDashboardStats.tsx              |    1.26 |        0 |       0 |    1.26 | 1-78                                                                    
+  TeacherLessonSchedule.tsx              |       0 |        0 |       0 |       0 | 1-16                                                                    
+  TeacherRecentLessons.tsx               |       0 |        0 |       0 |       0 | 1-16                                                                    
+  TeacherStudentsList.tsx                |       0 |        0 |       0 |       0 | 1-16                                                                    
+ guitar-crm/components/ui                |   33.55 |      100 |       0 |   33.55 |                                                                         
+  avatar.tsx                             |   20.75 |      100 |       0 |   20.75 | 8-22,24-35,37-51                                                        
+  badge.tsx                              |   63.04 |      100 |       0 |   63.04 | 28-44                                                                   
+  button.tsx                             |   66.66 |      100 |       0 |   66.66 | 39-58                                                                   
+  card.tsx                               |   21.73 |      100 |       0 |   21.73 | 5-16,18-29,31-39,41-49,51-62,64-72,74-82                                
+  checkbox.tsx                           |   31.25 |      100 |       0 |   31.25 | 9-30                                                                    
+  input.tsx                              |   28.57 |      100 |       0 |   28.57 | 5-19                                                                    
+  label.tsx                              |    37.5 |      100 |       0 |    37.5 | 8-22                                                                    
+  table.tsx                              |   20.68 |      100 |       0 |   20.68 | 7-20,22-30,32-40,42-53,55-66,68-79,81-92,94-105                         
+ guitar-crm/cypress/e2e                  |       0 |        0 |       0 |       0 |                                                                         
+  auth.cy.ts                             |       0 |        0 |       0 |       0 | 1-247                                                                   
+  smoke.cy.ts                            |       0 |        0 |       0 |       0 | 1-7                                                                     
+ guitar-crm/cypress/support              |       0 |        0 |       0 |       0 |                                                                         
+  e2e.ts                                 |       0 |        0 |       0 |       0 | 1-23                                                                    
+ guitar-crm/lib                          |    2.46 |        0 |       0 |    2.46 |                                                                         
+  logging.ts                             |     0.5 |        0 |       0 |     0.5 | 1-196                                                                   
+  supabase.ts                            |     2.5 |        0 |       0 |     2.5 | 1-39                                                                    
+  utils.ts                               |   66.66 |      100 |       0 |   66.66 | 5-6                                                                     
+ guitar-crm/lib/hooks                    |       0 |        0 |       0 |       0 |                                                                         
+  useClickTracking.ts                    |       0 |        0 |       0 |       0 | 1-45                                                                    
+ guitar-crm/schemas                      |   42.91 |        0 |       0 |   42.91 |                                                                         
+  ActivityLogSchema.ts                   |       0 |        0 |       0 |       0 | 1-114                                                                   
+  AssignmentSchema.ts                    |       0 |        0 |       0 |       0 | 1-95                                                                    
+  CommonSchema.ts                        |   77.71 |      100 |       0 |   77.71 | 105-111,114-120,123-129,132-138,142-143,146-147,150-151,155-156,159-161 
+  LessonSchema.ts                        |       0 |        0 |       0 |       0 | 1-83                                                                    
+  SongSchema.ts                          |     100 |      100 |     100 |     100 |                                                                         
+  TaskSchema.ts                          |       0 |        0 |       0 |       0 | 1-108                                                                   
+  UserFavoriteSchema.ts                  |       0 |        0 |       0 |       0 | 1-50                                                                    
+  UserSchema.ts                          |   86.57 |      100 |       0 |   86.57 | 114-117,121-136                                                         
+  contactFormSchema.ts                   |       0 |        0 |       0 |       0 | 1-10                                                                    
+  index.ts                               |       0 |        0 |       0 |       0 | 1-9                                                                     
+ guitar-crm/scripts/database             |       0 |        0 |       0 |       0 |                                                                         
+  create-test-users.ts                   |       0 |        0 |       0 |       0 | 1-91                                                                    
+  import-json-to-db.js                   |       0 |        0 |       0 |       0 | 1-65                                                                    
+  seed-assignments.ts                    |       0 |        0 |       0 |       0 | 1-233                                                                   
+  seed-test-user.ts                      |       0 |        0 |       0 |       0 | 1-122                                                                   
+ guitar-crm/types                        |       0 |        0 |       0 |       0 |                                                                         
+  FavoritesSong.ts                       |       0 |        0 |       0 |       0 | 1-8                                                                     
+  Lesson.ts                              |       0 |        0 |       0 |       0 | 1-19                                                                    
+  LessonSongs.ts                         |       0 |        0 |       0 |       0 | 1-19                                                                    
+  Song.ts                                |       0 |        0 |       0 |       0 | 1-19                                                                    
+  User.ts                                |       0 |        0 |       0 |       0 | 1-16                                                                    
+  auth.ts                                |       0 |        0 |       0 |       0 | 1-35                                                                    
+  database.types.generated.ts            |       0 |        0 |       0 |       0 | 1-622                                                                   
+  database.types.ts                      |       0 |        0 |       0 |       0 | 1-400                                                                   
+ guitar-crm/utils/supabase/clients       |       0 |        0 |       0 |       0 |                                                                         
+  server.ts                              |       0 |        0 |       0 |       0 | 1-19                                                                    
+-----------------------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------
+Jest: "global" coverage threshold for statements (70%) not met: 28.12%
+Jest: "global" coverage threshold for lines (70%) not met: 28.12%
+Jest: "global" coverage threshold for functions (70%) not met: 36.59%
+
+Test Suites: 16 passed, 16 total
+Tests:       171 passed, 171 total
+Snapshots:   0 total
+Time:        7.913 s
+Ran all test suites.
+
+real	0m15.598s
+user	0m34.879s
+sys	0m7.294s

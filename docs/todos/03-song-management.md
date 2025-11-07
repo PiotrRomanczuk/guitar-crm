@@ -17,7 +17,7 @@
 
 **Detailed Tasks:**
 
-- [ ] Build song list component with search and filters
+- [x] Build song list component with search and filters (basic level filter implemented; admin-first fetch + student-only enforcement on API)
 - [ ] Create song creation form with validation
 - [ ] Implement song editing interface
 - [ ] Add song deletion with confirmation modal

@@ -11,7 +11,7 @@ describe('Jest Setup', () => {
 	});
 
 	it('should have access to global test utilities', () => {
-		// @ts-ignore - global test utilities
+		// @ts-expect-error - global test utilities
 		const mockUser = global.testUtils.createMockUser();
 		expect(mockUser.email).toBe('test@example.com');
 		expect(mockUser.isStudent).toBe(true);

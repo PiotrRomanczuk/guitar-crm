@@ -28,11 +28,11 @@ Your **VERCEL_PROJECT_ID**: `8FBpmeImltXNxm0jktxbZF29`
 3. In the left sidebar, click **Secrets and variables** → **Actions**
 4. Click **New repository secret** for each of these:
 
-| Secret Name | Value | Description |
-|-------------|-------|-------------|
-| `VERCEL_TOKEN` | Your Vercel token from step 1 | Authentication token |
-| `VERCEL_ORG_ID` | `62aRO89O4vzRpaUYPZBCDnAX` | Organization identifier |
-| `VERCEL_PROJECT_ID` | `8FBpmeImltXNxm0jktxbZF29` | Project identifier |
+| Secret Name         | Value                         | Description             |
+| ------------------- | ----------------------------- | ----------------------- |
+| `VERCEL_TOKEN`      | Your Vercel token from step 1 | Authentication token    |
+| `VERCEL_ORG_ID`     | `62aRO89O4vzRpaUYPZBCDnAX`    | Organization identifier |
+| `VERCEL_PROJECT_ID` | `8FBpmeImltXNxm0jktxbZF29`    | Project identifier      |
 
 ## Optional: Environment Variables
 
