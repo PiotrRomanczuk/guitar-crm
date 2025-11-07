@@ -32,11 +32,11 @@ export interface UserProfile {
 export function validateMutationPermission(
 	profile: UserProfile | null
 ): boolean {
-	return !!(profile?.is_admin || profile?.is_teacher);
+	return !!(profile?.isAdmin || profile?.isTeacher);
 }
 
 export function canViewAll(profile: UserProfile | null): boolean {
-	return !!profile?.is_admin;
+	return !!profile?.isAdmin;
 }
 
 function validateSortField(
@@ -88,7 +88,7 @@ async function applyRoleBasedFiltering(
 		return applyLessonFilters(dbQuery, params);
 	}
 
-	if (profile.is_teacher) {
+	if (profile.isTeacher) {
 		// Teacher sees only their students' lessons
 		const studentIds = await getTeacherStudentIds(supabase, user.id);
 		if (studentIds.length === 0) {

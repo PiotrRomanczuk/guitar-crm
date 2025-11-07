@@ -16,8 +16,8 @@ export async function GET() {
 
 		const { data: profile } = await supabase
 			.from('profiles')
-			.select('*')
-			.eq('user_id', user.id)
+			.select('is_admin, is_teacher, is_student')
+			.eq('id', user.id)
 			.single();
 
 		if (!profile || !profile.is_admin) {
@@ -27,7 +27,7 @@ export async function GET() {
 		// Get all users (teachers and students)
 		const { data: users, error: usersError } = await supabase
 			.from('profiles')
-			.select('user_id, full_name, isTeacher, isStudent')
+			.select('id, full_name, is_teacher, is_student')
 			.order('full_name');
 
 		if (usersError) {
