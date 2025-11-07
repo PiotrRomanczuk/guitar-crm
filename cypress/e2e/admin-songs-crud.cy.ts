@@ -35,8 +35,6 @@ describe('Admin Songs CRUD', () => {
 		ultimate_guitar_link: 'https://www.ultimate-guitar.com/test-song',
 	};
 
-	let createdSongId = null;
-
 	beforeEach(() => {
 		cy.clearCookies();
 		cy.clearLocalStorage();
@@ -69,7 +67,11 @@ describe('Admin Songs CRUD', () => {
 			.parent()
 			.invoke('attr', 'data-testid')
 			.then((rowId) => {
-				createdSongId = rowId.replace('song-row-', '');
+				// TODO: Use for cleanup in future tests
+				cy.log(
+					'Created song ID:',
+					rowId ? rowId.replace('song-row-', '') : 'unknown'
+				);
 			});
 	});
 

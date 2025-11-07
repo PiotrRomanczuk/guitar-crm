@@ -6,21 +6,25 @@ import type { SongWithStatus, SongFilters } from '../types';
 import { buildSongFilterParams, getSongEndpoint } from './useSongList.helpers';
 
 export default function useSongList() {
-	const { user, isTeacher, isAdmin } = useAuth();
+	const { user, isTeacher, isAdmin, loading: authLoading } = useAuth();
 	const [songs, setSongs] = useState<SongWithStatus[]>([]);
-	const [loading, setLoading] = useState(true);
+	const [songsLoading, setSongsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [filters, setFilters] = useState<SongFilters>({ level: null });
 
 	const loadSongs = useCallback(async () => {
+		// Wait for auth to finish loading
+		if (authLoading) {
+			return;
+		}
+
 		if (!user?.id) {
 			setError('Not authenticated');
-			setLoading(false);
 			return;
 		}
 
 		try {
-			setLoading(true);
+			setSongsLoading(true);
 			setError(null);
 
 			const params = buildSongFilterParams(user.id, filters);
@@ -41,9 +45,9 @@ export default function useSongList() {
 			setError(err instanceof Error ? err.message : 'Failed to load songs');
 			setSongs([]);
 		} finally {
-			setLoading(false);
+			setSongsLoading(false);
 		}
-	}, [filters, isAdmin, isTeacher, user?.id]);
+	}, [authLoading, filters, isAdmin, isTeacher, user?.id]);
 
 	useEffect(() => {
 		void loadSongs();
@@ -51,7 +55,7 @@ export default function useSongList() {
 
 	return {
 		songs,
-		loading,
+		loading: authLoading || songsLoading,
 		error,
 		filters,
 		setFilters,

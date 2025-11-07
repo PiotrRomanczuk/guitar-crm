@@ -96,11 +96,13 @@ git push origin main
 ### Step 4: Configure GitHub Secrets
 
 **Option A: Automated (Recommended)**
+
 ```bash
 ./scripts/setup-github-actions.sh
 ```
 
 **Option B: Manual**
+
 1. Go to GitHub repository
 2. Settings → Secrets and variables → Actions
 3. Click "New repository secret"
@@ -125,6 +127,7 @@ gh pr create --title "Test: Verify CI/CD Pipeline" --body "Testing automated wor
 ```
 
 **Expected Results:**
+
 - ✅ All CI checks pass
 - ✅ Preview deployment created
 - ✅ Comment added to PR with preview URL
@@ -138,40 +141,51 @@ gh pr merge --squash --delete-branch
 ```
 
 **Expected Results:**
+
 - ✅ Production deployment triggered
 - ✅ New version deployed to Vercel
 
 ## 🔍 Verification Tests
 
 ### Test 1: Lint Check
+
 ```bash
 npm run lint
 ```
+
 **Expected:** No errors (warnings are OK)
 
 ### Test 2: Type Check
+
 ```bash
 npx tsc --noEmit
 ```
+
 **Expected:** No type errors
 
 ### Test 3: Unit Tests
+
 ```bash
 npm run test:ci
 ```
+
 **Expected:** All tests pass, coverage ≥ 70%
 
 ### Test 4: Build
+
 ```bash
 npm run build
 ```
+
 **Expected:** Successful build, `.next` directory created
 
 ### Test 5: E2E Tests (Local)
+
 ```bash
 supabase start
 npm run e2e
 ```
+
 **Expected:** All Cypress tests pass
 
 ## 📊 Success Indicators
@@ -179,22 +193,26 @@ npm run e2e
 After launching, you should see:
 
 ### GitHub Actions Tab
+
 - ✅ Workflow runs appear automatically
 - ✅ All jobs have green checkmarks
 - ✅ Build artifacts are preserved
 - ✅ Total pipeline time: 8-12 minutes
 
 ### Pull Requests
+
 - ✅ Automated checks appear on PRs
 - ✅ Preview deployments created
 - ✅ PR comments with deployment URLs
 
 ### Vercel Dashboard
+
 - ✅ Production deployments from main branch
 - ✅ Preview deployments from PRs
 - ✅ Deployment logs available
 
 ### Codecov (Optional)
+
 - ✅ Coverage reports uploaded
 - ✅ Coverage trends visible
 - ✅ PR comments with coverage diff
@@ -204,13 +222,15 @@ After launching, you should see:
 ### Issue: Workflow doesn't trigger
 
 **Solution:**
+
 1. Check GitHub Actions are enabled
 2. Verify workflow file syntax (YAML formatting)
-3. Push to a watched branch (main, develop, feature/*)
+3. Push to a watched branch (main, develop, feature/\*)
 
 ### Issue: Secrets not found
 
 **Solution:**
+
 ```bash
 gh secret list  # Verify secrets exist
 ./scripts/setup-github-actions.sh  # Re-run setup
@@ -219,6 +239,7 @@ gh secret list  # Verify secrets exist
 ### Issue: Build fails in CI but works locally
 
 **Solution:**
+
 1. Check Node.js version matches (currently 18)
 2. Run `npm ci` instead of `npm install`
 3. Check for missing environment variables
@@ -226,6 +247,7 @@ gh secret list  # Verify secrets exist
 ### Issue: Vercel deployment fails
 
 **Solution:**
+
 1. Verify Vercel token is valid: `vercel whoami`
 2. Check project is linked: `cat .vercel/project.json`
 3. Regenerate token if needed: `vercel login`
@@ -233,6 +255,7 @@ gh secret list  # Verify secrets exist
 ### Issue: E2E tests timeout
 
 **Solution:**
+
 1. Increase `wait-on-timeout` in workflow
 2. Check Supabase starts successfully in CI logs
 3. Verify test data seeds correctly
@@ -249,18 +272,24 @@ gh secret list  # Verify secrets exist
 Once everything is working:
 
 ### Update README
+
 Add more badges (optional):
+
 ```markdown
 [![codecov](https://codecov.io/gh/PiotrRomanczuk/guitar-crm/branch/main/graph/badge.svg)](https://codecov.io/gh/PiotrRomanczuk/guitar-crm)
 ```
 
 ### Set Up Notifications
+
 Configure GitHub notifications for failed workflows:
+
 - Repository → Settings → Notifications
 - Enable email notifications for workflow failures
 
 ### Configure Branch Protection
+
 Recommended rules for `main` branch:
+
 - Require status checks to pass
 - Require up-to-date branches
 - Include administrators
@@ -268,7 +297,9 @@ Recommended rules for `main` branch:
 - Allow deletions: No
 
 ### Schedule Regular Maintenance
+
 Quarterly tasks:
+
 - [ ] Update GitHub Actions versions
 - [ ] Review and update dependencies
 - [ ] Check for security advisories
@@ -277,6 +308,7 @@ Quarterly tasks:
 ## ✨ You're Live!
 
 Congratulations! Your CI/CD pipeline is now:
+
 - ✅ Automatically testing all code changes
 - ✅ Enforcing quality standards
 - ✅ Deploying to production safely
@@ -284,6 +316,7 @@ Congratulations! Your CI/CD pipeline is now:
 - ✅ Catching bugs early
 
 **Next Developer Experience:**
+
 1. Developer creates feature branch
 2. Developer commits code
 3. CI runs automatically (8-12 min)

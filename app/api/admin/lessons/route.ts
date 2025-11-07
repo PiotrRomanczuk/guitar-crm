@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/clients/server';
+import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { getLessonsHandler, createLessonHandler } from '../../lessons/handlers';
 
@@ -11,8 +11,8 @@ async function getUserProfile(
 ) {
 	const { data: profile, error } = await supabase
 		.from('profiles')
-		.select('isAdmin, isTeacher, isStudent')
-		.eq('user_id', userId)
+		.select('is_admin, is_teacher, is_student')
+		.eq('id', userId)
 		.single();
 
 	if (error || !profile) {
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
 		}
 
 		// Admin-only check
-		if (!profile.isAdmin) {
+		if (!profile.is_admin) {
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 		}
 
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Admin-only check
-		if (!profile.isAdmin) {
+		if (!profile.is_admin) {
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 		}
 

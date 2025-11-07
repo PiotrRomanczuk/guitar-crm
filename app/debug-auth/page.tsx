@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react';
 
 function AuthContextStatus({
 	user,
-	session,
 	loading,
 	isAdmin,
 	isTeacher,
@@ -21,7 +20,6 @@ function AuthContextStatus({
 				{JSON.stringify(
 					{
 						hasUser: !!user,
-						hasSession: !!session,
 						loading,
 						isAdmin,
 						isTeacher,
@@ -43,7 +41,7 @@ function UserObjectDisplay({
 	if (!user) return null;
 
 	return (
-		<div className='bg-blue-100 dark:bg-blue-900 p-3 sm:p-4 rounded-lg'>
+		<div className='bg-gray-100 dark:bg-gray-800 p-3 sm:p-4 rounded-lg'>
 			<h2 className='text-base sm:text-lg font-semibold mb-2 text-gray-900 dark:text-white'>
 				User Object
 			</h2>
@@ -51,9 +49,6 @@ function UserObjectDisplay({
 				{JSON.stringify(
 					{
 						id: user.id,
-						email: user.email,
-						user_metadata: user.user_metadata,
-						app_metadata: user.app_metadata,
 					},
 					null,
 					2

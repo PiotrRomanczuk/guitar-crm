@@ -18,6 +18,19 @@ echo "----------------------------------------" | tee -a "$LOG_FILE"
 # Capture the exit code
 EXIT_CODE=${PIPESTATUS[0]}
 
+# If reset was successful, update dev user passwords via API
+if [ $EXIT_CODE -eq 0 ]; then
+    echo "" | tee -a "$LOG_FILE"
+    echo "Updating development user passwords via API..." | tee -a "$LOG_FILE"
+    echo "----------------------------------------" | tee -a "$LOG_FILE"
+    (node scripts/database/update-dev-passwords-via-api.js) 2>&1 | tee -a "$LOG_FILE"
+    SEED_EXIT_CODE=${PIPESTATUS[0]}
+    
+    if [ $SEED_EXIT_CODE -ne 0 ]; then
+        echo "⚠️  Warning: Password update failed with exit code: $SEED_EXIT_CODE" | tee -a "$LOG_FILE"
+    fi
+fi
+
 # Create quality report
 echo "# Database Reset Quality Report" > "$REPORT_FILE"
 echo "## Date: ${TIMESTAMP}" >> "$REPORT_FILE"

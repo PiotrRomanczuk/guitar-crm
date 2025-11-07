@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { useProfileData } from '@/components/profile/useProfileData';
 import {
 	ProfileLoadingState,
@@ -12,6 +13,7 @@ import { ProfileForm } from '@/components/profile/ProfileForm';
 
 export default function ProfilePage() {
 	const router = useRouter();
+	const authContext = useAuth();
 	const {
 		user,
 		loading,
@@ -21,7 +23,7 @@ export default function ProfilePage() {
 		formData,
 		setFormData,
 		handleSubmit,
-	} = useProfileData();
+	} = useProfileData(authContext.user);
 
 	useEffect(() => {
 		if (!loading && !user) {
@@ -45,7 +47,7 @@ export default function ProfilePage() {
 
 				<ProfileForm
 					formData={formData}
-					userEmail={user?.email}
+					userEmail={undefined}
 					saving={saving}
 					onSubmit={handleSubmit}
 					onChange={setFormData}
