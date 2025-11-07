@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Teacher-only check
-    if (!profile.is_teacher) {
+    if (!profile.isTeacher) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Teacher-only check
-    if (!profile.is_teacher) {
+    if (!profile.isTeacher) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
