@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/clients/server";
+import { createClient } from "@/lib/supabase/server";
 import { } from "@/schemas/SongSchema";
 import { PaginationSchema } from "@/schemas/CommonSchema";
 

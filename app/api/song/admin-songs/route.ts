@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/clients/server';
+import { createClient } from '@/lib/supabase/server';
 
 export async function GET(request: Request) {
 	try {
 		const { searchParams } = new URL(request.url);
 		const userId = searchParams.get('userId');
 		const level = searchParams.get('level');
-
-		console.log('[admin-songs] params', { userId, level });
 
 		if (!userId) {
 			return NextResponse.json(
@@ -21,17 +19,15 @@ export async function GET(request: Request) {
 		// 1. Verify user has teacher or admin role
 		const { data: profile, error: profileError } = await supabase
 			.from('profiles')
-			.select('isadmin, isteacher')
-			.eq('user_id', userId)
+			.select('is_admin, is_teacher')
+			.eq('id', userId)
 			.single();
 
 		if (profileError || !profile) {
-			console.log('[admin-songs] unauthorized', { profileError, profile });
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 		}
 
-		if (!profile.isadmin && !profile.isteacher) {
-			console.log('[admin-songs] insufficient permissions', profile);
+		if (!profile.is_admin && !profile.is_teacher) {
 			return NextResponse.json(
 				{ error: 'Insufficient permissions' },
 				{ status: 403 }
@@ -57,7 +53,6 @@ export async function GET(request: Request) {
 			);
 		}
 
-		console.log('[admin-songs] result', { count: songs?.length ?? 0 });
 		return NextResponse.json(songs || []);
 	} catch (error) {
 		console.error('Error in admin-songs route:', error);

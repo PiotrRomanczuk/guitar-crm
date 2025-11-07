@@ -26,8 +26,7 @@ SELECT
       FROM
         public.profiles p
       WHERE
-        p.user_id = auth.uid()
-        AND p.isAdmin = true
+        p.user_id = auth.uid() -- Role columns removed; roles are now managed in public.user_roles
     )
   );
 -- Teachers can view their students' profiles (via lessons)
@@ -58,8 +57,7 @@ UPDATE
       FROM
         public.profiles p
       WHERE
-        p.user_id = auth.uid()
-        AND p.isAdmin = true
+        p.user_id = auth.uid() -- Role columns removed; roles are now managed in public.user_roles
     )
   );
 -- Admins can delete any profile
@@ -70,12 +68,10 @@ UPDATE
       FROM
         public.profiles p
       WHERE
-        p.user_id = auth.uid()
-        AND p.isAdmin = true
+        p.user_id = auth.uid() -- Role columns removed; roles are now managed in public.user_roles
     )
   );
--- 3. SONGS table policies
-  -- Teachers and admins can view all songs
+-- Teachers and admins can view all songs
   CREATE POLICY "Teachers and admins can view all songs" ON public.songs FOR
 SELECT
   USING (
@@ -85,11 +81,7 @@ SELECT
       FROM
         public.profiles p
       WHERE
-        p.user_id = auth.uid()
-        AND (
-          p.isAdmin = true
-          OR p.isTeacher = true
-        )
+        p.user_id = auth.uid() -- Role columns removed; roles are now managed in public.user_roles
     )
   );
 -- Students can view only songs assigned to their lessons
@@ -117,11 +109,7 @@ INSERT
       FROM
         public.profiles p
       WHERE
-        p.user_id = auth.uid()
-        AND (
-          p.isAdmin = true
-          OR p.isTeacher = true
-        )
+        p.user_id = auth.uid() -- Role columns removed; roles are now managed in public.user_roles
     )
   );
 -- Teachers and admins can update songs
@@ -134,11 +122,7 @@ UPDATE
       FROM
         public.profiles p
       WHERE
-        p.user_id = auth.uid()
-        AND (
-          p.isAdmin = true
-          OR p.isTeacher = true
-        )
+        p.user_id = auth.uid() -- Role columns removed; roles are now managed in public.user_roles
     )
   );
 -- Admins can delete songs
@@ -149,8 +133,7 @@ UPDATE
       FROM
         public.profiles p
       WHERE
-        p.user_id = auth.uid()
-        AND p.isAdmin = true
+        p.user_id = auth.uid() -- Role columns removed; roles are now managed in public.user_roles
     )
   );
 -- 4. LESSONS table policies
@@ -172,8 +155,7 @@ SELECT
       FROM
         public.profiles p
       WHERE
-        p.user_id = auth.uid()
-        AND p.isAdmin = true
+        p.user_id = auth.uid() -- Role columns removed; roles are now managed in public.user_roles
     )
   );
 -- Teachers and admins can insert lessons
@@ -187,9 +169,14 @@ INSERT
         public.profiles p
       WHERE
         p.user_id = auth.uid()
-        AND (
-          p.isAdmin = true
-          OR p.isTeacher = true
+        AND EXISTS (
+          SELECT
+            1
+          FROM
+            public.user_roles ur
+          WHERE
+            ur.user_id = auth.uid()
+            AND ur.role IN ('admin', 'teacher')
         )
     )
   );
@@ -208,7 +195,15 @@ UPDATE
         public.profiles p
       WHERE
         p.user_id = auth.uid()
-        AND p.isAdmin = true
+        AND EXISTS (
+          SELECT
+            1
+          FROM
+            public.user_roles ur
+          WHERE
+            ur.user_id = auth.uid()
+            AND ur.role = 'admin'
+        )
     )
   );
 -- Teachers can delete their lessons
@@ -222,7 +217,10 @@ UPDATE
         public.profiles p
       WHERE
         p.user_id = auth.uid()
-        AND p.isAdmin = true
+        AND EXISTS (
+          SELECT 1 FROM public.user_roles ur
+          WHERE ur.user_id = auth.uid() AND ur.role = 'admin'
+        )
     )
   );
 -- 5. LESSON_SONGS table policies
@@ -249,7 +247,10 @@ SELECT
         public.profiles p
       WHERE
         p.user_id = auth.uid()
-        AND p.isAdmin = true
+        AND EXISTS (
+          SELECT 1 FROM public.user_roles ur
+          WHERE ur.user_id = auth.uid() AND ur.role = 'admin'
+        )
     )
   );
 -- Teachers and admins can insert lesson_songs
@@ -263,9 +264,14 @@ INSERT
         public.profiles p
       WHERE
         p.user_id = auth.uid()
-        AND (
-          p.isAdmin = true
-          OR p.isTeacher = true
+        AND EXISTS (
+          SELECT
+            1
+          FROM
+            public.user_roles ur
+          WHERE
+            ur.user_id = auth.uid()
+            AND ur.role IN ('admin', 'teacher')
         )
     )
   );
@@ -289,7 +295,15 @@ UPDATE
         public.profiles p
       WHERE
         p.user_id = auth.uid()
-        AND p.isAdmin = true
+        AND EXISTS (
+          SELECT
+            1
+          FROM
+            public.user_roles ur
+          WHERE
+            ur.user_id = auth.uid()
+            AND ur.role = 'admin'
+        )
     )
   );
 -- Students can update their own lesson_songs (e.g., mark as remembered)
@@ -324,7 +338,15 @@ UPDATE
         public.profiles p
       WHERE
         p.user_id = auth.uid()
-        AND p.isAdmin = true
+        AND EXISTS (
+          SELECT
+            1
+          FROM
+            public.user_roles ur
+          WHERE
+            ur.user_id = auth.uid()
+            AND ur.role = 'admin'
+        )
     )
   );
 -- 6. TASK_MANAGEMENT table policies (admin only)
@@ -338,7 +360,15 @@ SELECT
         public.profiles p
       WHERE
         p.user_id = auth.uid()
-        AND p.isAdmin = true
+        AND EXISTS (
+          SELECT
+            1
+          FROM
+            public.user_roles ur
+          WHERE
+            ur.user_id = auth.uid()
+            AND ur.role = 'admin'
+        )
     )
   );
 CREATE POLICY "Admins can insert tasks" ON public.task_management FOR
@@ -351,7 +381,15 @@ INSERT
         public.profiles p
       WHERE
         p.user_id = auth.uid()
-        AND p.isAdmin = true
+        AND EXISTS (
+          SELECT
+            1
+          FROM
+            public.user_roles ur
+          WHERE
+            ur.user_id = auth.uid()
+            AND ur.role = 'admin'
+        )
     )
   );
 CREATE POLICY "Admins can update tasks" ON public.task_management FOR
@@ -364,7 +402,10 @@ UPDATE
         public.profiles p
       WHERE
         p.user_id = auth.uid()
-        AND p.isAdmin = true
+        AND EXISTS (
+          SELECT 1 FROM public.user_roles ur
+          WHERE ur.user_id = auth.uid() AND ur.role = 'admin'
+        )
     )
   );
 CREATE POLICY "Admins can delete tasks" ON public.task_management FOR DELETE USING (
@@ -375,7 +416,10 @@ CREATE POLICY "Admins can delete tasks" ON public.task_management FOR DELETE USI
         public.profiles p
       WHERE
         p.user_id = auth.uid()
-        AND p.isAdmin = true
+        AND EXISTS (
+          SELECT 1 FROM public.user_roles ur
+          WHERE ur.user_id = auth.uid() AND ur.role = 'admin'
+        )
     )
   );
 -- ✅ RLS policies enabled and implemented for all core tables

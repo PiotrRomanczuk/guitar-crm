@@ -1,7 +1,7 @@
 import AllSongs from '../home/testing/AllSongs';
 import AllUsers from '../home/testing/AllUsers';
-import SupabaseTest from '../SupabaseTest';
-import { FeaturesSection } from './featuresSection';
+// import SupabaseTest from '../SupabaseTest'; // Unused - for future testing
+// import { FeaturesSection } from './featuresSection'; // TODO: Implement features section
 import { LandingHeader } from './LandingHeader';
 
 export function LandingPage() {

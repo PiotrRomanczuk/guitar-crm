@@ -5,9 +5,9 @@
 // import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
 interface RequireRoleProps {
-  children: React.ReactNode;
-  redirectTo?: string;
-  loadingComponent?: React.ReactNode;
+	children: React.ReactNode;
+	redirectTo?: string;
+	loadingComponent?: React.ReactNode;
 }
 
 // /**
@@ -17,7 +17,15 @@ interface RequireRoleProps {
 //        children,
 //        redirectTo = '/sign-in',
 //        loadingComponent,
-export function RequireAuth({ children, redirectTo = '/sign-in', loadingComponent }: RequireRoleProps) {
+// TODO: Implement full auth logic when needed
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function RequireAuth({
+	children,
+	redirectTo: _redirectTo = '/sign-in',
+	loadingComponent: _loadingComponent,
+}: RequireRoleProps) {
+	return <>{children}</>;
+}
 //        useEffect(() => {
 // 	       let mounted = true;
 // 	       setLoading(true);
@@ -64,7 +72,14 @@ export function RequireAuth({ children, redirectTo = '/sign-in', loadingComponen
 //        children,
 //        redirectTo,
 //        loadingComponent,
-export function RequireAdmin({ children, redirectTo, loadingComponent }: RequireRoleProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function RequireAdmin({
+	children,
+	redirectTo: _redirectTo,
+	loadingComponent: _loadingComponent,
+}: RequireRoleProps) {
+	return <>{children}</>;
+}
 
 //        useEffect(() => {
 // 	       let mounted = true;
@@ -117,7 +132,14 @@ export function RequireAdmin({ children, redirectTo, loadingComponent }: Require
 //        children,
 //        redirectTo,
 //        loadingComponent,
-export function RequireTeacher({ children, redirectTo, loadingComponent }: RequireRoleProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function RequireTeacher({
+	children,
+	redirectTo: _redirectTo,
+	loadingComponent: _loadingComponent,
+}: RequireRoleProps) {
+	return <>{children}</>;
+}
 //        const router = useRouter();
 
 //        useEffect(() => {
@@ -172,7 +194,14 @@ export function RequireTeacher({ children, redirectTo, loadingComponent }: Requi
 //        children,
 //        redirectTo,
 //        loadingComponent,
-export function RequireStudent({ children, redirectTo, loadingComponent }: RequireRoleProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function RequireStudent({
+	children,
+	redirectTo: _redirectTo,
+	loadingComponent: _loadingComponent,
+}: RequireRoleProps) {
+	return <>{children}</>;
+}
 //        const router = useRouter();
 
 //        useEffect(() => {

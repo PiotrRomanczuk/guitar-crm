@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/clients/server';
+import { createClient } from '@/lib/supabase/server';
 import { SongInputSchema } from '@/schemas/SongSchema';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -18,11 +18,11 @@ export async function POST(request: NextRequest) {
 		// Check if user has permission to create songs
 		const { data: profile } = await supabase
 			.from('profiles')
-			.select('isAdmin, isTeacher')
+			.select('is_admin, is_teacher')
 			.eq('user_id', user.id)
 			.single();
 
-		if (!profile || (!profile.isAdmin && !profile.isTeacher)) {
+		if (!profile || (!profile.is_admin && !profile.is_teacher)) {
 			return NextResponse.json(
 				{ error: 'You are not authorized to create songs' },
 				{ status: 403 }

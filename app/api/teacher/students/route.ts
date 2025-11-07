@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/clients/server';
+import { createClient } from '@/lib/supabase/server';
 
 export async function GET() {
 	try {
@@ -20,15 +20,15 @@ export async function GET() {
 			.eq('user_id', user.id)
 			.single();
 
-		if (!profile || !profile.isTeacher) {
+		if (!profile || !profile.is_teacher) {
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 		}
 
 		// Get students assigned to this teacher
 		const { data: students, error: studentsError } = await supabase
 			.from('profiles')
-			.select('user_id, full_name, isStudent')
-			.eq('isStudent', true)
+			.select('id, full_name, is_student')
+			.eq('is_student', true)
 			.order('full_name');
 
 		if (studentsError) {

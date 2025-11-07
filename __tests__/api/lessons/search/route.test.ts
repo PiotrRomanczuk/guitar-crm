@@ -5,10 +5,10 @@
 
 import { NextRequest } from 'next/server';
 import { GET } from '@/app/api/lessons/search/route';
-import { createClient } from '@/utils/supabase/clients/server';
+import { createClient } from '@/lib/supabase/server';
 
 // Mock Supabase client
-jest.mock('@/utils/supabase/clients/server', () => ({
+jest.mock('@/lib/supabase/server', () => ({
 	createClient: jest.fn(),
 }));
 
@@ -39,6 +39,7 @@ describe.skip('Lesson API - Search Route', () => {
 		},
 	];
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let mockSupabase: any;
 
 	beforeEach(() => {

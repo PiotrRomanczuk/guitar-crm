@@ -100,7 +100,7 @@ UNASSIGNED_TASKS=$(run_query "
     SELECT COUNT(*) 
     FROM public.task_management 
     WHERE status = 'OPEN' 
-    AND assigned_to IS NULL;
+    AND user_id IS NULL;
 ")
 if [ "$UNASSIGNED_TASKS" -gt 0 ]; then
     echo -e "${YELLOW}⚠️  $UNASSIGNED_TASKS unassigned open tasks${NC}"
@@ -129,9 +129,9 @@ echo "Total profiles: $PROFILES_COUNT"
 echo "Role distribution:"
 run_query "
     SELECT 
-        SUM(CASE WHEN isadmin THEN 1 ELSE 0 END) as admin_count,
-        SUM(CASE WHEN isteacher THEN 1 ELSE 0 END) as teacher_count,
-        SUM(CASE WHEN isstudent THEN 1 ELSE 0 END) as student_count
+        SUM(CASE WHEN is_admin THEN 1 ELSE 0 END) as admin_count,
+        SUM(CASE WHEN is_teacher THEN 1 ELSE 0 END) as teacher_count,
+        SUM(CASE WHEN is_student THEN 1 ELSE 0 END) as student_count
     FROM public.profiles;
 "
 

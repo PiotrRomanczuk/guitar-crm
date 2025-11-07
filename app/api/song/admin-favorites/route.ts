@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/clients/server";
+import { createClient } from "@/lib/supabase/server";
 import { Song } from "@/types/Song";
 
 export async function GET(req: NextRequest) {
@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   const supabase = await createClient();
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("isAdmin")
+    .select("is_admin")
     .eq("user_id", userId)
     .single();
   if (profileError) {
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
       { status: 500 },
     );
   }
-  if (!profile?.isAdmin) {
+  if (!profile?.is_admin) {
     return NextResponse.json(
       { error: "User is not an admin" },
       { status: 403 },

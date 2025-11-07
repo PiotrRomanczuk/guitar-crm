@@ -87,9 +87,9 @@ describeIfDb('Development Credentials Authentication Tests', () => {
 					error,
 				} = await supabase.auth.signInWithPassword({
 					email,
-					password: testUsers.find((u) => u.email === email)?.password!,
+					password:
+						testUsers.find((u) => u.email === email)?.password || 'fallback',
 				});
-
 				expect(error).toBeNull();
 				expect(user).not.toBeNull();
 

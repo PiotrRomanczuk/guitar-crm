@@ -36,7 +36,10 @@ export default function SongDetail({ songId, onDeleted }: Props) {
 				← Back
 			</button>
 
-			<SongDetailHeader title={song.title} author={song.author} />
+			<SongDetailHeader
+				title={song.title || 'Untitled'}
+				author={song.author || 'Unknown'}
+			/>
 			<SongDetailInfo song={song} />
 			<SongDetailActions
 				songId={song.id}

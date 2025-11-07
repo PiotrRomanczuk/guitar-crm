@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/clients/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(
   req: NextRequest,
@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    console.log(`Fetching song with ID: ${id}`);
+    
 
     const supabase = await createClient();
     
@@ -17,7 +17,7 @@ export async function GET(
     } = await supabase.auth.getUser();
 
     if (!user) {
-      console.log(`User not authenticated - returning 401`);
+      
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -27,14 +27,14 @@ export async function GET(
       .eq("id", id)
       .single();
 
-    console.log(`Supabase response - data:`, song, `error:`, error);
+    
 
     if (error || !song) {
-      console.log(`Song not found - returning 404`);
+      
       return NextResponse.json({ error: "Song not found" }, { status: 404 });
     }
 
-    console.log(`Song found - returning data`);
+    
     return NextResponse.json(song);
   } catch (error) {
     console.error(`Error in song API:`, error);

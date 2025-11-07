@@ -1,28 +1,34 @@
-'use client';
-
 import React from 'react';
-import { useSongList } from '../hooks';
+import { createClient } from '@/lib/supabase/server';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import SongListHeader from './Header';
 import SongListTable from './Table';
 import SongListEmpty from './Empty';
-import SongListFilter from './Filter';
 
-export default function SongList() {
-	const { songs, loading, error, filters, setFilters } = useSongList();
+export default async function SongList() {
+  const { user } = await getUserWithRolesSSR();
 
-	if (loading) {
-		return <div data-testid='song-list-loading'>Loading songs...</div>;
-	}
+  if (!user) {
+    return <div data-testid="song-list-error">Not authenticated</div>;
+  }
 
-	if (error) {
-		return <div>{error}</div>;
-	}
+  const supabase = await createClient();
 
-	return (
-		<div>
-			<SongListHeader />
-			<SongListFilter filters={filters} onChange={setFilters} />
-			{songs.length === 0 ? <SongListEmpty /> : <SongListTable songs={songs} />}
-		</div>
-	);
+  // Fetch songs server-side with proper authentication
+  const { data: songs, error } = await supabase
+    .from('songs')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching songs:', error);
+    return <div data-testid="song-list-error">Error loading songs: {error.message}</div>;
+  }
+
+  return (
+    <div>
+      <SongListHeader />
+      {!songs || songs.length === 0 ? <SongListEmpty /> : <SongListTable songs={songs} />}
+    </div>
+  );
 }

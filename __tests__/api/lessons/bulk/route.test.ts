@@ -5,10 +5,10 @@
 
 import { NextRequest } from 'next/server';
 import { POST, PUT, DELETE } from '@/app/api/lessons/bulk/route';
-import { createClient } from '@/utils/supabase/clients/server';
+import { createClient } from '@/lib/supabase/server';
 
 // Mock Supabase client
-jest.mock('@/utils/supabase/clients/server', () => ({
+jest.mock('@/lib/supabase/server', () => ({
 	createClient: jest.fn(),
 }));
 
@@ -34,6 +34,7 @@ describe.skip('Lesson API - Bulk Operations', () => {
 		created_at: '2024-01-01T00:00:00Z',
 	};
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let mockSupabase: any;
 
 	beforeEach(() => {
