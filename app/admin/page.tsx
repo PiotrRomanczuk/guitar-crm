@@ -1,6 +1,4 @@
 import { RequireAdmin } from '@/components/auth';
-import { AdminStatCard } from '@/components/dashboard/admin/AdminStatCard';
-import { AdminActionCard } from '@/components/dashboard/admin/AdminActionCard';
 import { createClient } from '@/lib/supabase/server';
 import { AdminDashboardClient } from '@/components/dashboard/admin/AdminDashboardClient';
 
