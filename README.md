@@ -62,7 +62,7 @@ The application is automatically deployed to Vercel on every push to the `main` 
 
 ## Deployment
 
-The project is configured for automatic deployment on Vercel. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions and environment variable setup.
+The project is configured for automatic deployment on Vercel. See [DEPLOYMENT.md](./docs/DEPLOYMENT.md) for detailed deployment instructions and environment variable setup.
 
 ### Quick Deploy
 

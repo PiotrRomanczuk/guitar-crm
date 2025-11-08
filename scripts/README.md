@@ -357,5 +357,5 @@ set -e  # Exit on error
 
 - [TDD Guide](../docs/TDD_GUIDE.md) - Complete TDD documentation
 - [Branch-Based Testing](../docs/BRANCH_TESTING.md) - Test organization system
-- [Project Overview](../PROJECT_OVERVIEW.md) - Architecture and structure
+- [Project Overview](../docs/PROJECT_OVERVIEW.md) - Architecture and structure
 - [Contributing Guidelines](../CONTRIBUTING.md) - Development standards
