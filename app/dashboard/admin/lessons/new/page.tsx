@@ -217,13 +217,13 @@ function useLessonForm() {
 		e.preventDefault();
 		setLoading(true);
 		try {
-			const res = await fetch('/api/admin/lessons', {
+			const res = await fetch('/api/lessons', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(formData),
 			});
 			if (res.ok) {
-				router.push('/admin/lessons');
+				router.push('/dashboard/admin/lessons');
 			} else {
 				const error = await res.json();
 				alert(`Error: ${error.error || 'Failed to create lesson'}`);
