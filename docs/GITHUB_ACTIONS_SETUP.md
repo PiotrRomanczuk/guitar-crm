@@ -457,9 +457,9 @@ deploy-staging:
 ### Project-Specific
 
 - **Scripts Documentation:** `/scripts/README.md`
-- **Database Setup:** `/SEEDING_GUIDE.md`
-- **Deployment Guide:** `/DEPLOYMENT.md`
-- **Project Overview:** `/PROJECT_OVERVIEW.md`
+- **Database Setup:** `/docs/guides/SEEDING_GUIDE.md`
+- **Deployment Guide:** `/docs/DEPLOYMENT.md`
+- **Project Overview:** `/docs/PROJECT_OVERVIEW.md`
 
 ### Support
 
