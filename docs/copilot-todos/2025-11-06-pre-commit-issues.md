@@ -10,7 +10,6 @@ Enhanced pre-commit script to mirror GitHub Actions CI/CD pipeline. Running qual
 
 **Impact**: Build fails, blocks all development
 
-- `components/auth/ProtectedRoute.tsx:79` - Missing closing brace
 - `components/auth/RequireRole.tsx:222` - Missing closing brace
 
 **Action**: Fix syntax errors immediately
@@ -238,7 +237,6 @@ Should be:
 
 ### Critical (17 files)
 
-1. `components/auth/ProtectedRoute.tsx`
 2. `components/auth/RequireRole.tsx`
 3. `app/api/lessons/handlers.ts`
 4. `app/api/song/route.ts`

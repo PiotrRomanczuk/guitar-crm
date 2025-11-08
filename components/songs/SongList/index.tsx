@@ -1,4 +1,3 @@
-import React from 'react';
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import SongListHeader from './Header';

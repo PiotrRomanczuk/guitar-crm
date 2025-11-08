@@ -17,7 +17,6 @@ _Last Updated: October 27, 2025_
 ### ✅ Recently Completed (Excellent Progress!)
 
 - **Complete authentication system** with sign-up/sign-in forms and validation
-- **Role-based access control** with protected routes (`ProtectedRoute`, `RequireAdmin`, etc.)
 - **Comprehensive test suite** with 110 passing tests
 - **Navigation system** with role-based navigation (`Header`, `RoleBasedNav`)
 - **Admin dashboard** with protection and basic layout
