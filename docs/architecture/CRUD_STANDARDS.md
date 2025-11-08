@@ -27,16 +27,10 @@ This document defines the standardized patterns for implementing CRUD operations
 const { data } = await supabase.from('[entity]s').select('*');
 
 // TEACHER - See their students' entities
-const { data } = await supabase
-	.from('[entity]s')
-	.select('*')
-	.in('student_id', teacherStudentIds);
+const { data } = await supabase.from('[entity]s').select('*').in('student_id', teacherStudentIds);
 
 // STUDENT - See only assigned to them
-const { data } = await supabase
-	.from('[entity]s')
-	.select('*')
-	.eq('student_id', user.id);
+const { data } = await supabase.from('[entity]s').select('*').eq('student_id', user.id);
 ```
 
 ---
@@ -246,56 +240,53 @@ export async function create[Entity]Handler(
 // handlers.ts or lib/permissions.ts
 
 export interface UserProfile {
-	is_admin: boolean;
-	is_teacher: boolean;
-	is_student: boolean;
+  is_admin: boolean;
+  is_teacher: boolean;
+  is_student: boolean;
 }
 
 /**
  * Check if user can perform mutations (create/update/delete)
  */
 export function canMutate(profile: UserProfile | null): boolean {
-	return !!(profile?.is_admin || profile?.is_teacher);
+  return !!(profile?.is_admin || profile?.is_teacher);
 }
 
 /**
  * Check if user can view all entities
  */
 export function canViewAll(profile: UserProfile | null): boolean {
-	return !!profile?.is_admin;
+  return !!profile?.is_admin;
 }
 
 /**
  * Check if teacher owns this student
  */
 export async function teacherOwnsStudent(
-	supabase: SupabaseClient,
-	teacherId: string,
-	studentId: string
+  supabase: SupabaseClient,
+  teacherId: string,
+  studentId: string
 ): Promise<boolean> {
-	const { data } = await supabase
-		.from('lessons')
-		.select('id')
-		.eq('teacher_id', teacherId)
-		.eq('student_id', studentId)
-		.single();
+  const { data } = await supabase
+    .from('lessons')
+    .select('id')
+    .eq('teacher_id', teacherId)
+    .eq('student_id', studentId)
+    .single();
 
-	return !!data;
+  return !!data;
 }
 
 /**
  * Get teacher's student IDs
  */
 export async function getTeacherStudentIds(
-	supabase: SupabaseClient,
-	teacherId: string
+  supabase: SupabaseClient,
+  teacherId: string
 ): Promise<string[]> {
-	const { data } = await supabase
-		.from('lessons')
-		.select('student_id')
-		.eq('teacher_id', teacherId);
+  const { data } = await supabase.from('lessons').select('student_id').eq('teacher_id', teacherId);
 
-	return data?.map((d) => d.student_id) || [];
+  return data?.map((d) => d.student_id) || [];
 }
 ```
 
@@ -421,61 +412,58 @@ import { headers } from 'next/headers';
  * Admin/Teacher endpoint - returns ALL entities with optional filters
  */
 export async function GET(request: Request) {
-	try {
-		const headersList = headers();
-		const supabase = createClient(headersList);
+  try {
+    const headersList = headers();
+    const supabase = createClient(headersList);
 
-		const {
-			data: { user },
-		} = await supabase.auth.getUser();
-		if (!user) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-		// Verify admin or teacher role
-		const { data: profile } = await supabase
-			.from('profiles')
-			.select('is_admin, is_teacher')
-			.eq('user_id', user.id)
-			.single();
+    // Verify admin or teacher role
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin, is_teacher')
+      .eq('user_id', user.id)
+      .single();
 
-		if (!profile?.is_admin && !profile?.is_teacher) {
-			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-		}
+    if (!profile?.is_admin && !profile?.is_teacher) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
-		const { searchParams } = new URL(request.url);
-		const level = searchParams.get('level');
+    const { searchParams } = new URL(request.url);
+    const level = searchParams.get('level');
 
-		let query = supabase.from('[entity]s').select('*');
+    let query = supabase.from('[entity]s').select('*');
 
-		// Optional filters
-		if (level) query = query.eq('level', level);
+    // Optional filters
+    if (level) query = query.eq('level', level);
 
-		// For teachers, filter to only their students' entities
-		if (profile.is_teacher && !profile.is_admin) {
-			const { data: studentIds } = await supabase
-				.from('lessons')
-				.select('student_id')
-				.eq('teacher_id', user.id);
+    // For teachers, filter to only their students' entities
+    if (profile.is_teacher && !profile.is_admin) {
+      const { data: studentIds } = await supabase
+        .from('lessons')
+        .select('student_id')
+        .eq('teacher_id', user.id);
 
-			const ids = studentIds?.map((s) => s.student_id) || [];
-			query = query.in('student_id', ids);
-		}
+      const ids = studentIds?.map((s) => s.student_id) || [];
+      query = query.in('student_id', ids);
+    }
 
-		const { data, error } = await query;
+    const { data, error } = await query;
 
-		if (error) {
-			return NextResponse.json({ error: error.message }, { status: 500 });
-		}
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
-		return NextResponse.json(data);
-	} catch (error) {
-		console.error('Error in admin-[entity]s route:', error);
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 }
-		);
-	}
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('Error in admin-[entity]s route:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 ```
 
@@ -487,58 +475,49 @@ export async function GET(request: Request) {
  * Teacher endpoint - returns entities for teacher's students only
  */
 export async function GET(request: Request) {
-	try {
-		const { searchParams } = new URL(request.url);
-		const teacherId = searchParams.get('teacherId');
+  try {
+    const { searchParams } = new URL(request.url);
+    const teacherId = searchParams.get('teacherId');
 
-		if (!teacherId) {
-			return NextResponse.json(
-				{ error: 'Teacher ID is required' },
-				{ status: 400 }
-			);
-		}
+    if (!teacherId) {
+      return NextResponse.json({ error: 'Teacher ID is required' }, { status: 400 });
+    }
 
-		const headersList = headers();
-		const supabase = createClient(headersList);
+    const headersList = headers();
+    const supabase = createClient(headersList);
 
-		// Verify user is this teacher
-		const {
-			data: { user },
-		} = await supabase.auth.getUser();
-		if (!user || user.id !== teacherId) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+    // Verify user is this teacher
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user || user.id !== teacherId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-		// Get teacher's student IDs
-		const { data: studentIds } = await supabase
-			.from('lessons')
-			.select('student_id')
-			.eq('teacher_id', teacherId);
+    // Get teacher's student IDs
+    const { data: studentIds } = await supabase
+      .from('lessons')
+      .select('student_id')
+      .eq('teacher_id', teacherId);
 
-		if (!studentIds || studentIds.length === 0) {
-			return NextResponse.json([]);
-		}
+    if (!studentIds || studentIds.length === 0) {
+      return NextResponse.json([]);
+    }
 
-		const ids = studentIds.map((s) => s.student_id);
+    const ids = studentIds.map((s) => s.student_id);
 
-		// Fetch entities for these students
-		const { data, error } = await supabase
-			.from('[entity]s')
-			.select('*')
-			.in('student_id', ids);
+    // Fetch entities for these students
+    const { data, error } = await supabase.from('[entity]s').select('*').in('student_id', ids);
 
-		if (error) {
-			return NextResponse.json({ error: error.message }, { status: 500 });
-		}
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
-		return NextResponse.json(data);
-	} catch (error) {
-		console.error('Error in teacher-[entity]s route:', error);
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 }
-		);
-	}
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('Error in teacher-[entity]s route:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 ```
 
@@ -550,56 +529,47 @@ export async function GET(request: Request) {
  * Student endpoint - returns only entities assigned to this student
  */
 export async function GET(request: Request) {
-	try {
-		const { searchParams } = new URL(request.url);
-		const userId = searchParams.get('userId');
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
 
-		if (!userId) {
-			return NextResponse.json(
-				{ error: 'User ID is required' },
-				{ status: 400 }
-			);
-		}
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
 
-		const headersList = headers();
-		const supabase = createClient(headersList);
+    const headersList = headers();
+    const supabase = createClient(headersList);
 
-		// Verify user is a student and is requesting their own data
-		const {
-			data: { user },
-		} = await supabase.auth.getUser();
-		if (!user || user.id !== userId) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+    // Verify user is a student and is requesting their own data
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user || user.id !== userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-		const { data: profile } = await supabase
-			.from('profiles')
-			.select('is_student')
-			.eq('user_id', userId)
-			.single();
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_student')
+      .eq('user_id', userId)
+      .single();
 
-		if (!profile?.is_student) {
-			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-		}
+    if (!profile?.is_student) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
-		// Fetch only entities assigned to this student
-		const { data, error } = await supabase
-			.from('[entity]s')
-			.select('*')
-			.eq('student_id', userId);
+    // Fetch only entities assigned to this student
+    const { data, error } = await supabase.from('[entity]s').select('*').eq('student_id', userId);
 
-		if (error) {
-			return NextResponse.json({ error: error.message }, { status: 500 });
-		}
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
-		return NextResponse.json(data);
-	} catch (error) {
-		console.error('Error in student-[entity]s route:', error);
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 }
-		);
-	}
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('Error in student-[entity]s route:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 ```
 
@@ -769,52 +739,49 @@ export async function delete[Entity]Handler(
 
 ```typescript
 export async function GET(request: Request) {
-	try {
-		const headersList = headers();
-		const supabase = createClient(headersList);
+  try {
+    const headersList = headers();
+    const supabase = createClient(headersList);
 
-		const {
-			data: { user },
-		} = await supabase.auth.getUser();
-		if (!user) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-		// Verify admin or teacher role
-		const { data: profile } = await supabase
-			.from('profiles')
-			.select('is_admin, is_teacher')
-			.eq('user_id', user.id)
-			.single();
+    // Verify admin or teacher role
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin, is_teacher')
+      .eq('user_id', user.id)
+      .single();
 
-		if (!profile?.is_admin && !profile?.is_teacher) {
-			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-		}
+    if (!profile?.is_admin && !profile?.is_teacher) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
-		// Fetch all entities (no filtering)
-		const { searchParams } = new URL(request.url);
-		const level = searchParams.get('level');
+    // Fetch all entities (no filtering)
+    const { searchParams } = new URL(request.url);
+    const level = searchParams.get('level');
 
-		let query = supabase.from('[entity]s').select('*');
+    let query = supabase.from('[entity]s').select('*');
 
-		if (level) {
-			query = query.eq('level', level);
-		}
+    if (level) {
+      query = query.eq('level', level);
+    }
 
-		const { data, error } = await query;
+    const { data, error } = await query;
 
-		if (error) {
-			return NextResponse.json({ error: error.message }, { status: 500 });
-		}
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
-		return NextResponse.json(data);
-	} catch (error) {
-		console.error('Error in admin-[entity]s route:', error);
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 }
-		);
-	}
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('Error in admin-[entity]s route:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 ```
 
@@ -822,49 +789,40 @@ export async function GET(request: Request) {
 
 ```typescript
 export async function GET(request: Request) {
-	try {
-		const { searchParams } = new URL(request.url);
-		const userId = searchParams.get('userId');
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
 
-		if (!userId) {
-			return NextResponse.json(
-				{ error: 'User ID is required' },
-				{ status: 400 }
-			);
-		}
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
 
-		const headersList = headers();
-		const supabase = createClient(headersList);
+    const headersList = headers();
+    const supabase = createClient(headersList);
 
-		// Verify user is a student
-		const { data: profile } = await supabase
-			.from('profiles')
-			.select('is_student')
-			.eq('user_id', userId)
-			.single();
+    // Verify user is a student
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_student')
+      .eq('user_id', userId)
+      .single();
 
-		if (!profile?.is_student) {
-			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-		}
+    if (!profile?.is_student) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
-		// Fetch only assigned entities
-		const { data, error } = await supabase
-			.from('[entity]s')
-			.select('*')
-			.eq('student_id', userId);
+    // Fetch only assigned entities
+    const { data, error } = await supabase.from('[entity]s').select('*').eq('student_id', userId);
 
-		if (error) {
-			return NextResponse.json({ error: error.message }, { status: 500 });
-		}
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
-		return NextResponse.json(data);
-	} catch (error) {
-		console.error('Error in student-[entity]s route:', error);
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 }
-		);
-	}
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('Error in student-[entity]s route:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 ```
 
@@ -1373,7 +1331,7 @@ When implementing CRUD for a new entity, follow this checklist:
 
 - [ ] Add usage examples to schema README
 - [ ] Update API documentation
-- [ ] Add to TODO.md if incomplete
+- [ ] Add to docs/TODO.md if incomplete
 
 ---
 
@@ -1434,6 +1392,6 @@ Current songs implementation is mostly compliant but needs:
 
 - [TDD Guide](./TDD_GUIDE.md) - Testing practices
 - [Project Overview](../PROJECT_OVERVIEW.md) - Architecture details
-- [Schema README](../schemas/README.md) - Validation patterns
+- [Schema README](../../schemas/README.md) - Validation patterns
 - [Next.js App Router Docs](https://nextjs.org/docs/app)
 - [Supabase Auth Docs](https://supabase.com/docs/guides/auth)

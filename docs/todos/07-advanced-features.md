@@ -7,6 +7,7 @@
 - ✅ Song import/export schemas complete
 - ✅ Data validation schemas implemented
 - ✅ Backup system in place (`supabase/backups/`)
+
 ### Import/Export Tools
 
 - ✅ Import scripts available (`scripts/database/import_backup.sh`)

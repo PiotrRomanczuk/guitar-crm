@@ -155,12 +155,12 @@ Example from `schemas/SongSchema.ts`:
 
 ```typescript
 export const SongInputSchema = z.object({
-	title: z.string().min(1, 'Title is required').max(200),
-	author: z.string().min(1, 'Author is required'),
-	level: DifficultyLevelEnum, // From CommonSchema
-	key: MusicKeyEnum,
-	ultimate_guitar_link: URLField,
-	chords: z.string().optional(),
+  title: z.string().min(1, 'Title is required').max(200),
+  author: z.string().min(1, 'Author is required'),
+  level: DifficultyLevelEnum, // From CommonSchema
+  key: MusicKeyEnum,
+  ultimate_guitar_link: URLField,
+  chords: z.string().optional(),
 });
 ```
 
@@ -326,13 +326,13 @@ className = 'text-lg px-6 py-4 grid-cols-3 ...';
 
 // ✅ CORRECT: Mobile-first (default = mobile, then scale up)
 className =
-	'text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3';
+  'text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3';
 ```
 
 **Input Field Example:**
 
 ```tsx
-<input className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500' />
+<input className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500" />
 ```
 
 **Key Principles:**
@@ -362,10 +362,7 @@ Import from `lib/supabase.ts`:
 import { supabase, Tables, InsertTables } from '@/lib/supabase';
 
 // Type-safe queries
-const { data, error } = await supabase
-	.from('songs')
-	.select('*')
-	.eq('level', 'intermediate');
+const { data, error } = await supabase.from('songs').select('*').eq('level', 'intermediate');
 
 // Type: Song[] (from Tables<'songs'>)
 ```
@@ -543,7 +540,7 @@ Workflow:
 - **TDD Guide**: `docs/TDD_GUIDE.md` - Comprehensive testing practices
 - **Scripts Guide**: `scripts/README.md` - All automation commands explained
 - **Schema Docs**: `schemas/README.md` - Validation patterns + examples
-- **Project Overview**: `PROJECT_OVERVIEW.md` - Architecture deep dive
+- **Project Overview**: `docs/PROJECT_OVERVIEW.md` - Architecture deep dive
 - **TODO System**: `docs/todos/` - Phased development roadmap
 
 ## Common Tasks Quick Reference
@@ -577,4 +574,4 @@ npm run deploy:check
 2. **Run `npm run quality`** frequently to catch issues early
 3. **Follow TDD strictly** - This project has strong testing culture
 4. **Reference `scripts/README.md`** for workflow commands
-5. **Look at TODO.md** for planned features and context
+5. **Look at `docs/TODO.md`** for planned features and context
