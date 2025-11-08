@@ -286,45 +286,42 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
 export async function GET(request: Request) {
-	try {
-		const headersList = headers();
-		const supabase = createClient(headersList);
+  try {
+    const headersList = headers();
+    const supabase = createClient(headersList);
 
-		const {
-			data: { user },
-		} = await supabase.auth.getUser();
-		if (!user) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-		const { data: profile } = await supabase
-			.from('profiles')
-			.select('is_admin, is_teacher')
-			.eq('user_id', user.id)
-			.single();
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin, is_teacher')
+      .eq('user_id', user.id)
+      .single();
 
-		if (!profile?.is_admin && !profile?.is_teacher) {
-			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-		}
+    if (!profile?.is_admin && !profile?.is_teacher) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
-		const { searchParams } = new URL(request.url);
-		const level = searchParams.get('level');
+    const { searchParams } = new URL(request.url);
+    const level = searchParams.get('level');
 
-		let query = supabase.from('[entity]s').select('*');
-		if (level) query = query.eq('level', level);
+    let query = supabase.from('[entity]s').select('*');
+    if (level) query = query.eq('level', level);
 
-		const { data, error } = await query;
-		if (error) {
-			return NextResponse.json({ error: error.message }, { status: 500 });
-		}
+    const { data, error } = await query;
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
-		return NextResponse.json(data);
-	} catch (error) {
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 }
-		);
-	}
+    return NextResponse.json(data);
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 ```
 
@@ -367,15 +364,15 @@ export function [Entity]List() {
 ```typescript
 // app/[entity]/page.tsx
 import { [Entity]List } from '@/components/[entity]';
-import { ProtectedRoute } from '@/components/auth';
+
 
 export default function [Entity]sPage() {
   return (
-    <ProtectedRoute>
+
       <div className="container mx-auto px-4 py-8">
         <[Entity]List />
       </div>
-    </ProtectedRoute>
+
   );
 }
 ```
@@ -389,12 +386,12 @@ export default function [Entity]sPage() {
 ```typescript
 // Students see only their own
 if (!profile?.is_admin && !profile?.is_teacher) {
-	query = query.eq('student_id', user.id);
+  query = query.eq('student_id', user.id);
 }
 
 // Teachers see their students
 if (profile?.is_teacher && !profile?.is_admin) {
-	query = query.in('student_id', await getMyStudentIds(supabase, user.id));
+  query = query.in('student_id', await getMyStudentIds(supabase, user.id));
 }
 
 // Admins see all (no filtering)
@@ -404,23 +401,23 @@ if (profile?.is_teacher && !profile?.is_admin) {
 
 ```typescript
 if (!user) {
-	return { error: 'Unauthorized', status: 401 };
+  return { error: 'Unauthorized', status: 401 };
 }
 
 if (!hasPermission) {
-	return { error: 'Forbidden', status: 403 };
+  return { error: 'Forbidden', status: 403 };
 }
 
 if (!found) {
-	return { error: 'Not found', status: 404 };
+  return { error: 'Not found', status: 404 };
 }
 
 if (validationError) {
-	return { error: 'Validation failed: ...', status: 422 };
+  return { error: 'Validation failed: ...', status: 422 };
 }
 
 if (dbError) {
-	return { error: dbError.message, status: 500 };
+  return { error: dbError.message, status: 500 };
 }
 ```
 

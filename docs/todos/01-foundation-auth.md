@@ -20,7 +20,6 @@
 
 - ✅ Profile table with admin roles created
 - ✅ RLS policies for role-based access implemented
-- ✅ Create protected route wrapper components (`ProtectedRoute`, `RequireAdmin`, `RequireTeacher`, `RequireStudent`)
 - ✅ Implement role checking middleware via `AuthProvider`
 - ✅ Set up admin-only areas (`/admin` dashboard with protection)
 - ✅ Create role-based navigation system (`RoleBasedNav`)
