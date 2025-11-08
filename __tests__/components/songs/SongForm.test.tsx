@@ -2,19 +2,17 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SongForm from '@/components/songs/SongForm';
 
-// Mock supabase browser client
-jest.mock('@/lib/supabase-browser', () => ({
-  getSupabaseBrowserClient: () => ({
-    from: () => ({
-      insert: async () => ({ error: null }),
-      update: async () => ({ error: null }),
-    }),
-  }),
-}));
+// Mock fetch for API interactions
+const mockFetch = jest.fn();
+global.fetch = mockFetch as unknown as typeof fetch;
 
 describe('SongForm Component - Core Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ id: '123', title: 'New Song' }),
+    });
   });
 
   it('should render create form with title', () => {
@@ -50,7 +48,7 @@ describe('SongForm Component - Core Tests', () => {
     });
   });
 
-  it('submits successfully with valid data', async () => {
+  it('submits successfully with valid data (POST)', async () => {
     render(<SongForm mode="create" />);
     fireEvent.change(screen.getByLabelText(/^Title/i), {
       target: { value: 'New Song' },
@@ -65,6 +63,60 @@ describe('SongForm Component - Core Tests', () => {
     await waitFor(() => {
       // Button returns to normal state indicating submission finished
       expect(screen.getByRole('button', { name: /save song/i })).toBeEnabled();
+    });
+    expect(mockFetch).toHaveBeenCalledWith(
+      '/api/song',
+      expect.objectContaining({ method: 'POST' })
+    );
+  });
+
+  it('submits successfully with valid data (PUT)', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 'song-1', title: 'Edited' }),
+    });
+    const song = {
+      id: 'song-1',
+      title: 'Old',
+      author: 'Auth',
+      level: 'beginner' as const,
+      key: 'C' as const,
+      ultimate_guitar_link: 'https://example.com',
+      chords: '',
+      short_title: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    // Cast minimal song object to Song type for test purposes
+    render(<SongForm mode="edit" song={song as unknown as import('@/schemas/SongSchema').Song} />);
+    fireEvent.change(screen.getByLabelText(/^Title/i), {
+      target: { value: 'Edited' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save song/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /save song/i })).toBeEnabled();
+    });
+    expect(mockFetch).toHaveBeenCalledWith(
+      '/api/song?id=song-1',
+      expect.objectContaining({ method: 'PUT' })
+    );
+  });
+
+  it('shows submit error when API fails', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: false, json: async () => ({ error: 'Bad' }) });
+    render(<SongForm mode="create" />);
+    fireEvent.change(screen.getByLabelText(/^Title/i), {
+      target: { value: 'New Song' },
+    });
+    fireEvent.change(screen.getByLabelText(/author/i), {
+      target: { value: 'Some Author' },
+    });
+    fireEvent.change(screen.getByLabelText(/ultimate guitar link/i), {
+      target: { value: 'https://example.com' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save song/i }));
+    await waitFor(() => {
+      expect(screen.getByText(/failed to save song/i)).toBeInTheDocument();
     });
   });
 });

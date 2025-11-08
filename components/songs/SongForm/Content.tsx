@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { SongInputSchema, Song } from '@/schemas/SongSchema';
 import SongFormFields from './Fields';
 import { createFormData, clearFieldError, parseZodErrors } from './helpers';
@@ -17,14 +16,23 @@ async function saveSong(
 	data: unknown,
 	songId?: string
 ) {
-	const supabase = getSupabaseBrowserClient();
-	if (mode === 'create') {
-		return await supabase.from('songs').insert([data]);
+	try {
+		const endpoint = mode === 'create' ? '/api/song' : `/api/song?id=${songId}`;
+		const method = mode === 'create' ? 'POST' : 'PUT';
+		const res = await fetch(endpoint, {
+			method,
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(data),
+		});
+		if (!res.ok) {
+			const json = await res.json().catch(() => ({}));
+			return { error: new Error(json.error || `Request failed: ${res.status}`) } as const;
+		}
+		const json = await res.json().catch(() => ({}));
+		return { error: null, data: json } as const;
+	} catch (e) {
+		return { error: e instanceof Error ? e : new Error('Network error') } as const;
 	}
-	if (songId) {
-		return await supabase.from('songs').update(data).eq('id', songId);
-	}
-	return { error: new Error('No song ID provided') };
 }
 
 export default function SongFormContent({ mode, song, onSuccess }: Props) {
@@ -49,7 +57,6 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
 		try {
 			const validatedData = SongInputSchema.parse(formData);
 			const { error } = await saveSong(mode, validatedData, song?.id);
-
 			if (error) {
 				setSubmitError('Failed to save song');
 				return;
