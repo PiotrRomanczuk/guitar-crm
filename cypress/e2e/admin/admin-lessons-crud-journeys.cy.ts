@@ -65,7 +65,7 @@ describe('Admin Lessons CRUD Journeys', () => {
     it('creates a new lesson via API', () => {
       cy.request({
         method: 'POST',
-        url: '/api/admin/lessons',
+        url: '/api/lessons',
         failOnStatusCode: false,
         body: {
           teacherId,
@@ -121,12 +121,12 @@ describe('Admin Lessons CRUD Journeys', () => {
     });
 
     it('edits a lesson via API', () => {
-      cy.request({ method: 'GET', url: '/api/admin/lessons', failOnStatusCode: false }).then(
+      cy.request({ method: 'GET', url: '/api/lessons', failOnStatusCode: false }).then(
         (list) => {
-          const id = list.body?.data?.[0]?.id || '00000000-0000-0000-0000-000000000000';
+          const id = list.body?.lessons?.[0]?.id || '00000000-0000-0000-0000-000000000000';
           cy.request({
             method: 'PUT',
-            url: `/api/admin/lessons/${id}`,
+            url: `/api/lessons/${id}`,
             failOnStatusCode: false,
             body: { duration: 30 },
           }).then((res) => {
@@ -156,7 +156,7 @@ describe('Admin Lessons CRUD Journeys', () => {
     it('deletes a lesson via API (dummy id allowed)', () => {
       cy.request({
         method: 'DELETE',
-        url: '/api/admin/lessons/00000000-0000-0000-0000-000000000000',
+        url: '/api/lessons/00000000-0000-0000-0000-000000000000',
         failOnStatusCode: false,
       }).then((res) => {
         expect(res.status).to.be.oneOf([200, 204, 400, 401, 403, 404, 500]);
@@ -170,13 +170,13 @@ describe('Admin Lessons CRUD Journeys', () => {
       const first = { teacherId, studentId, scheduledAt: t.toISOString(), duration: 60 };
       cy.request({
         method: 'POST',
-        url: '/api/admin/lessons',
+        url: '/api/lessons',
         body: first,
         failOnStatusCode: false,
       }).then(() => {
         cy.request({
           method: 'POST',
-          url: '/api/admin/lessons',
+          url: '/api/lessons',
           failOnStatusCode: false,
           body: {
             ...first,
@@ -201,7 +201,7 @@ describe('Admin Lessons CRUD Journeys', () => {
 
   context('Bulk Operations', () => {
     it('exports lessons (if available)', () => {
-      cy.request({ method: 'GET', url: '/api/admin/lessons/export', failOnStatusCode: false }).then(
+      cy.request({ method: 'GET', url: '/api/lessons/export', failOnStatusCode: false }).then(
         (res) => {
           expect(res.status).to.be.oneOf([200, 401, 403, 404, 500]);
         }
@@ -209,10 +209,10 @@ describe('Admin Lessons CRUD Journeys', () => {
     });
 
     it('imports lessons (if available)', () => {
-      const payload = { items: [{ teacherId, studentId, scheduledAt: in1h, duration: 60 }] };
+      const payload = { lessons: [{ teacherId, studentId, scheduledAt: in1h, duration: 60 }] };
       cy.request({
         method: 'POST',
-        url: '/api/admin/lessons/import',
+        url: '/api/lessons/bulk',
         body: payload,
         failOnStatusCode: false,
       }).then((res) => {
