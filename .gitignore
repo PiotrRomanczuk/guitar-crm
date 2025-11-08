@@ -44,6 +44,11 @@ next-env.d.ts
 # credentials and sensitive data
 development_credentials.txt
 local_passwords.txt
+.archive/
+
+# temp/test data files
+temp_user_ids.json
+update_dev_passwords.json
 
 # supabase sensitive data
 supabase/seed_sql/
