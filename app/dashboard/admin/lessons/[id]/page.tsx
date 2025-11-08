@@ -44,10 +44,10 @@ async function fetchUsers() {
 }
 
 async function fetchLesson(id: string): Promise<Lesson | null> {
-	const res = await fetch(`/api/admin/lessons?id=${id}`);
+	const res = await fetch(`/api/lessons/${id}`);
 	if (!res.ok) return null;
 	const data = await res.json();
-	return data.lessons?.[0] || null;
+	return data.lesson || null;
 }
 
 function useData(id: string) {
@@ -94,13 +94,13 @@ function useActions(id: string) {
 	const handleSubmit = async (formData: FormData) => {
 		setSaving(true);
 		try {
-			const res = await fetch('/api/admin/lessons', {
+			const res = await fetch(`/api/lessons/${id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ id, ...formData }),
+				body: JSON.stringify(formData),
 			});
 			if (res.ok) {
-				router.push('/admin/lessons');
+				router.push('/dashboard/admin/lessons');
 			} else {
 				const error = await res.json();
 				alert(`Error: ${error.error || 'Failed to update lesson'}`);
@@ -112,13 +112,11 @@ function useActions(id: string) {
 
 	const handleDelete = async () => {
 		if (!confirm('Are you sure you want to delete this lesson?')) return;
-		const res = await fetch('/api/admin/lessons', {
+		const res = await fetch(`/api/lessons/${id}`, {
 			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ id }),
 		});
 		if (res.ok) {
-			router.push('/admin/lessons');
+			router.push('/dashboard/admin/lessons');
 		} else {
 			const error = await res.json();
 			alert(`Error: ${error.error || 'Failed to delete'}`);

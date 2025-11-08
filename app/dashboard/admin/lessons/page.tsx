@@ -124,7 +124,7 @@ export default function AdminLessonsPage() {
 	useEffect(() => {
 		const fetchLessons = async () => {
 			try {
-				const response = await fetch('/api/admin/lessons');
+				const response = await fetch('/api/lessons');
 				if (!response.ok) {
 					throw new Error(`HTTP error! status: ${response.status}`);
 				}
