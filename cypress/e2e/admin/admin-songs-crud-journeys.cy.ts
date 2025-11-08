@@ -54,7 +54,7 @@ describe('Admin Songs CRUD Journeys', () => {
     it('creates a new song via API', () => {
       cy.request({
         method: 'POST',
-        url: '/api/admin/songs',
+        url: '/api/song',
         body: sampleSong,
         failOnStatusCode: false,
       }).then((res) => {
@@ -112,11 +112,11 @@ describe('Admin Songs CRUD Journeys', () => {
     });
 
     it('updates a song via API (first available id or dummy)', () => {
-      cy.request({ method: 'GET', url: '/api/songs', failOnStatusCode: false }).then((list) => {
-        const id = list.body?.data?.[0]?.id || '00000000-0000-0000-0000-000000000000';
+      cy.request({ method: 'GET', url: '/api/song', failOnStatusCode: false }).then((list) => {
+        const id = list.body?.songs?.[0]?.id || '00000000-0000-0000-0000-000000000000';
         cy.request({
           method: 'PUT',
-          url: `/api/admin/songs/${id}`,
+          url: `/api/song?id=${id}`,
           body: { author: 'Updated Artist (API)' },
           failOnStatusCode: false,
         }).then((res) => {
@@ -145,7 +145,7 @@ describe('Admin Songs CRUD Journeys', () => {
     it('deletes a song via API (dummy id allowed)', () => {
       cy.request({
         method: 'DELETE',
-        url: '/api/admin/songs/00000000-0000-0000-0000-000000000000',
+        url: '/api/song?id=00000000-0000-0000-0000-000000000000',
         failOnStatusCode: false,
       }).then((res) => {
         expect(res.status).to.be.oneOf([200, 204, 400, 401, 403, 404, 500]);
@@ -168,7 +168,7 @@ describe('Admin Songs CRUD Journeys', () => {
     it('rejects invalid inputs (API)', () => {
       cy.request({
         method: 'POST',
-        url: '/api/admin/songs',
+        url: '/api/song',
         failOnStatusCode: false,
         body: { title: '', ultimate_guitar_link: 'not-a-url' },
       }).then((res) => {
@@ -179,7 +179,7 @@ describe('Admin Songs CRUD Journeys', () => {
 
   context('Bulk Operations', () => {
     it('exports songs (if available)', () => {
-      cy.request({ method: 'GET', url: '/api/admin/songs/export', failOnStatusCode: false }).then(
+      cy.request({ method: 'GET', url: '/api/song/export', failOnStatusCode: false }).then(
         (res) => {
           expect(res.status).to.be.oneOf([200, 401, 403, 404, 500]);
         }
@@ -187,10 +187,10 @@ describe('Admin Songs CRUD Journeys', () => {
     });
 
     it('imports songs (if available)', () => {
-      const payload = { items: [sampleSong] };
+      const payload = { songs: [sampleSong] };
       cy.request({
         method: 'POST',
-        url: '/api/admin/songs/import',
+        url: '/api/song/bulk',
         body: payload,
         failOnStatusCode: false,
       }).then((res) => {
