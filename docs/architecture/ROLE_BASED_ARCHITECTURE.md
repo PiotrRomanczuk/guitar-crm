@@ -197,16 +197,16 @@ if (!profile) return { error: 'Profile not found', status: 404 };
 
 // Step 3: Role-based logic
 if (profile.is_admin) {
-	// Full access
+  // Full access
 } else if (profile.is_teacher) {
-	// Limited to their students
-	const studentIds = await getTeacherStudentIds(supabase, user.id);
-	query = query.in('student_id', studentIds);
+  // Limited to their students
+  const studentIds = await getTeacherStudentIds(supabase, user.id);
+  query = query.in('student_id', studentIds);
 } else if (profile.is_student) {
-	// Limited to their own data
-	query = query.eq('student_id', user.id);
+  // Limited to their own data
+  query = query.eq('student_id', user.id);
 } else {
-	return { error: 'Invalid role', status: 403 };
+  return { error: 'Invalid role', status: 403 };
 }
 
 // Step 4: Execute query with applied filters
@@ -217,25 +217,25 @@ if (profile.is_admin) {
 ```typescript
 // Reusable across all entities
 export function canViewAll(profile: UserProfile): boolean {
-	return profile.is_admin;
+  return profile.is_admin;
 }
 
 export function canMutate(profile: UserProfile): boolean {
-	return profile.is_admin || profile.is_teacher;
+  return profile.is_admin || profile.is_teacher;
 }
 
 export async function canAccessEntity(
-	supabase: SupabaseClient,
-	user: User,
-	profile: UserProfile,
-	entityStudentId: string
+  supabase: SupabaseClient,
+  user: User,
+  profile: UserProfile,
+  entityStudentId: string
 ): Promise<boolean> {
-	if (profile.is_admin) return true;
-	if (profile.is_student) return user.id === entityStudentId;
-	if (profile.is_teacher) {
-		return await teacherOwnsStudent(supabase, user.id, entityStudentId);
-	}
-	return false;
+  if (profile.is_admin) return true;
+  if (profile.is_student) return user.id === entityStudentId;
+  if (profile.is_teacher) {
+    return await teacherOwnsStudent(supabase, user.id, entityStudentId);
+  }
+  return false;
 }
 ```
 
@@ -272,7 +272,6 @@ export async function canAccessEntity(
 - [ ] Admin pages in `app/admin/[entity]/`
 - [ ] Teacher pages in `app/teacher/[entity]/`
 - [ ] Student pages in `app/student/[entity]/`
-- [ ] Use `ProtectedRoute` with role checking
 
 #### Testing
 
