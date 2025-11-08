@@ -48,12 +48,12 @@ describe('getUserWithRolesSSR', () => {
   it.skip('returns user with profile roles when authenticated', async () => {
     const profile = { is_admin: true, is_teacher: false, is_student: true };
     const mockUser = { id: 'u-1', email: 'test@example.com' };
-    
+
     mockSupabase.from.mockImplementation(() => makeFromChain(profile));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (mockAuth.getUser as any).mockResolvedValue({
       data: { user: mockUser },
-      error: null
+      error: null,
     });
 
     const result = await getUserWithRolesSSR();
@@ -68,13 +68,13 @@ describe('getUserWithRolesSSR', () => {
   // TODO: Fix complex mocking issue - temporarily skipped for CI pipeline
   it.skip('returns special admin roles for development admin email', async () => {
     const mockUser = { id: 'admin-id', email: 'p.romanczuk@gmail.com' };
-    
+
     // Profile not found, but user is dev admin
     mockSupabase.from.mockImplementation(() => makeFromChain(null, { message: 'not found' }));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (mockAuth.getUser as any).mockResolvedValue({
       data: { user: mockUser },
-      error: null
+      error: null,
     });
 
     const result = await getUserWithRolesSSR();
@@ -89,9 +89,9 @@ describe('getUserWithRolesSSR', () => {
   // TODO: Fix complex mocking issue - temporarily skipped for CI pipeline
   it.skip('returns all false when unauthenticated', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (mockAuth.getUser as any).mockResolvedValue({ 
-      data: { user: null }, 
-      error: null 
+    (mockAuth.getUser as any).mockResolvedValue({
+      data: { user: null },
+      error: null,
     });
 
     const result = await getUserWithRolesSSR();
@@ -106,12 +106,12 @@ describe('getUserWithRolesSSR', () => {
   // TODO: Fix complex mocking issue - temporarily skipped for CI pipeline
   it.skip('returns all false when profile not found for regular user', async () => {
     const mockUser = { id: 'u-2', email: 'regular@example.com' };
-    
+
     mockSupabase.from.mockImplementation(() => makeFromChain(null, { message: 'not found' }));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (mockAuth.getUser as any).mockResolvedValue({
       data: { user: mockUser },
-      error: null
+      error: null,
     });
 
     const result = await getUserWithRolesSSR();
