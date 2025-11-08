@@ -30,14 +30,7 @@ describe('Header', () => {
   });
 
   it('should render sign in and sign up buttons when user is not authenticated', () => {
-    render(
-      <Header 
-        user={null}
-        isAdmin={false}
-        isTeacher={false}
-        isStudent={false}
-      />
-    );
+    render(<Header user={null} isAdmin={false} isTeacher={false} isStudent={false} />);
 
     expect(screen.getByText('Sign In')).toBeInTheDocument();
     expect(screen.getByText('Sign Up')).toBeInTheDocument();
@@ -45,7 +38,7 @@ describe('Header', () => {
 
   it('should render user email when authenticated', () => {
     render(
-      <Header 
+      <Header
         user={{ id: 'test-user', email: 'test@example.com' }}
         isAdmin={false}
         isTeacher={false}
@@ -58,7 +51,7 @@ describe('Header', () => {
 
   it('should call signOut when sign out button is clicked', async () => {
     render(
-      <Header 
+      <Header
         user={{ id: 'test-user', email: 'test@example.com' }}
         isAdmin={false}
         isTeacher={false}
@@ -75,14 +68,7 @@ describe('Header', () => {
   });
 
   it('should navigate to home when logo is clicked', () => {
-    render(
-      <Header 
-        user={null}
-        isAdmin={false}
-        isTeacher={false}
-        isStudent={false}
-      />
-    );
+    render(<Header user={null} isAdmin={false} isTeacher={false} isStudent={false} />);
 
     const logo = screen.getByText('🎸 Guitar CRM');
     fireEvent.click(logo);
@@ -92,7 +78,7 @@ describe('Header', () => {
 
   it('should show role badges for authenticated users', () => {
     render(
-      <Header 
+      <Header
         user={{ id: 'test-user', email: 'test@example.com' }}
         isAdmin={true}
         isTeacher={true}
@@ -107,14 +93,7 @@ describe('Header', () => {
   });
 
   it('should show sign in/up buttons when no user', () => {
-    render(
-      <Header 
-        user={null}
-        isAdmin={false}
-        isTeacher={false}
-        isStudent={false}
-      />
-    );
+    render(<Header user={null} isAdmin={false} isTeacher={false} isStudent={false} />);
 
     expect(screen.getByText('Sign In')).toBeInTheDocument();
     expect(screen.getByText('Sign Up')).toBeInTheDocument();
