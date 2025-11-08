@@ -18,6 +18,15 @@ async function fetchStudentStats(): Promise<StudentStats> {
     const supabase = await createClient();
     const { user } = await getUserWithRolesSSR();
 
+    if (!user) {
+      return {
+        myTeacher: 0,
+        lessonsDone: 0,
+        songsLearning: 0,
+        progress: 0,
+      };
+    }
+
     // Get lessons for this student
     const { data: lessons } = await supabase
       .from('lessons')
@@ -53,7 +62,7 @@ async function fetchStudentStats(): Promise<StudentStats> {
 }
 
 export default async function StudentDashboard() {
-  const { user, isStudent } = await getUserWithRolesSSR();
+  const { isStudent } = await getUserWithRolesSSR();
 
   if (!isStudent) {
     return (
