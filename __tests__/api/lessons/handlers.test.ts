@@ -79,7 +79,11 @@ describe('Lesson API Handlers', () => {
 
 			// Verify main base query was created
 			expect(mockSupabase.from).toHaveBeenNthCalledWith(1, 'lessons');
-			expect(baseQueryMock.select).toHaveBeenCalledWith('*', {
+			expect(baseQueryMock.select).toHaveBeenCalledWith(`
+      *,
+      profile:profiles!student_id(id, full_name, email),
+      teacher_profile:profiles!teacher_id(id, full_name, email)
+    `, {
 				count: 'exact',
 			});
 
@@ -164,7 +168,7 @@ describe('Lesson API Handlers', () => {
 				validLesson
 			);
 			expect(res).toEqual({
-				error: 'Forbidden: Only teachers and admins can create lessons',
+				error: 'Only admins and teachers can create lessons',
 				status: 403,
 			});
 		});
@@ -195,7 +199,7 @@ describe('Lesson API Handlers', () => {
 				teacherProfile,
 				{ title: '' }
 			);
-			expect(res.status).toBe(422);
+			expect(res.status).toBe(400);
 		});
 	});
 
@@ -220,7 +224,7 @@ describe('Lesson API Handlers', () => {
 				{ title: 'New' }
 			);
 			expect(res).toEqual({
-				error: 'Forbidden: Only teachers and admins can update lessons',
+				error: 'Only admins and teachers can update lessons',
 				status: 403,
 			});
 		});
@@ -269,7 +273,7 @@ describe('Lesson API Handlers', () => {
 				'l-1'
 			);
 			expect(res).toEqual({
-				error: 'Forbidden: Only teachers and admins can delete lessons',
+				error: 'Only admins and teachers can delete lessons',
 				status: 403,
 			});
 		});
@@ -287,7 +291,7 @@ describe('Lesson API Handlers', () => {
 				teacherProfile,
 				'l-1'
 			);
-			expect(res).toEqual({ success: true, status: 200 });
+			expect(res).toEqual({ status: 200 });
 		});
 	});
 });

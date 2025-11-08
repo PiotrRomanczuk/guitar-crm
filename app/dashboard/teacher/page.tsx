@@ -18,6 +18,15 @@ async function fetchTeacherStats(): Promise<TeacherStats> {
     const supabase = await createClient();
     const { user } = await getUserWithRolesSSR();
 
+    if (!user) {
+      return {
+        myStudents: 0,
+        activeLessons: 0,
+        songsLibrary: 0,
+        studentProgress: 0,
+      };
+    }
+
     // Teacher stats - similar to the API route but server-side
     const [{ count: myStudents }, { count: activeLessons }, { count: songsLibrary }] =
       await Promise.all([
@@ -51,7 +60,7 @@ async function fetchTeacherStats(): Promise<TeacherStats> {
 }
 
 export default async function TeacherDashboard() {
-  const { user, isTeacher } = await getUserWithRolesSSR();
+  const { isTeacher } = await getUserWithRolesSSR();
 
   if (!isTeacher) {
     return (
