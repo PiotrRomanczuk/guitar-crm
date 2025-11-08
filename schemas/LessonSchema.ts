@@ -40,21 +40,17 @@ export const LessonInputSchema = z.object({
 export const LessonWithProfilesSchema = LessonSchema.extend({
 	profile: z
 		.object({
-			user_id: z.string().uuid().optional(),
-			id: z.string().uuid().optional(),
-			email: z.string().email().optional(),
-			firstName: z.string().optional(),
-			lastName: z.string().optional(),
+			id: z.string().uuid(),
+			full_name: z.string().nullable(),
+			email: z.string().email(),
 		})
 		.optional()
 		.nullable(),
 	teacher_profile: z
 		.object({
-			user_id: z.string().uuid().optional(),
-			id: z.string().uuid().optional(),
-			email: z.string().email().optional(),
-			firstName: z.string().optional(),
-			lastName: z.string().optional(),
+			id: z.string().uuid(),
+			full_name: z.string().nullable(),
+			email: z.string().email(),
 		})
 		.optional()
 		.nullable(),
