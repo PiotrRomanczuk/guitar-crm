@@ -4,7 +4,7 @@ Purpose: document all core navigation paths and expected successful routes per r
 
 ## Test Users (local dev)
 
-Use the accounts listed in `development_credentials.txt` (do not commit passwords). Roles:
+Use the accounts listed in `.archive/development_credentials.txt` (do not commit passwords). Roles:
 
 - Admin User — Admin & Teacher
 - Test Teacher — Teacher

@@ -613,7 +613,7 @@ These failures are **expected and correct**. They define what needs to be built.
 - Tests use existing API-only test helpers from `cypress/support/supabase.ts`
 - Authentication handled by `signIn()` helper from `cypress/support/journeys.ts`
 - API intercepts set up via `interceptLessonsApi()` helper
-- Test accounts defined in `development_credentials.txt`
+- Test accounts defined in `.archive/development_credentials.txt`
 
 ---
 
