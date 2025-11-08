@@ -19,17 +19,13 @@ export default function LessonTableRow({
 		<tr className='hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors'>
 			<td className='border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100'>
 				{lesson.profile
-					? `${lesson.profile.firstName || ''} ${
-							lesson.profile.lastName || ''
-					  }`.trim() || lesson.profile.email
+					? lesson.profile.full_name || lesson.profile.email
 					: 'Unknown Student'}
 			</td>
 			{showTeacherColumn && (
 				<td className='border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100'>
 					{lesson.teacher_profile
-						? `${lesson.teacher_profile.firstName || ''} ${
-								lesson.teacher_profile.lastName || ''
-						  }`.trim() || lesson.teacher_profile.email
+						? lesson.teacher_profile.full_name || lesson.teacher_profile.email
 						: 'Unknown Teacher'}
 				</td>
 			)}
