@@ -65,45 +65,35 @@ echo "Total lesson-song associations: $LESSON_SONGS_COUNT"
 # TODO: Add assignments table checks when implemented
 # Current schema doesn't have assignments table yet
 
-# Check task management
-echo -e "\n${YELLOW}Checking task management:${NC}"
-TASKS_COUNT=$(run_query "SELECT COUNT(*) FROM public.task_management;")
-echo "Total tasks: $TASKS_COUNT"
+# Check assignments
+echo -e "\n${YELLOW}Checking assignments:${NC}"
+ASSIGNMENTS_COUNT=$(run_query "SELECT COUNT(*) FROM public.assignments;")
+echo "Total assignments: $ASSIGNMENTS_COUNT"
 
-# Check task status distribution
-echo "Task status distribution:"
-run_query "SELECT status, COUNT(*) FROM public.task_management GROUP BY status ORDER BY status;"
+# Check assignment status distribution
+echo "Assignment status distribution:"
+run_query "SELECT status, COUNT(*) FROM public.assignments GROUP BY status ORDER BY status;"
 
-# Check task priority distribution
-echo "Task priority distribution:"
-run_query "SELECT priority, COUNT(*) FROM public.task_management GROUP BY priority ORDER BY 
+# Check assignment priority distribution
+echo "Assignment priority distribution:"
+run_query "SELECT priority, COUNT(*) FROM public.assignments GROUP BY priority ORDER BY 
     CASE 
         WHEN priority = 'LOW' THEN 1
         WHEN priority = 'MEDIUM' THEN 2
         WHEN priority = 'HIGH' THEN 3
+        WHEN priority = 'URGENT' THEN 4
     END;"
 
-# Check overdue tasks
-OVERDUE_TASKS=$(run_query "
+# Check overdue assignments
+OVERDUE_ASSIGNMENTS=$(run_query "
     SELECT COUNT(*) 
-    FROM public.task_management 
+    FROM public.assignments 
     WHERE status NOT IN ('COMPLETED', 'CANCELLED') 
     AND due_date IS NOT NULL 
     AND due_date < CURRENT_DATE;
 ")
-if [ "$OVERDUE_TASKS" -gt 0 ]; then
-    echo -e "${YELLOW}⚠️  $OVERDUE_TASKS overdue tasks${NC}"
-fi
-
-# Check unassigned open tasks
-UNASSIGNED_TASKS=$(run_query "
-    SELECT COUNT(*) 
-    FROM public.task_management 
-    WHERE status = 'OPEN' 
-    AND user_id IS NULL;
-")
-if [ "$UNASSIGNED_TASKS" -gt 0 ]; then
-    echo -e "${YELLOW}⚠️  $UNASSIGNED_TASKS unassigned open tasks${NC}"
+if [ "$OVERDUE_ASSIGNMENTS" -gt 0 ]; then
+    echo -e "${YELLOW}⚠️  $OVERDUE_ASSIGNMENTS overdue assignments${NC}"
 fi
 
 # Check for orphaned records
@@ -127,13 +117,27 @@ echo "Total profiles: $PROFILES_COUNT"
 
 # Check role distribution
 echo "Role distribution:"
-run_query "
+ROLE_DISTRIBUTION=$(run_query "
     SELECT 
         SUM(CASE WHEN is_admin THEN 1 ELSE 0 END) as admin_count,
         SUM(CASE WHEN is_teacher THEN 1 ELSE 0 END) as teacher_count,
         SUM(CASE WHEN is_student THEN 1 ELSE 0 END) as student_count
     FROM public.profiles;
-"
+")
+echo "$ROLE_DISTRIBUTION"
+
+# Extract role counts for validation
+ADMIN_COUNT=$(echo "$ROLE_DISTRIBUTION" | awk '{print $1}' | tail -1 | xargs)
+TEACHER_COUNT=$(echo "$ROLE_DISTRIBUTION" | awk '{print $3}' | tail -1 | xargs)
+STUDENT_COUNT=$(echo "$ROLE_DISTRIBUTION" | awk '{print $5}' | tail -1 | xargs)
+
+# Check if all roles are zero (profiles without role flags)
+if [ "$ADMIN_COUNT" -eq 0 ] && [ "$TEACHER_COUNT" -eq 0 ] && [ "$STUDENT_COUNT" -eq 0 ]; then
+    echo -e "${RED}❌ CRITICAL: All profiles have no role flags set (all false)${NC}"
+    echo "   Profiles exist but no users have admin, teacher, or student roles"
+    echo "   This will block lesson creation and other role-dependent features"
+    ISSUES_FOUND=1
+fi
 
 # Final summary
 echo -e "\n${BLUE}📊 DATABASE SUMMARY${NC}"
@@ -143,7 +147,6 @@ echo "Songs: $SONGS_COUNT"
 echo "Lessons: $LESSONS_COUNT"
 echo "Lesson-Song Associations: $LESSON_SONGS_COUNT"
 echo "Assignments: $ASSIGNMENTS_COUNT"
-echo "Tasks: $TASKS_COUNT"
 echo "Profiles: $PROFILES_COUNT"
 
 # Track issues
@@ -171,6 +174,19 @@ if [ "$TEST_USERS" -lt 3 ]; then
     echo -e "\n${YELLOW}⚠️  WARNING: Insufficient test users - only $TEST_USERS (minimum 3 recommended)${NC}"
     echo "   Need at least: 1 admin, 1 teacher, 1 student"
     ISSUES_FOUND=1
+fi
+
+# Check if we have at least one teacher for lessons
+if [ "$TEACHER_COUNT" -lt 1 ]; then
+    echo -e "\n${RED}❌ CRITICAL: No teachers found - lessons cannot be created${NC}"
+    echo "   At least one profile must have is_teacher=true"
+    ISSUES_FOUND=1
+fi
+
+# Check if we have at least one student
+if [ "$STUDENT_COUNT" -lt 1 ]; then
+    echo -e "\n${YELLOW}⚠️  WARNING: No students found - lesson workflows cannot be tested${NC}"
+    echo "   At least one profile should have is_student=true"
 fi
 
 if [ "$PROFILES_COUNT" -lt "$TEST_USERS" ]; then
