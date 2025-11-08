@@ -384,8 +384,8 @@ No breaking changes, all existing functionality preserved.
 
 ## Related Documentation
 - See: `docs/copilot-todos/2025-11-02-manual-testing-checklist.md` for full testing guide
-- See: `PROJECT_OVERVIEW.md` for project architecture
-- See: `TODO.md` for development roadmap
+- See: `docs/PROJECT_OVERVIEW.md` for project architecture
+- See: `docs/TODO.md` for development roadmap
 
 ---
 
