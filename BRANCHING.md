@@ -10,26 +10,29 @@ All branches should use descriptive, kebab-case names with a prefix indicating t
 
 ### Branch Prefixes
 
-| Prefix | Purpose | Examples | When to Use |
-|--------|---------|----------|-------------|
-| `feature/` | New features or enhancements | `feature/lesson-management`<br>`feature/song-crud`<br>`feature/core-crud` | Adding new functionality, implementing user stories, building new components |
-| `fix/` | Bug fixes | `fix/lesson-date-validation`<br>`fix/auth-redirect`<br>`fix/ci-passing-tests` | Fixing bugs, addressing issues, resolving errors |
-| `chore/` | Maintenance tasks | `chore/update-dependencies`<br>`chore/cleanup-logs`<br>`chore/remove-unused-imports` | Dependency updates, code cleanup, non-functional improvements |
-| `refactor/` | Code restructuring | `refactor/extract-hooks`<br>`refactor/split-components`<br>`refactor/simplify-api` | Improving code structure, extracting logic, simplifying without changing behavior |
-| `docs/` | Documentation only | `docs/api-endpoints`<br>`docs/update-readme`<br>`docs/add-contributing-guide` | Adding or updating documentation, guides, READMEs |
-| `test/` | Test-related work | `test/lesson-schema`<br>`test/add-e2e-suite`<br>`test/improve-coverage` | Adding tests, improving test coverage, test refactoring |
+| Prefix      | Purpose                      | Examples                                                                             | When to Use                                                                       |
+| ----------- | ---------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| `feature/`  | New features or enhancements | `feature/lesson-management`<br>`feature/song-crud`<br>`feature/core-crud`            | Adding new functionality, implementing user stories, building new components      |
+| `fix/`      | Bug fixes                    | `fix/lesson-date-validation`<br>`fix/auth-redirect`<br>`fix/ci-passing-tests`        | Fixing bugs, addressing issues, resolving errors                                  |
+| `chore/`    | Maintenance tasks            | `chore/update-dependencies`<br>`chore/cleanup-logs`<br>`chore/remove-unused-imports` | Dependency updates, code cleanup, non-functional improvements                     |
+| `refactor/` | Code restructuring           | `refactor/extract-hooks`<br>`refactor/split-components`<br>`refactor/simplify-api`   | Improving code structure, extracting logic, simplifying without changing behavior |
+| `docs/`     | Documentation only           | `docs/api-endpoints`<br>`docs/update-readme`<br>`docs/add-contributing-guide`        | Adding or updating documentation, guides, READMEs                                 |
+| `test/`     | Test-related work            | `test/lesson-schema`<br>`test/add-e2e-suite`<br>`test/improve-coverage`              | Adding tests, improving test coverage, test refactoring                           |
 
 ### Branch Naming Guidelines
 
 1. **Use descriptive names**: Branch names should clearly indicate what work is being done
+
    - ✅ `feature/lesson-scheduling`
    - ❌ `feature/stuff` or `feature/temp`
 
 2. **Keep it concise**: Aim for 2-4 words after the prefix
+
    - ✅ `fix/auth-redirect-loop`
    - ❌ `fix/that-annoying-bug-where-users-cant-login-after-password-reset`
 
 3. **Use kebab-case**: Separate words with hyphens
+
    - ✅ `feature/user-profile-settings`
    - ❌ `feature/user_profile_settings` or `feature/userProfileSettings`
 
@@ -56,17 +59,20 @@ npm run new-feature your-feature-name
 ### Working on a Branch
 
 1. **Follow TDD**: Write tests before implementation
+
    ```bash
    npm run tdd  # Start Jest in watch mode with coverage
    ```
 
 2. **Commit regularly**: Make small, focused commits with clear messages
+
    ```bash
    git add .
    git commit -m "feat: add lesson scheduling form"
    ```
 
 3. **Run quality checks before pushing**:
+
    ```bash
    npm run quality  # Runs lint, type-check, tests, and more
    ```
@@ -79,11 +85,13 @@ npm run new-feature your-feature-name
 ### Merging to Main
 
 1. **Ensure quality checks pass**:
+
    ```bash
    npm run quality
    ```
 
 2. **Check for conflicts with main**:
+
    ```bash
    git fetch origin
    git merge origin/main
@@ -91,6 +99,7 @@ npm run new-feature your-feature-name
    ```
 
 3. **Create Pull Request** (if using PR workflow) or merge directly:
+
    ```bash
    git checkout main
    git merge feature/your-feature-name
@@ -98,10 +107,11 @@ npm run new-feature your-feature-name
    ```
 
 4. **Delete branch after merge**:
+
    ```bash
    # Delete local branch
    git branch -d feature/your-feature-name
-   
+
    # Delete remote branch
    git push origin --delete feature/your-feature-name
    ```
@@ -267,7 +277,7 @@ As of November 8, 2025:
 - [TDD Guide](docs/TDD_GUIDE.md) - Testing practices
 - [CRUD Standards](docs/CRUD_STANDARDS.md) - CRUD implementation patterns
 - [Scripts README](scripts/README.md) - Development commands
-- [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) - Project architecture
+- [Project Overview](docs/PROJECT_OVERVIEW.md) - Project architecture
 
 ## Questions?
 
