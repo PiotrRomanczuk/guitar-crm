@@ -1,7 +1,6 @@
 import React from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useSettings } from '@/components/settings/useSettings';
-import AuthProvider from '@/components/auth/AuthProvider';
 import type { User } from '@supabase/supabase-js';
 
 const mockUser: Partial<User> = {
@@ -9,8 +8,8 @@ const mockUser: Partial<User> = {
 	email: 'test@example.com',
 };
 
+// Mock the useAuth hook directly since we don't need the full AuthProvider for this test
 jest.mock('@/components/auth/AuthProvider', () => ({
-	...jest.requireActual('@/components/auth/AuthProvider'),
 	useAuth: () => ({
 		user: mockUser,
 		loading: false,
@@ -21,8 +20,9 @@ jest.mock('@/components/auth/AuthProvider', () => ({
 	}),
 }));
 
+// Simple wrapper component for testing
 const wrapper = ({ children }: { children: React.ReactNode }) => (
-	<AuthProvider>{children}</AuthProvider>
+	<div>{children}</div>
 );
 
 describe('useSettings', () => {

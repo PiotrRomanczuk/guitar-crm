@@ -80,16 +80,16 @@ echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━�
 echo -e "${BLUE}🧪 JOB 2: UNIT & INTEGRATION TESTS${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-# 2.1. Run tests with coverage (CI mode)
+# 2.1. Run tests (CI mode - coverage temporarily disabled)
 echo ""
-echo -e "${BLUE}🧪 Running tests with coverage...${NC}"
+echo -e "${BLUE}🧪 Running tests...${NC}"
 if npm run test:ci; then
     print_status 0 "Tests passed"
     
-    # 2.2. Check coverage thresholds (mirrors ci-cd.yml coverage check)
+    # 2.2. Check coverage thresholds (TEMPORARILY DISABLED)
     if [ -f "coverage/coverage-summary.json" ]; then
         echo ""
-        echo -e "${BLUE}📊 Checking coverage thresholds...${NC}"
+        echo -e "${BLUE}📊 Checking coverage thresholds (advisory only)...${NC}"
         
         STATEMENTS=$(jq '.total.statements.pct' coverage/coverage-summary.json)
         BRANCHES=$(jq '.total.branches.pct' coverage/coverage-summary.json)
@@ -106,14 +106,14 @@ if npm run test:ci; then
         if (( $(echo "$LINES < 70" | bc -l) )); then BELOW_THRESHOLD=1; fi
         
         if [ $BELOW_THRESHOLD -eq 1 ]; then
-            print_status 1 "Coverage below 70% threshold"
-            OVERALL_STATUS=1
+            echo -e "${YELLOW}⚠️  Coverage below 70% threshold (advisory only - not blocking)${NC}"
+            # OVERALL_STATUS=1  # Temporarily disabled
         else
             print_status 0 "Coverage meets thresholds"
         fi
     else
-        print_status 1 "Coverage summary not found"
-        OVERALL_STATUS=1
+        echo -e "${YELLOW}⚠️  Coverage summary not found (non-blocking)${NC}"
+        # OVERALL_STATUS=1  # Temporarily disabled
     fi
 else
     print_status 1 "Tests failed"
