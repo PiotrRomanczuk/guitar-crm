@@ -63,3 +63,7 @@ lighthouse-simple.html
 # Scripts history
 scripts/history/
 scripts/history/all_executions.md
+
+# Cypress videos and screenshots
+cypress/videos/
+cypress/screenshots/
