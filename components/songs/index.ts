@@ -3,15 +3,10 @@ export { default as SongList } from './SongList';
 export { default as SongForm } from './SongForm';
 export { default as SongFormGuard } from './SongFormGuard';
 export { default as SongDetail } from './SongDetail';
+export { default as DeleteConfirmationDialog } from './DeleteConfirmationDialog';
 
 // Hooks
 export { useSongList, useSong } from './hooks';
 
 // Types
-export type {
-	Song,
-	SongWithStatus,
-	SongLevel,
-	SongFilters,
-	SongStatus,
-} from './types';
+export type { Song, SongWithStatus, SongLevel, SongFilters, SongStatus } from './types';
