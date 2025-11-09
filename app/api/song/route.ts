@@ -154,8 +154,12 @@ export async function GET(request: NextRequest) {
  * Create a new song (requires teacher or admin role)
  */
 export async function POST(request: NextRequest) {
+  console.log('🎵 [BACKEND] POST /api/song - Request received');
+
   try {
     const cookieStore = await cookies();
+    console.log('🎵 [BACKEND] Cookies retrieved, count:', cookieStore.getAll().length);
+
     const supabase = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -170,30 +174,55 @@ export async function POST(request: NextRequest) {
         },
       }
     );
+    console.log('🎵 [BACKEND] Supabase client created');
+
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    console.log('🎵 [BACKEND] User retrieved:', user ? { id: user.id, email: user.email } : 'null');
 
     if (!user) {
+      console.error('🎵 [BACKEND] No user - returning 401');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const profile = await getOrCreateProfile(supabase, user.id, user.email || '');
+    console.log('🎵 [BACKEND] Profile retrieved:', profile);
+
     if (!profile) {
+      console.error('🎵 [BACKEND] Failed to get/create profile');
       return NextResponse.json({ error: 'Error creating user profile' }, { status: 500 });
     }
 
     const body = await request.json();
+    console.log('🎵 [BACKEND] Request body:', body);
+
     const result = await createSongHandler(supabase, user, profile, body);
+    console.log('🎵 [BACKEND] Handler result:', {
+      status: result.status,
+      hasError: !!result.error,
+      hasSong: !!result.song,
+    });
 
     if (result.error) {
+      console.error('🎵 [BACKEND] createSongHandler returned error:', result.error);
       return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
+    console.log('🎵 [BACKEND] Success! Returning song');
     return NextResponse.json(result.song, { status: result.status });
   } catch (error) {
-    console.error('POST /api/song error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('🎵 [BACKEND] POST /api/song error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    console.error('🎵 [BACKEND] Error details:', { message: errorMessage, stack: errorStack });
+    return NextResponse.json(
+      {
+        error: 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+      },
+      { status: 500 }
+    );
   }
 }
 

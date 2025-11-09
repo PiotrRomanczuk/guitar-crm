@@ -583,22 +583,26 @@ Tests are considered fixed when:
 ### ✅ Completed Fixes (Commit: 1b5e93e)
 
 **Issue #3: Pass role props to SongDetail component** - ✅ FIXED
+
 - Updated `app/dashboard/songs/[id]/page.tsx` to pass `isAdmin` and `isTeacher` props
 - Edit/delete buttons now visible to admin users
 - Resolved 9+ test failures
 
 **Issue #1: Update dashboard routing** - ✅ FIXED
+
 - Modified `app/dashboard/page.tsx` to conditionally render `AdminDashboardClient` for admins
 - Dashboard now shows "Admin Dashboard" text correctly
 - 12/14 dashboard tests passing
 - Remaining 2 failures are test-specific issues (debug view selector, user management link)
 
 **Issue #4: Fix song edit route** - ✅ FIXED
+
 - Corrected link from `/songs/{id}/edit` to `/dashboard/songs/{id}/edit`
 - Updated edit page to check both `isAdmin` and `isTeacher` permissions
 - Navigation tests passing
 
 **Database Seeding** - ✅ COMPLETED
+
 - Ran `bash scripts/database/seeding/local/seed-all.sh`
 - Created 6 test users including admin (p.romanczuk@gmail.com / test123_admin)
 - Seeded 13 songs, 12 lessons, 29 lesson-songs, 22 assignments
@@ -608,19 +612,20 @@ Tests are considered fixed when:
 
 **Overall**: 24 passing / 10 failing / 2 skipped (36 total)
 
-| Test File | Status | Pass | Fail | Skip | Notes |
-|-----------|--------|------|------|------|-------|
-| admin-sign-in.cy.ts | ✅ | 6/6 | 0 | 0 | All authentication tests passing |
-| admin-dashboard.cy.ts | 🟡 | 12/14 | 2 | 0 | Most dashboard tests working |
-| admin-complete-journey.cy.ts | 🟡 | 2/3 | 1 | 0 | Session/navigation working |
-| admin-song-delete-cascade.cy.ts | 🟡 | 3/6 | 3 | 0 | API deletion works, UI tests failing |
-| admin-song-edit.cy.ts | 🟡 | 1/3 | 2 | 0 | React re-render issue |
-| admin-create-song-journey.cy.ts | ❌ | 0/1 | 1 | 0 | Song creation 500 error |
-| admin-song-delete.cy.ts | ❌ | 0/3 | 1 | 2 | Blocked by beforeEach 500 error |
+| Test File                       | Status | Pass  | Fail | Skip | Notes                                |
+| ------------------------------- | ------ | ----- | ---- | ---- | ------------------------------------ |
+| admin-sign-in.cy.ts             | ✅     | 6/6   | 0    | 0    | All authentication tests passing     |
+| admin-dashboard.cy.ts           | 🟡     | 12/14 | 2    | 0    | Most dashboard tests working         |
+| admin-complete-journey.cy.ts    | 🟡     | 2/3   | 1    | 0    | Session/navigation working           |
+| admin-song-delete-cascade.cy.ts | 🟡     | 3/6   | 3    | 0    | API deletion works, UI tests failing |
+| admin-song-edit.cy.ts           | 🟡     | 1/3   | 2    | 0    | React re-render issue                |
+| admin-create-song-journey.cy.ts | ❌     | 0/1   | 1    | 0    | Song creation 500 error              |
+| admin-song-delete.cy.ts         | ❌     | 0/3   | 1    | 2    | Blocked by beforeEach 500 error      |
 
 ### 🔴 Remaining Issues
 
 **Issue #2: Song Creation API 500 Error** - �🔴 CRITICAL (Blocks 3+ tests)
+
 ```
 POST /api/song 500 in 583ms
 AssertionError: expected 500 to be one of [ 200, 201 ]
@@ -629,6 +634,7 @@ AssertionError: expected 500 to be one of [ 200, 201 ]
 **Status**: Database migrations applied, seed data loaded, but API still returns 500.
 
 **Next Steps**:
+
 1. Check Next.js server logs during test run for actual error
 2. Possible causes:
    - Zod validation failing on test data
@@ -637,23 +643,27 @@ AssertionError: expected 500 to be one of [ 200, 201 ]
    - Database constraint violation
 
 **Investigation Needed**:
+
 ```bash
 # Check what error is actually returned
 # Look at Next.js terminal during: npm run e2e -- --spec "cypress/e2e/admin/admin-create-song-journey.cy.ts"
 ```
 
 **Issue #5: Delete Buttons Not Visible in Some Tests** - 🟡 MEDIUM
+
 - Tests `admin-song-delete-cascade.cy.ts` expect delete buttons on song detail pages
 - 3/6 tests failing with "Expected to find element: `[data-testid="song-delete-button"]`"
 - Despite fix #3, some pages still not showing buttons
 - May be timing issue or specific song IDs not loading correctly
 
 **Issue #6: Edit Form Re-rendering** - 🟡 MEDIUM
+
 - Edit tests failing with "element detached from DOM" errors
 - React hydration/re-render causing input fields to disappear during `cy.clear()` and `cy.type()`
 - Cypress can't interact with fields that re-render mid-command
 
 **Suggested Fix**:
+
 ```typescript
 // Break up command chains to allow for re-renders
 cy.get('#title').as('titleInput');
@@ -662,6 +672,7 @@ cy.get('@titleInput').type('New Title');
 ```
 
 **Issue #7: Minor Dashboard Test Failures** - 🟢 LOW
+
 1. **User Management Navigation**: Test expects link to `/admin/users` but component shows "Coming Soon"
 2. **Debug View Selector**: Test expects "Student View" text after clicking button - may be timing issue
 
@@ -670,6 +681,7 @@ cy.get('@titleInput').type('New Title');
 ## 🎯 Next Actions (Priority Order)
 
 ### 1. Debug Song Creation API (CRITICAL - 2-3 hours)
+
 - [ ] Run test with Next.js console visible to capture actual error
 - [ ] Check Zod validation on incoming payload
 - [ ] Verify RLS policies allow admin to insert
@@ -677,16 +689,19 @@ cy.get('@titleInput').type('New Title');
 - [ ] Add detailed error logging to handlers.ts
 
 ### 2. Fix Delete Button Visibility (30 min)
+
 - [ ] Check which song IDs cascade tests are using
 - [ ] Verify those songs exist in seeded data
 - [ ] Add wait/retry logic to tests if timing issue
 
 ### 3. Fix Edit Form Re-rendering (30 min)
+
 - [ ] Update edit tests to break up command chains
 - [ ] Add `cy.wait()` or retry logic for DOM stability
 - [ ] Consider adding `key` prop to form inputs
 
 ### 4. Update Dashboard Tests (15 min)
+
 - [ ] Skip or update "User Management" test (feature not implemented)
 - [ ] Fix debug view selector timing
 
@@ -695,6 +710,7 @@ cy.get('@titleInput').type('New Title');
 ## 📝 Summary
 
 **Improvements Made**:
+
 - ✅ **+10 passing tests** (from 14 to 24)
 - ✅ Dashboard now renders correctly for admins
 - ✅ Edit/delete buttons visible when roles passed correctly
@@ -702,10 +718,195 @@ cy.get('@titleInput').type('New Title');
 - ✅ Authentication fully functional
 
 **Remaining Work**:
+
 - 🔴 1 critical blocker (song creation API)
 - 🟡 3 medium issues (delete buttons, form re-rendering, cascade tests)
 - 🟢 2 low priority test adjustments
 
 **Created**: November 9, 2025  
-**Last Updated**: November 9, 2025 - 18:30  
-**Status**: 🟡 IN PROGRESS - 24/36 tests passing (66.7%)
+**Last Updated**: November 9, 2025 - 22:45  
+**Status**: 🟡 IN PROGRESS - 26/36 tests passing (72.2%)
+
+---
+
+## 📈 Progress Update (November 9, 2025 - 22:45)
+
+### ✅ NEW: Issue #2 Song Creation FIXED! 🎉
+
+**Root Cause**: Missing `short_title` column in database
+
+- Schema defined `short_title` as optional field
+- Frontend form included `short_title` input
+- Database table didn't have the column
+- API returned PGRST204 error: "Could not find the 'short_title' column of 'songs' in the schema cache"
+
+**Solution**:
+
+- Created migration `20251109224158_add_short_title_to_songs.sql`
+- Added `ALTER TABLE songs ADD COLUMN short_title VARCHAR(50);`
+- Applied migration with `npx supabase db reset`
+- Re-seeded database
+
+**Additional Fixes During Investigation**:
+
+1. **Migration `20251109222242_fix_songs_insert_policy.sql`**: Removed `deleted_at IS NULL` check from INSERT policy WITH CHECK clause (new rows don't have deleted_at yet)
+2. **Migration `20251109223053_cleanup_duplicate_songs_policies.sql`**: Removed duplicate RLS policies causing conflicts (old `insert_songs_admin` vs new `songs_insert_policy`)
+3. **Added comprehensive logging**: Frontend (🎸) and backend (🎵) logging to trace request flow
+
+**Test Results Impact**:
+
+- ✅ `admin-create-song-journey.cy.ts` - NOW PASSING (1/1)
+- ✅ Song creation working in all other test suites
+- ✅ **+2 more tests passing** (from 24 to 26)
+- ✅ **Test pass rate improved from 66.7% to 72.2%**
+
+**Commits to Include**:
+
+- Database migrations (3 files)
+- Enhanced logging in API handlers and frontend form
+- Updated documentation
+
+---
+
+## 📊 Updated Test Results
+
+**Overall**: 26 passing / 10 failing / 0 skipped (36 total)
+
+| Test File                       | Status | Pass  | Fail | Skip | Notes                                    |
+| ------------------------------- | ------ | ----- | ---- | ---- | ---------------------------------------- |
+| admin-sign-in.cy.ts             | ✅     | 6/6   | 0    | 0    | All authentication tests passing         |
+| admin-create-song-journey.cy.ts | ✅     | 1/1   | 0    | 0    | **FIXED! Song creation working**         |
+| admin-dashboard.cy.ts           | 🟡     | 12/14 | 2    | 0    | Dashboard rendering correctly            |
+| admin-complete-journey.cy.ts    | 🟡     | 2/3   | 1    | 0    | Create works, delete button issue        |
+| admin-song-delete-cascade.cy.ts | 🟡     | 3/6   | 3    | 0    | API works, UI delete buttons not visible |
+| admin-song-edit.cy.ts           | 🟡     | 1/3   | 2    | 0    | React re-render detachment issue         |
+| admin-song-delete.cy.ts         | 🟡     | 1/3   | 2    | 0    | Delete buttons not visible               |
+
+---
+
+## 🔴 Remaining Issues (Updated Priority)
+
+### Issue #5: Delete Buttons Not Visible (3 failures) - 🔴 HIGH
+
+**Tests Affected**:
+
+- `admin-song-delete-cascade.cy.ts` (3 tests)
+- `admin-song-delete.cy.ts` (2 tests)
+- `admin-complete-journey.cy.ts` (1 test)
+
+**Error**: `Expected to find element: [data-testid="song-delete-button"], but never found it`
+
+**Investigation Needed**:
+
+- Check if delete buttons render in SongList or only in SongDetail
+- Verify tests are looking in correct location
+- May need to add delete button to SongList table rows
+
+### Issue #6: Edit Form Re-rendering (2 failures) - 🟡 MEDIUM
+
+**Tests Affected**: `admin-song-edit.cy.ts` (2 tests)
+
+**Error**: `cy.clear() failed because the page updated while this command was executing`
+
+**Known Issue**: React re-rendering form during Cypress commands
+**Fix**: Break up command chains or add form stabilization
+
+### Issue #7: Dashboard Missing Features (2 failures) - 🟢 LOW
+
+**Tests Affected**: `admin-dashboard.cy.ts` (2 tests)
+
+**Issues**:
+
+1. User Management link not implemented (shows "Coming Soon")
+2. Debug view selector test timing issue
+
+**Note**: These are expected failures for unimplemented features
+
+---
+
+## 🎯 Next Actions (Updated Priority)
+
+### 1. Fix Delete Button Visibility (HIGH - 1 hour)
+
+- [ ] Check where delete buttons should appear (list vs detail page)
+- [ ] Update tests or add buttons to appropriate location
+- [ ] Verify `data-testid="song-delete-button"` exists
+
+### 2. Fix Edit Form Re-rendering (MEDIUM - 30 min)
+
+- [ ] Update Cypress tests to break up command chains
+- [ ] Add retry logic or wait for form stability
+
+### 3. Dashboard Test Adjustments (LOW - 15 min)
+
+- [ ] Skip or update unimplemented feature tests
+- [ ] Document expected future features
+
+---
+
+**Created**: November 9, 2025  
+**Last Updated**: November 9, 2025 - 23:00  
+**Status**: 🟢 READY TO COMMIT - 26/36 tests passing (72.2%)
+
+---
+
+## 🚀 READY FOR COMMIT
+
+### Changes to Commit:
+
+**Database Migrations** (3 files):
+
+1. `supabase/migrations/20251109222242_fix_songs_insert_policy.sql` - Removed `deleted_at IS NULL` from INSERT policy WITH CHECK
+2. `supabase/migrations/20251109223053_cleanup_duplicate_songs_policies.sql` - Removed duplicate RLS policies
+3. `supabase/migrations/20251109224158_add_short_title_to_songs.sql` - Added missing `short_title` column
+
+**Frontend Logging** (1 file): 4. `components/songs/SongForm/Content.tsx` - Added comprehensive 🎸 logging for form submission flow
+
+**Backend Logging** (2 files): 5. `app/api/song/route.ts` - Added comprehensive 🎵 logging for POST handler 6. `app/api/song/handlers.ts` - Enhanced logging in createSongHandler with detailed Supabase error info
+
+### Commit Message Template:
+
+```
+feat: fix song creation 500 error and RLS policies (26/36 tests passing)
+
+- Add missing short_title column to songs table
+- Fix INSERT policy: remove deleted_at IS NULL check (new rows don't have value)
+- Clean up duplicate RLS policies (insert_songs_admin vs songs_insert_policy)
+- Add comprehensive logging for debugging (frontend 🎸 and backend 🎵)
+- Song creation now working: admin-create-song-journey test PASSING
+- Test results: 26/36 passing (72.2%), improved from 24/36 (66.7%)
+
+Database migrations:
+- 20251109222242_fix_songs_insert_policy.sql
+- 20251109223053_cleanup_duplicate_songs_policies.sql
+- 20251109224158_add_short_title_to_songs.sql
+
+Remaining issues: Delete button visibility (3 failures), edit form re-rendering (2 failures)
+```
+
+### Files Modified:
+
+```
+Modified:
+  supabase/migrations/20251109222242_fix_songs_insert_policy.sql
+  supabase/migrations/20251109223053_cleanup_duplicate_songs_policies.sql
+  supabase/migrations/20251109224158_add_short_title_to_songs.sql
+  components/songs/SongForm/Content.tsx
+  app/api/song/route.ts
+  app/api/song/handlers.ts
+  docs/copilot-todos/2025-11-09-admin-e2e-test-fixes.md
+```
+
+### Ready to Commit Command:
+
+```bash
+git add -A
+git commit -m "feat: fix song creation 500 error and RLS policies (26/36 tests passing)
+
+- Add missing short_title column to songs table
+- Fix INSERT policy: remove deleted_at IS NULL check
+- Clean up duplicate RLS policies
+- Add comprehensive logging for debugging
+- Song creation now working: admin-create-song-journey test PASSING"
+git push origin feature/core-crud
+```
