@@ -9,7 +9,7 @@ export async function GET() {
 		const { data: profiles, error } = await supabase
 			.from('profiles')
 			.select('*')
-			.order('firstname', { ascending: true });
+			.order('full_name', { ascending: true });
 
 		if (error) {
 			console.error('Error fetching profiles:', error);

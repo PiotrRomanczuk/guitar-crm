@@ -1,0 +1,755 @@
+
+> guitar-crm@0.1.0 e2e
+> start-server-and-test 'npm run dev' http://localhost:3000 'cypress run'
+
+1: starting server using command "npm run dev"
+and when url "[ 'http://localhost:3000' ]" is responding with HTTP status code 200
+running tests using command "cypress run"
+
+
+> guitar-crm@0.1.0 dev
+> next dev
+
+
+✘ next.js v16.0.0 is not yet supported in the Community edition of Console Ninja.
+We are working hard on it for you https://tinyurl.com/3h9mtwra.
+
+Estimated release dates:
+  - Community users: around 22nd December, 2025 (subject to team availability)
+  - PRO users:       priority access is available now
+
+   ▲ Next.js 16.0.0 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.22:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+ ✓ Ready in 1115ms
+ HEAD / 200 in 2.2s (compile: 1943ms, proxy.ts: 53ms, render: 154ms)
+ HEAD / 200 in 71ms (compile: 19ms, proxy.ts: 18ms, render: 33ms)
+
+DevTools listening on ws://127.0.0.1:59788/devtools/browser/b76b8532-3332-46b6-bcc8-5561e495fb4b
+Missing baseUrl in compilerOptions. tsconfig-paths will be skipped
+[32m✔[0m [33mConsole Ninja[0m extension is connected to [33mCypress[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+====================================================================================================
+
+  (Run Starting)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Cypress:        13.17.0                                                                        │
+  │ Browser:        Electron 118 (headless)                                                        │
+  │ Node Version:   v23.11.0 (/opt/homebrew/Cellar/node/23.11.0/bin/node)                          │
+  │ Specs:          7 found (admin-complete-journey.cy.ts, admin-create-song-journey.cy.ts, admin- │
+  │                 dashboard.cy.ts, admin-sign-in.cy.ts, admin-song-delete-cascade.cy.ts, admin-s │
+  │                 ong-delete.cy.ts, admin-song-edit.cy.ts)                                       │
+  │ Searched:       cypress/e2e/**/*.cy.{js,jsx,ts,tsx}                                            │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  admin-complete-journey.cy.ts                                                    (1 of 7)
+
+
+  Complete Admin Journey
+ GET /sign-in 200 in 1164ms (compile: 1049ms, render: 114ms)
+ GET / 200 in 497ms (compile: 9ms, proxy.ts: 31ms, render: 457ms)
+ GET /dashboard 200 in 587ms (compile: 416ms, proxy.ts: 27ms, render: 144ms)
+ GET /dashboard 200 in 673ms (compile: 385ms, proxy.ts: 31ms, render: 257ms)
+ GET /dashboard 200 in 189ms (compile: 4ms, proxy.ts: 45ms, render: 139ms)
+ GET /dashboard/songs 200 in 735ms (compile: 514ms, proxy.ts: 20ms, render: 201ms)
+ GET /dashboard/songs/new 200 in 627ms (compile: 358ms, proxy.ts: 66ms, render: 202ms)
+🎵 [BACKEND] POST /api/song - Request received
+🎵 [BACKEND] Cookies retrieved, count: 1
+🎵 [BACKEND] Supabase client created
+🎵 [BACKEND] User retrieved: {
+  id: '19add9bf-f24d-4d31-b622-2b6d20a93f4d',
+  email: 'p.romanczuk@gmail.com'
+}
+🎵 [BACKEND] Profile retrieved: { isAdmin: true, isTeacher: true, isStudent: false }
+🎵 [BACKEND] Request body: {
+  title: 'Admin Journey Song 1762726518276',
+  author: 'Journey Test Artist',
+  level: 'intermediate',
+  key: 'G',
+  chords: '',
+  ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/journey-test',
+  short_title: ''
+}
+=== createSongHandler START ===
+User: {"id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","aud":"authenticated","role":"authenticated","email":"p.romanczuk@gmail.com","email_confirmed_at":"2025-11-09T21:42:47.464397Z","phone":"","confirmed_at":"2025-11-09T21:42:47.464397Z","last_sign_in_at":"2025-11-09T22:15:21.406027Z","app_metadata":{"provider":"email","providers":["email"]},"user_metadata":{"email_verified":true,"firstName":"Admin","isDevelopment":true,"lastName":"User","notes":"Has full system access"},"identities":[{"identity_id":"7ac571ff-7c51-4ef0-a10a-08d226a339a0","id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","user_id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","identity_data":{"email":"p.romanczuk@gmail.com","email_verified":false,"phone_verified":false,"sub":"19add9bf-f24d-4d31-b622-2b6d20a93f4d"},"provider":"email","last_sign_in_at":"2025-11-09T21:42:47.461817Z","created_at":"2025-11-09T21:42:47.461849Z","updated_at":"2025-11-09T21:42:47.461849Z","email":"p.romanczuk@gmail.com"}],"created_at":"2025-11-09T21:42:47.454232Z","updated_at":"2025-11-09T22:15:21.420196Z","is_anonymous":false}
+Profile: {"isAdmin":true,"isTeacher":true,"isStudent":false}
+Body: {"title":"Admin Journey Song 1762726518276","author":"Journey Test Artist","level":"intermediate","key":"G","chords":"","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/journey-test","short_title":""}
+=== Validated song: {"title":"Admin Journey Song 1762726518276","author":"Journey Test Artist","level":"intermediate","key":"G","chords":"","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/journey-test","short_title":""}
+=== Calling Supabase insert...
+=== Supabase insert complete
+=== Has error? false
+=== Has data? true
+=== Success! Created song: {"id":"9b0df7bb-87a4-44f0-ab20-99ad5c32c3df","title":"Admin Journey Song 1762726518276","author":"Journey Test Artist","level":"intermediate","key":"G","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/journey-test","chords":"","created_at":"2025-11-09T22:15:28.786474+00:00","updated_at":"2025-11-09T22:15:28.786474+00:00","deleted_at":null,"short_title":""}
+🎵 [BACKEND] Handler result: { status: 201, hasError: false, hasSong: true }
+🎵 [BACKEND] Success! Returning song
+ POST /api/song 201 in 695ms (compile: 538ms, render: 157ms)
+ GET /dashboard/songs 200 in 230ms (compile: 14ms, proxy.ts: 21ms, render: 196ms)
+ GET /dashboard/songs 200 in 262ms (compile: 5ms, proxy.ts: 33ms, render: 225ms)
+ GET /dashboard/songs/9b0df7bb-87a4-44f0-ab20-99ad5c32c3df 200 in 1341ms (compile: 1224ms, proxy.ts: 20ms, render: 97ms)
+ GET /dashboard/songs/9b0df7bb-87a4-44f0-ab20-99ad5c32c3df/edit 200 in 635ms (compile: 549ms, proxy.ts: 11ms, render: 76ms)
+ PUT /api/song?id=9b0df7bb-87a4-44f0-ab20-99ad5c32c3df 200 in 99ms (compile: 11ms, render: 88ms)
+ GET /dashboard/songs 200 in 227ms (compile: 6ms, proxy.ts: 25ms, render: 196ms)
+ GET /dashboard/songs 200 in 215ms (compile: 5ms, proxy.ts: 19ms, render: 191ms)
+ GET /dashboard/songs/9b0df7bb-87a4-44f0-ab20-99ad5c32c3df 200 in 53ms (compile: 8ms, proxy.ts: 12ms, render: 34ms)
+ GET /dashboard/songs 200 in 163ms (compile: 2ms, proxy.ts: 13ms, render: 148ms)
+ GET /dashboard/songs/9b0df7bb-87a4-44f0-ab20-99ad5c32c3df 200 in 94ms (compile: 5ms, proxy.ts: 21ms, render: 68ms)
+ GET /dashboard/songs 200 in 67ms (compile: 4ms, proxy.ts: 8ms, render: 56ms)
+    1) should complete full admin workflow: login → dashboard → create → edit → delete song
+ GET /sign-in 200 in 168ms (compile: 48ms, render: 121ms)
+ GET / 200 in 85ms (compile: 6ms, proxy.ts: 29ms, render: 50ms)
+ GET /dashboard 200 in 92ms (compile: 5ms, proxy.ts: 11ms, render: 76ms)
+ GET /dashboard/songs/new 200 in 169ms (compile: 29ms, proxy.ts: 9ms, render: 131ms)
+ GET /dashboard 200 in 121ms (compile: 3ms, proxy.ts: 44ms, render: 74ms)
+    ✓ should handle errors gracefully during admin workflow (2780ms)
+ GET /sign-in 200 in 38ms (compile: 4ms, render: 34ms)
+ GET / 200 in 119ms (compile: 9ms, proxy.ts: 29ms, render: 81ms)
+ GET /dashboard 200 in 287ms (compile: 12ms, proxy.ts: 15ms, render: 260ms)
+ GET /dashboard 200 in 316ms (compile: 42ms, proxy.ts: 12ms, render: 262ms)
+ GET /dashboard 200 in 231ms (compile: 27ms, proxy.ts: 42ms, render: 161ms)
+ GET /dashboard/songs 200 in 164ms (compile: 7ms, proxy.ts: 24ms, render: 134ms)
+ GET /dashboard 200 in 84ms (compile: 2ms, proxy.ts: 26ms, render: 55ms)
+    ✓ should maintain session across navigation (3097ms)
+
+
+  2 passing (27s)
+  1 failing
+
+  1) Complete Admin Journey
+       should complete full admin workflow: login → dashboard → create → edit → delete song:
+     AssertionError: Timed out retrying after 4000ms: Expected to find element: `[data-testid="delete-confirmation-dialog"]`, but never found it.
+      at Context.eval (webpack://guitar-crm/./cypress/e2e/admin/admin-complete-journey.cy.ts:147:0)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        3                                                                                │
+  │ Passing:      2                                                                                │
+  │ Failing:      1                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  1                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     27 seconds                                                                       │
+  │ Spec Ran:     admin-complete-journey.cy.ts                                                     │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /Users/piotrromanczuk/Desktop/guitar-crm/cypress/screenshots/admin-complete-jour    (2560x1440)
+     ney.cy.ts/Complete Admin Journey -- should complete full admin workflow login →                
+     dashboard → create → edit → delete song (failed).png                                           
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  admin-create-song-journey.cy.ts                                                 (2 of 7)
+
+
+  Admin Journey - Create Song
+ GET /sign-in 200 in 68ms (compile: 13ms, render: 55ms)
+ GET / 200 in 80ms (compile: 11ms, proxy.ts: 20ms, render: 49ms)
+ GET /dashboard 200 in 185ms (compile: 10ms, proxy.ts: 32ms, render: 144ms)
+ GET /dashboard/songs 200 in 173ms (compile: 14ms, proxy.ts: 38ms, render: 121ms)
+ GET /dashboard 200 in 126ms (compile: 23ms, proxy.ts: 54ms, render: 49ms)
+ GET /dashboard/songs/new 200 in 69ms (compile: 4ms, proxy.ts: 16ms, render: 49ms)
+ GET /dashboard/songs 200 in 183ms (compile: 7ms, proxy.ts: 30ms, render: 145ms)
+🎵 [BACKEND] POST /api/song - Request received
+🎵 [BACKEND] Cookies retrieved, count: 1
+🎵 [BACKEND] Supabase client created
+🎵 [BACKEND] User retrieved: {
+  id: '19add9bf-f24d-4d31-b622-2b6d20a93f4d',
+  email: 'p.romanczuk@gmail.com'
+}
+🎵 [BACKEND] Profile retrieved: { isAdmin: true, isTeacher: true, isStudent: false }
+🎵 [BACKEND] Request body: {
+  title: 'E2E Admin Song 1762726547048',
+  author: 'Admin QA',
+  level: 'intermediate',
+  key: 'C',
+  chords: '',
+  ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/test-song',
+  short_title: ''
+}
+=== createSongHandler START ===
+User: {"id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","aud":"authenticated","role":"authenticated","email":"p.romanczuk@gmail.com","email_confirmed_at":"2025-11-09T21:42:47.464397Z","phone":"","confirmed_at":"2025-11-09T21:42:47.464397Z","last_sign_in_at":"2025-11-09T22:15:48.721164Z","app_metadata":{"provider":"email","providers":["email"]},"user_metadata":{"email_verified":true,"firstName":"Admin","isDevelopment":true,"lastName":"User","notes":"Has full system access"},"identities":[{"identity_id":"7ac571ff-7c51-4ef0-a10a-08d226a339a0","id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","user_id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","identity_data":{"email":"p.romanczuk@gmail.com","email_verified":false,"phone_verified":false,"sub":"19add9bf-f24d-4d31-b622-2b6d20a93f4d"},"provider":"email","last_sign_in_at":"2025-11-09T21:42:47.461817Z","created_at":"2025-11-09T21:42:47.461849Z","updated_at":"2025-11-09T21:42:47.461849Z","email":"p.romanczuk@gmail.com"}],"created_at":"2025-11-09T21:42:47.454232Z","updated_at":"2025-11-09T22:15:48.730118Z","is_anonymous":false}
+Profile: {"isAdmin":true,"isTeacher":true,"isStudent":false}
+Body: {"title":"E2E Admin Song 1762726547048","author":"Admin QA","level":"intermediate","key":"C","chords":"","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/test-song","short_title":""}
+=== Validated song: {"title":"E2E Admin Song 1762726547048","author":"Admin QA","level":"intermediate","key":"C","chords":"","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/test-song","short_title":""}
+=== Calling Supabase insert...
+=== Supabase insert complete
+=== Has error? false
+=== Has data? true
+=== Success! Created song: {"id":"8ed26c91-6d5f-426d-87fa-59c12070fe5f","title":"E2E Admin Song 1762726547048","author":"Admin QA","level":"intermediate","key":"C","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/test-song","chords":"","created_at":"2025-11-09T22:15:52.446439+00:00","updated_at":"2025-11-09T22:15:52.446439+00:00","deleted_at":null,"short_title":""}
+🎵 [BACKEND] Handler result: { status: 201, hasError: false, hasSong: true }
+🎵 [BACKEND] Success! Returning song
+ POST /api/song 201 in 210ms (compile: 21ms, render: 189ms)
+ GET /dashboard/songs 200 in 224ms (compile: 6ms, proxy.ts: 33ms, render: 185ms)
+ GET /dashboard/songs 200 in 287ms (compile: 3ms, proxy.ts: 12ms, render: 272ms)
+    ✓ signs in, views list, creates a song, verifies row increment (6104ms)
+
+
+  1 passing (6s)
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        1                                                                                │
+  │ Passing:      1                                                                                │
+  │ Failing:      0                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  0                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     6 seconds                                                                        │
+  │ Spec Ran:     admin-create-song-journey.cy.ts                                                  │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  admin-dashboard.cy.ts                                                           (3 of 7)
+
+
+  Admin Dashboard
+ GET /sign-in 200 in 63ms (compile: 13ms, render: 50ms)
+ GET / 200 in 75ms (compile: 11ms, proxy.ts: 21ms, render: 43ms)
+ GET /dashboard 200 in 133ms (compile: 22ms, proxy.ts: 18ms, render: 93ms)
+ GET /dashboard 200 in 182ms (compile: 5ms, proxy.ts: 22ms, render: 156ms)
+ GET /dashboard 200 in 118ms (compile: 13ms, proxy.ts: 34ms, render: 71ms)
+    ✓ should display admin dashboard with correct title and description (2186ms)
+ GET /sign-in 200 in 31ms (compile: 7ms, render: 24ms)
+ GET / 200 in 72ms (compile: 3ms, proxy.ts: 18ms, render: 51ms)
+ GET /dashboard 200 in 117ms (compile: 13ms, proxy.ts: 19ms, render: 85ms)
+ GET /dashboard 200 in 135ms (compile: 7ms, proxy.ts: 27ms, render: 101ms)
+ GET /dashboard 200 in 146ms (compile: 10ms, proxy.ts: 31ms, render: 105ms)
+    ✓ should display statistics cards (2201ms)
+ GET /sign-in 200 in 49ms (compile: 13ms, render: 37ms)
+ GET / 200 in 57ms (compile: 2ms, proxy.ts: 14ms, render: 40ms)
+ GET /dashboard 200 in 137ms (compile: 6ms, proxy.ts: 33ms, render: 99ms)
+ GET /dashboard 200 in 145ms (compile: 6ms, proxy.ts: 14ms, render: 124ms)
+ GET /dashboard 200 in 82ms (compile: 10ms, proxy.ts: 21ms, render: 51ms)
+    ✓ should display admin action cards (1937ms)
+ GET /sign-in 200 in 51ms (compile: 3ms, render: 49ms)
+ GET / 200 in 76ms (compile: 7ms, proxy.ts: 11ms, render: 57ms)
+ GET /dashboard 200 in 136ms (compile: 18ms, proxy.ts: 20ms, render: 98ms)
+ GET /dashboard 200 in 158ms (compile: 8ms, proxy.ts: 20ms, render: 131ms)
+ GET /dashboard 200 in 105ms (compile: 11ms, proxy.ts: 39ms, render: 54ms)
+    1) should navigate to user management page
+ GET /sign-in 200 in 159ms (compile: 99ms, render: 60ms)
+ GET / 200 in 98ms (compile: 16ms, proxy.ts: 31ms, render: 51ms)
+ GET /dashboard 200 in 189ms (compile: 6ms, proxy.ts: 26ms, render: 157ms)
+ GET /dashboard 200 in 82ms (compile: 13ms, proxy.ts: 40ms, render: 29ms)
+ GET /dashboard 200 in 217ms (compile: 20ms, proxy.ts: 69ms, render: 128ms)
+    ✓ should show "Coming Soon" badges for unavailable features (2235ms)
+ GET /sign-in 200 in 37ms (compile: 2ms, render: 35ms)
+ GET / 200 in 83ms (compile: 8ms, proxy.ts: 23ms, render: 51ms)
+ GET /dashboard 200 in 138ms (compile: 7ms, proxy.ts: 38ms, render: 93ms)
+ GET /dashboard 200 in 144ms (compile: 16ms, proxy.ts: 10ms, render: 119ms)
+ GET /dashboard 200 in 63ms (compile: 2ms, proxy.ts: 15ms, render: 46ms)
+    ✓ should display recent activity section (2314ms)
+ GET /sign-in 200 in 28ms (compile: 1951µs, render: 26ms)
+ GET / 200 in 51ms (compile: 3ms, proxy.ts: 15ms, render: 32ms)
+ GET /dashboard 200 in 92ms (compile: 2ms, proxy.ts: 18ms, render: 72ms)
+ GET /dashboard 200 in 108ms (compile: 2ms, proxy.ts: 11ms, render: 95ms)
+ GET /dashboard 200 in 73ms (compile: 14ms, proxy.ts: 24ms, render: 35ms)
+ GET /dashboard/songs 200 in 89ms (compile: 3ms, proxy.ts: 11ms, render: 74ms)
+    ✓ should allow navigation to songs management (2093ms)
+ GET /sign-in 200 in 25ms (compile: 1724µs, render: 23ms)
+ GET / 200 in 70ms (compile: 3ms, proxy.ts: 15ms, render: 52ms)
+ GET /dashboard 200 in 116ms (compile: 25ms, proxy.ts: 10ms, render: 81ms)
+ GET /dashboard 200 in 141ms (compile: 5ms, proxy.ts: 19ms, render: 118ms)
+ GET /dashboard 200 in 88ms (compile: 18ms, proxy.ts: 25ms, render: 45ms)
+    ✓ should display debug view selector (1919ms)
+ GET /sign-in 200 in 37ms (compile: 1452µs, render: 36ms)
+ GET / 200 in 62ms (compile: 3ms, proxy.ts: 15ms, render: 44ms)
+ GET /dashboard 200 in 181ms (compile: 16ms, proxy.ts: 24ms, render: 141ms)
+ GET /dashboard 200 in 201ms (compile: 6ms, proxy.ts: 10ms, render: 185ms)
+ GET /dashboard 200 in 181ms (compile: 21ms, proxy.ts: 77ms, render: 83ms)
+    2) should switch between debug views
+ GET /sign-in 200 in 182ms (compile: 21ms, render: 161ms)
+ GET / 200 in 185ms (compile: 6ms, proxy.ts: 52ms, render: 127ms)
+ GET /dashboard 200 in 343ms (compile: 6ms, proxy.ts: 58ms, render: 279ms)
+ GET /dashboard 200 in 365ms (compile: 6ms, proxy.ts: 34ms, render: 326ms)
+ GET /dashboard 200 in 258ms (compile: 18ms, proxy.ts: 64ms, render: 176ms)
+    ✓ should have working navigation menu (2926ms)
+ GET /sign-in 200 in 72ms (compile: 14ms, render: 58ms)
+ GET / 200 in 130ms (compile: 16ms, proxy.ts: 28ms, render: 85ms)
+ GET /dashboard 200 in 137ms (compile: 3ms, proxy.ts: 31ms, render: 102ms)
+ GET /dashboard 200 in 167ms (compile: 6ms, proxy.ts: 25ms, render: 136ms)
+ GET /dashboard 200 in 109ms (compile: 27ms, proxy.ts: 30ms, render: 52ms)
+    ✓ should show admin role indicator or admin-specific features (2175ms)
+ GET /sign-in 200 in 24ms (compile: 1788µs, render: 22ms)
+ GET / 200 in 215ms (compile: 25ms, proxy.ts: 101ms, render: 90ms)
+ GET /dashboard 200 in 207ms (compile: 10ms, proxy.ts: 31ms, render: 166ms)
+ GET /dashboard 200 in 267ms (compile: 13ms, proxy.ts: 15ms, render: 239ms)
+ GET /dashboard 200 in 216ms (compile: 30ms, proxy.ts: 44ms, render: 142ms)
+    ✓ should load without errors (2254ms)
+ GET /sign-in 200 in 42ms (compile: 4ms, render: 37ms)
+ GET / 200 in 94ms (compile: 6ms, proxy.ts: 22ms, render: 66ms)
+ GET /dashboard 200 in 118ms (compile: 6ms, proxy.ts: 32ms, render: 80ms)
+ GET /dashboard 200 in 164ms (compile: 3ms, proxy.ts: 15ms, render: 146ms)
+ GET /dashboard 200 in 98ms (compile: 15ms, proxy.ts: 23ms, render: 60ms)
+    ✓ should be responsive on mobile viewport (1953ms)
+ GET /sign-in 200 in 36ms (compile: 8ms, render: 28ms)
+ GET / 200 in 64ms (compile: 3ms, proxy.ts: 20ms, render: 41ms)
+ GET /dashboard 200 in 139ms (compile: 5ms, proxy.ts: 11ms, render: 123ms)
+ GET /dashboard 200 in 98ms (compile: 13ms, proxy.ts: 14ms, render: 70ms)
+ GET /dashboard 200 in 86ms (compile: 3ms, proxy.ts: 33ms, render: 51ms)
+    ✓ should be responsive on tablet viewport (1888ms)
+
+
+  12 passing (39s)
+  2 failing
+
+  1) Admin Dashboard
+       should navigate to user management page:
+     AssertionError: Timed out retrying after 4000ms: Expected to find element: `a`, but never found it. Queried from:
+
+              > cy.contains(User Management)
+      at Context.eval (webpack://guitar-crm/./cypress/e2e/admin/admin-dashboard.cy.ts:52:0)
+
+  2) Admin Dashboard
+       should switch between debug views:
+     AssertionError: Timed out retrying after 4000ms: Expected to find content: 'Student View' but never did.
+      at Context.eval (webpack://guitar-crm/./cypress/e2e/admin/admin-dashboard.cy.ts:102:0)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        14                                                                               │
+  │ Passing:      12                                                                               │
+  │ Failing:      2                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  2                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     39 seconds                                                                       │
+  │ Spec Ran:     admin-dashboard.cy.ts                                                            │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /Users/piotrromanczuk/Desktop/guitar-crm/cypress/screenshots/admin-dashboard.cy.    (2560x1440)
+     ts/Admin Dashboard -- should navigate to user management page (failed).png                     
+  -  /Users/piotrromanczuk/Desktop/guitar-crm/cypress/screenshots/admin-dashboard.cy.    (2560x1440)
+     ts/Admin Dashboard -- should switch between debug views (failed).png                           
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  admin-sign-in.cy.ts                                                             (4 of 7)
+
+
+  Admin Sign-In
+ GET / 200 in 70ms (compile: 8ms, proxy.ts: 14ms, render: 48ms)
+ GET /sign-in 200 in 13ms (compile: 2ms, render: 11ms)
+    ✓ loads landing page and navigates to sign-in (496ms)
+ GET /sign-in 200 in 35ms (compile: 1564µs, render: 33ms)
+    ✓ displays sign-in form correctly (296ms)
+ GET /sign-in 200 in 25ms (compile: 1347µs, render: 23ms)
+    ✓ fills credentials and submits form (1287ms)
+ GET /sign-in 200 in 61ms (compile: 11ms, render: 50ms)
+ GET / 200 in 78ms (compile: 3ms, proxy.ts: 25ms, render: 50ms)
+ GET /dashboard 200 in 87ms (compile: 3ms, proxy.ts: 15ms, render: 69ms)
+ GET /dashboard 200 in 108ms (compile: 5ms, proxy.ts: 17ms, render: 85ms)
+    ✓ authenticates successfully and redirects to dashboard (1617ms)
+ GET /sign-in 200 in 329ms (compile: 4ms, render: 324ms)
+ GET / 200 in 88ms (compile: 4ms, proxy.ts: 35ms, render: 48ms)
+ GET /dashboard 200 in 81ms (compile: 3ms, proxy.ts: 27ms, render: 51ms)
+ GET /dashboard 200 in 68ms (compile: 3ms, proxy.ts: 18ms, render: 47ms)
+ GET /dashboard/songs 200 in 96ms (compile: 3ms, proxy.ts: 9ms, render: 84ms)
+    ✓ accesses songs page as admin (2630ms)
+ GET /sign-in 200 in 28ms (compile: 1496µs, render: 27ms)
+ GET / 200 in 66ms (compile: 4ms, proxy.ts: 16ms, render: 46ms)
+ GET /dashboard 200 in 48ms (compile: 3ms, proxy.ts: 9ms, render: 36ms)
+ GET /dashboard 200 in 62ms (compile: 4ms, proxy.ts: 21ms, render: 38ms)
+ GET /dashboard/songs 200 in 91ms (compile: 2ms, proxy.ts: 11ms, render: 78ms)
+ GET /dashboard/songs/new 200 in 53ms (compile: 5ms, proxy.ts: 12ms, render: 36ms)
+    ✓ creates new song as admin (1863ms)
+
+
+  6 passing (8s)
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        6                                                                                │
+  │ Passing:      6                                                                                │
+  │ Failing:      0                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  0                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     8 seconds                                                                        │
+  │ Spec Ran:     admin-sign-in.cy.ts                                                              │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  admin-song-delete-cascade.cy.ts                                                 (5 of 7)
+
+
+  Admin Song Delete Cascade - TDD
+ GET /sign-in 200 in 38ms (compile: 2ms, render: 36ms)
+    ✓ should load sign-in page (365ms)
+ GET /sign-in 200 in 27ms (compile: 1595µs, render: 26ms)
+ GET / 200 in 139ms (compile: 11ms, proxy.ts: 34ms, render: 94ms)
+ GET /dashboard 200 in 88ms (compile: 3ms, proxy.ts: 10ms, render: 76ms)
+ GET /dashboard 200 in 109ms (compile: 4ms, proxy.ts: 21ms, render: 84ms)
+    ✓ should sign in as admin successfully (1784ms)
+ GET /sign-in 200 in 45ms (compile: 7ms, render: 39ms)
+ GET / 200 in 105ms (compile: 3ms, proxy.ts: 29ms, render: 73ms)
+ GET /dashboard 200 in 94ms (compile: 20ms, proxy.ts: 14ms, render: 60ms)
+ GET /dashboard 200 in 62ms (compile: 3ms, proxy.ts: 22ms, render: 36ms)
+ GET /dashboard/songs 200 in 115ms (compile: 3ms, proxy.ts: 9ms, render: 104ms)
+    ✓ should show delete button for admin users (1989ms)
+ GET /sign-in 200 in 34ms (compile: 1876µs, render: 33ms)
+ GET / 200 in 79ms (compile: 9ms, proxy.ts: 21ms, render: 50ms)
+ GET /dashboard 200 in 67ms (compile: 5ms, proxy.ts: 9ms, render: 54ms)
+ GET /dashboard 200 in 50ms (compile: 1818µs, proxy.ts: 14ms, render: 34ms)
+ GET /dashboard/songs 200 in 102ms (compile: 2ms, proxy.ts: 12ms, render: 88ms)
+    ✓ should show confirmation dialog when attempting to delete song (1952ms)
+ GET /sign-in 200 in 31ms (compile: 1881µs, render: 29ms)
+ GET / 200 in 86ms (compile: 10ms, proxy.ts: 22ms, render: 55ms)
+ GET /dashboard 200 in 68ms (compile: 3ms, proxy.ts: 8ms, render: 58ms)
+ GET /dashboard 200 in 66ms (compile: 2ms, proxy.ts: 23ms, render: 41ms)
+ GET /dashboard/songs 200 in 95ms (compile: 3ms, proxy.ts: 8ms, render: 84ms)
+ GET /dashboard/songs/8ed26c91-6d5f-426d-87fa-59c12070fe5f 200 in 65ms (compile: 15ms, proxy.ts: 10ms, render: 40ms)
+ GET /dashboard/songs 200 in 79ms (compile: 6ms, proxy.ts: 9ms, render: 64ms)
+    1) should perform soft delete when confirmed
+ GET /sign-in 200 in 155ms (compile: 99ms, render: 55ms)
+ GET / 200 in 135ms (compile: 9ms, proxy.ts: 69ms, render: 57ms)
+ GET /dashboard 200 in 89ms (compile: 3ms, proxy.ts: 12ms, render: 74ms)
+ GET /dashboard 200 in 61ms (compile: 4ms, proxy.ts: 15ms, render: 42ms)
+ GET /dashboard/songs 200 in 146ms (compile: 11ms, proxy.ts: 9ms, render: 127ms)
+ GET /api/song 200 in 96ms (compile: 9ms, render: 87ms)
+ DELETE /api/song?id=378cf536-31d9-44a8-b280-0622fe3c8029 200 in 67ms (compile: 6ms, render: 61ms)
+ GET /api/song 200 in 39ms (compile: 6ms, render: 33ms)
+    ✓ should handle cascade deletion properly via API (2779ms)
+
+
+  5 passing (15s)
+  1 failing
+
+  1) Admin Song Delete Cascade - TDD
+       should perform soft delete when confirmed:
+     AssertionError: Timed out retrying after 4000ms: Expected to find element: `[data-testid="delete-confirm-button"]`, but never found it.
+      at Context.eval (webpack://guitar-crm/./cypress/e2e/admin/admin-song-delete-cascade.cy.ts:100:0)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        6                                                                                │
+  │ Passing:      5                                                                                │
+  │ Failing:      1                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  1                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     15 seconds                                                                       │
+  │ Spec Ran:     admin-song-delete-cascade.cy.ts                                                  │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /Users/piotrromanczuk/Desktop/guitar-crm/cypress/screenshots/admin-song-delete-c    (2560x1440)
+     ascade.cy.ts/Admin Song Delete Cascade - TDD -- should perform soft delete when                
+     confirmed (failed).png                                                                         
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  admin-song-delete.cy.ts                                                         (6 of 7)
+
+
+  Admin Journey - Delete Song
+ GET /sign-in 200 in 45ms (compile: 6ms, render: 39ms)
+ GET / 200 in 63ms (compile: 7ms, proxy.ts: 13ms, render: 43ms)
+ GET /dashboard/songs/new 200 in 103ms (compile: 22ms, proxy.ts: 9ms, render: 72ms)
+ GET /dashboard 200 in 124ms (compile: 5ms, proxy.ts: 9ms, render: 109ms)
+ GET /dashboard 200 in 77ms (compile: 14ms, proxy.ts: 30ms, render: 33ms)
+🎵 [BACKEND] POST /api/song - Request received
+🎵 [BACKEND] Cookies retrieved, count: 1
+🎵 [BACKEND] Supabase client created
+🎵 [BACKEND] User retrieved: {
+  id: '19add9bf-f24d-4d31-b622-2b6d20a93f4d',
+  email: 'p.romanczuk@gmail.com'
+}
+🎵 [BACKEND] Profile retrieved: { isAdmin: true, isTeacher: true, isStudent: false }
+🎵 [BACKEND] Request body: {
+  title: 'Test Song to Delete 1762726621072',
+  author: 'Delete Test Author',
+  level: 'beginner',
+  key: 'E',
+  chords: '',
+  ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/delete-test',
+  short_title: ''
+}
+=== createSongHandler START ===
+User: {"id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","aud":"authenticated","role":"authenticated","email":"p.romanczuk@gmail.com","email_confirmed_at":"2025-11-09T21:42:47.464397Z","phone":"","confirmed_at":"2025-11-09T21:42:47.464397Z","last_sign_in_at":"2025-11-09T22:17:02.564711Z","app_metadata":{"provider":"email","providers":["email"]},"user_metadata":{"email_verified":true,"firstName":"Admin","isDevelopment":true,"lastName":"User","notes":"Has full system access"},"identities":[{"identity_id":"7ac571ff-7c51-4ef0-a10a-08d226a339a0","id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","user_id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","identity_data":{"email":"p.romanczuk@gmail.com","email_verified":false,"phone_verified":false,"sub":"19add9bf-f24d-4d31-b622-2b6d20a93f4d"},"provider":"email","last_sign_in_at":"2025-11-09T21:42:47.461817Z","created_at":"2025-11-09T21:42:47.461849Z","updated_at":"2025-11-09T21:42:47.461849Z","email":"p.romanczuk@gmail.com"}],"created_at":"2025-11-09T21:42:47.454232Z","updated_at":"2025-11-09T22:17:02.567664Z","is_anonymous":false}
+Profile: {"isAdmin":true,"isTeacher":true,"isStudent":false}
+Body: {"title":"Test Song to Delete 1762726621072","author":"Delete Test Author","level":"beginner","key":"E","chords":"","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/delete-test","short_title":""}
+=== Validated song: {"title":"Test Song to Delete 1762726621072","author":"Delete Test Author","level":"beginner","key":"E","chords":"","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/delete-test","short_title":""}
+=== Calling Supabase insert...
+=== Supabase insert complete
+=== Has error? false
+=== Has data? true
+=== Success! Created song: {"id":"2c13776d-81c9-4e1e-9246-a7f72ee87f67","title":"Test Song to Delete 1762726621072","author":"Delete Test Author","level":"beginner","key":"E","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/delete-test","chords":"","created_at":"2025-11-09T22:17:05.640954+00:00","updated_at":"2025-11-09T22:17:05.640954+00:00","deleted_at":null,"short_title":""}
+🎵 [BACKEND] Handler result: { status: 201, hasError: false, hasSong: true }
+🎵 [BACKEND] Success! Returning song
+ POST /api/song 201 in 63ms (compile: 3ms, render: 60ms)
+ GET /dashboard/songs 200 in 169ms (compile: 3ms, proxy.ts: 23ms, render: 143ms)
+ GET /dashboard/songs 200 in 187ms (compile: 8ms, proxy.ts: 15ms, render: 164ms)
+ GET /dashboard/songs/2c13776d-81c9-4e1e-9246-a7f72ee87f67 200 in 108ms (compile: 14ms, proxy.ts: 25ms, render: 69ms)
+ GET /api/song 200 in 33ms (compile: 1977µs, render: 31ms)
+ GET /dashboard/songs 200 in 109ms (compile: 4ms, proxy.ts: 11ms, render: 93ms)
+    1) should delete a song from detail page and verify removal from list
+ GET /sign-in 200 in 100ms (compile: 45ms, render: 55ms)
+ GET / 200 in 82ms (compile: 7ms, proxy.ts: 41ms, render: 34ms)
+ GET /dashboard/songs/new 200 in 111ms (compile: 7ms, proxy.ts: 22ms, render: 82ms)
+ GET /dashboard 200 in 142ms (compile: 5ms, proxy.ts: 9ms, render: 128ms)
+ GET /dashboard 200 in 83ms (compile: 16ms, proxy.ts: 32ms, render: 36ms)
+🎵 [BACKEND] POST /api/song - Request received
+🎵 [BACKEND] Cookies retrieved, count: 1
+🎵 [BACKEND] Supabase client created
+🎵 [BACKEND] User retrieved: {
+  id: '19add9bf-f24d-4d31-b622-2b6d20a93f4d',
+  email: 'p.romanczuk@gmail.com'
+}
+🎵 [BACKEND] Profile retrieved: { isAdmin: true, isTeacher: true, isStudent: false }
+🎵 [BACKEND] Request body: {
+  title: 'Test Song to Delete 1762726621072',
+  author: 'Delete Test Author',
+  level: 'beginner',
+  key: 'E',
+  chords: '',
+  ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/delete-test',
+  short_title: ''
+}
+=== createSongHandler START ===
+User: {"id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","aud":"authenticated","role":"authenticated","email":"p.romanczuk@gmail.com","email_confirmed_at":"2025-11-09T21:42:47.464397Z","phone":"","confirmed_at":"2025-11-09T21:42:47.464397Z","last_sign_in_at":"2025-11-09T22:17:12.318844Z","app_metadata":{"provider":"email","providers":["email"]},"user_metadata":{"email_verified":true,"firstName":"Admin","isDevelopment":true,"lastName":"User","notes":"Has full system access"},"identities":[{"identity_id":"7ac571ff-7c51-4ef0-a10a-08d226a339a0","id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","user_id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","identity_data":{"email":"p.romanczuk@gmail.com","email_verified":false,"phone_verified":false,"sub":"19add9bf-f24d-4d31-b622-2b6d20a93f4d"},"provider":"email","last_sign_in_at":"2025-11-09T21:42:47.461817Z","created_at":"2025-11-09T21:42:47.461849Z","updated_at":"2025-11-09T21:42:47.461849Z","email":"p.romanczuk@gmail.com"}],"created_at":"2025-11-09T21:42:47.454232Z","updated_at":"2025-11-09T22:17:12.32108Z","is_anonymous":false}
+Profile: {"isAdmin":true,"isTeacher":true,"isStudent":false}
+Body: {"title":"Test Song to Delete 1762726621072","author":"Delete Test Author","level":"beginner","key":"E","chords":"","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/delete-test","short_title":""}
+=== Validated song: {"title":"Test Song to Delete 1762726621072","author":"Delete Test Author","level":"beginner","key":"E","chords":"","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/delete-test","short_title":""}
+=== Calling Supabase insert...
+=== Supabase insert complete
+=== Has error? false
+=== Has data? true
+=== Success! Created song: {"id":"4c21c436-ce1a-492a-b2c9-09e560296819","title":"Test Song to Delete 1762726621072","author":"Delete Test Author","level":"beginner","key":"E","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/delete-test","chords":"","created_at":"2025-11-09T22:17:15.426163+00:00","updated_at":"2025-11-09T22:17:15.426163+00:00","deleted_at":null,"short_title":""}
+🎵 [BACKEND] Handler result: { status: 201, hasError: false, hasSong: true }
+🎵 [BACKEND] Success! Returning song
+ POST /api/song 201 in 61ms (compile: 2ms, render: 59ms)
+ GET /dashboard/songs 200 in 150ms (compile: 3ms, proxy.ts: 9ms, render: 137ms)
+ GET /dashboard/songs 200 in 146ms (compile: 3ms, proxy.ts: 34ms, render: 109ms)
+ GET /dashboard/songs/4c21c436-ce1a-492a-b2c9-09e560296819 200 in 109ms (compile: 16ms, proxy.ts: 17ms, render: 76ms)
+ GET /api/song 200 in 49ms (compile: 4ms, render: 44ms)
+ GET /dashboard/songs 200 in 70ms (compile: 2ms, proxy.ts: 10ms, render: 59ms)
+    2) should not delete song if user cancels confirmation
+ GET /sign-in 200 in 68ms (compile: 12ms, render: 56ms)
+ GET / 200 in 96ms (compile: 5ms, proxy.ts: 25ms, render: 66ms)
+ GET /dashboard/songs/new 200 in 95ms (compile: 8ms, proxy.ts: 12ms, render: 75ms)
+ GET /dashboard 200 in 115ms (compile: 1832µs, proxy.ts: 7ms, render: 106ms)
+ GET /dashboard 200 in 86ms (compile: 13ms, proxy.ts: 34ms, render: 40ms)
+🎵 [BACKEND] POST /api/song - Request received
+🎵 [BACKEND] Cookies retrieved, count: 1
+🎵 [BACKEND] Supabase client created
+🎵 [BACKEND] User retrieved: {
+  id: '19add9bf-f24d-4d31-b622-2b6d20a93f4d',
+  email: 'p.romanczuk@gmail.com'
+}
+🎵 [BACKEND] Profile retrieved: { isAdmin: true, isTeacher: true, isStudent: false }
+🎵 [BACKEND] Request body: {
+  title: 'Test Song to Delete 1762726621072',
+  author: 'Delete Test Author',
+  level: 'beginner',
+  key: 'E',
+  chords: '',
+  ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/delete-test',
+  short_title: ''
+}
+=== createSongHandler START ===
+User: {"id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","aud":"authenticated","role":"authenticated","email":"p.romanczuk@gmail.com","email_confirmed_at":"2025-11-09T21:42:47.464397Z","phone":"","confirmed_at":"2025-11-09T21:42:47.464397Z","last_sign_in_at":"2025-11-09T22:17:21.856392Z","app_metadata":{"provider":"email","providers":["email"]},"user_metadata":{"email_verified":true,"firstName":"Admin","isDevelopment":true,"lastName":"User","notes":"Has full system access"},"identities":[{"identity_id":"7ac571ff-7c51-4ef0-a10a-08d226a339a0","id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","user_id":"19add9bf-f24d-4d31-b622-2b6d20a93f4d","identity_data":{"email":"p.romanczuk@gmail.com","email_verified":false,"phone_verified":false,"sub":"19add9bf-f24d-4d31-b622-2b6d20a93f4d"},"provider":"email","last_sign_in_at":"2025-11-09T21:42:47.461817Z","created_at":"2025-11-09T21:42:47.461849Z","updated_at":"2025-11-09T21:42:47.461849Z","email":"p.romanczuk@gmail.com"}],"created_at":"2025-11-09T21:42:47.454232Z","updated_at":"2025-11-09T22:17:21.858529Z","is_anonymous":false}
+Profile: {"isAdmin":true,"isTeacher":true,"isStudent":false}
+Body: {"title":"Test Song to Delete 1762726621072","author":"Delete Test Author","level":"beginner","key":"E","chords":"","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/delete-test","short_title":""}
+=== Validated song: {"title":"Test Song to Delete 1762726621072","author":"Delete Test Author","level":"beginner","key":"E","chords":"","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/delete-test","short_title":""}
+=== Calling Supabase insert...
+=== Supabase insert complete
+=== Has error? false
+=== Has data? true
+=== Success! Created song: {"id":"a8da1a12-8621-43f4-b6c4-4bd80562b8d4","title":"Test Song to Delete 1762726621072","author":"Delete Test Author","level":"beginner","key":"E","ultimate_guitar_link":"https://tabs.ultimate-guitar.com/tab/delete-test","chords":"","created_at":"2025-11-09T22:17:25.106606+00:00","updated_at":"2025-11-09T22:17:25.106606+00:00","deleted_at":null,"short_title":""}
+🎵 [BACKEND] Handler result: { status: 201, hasError: false, hasSong: true }
+🎵 [BACKEND] Success! Returning song
+ POST /api/song 201 in 96ms (compile: 13ms, render: 83ms)
+ GET /dashboard/songs 200 in 148ms (compile: 32ms, proxy.ts: 10ms, render: 106ms)
+ GET /dashboard/songs 200 in 164ms (compile: 5ms, proxy.ts: 17ms, render: 142ms)
+ GET /dashboard/songs/a8da1a12-8621-43f4-b6c4-4bd80562b8d4 200 in 58ms (compile: 8ms, proxy.ts: 15ms, render: 35ms)
+ GET /dashboard/songs 200 in 70ms (compile: 3ms, proxy.ts: 17ms, render: 50ms)
+    3) should handle delete error gracefully
+
+
+  0 passing (29s)
+  3 failing
+
+  1) Admin Journey - Delete Song
+       should delete a song from detail page and verify removal from list:
+     AssertionError: Timed out retrying after 4000ms: Expected to find element: `[data-testid="delete-confirm-button"]`, but never found it.
+      at Context.eval (webpack://guitar-crm/./cypress/e2e/admin/admin-song-delete.cy.ts:62:0)
+
+  2) Admin Journey - Delete Song
+       should not delete song if user cancels confirmation:
+     AssertionError: Timed out retrying after 4000ms: Expected to find element: `[data-testid="delete-cancel-button"]`, but never found it.
+      at Context.eval (webpack://guitar-crm/./cypress/e2e/admin/admin-song-delete.cy.ts:92:0)
+
+  3) Admin Journey - Delete Song
+       should handle delete error gracefully:
+     AssertionError: Timed out retrying after 4000ms: Expected to find element: `[data-testid="delete-confirm-button"]`, but never found it.
+      at Context.eval (webpack://guitar-crm/./cypress/e2e/admin/admin-song-delete.cy.ts:121:0)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        3                                                                                │
+  │ Passing:      0                                                                                │
+  │ Failing:      3                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  3                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     29 seconds                                                                       │
+  │ Spec Ran:     admin-song-delete.cy.ts                                                          │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /Users/piotrromanczuk/Desktop/guitar-crm/cypress/screenshots/admin-song-delete.c    (2560x1440)
+     y.ts/Admin Journey - Delete Song -- should delete a song from detail page and ve               
+     rify removal from list (failed).png                                                            
+  -  /Users/piotrromanczuk/Desktop/guitar-crm/cypress/screenshots/admin-song-delete.c    (2560x1440)
+     y.ts/Admin Journey - Delete Song -- should not delete song if user cancels confi               
+     rmation (failed).png                                                                           
+  -  /Users/piotrromanczuk/Desktop/guitar-crm/cypress/screenshots/admin-song-delete.c    (2560x1440)
+     y.ts/Admin Journey - Delete Song -- should handle delete error gracefully (faile               
+     d).png                                                                                         
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  admin-song-edit.cy.ts                                                           (7 of 7)
+
+
+  Admin Journey - Edit Song
+ GET /sign-in 200 in 80ms (compile: 11ms, render: 69ms)
+ GET / 200 in 82ms (compile: 6ms, proxy.ts: 18ms, render: 58ms)
+ GET /dashboard 200 in 103ms (compile: 3ms, proxy.ts: 8ms, render: 91ms)
+ GET /dashboard/songs 200 in 134ms (compile: 10ms, proxy.ts: 14ms, render: 111ms)
+ GET /dashboard 200 in 123ms (compile: 4ms, proxy.ts: 38ms, render: 81ms)
+ GET /dashboard/songs/c564ee85-d5da-4b75-8ec9-f5410c2545c6 200 in 69ms (compile: 8ms, proxy.ts: 16ms, render: 45ms)
+ GET /dashboard/songs/c564ee85-d5da-4b75-8ec9-f5410c2545c6/edit 200 in 62ms (compile: 8ms, proxy.ts: 11ms, render: 42ms)
+ PUT /api/song?id=c564ee85-d5da-4b75-8ec9-f5410c2545c6 200 in 57ms (compile: 5ms, render: 52ms)
+ GET /dashboard/songs 200 in 76ms (compile: 3ms, proxy.ts: 10ms, render: 62ms)
+ GET /dashboard/songs 200 in 91ms (compile: 2ms, proxy.ts: 9ms, render: 79ms)
+    ✓ should edit an existing song successfully (4619ms)
+ GET /sign-in 200 in 35ms (compile: 3ms, render: 32ms)
+ GET / 200 in 76ms (compile: 9ms, proxy.ts: 18ms, render: 48ms)
+ GET /dashboard/songs 200 in 148ms (compile: 23ms, proxy.ts: 8ms, render: 117ms)
+ GET /dashboard 200 in 155ms (compile: 4ms, proxy.ts: 11ms, render: 140ms)
+ GET /dashboard 200 in 94ms (compile: 3ms, proxy.ts: 19ms, render: 72ms)
+ GET /dashboard/songs/c564ee85-d5da-4b75-8ec9-f5410c2545c6 200 in 54ms (compile: 6ms, proxy.ts: 11ms, render: 37ms)
+ GET /dashboard/songs/c564ee85-d5da-4b75-8ec9-f5410c2545c6/edit 200 in 58ms (compile: 5ms, proxy.ts: 9ms, render: 44ms)
+    ✓ should show validation errors for invalid edit data (2801ms)
+ GET /sign-in 200 in 29ms (compile: 3ms, render: 26ms)
+ GET / 200 in 82ms (compile: 4ms, proxy.ts: 18ms, render: 60ms)
+ GET /dashboard/songs 200 in 160ms (compile: 16ms, proxy.ts: 11ms, render: 133ms)
+ GET /dashboard 200 in 166ms (compile: 8ms, proxy.ts: 10ms, render: 149ms)
+ GET /dashboard 200 in 102ms (compile: 29ms, proxy.ts: 24ms, render: 49ms)
+ GET /dashboard/songs/c564ee85-d5da-4b75-8ec9-f5410c2545c6 200 in 55ms (compile: 5ms, proxy.ts: 13ms, render: 37ms)
+ GET /dashboard/songs/c564ee85-d5da-4b75-8ec9-f5410c2545c6/edit 200 in 56ms (compile: 5ms, proxy.ts: 9ms, render: 42ms)
+    ✓ should cancel edit and return to detail page (3086ms)
+
+
+  3 passing (11s)
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        3                                                                                │
+  │ Passing:      3                                                                                │
+  │ Failing:      0                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  0                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     10 seconds                                                                       │
+  │ Spec Ran:     admin-song-edit.cy.ts                                                            │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+====================================================================================================
+
+  (Run Finished)
+
+
+       Spec                                              Tests  Passing  Failing  Pending  Skipped  
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ✖  admin-complete-journey.cy.ts             00:27        3        2        1        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔  admin-create-song-journey.cy.ts          00:06        1        1        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✖  admin-dashboard.cy.ts                    00:39       14       12        2        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔  admin-sign-in.cy.ts                      00:08        6        6        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✖  admin-song-delete-cascade.cy.ts          00:15        6        5        1        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✖  admin-song-delete.cy.ts                  00:29        3        -        3        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔  admin-song-edit.cy.ts                    00:10        3        3        -        -        - │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+    ✖  4 of 7 failed (57%)                      02:15       36       29        7        -        -  
+
+Error: Command failed with exit code 7: cypress run
+    at makeError (/Users/piotrromanczuk/Desktop/guitar-crm/node_modules/start-server-and-test/node_modules/execa/lib/error.js:60:11)
+    at handlePromise (/Users/piotrromanczuk/Desktop/guitar-crm/node_modules/start-server-and-test/node_modules/execa/index.js:118:26)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  shortMessage: 'Command failed with exit code 7: cypress run',
+  command: 'cypress run',
+  escapedCommand: '"cypress run"',
+  exitCode: 7,
+  signal: undefined,
+  signalDescription: undefined,
+  stdout: undefined,
+  stderr: undefined,
+  failed: true,
+  timedOut: false,
+  isCanceled: false,
+  killed: false
+}
+[?25h

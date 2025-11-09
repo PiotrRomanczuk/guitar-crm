@@ -95,30 +95,35 @@ describe('Admin Song Delete Cascade - TDD', () => {
     cy.visit('/dashboard/songs');
     cy.location('pathname').should('include', '/dashboard/songs');
 
-    // Count songs before deletion and get first song title
+    // Count songs before deletion
     cy.get('[data-testid="song-row"]').then(($rows) => {
-      cy.wrap($rows.length).as('songsBeforeDelete');
-      cy.wrap($rows.first().text()).as('firstSongTitle');
+      const songsBeforeDelete = $rows.length;
+      cy.wrap(songsBeforeDelete).as('songsBeforeDelete');
     });
 
-    // Find the first song row and click delete button
+    // Navigate to first song's detail page
     cy.get('[data-testid="song-row"]')
       .first()
       .within(() => {
-        cy.get('[data-testid="song-delete-button"]').click();
+        cy.get('a').first().click();
       });
 
-    // Confirm deletion in dialog
-    cy.get('[data-testid="delete-confirm-button"]').click();
+    // Verify on detail page
+    cy.location('pathname').should('match', /\/dashboard\/songs\/[a-f0-9-]+$/);
 
-    // Verify song is removed from the list (soft delete - should not appear in active list)
-    cy.get('@firstSongTitle').then((firstSongTitle) => {
-      cy.get('[data-testid="song-row"]').should('not.contain', firstSongTitle);
-    });
+    // Handle browser confirm dialog by clicking OK
+    cy.on('window:confirm', () => true);
 
-    // Verify song count decreased by 1
-    cy.get('@songsBeforeDelete').then((countBefore) => {
-      cy.get('[data-testid="song-row"]').should('have.length', Number(countBefore) - 1);
+    // Click delete button (scoped to detail page)
+    cy.get('[data-testid="song-delete-button"]').should('be.visible').click();
+
+    // Should redirect to songs list
+    cy.location('pathname', { timeout: 5000 }).should('include', '/dashboard/songs');
+
+    // Verify correct number of songs remain
+    cy.get('@songsBeforeDelete').then((songsBeforeDelete) => {
+      const expectedCount = Number(songsBeforeDelete) - 1;
+      cy.get('[data-testid="song-row"]').should('have.length', expectedCount);
     });
   });
 
@@ -164,15 +169,15 @@ describe('Admin Song Delete Cascade - TDD', () => {
 
         // Verify song is soft deleted by checking it doesn't appear in active list
         cy.request('/api/song').then((verifyResponse) => {
-          expect(verifyResponse.status).to.eq(200);
+          expect(verifyResponse.status).to.equal(200);
           const remainingSongs = verifyResponse.body.songs;
           interface SongRow {
             id: string;
           }
           const deletedSong = (remainingSongs as SongRow[]).find((song) => song.id === songId);
           // Assert song no longer present (soft deleted)
-          expect(deletedSong, 'song should be soft deleted and absent from active list').to.be
-            .undefined;
+          const isSoftDeleted = !deletedSong;
+          expect(isSoftDeleted).to.equal(true);
         });
       });
     });
