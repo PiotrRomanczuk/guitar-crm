@@ -35,6 +35,7 @@ export function LessonFormFields({
 					value={formData.date}
 					onChange={handleChange}
 					required
+					data-testid='lesson-date'
 					className={inputClass}
 				/>
 				{validationErrors.date && (
@@ -54,6 +55,7 @@ export function LessonFormFields({
 					name='start_time'
 					value={formData.start_time || ''}
 					onChange={handleChange}
+					data-testid='lesson-start-time'
 					className={inputClass}
 				/>
 			</div>
@@ -69,6 +71,7 @@ export function LessonFormFields({
 					value={formData.title || ''}
 					onChange={handleChange}
 					placeholder='e.g., Guitar Basics, Advanced Techniques'
+					data-testid='lesson-title'
 					className={inputClass}
 				/>
 			</div>
@@ -84,6 +87,7 @@ export function LessonFormFields({
 					onChange={handleChange}
 					rows={4}
 					placeholder='Add any notes about this lesson...'
+					data-testid='lesson-notes'
 					className={inputClass}
 				/>
 			</div>

@@ -1,9 +1,7 @@
 interface Profile {
 	id: string;
-	user_id: string;
 	email: string;
-	firstname: string;
-	lastname: string;
+	full_name: string;
 }
 
 interface Props {
@@ -37,12 +35,13 @@ export function ProfileSelect({
 				value={value}
 				onChange={onChange}
 				required
+				data-testid={`lesson-${name}`}
 				className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500'
 			>
 				<option value=''>Select a {label.toLowerCase()}</option>
 				{options.map((option) => (
-					<option key={option.user_id} value={option.user_id}>
-						{option.firstname} {option.lastname} ({option.email})
+					<option key={option.id} value={option.id}>
+						{option.full_name} ({option.email})
 					</option>
 				))}
 			</select>
