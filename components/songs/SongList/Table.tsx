@@ -7,7 +7,7 @@ interface Props {
 
 export default function SongListTable({ songs }: Props) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" data-testid="song-table">
       <table className="w-full border-collapse border border-gray-300">
         <thead className="bg-gray-100">
           <tr>
@@ -19,7 +19,7 @@ export default function SongListTable({ songs }: Props) {
         </thead>
         <tbody>
           {songs.map((song) => (
-            <tr key={song.id} className="hover:bg-gray-50">
+            <tr key={song.id} className="hover:bg-gray-50" data-testid="song-row">
               <td className="border border-gray-300 px-4 py-2">
                 <Link
                   href={`/dashboard/songs/${song.id}`}
