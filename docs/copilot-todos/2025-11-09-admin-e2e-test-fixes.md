@@ -573,5 +573,139 @@ Tests are considered fixed when:
 ---
 
 **Created**: November 9, 2025  
-**Last Updated**: November 9, 2025  
-**Status**: 🔴 ACTIVE - Awaiting implementation
+**Last Updated**: November 9, 2025 - 18:30  
+**Status**: � IN PROGRESS - 24/36 tests passing (66.7%)
+
+---
+
+## 📈 Progress Update (November 9, 2025 - 18:30)
+
+### ✅ Completed Fixes (Commit: 1b5e93e)
+
+**Issue #3: Pass role props to SongDetail component** - ✅ FIXED
+- Updated `app/dashboard/songs/[id]/page.tsx` to pass `isAdmin` and `isTeacher` props
+- Edit/delete buttons now visible to admin users
+- Resolved 9+ test failures
+
+**Issue #1: Update dashboard routing** - ✅ FIXED
+- Modified `app/dashboard/page.tsx` to conditionally render `AdminDashboardClient` for admins
+- Dashboard now shows "Admin Dashboard" text correctly
+- 12/14 dashboard tests passing
+- Remaining 2 failures are test-specific issues (debug view selector, user management link)
+
+**Issue #4: Fix song edit route** - ✅ FIXED
+- Corrected link from `/songs/{id}/edit` to `/dashboard/songs/{id}/edit`
+- Updated edit page to check both `isAdmin` and `isTeacher` permissions
+- Navigation tests passing
+
+**Database Seeding** - ✅ COMPLETED
+- Ran `bash scripts/database/seeding/local/seed-all.sh`
+- Created 6 test users including admin (p.romanczuk@gmail.com / test123_admin)
+- Seeded 13 songs, 12 lessons, 29 lesson-songs, 22 assignments
+- Authentication now working for all tests
+
+### 📊 Current Test Results
+
+**Overall**: 24 passing / 10 failing / 2 skipped (36 total)
+
+| Test File | Status | Pass | Fail | Skip | Notes |
+|-----------|--------|------|------|------|-------|
+| admin-sign-in.cy.ts | ✅ | 6/6 | 0 | 0 | All authentication tests passing |
+| admin-dashboard.cy.ts | 🟡 | 12/14 | 2 | 0 | Most dashboard tests working |
+| admin-complete-journey.cy.ts | 🟡 | 2/3 | 1 | 0 | Session/navigation working |
+| admin-song-delete-cascade.cy.ts | 🟡 | 3/6 | 3 | 0 | API deletion works, UI tests failing |
+| admin-song-edit.cy.ts | 🟡 | 1/3 | 2 | 0 | React re-render issue |
+| admin-create-song-journey.cy.ts | ❌ | 0/1 | 1 | 0 | Song creation 500 error |
+| admin-song-delete.cy.ts | ❌ | 0/3 | 1 | 2 | Blocked by beforeEach 500 error |
+
+### 🔴 Remaining Issues
+
+**Issue #2: Song Creation API 500 Error** - �🔴 CRITICAL (Blocks 3+ tests)
+```
+POST /api/song 500 in 583ms
+AssertionError: expected 500 to be one of [ 200, 201 ]
+```
+
+**Status**: Database migrations applied, seed data loaded, but API still returns 500.
+
+**Next Steps**:
+1. Check Next.js server logs during test run for actual error
+2. Possible causes:
+   - Zod validation failing on test data
+   - RLS policy blocking insert despite admin role
+   - Missing field in song creation payload
+   - Database constraint violation
+
+**Investigation Needed**:
+```bash
+# Check what error is actually returned
+# Look at Next.js terminal during: npm run e2e -- --spec "cypress/e2e/admin/admin-create-song-journey.cy.ts"
+```
+
+**Issue #5: Delete Buttons Not Visible in Some Tests** - 🟡 MEDIUM
+- Tests `admin-song-delete-cascade.cy.ts` expect delete buttons on song detail pages
+- 3/6 tests failing with "Expected to find element: `[data-testid="song-delete-button"]`"
+- Despite fix #3, some pages still not showing buttons
+- May be timing issue or specific song IDs not loading correctly
+
+**Issue #6: Edit Form Re-rendering** - 🟡 MEDIUM
+- Edit tests failing with "element detached from DOM" errors
+- React hydration/re-render causing input fields to disappear during `cy.clear()` and `cy.type()`
+- Cypress can't interact with fields that re-render mid-command
+
+**Suggested Fix**:
+```typescript
+// Break up command chains to allow for re-renders
+cy.get('#title').as('titleInput');
+cy.get('@titleInput').clear();
+cy.get('@titleInput').type('New Title');
+```
+
+**Issue #7: Minor Dashboard Test Failures** - 🟢 LOW
+1. **User Management Navigation**: Test expects link to `/admin/users` but component shows "Coming Soon"
+2. **Debug View Selector**: Test expects "Student View" text after clicking button - may be timing issue
+
+---
+
+## 🎯 Next Actions (Priority Order)
+
+### 1. Debug Song Creation API (CRITICAL - 2-3 hours)
+- [ ] Run test with Next.js console visible to capture actual error
+- [ ] Check Zod validation on incoming payload
+- [ ] Verify RLS policies allow admin to insert
+- [ ] Test API endpoint manually with curl
+- [ ] Add detailed error logging to handlers.ts
+
+### 2. Fix Delete Button Visibility (30 min)
+- [ ] Check which song IDs cascade tests are using
+- [ ] Verify those songs exist in seeded data
+- [ ] Add wait/retry logic to tests if timing issue
+
+### 3. Fix Edit Form Re-rendering (30 min)
+- [ ] Update edit tests to break up command chains
+- [ ] Add `cy.wait()` or retry logic for DOM stability
+- [ ] Consider adding `key` prop to form inputs
+
+### 4. Update Dashboard Tests (15 min)
+- [ ] Skip or update "User Management" test (feature not implemented)
+- [ ] Fix debug view selector timing
+
+---
+
+## 📝 Summary
+
+**Improvements Made**:
+- ✅ **+10 passing tests** (from 14 to 24)
+- ✅ Dashboard now renders correctly for admins
+- ✅ Edit/delete buttons visible when roles passed correctly
+- ✅ Navigation between pages working
+- ✅ Authentication fully functional
+
+**Remaining Work**:
+- 🔴 1 critical blocker (song creation API)
+- 🟡 3 medium issues (delete buttons, form re-rendering, cascade tests)
+- 🟢 2 low priority test adjustments
+
+**Created**: November 9, 2025  
+**Last Updated**: November 9, 2025 - 18:30  
+**Status**: 🟡 IN PROGRESS - 24/36 tests passing (66.7%)
