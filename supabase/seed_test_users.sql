@@ -103,21 +103,19 @@ VALUES
 -- Create corresponding profiles
 INSERT INTO
   public.profiles (
-    user_id,
+  id,
     email,
-    "firstName",
-    "lastName",
-    "isAdmin",
-    "isTeacher",
-    "isStudent"
+  full_name,
+  is_admin,
+  is_teacher,
+  is_student
   )
 VALUES
   -- Admin User (also a teacher)
   (
     '00000000-0000-0000-0000-000000000001',
     'p.romanczuk@gmail.com',
-    'Piotr',
-    'Romanczuk',
+  'Piotr Romanczuk',
     true,
     true,
     false
@@ -126,8 +124,7 @@ VALUES
   (
     '00000000-0000-0000-0000-000000000002',
     'teacher@example.com',
-    'Test',
-    'Teacher',
+  'Test Teacher',
     false,
     true,
     false
@@ -136,8 +133,7 @@ VALUES
   (
     '00000000-0000-0000-0000-000000000003',
     'student@example.com',
-    'Test',
-    'Student',
+  'Test Student',
     false,
     false,
     true
@@ -146,8 +142,7 @@ VALUES
   (
     '00000000-0000-0000-0000-000000000004',
     'teststudent1@example.com',
-    'Student',
-    'One',
+  'Student One',
     false,
     false,
     true
@@ -156,8 +151,7 @@ VALUES
   (
     '00000000-0000-0000-0000-000000000005',
     'teststudent2@example.com',
-    'Student',
-    'Two',
+  'Student Two',
     false,
     false,
     true
@@ -166,9 +160,8 @@ VALUES
   (
     '00000000-0000-0000-0000-000000000006',
     'teststudent3@example.com',
-    'Student',
-    'Three',
+  'Student Three',
     false,
     false,
     true
-  ) ON CONFLICT (user_id) DO NOTHING;
+  ) ON CONFLICT (id) DO NOTHING;
