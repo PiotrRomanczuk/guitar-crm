@@ -1,30 +1,19 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { SignUpForm, useAuth } from '@/components/auth';
+import { SignUpForm } from '@/components/auth';
+import { useCallback } from 'react';
 
 export default function SignUpPage() {
 	const router = useRouter();
-	const { user } = useAuth();
 
-	useEffect(() => {
-		if (user) {
-			router.push('/');
-		}
-	}, [user, router]);
-
-	const handleSuccess = () => {
+	const handleSuccess = useCallback(() => {
 		// User needs to verify email before they can sign in
 		// Show success message and let them see it
 		setTimeout(() => {
 			router.push('/sign-in');
 		}, 3000);
-	};
-
-	if (user) {
-		return null;
-	}
+	}, [router]);
 
 	return (
 		<div className='min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-3 sm:px-4 py-4 sm:py-8'>
