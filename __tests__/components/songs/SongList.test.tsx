@@ -9,9 +9,14 @@ type Song = Tables<'songs'>;
 
 describe('SongList Components', () => {
   describe('SongListHeader', () => {
-    it('should render the header', () => {
-      render(<SongListHeader />);
+    it('should render the header (manage disabled)', () => {
+      render(<SongListHeader canManageSongs={false} />);
       expect(screen.getByText('Song Library')).toBeInTheDocument();
+    });
+
+    it('should render create button when canManageSongs', () => {
+      render(<SongListHeader canManageSongs />);
+      expect(screen.getByTestId('song-new-button')).toBeInTheDocument();
     });
   });
 
