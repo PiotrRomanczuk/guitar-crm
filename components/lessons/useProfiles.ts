@@ -4,12 +4,10 @@ import { useState, useEffect } from 'react';
 
 interface Profile {
 	id: string;
-	user_id: string;
 	email: string;
-	firstname: string;
-	lastname: string;
-	isstudent?: boolean;
-	isteacher?: boolean;
+	full_name: string;
+	is_student?: boolean;
+	is_teacher?: boolean;
 }
 
 export function useProfiles() {
@@ -35,8 +33,8 @@ export function useProfiles() {
 				console.log('[useProfiles] Data length:', data.length);
 
 				// Filter students and teachers
-				const studentList = data.filter((p: Profile) => p.isstudent);
-				const teacherList = data.filter((p: Profile) => p.isteacher);
+				const studentList = data.filter((p: Profile) => p.is_student);
+				const teacherList = data.filter((p: Profile) => p.is_teacher);
 
 				console.log('[useProfiles] Students:', studentList.length, studentList);
 				console.log('[useProfiles] Teachers:', teacherList.length, teacherList);

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog';
 import type { Song } from '../types';
 
@@ -25,12 +26,11 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
     setDeletingSongId(songToDelete.id);
 
     try {
-      const response = await fetch(`/api/song?id=${songToDelete.id}`, {
-        method: 'DELETE',
-      });
+      const supabase = getSupabaseBrowserClient();
+      const { error } = await supabase.from('songs').delete().eq('id', songToDelete.id);
 
-      if (!response.ok) {
-        throw new Error('Failed to delete song');
+      if (error) {
+        throw new Error(error.message);
       }
 
       setSongToDelete(null);

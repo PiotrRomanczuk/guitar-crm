@@ -120,7 +120,8 @@ describe('Complete Admin Journey', () => {
     const updatedTitle = `${songData.title} (EDITED)`;
     const updatedLevel = 'advanced';
 
-    cy.get('[data-testid="song-title"]').clear().type(updatedTitle);
+    cy.get('[data-testid="song-title"]').clear();
+    cy.get('[data-testid="song-title"]').type(updatedTitle);
     cy.get('[data-testid="song-level"]').select(updatedLevel);
 
     cy.intercept('PUT', '/api/song*').as('updateSong');
@@ -139,6 +140,8 @@ describe('Complete Admin Journey', () => {
 
     // ===== STEP 9: DELETE SONG =====
     cy.log('STEP 9: Delete Song');
+
+    // Navigate directly to the detail page of the song we want to delete
     cy.contains('[data-testid="song-row"]', updatedTitle).find('a').first().click();
 
     // Get current count before delete
@@ -146,25 +149,29 @@ describe('Complete Admin Journey', () => {
     cy.get('[data-testid="song-row"]').then(($rows) => {
       const countBeforeDelete = $rows.length;
       cy.wrap(countBeforeDelete).as('countBeforeDelete');
-
-      // Go back to detail page and delete
-      cy.contains('[data-testid="song-row"]', updatedTitle).find('a').first().click();
-
-      cy.intercept('DELETE', '/api/song*').as('deleteSong');
-      cy.get('[data-testid="song-delete-button"]').click();
-
-      // Handle confirmation if exists
-      cy.get('body').then(($body) => {
-        if ($body.find('[data-testid="confirm-delete"]').length > 0) {
-          cy.get('[data-testid="confirm-delete"]').click();
-        }
-      });
-
-      cy.wait('@deleteSong').then((interception) => {
-        expect(interception.response?.statusCode).to.be.oneOf([200, 204]);
-        cy.log('✅ Song deleted successfully');
-      });
     });
+
+    // Navigate back to detail page and delete - use direct navigation
+    cy.contains('[data-testid="song-row"]', updatedTitle)
+      .find('a')
+      .first()
+      .invoke('attr', 'href')
+      .then((href) => {
+        // Navigate directly to detail page
+        cy.visit(href as string);
+
+        // Handle browser confirm dialog for delete
+        cy.on('window:confirm', () => true);
+
+        // Wait for page to load and button to be visible
+        cy.get('[data-testid="song-delete-button"]', { timeout: 5000 })
+          .should('be.visible')
+          .click();
+
+        // Wait for redirect back to list
+        cy.location('pathname', { timeout: 5000 }).should('include', '/dashboard/songs');
+        cy.log('✅ Song deleted successfully and redirected to list');
+      });
 
     // ===== STEP 10: VERIFY DELETION =====
     cy.log('STEP 10: Verify Song Removed from List');
