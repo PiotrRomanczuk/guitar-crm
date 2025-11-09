@@ -299,7 +299,13 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
-    return NextResponse.json({ success: result.success }, { status: result.status });
+    return NextResponse.json(
+      {
+        success: result.success,
+        cascadeInfo: result.cascadeInfo,
+      },
+      { status: result.status }
+    );
   } catch (error) {
     console.error('DELETE /api/song error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

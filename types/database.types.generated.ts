@@ -34,33 +34,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      lesson_songs: {
+      assignments: {
         Row: {
           created_at: string
-          lesson_id: string
-          song_id: string
-          song_status: Database["public"]["Enums"]["learning_status"]
-          student_id: string | null
-          teacher_id: string | null
-          updated_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: Database["public"]["Enums"]["task_priority"]
+          status: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at: string
+          user_id: string
         }
         Insert: {
           created_at?: string
-          lesson_id: string
-          song_id: string
-          song_status?: Database["public"]["Enums"]["learning_status"]
-          student_id?: string | null
-          teacher_id?: string | null
-          updated_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          status?: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at?: string
+          user_id: string
         }
         Update: {
           created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          status?: Database["public"]["Enums"]["task_status"]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_management_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_management_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_overview"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      lesson_songs: {
+        Row: {
+          created_at: string
+          id: string
+          lesson_id: string
+          notes: string | null
+          song_id: string
+          status: Database["public"]["Enums"]["lesson_song_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lesson_id: string
+          notes?: string | null
+          song_id: string
+          status?: Database["public"]["Enums"]["lesson_song_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
           lesson_id?: string
+          notes?: string | null
           song_id?: string
-          song_status?: Database["public"]["Enums"]["learning_status"]
-          student_id?: string | null
-          teacher_id?: string | null
-          updated_at?: string | null
+          status?: Database["public"]["Enums"]["lesson_song_status"]
+          updated_at?: string
         }
         Relationships: [
           {
@@ -74,84 +125,65 @@ export type Database = {
             foreignKeyName: "lesson_songs_song_id_fkey"
             columns: ["song_id"]
             isOneToOne: false
+            referencedRelation: "song_usage_stats"
+            referencedColumns: ["song_id"]
+          },
+          {
+            foreignKeyName: "lesson_songs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
             referencedRelation: "songs"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lesson_songs_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "lesson_songs_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
           },
         ]
       }
       lessons: {
         Row: {
           created_at: string
-          creator_user_id: string
-          date: string
           id: string
-          lesson_number: number | null
-          lesson_teacher_number: number | null
+          lesson_teacher_number: number
           notes: string | null
-          start_time: string | null
+          scheduled_at: string
           status: Database["public"]["Enums"]["lesson_status"]
           student_id: string
           teacher_id: string
-          title: string | null
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
           created_at?: string
-          creator_user_id: string
-          date: string
           id?: string
-          lesson_number?: number | null
-          lesson_teacher_number?: number | null
+          lesson_teacher_number: number
           notes?: string | null
-          start_time?: string | null
+          scheduled_at: string
           status?: Database["public"]["Enums"]["lesson_status"]
           student_id: string
           teacher_id: string
-          title?: string | null
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
           created_at?: string
-          creator_user_id?: string
-          date?: string
           id?: string
-          lesson_number?: number | null
-          lesson_teacher_number?: number | null
+          lesson_teacher_number?: number
           notes?: string | null
-          start_time?: string | null
+          scheduled_at?: string
           status?: Database["public"]["Enums"]["lesson_status"]
           student_id?: string
           teacher_id?: string
-          title?: string | null
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "lessons_creator_user_id_fkey"
-            columns: ["creator_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "lessons_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "user_overview"
             referencedColumns: ["user_id"]
           },
           {
@@ -159,179 +191,206 @@ export type Database = {
             columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "user_overview"
             referencedColumns: ["user_id"]
           },
         ]
       }
       profiles: {
         Row: {
-          bio: string | null
-          canEdit: boolean
+          avatar_url: string | null
           created_at: string
-          email: string | null
-          firstname: string | null
-          id: number
-          isActive: boolean | null
-          isadmin: boolean
-          isdevelopment: boolean | null
-          isstudent: boolean
-          isteacher: boolean
-          isTest: boolean | null
-          lastname: string | null
+          email: string
+          full_name: string | null
+          id: string
+          is_admin: boolean
+          is_development: boolean
+          is_student: boolean
+          is_teacher: boolean
           notes: string | null
-          updated_at: string | null
-          user_id: string
-          username: string | null
+          updated_at: string
         }
         Insert: {
-          bio?: string | null
-          canEdit?: boolean
+          avatar_url?: string | null
           created_at?: string
-          email?: string | null
-          firstname?: string | null
-          id?: number
-          isActive?: boolean | null
-          isadmin?: boolean
-          isdevelopment?: boolean | null
-          isstudent?: boolean
-          isteacher?: boolean
-          isTest?: boolean | null
-          lastname?: string | null
+          email: string
+          full_name?: string | null
+          id?: string
+          is_admin?: boolean
+          is_development?: boolean
+          is_student?: boolean
+          is_teacher?: boolean
           notes?: string | null
-          updated_at?: string | null
-          user_id: string
-          username?: string | null
+          updated_at?: string
         }
         Update: {
-          bio?: string | null
-          canEdit?: boolean
+          avatar_url?: string | null
           created_at?: string
-          email?: string | null
-          firstname?: string | null
-          id?: number
-          isActive?: boolean | null
-          isadmin?: boolean
-          isdevelopment?: boolean | null
-          isstudent?: boolean
-          isteacher?: boolean
-          isTest?: boolean | null
-          lastname?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          is_admin?: boolean
+          is_development?: boolean
+          is_student?: boolean
+          is_teacher?: boolean
           notes?: string | null
-          updated_at?: string | null
-          user_id?: string
-          username?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
       songs: {
         Row: {
-          audio_files: string[] | null
           author: string
           chords: string | null
           created_at: string
           id: string
           key: Database["public"]["Enums"]["music_key"]
           level: Database["public"]["Enums"]["difficulty_level"]
-          short_title: string | null
           title: string
           ultimate_guitar_link: string
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
-          audio_files?: string[] | null
           author: string
           chords?: string | null
           created_at?: string
           id?: string
           key: Database["public"]["Enums"]["music_key"]
           level: Database["public"]["Enums"]["difficulty_level"]
-          short_title?: string | null
           title: string
           ultimate_guitar_link: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
-          audio_files?: string[] | null
           author?: string
           chords?: string | null
           created_at?: string
           id?: string
           key?: Database["public"]["Enums"]["music_key"]
           level?: Database["public"]["Enums"]["difficulty_level"]
-          short_title?: string | null
           title?: string
           ultimate_guitar_link?: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
-      task_management: {
+      user_roles: {
         Row: {
-          assigned_to: string | null
-          completed_at: string | null
-          created_at: string
-          created_by: string
-          description: string | null
-          due_date: string | null
+          assigned_at: string
           id: string
-          priority: Database["public"]["Enums"]["task_priority"]
-          status: Database["public"]["Enums"]["task_status"]
-          title: string
-          updated_at: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
         }
         Insert: {
-          assigned_to?: string | null
-          completed_at?: string | null
-          created_at?: string
-          created_by: string
-          description?: string | null
-          due_date?: string | null
+          assigned_at?: string
           id?: string
-          priority?: Database["public"]["Enums"]["task_priority"]
-          status?: Database["public"]["Enums"]["task_status"]
-          title: string
-          updated_at?: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
         }
         Update: {
-          assigned_to?: string | null
-          completed_at?: string | null
-          created_at?: string
-          created_by?: string
-          description?: string | null
-          due_date?: string | null
+          assigned_at?: string
           id?: string
-          priority?: Database["public"]["Enums"]["task_priority"]
-          status?: Database["public"]["Enums"]["task_status"]
-          title?: string
-          updated_at?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "task_management_assigned_to_fkey"
-            columns: ["assigned_to"]
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "task_management_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "user_overview"
             referencedColumns: ["user_id"]
           },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      lesson_counts_per_student: {
+        Row: {
+          student_id: string | null
+          total_lessons: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "user_overview"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      lesson_counts_per_teacher: {
+        Row: {
+          teacher_id: string | null
+          total_lessons: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "user_overview"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      song_usage_stats: {
+        Row: {
+          song_id: string | null
+          times_assigned: number | null
+          title: string | null
+        }
+        Relationships: []
+      }
+      user_overview: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          is_admin: boolean | null
+          is_student: boolean | null
+          is_teacher: boolean | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: never; Returns: boolean }
+      is_student: { Args: never; Returns: boolean }
+      is_teacher: { Args: never; Returns: boolean }
     }
     Enums: {
       difficulty_level: "beginner" | "intermediate" | "advanced"
-      learning_status:
+      lesson_song_status:
         | "to_learn"
         | "started"
         | "remembered"
@@ -378,6 +437,7 @@ export type Database = {
         | "COMPLETED"
         | "CANCELLED"
         | "BLOCKED"
+      user_role: "admin" | "teacher" | "student"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -509,7 +569,7 @@ export const Constants = {
   public: {
     Enums: {
       difficulty_level: ["beginner", "intermediate", "advanced"],
-      learning_status: [
+      lesson_song_status: [
         "to_learn",
         "started",
         "remembered",
@@ -559,6 +619,7 @@ export const Constants = {
         "CANCELLED",
         "BLOCKED",
       ],
+      user_role: ["admin", "teacher", "student"],
     },
   },
 } as const
