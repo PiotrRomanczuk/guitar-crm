@@ -47,7 +47,7 @@ echo ""
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${BLUE}Step 1/5: Seeding Users${NC}"
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-node scripts/database/seed-dev-users-via-api.js
+node scripts/database/seeding/local/seed-dev-users-via-api.js
 if [ $? -ne 0 ]; then
     echo -e "${RED}❌ Failed to seed users${NC}"
     exit 1
@@ -59,7 +59,7 @@ echo ""
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${BLUE}Step 2/5: Seeding Songs${NC}"
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-npx ts-node scripts/database/seed-test-songs.ts
+npx ts-node scripts/database/seeding/test/seed-test-songs.ts
 if [ $? -ne 0 ]; then
     echo -e "${RED}❌ Failed to seed songs${NC}"
     exit 1
@@ -71,7 +71,7 @@ echo ""
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${BLUE}Step 3/5: Seeding Lessons${NC}"
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-npx ts-node scripts/database/seed-test-lessons.ts
+npx ts-node scripts/database/seeding/test/seed-test-lessons.ts
 if [ $? -ne 0 ]; then
     echo -e "${RED}❌ Failed to seed lessons${NC}"
     exit 1
@@ -83,7 +83,7 @@ echo ""
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${BLUE}Step 4/5: Seeding Lesson-Songs${NC}"
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-npx ts-node scripts/database/seed-test-lesson-songs.ts
+npx ts-node scripts/database/seeding/test/seed-test-lesson-songs.ts
 if [ $? -ne 0 ]; then
     echo -e "${RED}❌ Failed to seed lesson-songs${NC}"
     exit 1
@@ -99,7 +99,7 @@ echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━�
 ASSIGNMENTS_EXISTS=$(psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -tAc "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'assignments');" 2>/dev/null || echo "false")
 
 if [ "$ASSIGNMENTS_EXISTS" = "t" ]; then
-    node --experimental-strip-types scripts/database/seed-test-assignments.ts 2>/dev/null || echo -e "${YELLOW}⚠️  Assignments seeding failed${NC}"
+     npx ts-node scripts/database/seeding/test/seed-test-assignments.ts 2>/dev/null || echo -e "${YELLOW}⚠️  Assignments seeding failed${NC}"
     echo -e "${GREEN}✅ Assignments seeded successfully${NC}"
 else
     echo -e "${YELLOW}⚠️  Assignments table not found - skipping${NC}"
