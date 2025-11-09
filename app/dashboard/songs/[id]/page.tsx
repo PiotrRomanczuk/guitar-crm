@@ -9,7 +9,7 @@ interface SongPageProps {
 }
 
 export default async function SongPage({ params }: SongPageProps) {
-  const { user } = await getUserWithRolesSSR();
+  const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
   if (!user) {
     redirect('/sign-in');
   }
@@ -18,7 +18,7 @@ export default async function SongPage({ params }: SongPageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <SongDetail songId={id} />
+      <SongDetail songId={id} isAdmin={isAdmin} isTeacher={isTeacher} />
     </div>
   );
 }

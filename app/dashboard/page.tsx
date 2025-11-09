@@ -1,4 +1,5 @@
 import { DashboardPageContent } from '@/components/dashboard/Dashboard';
+import { AdminDashboardClient } from '@/components/dashboard/admin/AdminDashboardClient';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
 export default async function DashboardPage() {
@@ -6,6 +7,18 @@ export default async function DashboardPage() {
 
   if (!user) {
     return <div>Please log in to access the dashboard.</div>;
+  }
+
+  // Show admin dashboard for admin users
+  if (isAdmin) {
+    // TODO: Fetch actual stats from API endpoint
+    const stats = {
+      totalUsers: 0,
+      totalTeachers: 0,
+      totalStudents: 0,
+      totalSongs: 0,
+    };
+    return <AdminDashboardClient stats={stats} />;
   }
 
   return (

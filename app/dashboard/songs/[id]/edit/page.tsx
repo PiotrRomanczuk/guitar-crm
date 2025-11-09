@@ -9,9 +9,9 @@ interface EditSongPageProps {
 }
 
 export default async function EditSongPage({ params }: EditSongPageProps) {
-  const { user, isAdmin } = await getUserWithRolesSSR();
+  const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
   if (!user) redirect('/sign-in');
-  if (!isAdmin) {
+  if (!isAdmin && !isTeacher) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div
