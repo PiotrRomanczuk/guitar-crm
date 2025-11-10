@@ -1,9 +1,10 @@
 # Script Execution Summary
 
-Last updated: 2025-11-10 00:54:04
+Last updated: 2025-11-10 01:18:09
 
 | Timestamp | Script | Category | Duration | Status | Details | Git Branch |
 |-----------|---------|----------|-----------|---------|----------|------------|
+| 2025-11-10 01:18:09 | `quality-check.sh` | ci | 41s | ❌ |  | `feature/core-crud` |
 |  | `` | ci |  | ❌ |  | `` |
 | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected | `/Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected` | /Users/piotrromanczuk/Desktop/guitar-crm/scripts/utils/update_summary.sh: line 51: [: : integer expression expected
 ci
@@ -2392,14 +2393,14 @@ ci
 ### Executions by Category
 
 - **database**: 19 executions
-- **ci**: 37 executions
+- **ci**: 38 executions
 - **development**: 0 executions
 - **testing**: 0 executions
-- **Total**: 56 executions
+- **Total**: 57 executions
 
 ### Most Frequently Run Scripts
 
-- `quality-check`: 37 times
+- `quality-check`: 38 times
 - `reset-with-users`: 10 times
 - `db-reset`: 8 times
 - `latest-reset.log`: 1 times

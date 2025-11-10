@@ -97,7 +97,7 @@ function UserRow({ user, onDelete }: { user: UserProfile; onDelete: (id: number,
   );
 }
 
-export function UsersListTable({ users, onDelete }: UsersListTableProps) {
+export default function UsersListTable({ users, onDelete }: UsersListTableProps) {
   return (
     <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow-md">
       <table className="w-full" data-testid="users-table">
