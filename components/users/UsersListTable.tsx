@@ -33,7 +33,13 @@ function getInitials(firstName: string | null, lastName: string | null): string 
   return ((firstName?.[0] || '') + (lastName?.[0] || '')).toUpperCase() || '?';
 }
 
-function UserRow({ user, onDelete }: { user: UserProfile; onDelete: (id: number, email: string) => void }) {
+function UserRow({
+  user,
+  onDelete,
+}: {
+  user: UserProfile;
+  onDelete: (id: number, email: string) => void;
+}) {
   return (
     <tr
       className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -46,7 +52,9 @@ function UserRow({ user, onDelete }: { user: UserProfile; onDelete: (id: number,
           </div>
           <div>
             <p className="font-medium text-gray-900 dark:text-white text-sm">
-              {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username || 'N/A'}
+              {user.firstName && user.lastName
+                ? `${user.firstName} ${user.lastName}`
+                : user.username || 'N/A'}
             </p>
           </div>
         </div>
@@ -103,11 +111,21 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
       <table className="w-full" data-testid="users-table">
         <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
           <tr>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">User</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Email</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Role</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Status</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Actions</th>
+            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+              User
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+              Email
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+              Role
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+              Status
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>

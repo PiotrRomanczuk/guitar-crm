@@ -45,7 +45,8 @@ export default function UserDetail({ user }: UserDetailProps) {
     return roles.length ? roles : ['No Role'];
   };
 
-  const fullName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username || 'N/A';
+  const fullName =
+    user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username || 'N/A';
 
   return (
     <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 space-y-6">
@@ -88,7 +89,9 @@ export default function UserDetail({ user }: UserDetailProps) {
 
       {/* Roles */}
       <div>
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-400 block mb-2">Roles</label>
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-400 block mb-2">
+          Roles
+        </label>
         <div className="flex flex-wrap gap-2">
           {getRolesBadges().map((role) => (
             <span

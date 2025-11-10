@@ -1,10 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { user, isAdmin } = await getUserWithRolesSSR();
 
@@ -28,17 +25,11 @@ export async function GET(
     return Response.json(data, { status: 200 });
   } catch (error) {
     console.error('Error fetching user:', error);
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { user, isAdmin } = await getUserWithRolesSSR();
 
@@ -74,17 +65,11 @@ export async function PUT(
     return Response.json(data, { status: 200 });
   } catch (error) {
     console.error('Error updating user:', error);
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { user, isAdmin } = await getUserWithRolesSSR();
 
@@ -95,10 +80,7 @@ export async function DELETE(
     const { id } = await params;
     const supabase = await createClient();
 
-    const { error } = await supabase
-      .from('profiles')
-      .delete()
-      .eq('id', parseInt(id));
+    const { error } = await supabase.from('profiles').delete().eq('id', parseInt(id));
 
     if (error) {
       return Response.json({ error: error.message }, { status: 500 });
@@ -107,9 +89,6 @@ export async function DELETE(
     return Response.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error('Error deleting user:', error);
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
