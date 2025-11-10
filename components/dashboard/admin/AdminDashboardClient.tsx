@@ -6,8 +6,22 @@ import { AdminActionCard } from '@/components/dashboard/admin/AdminActionCard';
 
 type DebugView = 'admin' | 'teacher' | 'student';
 
+interface RecentUser {
+  id: string;
+  full_name: string;
+  email: string;
+  created_at: string;
+}
+
 interface AdminDashboardClientProps {
-  stats: Record<string, number>;
+  stats: {
+    totalUsers: number;
+    totalTeachers: number;
+    totalStudents: number;
+    totalSongs: number;
+    totalLessons: number;
+    recentUsers: RecentUser[];
+  };
 }
 
 export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
@@ -63,9 +77,15 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
           </p>
         </header>
 
-        <QuickStats debugView={debugView} stats={stats} />
+        <QuickStats
+          debugView={debugView}
+          totalUsers={stats.totalUsers}
+          totalTeachers={stats.totalTeachers}
+          totalStudents={stats.totalStudents}
+          totalSongs={stats.totalSongs}
+        />
         {debugView === 'admin' && <AdminActions />}
-        {debugView === 'admin' && <RecentActivity />}
+        {debugView === 'admin' && <RecentActivity recentUsers={stats.recentUsers} />}
 
         {debugView === 'admin' && (
           <DebugViewSelector currentView={debugView} onViewChange={setDebugView} />
@@ -75,13 +95,7 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
   );
 }
 
-function DebugViewBanner({
-  debugView,
-  onReset,
-}: {
-  debugView: DebugView;
-  onReset: () => void;
-}) {
+function DebugViewBanner({ debugView, onReset }: { debugView: DebugView; onReset: () => void }) {
   if (debugView === 'admin') return null;
 
   return (
@@ -151,33 +165,41 @@ function DebugViewSelector({
   );
 }
 
-function QuickStats({ debugView, stats }: { debugView: DebugView; stats: Record<string, number> }) {
-  const displayValue = (key: string) => {
-    return stats[key]?.toString() || '0';
-  };
-
+function QuickStats({
+  debugView,
+  totalUsers,
+  totalTeachers,
+  totalStudents,
+  totalSongs,
+}: {
+  debugView: DebugView;
+  totalUsers: number;
+  totalTeachers: number;
+  totalStudents: number;
+  totalSongs: number;
+}) {
   const getStats = () => {
     switch (debugView) {
       case 'teacher':
         return [
-          { icon: '👨‍🎓', key: 'myStudents', label: 'My Students' },
-          { icon: '🎯', key: 'activeLessons', label: 'Active Lessons' },
-          { icon: '🎵', key: 'songsLibrary', label: 'Songs Library' },
-          { icon: '📊', key: 'studentProgress', label: 'Student Progress' },
+          { icon: '👨‍🎓', value: '0', label: 'My Students' },
+          { icon: '🎯', value: '0', label: 'Active Lessons' },
+          { icon: '🎵', value: totalSongs.toString(), label: 'Songs Library' },
+          { icon: '📊', value: '0', label: 'Student Progress' },
         ];
       case 'student':
         return [
-          { icon: '👨‍🏫', key: 'myTeacher', label: 'My Teacher' },
-          { icon: '📅', key: 'lessonsDone', label: 'Lessons Done' },
-          { icon: '🎵', key: 'songsLearning', label: 'Songs Learning' },
-          { icon: '⭐', key: 'progress', label: 'Progress' },
+          { icon: '👨‍🏫', value: '0', label: 'My Teacher' },
+          { icon: '📅', value: '0', label: 'Lessons Done' },
+          { icon: '🎵', value: '0', label: 'Songs Learning' },
+          { icon: '⭐', value: '0%', label: 'Progress' },
         ];
       default:
         return [
-          { icon: '👥', key: 'totalUsers', label: 'Total Users' },
-          { icon: '👨‍🏫', key: 'totalTeachers', label: 'Teachers' },
-          { icon: '👨‍🎓', key: 'totalStudents', label: 'Students' },
-          { icon: '🎵', key: 'totalSongs', label: 'Songs' },
+          { icon: '👥', value: totalUsers.toString(), label: 'Total Users' },
+          { icon: '👨‍🏫', value: totalTeachers.toString(), label: 'Teachers' },
+          { icon: '👨‍🎓', value: totalStudents.toString(), label: 'Students' },
+          { icon: '🎵', value: totalSongs.toString(), label: 'Songs' },
         ];
     }
   };
@@ -187,12 +209,7 @@ function QuickStats({ debugView, stats }: { debugView: DebugView; stats: Record<
   return (
     <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
       {statsConfig.map((stat) => (
-        <AdminStatCard
-          key={stat.label}
-          icon={stat.icon}
-          value={displayValue(stat.key)}
-          label={stat.label}
-        />
+        <AdminStatCard key={stat.label} icon={stat.icon} value={stat.value} label={stat.label} />
       ))}
     </div>
   );
@@ -259,18 +276,50 @@ function AdminActions() {
   );
 }
 
-function RecentActivity() {
+function RecentActivity({ recentUsers }: { recentUsers: RecentUser[] }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-        📋 Recent Activity
-        <span className="text-xs px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 font-normal">
-          Coming Soon
-        </span>
+        📋 Recent Users
       </h2>
-      <p className="text-gray-600 dark:text-gray-300">
-        Activity logging and audit trail features are under development.
-      </p>
+
+      {recentUsers && recentUsers.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="border-b border-gray-200 dark:border-gray-700">
+              <tr>
+                <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
+                  Name
+                </th>
+                <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
+                  Email
+                </th>
+                <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
+                  Joined
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentUsers.map((user) => (
+                <tr
+                  key={user.id}
+                  className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                >
+                  <td className="py-3 px-2 text-gray-900 dark:text-white font-medium">
+                    {user.full_name}
+                  </td>
+                  <td className="py-3 px-2 text-gray-600 dark:text-gray-400">{user.email}</td>
+                  <td className="py-3 px-2 text-gray-600 dark:text-gray-400">
+                    {new Date(user.created_at).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="text-gray-600 dark:text-gray-300">No recent users yet.</p>
+      )}
     </div>
   );
 }
