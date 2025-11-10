@@ -516,6 +516,359 @@ Workflow:
 6. Decompose aggressively: keep files <300 LOC and functions <80 LOC
 7. Maintain dark mode support with `dark:` prefix throughout
 
+## TanStack Query (React Query) Architecture
+
+**Status:** Fully integrated with v5.x. All data fetching uses TanStack Query for superior state management.
+
+### Core Infrastructure
+
+**QueryClient Setup** (`lib/query-client.ts`):
+
+```typescript
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+      retryOnMount: true,
+    },
+  },
+});
+```
+
+**QueryProvider** (`components/providers/QueryProvider.tsx`):
+
+- Wraps entire app in App Router root layout
+- Provides global QueryClient instance
+- Enables cache sharing across routes
+
+**API Client** (`lib/api-client.ts`):
+
+- Centralized HTTP methods: `get()`, `post()`, `put()`, `patch()`, `delete()`
+- Handles JSON parsing and error handling
+- Returns typed responses with automatic error conversion
+
+### Query Patterns (4 Types)
+
+#### Pattern 1: Simple Query Hook
+
+Fetch single item or list without mutations.
+
+```typescript
+// components/songs/hooks/useSongList.ts
+export function useSongList(filters?: SongFilterSchema) {
+  const {
+    data: songs = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['songs', filters], // Dynamic key includes filters
+    queryFn: () => apiClient.get<Song[]>('/api/songs', { params: filters }),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  return { songs, loading: isLoading, error };
+}
+```
+
+**Usage:**
+
+```typescript
+const { songs, loading, error } = useSongList({ level: 'beginner' });
+```
+
+**Benefits:**
+
+- Automatic caching of results
+- Deduplication of identical requests
+- Automatic background refetching when stale
+- Built-in loading/error states
+
+#### Pattern 2: Query + Single Mutation Hook
+
+Fetch item + allow one mutation (usually delete).
+
+```typescript
+// components/songs/hooks/useSong.ts
+export default function useSong(songId: string) {
+  // Query for fetching
+  const {
+    data: song,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['songs', songId],
+    queryFn: () => apiClient.get<Song>(`/api/songs/${songId}`),
+    enabled: !!songId, // Only run when songId exists
+  });
+
+  // Mutation for deleting
+  const { mutate: deleteSong, isPending: deleting } = useMutation({
+    mutationFn: (id: string) => apiClient.delete(`/api/songs/${id}`),
+    onSuccess: () => {
+      // Invalidate all song queries (covers list + detail views)
+      queryClient.invalidateQueries({ queryKey: ['songs'] });
+    },
+  });
+
+  return {
+    song,
+    loading: isLoading,
+    error: error ? (error instanceof Error ? error.message : 'Failed') : null,
+    deleting,
+    deleteSong: (id: string) => deleteSong(id),
+  };
+}
+```
+
+**Usage:**
+
+```typescript
+const { song, loading, deleteSong } = useSong('song-id-123');
+
+const handleDelete = () => {
+  deleteSong(song.id);
+};
+```
+
+**Query Key Strategy:**
+
+- Single items: `['songs', songId]`
+- Lists: `['songs']` (auto-invalidated on any song mutation)
+- Filtered: `['songs', { level: 'beginner', key: 'C' }]` (object key automatically managed)
+
+#### Pattern 3: Query + Dynamic Key with Multiple Mutations
+
+Complex queries with filtering + multiple mutations (create/update/delete).
+
+```typescript
+// components/dashboard/admin/hooks/useAdminUsers.ts
+export function useAdminUsers(initialUsers: User[], initialError: string | null) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Query with dynamic key
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ['users', { search: searchQuery }], // Key changes with search
+    queryFn: () => loadAdminUsers({ search: searchQuery }),
+    initialData: initialUsers,
+  });
+
+  // Three separate mutations
+  const { mutate: createMutation, isPending: createPending } = useMutation({
+    mutationFn: createAdminUser,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+  });
+
+  const { mutate: updateMutation, isPending: updatePending } = useMutation({
+    mutationFn: updateAdminUser,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+  });
+
+  const { mutate: deleteMutation, isPending: deletePending } = useMutation({
+    mutationFn: deleteAdminUser,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+  });
+
+  const handleSearch = (query: string) => setSearchQuery(query);
+  const handleCreateUser = (userData: Partial<User>) => createMutation({ userData });
+  const handleUpdateUser = (user: User, data: Partial<User>) =>
+    updateMutation({ userId: user.id, userData: data });
+
+  return {
+    users,
+    loading: isLoading || createPending || updatePending || deletePending,
+    searchQuery,
+    handleSearch,
+    handleCreateUser,
+    handleUpdateUser,
+  };
+}
+```
+
+**Key Features:**
+
+- Dynamic query key updates search results automatically
+- Multiple independent mutations in single hook
+- Combined loading state for all operations
+
+#### Pattern 4: Form Mutation Hook
+
+Validation + submission without query (form-only).
+
+```typescript
+// components/users/useUserFormState.ts
+export function useUserFormState(initialData?: User, isEdit?: boolean) {
+  const [formData, setFormData] = useState<FormData>(createInitialData(initialData));
+
+  const {
+    mutate: submitForm,
+    isPending: loading,
+    error: mutationError,
+  } = useMutation({
+    mutationFn: (payload: SaveUserPayload) => saveUserToApi(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] }); // Update list after form submit
+      router.push('/dashboard/users');
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submitForm({ data: formData, initialData, isEdit });
+  };
+
+  return { formData, loading, error: mutationError?.message, handleChange, handleSubmit };
+}
+```
+
+**Pattern:**
+
+- Form state managed locally with `useState()`
+- Single mutation for submission
+- Auto-invalidates parent list on success
+- Redirects after successful submission
+
+### Centralized Mutation Hooks Library
+
+All entity mutations available in `/lib/mutations/`:
+
+```typescript
+// Import mutations for any entity
+import { useSongMutations, useLessonMutations, useUserMutations, useAssignmentMutations } from '@/lib/mutations';
+
+// Each provides { create, update, delete } (or entity-specific variations)
+const { create, update, delete: deleteMutation } = useSongMutations();
+
+// Use exactly what you need
+create.mutate({ title: 'Song', author: 'Artist', ... });
+update.mutate({ id: 'song-1', data: { ... } });
+deleteMutation.mutate({ id: 'song-1' });
+
+// Each mutation provides
+// { mutate, isPending, error }
+```
+
+**Available Libraries:**
+
+- `useSongMutations()` - create/update/delete songs
+- `useLessonMutations()` - create/update/delete lessons
+- `useUserMutations()` - create/update/delete users + updateRole
+- `useAssignmentMutations()` - create/update/delete assignments
+
+### Cache Invalidation Strategy
+
+**Per-Entity Invalidation:**
+
+```typescript
+// Songs: Invalidate ['songs'] covers all song queries
+queryClient.invalidateQueries({ queryKey: ['songs'] });
+// This invalidates:
+// - ['songs']
+// - ['songs', songId]
+// - ['songs', { level: 'beginner' }]
+// - Any other song-related query
+
+// Users: Dual invalidation (users + profiles linked)
+queryClient.invalidateQueries({ queryKey: ['users'] });
+queryClient.invalidateQueries({ queryKey: ['profiles'] });
+```
+
+**Optimistic Updates (Advanced):**
+
+```typescript
+// Set detail cache immediately while request is in-flight
+onSuccess: (song) => {
+  queryClient.invalidateQueries({ queryKey: ['songs'] });
+  queryClient.setQueryData(['songs', song.id], song);  // Immediate UI update
+},
+```
+
+### Testing with TanStack Query
+
+Use `QueryWrapper` test utility from `lib/testing/query-client-test-utils.tsx`:
+
+```typescript
+import { renderWithClient } from '@/lib/testing/query-client-test-utils';
+import SongList from '@/components/songs/SongList';
+
+it('should display songs', () => {
+  renderWithClient(<SongList />);
+  expect(screen.getByText('Loading...')).toBeInTheDocument();
+  // Query automatically manages loading state
+});
+```
+
+**Test Infrastructure:**
+
+- `createTestQueryClient()` - Fresh QueryClient for each test
+- `renderWithClient()` - Renders component with QueryProvider
+- `QueryWrapper` - React wrapper for test provider
+- Query state automatically managed during tests
+
+### Best Practices
+
+✅ **DO:**
+
+- Use dynamic query keys for filtered/paginated queries
+- Invalidate query families (e.g., `['songs']` covers all song variants)
+- Combine multiple mutations when related (admin CRUD)
+- Use optimistic updates for immediate UI feedback
+- Return consistent interfaces from hooks
+- Co-locate hooks with their components
+
+❌ **DON'T:**
+
+- Manually manage fetch state with `useState()`
+- Make the same request twice (query deduplication handles this)
+- Forget to invalidate on mutations (results in stale UI)
+- Use query keys that don't include filter parameters
+- Pass QueryClient as prop (use `useQueryClient()` hook instead)
+
+### Adding New Queries or Mutations
+
+**When adding a new data-fetching feature:**
+
+1. **Check if query exists:** Look in `/components/[entity]/hooks/` first
+2. **Use existing patterns:** Copy from similar entity (e.g., use `useSong` as template for new entity)
+3. **Follow naming:**
+   - Queries: `use[Entity]`, `use[Entity]List`
+   - Mutations: `use[Entity]Mutations` (centralized) or add to query hook
+4. **Set query key:** Always include relevant filters/IDs
+5. **Configure staleTime:** 5 minutes default, adjust for real-time needs
+6. **Test with renderWithClient:** Ensure query loads/errors handled correctly
+
+### Migration from useState Pattern
+
+If encountering old `useState()`/`useEffect()` data-fetching code:
+
+```typescript
+// ❌ OLD PATTERN
+const [data, setData] = useState(null);
+const [loading, setLoading] = useState(false);
+
+useEffect(() => {
+  (async () => {
+    setLoading(true);
+    setData(await fetch(...));
+    setLoading(false);
+  })();
+}, [dependency]);
+
+// ✅ NEW PATTERN (TanStack Query)
+const { data, isLoading } = useQuery({
+  queryKey: ['entity', dependency],
+  queryFn: () => apiClient.get('/api/entity'),
+});
+```
+
+Benefits of migration:
+
+- Automatic caching and deduplication
+- Built-in refetching on window focus
+- Persistent cache across routes
+- Automatic error handling
+- No manual state management
+
 ## Key Constraints & Gotchas
 
 - **No authentication implemented yet** - Skip auth checks in early development
