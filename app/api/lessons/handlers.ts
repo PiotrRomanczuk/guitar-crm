@@ -1,10 +1,4 @@
 // Pure functions for lesson API business logic - testable without Next.js dependencies
-// TODO: File exceeds 300 lines (currently 311). Needs refactoring:
-//   - Extract helper functions (validateSortField, applyLessonFilters, applySortAndPagination) to separate file
-//   - Consider splitting CRUD handlers into individual files
-//   - Move role-based filtering logic to a separate module
-/* eslint-disable max-lines */
-
 import { LessonInputSchema } from '../../../schemas/LessonSchema';
 import { ZodError } from 'zod';
 
@@ -75,9 +69,6 @@ async function applyRoleBasedFiltering(
   params: LessonQueryParams
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any | { lessons: []; count: number; status: number }> {
-  // Debug logging removed for production
-
-  // Safety check - this should not happen due to validation in getLessonsHandler
   if (!profile) {
     console.error('applyRoleBasedFiltering called with null profile');
     return { lessons: [], count: 0, status: 500 };
@@ -86,7 +77,9 @@ async function applyRoleBasedFiltering(
   if (canViewAll(profile)) {
     // Admin sees all lessons
     return applyLessonFilters(dbQuery, params);
-  }  if (profile.isTeacher) {
+  }
+
+  if (profile.isTeacher) {
     // Teacher sees only their students' lessons
     const studentIds = await getTeacherStudentIds(supabase, user.id);
     if (studentIds.length === 0) {
@@ -94,7 +87,9 @@ async function applyRoleBasedFiltering(
     }
     const filteredQuery = dbQuery.in('student_id', studentIds);
     return applyLessonFilters(filteredQuery, { filter: params.filter });
-  } // Student sees only their own lessons
+  }
+  
+  // Student sees only their own lessons
   const studentQuery = dbQuery.eq('student_id', user.id);
   return applyLessonFilters(studentQuery, { filter: params.filter });
 }
@@ -126,17 +121,15 @@ function applySortAndPagination(
   limit: number
 ) {
   // If we received an already-executed query result, just return it
-  // This handles cases where the query was already executed elsewhere
   if (query && 'data' in query && 'error' in query && 'count' in query) {
     return query;
   }
-
-  // If we have a proper query builder, apply sorting and pagination
+  
   if (!query || typeof query.order !== 'function') {
     console.error('applySortAndPagination received invalid query object');
     throw new Error('Invalid query object passed to applySortAndPagination');
   }
-
+  
   const ascending = sortOrder === 'asc';
   const offset = (page - 1) * limit;
   return query.order(sort, { ascending }).range(offset, offset + limit - 1);
@@ -172,6 +165,7 @@ export async function getLessonsHandler(
     page = 1,
     limit = 50,
   } = query;
+  
   const sortField = validateSortField(sort);
   const baseQuery = supabase
     .from('lessons')
@@ -194,7 +188,7 @@ export async function getLessonsHandler(
   }
 
   const finalQuery = applySortAndPagination(filteredQuery, sortField, sortOrder, page, limit);
-
+  
   // If finalQuery is already an executed result, handle it directly
   if (finalQuery && 'data' in finalQuery && 'error' in finalQuery) {
     const { data, error, count } = finalQuery;
@@ -203,7 +197,7 @@ export async function getLessonsHandler(
     }
     return { lessons: data || [], count: count ?? 0, status: 200 };
   }
-
+  
   // Otherwise, execute the query
   const { data, error, count } = await finalQuery;
   if (error) {
@@ -220,35 +214,33 @@ export async function createLessonHandler(
 ): Promise<{ lesson?: unknown; status: number; error?: string }> {
   if (!user) return { error: 'Unauthorized', status: 401 };
   if (!profile) return { error: 'Profile not found', status: 404 };
+  
   if (!validateMutationPermission(profile)) {
     return {
-      error: 'Forbidden: Only teachers and admins can create lessons',
+      error: 'Only admins and teachers can create lessons',
       status: 403,
     };
   }
 
   try {
-    const validated = LessonInputSchema.parse(body);
+    const validatedData = LessonInputSchema.parse(body);
     const { data, error } = await supabase
       .from('lessons')
-      .insert({
-        teacher_id: validated.teacher_id,
-        student_id: validated.student_id,
-        date: validated.date,
-        start_time: validated.start_time,
-        title: validated.title ?? null,
-        notes: validated.notes ?? null,
-        status: validated.status ?? 'SCHEDULED',
-        creator_user_id: user.id,
-      })
+      .insert(validatedData)
       .select()
       .single();
 
-    if (error) return { error: error.message, status: 500 };
+    if (error) {
+      return { error: error.message, status: 500 };
+    }
+
     return { lesson: data, status: 201 };
-  } catch (err) {
-    if (err instanceof ZodError) {
-      return { error: 'Validation failed', status: 422 };
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return {
+        error: `Validation error: ${error.errors.map((e) => e.message).join(', ')}`,
+        status: 400,
+      };
     }
     return { error: 'Internal server error', status: 500 };
   }
@@ -258,39 +250,39 @@ export async function updateLessonHandler(
   supabase: SupabaseClient,
   user: { id: string } | null,
   profile: UserProfile | null,
-  lessonId: string,
+  id: string,
   body: unknown
 ): Promise<{ lesson?: unknown; status: number; error?: string }> {
   if (!user) return { error: 'Unauthorized', status: 401 };
   if (!profile) return { error: 'Profile not found', status: 404 };
+  
   if (!validateMutationPermission(profile)) {
     return {
-      error: 'Forbidden: Only teachers and admins can update lessons',
+      error: 'Only admins and teachers can update lessons',
       status: 403,
     };
   }
 
   try {
-    const validated = LessonInputSchema.partial().parse(body);
+    const validatedData = LessonInputSchema.partial().parse(body);
     const { data, error } = await supabase
       .from('lessons')
-      .update({
-        title: validated.title,
-        notes: validated.notes,
-        date: validated.date,
-        start_time: validated.start_time,
-        status: validated.status,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', lessonId)
+      .update(validatedData)
+      .eq('id', id)
       .select()
       .single();
 
-    if (error) return { error: error.message, status: 500 };
+    if (error) {
+      return { error: error.message, status: 500 };
+    }
+
     return { lesson: data, status: 200 };
-  } catch (err) {
-    if (err instanceof ZodError) {
-      return { error: 'Validation failed', status: 422 };
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return {
+        error: `Validation error: ${error.errors.map((e) => e.message).join(', ')}`,
+        status: 400,
+      };
     }
     return { error: 'Internal server error', status: 500 };
   }
@@ -300,18 +292,23 @@ export async function deleteLessonHandler(
   supabase: SupabaseClient,
   user: { id: string } | null,
   profile: UserProfile | null,
-  lessonId: string
-): Promise<{ success?: boolean; status: number; error?: string }> {
+  id: string
+): Promise<{ status: number; error?: string }> {
   if (!user) return { error: 'Unauthorized', status: 401 };
   if (!profile) return { error: 'Profile not found', status: 404 };
+  
   if (!validateMutationPermission(profile)) {
     return {
-      error: 'Forbidden: Only teachers and admins can delete lessons',
+      error: 'Only admins and teachers can delete lessons',
       status: 403,
     };
   }
 
-  const { error } = await supabase.from('lessons').delete().eq('id', lessonId);
-  if (error) return { error: error.message, status: 500 };
-  return { success: true, status: 200 };
+  const { error } = await supabase.from('lessons').delete().eq('id', id);
+
+  if (error) {
+    return { error: error.message, status: 500 };
+  }
+
+  return { status: 200 };
 }

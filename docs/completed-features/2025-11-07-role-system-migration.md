@@ -249,10 +249,10 @@ bash scripts/database/reset-with-users.sh
 bash scripts/database/check-db-quality.sh
 
 # Test login
-node test-login.js
+node scripts/testing/test-login.js
 
 # Test admin access
-node test-admin-access.js
+node scripts/testing/test-admin-access.js
 
 # Run quality checks
 npm run quality
