@@ -1,3 +1,5 @@
-export default async function AssignementsPage() {
-  return <div>Assignements Page - to be implemented</div>;
+import AssignmentsList from '@/components/assignments/AssignmentsList';
+
+export default function AssignmentsPage() {
+  return <AssignmentsList />;
 }
