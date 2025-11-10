@@ -56,11 +56,10 @@ describe('User Seeding Tests', () => {
 	];
 
 	describe('User Profile Verification', () => {
-		test('all expected users exist with correct roles', async () => {
-			// Get all profiles
+		test('profiles have correct role flags', async () => {
 			const { data: profiles, error } = await supabase
 				.from('profiles')
-				.select('*')
+				.select('email, is_admin, is_teacher, is_student')
 				.in(
 					'email',
 					expectedUsers.map((u) => u.email)
@@ -72,14 +71,16 @@ describe('User Seeding Tests', () => {
 
 			// Check each expected user
 			for (const expectedUser of expectedUsers) {
-				const profile = profiles?.find((p) => p.email === expectedUser.email);
+				const profile = (profiles as Array<{
+					email: string;
+					is_admin: boolean;
+					is_teacher: boolean;
+					is_student: boolean;
+				}>)?.find((p) => p.email === expectedUser.email);
 				expect(profile).toBeDefined();
-				// @ts-expect-error - using lowercase column names from database
-				expect(profile?.isadmin).toBe(expectedUser.role.isAdmin);
-				// @ts-expect-error - lowercase column name
-				expect(profile?.isteacher).toBe(expectedUser.role.isTeacher);
-				// @ts-expect-error - lowercase column name
-				expect(profile?.isstudent).toBe(expectedUser.role.isStudent);
+				expect(profile?.is_admin).toBe(expectedUser.role.isAdmin);
+				expect(profile?.is_teacher).toBe(expectedUser.role.isTeacher);
+				expect(profile?.is_student).toBe(expectedUser.role.isStudent);
 			}
 		});
 

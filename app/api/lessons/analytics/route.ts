@@ -106,9 +106,8 @@ export async function GET(request: NextRequest) {
 					studentProgress.length > 0
 						? ((statusCounts.mastered || 0) / studentProgress.length) * 100
 						: 0,
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				levelDistribution: (studentProgress as any[]).reduce(
-					(acc: { [key: string]: number }, sp: any) => {
+				levelDistribution: (studentProgress as { songs?: { level?: string } }[]).reduce(
+					(acc: { [key: string]: number }, sp: { songs?: { level?: string } }) => {
 						const level = sp.songs?.level || 'unknown';
 						acc[level] = (acc[level] || 0) + 1;
 						return acc;
@@ -151,7 +150,11 @@ export async function GET(request: NextRequest) {
 							};
 						};
 					},
-					lesson: any
+					lesson: {
+					teacher_id: string;
+					status: string;
+					profile: { email?: string; firstName?: string; lastName?: string };
+				}
 				) => {
 					const teacherId = lesson.teacher_id;
 					if (!acc[teacherId]) {
