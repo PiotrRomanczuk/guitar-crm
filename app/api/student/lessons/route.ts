@@ -19,7 +19,12 @@ async function getUserProfile(
 		return null;
 	}
 
-	return profile;
+	// Map snake_case DB columns to camelCase for TypeScript
+	return {
+		isAdmin: profile.is_admin,
+		isTeacher: profile.is_teacher,
+		isStudent: profile.is_student,
+	};
 }
 
 /**
@@ -66,7 +71,7 @@ export async function GET(request: NextRequest) {
 		}
 
 		// Student-only check
-		if (!profile.is_student) {
+		if (!profile.isStudent) {
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 		}
 

@@ -4,7 +4,7 @@ import { createContext, useContext, ReactNode, useEffect, useState } from 'react
 import { supabase } from '@/lib/supabase';
 
 interface AuthContextType {
-  user: { id: string } | null;
+  user: { id: string; email?: string } | null;
   loading: boolean;
   isAdmin: boolean;
   isTeacher: boolean;
@@ -28,7 +28,7 @@ interface AuthProviderProps {
 }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<{ id: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isTeacher, setIsTeacher] = useState(false);
@@ -43,7 +43,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         } = await supabase.auth.getSession();
 
         if (session?.user) {
-          setUser({ id: session.user.id });
+          setUser({ id: session.user.id, email: session.user.email });
           await fetchUserRoles(session.user.id);
         }
       } catch (error) {
@@ -60,7 +60,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
-        setUser({ id: session.user.id });
+        setUser({ id: session.user.id, email: session.user.email });
         await fetchUserRoles(session.user.id);
       } else {
         setUser(null);

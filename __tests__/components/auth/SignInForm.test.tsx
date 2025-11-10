@@ -2,16 +2,16 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import SignInForm from '@/components/auth/SignInForm';
 
-// Mock Supabase client
-jest.mock('@/lib/supabase', () => ({
-	supabase: {
-		auth: {
-			signInWithPassword: jest.fn(),
-		},
-	},
-}));
+// Mock Supabase browser client
+const mockSignInWithPassword = jest.fn();
 
-import { supabase } from '@/lib/supabase';
+jest.mock('@/lib/supabase-browser', () => ({
+	getSupabaseBrowserClient: jest.fn(() => ({
+		auth: {
+			signInWithPassword: mockSignInWithPassword,
+		},
+	})),
+}));
 
 describe('SignInForm', () => {
 	beforeEach(() => {
@@ -95,14 +95,14 @@ describe('SignInForm', () => {
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
-				expect(supabase.auth.signInWithPassword).not.toHaveBeenCalled();
+				expect(mockSignInWithPassword).not.toHaveBeenCalled();
 			});
 		});
 	});
 
 	describe('Form Submission', () => {
 		it('should call signInWithPassword with correct credentials', async () => {
-			(supabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
+			mockSignInWithPassword.mockResolvedValue({
 				data: { user: { id: '123' }, session: { access_token: 'token' } },
 				error: null,
 			});
@@ -120,7 +120,7 @@ describe('SignInForm', () => {
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
-				expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
+				expect(mockSignInWithPassword).toHaveBeenCalledWith({
 					email: 'student@example.com',
 					password: 'test123_student',
 				});
@@ -128,7 +128,7 @@ describe('SignInForm', () => {
 		});
 
 		it('should redirect on successful sign in', async () => {
-			(supabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
+			mockSignInWithPassword.mockResolvedValue({
 				data: { user: { id: '123' }, session: { access_token: 'token' } },
 				error: null,
 			});
@@ -145,12 +145,12 @@ describe('SignInForm', () => {
 			fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
 			await waitFor(() => {
-				expect(supabase.auth.signInWithPassword).toHaveBeenCalled();
+				expect(mockSignInWithPassword).toHaveBeenCalled();
 			});
 		});
 
 		it('should show error message for invalid credentials', async () => {
-			(supabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
+			mockSignInWithPassword.mockResolvedValue({
 				data: { user: null, session: null },
 				error: { message: 'Invalid login credentials' },
 			});
@@ -174,7 +174,7 @@ describe('SignInForm', () => {
 		});
 
 		it('should show error message for unconfirmed email', async () => {
-			(supabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
+			mockSignInWithPassword.mockResolvedValue({
 				data: { user: null, session: null },
 				error: { message: 'Email not confirmed' },
 			});
@@ -196,7 +196,7 @@ describe('SignInForm', () => {
 		});
 
 		it('should disable submit button while submitting', async () => {
-			(supabase.auth.signInWithPassword as jest.Mock).mockImplementation(
+			mockSignInWithPassword.mockImplementation(
 				() =>
 					new Promise((resolve) =>
 						setTimeout(
@@ -231,7 +231,7 @@ describe('SignInForm', () => {
 		});
 
 		it('should show loading state while submitting', async () => {
-			(supabase.auth.signInWithPassword as jest.Mock).mockImplementation(
+			mockSignInWithPassword.mockImplementation(
 				() =>
 					new Promise((resolve) =>
 						setTimeout(
@@ -265,7 +265,7 @@ describe('SignInForm', () => {
 		});
 
 		it('should clear form on successful sign in', async () => {
-			(supabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
+			mockSignInWithPassword.mockResolvedValue({
 				data: { user: { id: '123' }, session: { access_token: 'token' } },
 				error: null,
 			});

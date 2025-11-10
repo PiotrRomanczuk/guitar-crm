@@ -377,7 +377,7 @@ This checklist ensures every entity follows the standardized **role-based archit
 - [ ] Add entity to schema README
 - [ ] Update API documentation
 - [ ] Add usage examples
-- [ ] Update TODO.md if incomplete
+- [ ] Update docs/TODO.md if incomplete
 
 #### 10.2 Code Review Checklist
 

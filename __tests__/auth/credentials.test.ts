@@ -96,14 +96,14 @@ describeIfDb('Development Credentials Authentication Tests', () => {
 				// Check profile roles
 				const { data: profile } = await supabase
 					.from('profiles')
-					.select('*')
-					.eq('user_id', user?.id)
-					.single();
+					.select('is_admin, is_teacher, is_student')
+					.eq('id', user!.id)
+					.single<{ is_admin: boolean; is_teacher: boolean; is_student: boolean }>();
 
 				expect(profile).not.toBeNull();
-				expect(profile?.isAdmin).toBe(role.isAdmin);
-				expect(profile?.isTeacher).toBe(role.isTeacher);
-				expect(profile?.isStudent).toBe(role.isStudent);
+				expect(profile?.is_admin).toBe(role.isAdmin);
+				expect(profile?.is_teacher).toBe(role.isTeacher);
+				expect(profile?.is_student).toBe(role.isStudent);
 			}
 		);
 	});
@@ -163,7 +163,7 @@ describeIfDb('Development Credentials Authentication Tests', () => {
 			const { data: lessons, error } = await supabase
 				.from('lessons')
 				.select('*')
-				.eq('teacher_id', user?.id);
+				.eq('teacher_id', user!.id);
 
 			expect(error).toBeNull();
 			expect(lessons).not.toBeNull();

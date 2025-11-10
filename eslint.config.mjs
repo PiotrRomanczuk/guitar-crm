@@ -15,6 +15,11 @@ const eslintConfig = defineConfig([
 		// Project-specific ignores
 		'supabase/**',
 		'coverage/**',
+		// Script files with different module system
+		'scripts/**/*.js',
+		'*.js',
+		// History/backup files
+		'scripts/history/**',
 	]),
 	// Project-wide rules and overrides
 	{
