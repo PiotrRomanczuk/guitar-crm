@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { DeleteAssignmentButton } from './DeleteAssignmentButton';
 
 interface Assignment {
   id: string;
@@ -199,38 +200,5 @@ function AssignmentDescription({ description }: { description: string }) {
         {description}
       </p>
     </div>
-  );
-}
-
-function DeleteAssignmentButton({ assignmentId }: { assignmentId: string }) {
-  const handleDelete = async () => {
-    'use server';
-    const supabase = await createClient();
-    const { user, isAdmin } = await getUserWithRolesSSR();
-
-    if (!user || !isAdmin) {
-      throw new Error('Unauthorized');
-    }
-
-    await supabase.from('assignments').delete().eq('id', assignmentId);
-
-    redirect('/dashboard/assignements');
-  };
-
-  return (
-    <form action={handleDelete}>
-      <button
-        type="submit"
-        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-        data-testid="delete-button"
-        onClick={(e) => {
-          if (!confirm('Delete this assignment?')) {
-            e.preventDefault();
-          }
-        }}
-      >
-        Delete Assignment
-      </button>
-    </form>
   );
 }
