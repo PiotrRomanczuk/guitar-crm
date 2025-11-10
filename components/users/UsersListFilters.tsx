@@ -10,7 +10,7 @@ interface UsersListFiltersProps {
   onReset: () => void;
 }
 
-export function UsersListFilters({
+export default function UsersListFilters({
   search,
   roleFilter,
   activeFilter,
