@@ -36,6 +36,7 @@ describe('SettingsComponents', () => {
 		it('should render toggle with label and description', () => {
 			render(
 				<ToggleSetting
+					id="test-toggle"
 					label="Test Toggle"
 					description="Toggle description"
 					checked={false}
@@ -51,6 +52,7 @@ describe('SettingsComponents', () => {
 			const user = userEvent.setup();
 			render(
 				<ToggleSetting
+					id="test-toggle-2"
 					label="Test Toggle"
 					description="Toggle description"
 					checked={false}
@@ -73,6 +75,7 @@ describe('SettingsComponents', () => {
 		it('should render select with label and options', () => {
 			render(
 				<SelectSetting
+					id="test-select-1"
 					label="Test Select"
 					description="Select description"
 					value="option1"
@@ -89,6 +92,7 @@ describe('SettingsComponents', () => {
 			const user = userEvent.setup();
 			render(
 				<SelectSetting
+					id="test-select-2"
 					label="Test Select"
 					description="Select description"
 					value="option1"

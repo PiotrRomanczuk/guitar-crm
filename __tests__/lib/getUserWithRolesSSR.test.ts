@@ -40,9 +40,9 @@ describe('getUserWithRolesSSR', () => {
 			};
 
 			const mockProfile = {
-				isAdmin: true,
-				isTeacher: true,
-				isStudent: false,
+				is_admin: true,
+				is_teacher: true,
+				is_student: false,
 			};
 
 			mockSupabaseClient.auth.getUser.mockResolvedValue({
@@ -82,9 +82,9 @@ describe('getUserWithRolesSSR', () => {
 			};
 
 			const mockProfile = {
-				isAdmin: false,
-				isTeacher: true,
-				isStudent: false,
+				is_admin: false,
+				is_teacher: true,
+				is_student: false,
 			};
 
 			mockSupabaseClient.auth.getUser.mockResolvedValue({
@@ -124,9 +124,9 @@ describe('getUserWithRolesSSR', () => {
 			};
 
 			const mockProfile = {
-				isAdmin: false,
-				isTeacher: false,
-				isStudent: true,
+				is_admin: false,
+				is_teacher: false,
+				is_student: true,
 			};
 
 			mockSupabaseClient.auth.getUser.mockResolvedValue({

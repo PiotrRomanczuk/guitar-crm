@@ -64,8 +64,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Role-based access check
-    if (!profile.is_admin) {
-      if (profile.is_teacher) {
+    if (!profile.isAdmin) {
+      if (profile.isTeacher) {
         // Teacher can only see their students' lessons
         const { data: teacherLesson } = await supabase
           .from('lessons')
