@@ -27,7 +27,11 @@ export default async function SongList() {
   return (
     <div>
       <SongListHeader canManageSongs={!!isAdmin} />
-      {!songs || songs.length === 0 ? <SongListEmpty /> : <SongListTable songs={songs} />}
+      {!songs || songs.length === 0 ? (
+        <SongListEmpty />
+      ) : (
+        <SongListTable songs={songs} canDelete={!!isAdmin} />
+      )}
     </div>
   );
 }
