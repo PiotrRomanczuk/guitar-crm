@@ -35,7 +35,11 @@ const createInitialData = (initial: InitialData | undefined): FormData => ({
   isActive: initial?.isActive !== false,
 });
 
-const saveUser = async (data: FormData, initialData: InitialData | undefined, isEdit: boolean | undefined) => {
+const saveUser = async (
+  data: FormData,
+  initialData: InitialData | undefined,
+  isEdit: boolean | undefined
+) => {
   if (!data.email) throw new Error('Email is required');
   const url = isEdit && initialData ? `/api/users/${initialData.id}` : '/api/users';
   const method = isEdit ? 'PUT' : 'POST';
@@ -50,7 +54,10 @@ const saveUser = async (data: FormData, initialData: InitialData | undefined, is
   }
 };
 
-export function useUserFormState(initialData: InitialData | undefined, isEdit: boolean | undefined) {
+export function useUserFormState(
+  initialData: InitialData | undefined,
+  isEdit: boolean | undefined
+) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
