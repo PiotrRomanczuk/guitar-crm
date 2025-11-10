@@ -27,7 +27,7 @@ export async function GET(request: Request) {
 
     const supabase = await createClient();
     const url = new URL(request.url);
-    
+
     // Filtering parameters
     const searchQuery = url.searchParams.get('search');
     const roleFilter = url.searchParams.get('role');
@@ -78,10 +78,7 @@ export async function GET(request: Request) {
     );
   } catch (error) {
     console.error('Error fetching users:', error);
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -94,7 +91,16 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { email, firstName, lastName, username, isAdmin: userIsAdmin, isTeacher, isStudent, isActive } = body;
+    const {
+      email,
+      firstName,
+      lastName,
+      username,
+      isAdmin: userIsAdmin,
+      isTeacher,
+      isStudent,
+      isActive,
+    } = body;
 
     if (!email) {
       return Response.json({ error: 'Email is required' }, { status: 400 });
@@ -126,9 +132,6 @@ export async function POST(request: Request) {
     return Response.json(data, { status: 201 });
   } catch (error) {
     console.error('Error creating user:', error);
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
