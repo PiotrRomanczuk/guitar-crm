@@ -1,6 +1,6 @@
-import React from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useSettings } from '@/components/settings/useSettings';
+import { QueryWrapper } from '@/lib/testing/query-client-test-utils';
 import type { User } from '@supabase/supabase-js';
 
 const mockUser: Partial<User> = {
@@ -20,16 +20,13 @@ jest.mock('@/components/auth/AuthProvider', () => ({
   }),
 }));
 
-// Simple wrapper component for testing
-const wrapper = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
-
 describe('useSettings', () => {
   beforeEach(() => {
     localStorage.clear();
   });
 
   it('should initialize with default settings', async () => {
-    const { result } = renderHook(() => useSettings(), { wrapper });
+    const { result } = renderHook(() => useSettings(), { wrapper: QueryWrapper });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -42,7 +39,7 @@ describe('useSettings', () => {
   });
 
   it('should update individual settings', async () => {
-    const { result } = renderHook(() => useSettings(), { wrapper });
+    const { result } = renderHook(() => useSettings(), { wrapper: QueryWrapper });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -55,7 +52,7 @@ describe('useSettings', () => {
   });
 
   it('should save settings to localStorage', async () => {
-    const { result } = renderHook(() => useSettings(), { wrapper });
+    const { result } = renderHook(() => useSettings(), { wrapper: QueryWrapper });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -64,28 +61,34 @@ describe('useSettings', () => {
     });
 
     await act(async () => {
-      await result.current.saveSettings();
+      result.current.saveSettings();
     });
+
+    await waitFor(() => expect(result.current.hasChanges).toBe(false));
 
     const stored = localStorage.getItem(`settings_${mockUser.id}`);
     expect(stored).toBeTruthy();
 
     const parsed = JSON.parse(stored!);
     expect(parsed.theme).toBe('dark');
-    expect(result.current.hasChanges).toBe(false);
   });
 
   it('should load settings from localStorage', async () => {
     const savedSettings = {
       emailNotifications: false,
       pushNotifications: true,
-      theme: 'light',
-      language: 'es',
+      theme: 'light' as const,
+      language: 'es' as const,
+      lessonReminders: true,
+      timezone: 'UTC',
+      profileVisibility: 'public' as const,
+      showEmail: false,
+      showLastSeen: true,
     };
 
     localStorage.setItem(`settings_${mockUser.id}`, JSON.stringify(savedSettings));
 
-    const { result } = renderHook(() => useSettings(), { wrapper });
+    const { result } = renderHook(() => useSettings(), { wrapper: QueryWrapper });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -93,7 +96,7 @@ describe('useSettings', () => {
   });
 
   it('should reset settings to defaults', async () => {
-    const { result } = renderHook(() => useSettings(), { wrapper });
+    const { result } = renderHook(() => useSettings(), { wrapper: QueryWrapper });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
