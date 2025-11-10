@@ -5,7 +5,7 @@ import SongListTable from './Table';
 import SongListEmpty from './Empty';
 
 export default async function SongList() {
-  const { user } = await getUserWithRolesSSR();
+  const { user, isAdmin } = await getUserWithRolesSSR();
 
   if (!user) {
     return <div data-testid="song-list-error">Not authenticated</div>;
@@ -26,8 +26,12 @@ export default async function SongList() {
 
   return (
     <div>
-      <SongListHeader />
-      {!songs || songs.length === 0 ? <SongListEmpty /> : <SongListTable songs={songs} />}
+      <SongListHeader canManageSongs={!!isAdmin} />
+      {!songs || songs.length === 0 ? (
+        <SongListEmpty />
+      ) : (
+        <SongListTable songs={songs} canDelete={!!isAdmin} />
+      )}
     </div>
   );
 }
