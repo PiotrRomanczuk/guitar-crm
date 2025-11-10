@@ -12,9 +12,9 @@ echo "======================"
 
 # Check if Supabase is running
 echo -e "\n${BLUE}📡 Checking Supabase status...${NC}"
-supabase status > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo -e "${RED}❌ Supabase is not running${NC}"
+# Try to connect to Supabase Postgres directly
+if ! timeout 2 bash -c 'PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -c "SELECT 1"' > /dev/null 2>&1; then
+    echo -e "${RED}❌ Supabase is not running or not accessible on port 54322${NC}"
     exit 1
 fi
 echo -e "${GREEN}✅ Supabase is running${NC}"

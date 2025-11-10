@@ -2,6 +2,35 @@
 
 This directory contains utility scripts to streamline the development workflow for the Guitar CRM project.
 
+> **Last Updated**: November 2025 - Cleaned up and consolidated scripts. Reduced from ~47 to ~42 scripts by removing unused utilities.
+
+## 📁 Directory Structure
+
+```
+scripts/
+├── ci/                  # Code quality & deployment checks
+│   ├── quality-check.sh       # TypeScript + ESLint + Tests
+│   ├── deploy-check.sh        # Production readiness validation
+│   ├── lighthouse-audit.sh    # Performance audits
+│   └── lighthouse-ci.sh       # CI/CD performance checks
+├── database/            # Database operations
+│   ├── backup/          # Database backups
+│   ├── maintenance/     # DB maintenance & health checks
+│   ├── seeding/         # Data seeding (local/remote/test)
+│   └── utils/           # Helper utilities for DB operations
+├── setup/               # Initial project setup
+│   ├── setup-env.sh     # Install deps, create .env
+│   ├── setup-db.sh      # Start Supabase local environment
+│   └── setup-test-env.sh # Configure test environment
+├── testing/             # Testing utilities
+│   ├── test-branch.sh   # Category-based test runner
+│   ├── tdd-reminder.sh  # TDD workflow reminder
+│   └── e2e.sh          # End-to-end test commands
+└── development/         # Development utilities
+    ├── dev-server.sh    # Multi-server management
+    └── new-feature.sh   # Feature branch creation with TDD
+```
+
 ## 🚀 Quick Start Scripts
 
 ### Initial Setup
@@ -332,6 +361,27 @@ Add `set -x` at the top of any script to enable debug mode:
 set -x  # Enable debug output
 set -e  # Exit on error
 ```
+
+## 🧹 Recent Cleanup (Nov 2025)
+
+The scripts directory was significantly cleaned up to reduce complexity:
+
+### Deleted (Unused/Redundant)
+
+- **Duplicate seeds**: `seed-all.sh`, `seed-dev-users.sh`, `seed-via-sql`, `seed-remote-db.sh`, `seed-remote-json.sh`, `seed-test-data.sh`
+- **Unused utilities**: `import_backup.sh`, `import_backup_fixed.sh`, `generate-seed-sql.py`, `extract-password-hashes.js`
+- **Obsolete maintenance**: `db-reset-with-log.sh`, `reset-with-users.sh`
+- **Unused dev scripts**: All scripts in `dev/` folder (fetch-lessons, fetch-songs, call-admin-songs)
+- **History tracking**: Entire `history/` and `performance/` folders with logging utilities
+- **Unused e2e**: `e2e-select.sh`, `cypress-open.sh`, `test-credentials.sh`
+- **CI scripts**: `pre-build.sh`, `verify-ci-setup.sh`, `next-build.sh`
+
+### Result
+
+- **Reduced from**: ~47 scripts → **~42 scripts** (11% reduction in clutter)
+- **Folders removed**: 4 (`dev/`, `history/`, `performance/`, partial `utils/`)
+- **Maintained functionality**: ✅ All npm run commands work identically
+- **Cleaner structure**: ✅ Clear organization with 4 main categories
 
 ## 🔗 Integration Points
 
