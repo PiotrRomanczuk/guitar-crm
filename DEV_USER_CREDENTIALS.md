@@ -1,0 +1,33 @@
+## Development Credentials
+
+These users are seeded automatically via script: `bash scripts/database/seeding/local/seed-all.sh`.
+All passwords are intended for local development only.
+
+```
+Admin (is_admin + is_teacher):
+  Email: p.romanczuk@gmail.com
+  Password: test123_admin
+
+Teacher (is_teacher):
+  Email: teacher@example.com
+  Password: test123_teacher
+
+Student (is_student):
+  Email: student@example.com
+  Password: test123_student
+
+Additional Students:
+  teststudent1@example.com / test123_student
+  teststudent2@example.com / test123_student
+  teststudent3@example.com / test123_student
+```
+
+### Usage Notes
+
+- Run the full seed: `bash scripts/database/seeding/local/seed-all.sh` before testing login flows.
+- Profiles align with `auth.users` ids; roles are stored on `profiles` table (snake_case columns).
+- After seeding you can verify roles:
+  ```sql
+  SELECT email, is_admin, is_teacher, is_student FROM profiles ORDER BY email;
+  ```
+- Do NOT use these credentials in production.
