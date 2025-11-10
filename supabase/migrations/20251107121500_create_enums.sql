@@ -11,7 +11,7 @@ CREATE TYPE music_key AS ENUM (
 CREATE TYPE lesson_song_status AS ENUM ('to_learn', 'started', 'remembered', 'with_author', 'mastered');
 
 -- Lesson status enum
-CREATE TYPE lesson_status AS ENUM ('SCHEDULED', 'COMPLETED', 'CANCELLED', 'RESCHEDULED');
+CREATE TYPE lesson_status AS ENUM ('SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'RESCHEDULED');
 
 -- Task priority enum
 CREATE TYPE task_priority AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'URGENT');
