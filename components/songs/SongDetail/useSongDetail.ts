@@ -1,85 +1,76 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { useRouter } from 'next/navigation';
+import { queryClient } from '@/lib/query-client';
+import { apiClient } from '@/lib/api-client';
 import type { Song } from '../types';
 
+interface DeleteResult {
+  success: boolean;
+  cascadeInfo?: Record<string, number>;
+  error?: string;
+}
+
+async function loadSongDetail(songId: string): Promise<Song | undefined> {
+  if (!songId) return undefined;
+
+  const supabase = getSupabaseBrowserClient();
+  const { data, error: fetchError } = await supabase
+    .from('songs')
+    .select('*')
+    .eq('id', songId)
+    .single();
+
+  if (fetchError || !data) {
+    throw new Error('Song not found');
+  }
+
+  return data as Song;
+}
+
+async function deleteSongDetail(songId: string): Promise<DeleteResult> {
+  return await apiClient.delete<DeleteResult>(`/api/song?id=${songId}`);
+}
+
 export function useSongDetail(songId: string, onDeleted?: () => void) {
-  const [song, setSong] = useState<Song | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
   const router = useRouter();
 
-  const loadSong = useCallback(async () => {
-    if (!songId) {
-      // If no ID yet (e.g., during hydration), skip without changing state.
-      // Keep loading=true so UI doesn't flash an error.
-      return;
-    }
+  const {
+    data: song,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['songs', songId],
+    queryFn: () => loadSongDetail(songId),
+    enabled: !!songId,
+    staleTime: 1000 * 60 * 5,
+  });
 
-    setLoading(true);
-    setError(null);
+  const { mutate: deleteSong, isPending: deleting } = useMutation({
+    mutationFn: (id: string) => deleteSongDetail(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['songs'] });
+      onDeleted?.();
+      router.push('/dashboard/songs');
+    },
+  });
 
-    try {
-      const supabase = getSupabaseBrowserClient();
-      const { data, error: fetchError } = await supabase
-        .from('songs')
-        .select('*')
-        .eq('id', songId)
-        .single();
-
-      if (fetchError || !data) {
-        // Treat PostgREST 406/404 style as not found
-        setError('Song not found');
-        setSong(null);
-        return;
-      }
-
-      setSong(data as Song);
-    } catch {
-      setError('Failed to load song');
-      setSong(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [songId]);
-
-  useEffect(() => {
-    loadSong();
-  }, [loadSong]);
-
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!song || !window.confirm('Are you sure you want to delete this song?')) {
       return;
     }
-
-    setDeleting(true);
-
-    try {
-      const supabase = getSupabaseBrowserClient();
-      const { error: deleteError } = await supabase.from('songs').delete().eq('id', song.id);
-
-      if (deleteError) {
-        setError('Failed to delete song');
-        return;
-      }
-
-      onDeleted?.();
-      router.push('/dashboard/songs');
-    } catch {
-      setError('Failed to delete song');
-    } finally {
-      setDeleting(false);
-    }
+    deleteSong(song.id);
   };
 
   return {
     song,
-    loading,
-    error,
+    loading: isLoading,
+    error: error ? (error instanceof Error ? error.message : 'Failed to load song') : null,
     deleting,
     handleDelete,
+    refetch,
   };
 }

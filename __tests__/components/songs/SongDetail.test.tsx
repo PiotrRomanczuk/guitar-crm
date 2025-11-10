@@ -1,8 +1,9 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import SongDetail from '@/components/songs/SongDetail';
+import { renderWithClient } from '@/lib/testing/query-client-test-utils';
 
-// Mock browser client provider
+// Mock browser client provider - never resolve to simulate loading
 jest.mock('@/lib/supabase-browser', () => ({
   getSupabaseBrowserClient: () => ({
     from: () => ({
@@ -35,7 +36,7 @@ describe('SongDetail Component - Core Tests', () => {
   });
 
   it('should display loading state initially', () => {
-    render(<SongDetail songId="test-id" />);
+    renderWithClient(<SongDetail songId="test-id" />);
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 });
