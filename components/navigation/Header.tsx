@@ -29,9 +29,9 @@ function MobileMenu({
 }) {
 	if (!open) return null;
 	return (
-		<div className='md:hidden mt-4 pb-4 border-t border-gray-200 dark:border-gray-700 pt-4'>
+		<div className='md:hidden mt-3 pb-3 border-t border-blue-500 dark:border-blue-700 pt-3'>
 			{user && (
-				<div className='mb-4'>
+				<div className='mb-3'>
 					<RoleBasedNav
 						user={user}
 						isAdmin={isAdmin}
@@ -40,20 +40,20 @@ function MobileMenu({
 					/>
 				</div>
 			)}
-			<div className='flex sm:hidden flex-col gap-2 pt-4 border-t border-gray-200 dark:border-gray-700'>
+			<div className='flex sm:hidden flex-col gap-2 pt-3 border-t border-blue-500 dark:border-blue-700'>
 				{loading ? (
-					<div className='text-gray-500 dark:text-gray-400'>Loading...</div>
+					<div className='text-blue-100'>Loading...</div>
 				) : user ? (
 					<>
 						<div className='flex flex-col py-2 px-2'>
-							<div className='text-sm font-medium text-gray-900 dark:text-white break-all'>
+							<div className='text-sm font-medium text-blue-50 break-all'>
 								{user.email}
 							</div>
 							<RoleDisplay roles={roles} />
 						</div>
 						<button
 							onClick={onSignOut}
-							className='w-full text-left bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition-colors'
+							className='w-full text-left bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200'
 						>
 							Sign Out
 						</button>
@@ -62,13 +62,13 @@ function MobileMenu({
 					<>
 						<button
 							onClick={onSignIn}
-							className='text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors px-4 py-2'
+							className='text-left text-blue-50 hover:text-white font-medium transition-colors duration-200 px-4 py-2'
 						>
 							Sign In
 						</button>
 						<button
 							onClick={onSignUp}
-							className='w-full text-left bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors'
+							className='w-full text-left bg-white hover:bg-blue-50 text-blue-600 font-medium px-4 py-2 rounded-lg transition-colors duration-200'
 						>
 							Sign Up
 						</button>
@@ -85,7 +85,7 @@ function RoleDisplay({ roles }: { roles: string[] }) {
 			{roles.map((role) => (
 				<span
 					key={role}
-					className='text-xs px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+					className='text-xs px-2 py-0.5 rounded-full bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100 font-medium'
 				>
 					{role}
 				</span>
@@ -110,22 +110,20 @@ function DesktopAuthControls({
 	onSignUp: () => void;
 }) {
 	return (
-		<div className='hidden sm:flex items-center gap-2 sm:gap-4'>
+		<div className='hidden sm:flex items-center gap-2 sm:gap-3 lg:gap-4'>
 			{loading ? (
-				<div className='text-gray-500 dark:text-gray-400 text-sm'>
-					Loading...
-				</div>
+				<div className='text-blue-100 text-sm'>Loading...</div>
 			) : user ? (
 				<>
 					<div className='hidden sm:flex flex-col items-end'>
-						<div className='text-xs sm:text-sm font-medium text-gray-900 dark:text-white truncate'>
+						<div className='text-xs sm:text-sm font-medium text-blue-50 truncate'>
 							{user.email}
 						</div>
 						<RoleDisplay roles={roles} />
 					</div>
 					<button
 						onClick={onSignOut}
-						className='bg-red-600 hover:bg-red-700 text-white font-medium px-2 sm:px-4 py-2 rounded-lg transition-colors text-sm'
+						className='bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 text-white font-medium px-3 sm:px-4 py-2 rounded-lg transition-colors duration-200 text-sm whitespace-nowrap'
 					>
 						Sign Out
 					</button>
@@ -134,13 +132,13 @@ function DesktopAuthControls({
 				<>
 					<button
 						onClick={onSignIn}
-						className='text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors text-sm'
+						className='text-blue-50 hover:text-white font-medium transition-colors duration-200 text-sm whitespace-nowrap'
 					>
 						Sign In
 					</button>
 					<button
 						onClick={onSignUp}
-						className='bg-blue-600 hover:bg-blue-700 text-white font-medium px-2 sm:px-4 py-2 rounded-lg transition-colors text-sm'
+						className='bg-white hover:bg-blue-50 text-blue-600 font-medium px-3 sm:px-4 py-2 rounded-lg transition-colors duration-200 text-sm whitespace-nowrap'
 					>
 						Sign Up
 					</button>
@@ -160,7 +158,7 @@ function MobileMenuButton({
 	return (
 		<button
 			onClick={onClick}
-			className='md:hidden ml-4 p-2 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors'
+			className='md:hidden ml-4 p-2 text-white hover:bg-blue-500 dark:hover:bg-blue-700 rounded-lg transition-colors duration-200'
 			aria-label='Toggle menu'
 		>
 			<svg
@@ -229,17 +227,19 @@ export default function Header({
 	if (isStudent) roles.push('Student');
 
 	return (
-		<header className='bg-white dark:bg-gray-800 shadow-md'>
-			<div className='container mx-auto px-3 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6'>
-				<div className='flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-0'>
+		<header className='bg-linear-to-r from-blue-600 to-blue-700 dark:from-blue-900 dark:to-blue-800 shadow-lg border-b border-blue-500 dark:border-blue-700'>
+			<div className='container mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-5'>
+				<div className='flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0'>
 					<div className='flex items-center justify-between w-full md:w-auto'>
 						{/* Logo */}
 						<button
 							onClick={() => handleNavigation('/')}
-							className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate px-1 md:px-0'
+							className='flex items-center gap-2 text-xl sm:text-2xl md:text-2xl font-bold text-white hover:text-blue-100 transition-colors duration-200 truncate'
 							style={{ minWidth: 0 }}
 						>
-							🎸 Guitar CRM
+							<span className='text-2xl sm:text-3xl'>🎸</span>
+							<span className='hidden sm:inline'>Guitar CRM</span>
+							<span className='sm:hidden'>CRM</span>
 						</button>
 
 						{/* Mobile Menu Button (only on mobile) */}
@@ -249,10 +249,10 @@ export default function Header({
 						/>
 					</div>
 
-					<div className='flex flex-col md:flex-row md:items-center md:justify-end w-full md:w-auto'>
+					<div className='flex flex-col md:flex-row md:items-center md:justify-end w-full md:w-auto gap-3 md:gap-0'>
 						{/* Navigation - Desktop only */}
 						{user && (
-							<div className='hidden md:flex flex-1 items-center mx-0 md:mx-8 lg:mx-12'>
+							<div className='hidden md:flex items-center mx-0 lg:mx-6'>
 								<RoleBasedNav
 									user={user}
 									isAdmin={isAdmin}
