@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { UsersListFilters } from './UsersListFilters';
-import { UsersListTable } from './UsersListTable';
+import UsersListFilters from './UsersListFilters';
+import UsersListTable from './UsersListTable';
 import { useUsersList } from './useUsersList';
 
 export default function UsersList() {

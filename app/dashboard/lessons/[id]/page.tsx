@@ -107,7 +107,7 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
         <div className="flex items-start justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              {lesson.title || 'Untitled'}
+              Lesson #{lesson.lesson_teacher_number || 'N/A'}
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
               ID:{' '}
@@ -145,12 +145,16 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
 
           <div>
             <h2 className="text-sm font-semibold text-gray-700 uppercase mb-2">Date</h2>
-            <p className="text-lg text-gray-900 dark:text-white">{formatDate(lesson.date)}</p>
+            <p className="text-lg text-gray-900 dark:text-white">
+              {formatDate(lesson.scheduled_at)}
+            </p>
           </div>
 
           <div>
             <h2 className="text-sm font-semibold text-gray-700 uppercase mb-2">Time</h2>
-            <p className="text-lg text-gray-900 dark:text-white">{formatTime(lesson.start_time)}</p>
+            <p className="text-lg text-gray-900 dark:text-white">
+              {formatTime(lesson.scheduled_at)}
+            </p>
           </div>
 
           <div>
