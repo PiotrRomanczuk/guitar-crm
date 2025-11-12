@@ -70,10 +70,17 @@ describe('Header', () => {
   it('should navigate to home when logo is clicked', () => {
     render(<Header user={null} isAdmin={false} isTeacher={false} isStudent={false} />);
 
-    const logo = screen.getByText('🎸 Guitar CRM');
-    fireEvent.click(logo);
+    // The logo contains a button with the text (either "Guitar CRM" on desktop or "CRM" on mobile)
+    // We look for the button that contains the guitar emoji
+    const buttons = screen.getAllByRole('button');
+    const logoButton = buttons.find((btn) => btn.textContent?.includes('🎸'));
 
-    expect(mockPush).toHaveBeenCalledWith('/');
+    expect(logoButton).toBeInTheDocument();
+
+    if (logoButton) {
+      fireEvent.click(logoButton);
+      expect(mockPush).toHaveBeenCalledWith('/');
+    }
   });
 
   it('should show role badges for authenticated users', () => {
