@@ -42,7 +42,7 @@ export default function LessonList({ initialLessons = [], initialError = null }:
       )}
       <LessonListHeader />
       <LessonListFilter filterStatus={filterStatus} onFilterChange={setFilterStatus} />
-      <LessonTable lessons={lessons} role="admin" baseUrl="/lessons" />
+      <LessonTable lessons={lessons} role="admin" baseUrl="/dashboard/lessons" />
     </div>
   );
 }
