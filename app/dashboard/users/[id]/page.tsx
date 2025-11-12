@@ -2,6 +2,7 @@ import UserDetail from '@/components/users/UserDetail';
 import UserLessons from '@/components/users/UserLessons';
 import UserAssignments from '@/components/users/UserAssignments';
 import UserSongs from '@/components/users/UserSongs';
+import { Breadcrumbs } from '@/components/shared';
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { notFound } from 'next/navigation';
@@ -132,8 +133,18 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
   // Fetch related data
   const { lessons, assignments, songs } = await fetchUserData(supabase, userId);
 
+  const userName = user.full_name || user.email || 'User';
+
   return (
     <div className="container mx-auto px-4 py-8">
+      <Breadcrumbs
+        items={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Users', href: '/dashboard/users' },
+          { label: userName },
+        ]}
+      />
+      
       <UserDetail user={user as UserProfile} />
 
       {/* Lessons Section */}

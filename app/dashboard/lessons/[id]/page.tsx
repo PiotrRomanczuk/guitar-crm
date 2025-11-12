@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import LessonDeleteButton from '@/components/lessons/LessonDeleteButton';
 import LessonSongs from '@/components/lessons/LessonSongs';
+import { Breadcrumbs } from '@/components/shared';
 
 interface LessonDetailPageProps {
   params: Promise<{ id: string }>;
@@ -89,11 +90,13 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <Link href="/dashboard/lessons" className="text-blue-600 hover:underline">
-          Back to Lessons
-        </Link>
-      </div>
+      <Breadcrumbs
+        items={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Lessons', href: '/dashboard/lessons' },
+          { label: `Lesson #${lesson.lesson_teacher_number || 'N/A'}` },
+        ]}
+      />
 
       <div
         className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6"
