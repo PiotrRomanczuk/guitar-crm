@@ -47,7 +47,7 @@ WHERE a.lesson_id = l.id
 -- Step 6: For assignments without lessons, try to infer teacher from student's lessons
 UPDATE assignments a
 SET teacher_id = (
-  SELECT DISTINCT l.teacher_id
+  SELECT l.teacher_id
   FROM lessons l
   WHERE l.student_id = a.student_id
   ORDER BY l.created_at DESC
