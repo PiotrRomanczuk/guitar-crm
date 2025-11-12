@@ -158,37 +158,19 @@ export default async function LessonEditPage({ params }: LessonEditPageProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label
-                htmlFor="date"
+                htmlFor="scheduled_at"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
-                Date
+                Scheduled Date & Time
               </label>
               <input
-                type="date"
-                id="date"
-                name="date"
-                defaultValue={lesson.date || ''}
+                type="datetime-local"
+                id="scheduled_at"
+                name="scheduled_at"
+                defaultValue={lesson.scheduled_at || ''}
                 className="w-full px-4 py-2 border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 rounded-lg shadow-sm"
                 required
-                data-testid="lesson-edit-date"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="startTime"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Start Time
-              </label>
-              <input
-                type="time"
-                id="startTime"
-                name="startTime"
-                defaultValue={lesson.start_time || ''}
-                className="w-full px-4 py-2 border border-gray-300 bg-white dark:bg-gray-700 dark:border-gray-600 rounded-lg shadow-sm"
-                required
-                data-testid="lesson-edit-start-time"
+                data-testid="lesson-edit-scheduled-at"
               />
             </div>
           </div>
