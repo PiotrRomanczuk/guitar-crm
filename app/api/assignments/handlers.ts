@@ -38,9 +38,7 @@ type AssignmentInput = {
  * Build base query with role-based filters
  */
 function buildAssignmentQuery(supabase: SupabaseClient, userId: string, profile: Profile) {
-  const query = supabase
-    .from('assignments')
-    .select(`
+  const query = supabase.from('assignments').select(`
       *,
       teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
       student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
@@ -51,7 +49,7 @@ function buildAssignmentQuery(supabase: SupabaseClient, userId: string, profile:
   if (profile.isAdmin) return query; // Admins see all
   if (profile.isTeacher) return query.eq('teacher_id', userId);
   if (profile.isStudent) return query.eq('student_id', userId);
-  
+
   return query.eq('id', '00000000-0000-0000-0000-000000000000'); // No access
 }
 
@@ -61,7 +59,7 @@ function buildAssignmentQuery(supabase: SupabaseClient, userId: string, profile:
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function applyFilters(query: any, filters: Record<string, any>) {
   let result = query;
-  
+
   if (filters.teacher_id) result = result.eq('teacher_id', filters.teacher_id);
   if (filters.student_id) result = result.eq('student_id', filters.student_id);
   if (filters.lesson_id) result = result.eq('lesson_id', filters.lesson_id);
@@ -71,7 +69,7 @@ function applyFilters(query: any, filters: Record<string, any>) {
   }
   if (filters.due_date_from) result = result.gte('due_date', filters.due_date_from);
   if (filters.due_date_to) result = result.lte('due_date', filters.due_date_to);
-  
+
   return result;
 }
 
@@ -227,12 +225,14 @@ export async function createAssignmentHandler(
         lesson_id: input.lesson_id,
         status: input.status || 'not_started',
       })
-      .select(`
+      .select(
+        `
         *,
         teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
         student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
         lesson:lessons(id, lesson_teacher_number, scheduled_at)
-      `)
+      `
+      )
       .single();
 
     if (error) {
