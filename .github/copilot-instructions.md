@@ -1,930 +1,496 @@
-# Guitar CRM - AI Development Guide
+# Guitar CRM - Copilot AI Development Guide
+
+**Quick Navigation:**
+- 📚 **All Standards**: [`instructions/STANDARDS-INDEX.md`](./instructions/STANDARDS-INDEX.md)
+- 📖 **Folder Guide**: [`.github/README.md`](./README.md)
+- 🚀 **Getting Started**: [`instructions/DEVELOPMENT-STANDARDS.md`](./instructions/DEVELOPMENT-STANDARDS.md)
+- 🤖 **AI Agents**: See section below
+- ⚡ **Slash Commands**: See "Slash Commands" section below
+
+---
 
 ## Project Overview
 
-Guitar CRM is a Next.js 16 + TypeScript application for guitar teachers to manage students, lessons, songs, and progress tracking. It uses Supabase (PostgreSQL) for backend/auth and follows strict Test-Driven Development (TDD) practices.
+Guitar CRM is a **Next.js 16 + TypeScript** application for guitar teachers to manage students, lessons, songs, and progress tracking.
 
-**Status**: ~45% complete - Foundation and core schemas implemented. Auth, UI, and lesson management pending.
+**Stack**: Next.js 16 | React 19 | TypeScript | Tailwind CSS 4 | Supabase | Jest | TanStack Query
 
-## Architecture & Stack
+**Status**: ~45% complete - Core schemas & foundation implemented. Auth, UI, lesson management pending.
 
-### Core Technologies
+---
 
-- **Frontend**: Next.js 16.0.0 (App Router), React 19.2.0, Tailwind CSS 4.0
-- **Backend**: Supabase (PostgreSQL + Auth + RLS)
-- **Validation**: Zod schemas for all entities (`schemas/` directory)
-- **Testing**: Jest + React Testing Library (strict TDD workflow)
-- **Deployment**: Vercel (auto-deploy from `main` branch)
+## Development Standards
 
-### Database Schema
+All development standards documented separately for easy reference:
 
-Core entities: `profiles` (users with role flags), `songs`, `lessons`, `lesson_songs`, `task_management`, `user_favorites`
+| Topic | File | Read Time |
+|-------|------|-----------|
+| **Getting Started** | [`instructions/DEVELOPMENT-STANDARDS.md`](./instructions/DEVELOPMENT-STANDARDS.md) | 5 min |
+| **Quick Reference** | [`instructions/STANDARDS-INDEX.md`](./instructions/STANDARDS-INDEX.md) | 3 min |
+| **Component Architecture** | [`instructions/component-architecture.instructions.md`](./instructions/component-architecture.instructions.md) | 15 min |
+| **API & Data Fetching** | [`instructions/api-data-fetching.instructions.md`](./instructions/api-data-fetching.instructions.md) | 20 min |
+| **Error Handling** | [`instructions/error-handling-logging.instructions.md`](./instructions/error-handling-logging.instructions.md) | 15 min |
+| **Forms & Validation** | [`instructions/form-validation.instructions.md`](./instructions/form-validation.instructions.md) | 20 min |
+| **State Management** | [`instructions/state-management.instructions.md`](./instructions/state-management.instructions.md) | 10 min |
+| **Testing (TDD)** | [`instructions/testing-standards.instructions.md`](./instructions/testing-standards.instructions.md) | 15 min |
+| **Git & Commits** | [`instructions/git-workflow.instructions.md`](./instructions/git-workflow.instructions.md) | 10 min |
+| **Naming Conventions** | [`instructions/naming-conventions.instructions.md`](./instructions/naming-conventions.instructions.md) | 10 min |
+| **Performance & Mobile** | [`instructions/performance-optimization.instructions.md`](./instructions/performance-optimization.instructions.md) | 15 min |
 
-- Users have multiple role flags: `isAdmin`, `isTeacher`, `isStudent` (not mutually exclusive)
-- Lessons link students + teachers and auto-increment `lesson_teacher_number` per teacher-student pair
-- Songs have `level` (beginner/intermediate/advanced) and `key` (musical keys) enums
-- Lesson songs track progress: to_learn → started → remembered → with_author → mastered
+**Total**: ~2 hours for full understanding
 
-### Type Safety Strategy
+---
 
-1. **Database types**: Generated in `types/database.types.generated.ts` and `types/database.types.ts`
-2. **Zod schemas**: Validation + input/update/filter schemas in `schemas/` (SongSchema, LessonSchema, TaskSchema, etc.)
-3. **Type exports**: Helper types in `lib/supabase.ts` (`Tables<'songs'>`, `InsertTables<'lessons'>`, etc.)
-4. **Pattern**: Always use Zod for runtime validation, TypeScript for compile-time safety
+## 🤖 AI Agents (Use with `@agent-name`)
 
-## Critical Development Workflows
+### Architecture & Planning
 
-### Todo List Management (MANDATORY)
+#### **@backend-architect**
+Design reliable backend systems with focus on data integrity, security, and fault tolerance.
 
-**ALWAYS maintain and update todo lists during development work.**
+**Use for:**
+- Backend system design and API development
+- Database design and optimization
+- Security, reliability, and performance requirements
+- Server-side architecture and scalability
 
-When working on multi-step features or phases:
+**See**: [`agents/backend-architect.md`](./agents/backend-architect.md)
 
-1. **Create dated todo list files** in `docs/copilot-todos/` using format: `YYYY-MM-DD-description.md`
-2. **Update todo lists after each significant task completion** (commit, PR, feature implementation)
-3. **Include comprehensive details** in todo files:
-   - Task status (✅ completed, [ ] not started, [-] in progress)
-   - Commit hashes for completed work
-   - PR links and status
-   - File lists for each feature
-   - Development standards followed
-   - Next actions
-4. **Use the manage_todo_list tool** for real-time tracking during complex work
-5. **Document TODOs in code** for future enhancements using `TODO:` comments
+---
 
-**Todo List Workflow:**
+#### **@frontend-architect**
+Create accessible, performant user interfaces with focus on user experience.
 
-```bash
-# Start of work session: Create/review current todo list
-# docs/copilot-todos/2025-11-02-phase-1-2-completion.md
+**Use for:**
+- UI component development and design system
+- Accessibility compliance and WCAG implementation
+- Performance optimization and Core Web Vitals
+- Responsive design and mobile-first development
 
-# BEFORE EVERY COMMIT: Run quality checks
-npm run quality  # OR ./scripts/ci/quality-check.sh
+**See**: [`agents/frontend-architect.md`](./agents/frontend-architect.md)
 
-# After completing task: Update todo file with details
-# After creating PR: Document PR link and status
-# End of session: Ensure all progress is documented
-```
+---
 
-**CRITICAL: Quality Checks Before Commits (MANDATORY)**
+#### **@system-architect**
+Design scalable system architecture with focus on maintainability and long-term technical decisions.
 
-**NEVER commit code without running quality checks first.**
+**Use for:**
+- System architecture design and scalability analysis
+- Architectural pattern evaluation and technology selection
+- Dependency management and component boundaries
+- Long-term technical strategy and migration planning
 
-Before every commit:
+**See**: [`agents/system-architect.md`](./agents/system-architect.md)
 
-1. **Run `npm run quality` or `./scripts/ci/quality-check.sh`**
-2. **Fix ALL failing tests**
-3. **Fix ALL linting errors**
-4. **Fix ALL TypeScript errors**
-5. **Ensure coverage thresholds met** (70% branches/functions/lines/statements)
-6. **Only then commit**
+---
 
-If quality checks fail, DO NOT COMMIT. Fix issues first.
+#### **@tech-stack-researcher**
+Research technology options and provide recommendations for architecture decisions.
+
+**Use for:**
+- Deciding between technology options for new features
+- Planning real-time capabilities
+- Evaluating new libraries or frameworks
+- Choosing build vs. buy approaches
+
+**See**: [`agents/tech-stack-researcher.md`](./agents/tech-stack-researcher.md)
+
+---
+
+#### **@requirements-analyst**
+Transform ambiguous project ideas into concrete specifications through systematic requirements discovery.
+
+**Use for:**
+- Starting new major features
+- Clarifying ambiguous requirements
+- Creating PRDs and user stories
+- Defining success criteria and acceptance conditions
+
+**See**: [`agents/requirements-analyst.md`](./agents/requirements-analyst.md)
+
+---
+
+### Code Quality & Performance
+
+#### **@refactoring-expert**
+Improve code quality and reduce technical debt through systematic refactoring.
+
+**Use for:**
+- Addressing technical debt before adding features
+- Simplifying complex components or functions
+- Applying SOLID principles
+- Eliminating code duplication
+
+**See**: [`agents/refactoring-expert.md`](./agents/refactoring-expert.md)
+
+---
+
+#### **@performance-engineer**
+Optimize system performance through measurement-driven analysis and bottleneck elimination.
+
+**Use for:**
+- Analyzing Core Web Vitals and performance metrics
+- Optimizing slow API endpoints
+- Reducing bundle size or load times
+- Improving database query performance
+
+**See**: [`agents/performance-engineer.md`](./agents/performance-engineer.md)
+
+---
+
+#### **@security-engineer**
+Identify security vulnerabilities and ensure compliance with security standards.
+
+**Use for:**
+- Reviewing authentication/authorization implementations
+- Assessing API endpoint security
+- Evaluating data protection measures
+- Identifying potential vulnerabilities
+
+**See**: [`agents/security-engineer.md`](./agents/security-engineer.md)
+
+---
+
+### Documentation & Research
+
+#### **@technical-writer**
+Create clear, comprehensive documentation for features and systems.
+
+**Use for:**
+- Writing API documentation
+- Creating feature documentation
+- Documenting architectural decisions
+- Writing code comments and examples
+
+**See**: [`agents/technical-writer.md`](./agents/technical-writer.md)
+
+---
+
+#### **@learning-guide**
+Teach programming concepts progressively and explain complex topics.
+
+**Use for:**
+- Understanding how features work in the codebase
+- Learning new technologies or patterns
+- Explaining why certain decisions were made
+- Understanding complex algorithms or systems
+
+**See**: [`agents/learning-guide.md`](./agents/learning-guide.md)
+
+---
+
+#### **@deep-research-agent**
+Conduct comprehensive research with adaptive strategies and evidence-based findings.
+
+**Use for:**
+- Researching new technologies for adoption
+- Investigating complex problems or edge cases
+- Gathering best practices from the community
+- Understanding industry standards and patterns
+
+**See**: [`agents/deep-research-agent.md`](./agents/deep-research-agent.md)
+
+---
+
+## ⚡ Slash Commands
+
+### Development Commands
+
+#### `/new-task`
+Analyze code for performance issues and suggest optimizations.
+
+**See**: [`commands/new-task.md`](./commands/new-task.md)
+
+#### `/code-explain`
+Generate detailed code explanations.
+
+**See**: [`commands/misc/code-explain.md`](./commands/misc/code-explain.md)
+
+#### `/code-optimize`
+Optimize code for performance.
+
+**See**: [`commands/misc/code-optimize.md`](./commands/misc/code-optimize.md)
+
+#### `/code-cleanup`
+Clean up and refactor code.
+
+**See**: [`commands/misc/code-cleanup.md`](./commands/misc/code-cleanup.md)
+
+#### `/feature-plan`
+Plan new feature implementation.
+
+**See**: [`commands/misc/feature-plan.md`](./commands/misc/feature-plan.md)
+
+#### `/lint`
+Run linting and fix issues.
+
+**See**: [`commands/misc/lint.md`](./commands/misc/lint.md)
+
+#### `/docs-generate`
+Generate documentation.
+
+**See**: [`commands/misc/docs-generate.md`](./commands/misc/docs-generate.md)
+
+---
+
+### API Commands
+
+#### `/api-new`
+Create new API endpoint.
+
+**See**: [`commands/api/api-new.md`](./commands/api/api-new.md)
+
+#### `/api-test`
+Test API endpoints.
+
+**See**: [`commands/api/api-test.md`](./commands/api/api-test.md)
+
+#### `/api-protect`
+Add protection & validation to API.
+
+**See**: [`commands/api/api-protect.md`](./commands/api/api-protect.md)
+
+---
+
+### UI Commands
+
+#### `/component-new`
+Create React component.
+
+**See**: [`commands/ui/component-new.md`](./commands/ui/component-new.md)
+
+#### `/page-new`
+Create Next.js page.
+
+**See**: [`commands/ui/page-new.md`](./commands/ui/page-new.md)
+
+---
+
+### Supabase Commands
+
+#### `/types-gen`
+Generate TypeScript types from Supabase schema.
+
+**See**: [`commands/supabase/types-gen.md`](./commands/supabase/types-gen.md)
+
+#### `/edge-function-new`
+Create Edge Function.
+
+**See**: [`commands/supabase/edge-function-new.md`](./commands/supabase/edge-function-new.md)
+
+---
+
+## Critical Workflows
 
 ### TDD Workflow (MANDATORY)
 
-This project strictly follows Test-Driven Development. **Write tests before implementation.**
+Strictly follow **Test-Driven Development**:
 
 ```bash
-# Starting new feature
-npm run new-feature feature-name  # Creates branch + shows TDD reminder
-npm run tdd                         # Watch mode with coverage
+npm run new-feature feature-name  # Create branch + TDD reminder
+npm run tdd                        # Watch mode with coverage
 
 # TDD cycle: 🔴 Red → 🟢 Green → 🔵 Refactor
 ```
 
-**Test file locations**:
+📖 **Full Guide**: [`instructions/testing-standards.instructions.md`](./instructions/testing-standards.instructions.md)
 
-- Components: `__tests__/components/ComponentName.test.tsx`
-- Schemas: `__tests__/schemas/SchemaName.test.ts`
-- Utils: `__tests__/utils/utilName.test.ts`
+---
 
-**Schema testing pattern** (see `__tests__/schemas/SongSchema.test.ts`):
+### Quality Checks (MANDATORY)
 
-```typescript
-describe('SongInputSchema', () => {
-  it('should validate a valid song input', () => {
-    const validSong = { title: 'Song', author: 'Artist', level: 'intermediate', key: 'C', ultimate_guitar_link: 'https://...' };
-    expect(() => SongInputSchema.parse(validSong)).not.toThrow();
-  });
-
-  it('should reject song input with missing title', () => {
-    expect(() => SongInputSchema.parse({ author: 'Artist', ... })).toThrow();
-  });
-});
-```
-
-### Database Development
+**Always run before committing:**
 
 ```bash
-# Local Supabase setup (requires Docker Desktop running)
-npm run setup:db     # Start Supabase stack
-npm run seed         # Populate with sample data
-npm run backup       # Create anonymized backup (excludes PII)
+npm run quality  # Linting, types, tests, coverage
 
-# Supabase runs on:
-# - Database: localhost:54322
-# - API: localhost:54321
-# - Studio: localhost:54323
+# All must pass:
+# ✅ npm run lint
+# ✅ npm run typecheck
+# ✅ npm run test (70% coverage minimum)
+# ✅ npm run check:todos
 ```
 
-**Migration pattern**: Migrations in `supabase/migrations/` with timestamp prefixes (e.g., `20251026111826_baseline.sql`)
-
-### Development Commands
-
-```bash
-npm run dev          # Start Next.js dev server
-npm run quality      # Pre-commit checks (lint, types, tests, TODOs)
-npm run deploy:check # Production readiness validation
-npm run dev:server start all  # Start Next.js + Supabase together
-```
-
-## Project Conventions
-
-### Schema Patterns
-
-All entities follow this structure in `schemas/`:
-
-- **Base schema**: Full validation (`SongSchema`)
-- **Input schema**: For creating new records (`SongInputSchema`)
-- **Update schema**: Partial updates with required ID (`SongUpdateSchema`)
-- **Filter/Sort schemas**: Query parameter validation (`SongFilterSchema`, `SongSortSchema`)
-- **With relations**: Extended schemas with joined data (`SongWithLessonsSchema`)
-
-Example from `schemas/SongSchema.ts`:
-
-```typescript
-export const SongInputSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(200),
-  author: z.string().min(1, 'Author is required'),
-  level: DifficultyLevelEnum, // From CommonSchema
-  key: MusicKeyEnum,
-  ultimate_guitar_link: URLField,
-  chords: z.string().optional(),
-});
-```
-
-### Small Components Policy (MANDATORY)
-
-Always split UI and logic into the smallest reasonable, composable pieces. Avoid monolithic components and files.
-
-- Prefer multiple focused components over one large component
-- Extract presentational pieces (pure UI) from containers (data/side-effects)
-- Co-locate tiny helpers/hooks next to their usage (`useX.ts`, `X.helpers.ts`)
-- Keep files short and focused: one responsibility per file
-- Co-locate tests with the same name under `__tests__/components/...`
-
-Recommended structure for new UI work:
-
-- `components/<domain>/<Feature>/`
-  - `index.ts` — re-exports
-  - `Feature.tsx` — thin composition component
-  - `Feature.Header.tsx`, `Feature.Item.tsx`, `Feature.Empty.tsx` — small UI units
-  - `useFeature.ts` — hook for local state/effects
-  - `Feature.helpers.ts` — pure helpers (pure functions only)
-
-Enforcement:
-
-- ESLint enforces max file length and function length in app/lib/components
-- Quality script warns on oversized files
-- PRs should prefer decomposition commits over growing a single file
-
-### Component Organization Structure (MANDATORY)
-
-**All new component features MUST follow this organized folder structure.** Reference `components/songs/` as the canonical example.
-
-**Required Structure for Entity Components:**
-
-```
-components/<entity>/
-├── <Entity>List/              # List/index view
-│   ├── components/            # List-specific sub-components
-│   │   ├── Header.tsx         # Header with actions (create button, etc.)
-│   │   ├── Table.tsx          # Table/grid display
-│   │   ├── Empty.tsx          # Empty state component
-│   │   └── Filter.tsx         # Filter controls
-│   ├── hooks/                 # List-specific hooks
-│   │   └── use<Entity>List.ts # List data fetching hook
-│   └── index.tsx              # Main composition component
-│
-├── <Entity>Form/              # Create/edit form
-│   ├── components/            # Form-specific sub-components
-│   │   ├── Fields.tsx         # All form fields composition
-│   │   ├── FieldText.tsx      # Reusable text input
-│   │   └── FieldSelect.tsx    # Reusable select dropdown
-│   ├── helpers/               # Form helper functions
-│   │   └── validation.ts      # Form-specific validation helpers
-│   ├── options/               # Form constants and options
-│   │   └── fieldOptions.ts    # Dropdown options, constants
-│   ├── validators.ts          # Form validation schemas
-│   ├── Content.tsx            # Form logic and submission
-│   └── index.tsx              # Form wrapper
-│
-├── <Entity>Detail/            # Detail view
-│   ├── components/            # Detail-specific sub-components
-│   │   ├── Header.tsx         # Title/heading display
-│   │   ├── Info.tsx           # Information display
-│   │   └── Actions.tsx        # Action buttons (edit, delete, etc.)
-│   ├── use<Entity>Detail.ts  # Business logic hook
-│   └── index.tsx              # Main composition component
-│
-├── hooks/                     # Shared entity hooks
-│   ├── index.ts               # Hook exports
-│   ├── use<Entity>.ts         # Single item fetching hook
-│   └── use<Entity>Mutations.ts # Create/update/delete operations
-│
-├── types/                     # TypeScript types
-│   ├── index.ts               # Type exports
-│   ├── <entity>.types.ts      # Entity type definitions
-│   └── api.types.ts           # API request/response types
-│
-├── services/                  # API service layer
-│   ├── index.ts               # Service exports
-│   ├── <entity>Api.ts         # API calls (CRUD operations)
-│   └── <entity>Queries.ts     # Query builders
-│
-├── utils/                     # Utility functions
-│   ├── index.ts               # Utility exports
-│   ├── formatters.ts          # Data formatting functions
-│   └── transformers.ts        # Data transformation functions
-│
-├── tests/                     # Component tests
-│   ├── <Entity>List.test.tsx
-│   ├── <Entity>Form.test.tsx
-│   └── <Entity>Detail.test.tsx
-│
-├── constants.ts               # Entity-level constants
-├── config.ts                  # Entity configuration
-├── <Entity>FormGuard.tsx      # Role-based access wrapper
-├── index.ts                   # Main exports (components, hooks, types)
-└── README.md                  # Component documentation
-```
-
-**Key Requirements:**
-
-1. **Folder-based organization**: Each major component (List, Form, Detail) gets its own folder with sub-folders
-2. **Small files**: All files must be < 80 lines, functions < 80 lines, complexity < 10
-3. **Separation of concerns**:
-   - UI components in `components/` sub-folders
-   - Business logic in `hooks/` folders
-   - Pure functions in `helpers/` folders
-   - Constants in `options/` folders or `constants.ts`
-   - API calls in `services/` folder
-   - Utilities in `utils/` folder
-4. **Shared types**: All types in dedicated `types/` folder with separate files per concern
-5. **Clean exports**: Main `index.ts` exports all public APIs (components, hooks, types, services)
-6. **Testing**: Co-located tests in `tests/` folder
-7. **Documentation**: Every entity folder must have a README.md
-
-**Directory Purpose:**
-
-- `<Entity>List/`, `<Entity>Form/`, `<Entity>Detail/` - Feature-specific folders with their own components and hooks
-- `hooks/` - Shared hooks across all entity features
-- `types/` - TypeScript type definitions
-- `services/` - API service layer (data fetching, mutations)
-- `utils/` - Utility functions (formatters, transformers)
-- `tests/` - Component and hook tests
-- `constants.ts` - Entity-level constants
-- `config.ts` - Entity configuration
-
-**Example from Songs Implementation:**
-
-See `components/songs/README.md` for comprehensive documentation. Note: Songs currently uses the simpler structure; new entities should follow the enhanced structure above.
-
-**Benefits of This Structure:**
-
-- ✅ Easy navigation (clear folder hierarchy with logical grouping)
-- ✅ Maintainable (small, focused files organized by purpose)
-- ✅ Testable (isolated units with co-located tests)
-- ✅ Reusable (extracted helpers, services, and utilities)
-- ✅ Type-safe (centralized, organized type definitions)
-- ✅ Scalable (feature folders grow independently)
-- ✅ Documented (README per entity)
-
-**When Creating New Entity Components:**
-
-1. Start with the structure template above
-2. Replace `<Entity>` with your entity name (e.g., `Lesson`, `Assignment`)
-3. Create feature folders (List, Form, Detail) with their sub-folders
-4. Extract components into `components/` sub-folders
-5. Extract hooks into feature or shared `hooks/` folders
-6. Create `services/` for API operations
-7. Create `utils/` for formatting and transformation
-8. Keep all files small and focused (< 80 lines)
-9. Extract helpers when complexity > 10
-10. Create comprehensive README.md documenting structure and usage
-
-### Mobile-First Styling Patterns
-
-All new components follow mobile-first approach:
-
-**Tailwind Structure:**
-
-```tsx
-// ❌ WRONG: Desktop-first
-className = 'text-lg px-6 py-4 grid-cols-3 ...';
-
-// ✅ CORRECT: Mobile-first (default = mobile, then scale up)
-className =
-  'text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3';
-```
-
-**Input Field Example:**
-
-```tsx
-<input className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500" />
-```
-
-**Key Principles:**
-
-- Base classes apply to mobile (375px - 424px)
-- `sm:` for small screens (425px+)
-- `md:` for tablets/medium (768px+)
-- `lg:` for desktops (1024px+)
-- Always include dark mode with `dark:` prefix
-- Use responsive spacing and typography
-- Touch targets minimum 44x44px on mobile
-
-### Common Enums & Patterns
-
-Import shared validation from `schemas/CommonSchema.ts`:
-
-- `DifficultyLevelEnum`: beginner | intermediate | advanced
-- `MusicKeyEnum`: All musical keys (C, C#, D, ..., Bm)
-- `URLField`, `EmailField`, `UUIDField`: Pre-configured validators
-- Utility functions: `validateUUID()`, `validateEmail()`, `validateDate()`
-
-### Supabase Client Usage
-
-Import from `lib/supabase.ts`:
-
-```typescript
-import { supabase, Tables, InsertTables } from '@/lib/supabase';
-
-// Type-safe queries
-const { data, error } = await supabase.from('songs').select('*').eq('level', 'intermediate');
-
-// Type: Song[] (from Tables<'songs'>)
-```
-
-**Mock client fallback**: Supabase client returns mock in build/test when env vars missing (prevents build failures)
-
-### File Organization
-
-- `/app`: Next.js App Router pages (minimal, mostly layout)
-- `/components`: React components (none implemented yet)
-  - Follow the Small Components Policy; split views into small composables
-- `/lib`: Utilities, Supabase client config
-- `/schemas`: Zod validation (comprehensive, well-documented)
-- `/types`: TypeScript definitions + generated DB types
-- `/supabase`: Migrations, seeds, backups
-- `/scripts`: Automation scripts (setup, TDD reminders, quality checks)
-- `/__tests__`: Test files mirroring source structure
-
-### User Roles & Permissions
-
-Users can have **multiple roles simultaneously** (flags, not enums):
-
-- Admin: `isAdmin=true` - Full system access, task management
-- Teacher: `isTeacher=true` - Student/lesson/song management
-- Student: `isStudent=true` - View assigned lessons/songs
-
-**Important**: Don't treat roles as mutually exclusive. Teachers can also be students.
-
-## Code Quality Standards
-
-### Linting & Formatting
-
-- ESLint config: `eslint.config.mjs`
-- No console.log in production code (caught by pre-commit)
-- TypeScript strict mode enforced
-
-### Testing Requirements
-
-- Coverage thresholds: 70% branches/functions/lines/statements
-- Watch plugins disabled due to version conflicts
-- All schemas must have tests covering valid/invalid cases
+---
 
 ### Git Workflow
 
 ```bash
-git checkout -b feature/feature-name  # Feature branches
-npm run pre-commit                     # Manual pre-commit check
-# Git hooks can be set up: echo '#!/bin/sh\n./scripts/pre-commit.sh' > .git/hooks/pre-commit
+git checkout -b feature/feature-name
+# Make changes following standards
+npm run quality
+git add . && git commit -m "type(scope): message"  # Conventional Commits
+git push
 ```
 
-## Environment Setup
+📖 **Full Guide**: [`instructions/git-workflow.instructions.md`](./instructions/git-workflow.instructions.md)
 
-### Required Environment Variables
+---
+
+## Project Structure
+
+```
+/app                 ← Next.js App Router pages
+/components          ← React components (organized by entity)
+/lib                 ← Utilities, Supabase client, API client
+/schemas             ← Zod validation schemas
+/types               ← TypeScript definitions + generated DB types
+/__tests__           ← Test files (mirror source structure)
+/supabase            ← Migrations, seeds, backups
+/scripts             ← Automation scripts
+.github/
+  ├── copilot-instructions.md    ← This file
+  ├── agents/                    ← AI Agent definitions
+  ├── commands/                  ← Slash Commands
+  ├── instructions/              ← Development standards
+  ├── deployment/                ← Deployment guides
+  └── workflows/                 ← CI/CD
+```
+
+---
+
+## Essential Commands
+
+```bash
+# Development
+npm run dev                # Start Next.js dev server
+npm run tdd               # Jest watch mode with coverage
+npm run quality           # Pre-commit checks
+
+# Database
+npm run setup:db          # Start local Supabase
+npm run seed              # Populate sample data
+npm run backup            # Create anonymized backup
+
+# Deployment
+npm run deploy:check      # Production readiness validation
+```
+
+See `scripts/README.md` for complete reference.
+
+---
+
+## Setup & Configuration
+
+### Environment Variables
 
 Create `.env.local` (gitignored):
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321  # Or production URL
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # For admin operations
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
 ### First-Time Setup
 
 ```bash
-npm run setup        # Install deps, create env template
-npm run setup:db     # Start Supabase (Docker required)
-npm run seed         # Add sample data
-npm run dev          # Start development
+npm run setup             # Install deps, create env
+npm run setup:db         # Start Supabase (Docker required)
+npm run seed             # Add sample data
+npm run dev              # Start development
 ```
 
-## Implementation Guidelines
-
-### CRUD Operations (MANDATORY)
-
-**All CRUD operations MUST follow the standardized patterns documented in `docs/CRUD_STANDARDS.md`.**
-
-When implementing any new entity (lessons, assignments, etc.):
-
-1. **Check `docs/CRUD_QUICK_REFERENCE.md`** for copy-paste templates
-2. **Follow the exact structure** shown in CRUD_STANDARDS.md:
-   - `/app/api/[entity]/route.ts` - Main HTTP endpoints
-   - `/app/api/[entity]/handlers.ts` - Pure business logic
-   - `/app/api/[entity]/[id]/route.ts` - Single item operations
-   - Role-specific routes (admin-_, student-_)
-   - Components split into small, focused pieces
-   - Custom hooks for data fetching
-3. **Use the checklist** in CRUD_STANDARDS.md to ensure nothing is missed
-4. **Reference songs implementation** as working example (but check SONGS_CRUD_REVIEW.md for known issues)
+---
 
-**Key CRUD Requirements:**
+## Key Concepts
 
-- ✅ Always use `headers()` and `createClient(headersList)` for auth
-- ✅ Always verify user authentication and roles
-- ✅ Separate business logic into handlers.ts
-- ✅ Use Zod for all input validation
-- ✅ Return consistent error responses with status codes
-- ✅ Use `useAuth()` hook in components for role checking
-- ✅ Split components into small, focused pieces
-- ✅ Provide refresh functionality in hooks
-- ✅ Handle loading, error, and empty states
-
-### When Adding New Features
-
-**Always implement features as small and as concise as possible.**
-
-**Every new feature or change should be split into the smallest reasonable, composable units. Avoid bundling multiple concerns or enhancements in a single PR or commit.**
-
-**For every place where you see a possible future enhancement, always add a `TODO:` comment describing the improvement.**
-
-Workflow:
-
-1. **Check CRUD standards** if implementing data operations
-2. **Create test file first** in `__tests__/` matching source path
-3. **Write failing tests** for expected behavior
-4. **Run `npm run tdd`** to start watch mode
-5. **Implement minimal code** to pass tests (keep it as small and focused as possible)
-6. **Add `TODO:` comments for any future enhancements or refactors you identify**
-7. **Refactor** while keeping tests green
-8. **Run `npm run quality`** before committing
-9. Split any large component into smaller ones before opening a PR
-
-### When Creating New Schemas
+### Type Safety
+- **Database types**: Generated in `types/database.types.ts`
+- **Zod schemas**: Runtime validation in `schemas/`
+- **Pattern**: Always use Zod + TypeScript together
 
-1. Define in `schemas/` using common patterns from `CommonSchema.ts`
-2. Export base, input, update, filter schemas
-3. Create test file in `__tests__/schemas/` with valid/invalid cases
-4. Update `schemas/index.ts` exports
-5. Add usage examples to `schemas/README.md`
-
-### When Modifying Database
-
-1. Create migration in `supabase/migrations/` with timestamp prefix
-2. Update types: `supabase gen types typescript --local > types/database.types.generated.ts`
-3. Update corresponding Zod schemas if needed
-4. Test migration locally before deploying
-
-### When Building UI Components
-
-1. Write component tests first (React Testing Library)
-2. **MOBILE-FIRST DEVELOPMENT**: All components must be created with mobile phones as the primary target
-   - Start with mobile layout (default Tailwind classes)
-   - Use responsive prefixes for larger screens: `sm:`, `md:`, `lg:`
-   - Test on mobile viewports first (375px, 425px)
-   - Ensure touch-friendly spacing: minimum 44px tap targets
-   - Prioritize performance on mobile networks
-   - Use responsive typography: smaller base sizes with `sm:text-*` for desktop
-3. Use Tailwind CSS classes (config in `postcss.config.mjs`)
-4. Follow accessibility best practices
-5. Create stories/examples if complex
-6. Decompose aggressively: keep files <300 LOC and functions <80 LOC
-7. Maintain dark mode support with `dark:` prefix throughout
-
-## TanStack Query (React Query) Architecture
-
-**Status:** Fully integrated with v5.x. All data fetching uses TanStack Query for superior state management.
-
-### Core Infrastructure
-
-**QueryClient Setup** (`lib/query-client.ts`):
-
-```typescript
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: 1,
-      retryOnMount: true,
-    },
-  },
-});
-```
-
-**QueryProvider** (`components/providers/QueryProvider.tsx`):
-
-- Wraps entire app in App Router root layout
-- Provides global QueryClient instance
-- Enables cache sharing across routes
-
-**API Client** (`lib/api-client.ts`):
-
-- Centralized HTTP methods: `get()`, `post()`, `put()`, `patch()`, `delete()`
-- Handles JSON parsing and error handling
-- Returns typed responses with automatic error conversion
-
-### Query Patterns (4 Types)
-
-#### Pattern 1: Simple Query Hook
-
-Fetch single item or list without mutations.
-
-```typescript
-// components/songs/hooks/useSongList.ts
-export function useSongList(filters?: SongFilterSchema) {
-  const {
-    data: songs = [],
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['songs', filters], // Dynamic key includes filters
-    queryFn: () => apiClient.get<Song[]>('/api/songs', { params: filters }),
-    staleTime: 1000 * 60 * 5,
-  });
-
-  return { songs, loading: isLoading, error };
-}
-```
-
-**Usage:**
-
-```typescript
-const { songs, loading, error } = useSongList({ level: 'beginner' });
-```
-
-**Benefits:**
-
-- Automatic caching of results
-- Deduplication of identical requests
-- Automatic background refetching when stale
-- Built-in loading/error states
-
-#### Pattern 2: Query + Single Mutation Hook
-
-Fetch item + allow one mutation (usually delete).
-
-```typescript
-// components/songs/hooks/useSong.ts
-export default function useSong(songId: string) {
-  // Query for fetching
-  const {
-    data: song,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['songs', songId],
-    queryFn: () => apiClient.get<Song>(`/api/songs/${songId}`),
-    enabled: !!songId, // Only run when songId exists
-  });
-
-  // Mutation for deleting
-  const { mutate: deleteSong, isPending: deleting } = useMutation({
-    mutationFn: (id: string) => apiClient.delete(`/api/songs/${id}`),
-    onSuccess: () => {
-      // Invalidate all song queries (covers list + detail views)
-      queryClient.invalidateQueries({ queryKey: ['songs'] });
-    },
-  });
-
-  return {
-    song,
-    loading: isLoading,
-    error: error ? (error instanceof Error ? error.message : 'Failed') : null,
-    deleting,
-    deleteSong: (id: string) => deleteSong(id),
-  };
-}
-```
-
-**Usage:**
-
-```typescript
-const { song, loading, deleteSong } = useSong('song-id-123');
-
-const handleDelete = () => {
-  deleteSong(song.id);
-};
-```
-
-**Query Key Strategy:**
-
-- Single items: `['songs', songId]`
-- Lists: `['songs']` (auto-invalidated on any song mutation)
-- Filtered: `['songs', { level: 'beginner', key: 'C' }]` (object key automatically managed)
-
-#### Pattern 3: Query + Dynamic Key with Multiple Mutations
-
-Complex queries with filtering + multiple mutations (create/update/delete).
-
-```typescript
-// components/dashboard/admin/hooks/useAdminUsers.ts
-export function useAdminUsers(initialUsers: User[], initialError: string | null) {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  // Query with dynamic key
-  const { data: users = [], isLoading } = useQuery({
-    queryKey: ['users', { search: searchQuery }], // Key changes with search
-    queryFn: () => loadAdminUsers({ search: searchQuery }),
-    initialData: initialUsers,
-  });
-
-  // Three separate mutations
-  const { mutate: createMutation, isPending: createPending } = useMutation({
-    mutationFn: createAdminUser,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
-  });
-
-  const { mutate: updateMutation, isPending: updatePending } = useMutation({
-    mutationFn: updateAdminUser,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
-  });
-
-  const { mutate: deleteMutation, isPending: deletePending } = useMutation({
-    mutationFn: deleteAdminUser,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
-  });
-
-  const handleSearch = (query: string) => setSearchQuery(query);
-  const handleCreateUser = (userData: Partial<User>) => createMutation({ userData });
-  const handleUpdateUser = (user: User, data: Partial<User>) =>
-    updateMutation({ userId: user.id, userData: data });
-
-  return {
-    users,
-    loading: isLoading || createPending || updatePending || deletePending,
-    searchQuery,
-    handleSearch,
-    handleCreateUser,
-    handleUpdateUser,
-  };
-}
-```
-
-**Key Features:**
-
-- Dynamic query key updates search results automatically
-- Multiple independent mutations in single hook
-- Combined loading state for all operations
-
-#### Pattern 4: Form Mutation Hook
-
-Validation + submission without query (form-only).
-
-```typescript
-// components/users/useUserFormState.ts
-export function useUserFormState(initialData?: User, isEdit?: boolean) {
-  const [formData, setFormData] = useState<FormData>(createInitialData(initialData));
-
-  const {
-    mutate: submitForm,
-    isPending: loading,
-    error: mutationError,
-  } = useMutation({
-    mutationFn: (payload: SaveUserPayload) => saveUserToApi(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] }); // Update list after form submit
-      router.push('/dashboard/users');
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    submitForm({ data: formData, initialData, isEdit });
-  };
-
-  return { formData, loading, error: mutationError?.message, handleChange, handleSubmit };
-}
-```
-
-**Pattern:**
-
-- Form state managed locally with `useState()`
-- Single mutation for submission
-- Auto-invalidates parent list on success
-- Redirects after successful submission
-
-### Centralized Mutation Hooks Library
-
-All entity mutations available in `/lib/mutations/`:
-
-```typescript
-// Import mutations for any entity
-import { useSongMutations, useLessonMutations, useUserMutations, useAssignmentMutations } from '@/lib/mutations';
-
-// Each provides { create, update, delete } (or entity-specific variations)
-const { create, update, delete: deleteMutation } = useSongMutations();
-
-// Use exactly what you need
-create.mutate({ title: 'Song', author: 'Artist', ... });
-update.mutate({ id: 'song-1', data: { ... } });
-deleteMutation.mutate({ id: 'song-1' });
-
-// Each mutation provides
-// { mutate, isPending, error }
-```
-
-**Available Libraries:**
-
-- `useSongMutations()` - create/update/delete songs
-- `useLessonMutations()` - create/update/delete lessons
-- `useUserMutations()` - create/update/delete users + updateRole
-- `useAssignmentMutations()` - create/update/delete assignments
-
-### Cache Invalidation Strategy
-
-**Per-Entity Invalidation:**
-
-```typescript
-// Songs: Invalidate ['songs'] covers all song queries
-queryClient.invalidateQueries({ queryKey: ['songs'] });
-// This invalidates:
-// - ['songs']
-// - ['songs', songId]
-// - ['songs', { level: 'beginner' }]
-// - Any other song-related query
-
-// Users: Dual invalidation (users + profiles linked)
-queryClient.invalidateQueries({ queryKey: ['users'] });
-queryClient.invalidateQueries({ queryKey: ['profiles'] });
-```
-
-**Optimistic Updates (Advanced):**
-
-```typescript
-// Set detail cache immediately while request is in-flight
-onSuccess: (song) => {
-  queryClient.invalidateQueries({ queryKey: ['songs'] });
-  queryClient.setQueryData(['songs', song.id], song);  // Immediate UI update
-},
-```
-
-### Testing with TanStack Query
-
-Use `QueryWrapper` test utility from `lib/testing/query-client-test-utils.tsx`:
-
-```typescript
-import { renderWithClient } from '@/lib/testing/query-client-test-utils';
-import SongList from '@/components/songs/SongList';
-
-it('should display songs', () => {
-  renderWithClient(<SongList />);
-  expect(screen.getByText('Loading...')).toBeInTheDocument();
-  // Query automatically manages loading state
-});
-```
-
-**Test Infrastructure:**
-
-- `createTestQueryClient()` - Fresh QueryClient for each test
-- `renderWithClient()` - Renders component with QueryProvider
-- `QueryWrapper` - React wrapper for test provider
-- Query state automatically managed during tests
-
-### Best Practices
-
-✅ **DO:**
-
-- Use dynamic query keys for filtered/paginated queries
-- Invalidate query families (e.g., `['songs']` covers all song variants)
-- Combine multiple mutations when related (admin CRUD)
-- Use optimistic updates for immediate UI feedback
-- Return consistent interfaces from hooks
-- Co-locate hooks with their components
-
-❌ **DON'T:**
-
-- Manually manage fetch state with `useState()`
-- Make the same request twice (query deduplication handles this)
-- Forget to invalidate on mutations (results in stale UI)
-- Use query keys that don't include filter parameters
-- Pass QueryClient as prop (use `useQueryClient()` hook instead)
-
-### Adding New Queries or Mutations
-
-**When adding a new data-fetching feature:**
-
-1. **Check if query exists:** Look in `/components/[entity]/hooks/` first
-2. **Use existing patterns:** Copy from similar entity (e.g., use `useSong` as template for new entity)
-3. **Follow naming:**
-   - Queries: `use[Entity]`, `use[Entity]List`
-   - Mutations: `use[Entity]Mutations` (centralized) or add to query hook
-4. **Set query key:** Always include relevant filters/IDs
-5. **Configure staleTime:** 5 minutes default, adjust for real-time needs
-6. **Test with renderWithClient:** Ensure query loads/errors handled correctly
-
-### Migration from useState Pattern
-
-If encountering old `useState()`/`useEffect()` data-fetching code:
-
-```typescript
-// ❌ OLD PATTERN
-const [data, setData] = useState(null);
-const [loading, setLoading] = useState(false);
-
-useEffect(() => {
-  (async () => {
-    setLoading(true);
-    setData(await fetch(...));
-    setLoading(false);
-  })();
-}, [dependency]);
-
-// ✅ NEW PATTERN (TanStack Query)
-const { data, isLoading } = useQuery({
-  queryKey: ['entity', dependency],
-  queryFn: () => apiClient.get('/api/entity'),
-});
-```
-
-Benefits of migration:
-
-- Automatic caching and deduplication
-- Built-in refetching on window focus
-- Persistent cache across routes
-- Automatic error handling
-- No manual state management
-
-## Key Constraints & Gotchas
-
-- **No authentication implemented yet** - Skip auth checks in early development
-- **Supabase RLS enabled** on profiles/tasks - Account for in tests
-- **Lesson numbering is automatic** - Don't manually set `lesson_teacher_number`
-- **Song status is enum** - Must use exact values: to_learn, started, remembered, with_author, mastered
-- **Ultimate Guitar links required** - All songs must have this field
-- **Test watch plugins disabled** - Known Jest version conflict, functionality still works
-
-## Documentation Resources
-
-### Role-Based CRUD Documentation (START HERE for new entities)
-
-- **CRUD Implementation Checklist**: `docs/CRUD_IMPLEMENTATION_CHECKLIST.md` - **Complete step-by-step checklist** with time estimates (~8 hours total)
-- **Role-Based Architecture**: `docs/ROLE_BASED_ARCHITECTURE.md` - Visual guide to three-tier role system (Admin/Teacher/Student)
-- **CRUD Standards**: `docs/CRUD_STANDARDS.md` - Complete guide for implementing CRUD operations consistently with role-based access
-- **CRUD Quick Reference**: `docs/CRUD_QUICK_REFERENCE.md` - Fast templates and copy-paste patterns with role logic
-- **Songs CRUD Review**: `docs/SONGS_CRUD_REVIEW.md` - Current status and fixes needed
-
-### General Development Documentation
-
-- **TDD Guide**: `docs/TDD_GUIDE.md` - Comprehensive testing practices
-- **Scripts Guide**: `scripts/README.md` - All automation commands explained
-- **Schema Docs**: `schemas/README.md` - Validation patterns + examples
-- **Project Overview**: `docs/PROJECT_OVERVIEW.md` - Architecture deep dive
-- **TODO System**: `docs/todos/` - Phased development roadmap
-
-## Common Tasks Quick Reference
-
-```bash
-# Create new feature with TDD workflow
-npm run new-feature my-feature && npm run tdd
-
-# Run specific test file
-npm test -- SongSchema.test.ts
-
-# Check code quality before commit
-npm run quality
-
-# Start full dev environment
-npm run dev:server start all
-
-# Create database backup (anonymized)
-npm run backup
-
-# Production deployment check
-npm run deploy:check
-
-# View Supabase Studio
-# Open http://localhost:54323 after npm run setup:db
-```
+### Components
+- **Small files**: Each file ~80 lines max
+- **Structure**: List/Form/Detail + hooks + services
+- **Separation**: UI, business logic, utilities
+
+### Data Fetching
+- **TanStack Query**: All data fetching uses TanStack Query v5
+- **Caching**: Automatic with smart invalidation
+- **Hooks**: Custom hooks for queries + mutations
+
+### State Management
+- **Context API**: Feature-level state
+- **TanStack Query**: Server state
+- **Zustand**: Global state
+- **Rules**: Minimal, co-located, testable
+
+📖 **Full Guide**: [`instructions/state-management.instructions.md`](./instructions/state-management.instructions.md)
+
+---
+
+## User Roles & Permissions
+
+Users can have **multiple roles simultaneously**:
+
+- **Admin** (`isAdmin=true`) - Full system access
+- **Teacher** (`isTeacher=true`) - Student/lesson/song management
+- **Student** (`isStudent=true`) - View assigned lessons/songs
+
+All role checks are server-side with Supabase RLS policies.
+
+---
+
+## Key Constraints
+
+- **TDD is mandatory** - Write tests before implementation
+- **No console.log in production** - Caught by pre-commit
+- **Quality checks required** - Always run `npm run quality` before committing
+- **Mobile-first required** - Design for mobile first, then scale up
+- **Small components** - Keep files < 300 lines, functions < 80 lines
+- **Type safety** - Never use `any` types
+- **Test coverage** - Minimum 70% (branches, functions, lines, statements)
+
+---
+
+## Quick Reference
+
+**Building UI?**
+→ `/component-new` command or [`instructions/component-architecture.instructions.md`](./instructions/component-architecture.instructions.md)
+
+**Fetching data?**
+→ [`instructions/api-data-fetching.instructions.md`](./instructions/api-data-fetching.instructions.md)
+
+**Writing tests?**
+→ [`instructions/testing-standards.instructions.md`](./instructions/testing-standards.instructions.md)
+
+**Creating API?**
+→ `/api-new` command or [`instructions/api-data-fetching.instructions.md`](./instructions/api-data-fetching.instructions.md)
+
+**Need help?**
+→ Use relevant AI agent or slash command above
+
+**Looking up standards?**
+→ [`instructions/STANDARDS-INDEX.md`](./instructions/STANDARDS-INDEX.md)
+
+**Deploying?**
+→ [`deployment/DEPLOYMENT_SETUP.md`](./deployment/DEPLOYMENT_SETUP.md)
+
+---
+
+## Resources
+
+- 📖 **Full Documentation**: `instructions/` folder
+- 🚀 **Deployment**: `deployment/DEPLOYMENT_SETUP.md`
+- 💾 **Database**: `supabase/migrations/`
+- 🔄 **CI/CD**: `workflows/` folder
+- 🤖 **AI Agents**: `agents/` folder
+- ⚡ **Commands**: `commands/` folder
+- 🧪 **Examples**: `components/songs/`, `schemas/`
+
+---
 
 ## When In Doubt
 
-1. **Check existing patterns** in `schemas/` and `__tests__/schemas/` - well-established
-2. **Run `npm run quality`** frequently to catch issues early
-3. **Follow TDD strictly** - This project has strong testing culture
-4. **Reference `scripts/README.md`** for workflow commands
-5. **Look at `docs/TODO.md`** for planned features and context
+1. **Check relevant standards** in `instructions/` folder
+2. **Use STANDARDS-INDEX.md** for quick lookup
+3. **Run `npm run quality`** to catch issues early
+4. **Reference existing patterns** in codebase
+5. **Use AI agents** for planning and design
+6. **Use slash commands** for specific tasks
+
+---
+
+**Last Updated**: November 12, 2025  
+**Version**: 3.0 (Integrated agents & commands, external links)
