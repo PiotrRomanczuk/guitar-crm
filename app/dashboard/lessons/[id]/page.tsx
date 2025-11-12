@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { createClient } from '@/lib/supabase/server';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
+import LessonDeleteButton from '@/components/lessons/LessonDeleteButton';
+import LessonSongs from '@/components/lessons/LessonSongs';
 
 interface LessonDetailPageProps {
   params: Promise<{ id: string }>;
@@ -56,13 +58,6 @@ function formatTime(timeStr: string | null | undefined): string {
   } catch {
     return 'Invalid Time';
   }
-}
-
-async function handleDeleteLesson(id: string) {
-  'use server';
-  const supabase = await createClient();
-  await supabase.from('lessons').delete().eq('id', id);
-  redirect('/dashboard/lessons');
 }
 
 export default async function LessonDetailPage({ params }: LessonDetailPageProps) {
@@ -183,17 +178,7 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
             </Link>
           )}
 
-          {canDelete && (
-            <form action={async () => handleDeleteLesson(id)} className="inline">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                data-testid="lesson-delete-button"
-              >
-                Delete
-              </button>
-            </form>
-          )}
+          {canDelete && <LessonDeleteButton lessonId={id} />}
 
           <Link
             href="/dashboard/lessons"
@@ -204,10 +189,7 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4">Lesson Songs</h2>
-        <p className="text-gray-600">Coming soon</p>
-      </div>
+      <LessonSongs lessonId={id} />
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <h2 className="text-xl font-bold mb-4">Tasks</h2>

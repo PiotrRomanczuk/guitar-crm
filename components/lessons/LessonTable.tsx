@@ -7,10 +7,10 @@ import LessonTableEmpty from './LessonTable.Empty';
 interface Props {
   lessons: LessonWithProfiles[];
   role: 'admin' | 'teacher' | 'student';
-  baseUrl?: string; // e.g., '/lessons', '/teacher/lessons', '/student/lessons'
+  baseUrl?: string; // e.g., '/dashboard/lessons', '/teacher/lessons', '/student/lessons'
 }
 
-export default function LessonTable({ lessons, role, baseUrl = '/lessons' }: Props) {
+export default function LessonTable({ lessons, role, baseUrl = '/dashboard/lessons' }: Props) {
   // Show actions column for admin and teacher only
   const showActions = role === 'admin' || role === 'teacher';
 
