@@ -95,9 +95,7 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
                 </td>
                 <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2">
                   {song.level && (
-                    <StatusBadge variant={getStatusVariant(song.level)}>
-                      {song.level}
-                    </StatusBadge>
+                    <StatusBadge variant={getStatusVariant(song.level)}>{song.level}</StatusBadge>
                   )}
                 </td>
                 <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
