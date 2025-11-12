@@ -67,3 +67,6 @@ scripts/history/all_executions.md
 # Cypress videos and screenshots
 cypress/videos/
 cypress/screenshots/
+
+# Claude Code Agents
+CLAUDE-CODE-AGENTS/
