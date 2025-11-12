@@ -1,18 +1,18 @@
 /// <reference types="cypress" />
 
 /**
- * Admin Assignment Management Journey E2E Tests
+ * Admin Song Management Journey E2E Tests
  *
- * Tests the complete admin assignment workflow including:
- * - Navigate to assignments page
- * - Create new assignment form
- * - View assignment details
- * - Edit assignment
+ * Tests the complete admin song workflow including:
+ * - Navigate to songs page
+ * - Create new song form
+ * - View song details
+ * - Edit song
  * - Handle responsive design
  * - Maintain authentication
  */
 
-describe('Admin Assignment Management Journey', () => {
+describe('Admin Song Management Journey', () => {
   const ADMIN_EMAIL = 'p.romanczuk@gmail.com';
   const ADMIN_PASSWORD = 'test123_admin';
 
@@ -37,33 +37,33 @@ describe('Admin Assignment Management Journey', () => {
     });
   });
 
-  it('should navigate to assignments page', () => {
-    cy.visit('/dashboard/assignements');
-    cy.url().should('include', '/dashboard/assignements');
+  it('should navigate to songs page', () => {
+    cy.visit('/dashboard/songs');
+    cy.url().should('include', '/dashboard/songs');
   });
 
-  it('should display assignments page with header', () => {
-    cy.visit('/dashboard/assignements');
+  it('should display songs page with header', () => {
+    cy.visit('/dashboard/songs');
     cy.get('header, nav').should('be.visible');
   });
 
-  it('should display assignments content area', () => {
-    cy.visit('/dashboard/assignements');
+  it('should display songs content area', () => {
+    cy.visit('/dashboard/songs');
 
-    // Should have either table or list view with assignments content
+    // Should have either table or list view with songs content
     cy.get('body').then(($body) => {
       // Try multiple ways to find content
       const hasContent =
-        $body.text().includes('assignment') ||
-        $body.text().includes('Assignment') ||
+        $body.text().includes('song') ||
+        $body.text().includes('Song') ||
         $body.text().includes('title') ||
         $body.text().includes('Title');
       cy.wrap(hasContent).should('equal', true);
     });
   });
 
-  it('should have assignment form fields on create page', () => {
-    cy.visit('/dashboard/assignements/new');
+  it('should have song form fields on create page', () => {
+    cy.visit('/dashboard/songs/new');
 
     // Form should exist
     cy.get('form').should('exist');
@@ -73,13 +73,13 @@ describe('Admin Assignment Management Journey', () => {
   });
 
   it('should have submit button on create form', () => {
-    cy.visit('/dashboard/assignements/new');
+    cy.visit('/dashboard/songs/new');
 
     cy.get('button[type="submit"]').should('be.visible');
   });
 
   it('should navigate back from create form', () => {
-    cy.visit('/dashboard/assignements/new');
+    cy.visit('/dashboard/songs/new');
 
     cy.go('back');
 
@@ -87,8 +87,8 @@ describe('Admin Assignment Management Journey', () => {
     cy.url().should('not.include', '/new');
   });
 
-  it('should handle responsive design on assignments page', () => {
-    cy.visit('/dashboard/assignements');
+  it('should handle responsive design on songs page', () => {
+    cy.visit('/dashboard/songs');
 
     // Mobile
     cy.viewport('iphone-x');
@@ -103,30 +103,30 @@ describe('Admin Assignment Management Journey', () => {
     cy.get('header, nav').should('be.visible');
   });
 
-  it('should maintain session on assignment pages', () => {
-    cy.visit('/dashboard/assignements');
+  it('should maintain session on song pages', () => {
+    cy.visit('/dashboard/songs');
 
     // Check authenticated state
     cy.get('header').should('contain.text', ADMIN_EMAIL);
 
     // Navigate to create
-    cy.visit('/dashboard/assignements/new');
+    cy.visit('/dashboard/songs/new');
 
     // Session should persist
     cy.get('header').should('contain.text', ADMIN_EMAIL);
   });
 
-  it('should reload assignments page successfully', () => {
-    cy.visit('/dashboard/assignements');
+  it('should reload songs page successfully', () => {
+    cy.visit('/dashboard/songs');
     cy.get('header, nav').should('be.visible');
     cy.reload();
     cy.get('header, nav').should('be.visible');
   });
 
   it('should handle page navigation with back button', () => {
-    cy.visit('/dashboard/assignements');
+    cy.visit('/dashboard/songs');
 
-    cy.visit('/dashboard/assignements/new');
+    cy.visit('/dashboard/songs/new');
     cy.url().should('include', '/new');
 
     cy.go('back');
@@ -134,68 +134,68 @@ describe('Admin Assignment Management Journey', () => {
     cy.url().should('not.include', '/new');
   });
 
-  it('should display form on new assignment page', () => {
-    cy.visit('/dashboard/assignements/new');
+  it('should display form on new song page', () => {
+    cy.visit('/dashboard/songs/new');
 
     cy.get('form').should('be.visible');
     cy.get('button[type="submit"]').should('be.visible');
   });
 
   it('should have form action buttons', () => {
-    cy.visit('/dashboard/assignements/new');
+    cy.visit('/dashboard/songs/new');
 
     cy.get('button').should('have.length.greaterThan', 0);
   });
 
-  it('should display proper layout on assignments page', () => {
-    cy.visit('/dashboard/assignements');
+  it('should display proper layout on songs page', () => {
+    cy.visit('/dashboard/songs');
 
     cy.get('header').should('be.visible');
     cy.get('[class*="container"]').should('be.visible');
   });
 
   it('should complete navigation workflow', () => {
-    // Start at assignments
-    cy.visit('/dashboard/assignements');
-    cy.url().should('include', '/dashboard/assignements');
+    // Start at songs
+    cy.visit('/dashboard/songs');
+    cy.url().should('include', '/dashboard/songs');
     cy.get('header').should('contain.text', ADMIN_EMAIL);
 
     // Go to create
-    cy.visit('/dashboard/assignements/new');
+    cy.visit('/dashboard/songs/new');
     cy.url().should('include', '/new');
 
-    // Back to assignments
-    cy.visit('/dashboard/assignements');
-    cy.url().should('include', '/dashboard/assignements');
+    // Back to songs
+    cy.visit('/dashboard/songs');
+    cy.url().should('include', '/dashboard/songs');
     cy.url().should('not.include', '/new');
 
     // Session maintained
     cy.get('header').should('contain.text', ADMIN_EMAIL);
   });
 
-  it('should navigate to assignment details page if assignments exist', () => {
-    cy.visit('/dashboard/assignements');
+  it('should navigate to song details page if songs exist', () => {
+    cy.visit('/dashboard/songs');
 
-    // Try to find an assignment link (only if assignments exist)
-    cy.get('a[href*="/dashboard/assignements/"]', { timeout: 3000 }).then(($links) => {
+    // Try to find a song link (only if songs exist)
+    cy.get('a[href*="/dashboard/songs/"]', { timeout: 3000 }).then(($links) => {
       const validLinks = $links.toArray().filter((el) => {
         const href = Cypress.$(el).attr('href');
         return href && !href.includes('/new') && !href.includes('/edit');
       });
 
       if (validLinks.length > 0) {
-        const firstAssignmentLink = Cypress.$(validLinks[0]).attr('href');
-        if (firstAssignmentLink) {
-          cy.visit(firstAssignmentLink);
+        const firstSongLink = Cypress.$(validLinks[0]).attr('href');
+        if (firstSongLink) {
+          cy.visit(firstSongLink);
           cy.url().should('not.include', '/new');
-          cy.url().should('include', '/dashboard/assignements/');
+          cy.url().should('include', '/dashboard/songs/');
         }
       }
     });
   });
 
-  it('should display edit page if assignment exists', () => {
-    cy.visit('/dashboard/assignements');
+  it('should display edit page if song exists', () => {
+    cy.visit('/dashboard/songs');
 
     // Try to find edit button or link - skip if not found (optional feature)
     cy.get('body').then(($body) => {
@@ -209,7 +209,7 @@ describe('Admin Assignment Management Journey', () => {
   });
 
   it('should maintain form data on page reload', () => {
-    cy.visit('/dashboard/assignements/new');
+    cy.visit('/dashboard/songs/new');
 
     // Verify form is visible
     cy.get('form').should('be.visible');

@@ -2,65 +2,328 @@
 
 Complete end-to-end testing suite for admin functionality in Guitar CRM.
 
-## 📋 Test Files Overview
+## 📋 Test Organization
 
-### Core Tests
+Tests are organized into focused, category-based suites for better maintainability, selective execution, and clear separation of concerns.
 
-| Test File                         | Purpose                           | Duration | Status      |
-| --------------------------------- | --------------------------------- | -------- | ----------- |
-| `admin-sign-in.cy.ts`             | Admin authentication flow         | ~10s     | ✅ Existing |
-| `admin-dashboard.cy.ts`           | Dashboard features and navigation | ~30s     | ✅ New      |
-| `admin-create-song-journey.cy.ts` | Create song workflow              | ~15s     | ✅ Existing |
-| `admin-song-edit.cy.ts`           | Edit song workflow                | ~20s     | ✅ New      |
-| `admin-song-delete.cy.ts`         | Delete song workflow              | ~25s     | ✅ New      |
-| `admin-song-delete-cascade.cy.ts` | Cascade deletion                  | ~20s     | ✅ Existing |
-| `admin-complete-journey.cy.ts`    | Full CRUD journey                 | ~60s     | ✅ New      |
+**Total Tests**: 98 organized tests across 15 files (all passing at 100%)
 
-### Test Coverage
+### Organized Test Structure
 
-#### ✅ Implemented & Tested
+```
+admin/
+├── songs/
+│   ├── navigation.cy.ts          (6 tests)
+│   ├── ui-layout.cy.ts           (8 tests)
+│   ├── authentication.cy.ts       (5 tests)
+│   ├── responsive-design.cy.ts    (7 tests)
+│   └── workflow.cy.ts            (7 tests)
+│
+├── assignments/
+│   ├── navigation.cy.ts          (6 tests)
+│   ├── ui-layout.cy.ts           (8 tests)
+│   ├── authentication.cy.ts       (5 tests)
+│   ├── responsive-design.cy.ts    (7 tests)
+│   └── workflow.cy.ts            (7 tests)
+│
+├── lessons/
+│   ├── navigation.cy.ts          (6 tests)
+│   ├── ui-layout.cy.ts           (8 tests)
+│   ├── authentication.cy.ts       (5 tests)
+│   ├── responsive-design.cy.ts    (7 tests)
+│   └── workflow.cy.ts            (6 tests)
+│
+└── Legacy (deprecated):
+    ├── admin-lesson-journey.cy.ts
+    ├── admin-song-journey.cy.ts
+    └── admin-assignment-journey.cy.ts
+```
 
-- **Authentication**: Login, logout, session persistence
-- **Dashboard**: Stats display, navigation, action cards, debug views
-- **Songs CRUD**: Complete Create/Read/Update/Delete operations
-- **Error Handling**: Validation errors, API errors, graceful degradation
-- **Responsive Design**: Mobile (375px) and tablet (768px) viewports
-- **Navigation**: Cross-page navigation, menu functionality
+### Test Categories
 
-#### ⏳ Pending Implementation
-
-- **User Management**: View users, edit roles, search/filter
-- **Settings**: System settings, configuration
-- **Reports**: Analytics and reporting features
-- **Logs**: Activity logs and audit trails
+| Category | Tests Per Feature | Purpose |
+|----------|-----------------|---------|
+| **Navigation** | 6 | Page transitions, links, URL handling |
+| **UI/Layout** | 8 | Visual components, structure, forms |
+| **Authentication** | 5 | Session persistence, user context |
+| **Responsive Design** | 7 | Mobile/tablet/desktop viewports |
+| **Workflow** | 6-7 | Complete user workflows, complex scenarios |
 
 ---
 
 ## 🚀 Running Tests
 
-### Run All Admin Tests
+### Run All Organized Tests
 
 ```bash
-# Run all tests in admin folder
-npm run e2e -- --spec "cypress/e2e/admin/**/*.cy.ts"
+# All organized tests (98 tests, ~5 minutes)
+npm run cypress:run -- --spec "cypress/e2e/admin/{songs,assignments,lessons}/**/*.cy.ts"
 ```
 
-### Run Individual Tests
+### Run All Tests for a Specific Feature
+
+```bash
+# Songs
+npm run cypress:run -- --spec "cypress/e2e/admin/songs/**/*.cy.ts"
+
+# Assignments
+npm run cypress:run -- --spec "cypress/e2e/admin/assignments/**/*.cy.ts"
+
+# Lessons
+npm run cypress:run -- --spec "cypress/e2e/admin/lessons/**/*.cy.ts"
+```
+
+### Run a Specific Test Category
+
+```bash
+# All navigation tests
+npm run cypress:run -- --spec "cypress/e2e/admin/**/navigation.cy.ts"
+
+# All authentication tests
+npm run cypress:run -- --spec "cypress/e2e/admin/**/authentication.cy.ts"
+
+# All responsive design tests
+npm run cypress:run -- --spec "cypress/e2e/admin/**/responsive-design.cy.ts"
+
+# All workflow tests
+npm run cypress:run -- --spec "cypress/e2e/admin/**/workflow.cy.ts"
+
+# All UI/Layout tests
+npm run cypress:run -- --spec "cypress/e2e/admin/**/ui-layout.cy.ts"
+```
+
+### Run a Specific Test File
+
+```bash
+npm run cypress:run -- --spec "cypress/e2e/admin/songs/navigation.cy.ts"
+```
+
+### Interactive Cypress Studio
+
+```bash
+npm run cypress:open
+# Then select specific tests to run interactively
+```
+
+## Run Individual Tests
 
 ```bash
 # Authentication
-npm run e2e -- --spec "cypress/e2e/admin/admin-sign-in.cy.ts"
+```bash
+npm run cypress:run -- --spec "cypress/e2e/admin/songs/authentication.cy.ts"
+```
 
-# Dashboard
-npm run e2e -- --spec "cypress/e2e/admin/admin-dashboard.cy.ts"
+---
 
-# Songs CRUD
-npm run e2e -- --spec "cypress/e2e/admin/admin-create-song-journey.cy.ts"
-npm run e2e -- --spec "cypress/e2e/admin/admin-song-edit.cy.ts"
-npm run e2e -- --spec "cypress/e2e/admin/admin-song-delete.cy.ts"
+## 📊 Test Results Summary
 
-# Complete journey
-npm run e2e -- --spec "cypress/e2e/admin/admin-complete-journey.cy.ts"
+| Feature | Navigation | UI/Layout | Auth | Responsive | Workflow | Total |
+|---------|-----------|-----------|------|------------|----------|-------|
+| Songs | 6 ✓ | 8 ✓ | 5 ✓ | 7 ✓ | 7 ✓ | 33 ✓ |
+| Assignments | 6 ✓ | 8 ✓ | 5 ✓ | 7 ✓ | 7 ✓ | 33 ✓ |
+| Lessons | 6 ✓ | 8 ✓ | 5 ✓ | 7 ✓ | 6 ✓ | 32 ✓ |
+| **Total** | **18** | **24** | **15** | **21** | **20** | **98** |
+
+**All tests passing at 100%** ✅
+
+---
+
+## 📝 Test Categories Explained
+
+### Navigation Tests (6 tests per feature)
+
+Tests page navigation patterns:
+
+- Navigate to list page
+- Navigate to create page
+- Navigate back from create page
+- Handle direct URL access to list page
+- Handle direct URL access to create page
+- Navigate between pages without errors
+
+### UI/Layout Tests (8 tests per feature)
+
+Tests visual components and structure:
+
+- Header visibility on page load
+- Content area presence
+- Container layout structure
+- Form presence on create page
+- Form fields existence and visibility
+- Submit button visibility and functionality
+- Multiple action buttons presence
+- Form persistence after page reload
+
+### Authentication Tests (5 tests per feature)
+
+Tests session and authentication state:
+
+- Admin email display in header
+- Session persistence on list page
+- Session persistence on create page
+- Session persistence across page navigation
+- Session persistence after page reload
+
+### Responsive Design Tests (7 tests per feature)
+
+Tests cross-viewport responsiveness:
+
+- Mobile display (iphone-x: 375x812)
+- Tablet display (ipad-2: 768x1024)
+- Desktop display (macbook-15: 1440x900)
+- Responsive form behavior on mobile
+- Responsive form behavior on tablet
+- Responsive form behavior on desktop
+- Viewport resize and recalculation
+
+### Workflow Tests (6-7 tests per feature)
+
+Tests complete user workflows and scenarios:
+
+- Full navigation workflow through feature
+- Form data persistence on page reload
+- List reload behavior
+- Entity details page navigation (when data exists)
+- Edit page navigation (when data exists)
+- Sequential page transitions
+- State management after back navigation
+
+---
+
+## 🎯 Test Data & Credentials
+
+### Admin User Credentials
+
+```typescript
+const ADMIN_EMAIL = 'p.romanczuk@gmail.com';
+const ADMIN_PASSWORD = 'test123_admin';
+```
+
+### Feature Routes
+
+- **Songs**: `/dashboard/songs` (list), `/dashboard/songs/new` (create)
+- **Assignments**: `/dashboard/assignements` (list), `/dashboard/assignements/new` (create)
+- **Lessons**: `/dashboard/lessons` (list), `/dashboard/lessons/new` (create)
+
+---
+
+## 🔍 Common Selectors
+
+### Authentication Form
+
+- `input[type="email"]` - Email input field
+- `input[type="password"]` - Password input field
+- `button[type="submit"]` - Sign in button
+
+### Page Elements
+
+- `header, nav` - Header and navigation elements
+- `form` - Form container
+- `[class*="container"]` - Layout container
+- `button[type="submit"]` - Form submit button
+- `a[href*="/dashboard/{feature}/"]` - Feature entity links
+
+---
+
+## 📚 Best Practices
+
+### Writing New Tests
+
+1. **Keep tests focused**: Each test should test one specific behavior
+2. **Use descriptive names**: Make it clear what each test verifies
+3. **Handle missing data**: Tests should gracefully handle cases where data doesn't exist
+4. **Use appropriate timeouts**:
+   - Default: 4s (for element queries)
+   - Auth setup: 8s (for sign-in form visibility)
+   - Navigation: 15s (for pathname changes)
+5. **Avoid hard-coded waits**: Use Cypress built-in waiting mechanisms
+6. **Follow the pattern**: Keep consistent structure across all test files
+7. **Add comments**: Explain complex test logic
+
+### Example Test Pattern
+
+```typescript
+describe('Feature - Category Tests', () => {
+  const ADMIN_EMAIL = 'p.romanczuk@gmail.com';
+  const ADMIN_PASSWORD = 'test123_admin';
+
+  beforeEach(() => {
+    cy.visit('/sign-in');
+    cy.get('input[type="email"]', { timeout: 8000 }).should('be.visible');
+    cy.get('input[type="password"]').should('be.visible');
+    cy.get('input[type="email"]').clear().type(ADMIN_EMAIL);
+    cy.get('input[type="password"]').clear().type(ADMIN_PASSWORD);
+    cy.get('button[type="submit"]').click();
+    cy.location('pathname', { timeout: 15000 }).should(($path) => {
+      expect($path).not.to.include('/sign-in');
+    });
+  });
+
+  it('should perform specific action', () => {
+    cy.visit('/dashboard/feature');
+    // Test implementation
+  });
+});
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Tests Timing Out
+
+- Increase timeout: `cy.get('selector', { timeout: 10000 })`
+- Check if element exists: Use `.then()` for conditional checks
+- Verify auth is working: Ensure beforeEach completes successfully
+
+### Tests Failing Intermittently
+
+- Add appropriate timeouts for slow responses
+- Use `.should()` for proper wait conditions
+- Avoid race conditions with explicit waits using `.should()`
+
+### Cannot Find Elements
+
+- Check selector accuracy
+- Verify page loaded: Wait for header/nav to be visible first
+- Use Cypress inspector: Run tests with `--headed` flag and inspect
+
+---
+
+## 📦 Legacy Files (Deprecated)
+
+The original monolithic journey tests are available but deprecated:
+
+- `admin-lesson-journey.cy.ts` (14 tests)
+- `admin-song-journey.cy.ts` (17 tests)
+- `admin-assignment-journey.cy.ts` (17 tests)
+
+These can be removed once all features are verified in the new organized structure.
+
+---
+
+## 🎓 Tips for Adding Tests to Existing Categories
+
+1. Open the appropriate test file (e.g., `songs/navigation.cy.ts`)
+2. Add new `it()` blocks within the existing `describe` block
+3. Follow the same pattern as existing tests
+4. Run only that file to verify: `npm run cypress:run -- --spec "cypress/e2e/admin/songs/navigation.cy.ts"`
+5. Run all tests to ensure no conflicts
+
+---
+
+## 📞 Questions or Issues?
+
+For questions about test organization, patterns, or specific test failures:
+1. Check the test file for existing patterns
+2. Review the error screenshots in `cypress/screenshots/`
+3. Run tests in headed mode for debugging: `npm run cypress:open`
+4. Contact the team with specific error details and test output
+
+---
+
+**Last Updated**: 2025 - Test Organization Completed
+**Total Test Count**: 98 organized tests (100% passing)
 ```
 
 ### Interactive Mode

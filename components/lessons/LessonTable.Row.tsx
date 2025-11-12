@@ -26,18 +26,18 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
         </td>
       )}
       <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
-        {formatDate(lesson.date)}
+        {formatDate(lesson.scheduled_at)}
       </td>
       <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
-        {formatTime(lesson.start_time)}
+        {formatTime(lesson.scheduled_at)}
       </td>
       <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
         <Link
           href={`${baseUrl}/${lesson.id}`}
           className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-          data-testid="lesson-title-link"
+          data-testid="lesson-number-link"
         >
-          {lesson.title || 'Untitled Lesson'}
+          Lesson #{lesson.lesson_teacher_number || 'N/A'}
         </Link>
       </td>
       <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2">
