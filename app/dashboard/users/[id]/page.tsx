@@ -62,41 +62,45 @@ async function fetchUserData(supabase: SupabaseClient, userId: string) {
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
-  // Fetch songs connected to this user's lessons
-  const { data: lessonSongs } = await supabase
-    .from('lesson_songs')
-    .select(
-      `
-      song_id,
-      status,
-      songs (
-        id,
-        title,
-        author,
-        key,
-        level,
-        created_at
-      ),
-      lessons!inner (
-        student_id,
-        teacher_id
-      )
-    `
-    )
-    .or(`lessons.student_id.eq.${userId},lessons.teacher_id.eq.${userId}`);
+  // First, get all lessons for this user
+  const userLessonIds = lessons?.map((l) => l.id) || [];
+  console.log('User lessons count:', lessons?.length);
+  console.log('User lesson IDs:', userLessonIds);
 
-  // Extract unique songs (songs is a single object, not an array)
-  const songMap = new Map<string, Song>();
-  if (lessonSongs) {
-    lessonSongs.forEach((ls) => {
-      // Supabase returns songs as a single object when using the foreign key relation
-      const song = ls.songs as unknown as Song;
-      if (song && song.id && !songMap.has(song.id)) {
-        songMap.set(song.id, song);
-      }
-    });
+  // Then fetch songs connected to those lessons - simplified query
+  let lessonSongs: Array<{ song_id: string; status: string }> = [];
+  let songsError = null;
+  
+  if (userLessonIds.length > 0) {
+    const { data, error } = await supabase
+      .from('lesson_songs')
+      .select('song_id, status')
+      .in('lesson_id', userLessonIds);
+    
+    lessonSongs = data || [];
+    songsError = error;
   }
-  const songs = Array.from(songMap.values());
+
+  console.log('Lesson songs query error:', songsError);
+  console.log('Lesson songs count:', lessonSongs?.length);
+  console.log('Lesson songs data:', JSON.stringify(lessonSongs, null, 2));
+
+  // Now fetch the actual song details for unique song IDs
+  const uniqueSongIds = [...new Set(lessonSongs.map((ls) => ls.song_id))];
+  console.log('Unique song IDs:', uniqueSongIds);
+  
+  let songs: Song[] = [];
+  if (uniqueSongIds.length > 0) {
+    const { data: songsData } = await supabase
+      .from('songs')
+      .select('id, title, author, key, level, created_at')
+      .in('id', uniqueSongIds);
+    
+    songs = (songsData || []) as Song[];
+  }
+  
+  console.log('Final songs array:', songs);
+  console.log('Final songs count:', songs.length);
 
   return { lessons, assignments, songs };
 }
