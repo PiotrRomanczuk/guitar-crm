@@ -69,4 +69,4 @@ cypress/videos/
 cypress/screenshots/
 
 # Claude Code Agents
-CLAUDE-CODE-AGENTS/
+CODE-AGENTS/
