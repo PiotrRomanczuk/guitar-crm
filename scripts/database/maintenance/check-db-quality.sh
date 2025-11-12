@@ -189,6 +189,66 @@ if [ "$STUDENT_COUNT" -lt 1 ]; then
     echo "   At least one profile should have is_student=true"
 fi
 
+# Test authentication with development credentials
+echo -e "\n${BLUE}🔐 Testing authentication with development credentials...${NC}"
+
+SUPABASE_URL="http://127.0.0.1:54321"
+AUTH_CHECKS_PASSED=0
+AUTH_CHECKS_TOTAL=0
+
+# Test credentials from DEV_USER_CREDENTIALS.md
+declare -A TEST_CREDS=(
+    ["p.romanczuk@gmail.com"]="test123_admin"
+    ["teacher@example.com"]="test123_teacher"
+    ["student@example.com"]="test123_student"
+    ["teststudent1@example.com"]="test123_student"
+)
+
+for email in "${!TEST_CREDS[@]}"; do
+    password="${TEST_CREDS[$email]}"
+    AUTH_CHECKS_TOTAL=$((AUTH_CHECKS_TOTAL + 1))
+    
+    # Attempt to sign in via Supabase Auth API
+    RESPONSE=$(curl -s -X POST "$SUPABASE_URL/auth/v1/token?grant_type=password" \
+        -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0" \
+        -H "Content-Type: application/json" \
+        -d "{\"email\":\"$email\",\"password\":\"$password\"}" 2>&1)
+    
+    if echo "$RESPONSE" | grep -q '"access_token"'; then
+        echo -e "${GREEN}  ✅ $email - Authentication successful${NC}"
+        AUTH_CHECKS_PASSED=$((AUTH_CHECKS_PASSED + 1))
+    else
+        echo -e "${RED}  ❌ $email - Authentication failed${NC}"
+        if echo "$RESPONSE" | grep -q "Invalid login credentials"; then
+            echo -e "${YELLOW}     (Invalid credentials or user not found)${NC}"
+        elif echo "$RESPONSE" | grep -q "Email not confirmed"; then
+            echo -e "${YELLOW}     (Email not confirmed - running confirm now...)${NC}"
+            # Auto-confirm the user if needed
+            run_query "UPDATE auth.users SET email_confirmed_at = NOW() WHERE email = '$email';" > /dev/null 2>&1
+            echo -e "${YELLOW}     Retrying authentication...${NC}"
+            RETRY_RESPONSE=$(curl -s -X POST "$SUPABASE_URL/auth/v1/token?grant_type=password" \
+                -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0" \
+                -H "Content-Type: application/json" \
+                -d "{\"email\":\"$email\",\"password\":\"$password\"}" 2>&1)
+            if echo "$RETRY_RESPONSE" | grep -q '"access_token"'; then
+                echo -e "${GREEN}     ✅ Authentication successful after email confirmation${NC}"
+                AUTH_CHECKS_PASSED=$((AUTH_CHECKS_PASSED + 1))
+            else
+                ISSUES_FOUND=1
+            fi
+        else
+            echo -e "${YELLOW}     Response: $(echo $RESPONSE | jq -r '.msg // .message // .error_description // "Unknown error"' 2>/dev/null || echo "Unknown error")${NC}"
+        fi
+        ISSUES_FOUND=1
+    fi
+done
+
+echo -e "\n${BLUE}Authentication Summary: $AUTH_CHECKS_PASSED/$AUTH_CHECKS_TOTAL credentials validated${NC}"
+
+if [ "$AUTH_CHECKS_PASSED" -lt "$AUTH_CHECKS_TOTAL" ]; then
+    echo -e "${RED}⚠️  Some authentication checks failed${NC}"
+fi
+
 if [ "$PROFILES_COUNT" -lt "$TEST_USERS" ]; then
     echo -e "\n${RED}❌ CRITICAL: Profiles count ($PROFILES_COUNT) less than users count ($TEST_USERS)${NC}"
     echo "   Some users don't have profiles"
