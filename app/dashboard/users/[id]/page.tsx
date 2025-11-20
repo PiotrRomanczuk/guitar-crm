@@ -71,13 +71,13 @@ async function fetchUserData(supabase: SupabaseClient, userId: string) {
   // Then fetch songs connected to those lessons - simplified query
   let lessonSongs: Array<{ song_id: string; status: string }> = [];
   let songsError = null;
-  
+
   if (userLessonIds.length > 0) {
     const { data, error } = await supabase
       .from('lesson_songs')
       .select('song_id, status')
       .in('lesson_id', userLessonIds);
-    
+
     lessonSongs = data || [];
     songsError = error;
   }
@@ -89,17 +89,17 @@ async function fetchUserData(supabase: SupabaseClient, userId: string) {
   // Now fetch the actual song details for unique song IDs
   const uniqueSongIds = [...new Set(lessonSongs.map((ls) => ls.song_id))];
   console.log('Unique song IDs:', uniqueSongIds);
-  
+
   let songs: Song[] = [];
   if (uniqueSongIds.length > 0) {
     const { data: songsData } = await supabase
       .from('songs')
       .select('id, title, author, key, level, created_at')
       .in('id', uniqueSongIds);
-    
+
     songs = (songsData || []) as Song[];
   }
-  
+
   console.log('Final songs array:', songs);
   console.log('Final songs count:', songs.length);
 
@@ -144,7 +144,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
           { label: userName },
         ]}
       />
-      
+
       <UserDetail user={user as UserProfile} />
 
       {/* Lessons Section */}

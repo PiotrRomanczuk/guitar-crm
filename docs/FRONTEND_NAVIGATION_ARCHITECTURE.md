@@ -31,10 +31,12 @@ This document defines the interconnected navigation architecture for Guitar CRM,
 ### 1. Users (Profiles)
 
 **List View (`/dashboard/users`):**
+
 - Click user name/row → `/dashboard/users/[id]`
 - Role badges (Admin, Teacher, Student) - visual only
 
 **Detail View (`/dashboard/users/[id]`):**
+
 - **Outgoing Links:**
   - Lessons section: Click lesson → `/dashboard/lessons/[id]`
   - Assignments section: Click assignment → `/dashboard/assignments/[id]`
@@ -43,6 +45,7 @@ This document defines the interconnected navigation architecture for Guitar CRM,
   - If student: "View as Student" → `/dashboard/lessons?student=[id]`
 
 **Components Needed:**
+
 ```
 components/users/
 ├── UserList/
@@ -60,12 +63,14 @@ components/users/
 ### 2. Lessons
 
 **List View (`/dashboard/lessons`):**
+
 - ✅ Click student name → `/dashboard/users/[student_id]`
 - ✅ Click teacher name → `/dashboard/users/[teacher_id]`
 - ✅ Click row → `/dashboard/lessons/[id]`
 - ✅ Filter by status
 
 **Detail View (`/dashboard/lessons/[id]`):**
+
 - **Outgoing Links:**
   - ✅ Student name → `/dashboard/users/[student_id]`
   - ✅ Teacher name → `/dashboard/users/[teacher_id]`
@@ -75,6 +80,7 @@ components/users/
   - Action: "Create Assignment" → `/dashboard/assignments/new?lesson=[id]`
 
 **Components Status:**
+
 ```
 components/lessons/
 ├── ✅ LessonList/           // IMPLEMENTED
@@ -89,11 +95,13 @@ components/lessons/
 ### 3. Songs
 
 **List View (`/dashboard/songs`):**
+
 - Click song title/row → `/dashboard/songs/[id]`
 - Filter by level, key
 - Search by title/author
 
 **Detail View (`/dashboard/songs/[id]`):**
+
 - **Outgoing Links:**
   - **NEW**: "Used in Lessons" section
     - Click lesson → `/dashboard/lessons/[id]`
@@ -107,6 +115,7 @@ components/lessons/
   - Action: "Add to Lesson" → Select lesson dropdown
 
 **Components Needed:**
+
 ```
 components/songs/
 ├── SongList/
@@ -125,12 +134,14 @@ components/songs/
 ### 4. Assignments
 
 **List View (`/dashboard/assignments`):**
+
 - Click assignment title/row → `/dashboard/assignments/[id]`
 - Click user name → `/dashboard/users/[user_id]`
 - Filter by status (pending, completed, overdue)
 - Filter by user
 
 **Detail View (`/dashboard/assignments/[id]`):**
+
 - **Outgoing Links:**
   - User name → `/dashboard/users/[user_id]`
   - Related lesson (if any) → `/dashboard/lessons/[lesson_id]`
@@ -139,6 +150,7 @@ components/songs/
   - Action: "Link to Lesson" → Select lesson dropdown
 
 **Components Needed:**
+
 ```
 components/assignments/
 ├── AssignmentList/
@@ -178,6 +190,7 @@ interface EntityLinkProps {
 ```
 
 **Styling:**
+
 - Default: `text-blue-600 dark:text-blue-400 hover:underline font-medium`
 - Subtle: `text-gray-700 dark:text-gray-300 hover:text-blue-600`
 - Bold: `text-lg font-semibold text-blue-600 hover:underline`
@@ -459,24 +472,28 @@ GET /api/lessons/[id]/assignments  - TODO: Needed
 ## Implementation Priority
 
 ### Phase 1: Core Navigation (Current Sprint)
+
 1. ✅ Lessons table - clickable rows and user links
 2. ✅ Lesson detail - show songs
 3. 🔄 Song detail - show related lessons
 4. 🔄 Assignment list - clickable rows
 
 ### Phase 2: Reusable Components
+
 1. Create `EntityLink` component
 2. Create `EntityCard` component
 3. Create `RelatedItemsSection` component
 4. Create `Breadcrumbs` component
 
 ### Phase 3: Full Interconnection
+
 1. Song detail with lessons/students/teachers
 2. Assignment detail with user/lesson/song links
 3. User detail with all related entities (already exists, enhance)
 4. Add quick action buttons everywhere
 
 ### Phase 4: Polish
+
 1. Add loading skeletons
 2. Add error boundaries
 3. Add empty states
@@ -558,6 +575,7 @@ components/
 ## Example Implementations
 
 See:
+
 - ✅ `components/lessons/LessonTable.Row.tsx` - Clickable rows with nested links
 - ✅ `components/lessons/LessonSongs.tsx` - Related items section
 - ✅ `app/dashboard/users/[id]/page.tsx` - Entity detail with multiple relations

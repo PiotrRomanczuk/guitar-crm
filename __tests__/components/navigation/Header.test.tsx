@@ -70,7 +70,7 @@ describe('Header', () => {
   it('should navigate to home when logo is clicked', () => {
     render(<Header user={null} isAdmin={false} isTeacher={false} isStudent={false} />);
 
-    const logo = screen.getByText('🎸 Guitar CRM');
+    const logo = screen.getByText('Guitar CRM');
     fireEvent.click(logo);
 
     expect(mockPush).toHaveBeenCalledWith('/');

@@ -105,12 +105,14 @@ export async function getAssignmentHandler(
   // Fetch assignment with related data
   const { data: assignment, error } = await supabase
     .from('assignments')
-    .select(`
+    .select(
+      `
       *,
       teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
       student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
       lesson:lessons(id, lesson_teacher_number, scheduled_at, status)
-    `)
+    `
+    )
     .eq('id', assignmentId)
     .single();
 
@@ -173,12 +175,14 @@ export async function updateAssignmentHandler(
     .from('assignments')
     .update(updateData)
     .eq('id', assignmentId)
-    .select(`
+    .select(
+      `
       *,
       teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
       student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
       lesson:lessons(id, lesson_teacher_number, scheduled_at, status)
-    `)
+    `
+    )
     .single();
 
   if (error) {

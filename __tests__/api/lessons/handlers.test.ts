@@ -143,9 +143,7 @@ describe('Lesson API Handlers', () => {
 		const validLesson = {
 			teacher_id: '11111111-1111-1111-1111-111111111111',
 			student_id: '22222222-2222-2222-2222-222222222222',
-			date: '2025-01-01T10:00:00.000Z',
-			start_time: '10:00',
-			title: 'Intro',
+			scheduled_at: '2025-01-01T10:00:00.000Z',
 			notes: 'Bring picks',
 			status: 'SCHEDULED',
 		};
@@ -174,12 +172,22 @@ describe('Lesson API Handlers', () => {
 		});
 
 		it('creates lesson for teacher', async () => {
-			const mockQuery = {
-				insert: jest.fn().mockReturnThis(),
+			// Mock for the first call (get existing lessons to calculate number)
+			const mockSelectChain = {
+				eq: jest.fn().mockReturnThis(),
+				order: jest.fn().mockReturnThis(),
+				limit: jest.fn().mockResolvedValue({ data: [], error: null }),
+			};
+
+			// Mock for the second call (insert lesson)
+			const mockInsertChain = {
 				select: jest.fn().mockReturnThis(),
 				single: jest.fn().mockResolvedValue({ data: validLesson, error: null }),
 			};
-			mockSupabase.from.mockReturnValue(mockQuery);
+
+			mockSupabase.from
+				.mockReturnValueOnce({ select: jest.fn().mockReturnValue(mockSelectChain) })
+				.mockReturnValueOnce({ insert: jest.fn().mockReturnValue(mockInsertChain) });
 
 			const res = await createLessonHandler(
 				mockSupabase,
