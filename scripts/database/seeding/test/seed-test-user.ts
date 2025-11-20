@@ -40,7 +40,7 @@ async function main() {
 
 	if (
 		createErr &&
-		!/already exists|User already registered/i.test(createErr.message)
+		!/already exists|already been registered/i.test(createErr.message)
 	) {
 		console.error('Failed to create user:', createErr.message);
 		process.exit(1);
@@ -69,18 +69,15 @@ async function main() {
 		// Upsert profile
 		const { error: upsertErr } = await admin.from('profiles').upsert(
 			{
-				user_id: id,
+				id: id,
 				email: E2E_TEST_EMAIL,
-				firstName: 'E2E',
-				lastName: 'Tester',
-				isAdmin: false,
-				isTeacher: true,
-				isStudent: false,
-				isActive: true,
-				isTest: true,
-				canEdit: true,
+				full_name: 'E2E Tester',
+				is_admin: false,
+				is_teacher: true,
+				is_student: false,
+				is_development: true,
 			},
-			{ onConflict: 'user_id' }
+			{ onConflict: 'email' } // Conflict on email since it's unique
 		);
 
 		if (upsertErr) {
@@ -95,18 +92,15 @@ async function main() {
 	// Upsert profile for newly created user
 	const { error: upsertErr } = await admin.from('profiles').upsert(
 		{
-			user_id: userId,
+			id: userId,
 			email: E2E_TEST_EMAIL,
-			firstName: 'E2E',
-			lastName: 'Tester',
-			isAdmin: false,
-			isTeacher: true,
-			isStudent: false,
-			isActive: true,
-			isTest: true,
-			canEdit: true,
+			full_name: 'E2E Tester',
+			is_admin: false,
+			is_teacher: true,
+			is_student: false,
+			is_development: true,
 		},
-		{ onConflict: 'user_id' }
+		{ onConflict: 'email' }
 	);
 
 	if (upsertErr) {

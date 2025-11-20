@@ -1,7 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { RelatedItemsSection, StatusBadge, getStatusVariant, formatStatus } from '@/components/shared';
+import {
+  RelatedItemsSection,
+  StatusBadge,
+  getStatusVariant,
+  formatStatus,
+} from '@/components/shared';
 
 interface LessonSong {
   id: string;
