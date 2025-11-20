@@ -12,15 +12,22 @@ ISSUES_FOUND=0
 
 echo -e "${BLUE}🔍 DATABASE QUALITY CHECK${NC}"
 
+# Default to local Supabase if env vars not set
+DB_HOST=${PGHOST:-127.0.0.1}
+DB_PORT=${PGPORT:-54322}
+DB_USER=${PGUSER:-postgres}
+DB_PASS=${PGPASSWORD:-postgres}
+DB_NAME=${PGDATABASE:-postgres}
+
 echo -e "\n${BLUE}📡 Checking Supabase status...${NC}"
-if ! timeout 2 bash -c 'PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -c "SELECT 1"' >/dev/null 2>&1; then
-  echo -e "${RED}❌ Supabase is not running or not accessible on port 54322${NC}"
+if ! timeout 2 bash -c "PGPASSWORD=$DB_PASS psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c 'SELECT 1'" >/dev/null 2>&1; then
+  echo -e "${RED}❌ Supabase is not running or not accessible at $DB_HOST:$DB_PORT${NC}"
   exit 1
 fi
 echo -e "${GREEN}✅ Supabase is running${NC}"
 
 run_query() {
-  PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -t -A -c "$1"
+  PGPASSWORD=$DB_PASS psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -t -A -c "$1"
 }
 
 table_exists() {
