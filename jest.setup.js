@@ -187,3 +187,8 @@ global.testUtils = {
 		...overrides,
 	}),
 };
+
+// Polyfill for mysterious instrumentation (Console Ninja / OpenObserve?) causing ReferenceErrors
+// These functions are injected into the code during test execution but not defined in the global scope
+global.oo_tx = (id, ...args) => args;
+global.oo_oo = (id, ...args) => args;

@@ -25,6 +25,24 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
+-- Step 2.5: Update status column to use new enum
+-- First drop the default value which uses the old enum
+ALTER TABLE assignments ALTER COLUMN status DROP DEFAULT;
+
+-- Convert old uppercase values to new lowercase values
+ALTER TABLE assignments
+  ALTER COLUMN status TYPE assignment_status
+  USING CASE
+    WHEN status::text = 'OPEN' THEN 'not_started'::assignment_status
+    WHEN status::text = 'IN_PROGRESS' THEN 'in_progress'::assignment_status
+    WHEN status::text = 'COMPLETED' THEN 'completed'::assignment_status
+    WHEN status::text = 'CANCELLED' THEN 'cancelled'::assignment_status
+    ELSE 'not_started'::assignment_status
+  END;
+
+-- Set new default value
+ALTER TABLE assignments ALTER COLUMN status SET DEFAULT 'not_started'::assignment_status;
+
 -- Step 3: Add new columns (teacher_id, student_id, lesson_id)
 ALTER TABLE assignments
   ADD COLUMN IF NOT EXISTS teacher_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
@@ -47,7 +65,7 @@ WHERE a.lesson_id = l.id
 -- Step 6: For assignments without lessons, try to infer teacher from student's lessons
 UPDATE assignments a
 SET teacher_id = (
-  SELECT DISTINCT l.teacher_id
+  SELECT l.teacher_id
   FROM lessons l
   WHERE l.student_id = a.student_id
   ORDER BY l.created_at DESC
