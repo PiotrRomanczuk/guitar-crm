@@ -1,0 +1,6 @@
+supabase/**
+**/*.sql
+coverage/**
+node_modules/**
+public/**
+scripts/**/*.js

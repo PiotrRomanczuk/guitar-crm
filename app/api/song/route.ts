@@ -3,7 +3,7 @@
 //   - Extract POST/PUT/DELETE handlers to separate functions
 //   - Move Supabase client creation to shared utility
 //   - Consider splitting by HTTP method into separate route files
-/* eslint-disable max-lines */
+ 
 
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
