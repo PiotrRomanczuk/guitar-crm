@@ -5,9 +5,9 @@
 // import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
 interface RequireRoleProps {
-	children: React.ReactNode;
-	redirectTo?: string;
-	loadingComponent?: React.ReactNode;
+  children: React.ReactNode;
+  redirectTo?: string;
+  loadingComponent?: React.ReactNode;
 }
 
 // /**
@@ -18,13 +18,9 @@ interface RequireRoleProps {
 //        redirectTo = '/sign-in',
 //        loadingComponent,
 // TODO: Implement full auth logic when needed
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function RequireAuth({
-	children,
-	redirectTo: _redirectTo = '/sign-in',
-	loadingComponent: _loadingComponent,
-}: RequireRoleProps) {
-	return <>{children}</>;
+
+export function RequireAuth({ children }: RequireRoleProps) {
+  return <>{children}</>;
 }
 //        useEffect(() => {
 // 	       let mounted = true;
@@ -72,13 +68,9 @@ export function RequireAuth({
 //        children,
 //        redirectTo,
 //        loadingComponent,
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function RequireAdmin({
-	children,
-	redirectTo: _redirectTo,
-	loadingComponent: _loadingComponent,
-}: RequireRoleProps) {
-	return <>{children}</>;
+
+export function RequireAdmin({ children }: RequireRoleProps) {
+  return <>{children}</>;
 }
 
 //        useEffect(() => {
@@ -132,13 +124,9 @@ export function RequireAdmin({
 //        children,
 //        redirectTo,
 //        loadingComponent,
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function RequireTeacher({
-	children,
-	redirectTo: _redirectTo,
-	loadingComponent: _loadingComponent,
-}: RequireRoleProps) {
-	return <>{children}</>;
+
+export function RequireTeacher({ children }: RequireRoleProps) {
+  return <>{children}</>;
 }
 //        const router = useRouter();
 
@@ -194,13 +182,9 @@ export function RequireTeacher({
 //        children,
 //        redirectTo,
 //        loadingComponent,
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function RequireStudent({
-	children,
-	redirectTo: _redirectTo,
-	loadingComponent: _loadingComponent,
-}: RequireRoleProps) {
-	return <>{children}</>;
+
+export function RequireStudent({ children }: RequireRoleProps) {
+  return <>{children}</>;
 }
 //        const router = useRouter();
 
