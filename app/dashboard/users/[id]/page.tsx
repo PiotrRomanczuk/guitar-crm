@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import UserDetail from '@/components/users/UserDetail';
 
 export const metadata = {
@@ -13,6 +13,7 @@ interface UserDetailPageProps {
 }
 
 export default async function UserDetailPage({ params }: UserDetailPageProps) {
+  const supabase = await createClient();
   const { data: user, error } = await supabase
     .from('profiles')
     .select('*')

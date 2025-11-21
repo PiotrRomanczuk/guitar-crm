@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 interface AuthContextType {
   user: { id: string; email?: string } | null;
@@ -33,6 +33,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isTeacher, setIsTeacher] = useState(false);
   const [isStudent, setIsStudent] = useState(false);
+
+  const supabase = getSupabaseBrowserClient();
 
   useEffect(() => {
     // Get initial session

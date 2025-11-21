@@ -32,8 +32,16 @@ run_query() {
 
 table_exists() {
   local t="$1"
+  local schema="public"
+  local table="$t"
+  
+  if [[ "$t" == *"."* ]]; then
+    schema="${t%%.*}"
+    table="${t#*.}"
+  fi
+
   local res
-  res=$(run_query "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='$t';") || res=0
+  res=$(run_query "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$schema' AND table_name='$table';") || res=0
   res=$(echo "$res" | xargs)
   [ "$res" -gt 0 ]
 }
