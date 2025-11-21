@@ -1,5 +1,5 @@
 // Quick test script to verify login credentials
-const fetch = require('node-fetch');
+// Node.js v18+ has native fetch support
 const path = require('path');
 require('dotenv').config({ path: path.resolve(process.cwd(), '.env.local') });
 

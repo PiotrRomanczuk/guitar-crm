@@ -1,7 +1,7 @@
 // Node.js script to create development users via Supabase Auth REST API
 // Usage: node create-dev-users-via-api.js
+// Node.js v18+ has native fetch support
 
-const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(process.cwd(), '.env.local') });
