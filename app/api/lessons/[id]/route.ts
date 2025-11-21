@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { updateLessonHandler, deleteLessonHandler } from '../handlers';
 import { RouteParamsSchema } from '@/schemas/CommonSchema';
-import { z } from 'zod';
 
 /**
  * Helper to get user profile with roles
