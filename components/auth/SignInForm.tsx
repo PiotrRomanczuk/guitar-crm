@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { SignInSchema } from '@/schemas/AuthSchema';
+import { extractFieldErrors, validateField } from '@/lib/form-validation';
 
 interface SignInFormProps {
   onSuccess?: () => void;
@@ -136,39 +138,65 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState({
     email: false,
     password: false,
   });
 
-  const validate = () => {
-    if (touched.email && !email) return 'Email is required';
-    if (touched.email && email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Invalid email';
-    if (touched.password && !password) return 'Password is required';
-    return null;
+  // Real-time validation for touched fields using Zod
+  const validateTouchedFields = () => {
+    const errors: Record<string, string> = {};
+    
+    if (touched.email) {
+      const emailError = validateField(SignInSchema, 'email', email);
+      if (emailError) errors.email = emailError;
+    }
+    
+    if (touched.password) {
+      const passwordError = validateField(SignInSchema, 'password', password);
+      if (passwordError) errors.password = passwordError;
+    }
+    
+    setFieldErrors(errors);
+    return Object.keys(errors).length > 0;
   };
 
-  const validationError = validate();
+  // Call validation whenever touched fields change
+  React.useEffect(() => {
+    if (touched.email || touched.password) {
+      validateTouchedFields();
+    }
+  }, [email, password, touched.email, touched.password]);
+
+  const firstError = Object.values(fieldErrors)[0] || null;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
+    // Mark all fields as touched
     setTouched({
       email: true,
       password: true,
     });
 
-    if (!email || !password) {
+    // Validate all fields with Zod schema
+    const result = SignInSchema.safeParse({ email, password });
+    
+    if (!result.success) {
+      const errors = extractFieldErrors(result.error);
+      setFieldErrors(errors);
       return;
     }
 
     setLoading(true);
     setError(null);
+    setFieldErrors({});
 
     const supabase = getSupabaseBrowserClient();
     const { data, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: result.data.email,
+      password: result.data.password,
     });
 
     setLoading(false);
@@ -201,7 +229,7 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
         showPassword={showPassword}
         onToggleShow={() => setShowPassword((v) => !v)}
       />
-      {validationError && <AlertMessage message={validationError} />}
+      {firstError && <AlertMessage message={firstError} />}
       {error && <AlertMessage message={error} />}
       <button
         type="submit"

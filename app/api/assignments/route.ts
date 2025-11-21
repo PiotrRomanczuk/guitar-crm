@@ -1,20 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 import { AssignmentQuerySchema } from '@/schemas/CommonSchema';
-
-// Define assignment input schema for this API
-const AssignmentInputSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  due_date: z.string().optional(),
-  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-  status: z
-    .enum(['OPEN', 'IN_PROGRESS', 'PENDING_REVIEW', 'COMPLETED', 'CANCELLED', 'BLOCKED'])
-    .optional(),
-  user_id: z.string().uuid().optional(),
-});
+import { AssignmentInputSchema } from '@/schemas/AssignmentSchema';
 
 export async function GET(request: Request) {
   try {
