@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
-import { Song } from '../types';
 
 export function useSongDelete(onSuccess?: () => void) {
   const [isDeleting, setIsDeleting] = useState(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { LessonInputSchema, LessonSchema } from '@/schemas/LessonSchema';
 import { z } from 'zod';
@@ -67,29 +67,15 @@ export default function useLessonForm({
   lessonId,
   onSuccess,
 }: UseLessonFormProps = {}) {
-  const [formData, setFormData] = useState<FormData>({
-    student_id: '',
-    teacher_id: '',
-    date: '',
-    start_time: '',
-    title: '',
-    notes: '',
-    status: 'SCHEDULED',
-  });
-
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        student_id: initialData.student_id,
-        teacher_id: initialData.teacher_id,
-        date: initialData.date || '',
-        start_time: initialData.start_time || '',
-        title: initialData.title || '',
-        notes: initialData.notes || '',
-        status: initialData.status || 'SCHEDULED',
-      });
-    }
-  }, [initialData]);
+  const [formData, setFormData] = useState<FormData>(() => ({
+    student_id: initialData?.student_id || '',
+    teacher_id: initialData?.teacher_id || '',
+    date: initialData?.date || '',
+    start_time: initialData?.start_time || '',
+    title: initialData?.title || '',
+    notes: initialData?.notes || '',
+    status: initialData?.status || 'SCHEDULED',
+  }));
 
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
 
