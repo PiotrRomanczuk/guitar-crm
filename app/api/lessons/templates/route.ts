@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
-import { 
-} from "@/schemas";
+import { LessonTemplatesQuerySchema } from "@/schemas/CommonSchema";
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,8 +15,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const category = searchParams.get("category");
-    const teacherId = searchParams.get("teacherId");
+    // Validate query parameters
+    const queryValidation = LessonTemplatesQuerySchema.safeParse({
+      category: searchParams.get("category"),
+      teacherId: searchParams.get("teacherId"),
+    });
+
+    if (!queryValidation.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid query parameters', 
+          details: queryValidation.error.format() 
+        },
+        { status: 400 }
+      );
+    }
+
+    const { category, teacherId } = queryValidation.data;
 
     let query = supabase
       .from("lesson_templates")

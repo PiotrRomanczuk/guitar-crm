@@ -160,6 +160,76 @@ export const truncateString = (str: string, maxLength: number): string => {
   return str.substring(0, maxLength) + '...';
 };
 
+// API Route Parameter Validation Schemas
+export const RouteParamsSchema = z.object({
+  id: z.string().uuid("Invalid ID format"),
+});
+
+export const QueryParamsBaseSchema = z.object({
+  page: z.string().optional().transform((val) => val ? parseInt(val, 10) : 1).pipe(z.number().int().positive().default(1)),
+  limit: z.string().optional().transform((val) => val ? parseInt(val, 10) : 20).pipe(z.number().int().positive().max(100).default(20)),
+});
+
+export const DateRangeQuerySchema = z.object({
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+});
+
+export const TeacherScheduleQuerySchema = DateRangeQuerySchema.extend({
+  teacherId: z.string().uuid("Invalid teacher ID format"),
+});
+
+export const SortQuerySchema = z.object({
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(["asc", "desc"]).optional(),
+});
+
+export const LessonStatsQuerySchema = z.object({
+  userId: z.string().uuid("Invalid user ID format").optional(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+});
+
+export const LessonAnalyticsQuerySchema = z.object({
+  teacherId: z.string().uuid("Invalid teacher ID format").optional(),
+  studentId: z.string().uuid("Invalid student ID format").optional(),
+  period: z.enum(["week", "month", "quarter", "year"]).optional(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+});
+
+export const LessonTemplatesQuerySchema = z.object({
+  category: z.string().optional(),
+  teacherId: z.string().uuid("Invalid teacher ID format").optional(),
+});
+
+export const AdminFavoritesQuerySchema = z.object({
+  userId: z.string().uuid("Invalid user ID format"),
+});
+
+export const AdminSongsQuerySchema = z.object({
+  userId: z.string().uuid("Invalid user ID format"),
+  level: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+});
+
+export const UserSongsQuerySchema = z.object({
+  userId: z.string().uuid("Invalid user ID format"),
+  page: z.string().optional().transform((val) => val ? parseInt(val, 10) : 1).pipe(z.number().int().positive().default(1)),
+  limit: z.string().optional().transform((val) => val ? parseInt(val, 10) : 50).pipe(z.number().int().positive().max(100).default(50)),
+  search: z.string().optional(),
+  level: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+  key: z.string().optional(),
+  author: z.string().optional(),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(["asc", "desc"]).optional(),
+});
+
+export const AssignmentQuerySchema = z.object({
+  status: z.enum(['OPEN', 'IN_PROGRESS', 'PENDING_REVIEW', 'COMPLETED', 'CANCELLED', 'BLOCKED']).optional(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+  user_id: z.string().uuid("Invalid user ID format").optional(),
+});
+
 // Types
 export type DifficultyLevel = z.infer<typeof DifficultyLevelEnum>;
 export type MusicKey = z.infer<typeof MusicKeyEnum>;
@@ -172,4 +242,16 @@ export type DateRange = z.infer<typeof DateRangeSchema>;
 export type FileUpload = z.infer<typeof FileUploadSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
 export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;
-export type APIResponse = z.infer<typeof APIResponseSchema>; 
+export type APIResponse = z.infer<typeof APIResponseSchema>;
+export type RouteParams = z.infer<typeof RouteParamsSchema>;
+export type QueryParamsBase = z.infer<typeof QueryParamsBaseSchema>;
+export type DateRangeQuery = z.infer<typeof DateRangeQuerySchema>;
+export type TeacherScheduleQuery = z.infer<typeof TeacherScheduleQuerySchema>;
+export type SortQuery = z.infer<typeof SortQuerySchema>;
+export type LessonStatsQuery = z.infer<typeof LessonStatsQuerySchema>;
+export type LessonAnalyticsQuery = z.infer<typeof LessonAnalyticsQuerySchema>;
+export type LessonTemplatesQuery = z.infer<typeof LessonTemplatesQuerySchema>;
+export type AdminFavoritesQuery = z.infer<typeof AdminFavoritesQuerySchema>;
+export type AdminSongsQuery = z.infer<typeof AdminSongsQuerySchema>;
+export type UserSongsQuery = z.infer<typeof UserSongsQuerySchema>;
+export type AssignmentQuery = z.infer<typeof AssignmentQuerySchema>; 

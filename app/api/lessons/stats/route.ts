@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { LessonStatusEnum } from "@/schemas";
+import { LessonStatsQuerySchema } from "@/schemas/CommonSchema";
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,9 +16,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = searchParams.get("userId");
-    const dateFrom = searchParams.get("dateFrom");
-    const dateTo = searchParams.get("dateTo");
+    // Validate query parameters
+    const queryValidation = LessonStatsQuerySchema.safeParse({
+      userId: searchParams.get("userId"),
+      dateFrom: searchParams.get("dateFrom"),
+      dateTo: searchParams.get("dateTo"),
+    });
+
+    if (!queryValidation.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid query parameters', 
+          details: queryValidation.error.format() 
+        },
+        { status: 400 }
+      );
+    }
+
+    const { userId, dateFrom, dateTo } = queryValidation.data;
 
     // Build base query
     let baseQuery = supabase.from("lessons").select("*");

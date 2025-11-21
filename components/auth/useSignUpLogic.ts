@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { SignUpSchema } from '@/schemas/AuthSchema';
+import { extractFieldErrors, validateField } from '@/lib/form-validation';
 
 interface TouchedFields {
 	email: boolean;
@@ -13,25 +15,6 @@ interface TouchedFields {
 interface SignUpResponse {
 	data: { user: { identities?: unknown[] } | null };
 	error: { message: string } | null;
-}
-
-function getValidationError(
-	touched: TouchedFields,
-	email: string,
-	password: string,
-	firstName: string,
-	lastName: string
-): string | null {
-	if (touched.firstName && !firstName) return 'First name is required';
-	if (touched.lastName && !lastName) return 'Last name is required';
-	if (touched.email && email && !isValidEmail(email)) return 'Invalid email';
-	if (touched.password && password && password.length < 6)
-		return 'Password must be at least 6 characters';
-	return null;
-}
-
-function isValidEmail(email: string): boolean {
-	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 async function signUpUser(
@@ -53,18 +36,6 @@ async function signUpUser(
 	});
 }
 
-function validateAndProcessSignUp(
-	firstName: string,
-	lastName: string,
-	email: string,
-	password: string
-): boolean {
-	if (!firstName || !lastName || !email || password.length < 6) {
-		return false;
-	}
-	return true;
-}
-
 function checkIfEmailExists(user: { identities?: unknown[] } | null): boolean {
 	return (user?.identities?.length ?? 0) === 0;
 }
@@ -77,6 +48,7 @@ export function useSignUpLogic(onSuccess?: () => void) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState(false);
+	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 	const [touched, setTouched] = useState<TouchedFields>({
 		email: false,
 		password: false,
@@ -84,9 +56,44 @@ export function useSignUpLogic(onSuccess?: () => void) {
 		lastName: false,
 	});
 
+	// Real-time validation for touched fields using Zod
+	const validateTouchedFields = () => {
+		const errors: Record<string, string> = {};
+		
+		if (touched.firstName) {
+			const error = validateField(SignUpSchema, 'firstName', firstName);
+			if (error) errors.firstName = error;
+		}
+		
+		if (touched.lastName) {
+			const error = validateField(SignUpSchema, 'lastName', lastName);
+			if (error) errors.lastName = error;
+		}
+		
+		if (touched.email) {
+			const error = validateField(SignUpSchema, 'email', email);
+			if (error) errors.email = error;
+		}
+		
+		if (touched.password) {
+			const error = validateField(SignUpSchema, 'password', password);
+			if (error) errors.password = error;
+		}
+		
+		setFieldErrors(errors);
+	};
+
+	// Call validation whenever touched fields change
+	React.useEffect(() => {
+		if (touched.firstName || touched.lastName || touched.email || touched.password) {
+			validateTouchedFields();
+		}
+	}, [firstName, lastName, email, password, touched.firstName, touched.lastName, touched.email, touched.password]);
+
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
 
+		// Mark all fields as touched
 		const newTouched = {
 			email: true,
 			password: true,
@@ -95,15 +102,26 @@ export function useSignUpLogic(onSuccess?: () => void) {
 		};
 		setTouched(newTouched);
 
-		if (!validateAndProcessSignUp(firstName, lastName, email, password)) {
+		// Validate all fields with Zod schema
+		const result = SignUpSchema.safeParse({ firstName, lastName, email, password });
+		
+		if (!result.success) {
+			const errors = extractFieldErrors(result.error);
+			setFieldErrors(errors);
 			return;
 		}
 
 		setLoading(true);
 		setError(null);
 		setSuccess(false);
+		setFieldErrors({});
 
-		const response = await signUpUser(email, password, firstName, lastName);
+		const response = await signUpUser(
+			result.data.email,
+			result.data.password,
+			result.data.firstName,
+			result.data.lastName
+		);
 
 		setLoading(false);
 		if (response.error) {
@@ -122,13 +140,8 @@ export function useSignUpLogic(onSuccess?: () => void) {
 		}
 	};
 
-	const validationError = getValidationError(
-		touched,
-		email,
-		password,
-		firstName,
-		lastName
-	);
+	// Get first validation error for display
+	const validationError = Object.values(fieldErrors)[0] || null;
 
 	return {
 		email,
@@ -145,6 +158,7 @@ export function useSignUpLogic(onSuccess?: () => void) {
 		touched,
 		setTouched,
 		validationError,
+		fieldErrors,
 		handleSubmit,
 	};
 }

@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { Dispatch, SetStateAction } from 'react';
 import { AssignmentFormFields } from './AssignmentForm.Fields';
 import { AssignmentFormActions } from './AssignmentForm.Actions';
+import { AssignmentInputSchema, AssignmentInput } from '@/schemas/AssignmentSchema';
+import { extractFieldErrors } from '@/lib/form-validation';
 
 interface AssignmentFormProps {
   initialData?: {
@@ -25,8 +27,9 @@ export default function AssignmentForm({ initialData, mode, userId }: Assignment
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Partial<AssignmentInput>>({
     title: initialData?.title || '',
     description: initialData?.description || '',
     due_date: initialData?.due_date || '',
@@ -43,12 +46,37 @@ export default function AssignmentForm({ initialData, mode, userId }: Assignment
       ...prev,
       [name]: value,
     }));
+    
+    // Clear field error when user types
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await submitAssignment(formData, mode, initialData?.id, router, setLoading, setError);
+    
+    // Validate with Zod before submitting
+    const result = AssignmentInputSchema.safeParse(formData);
+    
+    if (!result.success) {
+      const errors = extractFieldErrors(result.error);
+      setFieldErrors(errors);
+      setError('Please fix the validation errors above');
+      return;
+    }
+    
+    // Clear validation errors on successful validation
+    setFieldErrors({});
+    
+    await submitAssignment(result.data, mode, initialData?.id, router, setLoading, setError);
   };
+
+  const firstFieldError = Object.values(fieldErrors)[0] || null;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -64,6 +92,11 @@ export default function AssignmentForm({ initialData, mode, userId }: Assignment
           {mode === 'create' ? 'Create Assignment' : 'Edit Assignment'}
         </h1>
 
+        {firstFieldError && (
+          <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg text-yellow-700 dark:text-yellow-400">
+            {firstFieldError}
+          </div>
+        )}
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
             {error}
@@ -80,7 +113,7 @@ export default function AssignmentForm({ initialData, mode, userId }: Assignment
 }
 
 async function submitAssignment(
-  formData: Record<string, string>,
+  formData: AssignmentInput,
   mode: string,
   id: string | undefined,
   router: ReturnType<typeof useRouter>,
