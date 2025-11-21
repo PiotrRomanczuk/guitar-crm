@@ -11,10 +11,7 @@ export function useSongDelete(onSuccess?: () => void) {
 
     try {
       const supabase = getSupabaseBrowserClient();
-      const { error: deleteError } = await supabase
-        .from('songs')
-        .delete()
-        .eq('id', songId);
+      const { error: deleteError } = await supabase.from('songs').delete().eq('id', songId);
 
       if (deleteError) {
         throw new Error(deleteError.message);
