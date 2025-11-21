@@ -1,18 +1,28 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { AdminSongsQuerySchema } from '@/schemas/CommonSchema';
 
 export async function GET(request: Request) {
 	try {
 		const { searchParams } = new URL(request.url);
-		const userId = searchParams.get('userId');
-		const level = searchParams.get('level');
+		
+		// Validate query parameters
+		const queryValidation = AdminSongsQuerySchema.safeParse({
+			userId: searchParams.get('userId'),
+			level: searchParams.get('level'),
+		});
 
-		if (!userId) {
+		if (!queryValidation.success) {
 			return NextResponse.json(
-				{ error: 'User ID is required' },
+				{ 
+					error: 'Invalid query parameters', 
+					details: queryValidation.error.format() 
+				},
 				{ status: 400 }
 			);
 		}
+
+		const { userId, level } = queryValidation.data;
 
 		const supabase = await createClient();
 
@@ -38,10 +48,7 @@ export async function GET(request: Request) {
 		let query = supabase.from('songs').select('*');
 
 		if (level) {
-			query = query.eq(
-				'level',
-				level as 'beginner' | 'intermediate' | 'advanced'
-			);
+			query = query.eq('level', level);
 		}
 
 		const { data: songs, error: songsError } = await query;

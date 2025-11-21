@@ -198,6 +198,20 @@ export const LessonAnalyticsQuerySchema = z.object({
   dateTo: z.string().optional(),
 });
 
+export const LessonTemplatesQuerySchema = z.object({
+  category: z.string().optional(),
+  teacherId: z.string().uuid("Invalid teacher ID format").optional(),
+});
+
+export const AdminFavoritesQuerySchema = z.object({
+  userId: z.string().uuid("Invalid user ID format"),
+});
+
+export const AdminSongsQuerySchema = z.object({
+  userId: z.string().uuid("Invalid user ID format"),
+  level: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+});
+
 // Types
 export type DifficultyLevel = z.infer<typeof DifficultyLevelEnum>;
 export type MusicKey = z.infer<typeof MusicKeyEnum>;
@@ -217,4 +231,7 @@ export type DateRangeQuery = z.infer<typeof DateRangeQuerySchema>;
 export type TeacherScheduleQuery = z.infer<typeof TeacherScheduleQuerySchema>;
 export type SortQuery = z.infer<typeof SortQuerySchema>;
 export type LessonStatsQuery = z.infer<typeof LessonStatsQuerySchema>;
-export type LessonAnalyticsQuery = z.infer<typeof LessonAnalyticsQuerySchema>; 
+export type LessonAnalyticsQuery = z.infer<typeof LessonAnalyticsQuerySchema>;
+export type LessonTemplatesQuery = z.infer<typeof LessonTemplatesQuerySchema>;
+export type AdminFavoritesQuery = z.infer<typeof AdminFavoritesQuerySchema>;
+export type AdminSongsQuery = z.infer<typeof AdminSongsQuerySchema>; 
