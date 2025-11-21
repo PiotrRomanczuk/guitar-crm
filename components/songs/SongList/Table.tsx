@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog';
 import type { Song } from '../types';
+import { useSongDelete } from './useSongDelete';
 
 interface Props {
   songs: Song[];
@@ -13,8 +13,12 @@ interface Props {
 }
 
 export default function SongListTable({ songs, canDelete = false, onDeleteSuccess }: Props) {
-  const [deletingSongId, setDeletingSongId] = useState<string | null>(null);
   const [songToDelete, setSongToDelete] = useState<Song | null>(null);
+
+  const { deleteSong, isDeleting } = useSongDelete(() => {
+    setSongToDelete(null);
+    onDeleteSuccess?.();
+  });
 
   const handleDeleteClick = (song: Song) => {
     setSongToDelete(song);
@@ -22,29 +26,12 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
 
   const handleConfirmDelete = async () => {
     if (!songToDelete) return;
-
-    setDeletingSongId(songToDelete.id);
-
-    try {
-      const supabase = getSupabaseBrowserClient();
-      const { error } = await supabase.from('songs').delete().eq('id', songToDelete.id);
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      setSongToDelete(null);
-      setDeletingSongId(null);
-      onDeleteSuccess?.();
-    } catch (error) {
-      console.error('🎸 [FRONTEND] Delete failed:', error);
-      setDeletingSongId(null);
-    }
+    await deleteSong(songToDelete.id);
   };
 
   const handleCancelDelete = () => {
+    if (isDeleting) return;
     setSongToDelete(null);
-    setDeletingSongId(null);
   };
 
   return (
@@ -79,10 +66,10 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
                     <button
                       data-testid="song-delete-button"
                       onClick={() => handleDeleteClick(song)}
-                      disabled={deletingSongId === song.id}
+                      disabled={isDeleting && songToDelete?.id === song.id}
                       className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:bg-gray-400"
                     >
-                      {deletingSongId === song.id ? 'Deleting...' : 'Delete'}
+                      {isDeleting && songToDelete?.id === song.id ? 'Deleting...' : 'Delete'}
                     </button>
                   </td>
                 )}
@@ -99,7 +86,7 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
           hasLessonAssignments={false}
           onConfirm={handleConfirmDelete}
           onClose={handleCancelDelete}
-          isDeleting={deletingSongId === songToDelete?.id}
+          isDeleting={isDeleting}
         />
       )}
     </>

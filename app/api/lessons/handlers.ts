@@ -1,6 +1,8 @@
 // Pure functions for lesson API business logic - testable without Next.js dependencies
-import { LessonInputSchema } from '../../../schemas/LessonSchema';
-import { ZodError } from 'zod';
+import { LessonInputSchema, LessonSchema } from '../../../schemas/LessonSchema';
+import { z, ZodError } from 'zod';
+
+type Lesson = z.infer<typeof LessonSchema>;
 
 export interface LessonQueryParams {
   userId?: string;
@@ -88,7 +90,7 @@ async function applyRoleBasedFiltering(
     const filteredQuery = dbQuery.in('student_id', studentIds);
     return applyLessonFilters(filteredQuery, { filter: params.filter });
   }
-  
+
   // Student sees only their own lessons
   const studentQuery = dbQuery.eq('student_id', user.id);
   return applyLessonFilters(studentQuery, { filter: params.filter });
@@ -124,12 +126,12 @@ function applySortAndPagination(
   if (query && 'data' in query && 'error' in query && 'count' in query) {
     return query;
   }
-  
+
   if (!query || typeof query.order !== 'function') {
     console.error('applySortAndPagination received invalid query object');
     throw new Error('Invalid query object passed to applySortAndPagination');
   }
-  
+
   const ascending = sortOrder === 'asc';
   const offset = (page - 1) * limit;
   return query.order(sort, { ascending }).range(offset, offset + limit - 1);
@@ -165,15 +167,16 @@ export async function getLessonsHandler(
     page = 1,
     limit = 50,
   } = query;
-  
+
   const sortField = validateSortField(sort);
-  const baseQuery = supabase
-    .from('lessons')
-    .select(`
+  const baseQuery = supabase.from('lessons').select(
+    `
       *,
       profile:profiles!student_id(id, full_name, email),
       teacher_profile:profiles!teacher_id(id, full_name, email)
-    `, { count: 'exact' });
+    `,
+    { count: 'exact' }
+  );
 
   // Apply role-based filtering
   const filteredQuery = await applyRoleBasedFiltering(supabase, baseQuery, user, profile, {
@@ -188,7 +191,7 @@ export async function getLessonsHandler(
   }
 
   const finalQuery = applySortAndPagination(filteredQuery, sortField, sortOrder, page, limit);
-  
+
   // If finalQuery is already an executed result, handle it directly
   if (finalQuery && 'data' in finalQuery && 'error' in finalQuery) {
     const { data, error, count } = finalQuery;
@@ -197,7 +200,7 @@ export async function getLessonsHandler(
     }
     return { lessons: data || [], count: count ?? 0, status: 200 };
   }
-  
+
   // Otherwise, execute the query
   const { data, error, count } = await finalQuery;
   if (error) {
@@ -214,7 +217,7 @@ export async function createLessonHandler(
 ): Promise<{ lesson?: unknown; status: number; error?: string }> {
   if (!user) return { error: 'Unauthorized', status: 401 };
   if (!profile) return { error: 'Profile not found', status: 404 };
-  
+
   if (!validateMutationPermission(profile)) {
     return {
       error: 'Only admins and teachers can create lessons',
@@ -224,11 +227,7 @@ export async function createLessonHandler(
 
   try {
     const validatedData = LessonInputSchema.parse(body);
-    const { data, error } = await supabase
-      .from('lessons')
-      .insert(validatedData)
-      .select()
-      .single();
+    const { data, error } = await supabase.from('lessons').insert(validatedData).select().single();
 
     if (error) {
       return { error: error.message, status: 500 };
@@ -255,7 +254,7 @@ export async function updateLessonHandler(
 ): Promise<{ lesson?: unknown; status: number; error?: string }> {
   if (!user) return { error: 'Unauthorized', status: 401 };
   if (!profile) return { error: 'Profile not found', status: 404 };
-  
+
   if (!validateMutationPermission(profile)) {
     return {
       error: 'Only admins and teachers can update lessons',
@@ -296,7 +295,7 @@ export async function deleteLessonHandler(
 ): Promise<{ status: number; error?: string }> {
   if (!user) return { error: 'Unauthorized', status: 401 };
   if (!profile) return { error: 'Profile not found', status: 404 };
-  
+
   if (!validateMutationPermission(profile)) {
     return {
       error: 'Only admins and teachers can delete lessons',
@@ -311,4 +310,42 @@ export async function deleteLessonHandler(
   }
 
   return { status: 200 };
+}
+
+export async function getLessonByIdHandler(
+  supabase: SupabaseClient,
+  user: { id: string } | null,
+  profile: UserProfile | null,
+  id: string
+): Promise<{ lesson?: Lesson; status: number; error?: string }> {
+  if (!user) return { error: 'Unauthorized', status: 401 };
+  if (!profile) return { error: 'Profile not found', status: 404 };
+
+  const { data: lesson, error } = await supabase.from('lessons').select('*').eq('id', id).single();
+
+  if (error || !lesson) {
+    return { error: 'Lesson not found', status: 404 };
+  }
+
+  // Permission check
+  if (canViewAll(profile)) {
+    return { lesson, status: 200 };
+  }
+
+  if (profile.isTeacher) {
+    const studentIds = await getTeacherStudentIds(supabase, user.id);
+    if (studentIds.includes(lesson.student_id)) {
+      return { lesson, status: 200 };
+    }
+    return { error: 'Forbidden', status: 403 };
+  }
+
+  if (profile.isStudent) {
+    if (lesson.student_id === user.id) {
+      return { lesson, status: 200 };
+    }
+    return { error: 'Forbidden', status: 403 };
+  }
+
+  return { error: 'Forbidden', status: 403 };
 }

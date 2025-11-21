@@ -13,8 +13,8 @@ export const AssignmentStatusEnum = z.enum([
 export const AssignmentSchema = z.object({
   id: z.number().int().positive().optional(), // bigint, auto-generated
   title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  due_date: z.date().optional(),
+  description: z.string().nullish(),
+  due_date: z.date().nullish(),
   teacher_id: z.number().int().positive("Teacher ID is required"),
   student_id: z.number().int().positive("Student ID is required"),
   created_at: z.date().optional(),
@@ -24,8 +24,8 @@ export const AssignmentSchema = z.object({
 // Assignment input schema for creating/updating assignments
 export const AssignmentInputSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  due_date: z.string().datetime().optional(), // ISO date string
+  description: z.string().nullish(),
+  due_date: z.string().nullish(), // ISO date string
   teacher_id: z.number().int().positive("Teacher ID is required"),
   student_id: z.number().int().positive("Student ID is required"),
 });

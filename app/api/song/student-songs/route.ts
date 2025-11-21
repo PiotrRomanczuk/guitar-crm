@@ -1,58 +1,50 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import {
-	SongWithLessonsSchema,
-	type SongWithLessons,
-} from '@/schemas/SongSchema';
-import { supabase } from '@/lib/supabase';
+import { SongWithLessonsSchema, type SongWithLessons } from '@/schemas/SongSchema';
+import { createClient } from '@/lib/supabase/server';
 
 const querySchema = z.object({
-	userId: z.string().uuid(),
-	level: z.string().optional(),
+  userId: z.string().uuid(),
+  level: z.string().optional(),
 });
 
 export async function GET(request: Request) {
-	const { searchParams } = new URL(request.url);
-	const userId = searchParams.get('userId');
-	const level = searchParams.get('level');
+  const { searchParams } = new URL(request.url);
+  const userId = searchParams.get('userId');
+  const level = searchParams.get('level');
 
-	const parseResult = querySchema.safeParse({ userId, level });
-	if (!parseResult.success) {
-		return NextResponse.json(
-			{ error: 'Invalid query params' },
-			{ status: 400 }
-		);
-	}
+  const parseResult = querySchema.safeParse({ userId, level });
+  if (!parseResult.success) {
+    return NextResponse.json({ error: 'Invalid query params' }, { status: 400 });
+  }
 
-	// Fetch assigned songs for student
-	const { data, error } = await supabase
-		.from('lesson_songs')
-		.select('*,songs(*)')
-		.eq('student_id', userId)
-		.order('created_at', { ascending: false });
+  const supabase = await createClient();
 
-	if (error) {
-		return NextResponse.json({ error: error.message }, { status: 500 });
-	}
+  // Fetch assigned songs for student
+  const { data, error } = await supabase
+    .from('lesson_songs')
+    .select('*,songs(*)')
+    .eq('student_id', userId)
+    .order('created_at', { ascending: false });
 
-	// Map lesson_songs to SongWithStatus
-	const mapped: SongWithLessons[] = data.map(
-		(ls: { songs: SongWithLessons; status: string }) => ({
-			...ls.songs,
-			status: ls.status,
-		})
-	);
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
-	// Optionally filter by level
-	const filtered = level
-		? mapped.filter((song) => song.level === level)
-		: mapped;
+  // Map lesson_songs to SongWithStatus
+  const mapped: SongWithLessons[] = data.map((ls: { songs: SongWithLessons; status: string }) => ({
+    ...ls.songs,
+    status: ls.status,
+  }));
 
-	// Validate output
-	const safe = SongWithLessonsSchema.array().safeParse(filtered);
-	if (!safe.success) {
-		return NextResponse.json({ error: 'Invalid song data' }, { status: 500 });
-	}
+  // Optionally filter by level
+  const filtered = level ? mapped.filter((song) => song.level === level) : mapped;
 
-	return NextResponse.json(safe.data);
+  // Validate output
+  const safe = SongWithLessonsSchema.array().safeParse(filtered);
+  if (!safe.success) {
+    return NextResponse.json({ error: 'Invalid song data' }, { status: 500 });
+  }
+
+  return NextResponse.json(safe.data);
 }

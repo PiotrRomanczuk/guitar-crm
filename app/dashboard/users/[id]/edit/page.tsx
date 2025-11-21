@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import UserForm from '@/components/users/UserForm';
 
 export const metadata = {
@@ -13,6 +13,7 @@ interface EditUserPageProps {
 }
 
 export default async function EditUserPage({ params }: EditUserPageProps) {
+  const supabase = await createClient();
   const { data: user, error } = await supabase
     .from('profiles')
     .select('*')

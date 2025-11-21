@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import { formatDate, formatTime, getStatusColor } from './LessonTable.helpers';
+import { TableCell, TableRow } from '@/components/ui/table';
 
 interface Props {
   lesson: LessonWithProfiles;
@@ -11,27 +12,27 @@ interface Props {
 
 export default function LessonTableRow({ lesson, showTeacherColumn, showActions, baseUrl }: Props) {
   return (
-    <tr
+    <TableRow
       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
       data-testid="lesson-row"
     >
-      <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
+      <TableCell className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
         {lesson.profile ? lesson.profile.full_name || lesson.profile.email : 'Unknown Student'}
-      </td>
+      </TableCell>
       {showTeacherColumn && (
-        <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
+        <TableCell className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
           {lesson.teacher_profile
             ? lesson.teacher_profile.full_name || lesson.teacher_profile.email
             : 'Unknown Teacher'}
-        </td>
+        </TableCell>
       )}
-      <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
+      <TableCell className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
         {formatDate(lesson.date)}
-      </td>
-      <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
+      </TableCell>
+      <TableCell className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
         {formatTime(lesson.start_time)}
-      </td>
-      <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
+      </TableCell>
+      <TableCell className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
         <Link
           href={`${baseUrl}/${lesson.id}`}
           className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
@@ -39,8 +40,8 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
         >
           {lesson.title || 'Untitled Lesson'}
         </Link>
-      </td>
-      <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2">
+      </TableCell>
+      <TableCell className="px-3 sm:px-4 py-2">
         <span
           className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
             lesson.status
@@ -48,9 +49,9 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
         >
           {lesson.status || 'SCHEDULED'}
         </span>
-      </td>
+      </TableCell>
       {showActions && (
-        <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2">
+        <TableCell className="px-3 sm:px-4 py-2">
           <div className="flex gap-2">
             <Link
               href={`${baseUrl}/${lesson.id}`}
@@ -67,8 +68,8 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
               Edit
             </Link>
           </div>
-        </td>
+        </TableCell>
       )}
-    </tr>
+    </TableRow>
   );
 }

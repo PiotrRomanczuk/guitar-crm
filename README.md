@@ -4,6 +4,11 @@
 
 A comprehensive Customer Relationship Management system for guitar teachers, built with Next.js, TypeScript, and Supabase.
 
+## Prerequisites
+
+- **Node.js**: >= 20.9.0 ([Download](https://nodejs.org/))
+- **npm**: >= 10.0.0 (comes with Node.js)
+
 ## Quick Start
 
 ### Initial Setup
