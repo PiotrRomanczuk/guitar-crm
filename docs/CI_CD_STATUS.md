@@ -66,10 +66,25 @@ gh run rerun <run-id> --failed            # Rerun only failed jobs
 - [x] Lint & Type Check
 - [x] Unit Tests (with 70% coverage)
 - [x] Build (Next.js production)
-- [x] E2E Tests (Cypress + Supabase)
-- [x] Database Quality
+- [x] Database Quality (validates existing DB without modifying)
+- [x] E2E Tests (Cypress with existing database state)
 - [x] Security Audit
 - [x] Quality Gate
+
+### 🗄️ Database Handling
+
+**Important:** The CI/CD pipeline **validates** database quality but does NOT reset or modify it.
+
+- Database migrations must be applied **manually** before tests
+- E2E tests run against existing database state
+- Database quality check validates schema integrity and test data
+- No automatic `supabase db reset` in CI/CD
+
+**Rationale:** This approach:
+- Prevents accidental data loss
+- Makes database changes explicit and trackable  
+- Separates testing from database administration
+- Ensures consistent state across test runs
 
 ### 🚀 Deployment Conditions
 
@@ -90,15 +105,16 @@ gh run rerun <run-id> --failed            # Rerun only failed jobs
 
 ### Common Failures
 
-| Error                  | Cause             | Fix                                   |
-| ---------------------- | ----------------- | ------------------------------------- |
-| "Module not found"     | Missing deps      | `npm ci && git add package-lock.json` |
-| "Coverage below 70%"   | Low test coverage | Add more tests, check coverage report |
-| "Lint errors"          | ESLint violations | `npm run lint -- --fix`               |
-| "Type errors"          | TypeScript issues | `npx tsc --noEmit` to find errors     |
-| "Supabase timeout"     | DB not starting   | Increase timeout in workflow          |
-| "Vercel deploy failed" | Invalid token     | Regenerate `VERCEL_TOKEN` secret      |
-| "E2E test timeout"     | Slow tests        | Increase `wait-on-timeout`            |
+| Error                     | Cause                  | Fix                                      |
+| ------------------------- | ---------------------- | ---------------------------------------- |
+| "Module not found"        | Missing deps           | `npm ci && git add package-lock.json`    |
+| "Coverage below 70%"      | Low test coverage      | Add more tests, check coverage report    |
+| "Lint errors"             | ESLint violations      | `npm run lint -- --fix`                  |
+| "Type errors"             | TypeScript issues      | `npx tsc --noEmit` to find errors        |
+| "Database quality fails"  | DB state invalid       | Check test data, apply migrations        |
+| "DB schema differs"       | Migrations not applied | `supabase db push` to apply migrations   |
+| "Vercel deploy failed"    | Invalid token          | Regenerate `VERCEL_TOKEN` secret         |
+| "E2E test timeout"        | Slow tests             | Increase `wait-on-timeout`               |
 
 ### Quick Fixes
 
@@ -129,15 +145,18 @@ supabase start
 
 ## 🔐 Required Secrets
 
-| Secret                          | Source               | Required For        |
-| ------------------------------- | -------------------- | ------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase Dashboard   | All jobs            |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Dashboard   | All jobs            |
-| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase Dashboard   | Admin operations    |
-| `VERCEL_TOKEN`                  | Vercel Account       | Deployment          |
-| `VERCEL_ORG_ID`                 | .vercel/project.json | Deployment          |
-| `VERCEL_PROJECT_ID`             | .vercel/project.json | Deployment          |
-| `CODECOV_TOKEN`                 | codecov.io           | Coverage (optional) |
+| Secret                          | Source                    | Required For           |
+| ------------------------------- | ------------------------- | ---------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase Dashboard        | All jobs               |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Dashboard        | All jobs               |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase Dashboard        | Admin operations       |
+| `SUPABASE_PROJECT_ID`           | Supabase Dashboard → URL  | Database quality check |
+| `SUPABASE_DB_PASSWORD`          | Supabase Database Settings| Database quality check |
+| `SUPABASE_ACCESS_TOKEN`         | Supabase Account Settings | CLI operations         |
+| `VERCEL_TOKEN`                  | Vercel Account            | Deployment             |
+| `VERCEL_ORG_ID`                 | .vercel/project.json      | Deployment             |
+| `VERCEL_PROJECT_ID`             | .vercel/project.json      | Deployment             |
+| `CODECOV_TOKEN`                 | codecov.io                | Coverage (optional)    |
 
 ## 🎓 Learning Resources
 
