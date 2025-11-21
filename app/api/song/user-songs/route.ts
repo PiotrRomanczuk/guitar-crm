@@ -1,19 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { UserSongsQuerySchema } from '@/schemas/CommonSchema';
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  // Intentionally not handling cookies here
-  const userId = searchParams.get('userId');
-  // Pagination and filter params
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || '50', 10);
-  const search = searchParams.get('search') || undefined;
-  const level = searchParams.get('level') || undefined;
-  const key = searchParams.get('key') || undefined;
-  const author = searchParams.get('author') || undefined;
-  const sortBy = searchParams.get('sortBy') || undefined;
-  const sortOrder = searchParams.get('sortOrder') || 'asc';
+  try {
+    const { searchParams } = new URL(req.url);
+    
+    // Validate query parameters
+    const queryValidation = UserSongsQuerySchema.safeParse({
+      userId: searchParams.get('userId'),
+      page: searchParams.get('page'),
+      limit: searchParams.get('limit'),
+      search: searchParams.get('search'),
+      level: searchParams.get('level'),
+      key: searchParams.get('key'),
+      author: searchParams.get('author'),
+      sortBy: searchParams.get('sortBy'),
+      sortOrder: searchParams.get('sortOrder'),
+    });
+
+    if (!queryValidation.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid query parameters', 
+          details: queryValidation.error.format() 
+        },
+        { status: 400 }
+      );
+    }
+
+    const { userId, page, limit, search, level, key, author, sortBy, sortOrder } = queryValidation.data;
 
   const supabase = await createClient();
 

@@ -212,6 +212,24 @@ export const AdminSongsQuerySchema = z.object({
   level: z.enum(["beginner", "intermediate", "advanced"]).optional(),
 });
 
+export const UserSongsQuerySchema = z.object({
+  userId: z.string().uuid("Invalid user ID format"),
+  page: z.string().optional().transform((val) => val ? parseInt(val, 10) : 1).pipe(z.number().int().positive().default(1)),
+  limit: z.string().optional().transform((val) => val ? parseInt(val, 10) : 50).pipe(z.number().int().positive().max(100).default(50)),
+  search: z.string().optional(),
+  level: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+  key: z.string().optional(),
+  author: z.string().optional(),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(["asc", "desc"]).optional(),
+});
+
+export const AssignmentQuerySchema = z.object({
+  status: z.enum(['OPEN', 'IN_PROGRESS', 'PENDING_REVIEW', 'COMPLETED', 'CANCELLED', 'BLOCKED']).optional(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+  user_id: z.string().uuid("Invalid user ID format").optional(),
+});
+
 // Types
 export type DifficultyLevel = z.infer<typeof DifficultyLevelEnum>;
 export type MusicKey = z.infer<typeof MusicKeyEnum>;
@@ -234,4 +252,6 @@ export type LessonStatsQuery = z.infer<typeof LessonStatsQuerySchema>;
 export type LessonAnalyticsQuery = z.infer<typeof LessonAnalyticsQuerySchema>;
 export type LessonTemplatesQuery = z.infer<typeof LessonTemplatesQuerySchema>;
 export type AdminFavoritesQuery = z.infer<typeof AdminFavoritesQuerySchema>;
-export type AdminSongsQuery = z.infer<typeof AdminSongsQuerySchema>; 
+export type AdminSongsQuery = z.infer<typeof AdminSongsQuerySchema>;
+export type UserSongsQuery = z.infer<typeof UserSongsQuerySchema>;
+export type AssignmentQuery = z.infer<typeof AssignmentQuerySchema>; 

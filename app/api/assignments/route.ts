@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { AssignmentQuerySchema } from '@/schemas/CommonSchema';
 
 // Define assignment input schema for this API
 const AssignmentInputSchema = z.object({
@@ -18,9 +19,25 @@ const AssignmentInputSchema = z.object({
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
-    const priority = searchParams.get('priority');
-    const userId = searchParams.get('user_id');
+    
+    // Validate query parameters
+    const queryValidation = AssignmentQuerySchema.safeParse({
+      status: searchParams.get('status'),
+      priority: searchParams.get('priority'),
+      user_id: searchParams.get('user_id'),
+    });
+
+    if (!queryValidation.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid query parameters', 
+          details: queryValidation.error.format() 
+        },
+        { status: 400 }
+      );
+    }
+
+    const { status, priority, user_id: userId } = queryValidation.data;
 
     const supabase = await createClient();
     const { user, isAdmin } = await getUserWithRolesSSR();
