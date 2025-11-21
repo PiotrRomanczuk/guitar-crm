@@ -103,7 +103,10 @@ describe('SongForm Component - Core Tests', () => {
   });
 
   it('shows submit error when API fails', async () => {
-    mockFetch.mockResolvedValueOnce({ ok: false, json: async () => ({ error: 'Failed to save song' }) });
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: 'Failed to save song' }),
+    });
     render(<SongForm mode="create" />);
     fireEvent.change(screen.getByLabelText(/^Title/i), {
       target: { value: 'New Song' },
