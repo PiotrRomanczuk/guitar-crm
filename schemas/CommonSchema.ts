@@ -184,6 +184,20 @@ export const SortQuerySchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).optional(),
 });
 
+export const LessonStatsQuerySchema = z.object({
+  userId: z.string().uuid("Invalid user ID format").optional(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+});
+
+export const LessonAnalyticsQuerySchema = z.object({
+  teacherId: z.string().uuid("Invalid teacher ID format").optional(),
+  studentId: z.string().uuid("Invalid student ID format").optional(),
+  period: z.enum(["week", "month", "quarter", "year"]).optional(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+});
+
 // Types
 export type DifficultyLevel = z.infer<typeof DifficultyLevelEnum>;
 export type MusicKey = z.infer<typeof MusicKeyEnum>;
@@ -201,4 +215,6 @@ export type RouteParams = z.infer<typeof RouteParamsSchema>;
 export type QueryParamsBase = z.infer<typeof QueryParamsBaseSchema>;
 export type DateRangeQuery = z.infer<typeof DateRangeQuerySchema>;
 export type TeacherScheduleQuery = z.infer<typeof TeacherScheduleQuerySchema>;
-export type SortQuery = z.infer<typeof SortQuerySchema>; 
+export type SortQuery = z.infer<typeof SortQuerySchema>;
+export type LessonStatsQuery = z.infer<typeof LessonStatsQuerySchema>;
+export type LessonAnalyticsQuery = z.infer<typeof LessonAnalyticsQuerySchema>; 

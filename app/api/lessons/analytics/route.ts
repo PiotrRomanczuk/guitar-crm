@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { LessonAnalyticsQuerySchema } from '@/schemas/CommonSchema';
 
 export async function GET(request: NextRequest) {
 	try {
@@ -14,11 +15,26 @@ export async function GET(request: NextRequest) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const teacherId = searchParams.get('teacherId');
-		const studentId = searchParams.get('studentId');
-		const period = searchParams.get('period') || 'month'; // week, month, quarter, year
-		const dateFrom = searchParams.get('dateFrom');
-		const dateTo = searchParams.get('dateTo');
+		// Validate query parameters
+		const queryValidation = LessonAnalyticsQuerySchema.safeParse({
+			teacherId: searchParams.get('teacherId'),
+			studentId: searchParams.get('studentId'),
+			period: searchParams.get('period') || 'month',
+			dateFrom: searchParams.get('dateFrom'),
+			dateTo: searchParams.get('dateTo'),
+		});
+
+		if (!queryValidation.success) {
+			return NextResponse.json(
+				{ 
+					error: 'Invalid query parameters', 
+					details: queryValidation.error.format() 
+				},
+				{ status: 400 }
+			);
+		}
+
+		const { teacherId, studentId, period, dateFrom, dateTo } = queryValidation.data;
 
 		// Build base query for lessons
 		let baseQuery = supabase.from('lessons').select('*');
