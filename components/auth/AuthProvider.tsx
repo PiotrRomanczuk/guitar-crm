@@ -37,6 +37,24 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const supabase = getSupabaseBrowserClient();
 
   useEffect(() => {
+    const fetchUserRoles = async (userId: string) => {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_admin, is_teacher, is_student')
+          .eq('id', userId)
+          .single();
+
+        if (profile) {
+          setIsAdmin(profile.is_admin || false);
+          setIsTeacher(profile.is_teacher || false);
+          setIsStudent(profile.is_student || false);
+        }
+      } catch (error) {
+        console.error('Error fetching user roles:', error);
+      }
+    };
+
     // Get initial session
     const getInitialSession = async () => {
       try {
@@ -76,25 +94,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
-
-  const fetchUserRoles = async (userId: string) => {
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_admin, is_teacher, is_student')
-        .eq('id', userId)
-        .single();
-
-      if (profile) {
-        setIsAdmin(profile.is_admin || false);
-        setIsTeacher(profile.is_teacher || false);
-        setIsStudent(profile.is_student || false);
-      }
-    } catch (error) {
-      console.error('Error fetching user roles:', error);
-    }
-  };
+  }, [supabase]);
 
   const value: AuthContextType = {
     user,
