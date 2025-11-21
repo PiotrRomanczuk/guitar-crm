@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { TeacherScheduleQuerySchema } from '@/schemas/CommonSchema';
+import { z } from 'zod';
 
 export async function GET(request: NextRequest) {
 	try {
@@ -14,16 +16,24 @@ export async function GET(request: NextRequest) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const teacherId = searchParams.get('teacherId');
-		const dateFrom = searchParams.get('dateFrom');
-		const dateTo = searchParams.get('dateTo');
+		// Validate query parameters
+		const queryValidation = TeacherScheduleQuerySchema.safeParse({
+			teacherId: searchParams.get('teacherId'),
+			dateFrom: searchParams.get('dateFrom'),
+			dateTo: searchParams.get('dateTo'),
+		});
 
-		if (!teacherId) {
+		if (!queryValidation.success) {
 			return NextResponse.json(
-				{ error: 'Teacher ID is required' },
+				{ 
+					error: 'Invalid query parameters', 
+					details: queryValidation.error.format() 
+				},
 				{ status: 400 }
 			);
 		}
+
+		const { teacherId, dateFrom, dateTo } = queryValidation.data;
 
 		// Get teacher availability
 		let availabilityQuery = supabase

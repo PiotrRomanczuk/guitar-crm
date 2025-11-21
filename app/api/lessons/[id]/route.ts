@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { updateLessonHandler, deleteLessonHandler } from '../handlers';
+import { RouteParamsSchema } from '@/schemas/CommonSchema';
+import { z } from 'zod';
 
 /**
  * Helper to get user profile with roles
@@ -30,7 +32,21 @@ async function getUserProfile(supabase: Awaited<ReturnType<typeof createClient>>
 // eslint-disable-next-line complexity
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
+    const paramsData = await params;
+    
+    // Validate route parameters
+    const validationResult = RouteParamsSchema.safeParse(paramsData);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid lesson ID format', 
+          details: validationResult.error.format() 
+        }, 
+        { status: 400 }
+      );
+    }
+    
+    const { id } = validationResult.data;
     const supabase = await createClient();
     const {
       data: { user },

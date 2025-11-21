@@ -160,6 +160,30 @@ export const truncateString = (str: string, maxLength: number): string => {
   return str.substring(0, maxLength) + '...';
 };
 
+// API Route Parameter Validation Schemas
+export const RouteParamsSchema = z.object({
+  id: z.string().uuid("Invalid ID format"),
+});
+
+export const QueryParamsBaseSchema = z.object({
+  page: z.string().optional().transform((val) => val ? parseInt(val, 10) : 1).pipe(z.number().int().positive().default(1)),
+  limit: z.string().optional().transform((val) => val ? parseInt(val, 10) : 20).pipe(z.number().int().positive().max(100).default(20)),
+});
+
+export const DateRangeQuerySchema = z.object({
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+});
+
+export const TeacherScheduleQuerySchema = DateRangeQuerySchema.extend({
+  teacherId: z.string().uuid("Invalid teacher ID format"),
+});
+
+export const SortQuerySchema = z.object({
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(["asc", "desc"]).optional(),
+});
+
 // Types
 export type DifficultyLevel = z.infer<typeof DifficultyLevelEnum>;
 export type MusicKey = z.infer<typeof MusicKeyEnum>;
@@ -172,4 +196,9 @@ export type DateRange = z.infer<typeof DateRangeSchema>;
 export type FileUpload = z.infer<typeof FileUploadSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
 export type SuccessResponse = z.infer<typeof SuccessResponseSchema>;
-export type APIResponse = z.infer<typeof APIResponseSchema>; 
+export type APIResponse = z.infer<typeof APIResponseSchema>;
+export type RouteParams = z.infer<typeof RouteParamsSchema>;
+export type QueryParamsBase = z.infer<typeof QueryParamsBaseSchema>;
+export type DateRangeQuery = z.infer<typeof DateRangeQuerySchema>;
+export type TeacherScheduleQuery = z.infer<typeof TeacherScheduleQuerySchema>;
+export type SortQuery = z.infer<typeof SortQuerySchema>; 
