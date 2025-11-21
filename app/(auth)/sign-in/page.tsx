@@ -1,14 +1,8 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { SignInForm } from '@/components/auth';
 
 export default function SignInPage() {
-  const router = useRouter();
-
-  const handleSuccess = () => {
-    router.push('/dashboard');
-  };
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-3 sm:px-4 py-4 sm:py-8">
       <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 sm:p-8">
@@ -20,7 +14,7 @@ export default function SignInPage() {
             Sign in to your account
           </p>
         </div>
-        <SignInForm onSuccess={handleSuccess} />
+        <SignInForm />
       </div>
     </div>
   );

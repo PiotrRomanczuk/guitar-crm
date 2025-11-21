@@ -39,14 +39,14 @@
     "lighthouse:ci": "./scripts/lighthouse-ci.sh",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "e2e": "start-server-and-test 'npm run dev' http://localhost:3000 'cypress run'",
-    "e2e:open": "start-server-and-test 'npm run dev' http://localhost:3000 'cypress open'",
-    "e2e:admin": "start-server-and-test 'npm run dev:3000' http://localhost:3000 'cypress run --spec \"cypress/e2e/admin-*.cy.ts,cypress/e2e/lessons/admin-*.cy.ts\"'",
-    "e2e:sign-in": "start-server-and-test 'npm run dev:3000' http://localhost:3000 'cypress run --spec cypress/e2e/admin/admin-sign-in.cy.ts'",
-    "e2e:admin-journey": "start-server-and-test 'npm run dev' http://localhost:3000 'cypress run --spec \"cypress/e2e/admin-journey.cy.ts\"'",
+    "e2e": "start-server-and-test 'npm run dev' http://127.0.0.1:3000 'cypress run'",
+    "e2e:open": "start-server-and-test 'npm run dev' http://127.0.0.1:3000 'cypress open'",
+    "e2e:admin": "start-server-and-test 'npm run dev:3000' http://127.0.0.1:3000 'cypress run --spec \"cypress/e2e/admin-*.cy.ts,cypress/e2e/lessons/admin-*.cy.ts\"'",
+    "e2e:sign-in": "start-server-and-test 'npm run dev:3000' http://127.0.0.1:3000 'cypress run --spec cypress/e2e/admin/admin-sign-in.cy.ts'",
+    "e2e:admin-journey": "start-server-and-test 'npm run dev' http://127.0.0.1:3000 'cypress run --spec \"cypress/e2e/admin-journey.cy.ts\"'",
     "seed:test-user": "ts-node scripts/seed-test-user.ts",
-    "e2e:db": "start-server-and-test './scripts/dev-server.sh start all' http://localhost:3000 'npm run seed:test-user && cypress run'",
-    "lighthouse:simple": "lighthouse http://localhost:3000 --output=html --output-path=lighthouse-simple.html --chrome-flags='--headless --no-sandbox' --view"
+    "e2e:db": "start-server-and-test './scripts/dev-server.sh start all' http://127.0.0.1:3000 'npm run seed:test-user && cypress run'",
+    "lighthouse:simple": "lighthouse http://127.0.0.1:3000 --output=html --output-path=lighthouse-simple.html --chrome-flags='--headless --no-sandbox' --view"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

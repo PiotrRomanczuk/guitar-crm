@@ -116,8 +116,12 @@ describe('Admin Songs CRUD', () => {
 
       // Navigate back to detail and delete
       cy.contains('[data-testid="song-row"]', songToDelete.title).find('a').first().click();
+
+      // Wait for navigation to detail page
+      cy.location('pathname').should('match', /\/dashboard\/songs\/[a-f0-9-]+$/);
+
       cy.on('window:confirm', () => true);
-      cy.get('[data-testid="song-delete-button"]').click();
+      cy.get('[data-testid="song-delete-button"]').should('be.visible').first().click();
 
       // Verify deletion
       cy.location('pathname', { timeout: 5000 }).should('include', '/dashboard/songs');
