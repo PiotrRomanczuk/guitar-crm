@@ -129,18 +129,11 @@ export async function createSongHandler(
   profile: { isAdmin?: boolean; isTeacher?: boolean } | null,
   body: unknown
 ): Promise<{ song?: Song; error?: string; status: number }> {
-  console.log('=== createSongHandler START ===');
-  console.log('User:', JSON.stringify(user));
-  console.log('Profile:', JSON.stringify(profile));
-  console.log('Body:', JSON.stringify(body));
-
   if (!user) {
-    console.log('ERROR: No user');
     return { error: 'Unauthorized', status: 401 };
   }
 
   if (!validateMutationPermission(profile)) {
-    console.log('ERROR: Permission denied');
     return {
       error: 'Forbidden: Only teachers and admins can create songs',
       status: 403,
@@ -149,41 +142,27 @@ export async function createSongHandler(
 
   try {
     const validatedSong = SongInputSchema.parse(body);
-    console.log('=== Validated song:', JSON.stringify(validatedSong));
 
-    console.log('=== Calling Supabase insert...');
     const { data: song, error } = await supabase
       .from('songs')
       .insert(validatedSong)
       .select()
       .single();
 
-    console.log('=== Supabase insert complete');
-    console.log('=== Has error?', !!error);
-    console.log('=== Has data?', !!song);
-
     if (error) {
-      console.error('=== Supabase error object:', JSON.stringify(error, null, 2));
-      console.error('=== Error code:', error.code);
-      console.error('=== Error message:', error.message);
-      console.error('=== Error details:', error.details);
-      console.error('=== Error hint:', error.hint);
       return { error: error.message, status: 500 };
     }
 
-    console.log('=== Success! Created song:', JSON.stringify(song));
     return { song, status: 201 };
   } catch (err) {
-    console.log('Exception caught:', err);
     if (err instanceof ZodError) {
       const fieldErrors = err.flatten().fieldErrors;
-      console.log('Zod validation error:', JSON.stringify(fieldErrors));
       return {
         error: `Validation failed: ${JSON.stringify(fieldErrors)}`,
         status: 422,
       };
     }
-    console.log('Unknown error:', JSON.stringify(err));
+    console.error('Unknown error in createSongHandler:', err);
     return { error: 'Internal server error', status: 500 };
   }
 }
