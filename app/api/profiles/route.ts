@@ -1,9 +1,19 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
 export async function GET() {
   try {
     const supabase = await createClient();
+    const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!isAdmin && !isTeacher) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     // Fetch all profiles - using * to get all columns
     const { data: profiles, error } = await supabase

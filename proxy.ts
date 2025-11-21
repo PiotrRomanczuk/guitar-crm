@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import type { Database } from '@/types/database.types';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
 	const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 	const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -43,11 +43,18 @@ export async function middleware(request: NextRequest) {
 		data: { session },
 	} = await supabase.auth.getSession();
 
-	if (session) {
-	} else {
+	// Protect /dashboard and /admin routes
+	if (
+		request.nextUrl.pathname.startsWith('/dashboard') ||
+		request.nextUrl.pathname.startsWith('/admin')
+	) {
+		if (!session) {
+			const redirectUrl = request.nextUrl.clone();
+			redirectUrl.pathname = '/login';
+			redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname);
+			return NextResponse.redirect(redirectUrl);
+		}
 	}
-
-	// Skip all middleware auth checks - let client-side components handle protection
 	// Refresh session if expired - this also handles cookie renewal
 	await supabase.auth.getUser();
 

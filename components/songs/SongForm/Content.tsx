@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { SongInputSchema, Song } from '@/schemas/SongSchema';
 import SongFormFields from './Fields';
 import { createFormData, clearFieldError, parseZodErrors } from './helpers';
+import { useSongMutation } from './useSongMutation';
 
 interface Props {
   mode: 'create' | 'edit';
@@ -11,40 +12,17 @@ interface Props {
   onSuccess?: () => void;
 }
 
-async function saveSong(mode: 'create' | 'edit', data: unknown, songId?: string) {
-  try {
-    const endpoint = mode === 'create' ? '/api/song' : `/api/song?id=${songId}`;
-    const method = mode === 'create' ? 'POST' : 'PUT';
-
-    console.log('🎸 [FRONTEND] saveSong called:', { mode, endpoint, method, data });
-
-    const res = await fetch(endpoint, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-
-    console.log('🎸 [FRONTEND] Response status:', res.status);
-
-    if (!res.ok) {
-      const json = await res.json().catch(() => ({}));
-      console.error('🎸 [FRONTEND] Error response:', json);
-      return { error: new Error(json.error || `Request failed: ${res.status}`) } as const;
-    }
-    const json = await res.json().catch(() => ({}));
-    console.log('🎸 [FRONTEND] Success response:', json);
-    return { error: null, data: json } as const;
-  } catch (e) {
-    console.error('🎸 [FRONTEND] Exception caught:', e);
-    return { error: e instanceof Error ? e : new Error('Network error') } as const;
-  }
-}
-
 export default function SongFormContent({ mode, song, onSuccess }: Props) {
   const [formData, setFormData] = useState(createFormData(song));
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const { saveSong, isSubmitting, submitError } = useSongMutation({
+    mode,
+    songId: song?.id,
+    onSuccess: () => {
+      onSuccess?.();
+    },
+  });
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -56,35 +34,16 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-    setSubmitError(null);
-    setIsSubmitting(true);
-
-    console.log('🎸 [FRONTEND] Form submitted:', { mode, formData });
 
     try {
       const validatedData = SongInputSchema.parse(formData);
-      console.log('🎸 [FRONTEND] Validation passed:', validatedData);
 
-      const { error } = await saveSong(mode, validatedData, song?.id);
-      if (error) {
-        console.error('🎸 [FRONTEND] Save failed:', error.message);
-        setSubmitError('Failed to save song');
-        return;
-      }
-
-      console.log('🎸 [FRONTEND] Save successful!');
-      onSuccess?.();
+      await saveSong(validatedData);
     } catch (err) {
-      console.error('🎸 [FRONTEND] Submit error:', err);
       const fieldErrors = parseZodErrors(err);
       if (Object.keys(fieldErrors).length > 0) {
-        console.log('🎸 [FRONTEND] Validation errors:', fieldErrors);
         setErrors(fieldErrors);
-      } else {
-        setSubmitError('Failed to save song');
       }
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

@@ -6,8 +6,8 @@ import { z } from 'zod';
 // Define assignment input schema for this API
 const AssignmentInputSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  due_date: z.string().optional(),
+  description: z.string().nullish(),
+  due_date: z.string().nullish(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
   status: z
     .enum(['OPEN', 'IN_PROGRESS', 'PENDING_REVIEW', 'COMPLETED', 'CANCELLED', 'BLOCKED'])
