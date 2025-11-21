@@ -242,6 +242,17 @@ fi
 if [ "$STUDENT_COUNT" -lt 1 ]; then
   echo -e "\n${YELLOW}⚠️  WARNING: No students found - lesson workflows cannot be tested${NC}"
   echo "   At least one profile should have is_student=true"
+  ISSUES_FOUND=1
+fi
+
+if [ "$LESSONS_COUNT" -lt 1 ]; then
+  echo -e "\n${YELLOW}⚠️  WARNING: No lessons found - lesson workflows cannot be tested${NC}"
+  ISSUES_FOUND=1
+fi
+
+if [ "$ASSIGNMENTS_COUNT" -lt 1 ]; then
+  echo -e "\n${YELLOW}⚠️  WARNING: No assignments found - assignment workflows cannot be tested${NC}"
+  ISSUES_FOUND=1
 fi
 
 # Validate authentication credentials (optional: will warn if not present)

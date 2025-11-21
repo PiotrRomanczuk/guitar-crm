@@ -70,3 +70,4 @@ cypress/screenshots/
 
 # Claude Code Agents
 CODE-AGENTS/
+*.log
