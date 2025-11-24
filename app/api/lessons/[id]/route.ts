@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { updateLessonHandler, deleteLessonHandler, getLessonByIdHandler } from '../handlers';
+import { updateLessonHandler, deleteLessonHandler } from '../handlers';
 
 /**
  * Helper to get user profile with roles
@@ -27,6 +27,7 @@ async function getUserProfile(supabase: Awaited<ReturnType<typeof createClient>>
  * GET /api/lessons/[id]
  * Get a single lesson
  */
+// eslint-disable-next-line complexity
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
@@ -44,13 +45,47 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    const result = await getLessonByIdHandler(supabase, user, profile, id);
+    const { data: lesson, error } = await supabase
+      .from('lessons')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (result.error) {
-      return NextResponse.json({ error: result.error }, { status: result.status });
+    if (error) {
+      console.error('Error fetching lesson:', error);
+      if (error.code === 'PGRST116') {
+        return NextResponse.json({ error: 'Lesson not found' }, { status: 404 });
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(result.lesson);
+    if (!lesson) {
+      return NextResponse.json({ error: 'Lesson not found' }, { status: 404 });
+    }
+
+    // Role-based access check
+    if (!profile.isAdmin) {
+      if (profile.isTeacher) {
+        // Teacher can only see their students' lessons
+        const { data: teacherLesson } = await supabase
+          .from('lessons')
+          .select('id')
+          .eq('id', id)
+          .eq('teacher_id', user.id)
+          .single();
+
+        if (!teacherLesson) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+      } else {
+        // Student can only see their own lessons
+        if (lesson.student_id !== user.id) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+      }
+    }
+
+    return NextResponse.json(lesson);
   } catch (error) {
     console.error('Error in lesson API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

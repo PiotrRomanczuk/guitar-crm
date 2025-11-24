@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { supabase } from '@/lib/supabase';
 
 interface AuthContextType {
   user: { id: string; email?: string } | null;
@@ -34,27 +34,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [isTeacher, setIsTeacher] = useState(false);
   const [isStudent, setIsStudent] = useState(false);
 
-  const supabase = getSupabaseBrowserClient();
-
   useEffect(() => {
-    const fetchUserRoles = async (userId: string) => {
-      try {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('is_admin, is_teacher, is_student')
-          .eq('id', userId)
-          .single();
-
-        if (profile) {
-          setIsAdmin(profile.is_admin || false);
-          setIsTeacher(profile.is_teacher || false);
-          setIsStudent(profile.is_student || false);
-        }
-      } catch (error) {
-        console.error('Error fetching user roles:', error);
-      }
-    };
-
     // Get initial session
     const getInitialSession = async () => {
       try {
@@ -94,7 +74,25 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, []);
+
+  const fetchUserRoles = async (userId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin, is_teacher, is_student')
+        .eq('id', userId)
+        .single();
+
+      if (profile) {
+        setIsAdmin(profile.is_admin || false);
+        setIsTeacher(profile.is_teacher || false);
+        setIsStudent(profile.is_student || false);
+      }
+    } catch (error) {
+      console.error('Error fetching user roles:', error);
+    }
+  };
 
   const value: AuthContextType = {
     user,
