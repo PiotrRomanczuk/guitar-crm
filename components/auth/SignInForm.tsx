@@ -181,14 +181,6 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
     if (data.user) {
       setEmail('');
       setPassword('');
-
-      // Add a small meta refresh tag to trigger full page reload
-      // This will cause middleware to check the new session
-      const meta = document.createElement('meta');
-      meta.httpEquiv = 'refresh';
-      meta.content = '0; url=/dashboard';
-      document.head.appendChild(meta);
-
       if (onSuccess) {
         onSuccess();
       }

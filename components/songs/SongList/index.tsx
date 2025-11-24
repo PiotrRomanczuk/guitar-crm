@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
-import { SongListClient } from './Client';
+import SongListHeader from './Header';
+import SongListTable from './Table';
+import SongListEmpty from './Empty';
 
 export default async function SongList() {
   const { user, isAdmin } = await getUserWithRolesSSR();
@@ -23,6 +25,13 @@ export default async function SongList() {
   }
 
   return (
-    <SongListClient initialSongs={songs || []} isAdmin={!!isAdmin} />
+    <div>
+      <SongListHeader canManageSongs={!!isAdmin} />
+      {!songs || songs.length === 0 ? (
+        <SongListEmpty />
+      ) : (
+        <SongListTable songs={songs} canDelete={!!isAdmin} />
+      )}
+    </div>
   );
 }
