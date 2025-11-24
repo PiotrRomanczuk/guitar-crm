@@ -37,8 +37,18 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Check for Vercel Secrets
+        id: check-secrets
+        run: |
+          if [ -n "${{ secrets.VERCEL_TOKEN }}" ] && [ -n "${{ secrets.VERCEL_ORG_ID }}" ] && [ -n "${{ secrets.VERCEL_PROJECT_ID }}" ]; then
+            echo "has-secrets=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-secrets=false" >> $GITHUB_OUTPUT
+            echo "::warning::Vercel secrets are missing. Deployment will be skipped."
+          fi
+
       - name: Deploy to Vercel (Production)
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && steps.check-secrets.outputs.has-secrets == 'true'
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -47,7 +57,7 @@ jobs:
           vercel-args: '--prod'
 
       - name: Deploy to Vercel (Preview)
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.check-secrets.outputs.has-secrets == 'true'
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
