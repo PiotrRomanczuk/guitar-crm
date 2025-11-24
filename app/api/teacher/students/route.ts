@@ -1,40 +1,34 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
 export async function GET() {
   try {
     const supabase = await createClient();
-    const { user, isTeacher } = await getUserWithRolesSSR();
 
-    if (!user) {
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!isTeacher) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!profile || !profile.is_teacher) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Get students assigned to this teacher via lessons
-    const { data: lessons, error: lessonsError } = await supabase
-      .from('lessons')
-      .select('student_id')
-      .eq('teacher_id', user.id);
-
-    if (lessonsError) {
-      return NextResponse.json({ error: lessonsError.message }, { status: 500 });
-    }
-
-    const studentIds = Array.from(new Set(lessons?.map((l) => l.student_id) || []));
-
-    if (studentIds.length === 0) {
-      return NextResponse.json({ students: [] });
-    }
-
+    // Get students assigned to this teacher
     const { data: students, error: studentsError } = await supabase
       .from('profiles')
       .select('id, full_name, is_student')
-      .in('id', studentIds)
+      .eq('is_student', true)
       .order('full_name');
 
     if (studentsError) {

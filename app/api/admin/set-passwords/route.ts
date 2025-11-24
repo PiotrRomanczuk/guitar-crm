@@ -1,22 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(req: NextRequest) {
-  // SECURITY: Only use the server-side environment variable.
-  // Never check for NEXT_PUBLIC_ prefix for the service role key.
-  const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const SERVICE_ROLE_KEY = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 
+export async function POST(req: NextRequest) {
   if (!SERVICE_ROLE_KEY) {
-    return NextResponse.json(
-      { error: 'Server configuration error: Missing Service Role Key' },
-      { status: 500 }
-    );
+    console.error('SERVICE_ROLE_KEY env var is required');
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
   }
   if (!SUPABASE_URL) {
-    return NextResponse.json(
-      { error: 'Server configuration error: Missing Supabase URL' },
-      { status: 500 }
-    );
+    console.error('SUPABASE_URL env var is required');
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
   }
 
   // Security: require Authorization header with SERVICE_ROLE_KEY

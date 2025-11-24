@@ -10,10 +10,5 @@ export { createClient };
 export { createClient as createBrowserClient };
 
 // Re-export types for compatibility
-export type {
-	Database,
-	Tables,
-	TablesInsert,
-	TablesUpdate,
-} from '@/types/database.types';
+export type { Database, Tables, TablesInsert, TablesUpdate } from '@/types/database.types';
 export type { Tables as InsertTables } from '@/types/database.types';
