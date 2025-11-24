@@ -4,7 +4,7 @@ import { createClient } from './supabase/client';
 
 // Export the function that components expect
 export function getSupabaseBrowserClient() {
-	return createClient();
+  return createClient();
 }
 
 // Also export createClient for direct usage
