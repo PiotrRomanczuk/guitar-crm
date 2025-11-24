@@ -160,6 +160,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify Supabase env vars
+        run: |
+          if [ -z "${NEXT_PUBLIC_SUPABASE_URL}" ] || [ -z "${NEXT_PUBLIC_SUPABASE_ANON_KEY}" ]; then
+            echo "❌ Missing Supabase env vars. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY repository secrets via: gh secret set NEXT_PUBLIC_SUPABASE_URL ; gh secret set NEXT_PUBLIC_SUPABASE_ANON_KEY"
+            exit 1
+          fi
+          echo "✅ Supabase env vars present"
+
       - name: Run Cypress E2E tests
         uses: cypress-io/github-action@v6
         with:
