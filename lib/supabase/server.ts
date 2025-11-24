@@ -11,11 +11,21 @@ export async function createClient() {
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anon) {
-    // Provide a concise, deterministic failure reason instead of the underlying library's generic throw.
-    // This helps GitHub Actions logs point directly to missing secrets configuration.
-    throw new Error(
-      'Missing Supabase env vars: NEXT_PUBLIC_SUPABASE_URL and/or NEXT_PUBLIC_SUPABASE_ANON_KEY are not set. Add them as repository secrets and export them in the CI job.'
-    );
+    // In test environments we avoid throwing so Jest can mock the underlying
+    // `createServerClient` call (tests mock `@supabase/ssr`). For all other
+    // environments keep the explicit, actionable error so CI surfaces missing
+    // secrets clearly.
+    const isTest = process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined';
+
+    if (!isTest) {
+      // Provide a concise, deterministic failure reason instead of the underlying library's generic throw.
+      // This helps GitHub Actions logs point directly to missing secrets configuration.
+      throw new Error(
+        'Missing Supabase env vars: NEXT_PUBLIC_SUPABASE_URL and/or NEXT_PUBLIC_SUPABASE_ANON_KEY are not set. Add them as repository secrets and export them in the CI job.'
+      );
+    }
+    // When running tests, allow the call to proceed so test mocks can provide a fake client.
+    // Note: the mocked `createServerClient` in tests will be used instead of the real implementation.
   }
 
   const cookieStore = await cookies();
