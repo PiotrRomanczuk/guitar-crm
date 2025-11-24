@@ -15,7 +15,8 @@ export async function createClient() {
     // `createServerClient` call (tests mock `@supabase/ssr`). For all other
     // environments keep the explicit, actionable error so CI surfaces missing
     // secrets clearly.
-    const isTest = process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined';
+    const isTest =
+      process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined';
 
     if (!isTest) {
       // Provide a concise, deterministic failure reason instead of the underlying library's generic throw.
