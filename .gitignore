@@ -70,3 +70,7 @@ cypress/screenshots/
 
 # Claude Code Agents
 CODE-AGENTS/
+
+# Local dev files
+.vscode/mcp.json
+server.log
