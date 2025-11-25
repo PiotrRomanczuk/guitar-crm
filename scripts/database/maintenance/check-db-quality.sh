@@ -31,9 +31,17 @@ run_query() {
 }
 
 table_exists() {
-  local t="$1"
+  local input="$1"
+  local schema="public"
+  local table="$input"
+
+  if [[ "$input" == *"."* ]]; then
+    schema="${input%%.*}"
+    table="${input#*.}"
+  fi
+
   local res
-  res=$(run_query "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public' AND table_name='$t';") || res=0
+  res=$(run_query "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$schema' AND table_name='$table';") || res=0
   res=$(echo "$res" | xargs)
   [ "$res" -gt 0 ]
 }
@@ -112,6 +120,13 @@ if ! [[ "$LESSON_SONGS_COUNT" =~ ^[0-9]+$ ]]; then LESSON_SONGS_COUNT=0; fi
 echo -e "\n${YELLOW}Checking lesson-songs:${NC}"
 echo "Total lesson-song associations: $LESSON_SONGS_COUNT"
 
+if [ "$LESSON_SONGS_COUNT" -lt 3 ]; then
+  echo -e "${RED}❌ CRITICAL: Too few lesson-song associations ($LESSON_SONGS_COUNT < 3)${NC}"
+  ISSUES_FOUND=1
+else
+  echo -e "${GREEN}✅ Lesson-song associations count is healthy${NC}"
+fi
+
 # assignments
 ASSIGNMENTS_COUNT=0
 if table_exists assignments; then
@@ -168,7 +183,9 @@ echo -e "\n${YELLOW}Checking profiles:${NC}"
 echo "Total profiles: $PROFILES_COUNT"
 
 ROLE_DISTRIBUTION="0|0|0"
-if table_exists profiles; then
+if table_exists user_roles; then
+  ROLE_DISTRIBUTION=$(run_query "SELECT COALESCE(SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END),0) || '|' || COALESCE(SUM(CASE WHEN role = 'teacher' THEN 1 ELSE 0 END),0) || '|' || COALESCE(SUM(CASE WHEN role = 'student' THEN 1 ELSE 0 END),0) FROM public.user_roles;") || ROLE_DISTRIBUTION="0|0|0"
+elif table_exists profiles; then
   ROLE_DISTRIBUTION=$(run_query "SELECT COALESCE(SUM(CASE WHEN is_admin THEN 1 ELSE 0 END),0) || '|' || COALESCE(SUM(CASE WHEN is_teacher THEN 1 ELSE 0 END),0) || '|' || COALESCE(SUM(CASE WHEN is_student THEN 1 ELSE 0 END),0) FROM public.profiles;") || ROLE_DISTRIBUTION="0|0|0"
 fi
 ROLE_DISTRIBUTION=$(echo "$ROLE_DISTRIBUTION" | xargs)
@@ -213,9 +230,19 @@ if [ "$ORPHANED_LESSON_SONGS" -gt 0 ]; then
   ISSUES_FOUND=1
 fi
 
-if [ "$SONGS_COUNT" -lt 10 ]; then
-  echo -e "\n${YELLOW}⚠️  WARNING: Insufficient test data - only $SONGS_COUNT songs (minimum 10 recommended)${NC}"
+if [ "$SONGS_COUNT" -lt 15 ]; then
+  echo -e "\n${YELLOW}⚠️  WARNING: Insufficient test data - only $SONGS_COUNT songs (minimum 15 recommended)${NC}"
   echo "   Run: npm run seed"
+  ISSUES_FOUND=1
+fi
+
+if [ "$LESSONS_COUNT" -lt 5 ]; then
+  echo -e "\n${YELLOW}⚠️  WARNING: Insufficient lessons - only $LESSONS_COUNT (minimum 5 recommended)${NC}"
+  ISSUES_FOUND=1
+fi
+
+if [ "$ASSIGNMENTS_COUNT" -lt 3 ]; then
+  echo -e "\n${YELLOW}⚠️  WARNING: Insufficient assignments - only $ASSIGNMENTS_COUNT (minimum 3 recommended)${NC}"
   ISSUES_FOUND=1
 fi
 

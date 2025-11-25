@@ -108,10 +108,13 @@ async function createUser(user) {
 
   const data = await res.json();
   if (!res.ok) {
-    if (data.error && /already exists|User already registered/i.test(data.error.message)) {
+    if (
+      (data.error && /already exists|User already registered/i.test(data.error.message)) ||
+      (data.msg && /already been registered/i.test(data.msg))
+    ) {
       console.log(`User already exists: ${user.email}`);
       // Fetch existing user id to reconcile profile and roles
-      const listRes = await fetch(url.replace(/users$/, ''), {
+      const listRes = await fetch(url, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
