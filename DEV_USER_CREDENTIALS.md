@@ -4,17 +4,17 @@ These users are seeded automatically via script: `bash scripts/database/seeding/
 All passwords are intended for local development only.
 
 ```
-Admin (is_admin + is_teacher):
-  Email: p.romanczuk@gmail.com
-  Password: test123_admin
+Admin (role: admin + teacher):
+- Email: `p.romanczuk@gmail.com`
+- Password: `test123_admin`
 
-Teacher (is_teacher):
-  Email: teacher@example.com
-  Password: test123_teacher
+Teacher (role: teacher):
+- Email: `teacher@example.com`
+- Password: `test123_teacher`
 
-Student (is_student):
-  Email: student@example.com
-  Password: test123_student
+Student (role: student):
+- Email: `student@example.com`
+- Password: `test123_student`
 
 Additional Students:
   teststudent1@example.com / test123_student
@@ -28,6 +28,10 @@ Additional Students:
 - Profiles align with `auth.users` ids; roles are stored on `profiles` table (snake_case columns).
 - After seeding you can verify roles:
   ```sql
-  SELECT email, is_admin, is_teacher, is_student FROM profiles ORDER BY email;
+  SELECT p.email, ur.role 
+  FROM profiles p 
+  JOIN user_roles ur ON p.id = ur.user_id 
+  ORDER BY p.email;
   ```
+
 - Do NOT use these credentials in production.

@@ -106,7 +106,12 @@ describe('Admin Songs CRUD', () => {
     cy.visit('/dashboard/songs');
     cy.get('[data-testid="song-table"]').should('contain', songToDelete.title);
 
-    cy.contains('[data-testid="song-row"]', songToDelete.title).find('a').first().click();
+    cy.get('[data-testid="song-row"]')
+      .contains(songToDelete.title)
+      .parents('[data-testid="song-row"]')
+      .find('a')
+      .first()
+      .click();
     cy.location('pathname').should('match', /\/dashboard\/songs\/[a-f0-9-]+$/);
 
     // Count before delete
@@ -115,7 +120,16 @@ describe('Admin Songs CRUD', () => {
       const countBefore = $rows.length;
 
       // Navigate back to detail and delete
-      cy.contains('[data-testid="song-row"]', songToDelete.title).find('a').first().click();
+      cy.get('[data-testid="song-row"]')
+        .contains(songToDelete.title)
+        .parents('[data-testid="song-row"]')
+        .find('a')
+        .first()
+        .click();
+
+      // Wait for navigation to detail page
+      cy.location('pathname').should('match', /\/dashboard\/songs\/[a-f0-9-]+$/);
+
       cy.on('window:confirm', () => true);
       cy.get('[data-testid="song-delete-button"]').click();
 
