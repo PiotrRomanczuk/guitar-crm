@@ -136,12 +136,16 @@ function validateLesson(
     );
   }
 
+  // Valid only if profile exists AND has correct role
+  const studentRoleValid = studentProfile?.is_student === true;
+  const teacherRoleValid = teacherProfile?.is_teacher === true;
+
   return {
     lessonId: lesson.id,
     studentId: lesson.student_id,
     teacherId: lesson.teacher_id,
-    studentValid: !!studentProfile,
-    teacherValid: !!teacherProfile,
+    studentValid: !!studentProfile && studentRoleValid,
+    teacherValid: !!teacherProfile && teacherRoleValid,
     studentProfile,
     teacherProfile,
     issues,

@@ -44,11 +44,43 @@ interface ValidationResult {
   issues: string[];
 }
 
-function parseSeedFile(filePath: string): { profiles: Profile[]; lessons: Lesson[] } {
+// Expected column orders for validation
+const EXPECTED_PROFILE_COLUMNS = 'id, email, full_name, avatar_url, notes, created_at, updated_at, is_development, is_admin, is_teacher, is_student';
+const EXPECTED_LESSON_COLUMNS = 'id, teacher_id, student_id, lesson_teacher_number, scheduled_at, status, notes, created_at, updated_at';
+
+function validateColumnOrder(content: string): { profilesValid: boolean; lessonsValid: boolean } {
+  // Extract column definitions from INSERT statements
+  const profileColumnsMatch = content.match(/INSERT INTO public\.profiles \(([^)]+)\)/);
+  const lessonColumnsMatch = content.match(/INSERT INTO public\.lessons \(([^)]+)\)/);
+  
+  const profilesValid = profileColumnsMatch 
+    ? profileColumnsMatch[1].replace(/\s+/g, ' ').trim() === EXPECTED_PROFILE_COLUMNS
+    : false;
+    
+  const lessonsValid = lessonColumnsMatch
+    ? lessonColumnsMatch[1].replace(/\s+/g, ' ').trim() === EXPECTED_LESSON_COLUMNS
+    : false;
+    
+  return { profilesValid, lessonsValid };
+}
+
+function parseSeedFile(filePath: string): { profiles: Profile[]; lessons: Lesson[]; warnings: string[] } {
   const content = fs.readFileSync(filePath, 'utf-8');
   
   const profiles: Profile[] = [];
   const lessons: Lesson[] = [];
+  const warnings: string[] = [];
+  
+  // Validate column order before parsing
+  const { profilesValid, lessonsValid } = validateColumnOrder(content);
+  
+  if (!profilesValid) {
+    warnings.push(`⚠️  Profile column order may have changed. Expected: (${EXPECTED_PROFILE_COLUMNS})`);
+  }
+  
+  if (!lessonsValid) {
+    warnings.push(`⚠️  Lesson column order may have changed. Expected: (${EXPECTED_LESSON_COLUMNS})`);
+  }
   
   // Parse profiles - format:
   // INSERT INTO public.profiles (id, email, full_name, avatar_url, notes, created_at, updated_at, is_development, is_admin, is_teacher, is_student) 
@@ -84,7 +116,7 @@ function parseSeedFile(filePath: string): { profiles: Profile[]; lessons: Lesson
     });
   }
   
-  return { profiles, lessons };
+  return { profiles, lessons, warnings };
 }
 
 function validateLesson(
@@ -114,12 +146,16 @@ function validateLesson(
     );
   }
 
+  // Valid only if profile exists AND has correct role
+  const studentRoleValid = studentProfile?.is_student === true;
+  const teacherRoleValid = teacherProfile?.is_teacher === true;
+
   return {
     lessonId: lesson.id,
     studentId: lesson.student_id,
     teacherId: lesson.teacher_id,
-    studentValid: !!studentProfile,
-    teacherValid: !!teacherProfile,
+    studentValid: !!studentProfile && studentRoleValid,
+    teacherValid: !!teacherProfile && teacherRoleValid,
     studentProfile,
     teacherProfile,
     issues,
@@ -140,7 +176,14 @@ function main() {
   
   console.log(`📄 Reading seed file: ${seedFilePath}\n`);
   
-  const { profiles, lessons } = parseSeedFile(seedFilePath);
+  const { profiles, lessons, warnings } = parseSeedFile(seedFilePath);
+  
+  // Display any schema warnings
+  if (warnings.length > 0) {
+    console.log('⚠️  Schema Warnings:');
+    warnings.forEach((w) => console.log(`   ${w}`));
+    console.log('');
+  }
   
   console.log(`✅ Found ${profiles.length} profiles`);
   console.log(`✅ Found ${lessons.length} lessons\n`);
