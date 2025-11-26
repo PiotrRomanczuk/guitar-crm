@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { RoleBasedNav } from './RoleBasedNav';
+import { ConnectionStatus } from './ConnectionStatus';
 
 function MobileMenu({
   open,
@@ -221,6 +222,8 @@ export default function Header({
               <span className="hidden sm:inline">Guitar CRM</span>
               <span className="sm:hidden">CRM</span>
             </button>
+
+            <ConnectionStatus />
 
             {/* Mobile Menu Button (only on mobile) */}
             <MobileMenuButton

@@ -7,13 +7,14 @@ import { z } from 'zod';
 import { queryClient } from '@/lib/query-client';
 import { useProfiles } from './useProfiles';
 
-interface FormData {
+export interface LessonFormData {
   student_id: string;
   teacher_id: string;
   date: string;
   start_time?: string;
   title?: string;
   notes?: string;
+  song_ids?: string[];
 }
 
 interface ValidationErrors {
@@ -21,30 +22,47 @@ interface ValidationErrors {
 }
 
 interface CreateLessonPayload {
-  validatedData: z.infer<typeof LessonInputSchema>;
+  validatedData: Partial<z.infer<typeof LessonInputSchema>>;
+  lessonId?: string;
 }
 
-async function createLessonInApi(payload: CreateLessonPayload): Promise<void> {
-  const response = await fetch('/api/lessons', {
-    method: 'POST',
+async function submitLessonToApi(payload: CreateLessonPayload): Promise<void> {
+  const url = payload.lessonId ? `/api/lessons/${payload.lessonId}` : '/api/lessons';
+  const method = payload.lessonId ? 'PUT' : 'POST';
+
+  const response = await fetch(url, {
+    method,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload.validatedData),
   });
 
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to create lesson');
+    throw new Error(errorData.error || 'Failed to save lesson');
   }
 }
 
-export default function useLessonForm() {
-  const [formData, setFormData] = useState<FormData>({
-    student_id: '',
-    teacher_id: '',
-    date: '',
-    start_time: '',
-    title: '',
-    notes: '',
+export interface UseLessonFormProps {
+  initialData?: Partial<LessonFormData>;
+  lessonId?: string;
+  partial?: boolean;
+  fieldsToSubmit?: (keyof LessonFormData)[];
+}
+
+export default function useLessonForm({
+  initialData,
+  lessonId,
+  partial = false,
+  fieldsToSubmit,
+}: UseLessonFormProps = {}) {
+  const [formData, setFormData] = useState<LessonFormData>({
+    student_id: initialData?.student_id || '',
+    teacher_id: initialData?.teacher_id || '',
+    date: initialData?.date || '',
+    start_time: initialData?.start_time || '',
+    title: initialData?.title || '',
+    notes: initialData?.notes || '',
+    song_ids: initialData?.song_ids || [],
   });
 
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
@@ -53,16 +71,19 @@ export default function useLessonForm() {
   const { students, teachers, loading, error: profilesError } = useProfiles();
 
   const {
-    mutate: submitForm,
+    mutateAsync: submitForm,
     isPending,
     error: mutationError,
   } = useMutation({
     mutationFn: async (payload: CreateLessonPayload) => {
-      return createLessonInApi(payload);
+      return submitLessonToApi(payload);
     },
     onSuccess: () => {
       // Invalidate lessons list so it refetches with new lesson
       queryClient.invalidateQueries({ queryKey: ['lessons'] });
+      if (lessonId) {
+        queryClient.invalidateQueries({ queryKey: ['lesson', lessonId] });
+      }
     },
   });
 
@@ -82,12 +103,26 @@ export default function useLessonForm() {
     }
   };
 
+  const handleSongChange = (songIds: string[]) => {
+    setFormData((prev) => ({ ...prev, song_ids: songIds }));
+  };
+
   const handleSubmit = async () => {
     try {
       setValidationErrors({});
 
-      const validatedData = LessonInputSchema.parse(formData);
-      submitForm({ validatedData });
+      let dataToValidate: Partial<LessonFormData> = formData;
+      if (fieldsToSubmit) {
+        dataToValidate = fieldsToSubmit.reduce((acc, key) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (acc as any)[key] = formData[key];
+          return acc;
+        }, {} as Partial<LessonFormData>);
+      }
+
+      const schema = partial ? LessonInputSchema.partial() : LessonInputSchema;
+      const validatedData = schema.parse(dataToValidate);
+      await submitForm({ validatedData, lessonId });
       return { success: true };
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -115,6 +150,7 @@ export default function useLessonForm() {
     error,
     validationErrors,
     handleChange,
+    handleSongChange,
     handleSubmit,
   };
 }

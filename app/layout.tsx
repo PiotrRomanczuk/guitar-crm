@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { Toaster } from 'sonner';
 
 import Header from '@/components/navigation/Header';
 import { Providers } from '@/components/providers/QueryProvider';
@@ -42,6 +43,7 @@ export default async function RootLayout({
         <Providers>
           <Header user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
           {children}
+          <Toaster />
         </Providers>
       </body>
     </html>

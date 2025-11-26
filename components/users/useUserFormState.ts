@@ -17,7 +17,7 @@ export interface FormData {
 }
 
 interface InitialData {
-  id: number;
+  id: string | number;
   firstName: string | null;
   lastName: string | null;
   email: string | null;
