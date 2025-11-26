@@ -61,10 +61,13 @@ export async function getGoogleEvents() {
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
   try {
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
     const response = await calendar.events.list({
       calendarId: 'primary',
-      timeMin: new Date().toISOString(),
-      maxResults: 10,
+      timeMin: fourteenDaysAgo.toISOString(),
+      maxResults: 100,
       singleEvents: true,
       orderBy: 'startTime',
     });
