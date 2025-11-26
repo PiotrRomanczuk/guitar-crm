@@ -53,9 +53,9 @@ export function LessonAssignmentsList({
               <div>
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    assignment.status === 'COMPLETED'
+                    assignment.status === 'completed'
                       ? 'bg-green-100 text-green-800'
-                      : assignment.status === 'IN_PROGRESS'
+                      : assignment.status === 'in_progress'
                       ? 'bg-blue-100 text-blue-800'
                       : 'bg-gray-100 text-gray-800'
                   }`}
