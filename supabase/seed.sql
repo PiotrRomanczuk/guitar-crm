@@ -2,10 +2,18 @@
 -- PostgreSQL database dump
 --
 
-\restrict Dm8OPoif9k7rx2mdWL0XkGOJ6Mp40jtpnAQokP2C7moPNfCkhYc75oJt7z3PsfT
-
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6 (Ubuntu 17.6-1build1)
+
+SET session_replication_role = 'replica';
+
+-- Truncate tables to prevent conflicts with migration data
+TRUNCATE TABLE public.profiles CASCADE;
+TRUNCATE TABLE public.songs CASCADE;
+TRUNCATE TABLE public.lessons CASCADE;
+TRUNCATE TABLE public.lesson_songs CASCADE;
+TRUNCATE TABLE public.assignments CASCADE;
+TRUNCATE TABLE public.user_roles CASCADE;
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -128,5 +136,6 @@ INSERT INTO public.user_roles (id, user_id, role, assigned_at) VALUES ('529ffa96
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Dm8OPoif9k7rx2mdWL0XkGOJ6Mp40jtpnAQokP2C7moPNfCkhYc75oJt7z3PsfT
 
+
+SET session_replication_role = 'origin';

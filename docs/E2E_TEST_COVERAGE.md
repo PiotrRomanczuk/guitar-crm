@@ -28,14 +28,13 @@ This document tracks the implementation status of End-to-End (E2E) tests for the
 | **Songs** | Read Songs (List) | `admin-songs.cy.ts` | ✅ Covered | Filtering & search |
 | **Songs** | Update Song | `admin-songs.cy.ts` | ✅ Covered | Edit functionality |
 | **Songs** | Delete Song | `admin-songs.cy.ts` | ✅ Covered | Deletion flow |
-| **Users** | Create User | - | ❌ Missing | Critical for other flows |
-| **Users** | Manage Roles | - | ❌ Missing | Teacher/Student roles |
-| **Users** | User Lifecycle | - | ❌ Missing | Activation/Deactivation |
+| **Users** | Manage Roles | `admin-users.cy.ts` | ✅ Covered | Teacher/Student roles |
+| **Users** | User Lifecycle | `admin-users.cy.ts` | ⚠️ Partial | Creation covered |
 | **Lessons** | Create/Schedule | - | ❌ Missing | Depends on Users |
 | **Lessons** | Update/Reschedule | - | ❌ Missing | |
 | **Lessons** | Cancel/Delete | - | ❌ Missing | |
-| **Assignments** | Create Assignment | - | ❌ Missing | Depends on Lessons/Songs |
-| **Assignments** | Track Progress | - | ❌ Missing | |
+| **Assignments** | Create Assignment | `admin-assignments.cy.ts` | ✅ Covered | Basic creation flow |
+| **Assignments** | Track Progress | `admin-assignments.cy.ts` | ⚠️ Partial | List view covered |
 
 ### 2. Student Features
 

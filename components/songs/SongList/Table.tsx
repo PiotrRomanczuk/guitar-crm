@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog';
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function SongListTable({ songs, canDelete = false, onDeleteSuccess }: Props) {
+  const router = useRouter();
   const [deletingSongId, setDeletingSongId] = useState<string | null>(null);
   const [songToDelete, setSongToDelete] = useState<Song | null>(null);
 
@@ -36,6 +38,7 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
       setSongToDelete(null);
       setDeletingSongId(null);
       onDeleteSuccess?.();
+      router.refresh();
     } catch (error) {
       console.error('🎸 [FRONTEND] Delete failed:', error);
       setDeletingSongId(null);

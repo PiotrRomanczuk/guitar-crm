@@ -42,7 +42,7 @@ export default async function EditAssignmentPage({ params }: { params: Promise<{
   const assignment = await getAssignment(id);
 
   if (!assignment) {
-    redirect('/dashboard/assignements');
+    redirect('/dashboard/assignments');
   }
 
   return <AssignmentForm mode="edit" initialData={assignment} />;

@@ -78,7 +78,7 @@ export default async function AssignmentDetailPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <Link
-        href="/dashboard/assignements"
+        href="/dashboard/assignments"
         className="text-blue-600 hover:underline mb-6 inline-block"
         data-testid="back-button"
       >
@@ -106,7 +106,7 @@ function AssignmentNotFound() {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
           Assignment not found
         </h1>
-        <Link href="/dashboard/assignements" className="text-blue-600 hover:underline">
+        <Link href="/dashboard/assignments" className="text-blue-600 hover:underline">
           Back to assignments
         </Link>
       </div>
@@ -135,7 +135,7 @@ function AssignmentHeader({ assignment }: { assignment: Assignment }) {
         </div>
 
         <Link
-          href={`/dashboard/assignements/${assignment.id}/edit`}
+          href={`/dashboard/assignments/${assignment.id}/edit`}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           data-testid="edit-button"
         >

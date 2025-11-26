@@ -53,15 +53,9 @@ schema_paths = []
 [db.seed]
 # If enabled, seeds the database after migrations during a db reset.
 enabled = true
-# Step by step: Now adding lesson_songs after lessons
+# Using the monolithic seed.sql which includes auth.users
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
-sql_paths = [
-  "./seed_sql/seed_songs.sql",
-  "./seed_sql/seed_profiles.sql",
-  "./seed_sql/seed_lessons.sql",
-  "./seed_sql/seed_lesson_songs.sql",
-  "./seed_sql/seed_task_management.sql"
-]
+sql_paths = ["./seed.sql"]
 
 [realtime]
 enabled = true
