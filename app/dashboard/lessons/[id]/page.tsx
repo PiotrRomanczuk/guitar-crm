@@ -126,7 +126,11 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
 
       <LessonSongsList lessonId={lesson.id!} lessonSongs={lesson.lesson_songs} canEdit={canEdit} />
 
-      <LessonAssignmentsList lessonId={lesson.id!} assignments={lesson.assignments} canEdit={canEdit} />
+      <LessonAssignmentsList
+        lessonId={lesson.id!}
+        assignments={lesson.assignments}
+        canEdit={canEdit}
+      />
     </div>
   );
 }

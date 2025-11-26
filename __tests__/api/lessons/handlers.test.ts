@@ -82,10 +82,14 @@ describe('Lesson API Handlers', () => {
 			expect(baseQueryMock.select).toHaveBeenCalledWith(`
       *,
       profile:profiles!student_id(id, full_name, email),
-      teacher_profile:profiles!teacher_id(id, full_name, email)
-    `, {
-				count: 'exact',
-			});
+      teacher_profile:profiles!teacher_id(id, full_name, email),
+      lesson_songs(
+        song:songs(title)
+      ),
+      assignments(title)
+    `,
+				{ count: 'exact' }
+			);
 
 			// Verify getTeacherStudentIds was called
 			expect(mockSupabase.from).toHaveBeenNthCalledWith(2, 'lessons');
@@ -143,7 +147,7 @@ describe('Lesson API Handlers', () => {
 		const validLesson = {
 			teacher_id: '11111111-1111-1111-1111-111111111111',
 			student_id: '22222222-2222-2222-2222-222222222222',
-			date: '2025-01-01T10:00:00.000Z',
+			date: '2025-01-01',
 			start_time: '10:00',
 			title: 'Intro',
 			notes: 'Bring picks',
@@ -177,6 +181,9 @@ describe('Lesson API Handlers', () => {
 			const mockQuery = {
 				insert: jest.fn().mockReturnThis(),
 				select: jest.fn().mockReturnThis(),
+				eq: jest.fn().mockReturnThis(),
+				order: jest.fn().mockReturnThis(),
+				limit: jest.fn().mockReturnThis(),
 				single: jest.fn().mockResolvedValue({ data: validLesson, error: null }),
 			};
 			mockSupabase.from.mockReturnValue(mockQuery);

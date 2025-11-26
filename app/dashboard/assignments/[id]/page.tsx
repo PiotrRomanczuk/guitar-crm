@@ -165,7 +165,10 @@ function AssignmentMetrics({ assignment }: { assignment: Assignment }) {
             {assignment.student.full_name || 'Unknown'}
           </p>
           {assignment.student.email && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 truncate" title={assignment.student.email}>
+            <p
+              className="text-xs text-gray-500 dark:text-gray-400 truncate"
+              title={assignment.student.email}
+            >
               {assignment.student.email}
             </p>
           )}
