@@ -122,7 +122,7 @@ export function PotentialUsersList() {
           ))}
           {users.length === 0 && (
             <div className="text-center text-muted-foreground py-4">
-              No potential users found from recent 'First Lesson' events.
+              No potential users found from recent &apos;First Lesson&apos; events.
             </div>
           )}
         </div>
