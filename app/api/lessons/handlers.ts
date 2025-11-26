@@ -142,7 +142,6 @@ function applySortAndPagination(
 }
 
 // Complexity is slightly over due to role-based filtering logic
-// eslint-disable-next-line complexity
 export async function getLessonsHandler(
   supabase: SupabaseClient,
   user: { id: string } | null,

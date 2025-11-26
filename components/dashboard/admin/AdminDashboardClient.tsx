@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { AdminStatCard } from '@/components/dashboard/admin/AdminStatCard';
 import { AdminActionCard } from '@/components/dashboard/admin/AdminActionCard';
 import { RecentActivity } from '@/components/dashboard/admin/RecentActivity';
+import { CalendarEventsList } from '@/components/dashboard/calendar/CalendarEventsList';
+import { PotentialUsersList } from '@/components/dashboard/admin/PotentialUsersList';
 
 type DebugView = 'admin' | 'teacher' | 'student';
 
@@ -86,6 +88,16 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
           totalSongs={stats.totalSongs}
         />
         {debugView === 'admin' && <AdminActions />}
+        {debugView === 'admin' && (
+          <div className="mb-6 sm:mb-8">
+            <CalendarEventsList limit={7} />
+          </div>
+        )}
+        {debugView === 'admin' && (
+          <div className="mb-6 sm:mb-8">
+            <PotentialUsersList />
+          </div>
+        )}
         {debugView === 'admin' && <RecentActivity recentUsers={stats.recentUsers} />}
 
         {debugView === 'admin' && (

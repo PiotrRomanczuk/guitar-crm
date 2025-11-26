@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 
 interface UserProfile {
-  id: number;
+  id: string;
   user_id: string | null;
   email: string | null;
   firstName: string | null;
