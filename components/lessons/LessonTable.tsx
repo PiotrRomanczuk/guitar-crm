@@ -27,6 +27,9 @@ export default function LessonTable({ lessons, role, baseUrl = '/dashboard/lesso
         <thead className="bg-gray-100 dark:bg-gray-800">
           <tr>
             <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Title
+            </th>
+            <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
               Student
             </th>
             {showTeacherColumn && (
@@ -39,9 +42,6 @@ export default function LessonTable({ lessons, role, baseUrl = '/dashboard/lesso
             </th>
             <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
               Time
-            </th>
-            <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
-              Title
             </th>
             <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
               Status

@@ -7,6 +7,7 @@ import { Database } from '@/database.types';
 
 import { LessonSongsList } from '@/components/lessons/LessonSongsList';
 import { LessonDetailsCard } from '@/components/lessons/LessonDetailsCard';
+import { LessonAssignmentsList } from '@/components/lessons/LessonAssignmentsList';
 
 interface LessonDetailPageProps {
   params: Promise<{ id: string }>;
@@ -21,6 +22,12 @@ interface LessonDetail extends LessonWithProfiles {
       title: string;
       author: string;
     } | null;
+  }[];
+  assignments: {
+    id: string;
+    title: string;
+    status: Database['public']['Enums']['assignment_status'];
+    due_date: string | null;
   }[];
 }
 
@@ -44,6 +51,12 @@ async function fetchLesson(id: string): Promise<LessonDetail | null> {
           id,
           status,
           song:songs(id, title, author)
+        ),
+        assignments(
+          id,
+          title,
+          status,
+          due_date
         )
       `
       )
@@ -113,10 +126,7 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
 
       <LessonSongsList lessonId={lesson.id!} lessonSongs={lesson.lesson_songs} canEdit={canEdit} />
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-bold mb-4">Tasks</h2>
-        <p className="text-gray-600">Coming soon</p>
-      </div>
+      <LessonAssignmentsList lessonId={lesson.id!} assignments={lesson.assignments} canEdit={canEdit} />
     </div>
   );
 }
