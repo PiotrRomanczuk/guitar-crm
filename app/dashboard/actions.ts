@@ -130,13 +130,20 @@ export async function inviteUser(
 
   let userId = existingUser?.id;
 
+  console.log(`[Invite Debug] Checking if user ${email} exists... Found ID: ${userId || 'No'}`);
+
   if (!userId) {
+    console.log(`[Invite Debug] Sending invite to ${email}...`);
     const { data: authData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
       email
     );
+    console.log('[Invite Debug] Supabase Response:', { user: authData.user?.id, error: inviteError?.message });
+    
     if (inviteError) throw new Error(`Failed to invite user: ${inviteError.message}`);
     if (!authData.user) throw new Error('User creation failed');
     userId = authData.user.id;
+  } else {
+    console.log(`[Invite Debug] User already exists. Skipping invite email.`);
   }
 
   const updates: Record<string, unknown> = {
@@ -152,9 +159,7 @@ export async function inviteUser(
     .update(updates)
     .eq('id', userId);
 
-  if (profileError) {
-    console.error('Error updating profile:', profileError);
-  }
+  if (profileError) console.error('Error updating profile:', profileError);
 
   return { success: true, userId };
 }
@@ -304,4 +309,49 @@ async function syncSingleEvent(
   }
 
   return await createLesson(supabaseAdmin, event, teacherId, studentId);
+}
+
+export async function deleteUser(userId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('Unauthorized');
+  }
+
+  // Check if requester is admin
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.is_admin) {
+    throw new Error('Unauthorized: Admin access required');
+  }
+
+  const supabaseAdmin = createAdminClient();
+  
+  // Delete from profiles first (to ensure clean state if no cascade)
+  const { error: profileError } = await supabaseAdmin
+    .from('profiles')
+    .delete()
+    .eq('id', userId);
+
+  if (profileError) {
+    console.error('Error deleting profile:', profileError);
+    // Continue to delete auth user even if profile delete fails (might be already gone)
+  }
+
+  // Delete from auth.users
+  const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+
+  if (error) {
+    console.error('Error deleting user:', error);
+    throw new Error(`Failed to delete user: ${error.message}`);
+  }
+
+  return { success: true };
 }
