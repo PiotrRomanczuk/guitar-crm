@@ -90,7 +90,7 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
         {debugView === 'admin' && <AdminActions />}
         {debugView === 'admin' && (
           <div className="mb-6 sm:mb-8">
-            <CalendarEventsList />
+            <CalendarEventsList limit={7} />
           </div>
         )}
         {debugView === 'admin' && (
