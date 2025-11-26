@@ -21,23 +21,41 @@ import {
 import { inviteUser } from '@/app/dashboard/actions';
 import { QuickActionButton } from '../home/QuickActionButton';
 
-export function InviteUserModal() {
+interface InviteUserModalProps {
+  trigger?: React.ReactNode;
+  initialEmail?: string;
+  initialName?: string;
+  initialPhone?: string;
+}
+
+export function InviteUserModal({ trigger, initialEmail = '', initialName = '', initialPhone = '' }: InviteUserModalProps) {
   const [open, setOpen] = useState(false);
-  const [email, setEmail] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState(initialEmail);
+  const [fullName, setFullName] = useState(initialName);
+  const [phone, setPhone] = useState(initialPhone);
   const [role, setRole] = useState<'student' | 'teacher' | 'admin'>('student');
   const [isPending, startTransition] = useTransition();
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (newOpen) {
+      setEmail(initialEmail);
+      setFullName(initialName);
+      setPhone(initialPhone);
+    }
+  };
 
   const handleInvite = (e: React.FormEvent) => {
     e.preventDefault();
     startTransition(async () => {
       try {
-        const result = await inviteUser(email, fullName, role);
+        const result = await inviteUser(email, fullName, role, phone);
         if (result.success) {
           alert('User invited successfully!');
           setOpen(false);
           setEmail('');
           setFullName('');
+          setPhone('');
           setRole('student');
         }
       } catch (error) {
@@ -52,15 +70,17 @@ export function InviteUserModal() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <div className="w-full">
-          <QuickActionButton
-            emoji="✉️"
-            title="Invite User"
-            description="Send an invitation to a new user"
-          />
-        </div>
+        {trigger || (
+          <div className="w-full">
+            <QuickActionButton
+              emoji="✉️"
+              title="Invite User"
+              description="Send an invitation to a new user"
+            />
+          </div>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -88,8 +108,18 @@ export function InviteUserModal() {
               required
             />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="role">Role</Label>
+            <div className="grid gap-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="+48 123 456 789"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="role">Role</Label>
             <Select
               value={role}
               onValueChange={(val: 'student' | 'teacher' | 'admin') => setRole(val)}
