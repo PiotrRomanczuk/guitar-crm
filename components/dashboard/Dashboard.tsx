@@ -26,7 +26,7 @@ export function DashboardPageContent({
         <DashboardHeader email={email} roleText={roleText} />
         <DashboardCardGrid isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
         <div className="mt-8">
-          <CalendarEventsList />
+          <CalendarEventsList limit={7} />
         </div>
         <QuickActionsSection isAdmin={isAdmin} isTeacher={isTeacher} />
       </main>
