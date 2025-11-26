@@ -129,13 +129,13 @@ export async function getPotentialCustomerEvents() {
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
   try {
-    // Fetch events from the last year that match "Pierwsza lekcja"
-    const oneYearAgo = new Date();
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    // Fetch events from the last 14 days that match "Pierwsza lekcja"
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
     const response = await calendar.events.list({
       calendarId: 'primary',
-      timeMin: oneYearAgo.toISOString(),
+      timeMin: fourteenDaysAgo.toISOString(),
       q: 'Pierwsza lekcja', // Filter by query
       maxResults: 100, // Reasonable limit
       singleEvents: true,
