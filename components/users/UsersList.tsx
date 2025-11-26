@@ -5,6 +5,7 @@ import Link from 'next/link';
 import UsersListFilters from './UsersListFilters';
 import UsersListTable from './UsersListTable';
 import { useUsersList } from './useUsersList';
+import { deleteUser } from '@/app/dashboard/actions';
 
 export default function UsersList() {
   const [search, setSearch] = useState('');
@@ -13,11 +14,10 @@ export default function UsersList() {
 
   const { users, loading, error, refetch } = useUsersList(search, roleFilter, activeFilter);
 
-  const handleDelete = async (id: number, email: string) => {
-    if (!confirm(`Delete user ${email}?`)) return;
+  const handleDelete = async (userId: string, email: string) => {
+    if (!confirm(`Delete user ${email}? This action cannot be undone.`)) return;
     try {
-      const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete user');
+      await deleteUser(userId);
       refetch();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to delete user');

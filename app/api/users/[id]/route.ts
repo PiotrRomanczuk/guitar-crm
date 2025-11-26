@@ -15,7 +15,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', parseInt(id))
+      .eq('id', id)
       .single();
 
     if (error || !data) {
@@ -54,7 +54,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         isActive: body.isActive,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', parseInt(id))
+      .eq('id', id)
       .select()
       .single();
 
@@ -80,7 +80,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     const { id } = await params;
     const supabase = await createClient();
 
-    const { error } = await supabase.from('profiles').delete().eq('id', parseInt(id));
+    const { error } = await supabase.from('profiles').delete().eq('id', id);
 
     if (error) {
       return Response.json({ error: error.message }, { status: 500 });

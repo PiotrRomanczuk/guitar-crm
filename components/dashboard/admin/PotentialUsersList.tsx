@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { getPotentialCustomerEvents } from '@/app/dashboard/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Mail, Phone } from 'lucide-react';
+import { InviteUserModal } from '../InviteUserModal';
+import { Button } from '@/components/ui/button';
 
 interface GoogleEvent {
   id: string;
@@ -106,6 +108,15 @@ export function PotentialUsersList() {
                       : user.rawDescription}
                   </div>
                 )}
+              </div>
+              
+              <div className="mt-3 flex justify-end">
+                                  <InviteUserModal 
+                    trigger={<Button size="sm">Convert to User</Button>}
+                    initialEmail={user.email}
+                    initialName={user.name}
+                    initialPhone={user.phone}
+                  />
               </div>
             </div>
           ))}
