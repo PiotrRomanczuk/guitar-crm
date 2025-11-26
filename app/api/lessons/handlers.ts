@@ -177,7 +177,11 @@ export async function getLessonsHandler(
     `
       *,
       profile:profiles!student_id(id, full_name, email),
-      teacher_profile:profiles!teacher_id(id, full_name, email)
+      teacher_profile:profiles!teacher_id(id, full_name, email),
+      lesson_songs(
+        song:songs(title)
+      ),
+      assignments(title)
     `,
     { count: 'exact' }
   );

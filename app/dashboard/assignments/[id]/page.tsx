@@ -14,6 +14,10 @@ interface Assignment {
   user_id: string;
   created_at: string;
   updated_at: string;
+  student?: {
+    full_name: string | null;
+    email: string | null;
+  };
 }
 
 async function getAssignment(id: string): Promise<Assignment | null> {
@@ -22,10 +26,13 @@ async function getAssignment(id: string): Promise<Assignment | null> {
 
   if (!user) redirect('/auth/login');
 
-  let query = supabase.from('assignments').select('*').eq('id', id);
+  let query = supabase
+    .from('assignments')
+    .select('*, student:profiles!assignments_student_id_fkey(full_name, email)')
+    .eq('id', id);
 
   if (!isAdmin) {
-    query = query.eq('user_id', user.id);
+    query = query.eq('student_id', user.id);
   }
 
   const { data, error } = await query.single();
@@ -148,7 +155,23 @@ function AssignmentHeader({ assignment }: { assignment: Assignment }) {
 
 function AssignmentMetrics({ assignment }: { assignment: Assignment }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {assignment.student && (
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+          <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-2">
+            Assigned To
+          </p>
+          <p className="text-sm font-medium text-gray-900 dark:text-white">
+            {assignment.student.full_name || 'Unknown'}
+          </p>
+          {assignment.student.email && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate" title={assignment.student.email}>
+              {assignment.student.email}
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
         <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-2">
           Priority

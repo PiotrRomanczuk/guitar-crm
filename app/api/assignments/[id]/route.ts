@@ -30,7 +30,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     // Check authorization
-    if (!isAdmin && data.user_id !== user.id) {
+    if (!isAdmin && data.student_id !== user.id && data.teacher_id !== user.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

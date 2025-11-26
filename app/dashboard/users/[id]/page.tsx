@@ -1,5 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import UserDetail from '@/components/users/UserDetail';
+import { getStudentRepertoire, getStudentAssignments } from './actions';
+import { StudentRepertoire } from '@/components/users/StudentRepertoire';
+import { StudentAssignments } from '@/components/users/StudentAssignments';
 
 export const metadata = {
   title: 'User Detail',
@@ -26,6 +29,11 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
   }
 
   const transformedUser = transformUser(user);
+  
+  // Fetch repertoire if the user is a student
+  const isStudent = transformedUser.isStudent;
+  const repertoire = isStudent ? await getStudentRepertoire(id) : [];
+  const assignments = isStudent ? await getStudentAssignments(id) : [];
 
   return (
     <div className="space-y-6">
@@ -33,6 +41,20 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">User Detail</h1>
       </div>
       <UserDetail user={transformedUser} />
+      
+      {isStudent && (
+        <>
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Assignments</h2>
+            <StudentAssignments assignments={assignments} />
+          </div>
+
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Repertoire</h2>
+            <StudentRepertoire repertoire={repertoire} />
+          </div>
+        </>
+      )}
     </div>
   );
 }

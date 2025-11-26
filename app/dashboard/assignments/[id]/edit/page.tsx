@@ -22,13 +22,17 @@ async function getAssignment(id: string): Promise<Assignment | null> {
   let query = supabase.from('assignments').select('*').eq('id', id);
 
   if (!isAdmin) {
-    query = query.eq('user_id', user.id);
+    query = query.eq('student_id', user.id);
   }
 
   const { data, error } = await query.single();
 
   if (error || !data) return null;
-  return data as Assignment;
+  
+  return {
+    ...data,
+    user_id: data.student_id
+  } as Assignment;
 }
 
 export default async function EditAssignmentPage({ params }: { params: Promise<{ id: string }> }) {

@@ -29,7 +29,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    let query = supabase.from('assignments').select('*').order('created_at', { ascending: false });
+    let query = supabase
+      .from('assignments')
+      .select('*, student:profiles!assignments_student_id_fkey(full_name, email)')
+      .order('created_at', { ascending: false });
 
     // Filter by status if provided
     if (status) {
@@ -43,12 +46,12 @@ export async function GET(request: Request) {
 
     // Filter by user if provided
     if (userId) {
-      query = query.eq('user_id', userId);
+      query = query.eq('student_id', userId);
     }
 
     // Non-admins can only see their own assignments
     if (!isAdmin) {
-      query = query.eq('user_id', user.id);
+      query = query.eq('student_id', user.id);
     }
 
     const { data, error } = await query;
@@ -80,8 +83,13 @@ export async function POST(request: Request) {
     const validatedData = AssignmentInputSchema.parse(body);
 
     const assignmentData = {
-      ...validatedData,
-      user_id: validatedData.user_id || user.id,
+      title: validatedData.title,
+      description: validatedData.description,
+      due_date: validatedData.due_date,
+      priority: validatedData.priority,
+      status: validatedData.status,
+      student_id: validatedData.user_id || user.id,
+      teacher_id: user.id,
     };
 
     const { data, error } = await supabase

@@ -13,6 +13,10 @@ interface Assignment {
   user_id: string;
   created_at: string;
   updated_at: string;
+  student?: {
+    full_name: string | null;
+    email: string | null;
+  };
 }
 
 interface FilterState {
@@ -210,6 +214,9 @@ function AssignmentsTable({ assignments, onDelete }: TableProps) {
               Title
             </th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
+              Student
+            </th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
               Due Date
             </th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
@@ -237,6 +244,9 @@ function AssignmentsTable({ assignments, onDelete }: TableProps) {
                 >
                   {assignment.title}
                 </Link>
+              </td>
+              <td className="px-6 py-3 text-sm text-gray-900 dark:text-white">
+                {assignment.student?.full_name || assignment.student?.email || 'Unknown'}
               </td>
               <td
                 className={`px-6 py-3 text-sm ${
