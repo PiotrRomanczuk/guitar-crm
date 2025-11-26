@@ -46,7 +46,7 @@ export function SongStudents({ students }: Props) {
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {groupStudents.map((student) => (
-                  <Link 
+                  <Link
                     href={`/dashboard/users/${student.studentId}`}
                     key={student.studentId}
                     className="block"
@@ -75,7 +75,7 @@ export function SongStudents({ students }: Props) {
           </Card>
         );
       })}
-      
+
       {students.length === 0 && (
         <div className="text-center text-muted-foreground py-8">
           No students have this song in their repertoire yet.

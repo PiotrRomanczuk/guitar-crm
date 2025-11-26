@@ -6,16 +6,17 @@ interface StudentAssignmentsProps {
 
 export function StudentAssignments({ assignments }: StudentAssignmentsProps) {
   if (!assignments.length) {
-    return (
-      <div className="text-gray-500 dark:text-gray-400 italic">
-        No assignments found.
-      </div>
-    );
+    return <div className="text-gray-500 dark:text-gray-400 italic">No assignments found.</div>;
   }
 
   const grouped = {
     overdue: assignments.filter(
-      (a) => a.status === 'overdue' || (a.dueDate && new Date(a.dueDate) < new Date() && a.status !== 'completed' && a.status !== 'cancelled')
+      (a) =>
+        a.status === 'overdue' ||
+        (a.dueDate &&
+          new Date(a.dueDate) < new Date() &&
+          a.status !== 'completed' &&
+          a.status !== 'cancelled')
     ),
     active: assignments.filter((a) => a.status === 'not_started' || a.status === 'in_progress'),
     completed: assignments.filter((a) => a.status === 'completed'),
@@ -98,25 +99,44 @@ function AssignmentCard({
   };
 
   return (
-    <div className={`p-4 rounded-lg border ${borderColors[variant]} transition-shadow hover:shadow-md`}>
+    <div
+      className={`p-4 rounded-lg border ${borderColors[variant]} transition-shadow hover:shadow-md`}
+    >
       <div className="flex justify-between items-start mb-2">
-        <h4 className="font-medium text-gray-900 dark:text-white truncate pr-2" title={assignment.title}>
+        <h4
+          className="font-medium text-gray-900 dark:text-white truncate pr-2"
+          title={assignment.title}
+        >
           {assignment.title}
         </h4>
-        <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${getStatusBadge(assignment.status)}`}>
+        <span
+          className={`text-xs px-2 py-0.5 rounded-full capitalize ${getStatusBadge(
+            assignment.status
+          )}`}
+        >
           {assignment.status.replace('_', ' ')}
         </span>
       </div>
-      
+
       {assignment.description && (
-        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3" title={assignment.description}>
+        <p
+          className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3"
+          title={assignment.description}
+        >
           {assignment.description}
         </p>
       )}
 
       <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-auto">
         {assignment.dueDate ? (
-          <span>Due: {new Date(assignment.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          <span>
+            Due:{' '}
+            {new Date(assignment.dueDate).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </span>
         ) : (
           <span>No due date</span>
         )}

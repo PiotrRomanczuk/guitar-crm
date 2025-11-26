@@ -29,7 +29,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
   }
 
   const transformedUser = transformUser(user);
-  
+
   // Fetch repertoire if the user is a student
   const isStudent = transformedUser.isStudent;
   const repertoire = isStudent ? await getStudentRepertoire(id) : [];
@@ -41,7 +41,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">User Detail</h1>
       </div>
       <UserDetail user={transformedUser} />
-      
+
       {isStudent && (
         <>
           <div className="mt-8">

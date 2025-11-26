@@ -48,18 +48,24 @@ export const LessonWithProfilesSchema = LessonSchema.extend({
     })
     .optional()
     .nullable(),
-  lesson_songs: z.array(
-    z.object({
-      song: z.object({
-        title: z.string()
-      }).nullable()
-    })
-  ).optional(),
-  assignments: z.array(
-    z.object({
-      title: z.string()
-    })
-  ).optional(),
+  lesson_songs: z
+    .array(
+      z.object({
+        song: z
+          .object({
+            title: z.string(),
+          })
+          .nullable(),
+      })
+    )
+    .optional(),
+  assignments: z
+    .array(
+      z.object({
+        title: z.string(),
+      })
+    )
+    .optional(),
 });
 
 // Lesson song status enum

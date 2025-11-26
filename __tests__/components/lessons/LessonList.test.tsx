@@ -10,15 +10,15 @@ jest.mock('next/navigation', () => ({
 }));
 
 jest.mock('@/components/lessons/useLessonList');
-jest.mock('@/components/lessons/LessonList.Header', () => () => (
-  <div data-testid="lesson-list-header">Header</div>
-));
-jest.mock('@/components/lessons/LessonList.Filter', () => () => (
-  <div data-testid="lesson-list-filter">Filter</div>
-));
-jest.mock('@/components/lessons/LessonTable', () => ({ role }: { role: string }) => (
-  <div data-testid="lesson-table">Table ({role})</div>
-));
+jest.mock('@/components/lessons/LessonList.Header', () => function MockHeader() {
+  return <div data-testid="lesson-list-header">Header</div>;
+});
+jest.mock('@/components/lessons/LessonList.Filter', () => function MockFilter() {
+  return <div data-testid="lesson-list-filter">Filter</div>;
+});
+jest.mock('@/components/lessons/LessonTable', () => function MockTable({ role }: { role: string }) {
+  return <div data-testid="lesson-table">Table ({role})</div>;
+});
 
 describe('LessonList', () => {
   const mockUseSearchParams = useSearchParams as jest.Mock;
