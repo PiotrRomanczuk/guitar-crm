@@ -40,7 +40,6 @@ export async function getSongStudents(songId: string): Promise<SongStudentItem[]
 
   const studentMap = new Map<string, SongStudentItem>();
 
-  // eslint-disable-next-line complexity
   data.forEach((item) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const lesson = Array.isArray(item.lessons) ? item.lessons[0] : (item.lessons as any);
