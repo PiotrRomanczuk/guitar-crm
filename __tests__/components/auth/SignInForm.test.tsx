@@ -25,7 +25,7 @@ describe('SignInForm', () => {
 			expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
 			expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
 			expect(
-				screen.getByRole('button', { name: /sign in/i })
+				screen.getByRole('button', { name: /^sign in$/i })
 			).toBeInTheDocument();
 		});
 
@@ -91,7 +91,7 @@ describe('SignInForm', () => {
 		it('should not submit form with validation errors', async () => {
 			render(<SignInForm />);
 
-			const submitButton = screen.getByRole('button', { name: /sign in/i });
+			const submitButton = screen.getByRole('button', { name: /^sign in$/i });
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
@@ -116,7 +116,7 @@ describe('SignInForm', () => {
 				target: { value: 'test123_student' },
 			});
 
-			const submitButton = screen.getByRole('button', { name: /sign in/i });
+			const submitButton = screen.getByRole('button', { name: /^sign in$/i });
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
@@ -142,7 +142,7 @@ describe('SignInForm', () => {
 				target: { value: 'test123_student' },
 			});
 
-			fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+			fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
 
 			await waitFor(() => {
 				expect(mockSignInWithPassword).toHaveBeenCalled();
@@ -164,7 +164,7 @@ describe('SignInForm', () => {
 				target: { value: 'wrongpassword' },
 			});
 
-			fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+			fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
 
 			await waitFor(() => {
 				expect(
@@ -188,7 +188,7 @@ describe('SignInForm', () => {
 				target: { value: 'test123_student' },
 			});
 
-			fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+			fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
 
 			await waitFor(() => {
 				expect(screen.getByText(/email not confirmed/i)).toBeInTheDocument();
@@ -222,7 +222,7 @@ describe('SignInForm', () => {
 				target: { value: 'test123_student' },
 			});
 
-			const submitButton = screen.getByRole('button', { name: /sign in/i });
+			const submitButton = screen.getByRole('button', { name: /^sign in$/i });
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
@@ -257,7 +257,7 @@ describe('SignInForm', () => {
 				target: { value: 'test123_student' },
 			});
 
-			fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+			fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
 
 			await waitFor(() => {
 				expect(screen.getByText(/signing in/i)).toBeInTheDocument();
@@ -283,7 +283,7 @@ describe('SignInForm', () => {
 			});
 			fireEvent.change(passwordInput, { target: { value: 'test123_student' } });
 
-			fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+			fireEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
 
 			await waitFor(() => {
 				expect(emailInput.value).toBe('');
