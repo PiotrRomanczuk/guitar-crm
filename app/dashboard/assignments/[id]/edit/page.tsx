@@ -28,10 +28,10 @@ async function getAssignment(id: string): Promise<Assignment | null> {
   const { data, error } = await query.single();
 
   if (error || !data) return null;
-  
+
   return {
     ...data,
-    user_id: data.student_id
+    user_id: data.student_id,
   } as Assignment;
 }
 

@@ -72,11 +72,9 @@ export function StudentRepertoire({ repertoire }: Props) {
           </Card>
         );
       })}
-      
+
       {repertoire.length === 0 && (
-        <div className="text-center text-muted-foreground py-8">
-          No songs in repertoire yet.
-        </div>
+        <div className="text-center text-muted-foreground py-8">No songs in repertoire yet.</div>
       )}
     </div>
   );

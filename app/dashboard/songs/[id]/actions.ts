@@ -15,7 +15,8 @@ export async function getSongStudents(songId: string): Promise<SongStudentItem[]
 
   const { data, error } = await supabase
     .from('lesson_songs')
-    .select(`
+    .select(
+      `
       status,
       created_at,
       lessons!inner (
@@ -27,7 +28,8 @@ export async function getSongStudents(songId: string): Promise<SongStudentItem[]
           last_name
         )
       )
-    `)
+    `
+    )
     .eq('song_id', songId)
     .order('created_at', { ascending: false });
 
@@ -49,12 +51,15 @@ export async function getSongStudents(songId: string): Promise<SongStudentItem[]
     if (!student) return;
 
     const studentId = student.id;
-    
+
     // Since ordered by created_at desc, first one is latest
     if (!studentMap.has(studentId)) {
-      const name = student.full_name || 
-                   (student.first_name && student.last_name ? `${student.first_name} ${student.last_name}` : 'Unknown Student');
-      
+      const name =
+        student.full_name ||
+        (student.first_name && student.last_name
+          ? `${student.first_name} ${student.last_name}`
+          : 'Unknown Student');
+
       studentMap.set(studentId, {
         studentId,
         name,

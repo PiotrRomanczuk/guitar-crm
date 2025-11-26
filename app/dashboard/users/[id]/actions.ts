@@ -25,7 +25,8 @@ export async function getStudentRepertoire(studentId: string): Promise<Repertoir
 
   const { data, error } = await supabase
     .from('lesson_songs')
-    .select(`
+    .select(
+      `
       status,
       created_at,
       songs (
@@ -37,7 +38,8 @@ export async function getStudentRepertoire(studentId: string): Promise<Repertoir
         student_id,
         scheduled_at
       )
-    `)
+    `
+    )
     .eq('lessons.student_id', studentId)
     .order('created_at', { ascending: false });
 
@@ -61,7 +63,7 @@ export async function getStudentRepertoire(studentId: string): Promise<Repertoir
     if (!songMap.has(songId)) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const lesson = Array.isArray(item.lessons) ? item.lessons[0] : (item.lessons as any);
-      
+
       songMap.set(songId, {
         songId: song.id,
         title: song.title,
