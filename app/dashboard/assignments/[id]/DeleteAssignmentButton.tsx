@@ -16,7 +16,7 @@ export function DeleteAssignmentButton({ assignmentId }: { assignmentId: string 
         throw new Error('Failed to delete assignment');
       }
 
-      window.location.href = '/dashboard/assignements';
+      window.location.href = '/dashboard/assignments';
     } catch (error) {
       alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

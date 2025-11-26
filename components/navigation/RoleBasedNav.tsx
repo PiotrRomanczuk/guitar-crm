@@ -51,8 +51,8 @@ export function RoleBasedNav({
     navItems.push(
       { href: '/dashboard/songs', label: 'Songs', icon: '🎵' },
       { href: '/dashboard/lessons', label: 'Lessons', icon: '📚' },
-      { href: '/dashboard/assignements', label: 'Assignments', icon: '�' },
-      { href: '/dashboard/admin/users', label: 'Users', icon: '👥' }
+      { href: '/dashboard/assignments', label: 'Assignments', icon: '' },
+      { href: '/dashboard/users', label: 'Users', icon: '👥' }
     );
   } else {
     // Teacher/Student navigation
@@ -70,11 +70,11 @@ export function RoleBasedNav({
       // { href: '/progress', label: 'My Progress', icon: '📈' }
     }
 
-    // Everyone can access songs, lessons, and assignements
+    // Everyone can access songs, lessons, and assignments
     navItems.push(
       { href: '/dashboard/songs', label: 'Songs', icon: '🎵' },
       { href: '/dashboard/lessons', label: 'Lessons', icon: '📚' },
-      { href: '/dashboard/assignements', label: 'Assignments', icon: '📋' }
+      { href: '/dashboard/assignments', label: 'Assignments', icon: '📋' }
     );
   }
 
