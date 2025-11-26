@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { getGoogleEvents } from '@/app/dashboard/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar, Clock, MapPin, ArrowRight } from 'lucide-react';
 import { ConnectGoogleButton } from './ConnectGoogleButton';
 
 interface GoogleEvent {
@@ -16,7 +18,11 @@ interface GoogleEvent {
   htmlLink: string;
 }
 
-export function CalendarEventsList() {
+interface CalendarEventsListProps {
+  limit?: number;
+}
+
+export function CalendarEventsList({ limit }: CalendarEventsListProps) {
   const [events, setEvents] = useState<GoogleEvent[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,7 +92,7 @@ export function CalendarEventsList() {
       <CardContent>
         {events && events.length > 0 ? (
           <div className="space-y-4">
-            {events.map((event) => (
+            {(limit ? events.slice(0, limit) : events).map((event) => (
               <div
                 key={event.id}
                 className="flex flex-col gap-1 p-3 border rounded-lg hover:bg-accent/50 transition-colors"
@@ -106,6 +112,16 @@ export function CalendarEventsList() {
                 </div>
               </div>
             ))}
+
+            {limit && events.length > limit && (
+              <div className="pt-2">
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href="/dashboard/calendar">
+                    View all events <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center py-8 text-muted-foreground">No upcoming events found.</div>

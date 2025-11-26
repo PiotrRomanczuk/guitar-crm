@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { getPotentialCustomerEvents } from '@/app/dashboard/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Mail, Phone, Calendar as CalendarIcon } from 'lucide-react';
+import { Users, Mail, Phone } from 'lucide-react';
 
 interface GoogleEvent {
   id: string;
@@ -27,18 +27,23 @@ interface PotentialUser {
 export function PotentialUsersList() {
   const [users, setUsers] = useState<PotentialUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [rawCount, setRawCount] = useState(0);
 
   useEffect(() => {
     async function fetchUsers() {
       try {
         const events = await getPotentialCustomerEvents();
         if (events) {
-          setRawCount(events.length);
           const parsedUsers = (events as GoogleEvent[])
-            .map(event => parseUserFromEvent(event))
+            .map((event) => parseUserFromEvent(event))
             .filter((user): user is PotentialUser => user !== null);
-          setUsers(parsedUsers);
+
+          // Filter duplicates based on email
+          const uniqueUsers = parsedUsers.filter(
+            (user, index, self) =>
+              !user.email || index === self.findIndex((t) => t.email === user.email)
+          );
+
+          setUsers(uniqueUsers);
         }
       } catch (err) {
         console.error(err);
@@ -49,28 +54,39 @@ export function PotentialUsersList() {
     fetchUsers();
   }, []);
 
-  if (loading) return <div className="p-4 text-center text-muted-foreground">Loading potential users...</div>;
+  if (loading)
+    return <div className="p-4 text-center text-muted-foreground">Loading potential users...</div>;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="w-5 h-5" />
-          Potential Users {rawCount > 0 && <span className="text-sm font-normal text-muted-foreground">({users.length} matched / {rawCount} events)</span>}
+          Potential Users{' '}
+          <span className="text-sm font-normal text-muted-foreground">({users.length} unique)</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4 max-h-[400px] overflow-y-auto">
-          {users.map(user => (
-            <div key={user.id} className="flex flex-col p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+          {users.map((user) => (
+            <div
+              key={user.id}
+              className="flex flex-col p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+            >
               <div className="font-medium flex justify-between">
                 <span>{user.name}</span>
-                {user.name === 'Unknown' && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Check Details</span>}
+                {user.name === 'Unknown' && (
+                  <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">
+                    Check Details
+                  </span>
+                )}
               </div>
               {user.name === 'Unknown' && user.originalSummary && (
-                <div className="text-xs text-muted-foreground mt-0.5">Event: {user.originalSummary}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  Event: {user.originalSummary}
+                </div>
               )}
-              
+
               <div className="text-sm text-muted-foreground flex flex-col gap-1 mt-1">
                 {user.email && (
                   <div className="flex items-center gap-2">
@@ -82,13 +98,12 @@ export function PotentialUsersList() {
                     <Phone className="w-3 h-3" /> {user.phone}
                   </div>
                 )}
-                <div className="flex items-center gap-2">
-                  <CalendarIcon className="w-3 h-3" /> {new Date(user.eventDate).toLocaleDateString()}
-                </div>
-                
+
                 {!user.email && !user.phone && user.rawDescription && (
                   <div className="mt-2 text-xs bg-muted p-2 rounded whitespace-pre-wrap">
-                    {user.rawDescription.length > 150 ? user.rawDescription.substring(0, 150) + '...' : user.rawDescription}
+                    {user.rawDescription.length > 150
+                      ? user.rawDescription.substring(0, 150) + '...'
+                      : user.rawDescription}
                   </div>
                 )}
               </div>
@@ -96,9 +111,7 @@ export function PotentialUsersList() {
           ))}
           {users.length === 0 && (
             <div className="text-center text-muted-foreground py-4">
-              {rawCount > 0 
-                ? `Found ${rawCount} events but couldn't parse user details. Check the event descriptions.` 
-                : "No potential users found from recent 'First Lesson' events."}
+              No potential users found from recent 'First Lesson' events.
             </div>
           )}
         </div>
@@ -126,7 +139,11 @@ function extractEmail(line: string): string | undefined {
 
 function extractPhone(line: string): string | undefined {
   const lowerLine = line.toLowerCase();
-  if (lowerLine.includes('telefon:') || lowerLine.includes('phone:') || lowerLine.includes('tel:')) {
+  if (
+    lowerLine.includes('telefon:') ||
+    lowerLine.includes('phone:') ||
+    lowerLine.includes('tel:')
+  ) {
     return line.split(':')[1]?.trim();
   }
   return undefined;
@@ -169,14 +186,16 @@ function resolveName(event: GoogleEvent, extractedNameFromDesc?: string): string
   if (name.toLowerCase() === 'pierwsza lekcja') {
     name = 'Unknown';
   }
-  
+
   return name;
 }
 
-function extractInfoFromAttendees(attendees?: { email: string; displayName?: string; self?: boolean }[]) {
+function extractInfoFromAttendees(
+  attendees?: { email: string; displayName?: string; self?: boolean }[]
+) {
   if (!attendees) return { email: undefined, name: undefined };
-  
-  const attendee = attendees.find(a => !a.self);
+
+  const attendee = attendees.find((a) => !a.self);
   if (attendee) {
     return { email: attendee.email, name: attendee.displayName };
   }
@@ -215,7 +234,7 @@ function parseUserFromEvent(event: GoogleEvent): PotentialUser | null {
 
   // Relaxed filter: Return even if unknown, so user can see the raw data
   // We can filter strictly later if needed, but for now visibility is key
-  
+
   return {
     id: event.id,
     name,
@@ -224,6 +243,6 @@ function parseUserFromEvent(event: GoogleEvent): PotentialUser | null {
     eventDate: event.start.dateTime || event.start.date || '',
     sourceEventId: event.id,
     originalSummary: event.summary,
-    rawDescription: event.description
+    rawDescription: event.description,
   };
 }

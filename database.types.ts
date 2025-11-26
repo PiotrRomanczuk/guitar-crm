@@ -167,6 +167,7 @@ export type Database = {
           teacher_id: string;
           title: string | null;
           updated_at: string;
+          google_event_id: string | null;
         };
         Insert: {
           created_at?: string;
@@ -179,6 +180,7 @@ export type Database = {
           teacher_id: string;
           title?: string | null;
           updated_at?: string;
+          google_event_id?: string | null;
         };
         Update: {
           created_at?: string;
@@ -191,6 +193,7 @@ export type Database = {
           teacher_id?: string;
           title?: string | null;
           updated_at?: string;
+          google_event_id?: string | null;
         };
         Relationships: [
           {
@@ -230,6 +233,7 @@ export type Database = {
           email: string;
           full_name: string | null;
           id: string;
+          phone: string | null;
           is_admin: boolean;
           is_development: boolean;
           is_student: boolean;
