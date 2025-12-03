@@ -27,7 +27,7 @@ export default function ProfilePageClient({ userId }: ProfilePageClientProps) {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-2xl">
         <ProfileHeader />
-        {error && <ProfileAlert type="error" message={error} />}
+        {error && <ProfileAlert type="error" message={error.message} />}
         {success && <ProfileAlert type="success" message="Profile updated successfully" />}
         <ProfileForm
           formData={formData}

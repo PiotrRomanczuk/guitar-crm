@@ -1,126 +1,104 @@
 # Admin E2E Tests - Quick Reference
 
-## 🚀 Quick Start
+## 🚀 Run Tests
 
 ```bash
-# Run all admin E2E tests
+# All admin tests
 npm run e2e -- --spec "cypress/e2e/admin/**/*.cy.ts"
 
-# Open Cypress UI for interactive testing
+# Specific test file
+npm run e2e -- --spec "cypress/e2e/admin/admin-songs.cy.ts"
+
+# Interactive mode
 npm run e2e:open
 ```
 
-## 📋 Test Files
+## 📋 Test Files (Consolidated)
 
-| Command                                                                     | File           | Tests          | Time |
-| --------------------------------------------------------------------------- | -------------- | -------------- | ---- |
-| `npm run e2e -- --spec "cypress/e2e/admin/admin-sign-in.cy.ts"`             | Authentication | Login, session | ~10s |
-| `npm run e2e -- --spec "cypress/e2e/admin/admin-dashboard.cy.ts"`           | Dashboard      | 13 scenarios   | ~30s |
-| `npm run e2e -- --spec "cypress/e2e/admin/admin-create-song-journey.cy.ts"` | Create Song    | Full workflow  | ~15s |
-| `npm run e2e -- --spec "cypress/e2e/admin/admin-song-edit.cy.ts"`           | Edit Song      | 3 scenarios    | ~20s |
-| `npm run e2e -- --spec "cypress/e2e/admin/admin-song-delete.cy.ts"`         | Delete Song    | 3 scenarios    | ~25s |
-| `npm run e2e -- --spec "cypress/e2e/admin/admin-complete-journey.cy.ts"`    | Full Journey   | 11 steps       | ~60s |
-
-## 🎯 What's Tested
-
-### ✅ Fully Tested
-
-- Admin login and authentication
-- Dashboard display and navigation
-- Songs: Create, Read, Update, Delete
-- Error handling (validation, API errors)
-- Responsive design (mobile, tablet)
-- Session persistence
-
-### ⏳ Pending (No Routes Yet)
-
-- User management CRUD
-- Settings management
-- Reports and analytics
-
-## 📊 Coverage Stats
-
-- **Total Tests**: 40+ scenarios
-- **Total Files**: 7 test files
-- **Coverage**: ~95% of implemented admin features
-- **Runtime**: ~3-4 minutes for full suite
+| File                  | Tests | Time | Coverage                          |
+| --------------------- | ----- | ---- | --------------------------------- |
+| `admin-sign-in.cy.ts` | 2     | 5s   | Login, access control             |
+| `admin-dashboard.cy.ts` | 4   | 10s  | Dashboard display, navigation     |
+| `admin-songs.cy.ts`   | 6     | 30s  | Create, Read, Update, Delete      |
+| **Total**             | **12**| **45s** | All admin features            |
 
 ## 🔧 Test Credentials
 
-```typescript
-Admin User:
-  Email: p.romanczuk@gmail.com
-  Password: test123_admin
+```
+Email: p.romanczuk@gmail.com
+Password: test123_admin
 ```
 
-## 📝 Key Test IDs
+## 📝 What's Tested
 
-```typescript
-// Authentication
-[data-testid="email"]
-[data-testid="password"]
-[data-testid="signin-button"]
+### ✅ Admin Sign-In
+- Admin login flow
+- Redirect to dashboard
+- Songs page access
 
-// Songs
-[data-testid="song-table"]
-[data-testid="song-row"]
-[data-testid="song-new-button"]
-[data-testid="song-edit-button"]
-[data-testid="song-delete-button"]
+### ✅ Admin Dashboard
+- Title and layout
+- Statistics display
+- Navigation links
+- Error handling
 
-// Forms
-[data-testid="song-title"]
-[data-testid="song-author"]
-[data-testid="song-level"]
-[data-testid="song-key"]
-[data-testid="song-save"]
+### ✅ Admin Songs CRUD
+- Create songs with validation
+- Read/display songs
+- Edit song details
+- Delete songs
+- Form validation errors
+- Cancel operations
+
+## 🎯 Common Commands
+
+```bash
+# Run with headed browser
+npm run e2e -- --headed --spec "cypress/e2e/admin/**/*.cy.ts"
+
+# Run in debug mode
+npm run e2e -- --spec "cypress/e2e/admin/admin-songs.cy.ts" --debug
+
+# Clear cache if tests fail
+npx cypress cache clear
 ```
+
+## 📊 Performance
+
+- **Consolidated from**: 10+ files → 3 files
+- **Test reduction**: 40+ tests → 12 focused tests
+- **Total runtime**: ~45 seconds
+- **Per test average**: 5-10 seconds
 
 ## 🐛 Troubleshooting
 
-### Tests Failing?
+| Issue | Solution |
+| --- | --- |
+| Tests fail | `npm run seed && npx cypress cache clear` |
+| Can't find elements | Verify `data-testid` attributes in components |
+| Database errors | Restart: `npm run setup:db` |
+| Flaky tests | Run 3x consecutively to verify |
 
-```bash
-# 1. Ensure database is seeded
-npm run seed
+## 🔑 Key Test IDs
 
-# 2. Clear Cypress cache
-npx cypress cache clear
-npm run e2e:open
-
-# 3. Check screenshots
-ls cypress/screenshots/admin/
+```
+Authentication: [data-testid="email"], [data-testid="password"]
+Songs: [data-testid="song-table"], [data-testid="song-new-button"]
+Forms: [data-testid="song-title"], [data-testid="song-save"]
+Actions: [data-testid="song-edit-button"], [data-testid="song-delete-button"]
 ```
 
-### Can't See Test Results?
+## ⏳ Pending Features
 
-```bash
-# Run in headed mode
-npm run e2e -- --headed --spec "cypress/e2e/admin/**/*.cy.ts"
-```
-
-## 📚 Full Documentation
-
-See `cypress/e2e/admin/README.md` for:
-
-- Detailed test scenarios
-- API interception patterns
-- Best practices
-- CI/CD integration
-- Adding new tests
-
-## ✅ Before Committing
-
-```bash
-# Run quality checks
-npm run quality
-
-# Run E2E tests
-npm run e2e -- --spec "cypress/e2e/admin/**/*.cy.ts"
-```
+No routes yet for:
+- User management
+- Lessons CRUD
+- Assignments
+- Settings
+- Reports
+- Logs
 
 ---
 
-**Total Runtime**: ~3-4 minutes  
-**Success Rate**: 100% expected  
-**Last Updated**: November 9, 2025
+**Last Updated**: November 10, 2025  
+**Status**: ✅ All implemented features tested and working

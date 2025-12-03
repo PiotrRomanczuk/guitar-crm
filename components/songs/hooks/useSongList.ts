@@ -1,64 +1,42 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { apiClient } from '@/lib/api-client';
 import type { SongWithStatus, SongFilters } from '../types';
 import { buildSongFilterParams, getSongEndpoint } from './useSongList.helpers';
 
 export default function useSongList() {
-	const { user, isTeacher, isAdmin, loading: authLoading } = useAuth();
-	const [songs, setSongs] = useState<SongWithStatus[]>([]);
-	const [songsLoading, setSongsLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const [filters, setFilters] = useState<SongFilters>({ level: null });
+  const { user, isTeacher, isAdmin, loading: authLoading } = useAuth();
+  const [filters, setFilters] = useState<SongFilters>({ level: null });
 
-	const loadSongs = useCallback(async () => {
-		// Wait for auth to finish loading
-		if (authLoading) {
-			return;
-		}
+  const {
+    data: songs = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['songs', user?.id, filters, isAdmin, isTeacher],
+    queryFn: async () => {
+      if (!user?.id) {
+        throw new Error('Not authenticated');
+      }
 
-		if (!user?.id) {
-			setError('Not authenticated');
-			return;
-		}
+      const params = buildSongFilterParams(user.id, filters);
+      const endpoint = getSongEndpoint(isAdmin, isTeacher);
 
-		try {
-			setSongsLoading(true);
-			setError(null);
+      return apiClient.get<SongWithStatus[]>(`${endpoint}?${params}`);
+    },
+    enabled: !authLoading && !!user?.id,
+  });
 
-			const params = buildSongFilterParams(user.id, filters);
-			const endpoint = getSongEndpoint(isAdmin, isTeacher);
-
-			const response = await fetch(`${endpoint}?${params}`);
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.error || 'Failed to fetch songs');
-			}
-
-			const data = await response.json();
-			setSongs(data);
-			setError(null);
-		} catch (err) {
-			console.error('Error loading songs:', err);
-			setError(err instanceof Error ? err.message : 'Failed to load songs');
-			setSongs([]);
-		} finally {
-			setSongsLoading(false);
-		}
-	}, [authLoading, filters, isAdmin, isTeacher, user?.id]);
-
-	useEffect(() => {
-		void loadSongs();
-	}, [loadSongs]);
-
-	return {
-		songs,
-		loading: authLoading || songsLoading,
-		error,
-		filters,
-		setFilters,
-		refresh: loadSongs,
-	};
+  return {
+    songs,
+    loading: authLoading || isLoading,
+    error: error ? (error instanceof Error ? error.message : 'Failed to load songs') : null,
+    filters,
+    setFilters,
+    refresh: refetch,
+  };
 }

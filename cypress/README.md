@@ -2,43 +2,36 @@
 
 ## Available Test Suites
 
-- **admin-journey.cy.ts** - Admin user workflow testing
-- **teacher-journey.cy.ts** - Teacher user workflow testing
-- **student-journey.cy.ts** - Student user workflow testing
-- **user-journeys.cy.ts** - All user role workflows combined
-- **auth.cy.ts** - Authentication flows (sign in, sign up, forgot password)
-- **smoke.cy.ts** - Basic smoke tests for critical paths
+### Admin Tests (Fully Implemented)
+
+- **admin-sign-in.cy.ts** - Admin authentication & access control (2 tests)
+- **admin-dashboard.cy.ts** - Dashboard features & navigation (4 tests)
+- **admin-songs.cy.ts** - Complete songs CRUD operations (6 tests)
+
+**Status**: ✅ All 12 tests passing | Runtime: ~45 seconds
+
+### Other Test Suites (To Be Implemented)
+
+- Teacher management tests
+- Student management tests
+- User role workflows
+- Authentication flows (sign up, forgot password)
+- Smoke tests for critical paths
 
 ## Running Tests
 
-### Interactive Test Selection (Recommended)
-
-Run the interactive menu to choose which test to run:
-
-```bash
-npm run e2e:select
-```
-
-This will:
-
-- Show you all available tests
-- Let you choose which test to run
-- Automatically check if services are running
-- Offer to start services if needed
-- Option to run all tests or open Cypress UI
-
 ### Quick Commands
 
-Run all E2E tests (with auto-start of services):
+Run all admin E2E tests:
 
 ```bash
-npm run e2e:db
+npm run e2e -- --spec "cypress/e2e/admin/**/*.cy.ts"
 ```
 
-Run all E2E tests (requires services running):
+Run specific test file:
 
 ```bash
-npm run e2e
+npm run e2e -- --spec "cypress/e2e/admin/admin-songs.cy.ts"
 ```
 
 Open Cypress UI (interactive mode):
@@ -47,13 +40,13 @@ Open Cypress UI (interactive mode):
 npm run e2e:open
 ```
 
-Run specific test file:
+Run with headed browser (visual debugging):
 
 ```bash
-npx cypress run --spec "cypress/e2e/admin-journey.cy.ts"
+npm run e2e -- --headed --spec "cypress/e2e/admin/**/*.cy.ts"
 ```
 
-### Prerequisites
+## Prerequisites
 
 Before running E2E tests, ensure:
 
@@ -63,113 +56,47 @@ Before running E2E tests, ensure:
    npm run setup:db
    ```
 
-2. **Test user is seeded**:
+2. **Database is seeded**:
 
    ```bash
-   npm run seed:test-user
+   npm run seed
    ```
 
-3. **Development server** (the interactive script can start this for you):
+3. **Development server is running**:
+
    ```bash
    npm run dev
    ```
 
 ## Test Structure
 
-Each test suite follows this pattern:
+Each test file follows this pattern:
 
 ```typescript
 describe('Feature Name', () => {
-	beforeEach(() => {
-		// Setup: Navigate to page, authenticate, etc.
-	});
+  beforeEach(() => {
+    // Setup: Navigate to page, authenticate, etc.
+  });
 
-	it('should do something specific', () => {
-		// Arrange: Set up test conditions
-		// Act: Perform actions
-		// Assert: Verify results
-	});
+  it('should do something specific', () => {
+    // Arrange: Set up test conditions
+    // Act: Perform actions
+    // Assert: Verify results
+  });
 });
 ```
-
-## Writing New Tests
-
-### Best Practices
-
-1. **Use data-testid attributes** for reliable selectors:
-
-   ```tsx
-   <button data-testid='submit-button'>Submit</button>
-   ```
-
-   ```typescript
-   cy.get('[data-testid="submit-button"]').click();
-   ```
-
-2. **Keep tests isolated** - Each test should be independent
-
-3. **Use descriptive names** - Test names should clearly describe what they test
-
-4. **Clean up after tests** - Reset state when needed
-
-5. **Wait for elements properly**:
-   ```typescript
-   cy.get('[data-testid="element"]').should('be.visible');
-   ```
-
-### Adding a New Test
-
-1. Create test file in `cypress/e2e/`:
-
-   ```bash
-   touch cypress/e2e/my-feature.cy.ts
-   ```
-
-2. Add test structure:
-
-   ```typescript
-   describe('My Feature', () => {
-   	beforeEach(() => {
-   		cy.visit('/my-feature');
-   	});
-
-   	it('should perform expected behavior', () => {
-   		// Test implementation
-   	});
-   });
-   ```
-
-3. Run via interactive script:
-   ```bash
-   npm run e2e:select
-   ```
 
 ## Debugging Tests
 
 ### Open Cypress UI
 
-Best for debugging individual tests:
-
 ```bash
-npm run e2e:select
-# Choose option 00 for Cypress UI
+npm run e2e:open
 ```
 
 ### View Screenshots
 
-Failed tests automatically save screenshots to:
-
-```
-cypress/screenshots/
-```
-
-### View Videos
-
-Test runs record videos to:
-
-```
-cypress/videos/
-```
+Failed tests automatically save screenshots to `cypress/screenshots/`.
 
 ### Enable Debug Mode
 
@@ -179,45 +106,29 @@ Add `cy.debug()` in your test:
 cy.get('[data-testid="element"]').debug().click();
 ```
 
-## Continuous Integration
-
-E2E tests are intentionally **excluded** from the quality check script (`npm run quality`) because they take too long for pre-commit checks.
-
-Run E2E tests separately before creating PRs:
-
-```bash
-npm run e2e:select
-# Choose option 0 to run all tests
-```
-
-## Configuration
-
-Cypress configuration is in `cypress.config.ts`:
-
-- Base URL: `http://localhost:3000`
-- Video recording: Enabled
-- Screenshot on failure: Enabled
-- Viewport: 1280x720
-
 ## Troubleshooting
 
-### Tests Failing to Connect
+### Tests Failing
 
-- Ensure development server is running on `http://localhost:3000`
-- Check Supabase is running on `http://127.0.0.1:54321`
+- Ensure development server is running: `npm run dev`
+- Re-seed database: `npm run seed`
+- Clear Cypress cache: `npx cypress cache clear`
 
 ### Authentication Issues
 
-- Re-seed test user: `npm run seed:test-user`
-- Check `.env.local` has correct Supabase credentials
+- Verify `.env.local` has correct Supabase credentials
+- Check test user exists: `p.romanczuk@gmail.com`
 
 ### Timeout Errors
 
-- Increase timeout in test: `cy.get('element', { timeout: 10000 })`
-- Check network tab in Cypress UI for slow requests
+Increase timeout in tests:
+
+```typescript
+cy.get('element', { timeout: 10000 }).should('be.visible');
+```
 
 ### Flaky Tests
 
-- Add proper waits: `.should('be.visible')` before interactions
+- Use proper assertions instead of `cy.wait(1000)`
+- Add `.should('be.visible')` before interactions
 - Use `cy.intercept()` to wait for API calls
-- Avoid using `cy.wait(1000)` - use proper assertions instead

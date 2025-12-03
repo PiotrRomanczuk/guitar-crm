@@ -40,10 +40,10 @@ Successfully implemented a complete, production-ready assignment management syst
 
 **Pages** (4 routes):
 
-- `/dashboard/assignements` - Main list view
-- `/dashboard/assignements/new` - Create new assignment
-- `/dashboard/assignements/[id]` - View details
-- `/dashboard/assignements/[id]/edit` - Edit assignment
+- `/dashboard/assignments` - Main list view
+- `/dashboard/assignments/new` - Create new assignment
+- `/dashboard/assignments/[id]` - View details
+- `/dashboard/assignments/[id]/edit` - Edit assignment
 
 ### 3. E2E Tests (8 test cases)
 
@@ -183,10 +183,10 @@ Following established small-component policy:
 - `/components/assignments/AssignmentForm.tsx` (115 lines)
 - `/components/assignments/AssignmentForm.Fields.tsx` (155 lines)
 - `/components/assignments/AssignmentForm.Actions.tsx` (27 lines)
-- `/app/dashboard/assignements/page.tsx` (5 lines)
-- `/app/dashboard/assignements/new/page.tsx` (13 lines)
-- `/app/dashboard/assignements/[id]/page.tsx` (236 lines)
-- `/app/dashboard/assignements/[id]/edit/page.tsx` (49 lines)
+- `/app/dashboard/assignments/page.tsx` (5 lines)
+- `/app/dashboard/assignments/new/page.tsx` (13 lines)
+- `/app/dashboard/assignments/[id]/page.tsx` (236 lines)
+- `/app/dashboard/assignments/[id]/edit/page.tsx` (49 lines)
 - `/cypress/e2e/admin/admin-assignment-journey.cy.ts` (86 lines)
 
 ### Modified Files

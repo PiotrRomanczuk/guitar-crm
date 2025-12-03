@@ -148,10 +148,48 @@ gh secret set CODECOV_TOKEN
 | `NEXT_PUBLIC_SUPABASE_URL`      | ✅ Yes      | Supabase Dashboard → API | Database connection |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ Yes      | Supabase Dashboard → API | Public API key      |
 | `SUPABASE_SERVICE_ROLE_KEY`     | ✅ Yes      | Supabase Dashboard → API | Admin operations    |
+| `SUPABASE_PROJECT_ID`           | ✅ Yes      | Supabase Dashboard → URL | Project reference   |
+| `SUPABASE_DB_PASSWORD`          | ✅ Yes      | Supabase Dashboard       | Direct DB access    |
+| `SUPABASE_ACCESS_TOKEN`         | ✅ Yes      | Supabase Dashboard       | CLI authentication  |
 | `VERCEL_TOKEN`                  | ✅ Yes      | Vercel Account → Tokens  | Deployment auth     |
 | `VERCEL_ORG_ID`                 | ✅ Yes      | `.vercel/project.json`   | Vercel organization |
 | `VERCEL_PROJECT_ID`             | ✅ Yes      | `.vercel/project.json`   | Vercel project      |
 | `CODECOV_TOKEN`                 | ⚪ Optional | codecov.io               | Coverage reports    |
+
+### Database Setup for CI/CD
+
+**IMPORTANT:** The CI/CD pipeline validates the existing database but does NOT automatically reset or migrate it.
+
+#### Initial Setup (One-Time)
+
+1. **Create a test/staging Supabase project** for CI/CD (separate from production)
+
+2. **Apply migrations manually:**
+   ```bash
+   # Link to your test database
+   supabase link --project-ref YOUR_TEST_PROJECT_REF
+   
+   # Apply all migrations
+   supabase db push
+   
+   # Optionally seed with test data
+   supabase db push --include-seed
+   ```
+
+3. **Configure secrets** with the test database credentials
+
+#### Ongoing Database Management
+
+- **Schema changes**: Apply migrations manually before pushing code that depends on them
+- **Test data**: The database quality check validates test data presence
+- **CI behavior**: The pipeline only validates; it does NOT modify the database
+- **Manual resets**: If needed, use `supabase db reset --linked` locally, NOT in CI
+
+**Why this approach?**
+- Prevents accidental data loss during automated tests
+- Ensures all team members can validate against the same database state
+- Separates testing from database administration
+- Makes migration application explicit and trackable
 
 ## 🔄 Workflow Overview
 
@@ -176,35 +214,39 @@ The CI/CD pipeline runs on:
 Stage 1: Code Quality (Parallel)
 ├─ Lint & Type Check
 ├─ Unit Tests (with coverage)
-├─ Database Quality
 └─ Security Audit
          ↓
-Stage 2: Build & Test
+Stage 2: Build & Database Validation
 ├─ Build Next.js App
-└─ E2E Tests (Cypress)
+└─ Database Quality Checks (validates existing DB state)
          ↓
-Stage 3: Quality Gate
+Stage 3: E2E Tests
+└─ Cypress tests against validated database
+         ↓
+Stage 4: Quality Gate
 └─ Aggregate Results
          ↓
-Stage 4: Deploy
+Stage 5: Deploy
 ├─ Production (main branch only)
 └─ Preview (pull requests)
 ```
 
 ### Job Details
 
-| Job                   | Duration | Purpose                  | Artifacts           |
-| --------------------- | -------- | ------------------------ | ------------------- |
-| **Lint & Type Check** | ~30s     | ESLint + TypeScript      | None                |
-| **Unit Tests**        | ~1-2min  | Jest with 70% coverage   | Coverage reports    |
-| **Build**             | ~2-3min  | Next.js production build | .next directory     |
-| **E2E Tests**         | ~3-5min  | Cypress with Supabase    | Screenshots, videos |
-| **Database Quality**  | ~1-2min  | Schema validation        | None                |
-| **Security Audit**    | ~30s     | npm audit + secrets scan | None                |
-| **Quality Gate**      | ~10s     | Aggregate results        | None                |
-| **Deploy**            | ~1-2min  | Vercel deployment        | Deployment URL      |
+| Job                   | Duration | Purpose                               | Artifacts           |
+| --------------------- | -------- | ------------------------------------- | ------------------- |
+| **Lint & Type Check** | ~30s     | ESLint + TypeScript                   | None                |
+| **Unit Tests**        | ~1-2min  | Jest with 70% coverage                | Coverage reports    |
+| **Build**             | ~2-3min  | Next.js production build              | .next directory     |
+| **Database Quality**  | ~1-2min  | Schema validation & quality checks    | None                |
+| **E2E Tests**         | ~3-5min  | Cypress with existing DB              | Screenshots, videos |
+| **Security Audit**    | ~30s     | npm audit + secrets scan              | None                |
+| **Quality Gate**      | ~10s     | Aggregate results                     | None                |
+| **Deploy**            | ~1-2min  | Vercel deployment                     | Deployment URL      |
 
 **Total Pipeline Time:** ~8-12 minutes
+
+**Important:** The pipeline **validates** the existing database state but does NOT reset or modify it. Database migrations must be applied manually.
 
 ## 🎯 Running Locally (Before Push)
 
@@ -293,14 +335,23 @@ npm run test:coverage
 # Add more tests
 ```
 
-#### ❌ E2E Fails: "Supabase connection timeout"
+#### ❌ E2E Fails: "Database schema not ready"
 
-**Cause:** Supabase not starting in CI
-**Solution:** Check `.github/workflows/ci-cd.yml`:
+**Cause:** Database migrations not applied to remote database
+**Solution:** Apply migrations manually before running tests:
 
-```yaml
-wait-on-timeout: 180 # Increase timeout
+```bash
+# Link to your test/staging database
+supabase link --project-ref your-test-project-ref
+
+# Apply migrations
+supabase db push
+
+# Verify database is ready
+npm run db:quality
 ```
+
+**Note:** CI/CD does NOT automatically apply migrations. This must be done manually to prevent accidental database changes.
 
 #### ❌ Deploy Fails: "Invalid token"
 

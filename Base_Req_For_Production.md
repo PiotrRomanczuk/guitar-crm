@@ -66,7 +66,46 @@ The Guitar CRM is a comprehensive web application designed to help guitar teache
   - Activate/deactivate accounts
   - Reset passwords and manage access
 
-### 2. Automated Email System
+### 2. Student Features
+
+#### Dashboard
+
+- **Overview**: Personalized view of next lesson, active assignments, and recent progress
+- **Notifications**: Alerts for new assignments, lesson notes, and schedule changes
+
+#### Lesson Management
+
+- **Lesson History**: Access full history of past lessons with teacher notes and feedback
+- **Upcoming Schedule**: View future scheduled lessons with date, time, and location/link
+- **Materials**: Access all resources linked to lessons (PDFs, audio files, video links)
+
+#### Practice & Assignments
+
+- **Assignment Tracker**: Clear list of active tasks with deadlines and priority levels
+- **Practice Log**: Simple interface to log practice time and notes for the teacher
+- **Status Updates**: Mark assignments as "In Progress" or "Ready for Review"
+- **Song Repertoire**: Personal library of all assigned songs with mastery status (Learning, Mastered)
+
+#### Profile
+
+- **Personal Details**: Manage contact information and preferences
+- **Stats**: View practice streaks and total songs learned
+
+### 3. Teacher Features
+
+#### Student Management
+
+- View assigned students and their progress
+- Schedule lessons and manage lesson flow
+- Track student advancement through difficulty levels
+
+#### Lesson Planning
+
+- Create lesson plans with song assignments
+- Set learning objectives and track completion
+- Monitor student practice and improvement
+
+### 4. Automated Email System
 
 #### Post-Lesson Notifications
 
@@ -88,34 +127,6 @@ The Guitar CRM is a comprehensive web application designed to help guitar teache
   - Pre-lesson reminders (configurable timing)
   - Assignment deadline reminders
   - Practice session encouragement emails
-
-### 3. Teacher Features
-
-#### Student Management
-
-- View assigned students and their progress
-- Schedule lessons and manage lesson flow
-- Track student advancement through difficulty levels
-
-#### Lesson Planning
-
-- Create lesson plans with song assignments
-- Set learning objectives and track completion
-- Monitor student practice and improvement
-
-### 4. Student Features
-
-#### Lesson Access
-
-- View upcoming and past lessons
-- Access assigned songs and practice materials
-- Track personal progress and achievements
-
-#### Practice Management
-
-- View current assignments and deadlines
-- Update practice status and notes
-- Request help or additional resources
 
 ## Technical Requirements
 

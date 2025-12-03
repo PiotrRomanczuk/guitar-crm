@@ -1,9 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
-import { headers } from 'next/headers';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
 interface UserProfile {
-  id: number;
+  id: string;
   user_id: string | null;
   email: string | null;
   firstName: string | null;

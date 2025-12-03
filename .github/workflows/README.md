@@ -18,12 +18,14 @@ Comprehensive continuous integration and deployment workflow that runs on push a
 1. **Lint & Type Check** - ESLint and TypeScript validation
 2. **Unit & Integration Tests** - Jest with 70% coverage threshold
 3. **Build** - Next.js production build
-4. **E2E Tests** - Cypress tests with local Supabase
-5. **Database Quality** - Database migration and quality checks
+4. **Database Quality** - Validates existing database schema and test data
+5. **E2E Tests** - Cypress tests with remote Supabase database
 6. **Security Audit** - npm audit and secret scanning
 7. **Quality Gate** - Aggregates all results
 8. **Deploy Production** - Deploys to Vercel on main branch
 9. **Deploy Preview** - Deploys preview for pull requests
+
+**Important**: Database Quality runs BEFORE E2E tests to validate the database state without modifying it. See [Database CI/CD Guide](/docs/DATABASE_CI_CD_GUIDE.md) for details.
 
 #### Required Secrets
 
@@ -34,6 +36,11 @@ Configure these in GitHub repository settings (Settings → Secrets → Actions)
 - `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anonymous key
 - `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key
+- `SUPABASE_PROJECT_ID` - Your Supabase project reference ID (for database quality checks)
+- `SUPABASE_DB_PASSWORD` - Your Supabase database password (for direct PostgreSQL access)
+- `SUPABASE_ACCESS_TOKEN` - Your Supabase CLI access token (for schema validation)
+
+**Note**: Use a separate test/staging Supabase project for CI/CD, NOT production!
 
 ##### Vercel Secrets (for deployment)
 
@@ -49,14 +56,18 @@ Configure these in GitHub repository settings (Settings → Secrets → Actions)
 
 ```
 lint-and-typecheck ─┐
-                    ├─→ build ─→ e2e-tests ─┐
-unit-tests ─────────┤                       │
-                    │                       ├─→ deploy-production
-database-quality ───┤                       │
-                    ├─→ quality-gate ───────┤
-security-audit ─────┘                       │
-                                            └─→ deploy-preview (PRs only)
+                    ├─→ build ─→ database-quality ─→ e2e-tests ─┐
+unit-tests ─────────┤                                            │
+                    │                                            ├─→ deploy-production
+                    ├─→ quality-gate ──────────────────────────┤
+security-audit ─────┘                                            │
+                                                                 └─→ deploy-preview (PRs only)
 ```
+
+**Key Changes from Previous Version**:
+- Database Quality now runs BEFORE E2E tests (validates state without modifying)
+- Removed automatic `supabase db reset` from E2E tests
+- Database schema validation is informational (non-blocking)
 
 #### Coverage Requirements
 
@@ -67,14 +78,24 @@ All unit and integration tests must maintain:
 - **70%** function coverage
 - **70%** line coverage
 
-#### Local Supabase in CI
+#### Remote Database in CI
 
-The workflow automatically:
+**Important Change**: The workflow NO LONGER automatically resets the database.
 
-1. Starts a local Supabase instance using Docker
-2. Runs all migrations
-3. Seeds test data
-4. Executes tests against the local instance
+The workflow now:
+
+1. Links to a remote test/staging Supabase database
+2. Validates the database schema (informational only)
+3. Runs quality checks on existing data
+4. Executes E2E tests against the existing database state
+
+**Database migrations must be applied manually** before pushing code that depends on them.
+
+See the [Database CI/CD Guide](/docs/DATABASE_CI_CD_GUIDE.md) for complete details on:
+- Why we don't auto-reset databases
+- How to apply migrations manually
+- Troubleshooting database issues
+- Best practices for database management in CI/CD
 
 #### Artifacts
 
@@ -222,9 +243,22 @@ npm ci
 
 Check that:
 
-1. Supabase CLI is installed correctly
-2. Docker is available in the runner
-3. Migrations are up to date
+1. Remote test database is set up and accessible
+2. Migrations have been applied manually to the test database
+3. Test data is seeded in the database
+4. All required Supabase secrets are configured correctly
+
+**If database quality check fails:**
+```bash
+# Apply migrations manually to test database
+supabase link --project-ref YOUR_TEST_PROJECT_REF
+supabase db push
+
+# Validate locally
+npm run db:quality
+```
+
+See [Database CI/CD Guide](/docs/DATABASE_CI_CD_GUIDE.md) for detailed troubleshooting.
 
 ### Coverage Threshold Failures
 

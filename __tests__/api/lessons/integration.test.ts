@@ -4,7 +4,7 @@
  */
 
 describe('Lesson API Integration Tests', () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   describe('Authorization Flow', () => {
     it('returns 401 when user is null', () => {
       const user = null;

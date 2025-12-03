@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { EntityLink, StatusBadge, getStatusVariant } from '@/components/shared';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog';
@@ -14,9 +15,9 @@ interface Props {
 }
 
 export default function SongListTable({ songs, canDelete = false, onDeleteSuccess }: Props) {
+  const router = useRouter();
   const [deletingSongId, setDeletingSongId] = useState<string | null>(null);
   const [songToDelete, setSongToDelete] = useState<Song | null>(null);
-  const router = useRouter();
 
   const handleDeleteClick = (song: Song) => {
     setSongToDelete(song);
@@ -38,6 +39,7 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
       setSongToDelete(null);
       setDeletingSongId(null);
       onDeleteSuccess?.();
+      router.refresh();
     } catch (error) {
       console.error('🎸 [FRONTEND] Delete failed:', error);
       setDeletingSongId(null);
@@ -93,28 +95,23 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
                 <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
                   {song.author}
                 </td>
-                <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2">
-                  {song.level && (
-                    <StatusBadge variant={getStatusVariant(song.level)}>
-                      {song.level}
-                    </StatusBadge>
-                  )}
+                <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
+                  {song.level}
                 </td>
                 <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
                   {song.key}
                 </td>
                 {canDelete && (
-                  <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
                     <button
-                      data-testid="song-delete-button"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeleteClick(song);
                       }}
-                      disabled={deletingSongId === song.id}
-                      className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:bg-gray-400"
+                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium"
+                      data-testid="delete-song-button"
                     >
-                      {deletingSongId === song.id ? 'Deleting...' : 'Delete'}
+                      Delete
                     </button>
                   </td>
                 )}
@@ -124,16 +121,14 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
         </table>
       </div>
 
-      {songToDelete && (
-        <DeleteConfirmationDialog
-          isOpen={true}
-          songTitle={songToDelete?.title || ''}
-          hasLessonAssignments={false}
-          onConfirm={handleConfirmDelete}
-          onClose={handleCancelDelete}
-          isDeleting={deletingSongId === songToDelete?.id}
-        />
-      )}
+      <DeleteConfirmationDialog
+        isOpen={!!songToDelete}
+        title="Delete Song"
+        message={`Are you sure you want to delete "${songToDelete?.title}"? This action cannot be undone.`}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isDeleting={!!deletingSongId}
+      />
     </>
   );
 }

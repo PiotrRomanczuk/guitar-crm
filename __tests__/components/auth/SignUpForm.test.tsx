@@ -27,7 +27,7 @@ describe('SignUpForm', () => {
 			expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
 			expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
 			expect(
-				screen.getByRole('button', { name: /sign up/i })
+				screen.getByRole('button', { name: /^sign up$/i })
 			).toBeInTheDocument();
 		});
 
@@ -99,7 +99,7 @@ describe('SignUpForm', () => {
 		it('should not submit form with validation errors', async () => {
 			render(<SignUpForm />);
 
-			const submitButton = screen.getByRole('button', { name: /sign up/i });
+			const submitButton = screen.getByRole('button', { name: /^sign up$/i });
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
@@ -136,7 +136,7 @@ describe('SignUpForm', () => {
 				target: { value: 'Doe' },
 			});
 
-			const submitButton = screen.getByRole('button', { name: /sign up/i });
+			const submitButton = screen.getByRole('button', { name: /^sign up$/i });
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
@@ -180,7 +180,7 @@ describe('SignUpForm', () => {
 				target: { value: 'Doe' },
 			});
 
-			fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
+			fireEvent.click(screen.getByRole('button', { name: /^sign up$/i }));
 
 			await waitFor(() => {
 				expect(
@@ -210,7 +210,7 @@ describe('SignUpForm', () => {
 				target: { value: 'Doe' },
 			});
 
-			fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
+			fireEvent.click(screen.getByRole('button', { name: /^sign up$/i }));
 
 			await waitFor(() => {
 				expect(
@@ -246,7 +246,7 @@ describe('SignUpForm', () => {
 				target: { value: 'Doe' },
 			});
 
-			fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
+			fireEvent.click(screen.getByRole('button', { name: /^sign up$/i }));
 
 			await waitFor(() => {
 				expect(
@@ -293,7 +293,7 @@ describe('SignUpForm', () => {
 				target: { value: 'Doe' },
 			});
 
-			const submitButton = screen.getByRole('button', { name: /sign up/i });
+			const submitButton = screen.getByRole('button', { name: /^sign up$/i });
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
@@ -337,7 +337,7 @@ describe('SignUpForm', () => {
 				target: { value: 'Doe' },
 			});
 
-			fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
+			fireEvent.click(screen.getByRole('button', { name: /^sign up$/i }));
 
 			await waitFor(() => {
 				expect(screen.getByText(/signing up/i)).toBeInTheDocument();

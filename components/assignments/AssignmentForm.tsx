@@ -53,7 +53,7 @@ export default function AssignmentForm({ initialData, mode, userId }: Assignment
   return (
     <div className="container mx-auto px-4 py-8">
       <Link
-        href="/dashboard/assignements"
+        href="/dashboard/assignments"
         className="text-blue-600 hover:underline mb-6 inline-block"
       >
         ← Back to assignments
@@ -106,7 +106,7 @@ async function submitAssignment(
     }
 
     const data = await response.json();
-    router.push(`/dashboard/assignements/${data.id}`);
+    router.push(`/dashboard/assignments/${data.id}`);
   } catch (err) {
     setError(err instanceof Error ? err.message : 'An error occurred');
   } finally {
