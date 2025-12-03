@@ -67,3 +67,10 @@ scripts/history/all_executions.md
 # Cypress videos and screenshots
 cypress/videos/
 cypress/screenshots/
+
+# Claude Code Agents
+CODE-AGENTS/
+
+# Local dev files
+.vscode/mcp.json
+server.log

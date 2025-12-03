@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { AdminStatCard } from '@/components/dashboard/admin/AdminStatCard';
 import { AdminActionCard } from '@/components/dashboard/admin/AdminActionCard';
+import { RecentActivity } from '@/components/dashboard/admin/RecentActivity';
+import { CalendarEventsList } from '@/components/dashboard/calendar/CalendarEventsList';
+import { PotentialUsersList } from '@/components/dashboard/admin/PotentialUsersList';
 
 type DebugView = 'admin' | 'teacher' | 'student';
 
@@ -85,6 +88,16 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
           totalSongs={stats.totalSongs}
         />
         {debugView === 'admin' && <AdminActions />}
+        {debugView === 'admin' && (
+          <div className="mb-6 sm:mb-8">
+            <CalendarEventsList limit={7} />
+          </div>
+        )}
+        {debugView === 'admin' && (
+          <div className="mb-6 sm:mb-8">
+            <PotentialUsersList />
+          </div>
+        )}
         {debugView === 'admin' && <RecentActivity recentUsers={stats.recentUsers} />}
 
         {debugView === 'admin' && (
@@ -276,50 +289,4 @@ function AdminActions() {
   );
 }
 
-function RecentActivity({ recentUsers }: { recentUsers: RecentUser[] }) {
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-        📋 Recent Users
-      </h2>
-
-      {recentUsers && recentUsers.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="border-b border-gray-200 dark:border-gray-700">
-              <tr>
-                <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
-                  Name
-                </th>
-                <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
-                  Email
-                </th>
-                <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
-                  Joined
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentUsers.map((user) => (
-                <tr
-                  key={user.id}
-                  className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                >
-                  <td className="py-3 px-2 text-gray-900 dark:text-white font-medium">
-                    {user.full_name}
-                  </td>
-                  <td className="py-3 px-2 text-gray-600 dark:text-gray-400">{user.email}</td>
-                  <td className="py-3 px-2 text-gray-600 dark:text-gray-400">
-                    {new Date(user.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-gray-600 dark:text-gray-300">No recent users yet.</p>
-      )}
-    </div>
-  );
-}
+// RecentActivity is intentionally extracted to reduce file size and improve readability.

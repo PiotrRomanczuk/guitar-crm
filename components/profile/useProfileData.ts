@@ -1,118 +1,105 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { ProfileEditSchema, type ProfileEdit } from '@/schemas/ProfileSchema';
+import { queryClient } from '@/lib/query-client';
 
 async function loadProfileFromDb(userId: string): Promise<ProfileEdit> {
-	const supabase = createClient();
-	const { data, error } = await supabase
-		.from('profiles')
-		.select('*')
-		.eq('user_id', userId)
-		.single();
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', userId)
+    .single();
 
-	// If no profile exists yet, return empty form
-	if (error && error.code === 'PGRST116') {
-		return { firstname: '', lastname: '', username: '', bio: '' };
-	}
+  // If no profile exists yet, return empty form
+  if (error && error.code === 'PGRST116') {
+    return { firstname: '', lastname: '', username: '', bio: '' };
+  }
 
-	if (error) throw error;
+  if (error) throw error;
 
-	return {
-		firstname: data.firstname || '',
-		lastname: data.lastname || '',
-		username: data.username || '',
-		bio: data.bio || '',
-	};
+  return {
+    firstname: data.firstname || '',
+    lastname: data.lastname || '',
+    username: data.username || '',
+    bio: data.bio || '',
+  };
 }
 
 async function saveProfileToDb(userId: string, profileData: ProfileEdit) {
-	const validatedData = ProfileEditSchema.parse(profileData);
+  const validatedData = ProfileEditSchema.parse(profileData);
 
-	const supabase = createClient();
-	const { data: existingProfile } = await supabase
-		.from('profiles')
-		.select('id')
-		.eq('user_id', userId)
-		.single();
+  const supabase = createClient();
+  const { data: existingProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('user_id', userId)
+    .single();
 
-	if (existingProfile) {
-		const { error } = await supabase
-			.from('profiles')
-			.update(validatedData)
-			.eq('user_id', userId);
-		if (error) throw error;
-	} else {
-		const { error } = await supabase
-			.from('profiles')
-			.insert({ user_id: userId, ...validatedData });
-		if (error) throw error;
-	}
+  if (existingProfile) {
+    const { error } = await supabase.from('profiles').update(validatedData).eq('user_id', userId);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from('profiles').insert({ user_id: userId, ...validatedData });
+    if (error) throw error;
+  }
 }
 
 export function useProfileData(user: { id: string } | null) {
-	const [loading, setLoading] = useState(true);
-	const [saving, setSaving] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const [success, setSuccess] = useState(false);
-	const [formData, setFormData] = useState<ProfileEdit>({
-		firstname: '',
-		lastname: '',
-		username: '',
-		bio: '',
-	});
+  const [success, setSuccess] = useState(false);
+  const [formData, setFormData] = useState<ProfileEdit>({
+    firstname: '',
+    lastname: '',
+    username: '',
+    bio: '',
+  });
 
-	useEffect(() => {
-		if (!user) return;
+  // Fetch profile data and populate form
+  const { isLoading, error: fetchError } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const data = await loadProfileFromDb(user.id);
+      setFormData(data);
+      return data;
+    },
+    enabled: !!user?.id,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  });
 
-		const loadProfile = async () => {
-			try {
-				setLoading(true);
-				setError(null);
-				const profile = await loadProfileFromDb(user.id);
-				setFormData(profile);
-			} catch (err) {
-				console.error('Profile load error:', err);
-				setError(err instanceof Error ? err.message : 'Failed to load profile');
-			} finally {
-				setLoading(false);
-			}
-		};
+  // Mutation for saving profile
+  const {
+    mutate: saveProfile,
+    isPending: saving,
+    error: saveError,
+  } = useMutation({
+    mutationFn: (data: ProfileEdit) => (user ? saveProfileToDb(user.id, data) : Promise.reject()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    },
+  });
 
-		loadProfile();
-	}, [user]);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    saveProfile(formData);
+  };
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		if (!user) return;
+  const error = fetchError || saveError;
 
-		try {
-			setSaving(true);
-			setError(null);
-			setSuccess(false);
-
-			await saveProfileToDb(user.id, formData);
-
-			setSuccess(true);
-			setTimeout(() => setSuccess(false), 3000);
-		} catch (err) {
-			console.error('Profile save error:', err);
-			setError(err instanceof Error ? err.message : 'Failed to update profile');
-		} finally {
-			setSaving(false);
-		}
-	};
-
-	return {
-		user,
-		loading,
-		saving,
-		error,
-		success,
-		formData,
-		setFormData,
-		handleSubmit,
-	};
+  return {
+    user,
+    loading: isLoading,
+    saving,
+    error,
+    success,
+    formData,
+    setFormData,
+    handleSubmit,
+  };
 }

@@ -1,6 +1,12 @@
 // Pure functions for lesson API business logic - testable without Next.js dependencies
 import { LessonInputSchema } from '../../../schemas/LessonSchema';
 import { ZodError } from 'zod';
+import {
+  transformLessonData,
+  prepareLessonForDb,
+  addSongsToLesson,
+  insertLessonRecord,
+} from './utils';
 
 export interface LessonQueryParams {
   userId?: string;
@@ -136,7 +142,6 @@ function applySortAndPagination(
 }
 
 // Complexity is slightly over due to role-based filtering logic
-// eslint-disable-next-line complexity
 export async function getLessonsHandler(
   supabase: SupabaseClient,
   user: { id: string } | null,
@@ -171,7 +176,11 @@ export async function getLessonsHandler(
     `
       *,
       profile:profiles!student_id(id, full_name, email),
-      teacher_profile:profiles!teacher_id(id, full_name, email)
+      teacher_profile:profiles!teacher_id(id, full_name, email),
+      lesson_songs(
+        song:songs(title)
+      ),
+      assignments(title)
     `,
     { count: 'exact' }
   );
@@ -196,7 +205,8 @@ export async function getLessonsHandler(
     if (error) {
       return { error: error.message, status: 500 };
     }
-    return { lessons: data || [], count: count ?? 0, status: 200 };
+    const lessons = (data || []).map(transformLessonData);
+    return { lessons, count: count ?? 0, status: 200 };
   }
 
   // Otherwise, execute the query
@@ -204,7 +214,8 @@ export async function getLessonsHandler(
   if (error) {
     return { error: error.message, status: 500 };
   }
-  return { lessons: data || [], count: count ?? 0, status: 200 };
+  const lessons = (data || []).map(transformLessonData);
+  return { lessons, count: count ?? 0, status: 200 };
 }
 
 export async function createLessonHandler(
@@ -225,32 +236,17 @@ export async function createLessonHandler(
 
   try {
     const validatedData = LessonInputSchema.parse(body);
+    const { song_ids, ...lessonData } = validatedData;
 
-    // Calculate the next lesson_teacher_number for this teacher-student pair
-    const { data: existingLessons } = await supabase
-      .from('lessons')
-      .select('lesson_teacher_number')
-      .eq('teacher_id', validatedData.teacher_id)
-      .eq('student_id', validatedData.student_id)
-      .order('lesson_teacher_number', { ascending: false })
-      .limit(1);
-
-    const nextLessonNumber =
-      (existingLessons && existingLessons.length > 0
-        ? existingLessons[0].lesson_teacher_number
-        : 0) + 1;
-
-    const { data, error } = await supabase
-      .from('lessons')
-      .insert({
-        ...validatedData,
-        lesson_teacher_number: nextLessonNumber,
-      })
-      .select()
-      .single();
+    const { data, error } = await insertLessonRecord(supabase, lessonData);
 
     if (error) {
+      console.error('Supabase insert error:', error);
       return { error: error.message, status: 500 };
+    }
+
+    if (song_ids && song_ids.length > 0) {
+      await addSongsToLesson(supabase, data.id, song_ids);
     }
 
     return { lesson: data, status: 201 };
@@ -264,6 +260,8 @@ export async function createLessonHandler(
     return { error: 'Internal server error', status: 500 };
   }
 }
+
+import { handleLessonSongsUpdate } from './utils';
 
 export async function updateLessonHandler(
   supabase: SupabaseClient,
@@ -284,15 +282,31 @@ export async function updateLessonHandler(
 
   try {
     const validatedData = LessonInputSchema.partial().parse(body);
-    const { data, error } = await supabase
-      .from('lessons')
-      .update(validatedData)
-      .eq('id', id)
-      .select()
-      .single();
+    const { song_ids, ...lessonData } = validatedData;
 
-    if (error) {
-      return { error: error.message, status: 500 };
+    const dbData = prepareLessonForDb(lessonData);
+
+    let data;
+    if (Object.keys(dbData).length > 0) {
+      const result = await supabase.from('lessons').update(dbData).eq('id', id).select().single();
+
+      if (result.error) {
+        return { error: result.error.message, status: 500 };
+      }
+      data = result.data;
+    } else {
+      // If no lesson data to update, just fetch the lesson to get student_id for song update
+      const result = await supabase.from('lessons').select().eq('id', id).single();
+
+      if (result.error) {
+        return { error: result.error.message, status: 500 };
+      }
+      data = result.data;
+    }
+
+    // Handle song updates if song_ids is provided
+    if (song_ids) {
+      await handleLessonSongsUpdate(supabase, id, song_ids);
     }
 
     return { lesson: data, status: 200 };

@@ -61,6 +61,7 @@ describe('Song API Handlers', () => {
 
       const mockQuery = {
         select: jest.fn().mockReturnThis(),
+        is: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         ilike: jest.fn().mockReturnThis(),
         order: jest.fn().mockReturnThis(),
@@ -88,6 +89,7 @@ describe('Song API Handlers', () => {
     it('should apply filters correctly', async () => {
       const mockQuery = {
         select: jest.fn().mockReturnThis(),
+        is: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         ilike: jest.fn().mockReturnThis(),
         order: jest.fn().mockReturnThis(),
@@ -117,6 +119,7 @@ describe('Song API Handlers', () => {
     it('should handle database errors', async () => {
       const mockQuery = {
         select: jest.fn().mockReturnThis(),
+        is: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         ilike: jest.fn().mockReturnThis(),
         order: jest.fn().mockReturnThis(),

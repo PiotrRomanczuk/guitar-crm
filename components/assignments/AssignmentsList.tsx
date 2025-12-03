@@ -13,6 +13,10 @@ interface Assignment {
   user_id: string;
   created_at: string;
   updated_at: string;
+  student?: {
+    full_name: string | null;
+    email: string | null;
+  };
 }
 
 interface FilterState {
@@ -92,7 +96,7 @@ function AssignmentsHeader() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Assignments</h1>
         <Link
-          href="/dashboard/assignements/new"
+          href="/dashboard/assignments/new"
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           data-testid="create-assignment-button"
         >
@@ -210,6 +214,9 @@ function AssignmentsTable({ assignments, onDelete }: TableProps) {
               Title
             </th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
+              Student
+            </th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
               Due Date
             </th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
@@ -232,11 +239,14 @@ function AssignmentsTable({ assignments, onDelete }: TableProps) {
             >
               <td className="px-6 py-3 text-sm text-gray-900 dark:text-white">
                 <Link
-                  href={`/dashboard/assignements/${assignment.id}`}
+                  href={`/dashboard/assignments/${assignment.id}`}
                   className="text-blue-600 hover:underline"
                 >
                   {assignment.title}
                 </Link>
+              </td>
+              <td className="px-6 py-3 text-sm text-gray-900 dark:text-white">
+                {assignment.student?.full_name || assignment.student?.email || 'Unknown'}
               </td>
               <td
                 className={`px-6 py-3 text-sm ${
@@ -268,7 +278,7 @@ function AssignmentsTable({ assignments, onDelete }: TableProps) {
               <td className="px-6 py-3 text-sm">
                 <div className="flex gap-2">
                   <Link
-                    href={`/dashboard/assignements/${assignment.id}`}
+                    href={`/dashboard/assignments/${assignment.id}`}
                     className="text-blue-600 hover:underline"
                     data-testid={`view-button-${assignment.id}`}
                   >
