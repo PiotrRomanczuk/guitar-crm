@@ -6,9 +6,9 @@ This document tracks the implementation of robust authentication flows, specific
 ## Status Tracker
 
 ### 1. Shadow User Reconciliation (Database Logic)
-- [ ] **Analysis**: Identify current trigger logic flaws.
-- [ ] **Reproduction**: Create a test case demonstrating failure when signing up with an email that already exists in `profiles`.
-- [ ] **Implementation**: Modify `handle_new_user` PostgreSQL function to handle conflicts (UPSERT or UPDATE).
+- [x] **Analysis**: Identify current trigger logic flaws.
+- [x] **Reproduction**: Create a test case demonstrating failure when signing up with an email that already exists in `profiles`.
+- [x] **Implementation**: Modify `handle_new_user` PostgreSQL function to handle conflicts (UPSERT or UPDATE).
 - [ ] **Verification**: Verify the test case passes.
 
 ### 2. Forgot Password Flow (E2E)
