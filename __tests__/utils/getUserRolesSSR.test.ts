@@ -1,15 +1,12 @@
-import { jest } from '@jest/globals';
-import { describe, expect, it, beforeEach } from '@jest/globals';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { createClient } from '@/lib/supabase/server';
 
-// Mock the server client module before importing getUserWithRolesSSR
+// Mock the server client module
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(),
 }));
 
-import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
-import { createClient } from '@/lib/supabase/server';
-
-const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>;
+const mockCreateClient = createClient as jest.Mock;
 
 // Mock auth and database responses
 const mockAuth = {
@@ -40,18 +37,60 @@ const mockSupabase = {
 describe('getUserWithRolesSSR', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mockCreateClient.mockResolvedValue(mockSupabase as any);
+    mockCreateClient.mockResolvedValue(mockSupabase);
   });
 
-  // TODO: Fix complex mocking issue - temporarily skipped for CI pipeline
-  it.skip('returns user with profile roles when authenticated', async () => {
-    const profile = { is_admin: true, is_teacher: false, is_student: true };
+  it('returns user with profile roles when authenticated', async () => {
+    const profile = { role: 'admin' }; // The implementation checks for roles in user_roles table, not profile flags anymore?
+    // Wait, let's check the implementation of getUserWithRolesSSR again.
+    
+    /*
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+        
+      if (roles) {
+        return {
+          user,
+          isAdmin: roles.some((r) => r.role === 'admin'),
+          isTeacher: roles.some((r) => r.role === 'teacher'),
+          isStudent: roles.some((r) => r.role === 'student'),
+        };
+      }
+    */
+    
+    // The implementation has changed! It uses `user_roles` table now.
+    // The test was setting up `profile` with `is_admin` flags, but the code expects `user_roles` rows.
+    
     const mockUser = { id: 'u-1', email: 'test@example.com' };
+    const mockRoles = [{ role: 'admin' }, { role: 'student' }];
 
-    mockSupabase.from.mockImplementation(() => makeFromChain(profile));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (mockAuth.getUser as any).mockResolvedValue({
+    // Mock the chain for user_roles table
+    const selectMock = jest.fn().mockReturnThis();
+    const eqMock = jest.fn().mockResolvedValue({ data: mockRoles, error: null });
+    
+    mockSupabase.from.mockReturnValue({
+      select: selectMock,
+      eq: eqMock
+    });
+    
+    // Fix the chain mock in the test setup
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'user_roles') {
+        return {
+          select: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockResolvedValue({ data: mockRoles, error: null })
+        };
+      }
+      return {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn()
+      };
+    });
+
+    (mockAuth.getUser as jest.Mock).mockResolvedValue({
       data: { user: mockUser },
       error: null,
     });
@@ -65,14 +104,16 @@ describe('getUserWithRolesSSR', () => {
     });
   });
 
-  // TODO: Fix complex mocking issue - temporarily skipped for CI pipeline
-  it.skip('returns special admin roles for development admin email', async () => {
+  it('returns special admin roles for development admin email', async () => {
     const mockUser = { id: 'admin-id', email: 'p.romanczuk@gmail.com' };
 
-    // Profile not found, but user is dev admin
-    mockSupabase.from.mockImplementation(() => makeFromChain(null, { message: 'not found' }));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (mockAuth.getUser as any).mockResolvedValue({
+    // Mock error or null data to trigger fallback
+    mockSupabase.from.mockImplementation(() => ({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockResolvedValue({ data: null, error: { message: 'error' } })
+    }));
+
+    (mockAuth.getUser as jest.Mock).mockResolvedValue({
       data: { user: mockUser },
       error: null,
     });
@@ -86,10 +127,8 @@ describe('getUserWithRolesSSR', () => {
     });
   });
 
-  // TODO: Fix complex mocking issue - temporarily skipped for CI pipeline
-  it.skip('returns all false when unauthenticated', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (mockAuth.getUser as any).mockResolvedValue({
+  it('returns all false when unauthenticated', async () => {
+    (mockAuth.getUser as jest.Mock).mockResolvedValue({
       data: { user: null },
       error: null,
     });
@@ -103,13 +142,15 @@ describe('getUserWithRolesSSR', () => {
     });
   });
 
-  // TODO: Fix complex mocking issue - temporarily skipped for CI pipeline
-  it.skip('returns all false when profile not found for regular user', async () => {
+  it('returns all false when roles not found for regular user', async () => {
     const mockUser = { id: 'u-2', email: 'regular@example.com' };
 
-    mockSupabase.from.mockImplementation(() => makeFromChain(null, { message: 'not found' }));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (mockAuth.getUser as any).mockResolvedValue({
+    mockSupabase.from.mockImplementation(() => ({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockResolvedValue({ data: [], error: null })
+    }));
+
+    (mockAuth.getUser as jest.Mock).mockResolvedValue({
       data: { user: mockUser },
       error: null,
     });
@@ -121,11 +162,5 @@ describe('getUserWithRolesSSR', () => {
       isTeacher: false,
       isStudent: false,
     });
-  });
-});
-
-describe('getUserWithRolesSSR', () => {
-  it('should be refactored', () => {
-    expect(true).toBe(true);
   });
 });
