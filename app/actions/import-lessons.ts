@@ -101,7 +101,8 @@ export async function fetchGoogleEvents(startDate: string, endDate: string) {
   try {
     const events = await getCalendarEventsInRange(user.id, new Date(startDate), new Date(endDate));
     return { success: true, events };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: message };
   }
 }
