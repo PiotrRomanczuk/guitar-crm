@@ -2,6 +2,8 @@
 
 import { useState, FormEvent } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { Eye, EyeOff, Lock, CheckCircle, AlertCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface ResetPasswordFormProps {
 	onSuccess?: () => void;
@@ -10,6 +12,7 @@ interface ResetPasswordFormProps {
 export default function ResetPasswordForm({
 	onSuccess,
 }: ResetPasswordFormProps) {
+	const router = useRouter();
 	const [newPassword, setNewPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [showNewPassword, setShowNewPassword] = useState(false);
@@ -80,14 +83,44 @@ export default function ResetPasswordForm({
 		setSuccess(true);
 		if (onSuccess) {
 			onSuccess();
+		} else {
+			// Default behavior: redirect to dashboard after a short delay
+			setTimeout(() => {
+				router.push('/dashboard');
+			}, 2000);
 		}
 	};
 
+	if (success) {
+		return (
+			<div className="rounded-md bg-green-50 p-4">
+				<div className="flex">
+					<div className="flex-shrink-0">
+						<CheckCircle className="h-5 w-5 text-green-400" aria-hidden="true" />
+					</div>
+					<div className="ml-3">
+						<h3 className="text-sm font-medium text-green-800">
+							Password reset successfully
+						</h3>
+						<div className="mt-2 text-sm text-green-700">
+							<p>Redirecting to dashboard...</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	return (
-		<form onSubmit={handleSubmit}>
+		<form onSubmit={handleSubmit} className="space-y-6">
 			<div>
-				<label htmlFor='newPassword'>New Password</label>
-				<div>
+				<label htmlFor='newPassword' className="block text-sm font-medium text-gray-700">
+					New Password
+				</label>
+				<div className="mt-1 relative rounded-md shadow-sm">
+					<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+						<Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
+					</div>
 					<input
 						id='newPassword'
 						name='newPassword'
@@ -97,21 +130,32 @@ export default function ResetPasswordForm({
 						onBlur={() => setTouched({ ...touched, newPassword: true })}
 						required
 						minLength={6}
+						className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-10 sm:text-sm border-gray-300 rounded-md py-2"
+						placeholder="••••••••"
 					/>
 					<button
 						type='button'
 						onClick={() => setShowNewPassword(!showNewPassword)}
-						aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+						className="absolute inset-y-0 right-0 pr-3 flex items-center"
 					>
-						{showNewPassword ? 'Hide' : 'Show'}
+						{showNewPassword ? (
+							<EyeOff className="h-5 w-5 text-gray-400" aria-hidden="true" />
+						) : (
+							<Eye className="h-5 w-5 text-gray-400" aria-hidden="true" />
+						)}
 					</button>
 				</div>
-				<small>Minimum 6 characters</small>
+				<p className="mt-2 text-xs text-gray-500">Minimum 6 characters</p>
 			</div>
 
 			<div>
-				<label htmlFor='confirmPassword'>Confirm Password</label>
-				<div>
+				<label htmlFor='confirmPassword' className="block text-sm font-medium text-gray-700">
+					Confirm Password
+				</label>
+				<div className="mt-1 relative rounded-md shadow-sm">
+					<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+						<Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
+					</div>
 					<input
 						id='confirmPassword'
 						name='confirmPassword'
@@ -121,23 +165,58 @@ export default function ResetPasswordForm({
 						onBlur={() => setTouched({ ...touched, confirmPassword: true })}
 						required
 						minLength={6}
+						className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-10 sm:text-sm border-gray-300 rounded-md py-2"
+						placeholder="••••••••"
 					/>
 					<button
 						type='button'
 						onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-						aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+						className="absolute inset-y-0 right-0 pr-3 flex items-center"
 					>
-						{showConfirmPassword ? 'Hide' : 'Show'}
+						{showConfirmPassword ? (
+							<EyeOff className="h-5 w-5 text-gray-400" aria-hidden="true" />
+						) : (
+							<Eye className="h-5 w-5 text-gray-400" aria-hidden="true" />
+						)}
 					</button>
 				</div>
 			</div>
 
-			{validationError && <div role='alert'>{validationError}</div>}
-			{error && <div role='alert'>{error}</div>}
+			{validationError && (
+				<div className="rounded-md bg-red-50 p-4">
+					<div className="flex">
+						<div className="flex-shrink-0">
+							<AlertCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
+						</div>
+						<div className="ml-3">
+							<h3 className="text-sm font-medium text-red-800">
+								{validationError}
+							</h3>
+						</div>
+					</div>
+				</div>
+			)}
 
-			{success && <div role='status'>Password reset successfully</div>}
+			{error && (
+				<div className="rounded-md bg-red-50 p-4">
+					<div className="flex">
+						<div className="flex-shrink-0">
+							<AlertCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
+						</div>
+						<div className="ml-3">
+							<h3 className="text-sm font-medium text-red-800">
+								{error}
+							</h3>
+						</div>
+					</div>
+				</div>
+			)}
 
-			<button type='submit' disabled={loading}>
+			<button
+				type='submit'
+				disabled={loading}
+				className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+			>
 				{loading ? 'Resetting...' : 'Reset Password'}
 			</button>
 		</form>

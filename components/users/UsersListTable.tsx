@@ -13,6 +13,7 @@ interface UserProfile {
   isTeacher: boolean | null;
   isStudent: boolean | null;
   isActive: boolean;
+  isRegistered: boolean;
   created_at: string | null;
 }
 
@@ -66,15 +67,26 @@ function UserRow({
         </span>
       </td>
       <td className="px-4 py-3 text-sm">
-        <span
-          className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-            user.isActive
-              ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-              : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-          }`}
-        >
-          {user.isActive ? 'Active' : 'Inactive'}
-        </span>
+        <div className="flex flex-col gap-1">
+          <span
+            className={`inline-block px-2 py-1 rounded-full text-xs font-medium w-fit ${
+              user.isActive
+                ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+            }`}
+          >
+            {user.isActive ? 'Active' : 'Inactive'}
+          </span>
+          <span
+            className={`inline-block px-2 py-1 rounded-full text-xs font-medium w-fit ${
+              user.isRegistered
+                ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
+            }`}
+          >
+            {user.isRegistered ? 'Registered' : 'Shadow'}
+          </span>
+        </div>
       </td>
       <td className="px-4 py-3 text-sm">
         <div className="flex gap-2">
