@@ -6,20 +6,21 @@ import { getLessonsHandler, createLessonHandler } from '../../lessons/handlers';
  * Helper to get user profile with roles
  */
 async function getUserProfile(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('is_admin, is_teacher, is_student')
-    .eq('id', userId)
-    .single();
+  const { data: roles, error } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userId);
 
-  if (error || !profile) {
+  if (error) {
     return null;
   }
 
+  const userRoles = roles?.map((r) => r.role) || [];
+
   return {
-    isAdmin: profile.is_admin,
-    isTeacher: profile.is_teacher,
-    isStudent: profile.is_student,
+    isAdmin: userRoles.includes('admin'),
+    isTeacher: userRoles.includes('teacher'),
+    isStudent: userRoles.includes('student'),
   };
 }
 

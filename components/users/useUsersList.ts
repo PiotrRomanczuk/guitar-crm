@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '@/lib/api-client';
 
 interface UserProfile {
-  id: number;
+  id: string;
   user_id: string | null;
   email: string | null;
   firstName: string | null;
@@ -14,56 +15,36 @@ interface UserProfile {
   created_at: string | null;
 }
 
+interface UsersListResponse {
+  data: UserProfile[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 export function useUsersList(
   search: string,
   roleFilter: '' | 'admin' | 'teacher' | 'student',
   activeFilter: '' | 'true' | 'false'
 ) {
-  const [users, setUsers] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['users', search, roleFilter, activeFilter],
+    queryFn: async () => {
+      const params: Record<string, string | number | boolean> = {};
+      if (search) params.search = search;
+      if (roleFilter) params.role = roleFilter;
+      if (activeFilter) params.active = activeFilter;
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams();
-        if (search) params.append('search', search);
-        if (roleFilter) params.append('role', roleFilter);
-        if (activeFilter) params.append('active', activeFilter);
-
-        const res = await fetch(`/api/users?${params}`);
-        if (!res.ok) throw new Error('Failed to fetch users');
-        const result = await res.json();
-        setUsers(result.data || []);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, [search, roleFilter, activeFilter]);
-
-  const refetch = async () => {
-    const params = new URLSearchParams();
-    if (search) params.append('search', search);
-    if (roleFilter) params.append('role', roleFilter);
-    if (activeFilter) params.append('active', activeFilter);
-
-    const res = await fetch(`/api/users?${params}`);
-    if (res.ok) {
-      const result = await res.json();
-      setUsers(result.data || []);
-    }
-  };
+      const response = await apiClient.get<UsersListResponse>('/api/users', { params });
+      return response.data || [];
+    },
+    enabled: true,
+  });
 
   return {
-    users,
-    loading,
-    error,
+    users: data || [],
+    loading: isLoading,
+    error: error ? (error instanceof Error ? error.message : 'Unknown error') : null,
     refetch,
   };
 }

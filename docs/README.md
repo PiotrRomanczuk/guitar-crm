@@ -92,9 +92,14 @@ Welcome to the Guitar CRM documentation. All project documentation is organized 
 
 ---
 
-### 🔍 `/branch-verification/` - QA & Verification
+### 🔍 /branch-verification/ - QA & Verification
 
 **Documentation related to branch testing and verification processes.**
+
+- **[E2E_TEST_COVERAGE.md](./E2E_TEST_COVERAGE.md)** 🧪
+  - Status dashboard for E2E test coverage
+  - Detailed matrix of covered vs. missing requirements
+  - Prioritized backlog for QA implementation
 
 - **[QUICK_START_BRANCH_VERIFICATION.md](./branch-verification/QUICK_START_BRANCH_VERIFICATION.md)**
 

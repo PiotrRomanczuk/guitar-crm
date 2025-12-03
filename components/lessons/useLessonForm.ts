@@ -1,34 +1,91 @@
 'use client';
 
 import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { LessonInputSchema } from '@/schemas/LessonSchema';
 import { z } from 'zod';
+import { queryClient } from '@/lib/query-client';
 import { useProfiles } from './useProfiles';
 
-interface FormData {
+export interface LessonFormData {
   student_id: string;
   teacher_id: string;
-  scheduled_at: string; // ISO datetime string (e.g., "2025-11-12T14:30")
+  date: string;
+  start_time?: string;
+  title?: string;
   notes?: string;
+  song_ids?: string[];
 }
 
 interface ValidationErrors {
   [key: string]: string;
 }
 
-export default function useLessonForm() {
-  const [formData, setFormData] = useState<FormData>({
-    student_id: '',
-    teacher_id: '',
-    scheduled_at: '',
-    notes: '',
+interface CreateLessonPayload {
+  validatedData: Partial<z.infer<typeof LessonInputSchema>>;
+  lessonId?: string;
+}
+
+async function submitLessonToApi(payload: CreateLessonPayload): Promise<void> {
+  const url = payload.lessonId ? `/api/lessons/${payload.lessonId}` : '/api/lessons';
+  const method = payload.lessonId ? 'PUT' : 'POST';
+
+  const response = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload.validatedData),
   });
 
-  const [error, setError] = useState<string | null>(null);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to save lesson');
+  }
+}
+
+export interface UseLessonFormProps {
+  initialData?: Partial<LessonFormData>;
+  lessonId?: string;
+  partial?: boolean;
+  fieldsToSubmit?: (keyof LessonFormData)[];
+}
+
+export default function useLessonForm({
+  initialData,
+  lessonId,
+  partial = false,
+  fieldsToSubmit,
+}: UseLessonFormProps = {}) {
+  const [formData, setFormData] = useState<LessonFormData>({
+    student_id: initialData?.student_id || '',
+    teacher_id: initialData?.teacher_id || '',
+    date: initialData?.date || '',
+    start_time: initialData?.start_time || '',
+    title: initialData?.title || '',
+    notes: initialData?.notes || '',
+    song_ids: initialData?.song_ids || [],
+  });
+
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
 
   // Use extracted profiles hook
   const { students, teachers, loading, error: profilesError } = useProfiles();
+
+  const {
+    mutateAsync: submitForm,
+    isPending,
+    error: mutationError,
+  } = useMutation({
+    mutationFn: async (payload: CreateLessonPayload) => {
+      return submitLessonToApi(payload);
+    },
+    onSuccess: () => {
+      // Invalidate lessons list so it refetches with new lesson
+      queryClient.invalidateQueries({ queryKey: ['lessons'] });
+      if (lessonId) {
+        queryClient.invalidateQueries({ queryKey: ['lesson', lessonId] });
+      }
+    },
+  });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -46,60 +103,54 @@ export default function useLessonForm() {
     }
   };
 
+  const handleSongChange = (songIds: string[]) => {
+    setFormData((prev) => ({ ...prev, song_ids: songIds }));
+  };
+
   const handleSubmit = async () => {
     try {
-      console.log('[useLessonForm] handleSubmit called with formData:', formData);
-      setError(null);
       setValidationErrors({});
 
-      console.log('[useLessonForm] Validating with LessonInputSchema...');
-      const validatedData = LessonInputSchema.parse(formData);
-      console.log('[useLessonForm] Validation passed! Data:', validatedData);
-
-      console.log('[useLessonForm] Making POST request to /api/lessons...');
-      const response = await fetch('/api/lessons', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(validatedData),
-      });
-
-      console.log('[useLessonForm] Response status:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('[useLessonForm] API error:', errorData);
-        throw new Error(errorData.error || 'Failed to create lesson');
+      let dataToValidate: Partial<LessonFormData> = formData;
+      if (fieldsToSubmit) {
+        dataToValidate = fieldsToSubmit.reduce((acc, key) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (acc as any)[key] = formData[key];
+          return acc;
+        }, {} as Partial<LessonFormData>);
       }
 
-      const responseData = await response.json();
-      console.log('[useLessonForm] Success! Response data:', responseData);
+      const schema = partial ? LessonInputSchema.partial() : LessonInputSchema;
+      const validatedData = schema.parse(dataToValidate);
+      await submitForm({ validatedData, lessonId });
       return { success: true };
     } catch (err) {
-      console.error('[useLessonForm] Error in handleSubmit:', err);
       if (err instanceof z.ZodError) {
         const errors: ValidationErrors = {};
         err.errors.forEach((e) => {
           errors[e.path[0] as string] = e.message;
         });
-        console.error('[useLessonForm] Validation errors:', errors);
         setValidationErrors(errors);
-      } else {
-        const errorMsg = err instanceof Error ? err.message : 'An error occurred';
-        console.error('[useLessonForm] Setting error:', errorMsg);
-        setError(errorMsg);
       }
       return { success: false };
     }
   };
 
+  const error = mutationError
+    ? mutationError instanceof Error
+      ? mutationError.message
+      : 'Failed to create lesson'
+    : profilesError;
+
   return {
     formData,
     students,
     teachers,
-    loading,
-    error: error || profilesError,
+    loading: loading || isPending,
+    error,
     validationErrors,
     handleChange,
+    handleSongChange,
     handleSubmit,
   };
 }

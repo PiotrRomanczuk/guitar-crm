@@ -27,7 +27,6 @@ async function getUserProfile(supabase: Awaited<ReturnType<typeof createClient>>
  * GET /api/lessons/[id]
  * Get a single lesson
  */
-// eslint-disable-next-line complexity
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;

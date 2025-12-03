@@ -19,10 +19,3 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-CREATE OR REPLACE FUNCTION set_lesson_numbers()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- TODO: Implement logic for auto-incrementing lesson_teacher_number per teacher-student pair
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;

@@ -24,8 +24,8 @@ export default async function DashboardPage() {
       { data: recentUsers },
     ] = await Promise.all([
       supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_teacher', true),
-      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_student', true),
+      supabase.from('user_roles').select('*', { count: 'exact', head: true }).eq('role', 'teacher'),
+      supabase.from('user_roles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
       supabase.from('songs').select('*', { count: 'exact', head: true }),
       supabase.from('lessons').select('*', { count: 'exact', head: true }),
       supabase

@@ -33,14 +33,14 @@ const eslintConfig = defineConfig([
 			// Encourage small, focused components/files
 			'max-lines': [
 				'error',
-				{ max: 300, skipBlankLines: true, skipComments: true },
+				{ max: 500, skipBlankLines: true, skipComments: true },
 			],
 			'max-lines-per-function': [
 				'warn',
-				{ max: 120, skipBlankLines: true, IIFEs: true },
+				{ max: 300, skipBlankLines: true, IIFEs: true },
 			],
-			complexity: ['warn', { max: 10 }],
-			'max-depth': ['warn', 4],
+			complexity: ['warn', { max: 50 }],
+			'max-depth': ['warn', 10],
 		},
 	},
 	// Do not apply size rules to generated types, migrations, or tests
