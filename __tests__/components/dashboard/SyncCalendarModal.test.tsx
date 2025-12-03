@@ -15,8 +15,8 @@ jest.mock('@/components/home/QuickActionButton', () => ({
 
 // Mock UI components
 jest.mock('@/components/ui/dialog', () => ({
-  Dialog: ({ children, open }: { children: React.ReactNode; open: boolean }) => (
-    <div>{open ? children : null}</div>
+  Dialog: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
   ),
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   DialogTrigger: ({ children, asChild }: { children: React.ReactNode; asChild?: boolean }) => (
