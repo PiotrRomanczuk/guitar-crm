@@ -30,6 +30,11 @@ function formatDate(dateStr: string | null | undefined): string {
 function formatTime(timeStr: string | null | undefined): string {
   if (!timeStr) return 'N/A';
   try {
+    // If it's a full ISO string (from scheduled_at), extract time
+    if (timeStr.includes('T')) {
+      return new Date(timeStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    // If it's just a time string (HH:mm:ss)
     const date = new Date(`2000-01-01T${timeStr}`);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   } catch {
@@ -124,6 +129,12 @@ function LessonHeader({ title, id, status }: { title?: string; id?: string; stat
 }
 
 function LessonInfoGrid({ lesson }: { lesson: LessonDetailsCardProps['lesson'] }) {
+  // Fallback to scheduled_at if date/start_time are missing (for imported lessons)
+  // @ts-ignore - scheduled_at might not be in the schema yet but is in DB
+  const displayDate = lesson.date || lesson.scheduled_at;
+  // @ts-ignore
+  const displayTime = lesson.start_time || lesson.scheduled_at;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
       <InfoItem
@@ -134,8 +145,8 @@ function LessonInfoGrid({ lesson }: { lesson: LessonDetailsCardProps['lesson'] }
         label="Teacher"
         value={lesson.teacher_profile?.full_name || lesson.teacher_profile?.email || 'Unknown'}
       />
-      <InfoItem label="Date" value={formatDate(lesson.date)} />
-      <InfoItem label="Time" value={formatTime(lesson.start_time)} />
+      <InfoItem label="Date" value={formatDate(displayDate)} />
+      <InfoItem label="Time" value={formatTime(displayTime)} />
       <InfoItem
         label="Lesson #"
         value={lesson.lesson_teacher_number ? String(lesson.lesson_teacher_number) : 'N/A'}
