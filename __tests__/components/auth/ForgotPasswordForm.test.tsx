@@ -6,7 +6,7 @@ import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm';
 const mockResetPassword = jest.fn();
 
 jest.mock('@/app/auth/actions', () => ({
-	resetPassword: (...args: any[]) => mockResetPassword(...args),
+	resetPassword: (...args: unknown[]) => mockResetPassword(...args),
 }));
 
 describe('ForgotPasswordForm', () => {

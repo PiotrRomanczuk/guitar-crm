@@ -74,7 +74,7 @@ async function applyRoleBasedFiltering(
   profile: UserProfile,
   params: LessonQueryParams
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Promise<any | { lessons: []; count: number; status: number }> {
+): Promise<{ query: any } | { lessons: []; count: number; status: number }> {
   if (!profile) {
     console.error('applyRoleBasedFiltering called with null profile');
     return { lessons: [], count: 0, status: 500 };
@@ -82,7 +82,7 @@ async function applyRoleBasedFiltering(
 
   if (canViewAll(profile)) {
     // Admin sees all lessons
-    return applyLessonFilters(dbQuery, params);
+    return { query: applyLessonFilters(dbQuery, params) };
   }
 
   if (profile.isTeacher) {
@@ -92,12 +92,12 @@ async function applyRoleBasedFiltering(
       return { lessons: [], count: 0, status: 200 };
     }
     const filteredQuery = dbQuery.in('student_id', studentIds);
-    return applyLessonFilters(filteredQuery, { filter: params.filter });
+    return { query: applyLessonFilters(filteredQuery, { filter: params.filter }) };
   }
 
   // Student sees only their own lessons
   const studentQuery = dbQuery.eq('student_id', user.id);
-  return applyLessonFilters(studentQuery, { filter: params.filter });
+  return { query: applyLessonFilters(studentQuery, { filter: params.filter }) };
 }
 
 function applyLessonFilters(
@@ -186,16 +186,18 @@ export async function getLessonsHandler(
   );
 
   // Apply role-based filtering
-  const filteredQuery = await applyRoleBasedFiltering(supabase, baseQuery, user, profile, {
+  const filteringResult = await applyRoleBasedFiltering(supabase, baseQuery, user, profile, {
     userId,
     studentId,
     filter,
   });
 
   // Check if early return (teacher with no students)
-  if ('lessons' in filteredQuery) {
-    return filteredQuery;
+  if ('lessons' in filteringResult) {
+    return filteringResult;
   }
+
+  const filteredQuery = filteringResult.query;
 
   const finalQuery = applySortAndPagination(filteredQuery, sortField, sortOrder, page, limit);
 
@@ -291,6 +293,9 @@ export async function updateLessonHandler(
       const result = await supabase.from('lessons').update(dbData).eq('id', id).select().single();
 
       if (result.error) {
+        if (result.error.code === 'PGRST116') {
+          return { error: 'Lesson not found', status: 404 };
+        }
         return { error: result.error.message, status: 500 };
       }
       data = result.data;
@@ -299,6 +304,9 @@ export async function updateLessonHandler(
       const result = await supabase.from('lessons').select().eq('id', id).single();
 
       if (result.error) {
+        if (result.error.code === 'PGRST116') {
+          return { error: 'Lesson not found', status: 404 };
+        }
         return { error: result.error.message, status: 500 };
       }
       data = result.data;
