@@ -2,18 +2,26 @@
 
 import React from 'react';
 import { useSearchParams } from 'next/navigation';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import useLessonList from './useLessonList';
 import LessonListHeader from './LessonList.Header';
 import LessonTable from './LessonTable';
 import LessonListFilter from './LessonList.Filter';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface LessonListProps {
   initialLessons?: LessonWithProfiles[];
   initialError?: string | null;
+  role?: 'admin' | 'teacher' | 'student';
 }
 
-export default function LessonList({ initialLessons = [], initialError = null }: LessonListProps) {
+export default function LessonList({
+  initialLessons = [],
+  initialError = null,
+  role = 'admin',
+}: LessonListProps) {
   const searchParams = useSearchParams();
   const { lessons, loading, error, filterStatus, setFilterStatus } = useLessonList(
     initialLessons,
@@ -25,24 +33,45 @@ export default function LessonList({ initialLessons = [], initialError = null }:
 
   if (loading) {
     return (
-      <div className="text-center py-8 text-gray-600 dark:text-gray-400">Loading lessons...</div>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-8 w-32" />
+          <Skeleton className="h-10 w-24" />
+        </div>
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      </div>
     );
   }
 
   if (error) {
-    return <div className="text-center py-8 text-red-600 dark:text-red-400">Error: {error}</div>;
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   }
 
   return (
-    <div>
+    <div className="space-y-6">
       {showSuccess && (
-        <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400">
-          Lesson created successfully!
-        </div>
+        <Alert className="border-green-200 bg-green-50 text-green-800 dark:border-green-900 dark:bg-green-900/20 dark:text-green-300">
+          <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+          <AlertTitle>Success</AlertTitle>
+          <AlertDescription>Lesson created successfully!</AlertDescription>
+        </Alert>
       )}
+
       <LessonListHeader />
+
       <LessonListFilter filterStatus={filterStatus} onFilterChange={setFilterStatus} />
-      <LessonTable lessons={lessons} role="admin" baseUrl="/dashboard/lessons" />
+
+      <LessonTable lessons={lessons} role={role} baseUrl="/dashboard/lessons" />
     </div>
   );
 }

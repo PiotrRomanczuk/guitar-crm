@@ -11,8 +11,10 @@ export const LessonSchema = z.object({
   creator_user_id: z.string().uuid().optional(),
   lesson_number: z.number().int().positive().nullable().optional(),
   lesson_teacher_number: z.number().int().positive().nullable().optional(),
+  title: z.string().min(1, 'Title is required').nullable().optional(),
   notes: z.string().nullable().optional(),
-  scheduled_at: z.string().nullable().optional(), // ISO date string from database (timestamp)
+  date: z.string().nullable().optional(), // ISO date string from database
+  start_time: z.string().nullable().optional(), // time (ISO or HH:mm)
   status: LessonStatusEnum.default('SCHEDULED'),
   created_at: z.string().nullable().optional(), // ISO date string from database
   updated_at: z.string().nullable().optional(), // ISO date string from database
@@ -22,9 +24,12 @@ export const LessonSchema = z.object({
 export const LessonInputSchema = z.object({
   student_id: z.string().uuid('Student ID is required'),
   teacher_id: z.string().uuid('Teacher ID is required'),
+  title: z.string().min(1, 'Title is required').optional(),
   notes: z.string().optional(),
-  scheduled_at: z.string().min(1, 'Scheduled date/time is required'), // ISO timestamp or date string
+  date: z.string().min(1, 'Date is required'), // Date string (YYYY-MM-DD), required by database
+  start_time: z.string().optional(), // time (HH:mm)
   status: LessonStatusEnum.optional(),
+  song_ids: z.array(z.string().uuid()).optional(),
 });
 
 // Lesson with profile information
@@ -45,6 +50,24 @@ export const LessonWithProfilesSchema = LessonSchema.extend({
     })
     .optional()
     .nullable(),
+  lesson_songs: z
+    .array(
+      z.object({
+        song: z
+          .object({
+            title: z.string(),
+          })
+          .nullable(),
+      })
+    )
+    .optional(),
+  assignments: z
+    .array(
+      z.object({
+        title: z.string(),
+      })
+    )
+    .optional(),
 });
 
 // Lesson song status enum
@@ -60,16 +83,5 @@ export const SongStatusEnum = z.enum([
 export const LessonSongSchema = z.object({
   lesson_id: z.string().uuid(),
   song_id: z.string().uuid(),
-  song_status: SongStatusEnum.default('started'),
-  student_id: z.string().uuid(),
-  created_at: z.date().optional(),
-  updated_at: z.date().optional(),
+  song_status: SongStatusEnum.default('to_learn'),
 });
-
-// Types
-export type Lesson = z.infer<typeof LessonSchema>;
-export type LessonInput = z.infer<typeof LessonInputSchema>;
-export type LessonWithProfiles = z.infer<typeof LessonWithProfilesSchema>;
-export type LessonSong = z.infer<typeof LessonSongSchema>;
-export type LessonStatus = z.infer<typeof LessonStatusEnum>;
-export type SongStatus = z.infer<typeof SongStatusEnum>;

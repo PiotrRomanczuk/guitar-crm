@@ -44,6 +44,8 @@ NODE_ENV=production
 
 ### Database Setup for Production
 
+**Important:** Database setup (migrations) should be done **manually** or through a dedicated deployment process, NOT automatically in CI/CD on every test run.
+
 1. **Create Production Supabase Project**
 
    ```bash
@@ -51,19 +53,43 @@ NODE_ENV=production
    # Note down the URL and keys
    ```
 
-2. **Run Migrations**
+2. **Run Migrations Manually**
 
    ```bash
-   # Set production database URL
+   # Link to production database
    supabase link --project-ref your-project-ref
+   
+   # Apply migrations to production
    supabase db push
    ```
 
-3. **Seed Production Data** (Optional)
+3. **Seed Production Data** (Optional - First Time Only)
    ```bash
    # Only run if you need sample data in production
-   supabase db seed
+   # WARNING: This should only be done on initial setup
+   supabase db push --include-seed
    ```
+
+### Database Management in CI/CD
+
+The CI/CD pipeline performs **database quality validation** without modifying the database:
+
+- **Database Quality Check Job**: Validates existing database state
+  - Checks schema integrity
+  - Validates test data
+  - Ensures no production data in test environments
+  - Does NOT reset or modify the database
+
+- **E2E Tests**: Run against existing database state
+  - Assumes database is already set up with proper schema
+  - May add test data during tests
+  - Does NOT reset the entire database before tests
+
+**When Database Changes Are Needed:**
+
+1. **During Development**: Developers apply migrations locally
+2. **On Main Branch**: Database migrations should be applied manually to production BEFORE merging PRs that depend on them
+3. **For Testing**: Test databases should have stable schemas; only test data changes
 
 ### Domain Configuration
 
@@ -82,11 +108,17 @@ NODE_ENV=production
 Before going live:
 
 - [ ] All environment variables set
-- [ ] Database migrations applied
+- [ ] Database migrations applied **manually** to production
+- [ ] Database schema validated
 - [ ] Domain configured
 - [ ] SSL certificate active
 - [ ] Test all critical functionality
 - [ ] Set up monitoring/alerting
+
+**Note on Database Migrations:**
+- Migrations should be applied manually using `supabase db push`
+- CI/CD validates database quality but does NOT apply migrations automatically
+- This prevents accidental data loss or schema changes during automated testing
 
 ### Rollback Strategy
 

@@ -3,15 +3,35 @@ import { redirect } from 'next/navigation';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { createClient } from '@/lib/supabase/server';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
-import LessonDeleteButton from '@/components/lessons/LessonDeleteButton';
-import LessonSongs from '@/components/lessons/LessonSongs';
-import { Breadcrumbs } from '@/components/shared';
+import { Database } from '@/database.types';
+
+import { LessonSongsList } from '@/components/lessons/LessonSongsList';
+import { LessonDetailsCard } from '@/components/lessons/LessonDetailsCard';
+import { LessonAssignmentsList } from '@/components/lessons/LessonAssignmentsList';
 
 interface LessonDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-async function fetchLesson(id: string): Promise<LessonWithProfiles | null> {
+interface LessonDetail extends LessonWithProfiles {
+  lesson_songs: {
+    id: string;
+    status: Database['public']['Enums']['lesson_song_status'];
+    song: {
+      id: string;
+      title: string;
+      author: string;
+    } | null;
+  }[];
+  assignments: {
+    id: string;
+    title: string;
+    status: Database['public']['Enums']['assignment_status'];
+    due_date: string | null;
+  }[];
+}
+
+async function fetchLesson(id: string): Promise<LessonDetail | null> {
   try {
     const supabase = await createClient();
     const { user } = await getUserWithRolesSSR();
@@ -25,40 +45,41 @@ async function fetchLesson(id: string): Promise<LessonWithProfiles | null> {
       .select(
         `
         *,
-        profile:student_id(id, full_name, email),
-        teacher_profile:teacher_id(id, full_name, email)
+        profile:profiles!student_id(id, full_name, email),
+        teacher_profile:profiles!teacher_id(id, full_name, email),
+        lesson_songs(
+          id,
+          status,
+          song:songs(id, title, author)
+        ),
+        assignments(
+          id,
+          title,
+          status,
+          due_date
+        )
       `
       )
       .eq('id', id)
       .single();
 
     if (error || !data) {
+      console.error('Error fetching lesson:', error);
       return null;
     }
 
-    return data as LessonWithProfiles;
-  } catch {
+    return data as unknown as LessonDetail;
+  } catch (err) {
+    console.error('Exception fetching lesson:', err);
     return null;
   }
 }
 
-function formatDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return 'N/A';
-  try {
-    return new Date(dateStr).toLocaleDateString();
-  } catch {
-    return 'Invalid Date';
-  }
-}
-
-function formatTime(timeStr: string | null | undefined): string {
-  if (!timeStr) return 'N/A';
-  try {
-    const date = new Date(`2000-01-01T${timeStr}`);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  } catch {
-    return 'Invalid Time';
-  }
+async function handleDeleteLesson(id: string) {
+  'use server';
+  const supabase = await createClient();
+  await supabase.from('lessons').delete().eq('id', id);
+  redirect('/dashboard/lessons');
 }
 
 export default async function LessonDetailPage({ params }: LessonDetailPageProps) {
@@ -90,114 +111,26 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Breadcrumbs
-        items={[
-          { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Lessons', href: '/dashboard/lessons' },
-          { label: `Lesson #${lesson.lesson_teacher_number || 'N/A'}` },
-        ]}
+      <div className="mb-6">
+        <Link href="/dashboard/lessons" className="text-blue-600 hover:underline">
+          Back to Lessons
+        </Link>
+      </div>
+
+      <LessonDetailsCard
+        lesson={lesson}
+        canEdit={canEdit}
+        canDelete={canDelete}
+        onDelete={handleDeleteLesson.bind(null, id)}
       />
 
-      <div
-        className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6"
-        data-testid="lesson-detail"
-      >
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Lesson #{lesson.lesson_teacher_number || 'N/A'}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              ID:{' '}
-              <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{lesson.id}</code>
-            </p>
-          </div>
+      <LessonSongsList lessonId={lesson.id!} lessonSongs={lesson.lesson_songs} canEdit={canEdit} />
 
-          <div>
-            <span
-              className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${
-                lesson.status === 'COMPLETED'
-                  ? 'bg-green-100 dark:bg-green-900/30 text-green-800'
-                  : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800'
-              }`}
-            >
-              {lesson.status || 'SCHEDULED'}
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <div>
-            <h2 className="text-sm font-semibold text-gray-700 uppercase mb-2">Student</h2>
-            <p className="text-lg text-gray-900 dark:text-white">
-              {lesson.profile?.full_name || lesson.profile?.email || 'Unknown'}
-            </p>
-          </div>
-
-          <div>
-            <h2 className="text-sm font-semibold text-gray-700 uppercase mb-2">Teacher</h2>
-            <p className="text-lg text-gray-900 dark:text-white">
-              {lesson.teacher_profile?.full_name || lesson.teacher_profile?.email || 'Unknown'}
-            </p>
-          </div>
-
-          <div>
-            <h2 className="text-sm font-semibold text-gray-700 uppercase mb-2">Date</h2>
-            <p className="text-lg text-gray-900 dark:text-white">
-              {formatDate(lesson.scheduled_at)}
-            </p>
-          </div>
-
-          <div>
-            <h2 className="text-sm font-semibold text-gray-700 uppercase mb-2">Time</h2>
-            <p className="text-lg text-gray-900 dark:text-white">
-              {formatTime(lesson.scheduled_at)}
-            </p>
-          </div>
-
-          <div>
-            <h2 className="text-sm font-semibold text-gray-700 uppercase mb-2">Lesson #</h2>
-            <p className="text-lg text-gray-900 dark:text-white">
-              {lesson.lesson_teacher_number || 'N/A'}
-            </p>
-          </div>
-        </div>
-
-        {lesson.notes && (
-          <div className="mt-6">
-            <h2 className="text-sm font-semibold text-gray-700 uppercase mb-2">Notes</h2>
-            <p className="text-gray-900 dark:text-white whitespace-pre-wrap">{lesson.notes}</p>
-          </div>
-        )}
-
-        <div className="flex gap-3 mt-8">
-          {canEdit && (
-            <Link
-              href={`/dashboard/lessons/${lesson.id}/edit`}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              data-testid="lesson-edit-button"
-            >
-              Edit
-            </Link>
-          )}
-
-          {canDelete && <LessonDeleteButton lessonId={id} />}
-
-          <Link
-            href="/dashboard/lessons"
-            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-          >
-            Back
-          </Link>
-        </div>
-      </div>
-
-      <LessonSongs lessonId={id} />
-
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-bold mb-4">Tasks</h2>
-        <p className="text-gray-600">Coming soon</p>
-      </div>
+      <LessonAssignmentsList
+        lessonId={lesson.id!}
+        assignments={lesson.assignments}
+        canEdit={canEdit}
+      />
     </div>
   );
 }

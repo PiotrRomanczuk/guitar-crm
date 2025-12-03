@@ -92,49 +92,41 @@ export default function UserDetail({ user }: UserDetailProps) {
           <label className="text-sm font-semibold text-gray-700 dark:text-gray-400 flex items-center gap-2">
             <span>👤</span> Full Name
           </label>
-          <p className="text-gray-900 dark:text-white">{user.full_name || 'N/A'}</p>
+          <p className="text-gray-900 dark:text-white font-medium">{fullName}</p>
         </div>
+
         <div className="space-y-2">
           <label className="text-sm font-semibold text-gray-700 dark:text-gray-400 flex items-center gap-2">
-            <span>✉️</span> Email
+            <span>📧</span> Email
           </label>
-          <p className="text-gray-900 dark:text-white">{user.email || 'N/A'}</p>
+          <p className="text-gray-900 dark:text-white font-medium">{user.email}</p>
         </div>
-        <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700 dark:text-gray-400 flex items-center gap-2">
-            <span>✅</span> Status
-          </label>
-          <span className="inline-flex px-3 py-1.5 rounded-lg text-sm font-semibold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
-            Active
-          </span>
-        </div>
+
         <div className="space-y-2 sm:col-span-2">
           <label className="text-sm font-semibold text-gray-700 dark:text-gray-400 flex items-center gap-2">
             <span>📝</span> Notes
           </label>
-          <p className="text-gray-900 dark:text-white">{user.notes || 'No notes added'}</p>
+          <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg text-gray-700 dark:text-gray-300 min-h-[60px]">
+            {user.notes || 'No notes available.'}
+          </div>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex flex-wrap gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <Link href={`/dashboard/users/${user.id}/edit`}>
-          <button className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all hover:shadow-lg">
-            ✏️ Edit Profile
-          </button>
+      <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+        <Link
+          href={`/dashboard/users/${user.id}/edit`}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+        >
+          <span>✏️</span> Edit User
         </Link>
         <button
           onClick={handleDelete}
           disabled={loading}
-          className="px-6 py-2.5 border-2 border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition-all disabled:opacity-50"
+          className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-300 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
         >
-          {loading ? '⏳ Deleting...' : '🗑️ Delete User'}
+          <span>🗑️</span> {loading ? 'Deleting...' : 'Delete User'}
         </button>
-        <Link href="/dashboard/users">
-          <button className="px-6 py-2.5 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
-            ← Back to Users
-          </button>
-        </Link>
       </div>
     </div>
   );

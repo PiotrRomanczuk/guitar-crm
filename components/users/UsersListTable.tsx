@@ -3,7 +3,7 @@
 import Link from 'next/link';
 
 interface UserProfile {
-  id: number;
+  id: string;
   user_id: string | null;
   email: string | null;
   firstName: string | null;
@@ -18,7 +18,7 @@ interface UserProfile {
 
 interface UsersListTableProps {
   users: UserProfile[];
-  onDelete: (id: number, email: string) => void;
+  onDelete: (userId: string, email: string) => void;
 }
 
 function getRoleDisplay(user: UserProfile): string {
@@ -38,7 +38,7 @@ function UserRow({
   onDelete,
 }: {
   user: UserProfile;
-  onDelete: (id: number, email: string) => void;
+  onDelete: (userId: string, email: string) => void;
 }) {
   return (
     <tr

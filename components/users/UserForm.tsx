@@ -6,7 +6,7 @@ import UserFormActions from './UserFormActions';
 
 interface UserFormProps {
   initialData?: {
-    id: number;
+    id: string | number;
     firstName: string | null;
     lastName: string | null;
     email: string | null;
