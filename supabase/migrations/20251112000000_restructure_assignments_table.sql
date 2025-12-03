@@ -13,7 +13,7 @@ DROP POLICY IF EXISTS update_assignments_user_or_admin ON assignments;
 DROP POLICY IF EXISTS delete_assignments_admin_or_teacher ON assignments;
 
 -- Step 2: Create new status enum
-DO 895016 BEGIN
+DO $$ BEGIN
     CREATE TYPE assignment_status AS ENUM (
         'not_started',
         'in_progress',
@@ -23,7 +23,7 @@ DO 895016 BEGIN
     );
 EXCEPTION
     WHEN duplicate_object THEN null;
-END 895016;
+END $$;
 
 -- Step 2.5: Update status column to use new enum
 -- First drop the default value which uses the old enum
@@ -65,7 +65,7 @@ WHERE a.lesson_id = l.id
 -- Step 6: For assignments without lessons, try to infer teacher from student's lessons
 UPDATE assignments a
 SET teacher_id = (
-  SELECT DISTINCT l.teacher_id
+  SELECT l.teacher_id
   FROM lessons l
   WHERE l.student_id = a.student_id
   ORDER BY l.created_at DESC
