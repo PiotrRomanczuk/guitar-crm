@@ -2,15 +2,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm';
 
-// Mock Supabase browser client
-const mockResetPasswordForEmail = jest.fn();
+// Mock server actions
+const mockResetPassword = jest.fn();
 
-jest.mock('@/lib/supabase-browser', () => ({
-	getSupabaseBrowserClient: jest.fn(() => ({
-		auth: {
-			resetPasswordForEmail: mockResetPasswordForEmail,
-		},
-	})),
+jest.mock('@/app/auth/actions', () => ({
+	resetPassword: (...args: any[]) => mockResetPassword(...args),
 }));
 
 describe('ForgotPasswordForm', () => {
@@ -78,14 +74,14 @@ describe('ForgotPasswordForm', () => {
 			fireEvent.click(submitButton);
 
 			await waitFor(() => {
-				expect(mockResetPasswordForEmail).not.toHaveBeenCalled();
+				expect(mockResetPassword).not.toHaveBeenCalled();
 			});
 		});
 	});
 
 	describe('Form Submission', () => {
-		it('should call resetPasswordForEmail with correct email', async () => {
-			mockResetPasswordForEmail.mockResolvedValue({
+		it('should call resetPassword with correct email', async () => {
+			mockResetPassword.mockResolvedValue({
 				data: {},
 				error: null,
 			});
@@ -99,17 +95,12 @@ describe('ForgotPasswordForm', () => {
 			fireEvent.click(screen.getByRole('button', { name: /send reset link/i }));
 
 			await waitFor(() => {
-				expect(mockResetPasswordForEmail).toHaveBeenCalledWith(
-					'test@example.com',
-					expect.objectContaining({
-						redirectTo: expect.stringContaining('/reset-password'),
-					})
-				);
+				expect(mockResetPassword).toHaveBeenCalledWith('test@example.com');
 			});
 		});
 
 		it('should show success message on successful submission', async () => {
-			mockResetPasswordForEmail.mockResolvedValue({
+			mockResetPassword.mockResolvedValue({
 				data: {},
 				error: null,
 			});
@@ -130,9 +121,9 @@ describe('ForgotPasswordForm', () => {
 		});
 
 		it('should show error message on failure', async () => {
-			mockResetPasswordForEmail.mockResolvedValue({
+			mockResetPassword.mockResolvedValue({
 				data: null,
-				error: { message: 'User not found' },
+				error: 'User not found',
 			});
 
 			render(<ForgotPasswordForm />);
@@ -149,7 +140,7 @@ describe('ForgotPasswordForm', () => {
 		});
 
 		it('should disable submit button while submitting', async () => {
-			mockResetPasswordForEmail.mockImplementation(
+			mockResetPassword.mockImplementation(
 				() =>
 					new Promise((resolve) =>
 						setTimeout(() => resolve({ data: {}, error: null }), 100)
@@ -173,7 +164,7 @@ describe('ForgotPasswordForm', () => {
 		});
 
 		it('should show loading state while submitting', async () => {
-			mockResetPasswordForEmail.mockImplementation(
+			mockResetPassword.mockImplementation(
 				() =>
 					new Promise((resolve) =>
 						setTimeout(() => resolve({ data: {}, error: null }), 100)
