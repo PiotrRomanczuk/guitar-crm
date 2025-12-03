@@ -1,15 +1,53 @@
--- Migration: Fix shadow user linking logic
--- Description: Updates handle_new_user to link existing profiles by email instead of failing or creating duplicates.
---              Also updates dependent tables (lessons, assignments, user_roles) to point to the new auth.uid.
+-- Migration: Fix shadow user linking logic with ON UPDATE CASCADE
+-- Description: 1. Updates FKs to allow cascading updates on profile ID.
+--              2. Updates handle_new_user to link existing profiles by email by updating the profile ID.
 
--- 1. Drop the trigger first to avoid race conditions during replacement
+-- PART 1: Update Foreign Keys to ON UPDATE CASCADE
+
+-- 1. assignments
+ALTER TABLE public.assignments
+  DROP CONSTRAINT IF EXISTS "assignments_student_id_fkey",
+  ADD CONSTRAINT "assignments_student_id_fkey"
+    FOREIGN KEY (student_id) REFERENCES public.profiles(id)
+    ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE public.assignments
+  DROP CONSTRAINT IF EXISTS "assignments_teacher_id_fkey",
+  ADD CONSTRAINT "assignments_teacher_id_fkey"
+    FOREIGN KEY (teacher_id) REFERENCES public.profiles(id)
+    ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- 2. lessons
+ALTER TABLE public.lessons
+  DROP CONSTRAINT IF EXISTS "lessons_student_id_fkey",
+  ADD CONSTRAINT "lessons_student_id_fkey"
+    FOREIGN KEY (student_id) REFERENCES public.profiles(id)
+    ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE public.lessons
+  DROP CONSTRAINT IF EXISTS "lessons_teacher_id_fkey",
+  ADD CONSTRAINT "lessons_teacher_id_fkey"
+    FOREIGN KEY (teacher_id) REFERENCES public.profiles(id)
+    ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- 3. user_roles
+ALTER TABLE public.user_roles
+  DROP CONSTRAINT IF EXISTS "user_roles_user_id_fkey",
+  ADD CONSTRAINT "user_roles_user_id_fkey"
+    FOREIGN KEY (user_id) REFERENCES public.profiles(id)
+    ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+-- PART 2: Update Trigger Logic
+
+-- 1. Drop the trigger first
 DROP TRIGGER IF EXISTS trigger_handle_new_user ON auth.users;
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users; -- Just in case
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 
 -- 2. Drop the old function
 DROP FUNCTION IF EXISTS public.handle_new_user();
 
--- 3. Create the new function with linking logic
+-- 3. Create the new function
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -26,40 +64,14 @@ BEGIN
 
   IF existing_profile_id IS NOT NULL THEN
     -- Profile exists (Shadow User case)
-    -- We need to migrate all data from the old profile ID (random UUID) to the new auth.uid
-
-    -- 1. Update lessons (as teacher)
-    UPDATE public.lessons
-    SET teacher_id = new.id
-    WHERE teacher_id = existing_profile_id;
-
-    -- 2. Update lessons (as student)
-    UPDATE public.lessons
-    SET student_id = new.id
-    WHERE student_id = existing_profile_id;
-
-    -- 3. Update assignments (as teacher)
-    UPDATE public.assignments
-    SET teacher_id = new.id
-    WHERE teacher_id = existing_profile_id;
-
-    -- 4. Update assignments (as student)
-    UPDATE public.assignments
-    SET student_id = new.id
-    WHERE student_id = existing_profile_id;
-
-    -- 5. Update user_roles
-    UPDATE public.user_roles
-    SET user_id = new.id
-    WHERE user_id = existing_profile_id;
-
-    -- 6. Finally, update the profile itself to match the new auth.uid
-    --    We also update the updated_at timestamp
+    -- We update the profile ID to the new auth.uid.
+    -- Because of ON UPDATE CASCADE, all dependent rows (lessons, assignments, etc.)
+    -- will automatically update to the new ID.
+    
     UPDATE public.profiles
     SET 
       id = new.id,
       updated_at = now(),
-      -- Ensure metadata is synced if available
       full_name = COALESCE(new.raw_user_meta_data->>'full_name', full_name),
       avatar_url = COALESCE(new.raw_user_meta_data->>'avatar_url', avatar_url)
     WHERE id = existing_profile_id;
