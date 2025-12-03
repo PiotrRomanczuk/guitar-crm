@@ -1,11 +1,12 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CalendarEventsList } from '@/components/dashboard/calendar/CalendarEventsList';
-import { getGoogleEvents, syncLessonsFromCalendar } from '@/app/dashboard/actions';
+import { getGoogleEvents, createShadowUser } from '@/app/dashboard/actions';
 
 // Mock dependencies
 jest.mock('@/app/dashboard/actions', () => ({
   getGoogleEvents: jest.fn(),
-  syncLessonsFromCalendar: jest.fn(),
+  createShadowUser: jest.fn(),
+  syncAllLessonsFromCalendar: jest.fn(),
 }));
 
 jest.mock('@/components/ui/card', () => ({
@@ -30,6 +31,7 @@ jest.mock('lucide-react', () => ({
   MapPin: () => <span>MapPinIcon</span>,
   ArrowRight: () => <span>ArrowRightIcon</span>,
   UserPlus: () => <span>UserPlusIcon</span>,
+  RefreshCw: () => <span>RefreshCwIcon</span>,
 }));
 
 jest.mock('@/components/dashboard/calendar/ConnectGoogleButton', () => ({
@@ -84,7 +86,7 @@ describe('CalendarEventsList', () => {
     expect(screen.queryByText('student@example.com')).not.toBeInTheDocument();
   });
 
-  it('should call syncLessonsFromCalendar when shadow user button is clicked', async () => {
+  it('should call createShadowUser when shadow user button is clicked', async () => {
     (getGoogleEvents as jest.Mock).mockResolvedValue([
       {
         id: 'event-1',
@@ -96,7 +98,7 @@ describe('CalendarEventsList', () => {
       },
     ]);
 
-    (syncLessonsFromCalendar as jest.Mock).mockResolvedValue({ success: true, count: 1 });
+    (createShadowUser as jest.Mock).mockResolvedValue({ success: true });
 
     // Mock window.confirm
     window.confirm = jest.fn().mockReturnValue(true);
@@ -111,7 +113,7 @@ describe('CalendarEventsList', () => {
     fireEvent.click(screen.getByTitle('Create Shadow User & Sync'));
 
     await waitFor(() => {
-      expect(syncLessonsFromCalendar).toHaveBeenCalledWith('student@example.com');
+      expect(createShadowUser).toHaveBeenCalledWith('student@example.com');
     });
   });
 });
