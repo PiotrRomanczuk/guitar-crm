@@ -1,10 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
-import { EntityLink, StatusBadge, getStatusVariant } from '@/components/shared';
+import { EntityLink } from '@/components/shared';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog';
 import type { Song } from '../types';
 
@@ -123,10 +122,10 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
 
       <DeleteConfirmationDialog
         isOpen={!!songToDelete}
-        title="Delete Song"
-        message={`Are you sure you want to delete "${songToDelete?.title}"? This action cannot be undone.`}
+        onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
+        songTitle={songToDelete?.title || ''}
+        hasLessonAssignments={false}
         isDeleting={!!deletingSongId}
       />
     </>

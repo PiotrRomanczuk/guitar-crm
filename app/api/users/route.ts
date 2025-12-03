@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
 interface UserProfile {
@@ -12,6 +13,7 @@ interface UserProfile {
   isTeacher: boolean | null;
   isStudent: boolean | null;
   isActive: boolean;
+  isRegistered: boolean;
   created_at: string | null;
   updated_at: string | null;
 }
@@ -25,6 +27,7 @@ export async function GET(request: Request) {
     }
 
     const supabase = await createClient();
+    const supabaseAdmin = createAdminClient();
     const url = new URL(request.url);
 
     // Filtering parameters
@@ -66,9 +69,54 @@ export async function GET(request: Request) {
       return Response.json({ error: error.message }, { status: 500 });
     }
 
+    // Fetch auth data for each user to check registration status
+    const profilesWithAuth = await Promise.all(
+      (data as unknown as UserProfile[]).map(async (profile) => {
+        try {
+          const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(profile.id);
+          
+          // Check registration status based on identities and sign-in history
+          // A user is considered "Registered" if:
+          // 1. They have signed in at least once (last_sign_in_at is present)
+          // 2. OR they have a confirmed email AND identities (though identities seem hidden in some admin views)
+          // 3. OR they have app_metadata.providers containing 'google' or other oauth (indicates real signup)
+          
+          const hasSignedIn = !!user?.last_sign_in_at;
+          const hasOauthProvider = user?.app_metadata?.providers?.some((p: string) => p !== 'email');
+          
+          // Shadow users created via admin API usually have:
+          // - No last_sign_in_at
+          // - app_metadata.providers = ['email']
+          // - confirmed_at (because we auto-confirm them)
+          
+          // Real users who signed up via email/password usually have:
+          // - last_sign_in_at (if they logged in)
+          // - But if they just signed up and verified email but never logged in?
+          //   They would look similar to shadow users except for maybe metadata.
+          
+          // However, for the purpose of "Activated", checking if they have EVER signed in is a very strong signal.
+          // If they haven't signed in, they are effectively still "Shadow" or "Pending" from the perspective of usage.
+          
+          // Also check for Google/OAuth users who might not have signed in recently but are definitely registered
+          const isRegistered = hasSignedIn || hasOauthProvider;
+          
+          return {
+            ...profile,
+            isRegistered
+          };
+        } catch (err) {
+          console.error(`Failed to fetch auth user for ${profile.id}:`, err);
+          return {
+            ...profile,
+            isRegistered: false
+          };
+        }
+      })
+    );
+
     return Response.json(
       {
-        data: data as UserProfile[],
+        data: profilesWithAuth as UserProfile[],
         total: count || 0,
         limit,
         offset,
