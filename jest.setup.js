@@ -13,10 +13,16 @@ if (typeof globalThis.Request === 'undefined') {
   globalThis.Request = class {};
 }
 
-// Mock environment variables for Supabase
-process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
-process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key';
-process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+// Mock environment variables for Supabase ONLY if not already set
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
+}
+if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key';
+}
+if (!process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+}
 
 // Fix for Console Ninja instrumentation in tests
 // The instrumentation adds calls to a global function `oo_oo` which might be missing or broken in the test environment.
