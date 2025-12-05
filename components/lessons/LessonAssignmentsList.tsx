@@ -1,5 +1,17 @@
 import Link from 'next/link';
 import { Database } from '@/database.types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 interface Assignment {
   id: string;
@@ -20,55 +32,74 @@ export function LessonAssignmentsList({
   canEdit,
 }: LessonAssignmentsListProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Assignments</h2>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-xl font-bold">Assignments</CardTitle>
         {canEdit && (
-          <Link
-            href={`/dashboard/assignments/new?lessonId=${lessonId}`}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
-          >
-            Add Assignment
-          </Link>
+          <Button asChild size="sm">
+            <Link href={`/dashboard/assignments/new?lessonId=${lessonId}`}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Assignment
+            </Link>
+          </Button>
         )}
-      </div>
-
-      {assignments && assignments.length > 0 ? (
-        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-          {assignments.map((assignment) => (
-            <li key={assignment.id} className="py-3 flex justify-between items-center">
-              <div>
-                <Link
-                  href={`/dashboard/assignments/${assignment.id}`}
-                  className="font-medium text-blue-600 hover:underline dark:text-blue-400"
-                >
-                  {assignment.title}
-                </Link>
-                {assignment.due_date && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Due: {new Date(assignment.due_date).toLocaleDateString()}
-                  </p>
-                )}
-              </div>
-              <div>
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    assignment.status === 'completed'
-                      ? 'bg-green-100 text-green-800'
-                      : assignment.status === 'in_progress'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  {assignment.status}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="text-gray-500 dark:text-gray-400">No assignments for this lesson.</p>
-      )}
-    </div>
+      </CardHeader>
+      <CardContent>
+        {assignments && assignments.length > 0 ? (
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Due Date</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {assignments.map((assignment) => (
+                  <TableRow key={assignment.id}>
+                    <TableCell>
+                      <Link
+                        href={`/dashboard/assignments/${assignment.id}`}
+                        className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+                      >
+                        {assignment.title}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      {assignment.due_date
+                        ? new Date(assignment.due_date).toLocaleDateString()
+                        : '-'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          assignment.status === 'completed'
+                            ? 'default' // Green-ish usually, or use custom class if needed. Default is primary.
+                            : assignment.status === 'in_progress'
+                            ? 'secondary'
+                            : 'outline'
+                        }
+                        className={
+                          assignment.status === 'completed'
+                            ? 'bg-green-100 text-green-800 hover:bg-green-100/80 dark:bg-green-900 dark:text-green-300'
+                            : assignment.status === 'in_progress'
+                            ? 'bg-blue-100 text-blue-800 hover:bg-blue-100/80 dark:bg-blue-900 dark:text-blue-300'
+                            : ''
+                        }
+                      >
+                        {assignment.status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <p className="text-muted-foreground text-sm">No assignments for this lesson.</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

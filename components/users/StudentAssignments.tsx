@@ -1,4 +1,6 @@
 import { AssignmentItem } from '@/app/dashboard/users/[id]/actions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface StudentAssignmentsProps {
   assignments: AssignmentItem[];
@@ -6,7 +8,7 @@ interface StudentAssignmentsProps {
 
 export function StudentAssignments({ assignments }: StudentAssignmentsProps) {
   if (!assignments.length) {
-    return <div className="text-gray-500 dark:text-gray-400 italic">No assignments found.</div>;
+    return <div className="text-muted-foreground italic">No assignments found.</div>;
   }
 
   const grouped = {
@@ -70,7 +72,7 @@ export function StudentAssignments({ assignments }: StudentAssignmentsProps) {
       {/* Cancelled */}
       {grouped.cancelled.length > 0 && (
         <section>
-          <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             Cancelled ({grouped.cancelled.length})
           </h3>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -99,63 +101,57 @@ function AssignmentCard({
   };
 
   return (
-    <div
-      className={`p-4 rounded-lg border ${borderColors[variant]} transition-shadow hover:shadow-md`}
-    >
-      <div className="flex justify-between items-start mb-2">
-        <h4
-          className="font-medium text-gray-900 dark:text-white truncate pr-2"
-          title={assignment.title}
-        >
-          {assignment.title}
-        </h4>
-        <span
-          className={`text-xs px-2 py-0.5 rounded-full capitalize ${getStatusBadge(
-            assignment.status
-          )}`}
-        >
-          {assignment.status.replace('_', ' ')}
-        </span>
-      </div>
-
-      {assignment.description && (
-        <p
-          className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3"
-          title={assignment.description}
-        >
-          {assignment.description}
-        </p>
-      )}
-
-      <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-auto">
-        {assignment.dueDate ? (
-          <span>
-            Due:{' '}
-            {new Date(assignment.dueDate).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-            })}
-          </span>
-        ) : (
-          <span>No due date</span>
+    <Card className={`transition-shadow hover:shadow-md ${borderColors[variant]}`}>
+      <CardHeader className="p-4 pb-2">
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-base font-medium truncate pr-2" title={assignment.title}>
+            {assignment.title}
+          </CardTitle>
+          <Badge variant={getBadgeVariant(assignment.status)} className="capitalize">
+            {assignment.status.replace('_', ' ')}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="p-4 pt-0">
+        {assignment.description && (
+          <p
+            className="text-sm text-muted-foreground line-clamp-2 mb-3"
+            title={assignment.description}
+          >
+            {assignment.description}
+          </p>
         )}
-      </div>
-    </div>
+
+        <div className="flex items-center text-xs text-muted-foreground mt-auto">
+          {assignment.dueDate ? (
+            <span>
+              Due:{' '}
+              {new Date(assignment.dueDate).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+            </span>
+          ) : (
+            <span>No due date</span>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
-function getStatusBadge(status: string) {
+function getBadgeVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
   switch (status) {
     case 'overdue':
-      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      return 'destructive';
     case 'completed':
-      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      return 'default';
     case 'cancelled':
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+      return 'outline';
     case 'in_progress':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      return 'secondary';
     default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+      return 'outline';
   }
 }
