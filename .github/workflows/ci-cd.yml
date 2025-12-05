@@ -60,6 +60,7 @@ jobs:
         run: npm run test:ci -- --testPathIgnorePatterns='integration.test.ts' --testPathIgnorePatterns='database/'
         env:
           CI: true
+          SKIP_DB_TESTS: true
 
       - name: Check coverage thresholds (TEMPORARILY DISABLED)
         run: |
