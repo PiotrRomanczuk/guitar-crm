@@ -57,3 +57,30 @@ The application is automatically deployed to Vercel on every push to the `main` 
 ## Database
 
 This project uses Supabase as the backend. Database backups and sensitive information are automatically excluded from git commits.
+
+## Testing & TDD
+
+This project follows **Test-Driven Development (TDD)** practices. See the [TDD Guide](./docs/TDD_GUIDE.md) for detailed instructions.
+
+### Testing Quick Start
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm test -- --watch
+
+# Run with coverage
+npm test -- --coverage
+```
+
+### TDD Workflow
+
+1. 🔴 Write failing test first
+2. 🟢 Write minimal code to pass
+3. 🔵 Refactor while keeping tests green
+
+**Remember**: Always write tests before implementing features!
+
+<!-- CI Trigger -->
