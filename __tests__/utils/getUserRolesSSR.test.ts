@@ -13,22 +13,6 @@ const mockAuth = {
   getUser: jest.fn(),
 };
 
-function makeFromChain(profileData: unknown, error: unknown = null) {
-  const chain = {
-    select: jest.fn(),
-    eq: jest.fn(),
-    single: jest.fn(),
-  };
-  chain.select.mockReturnValue(chain);
-  chain.eq.mockReturnValue(chain);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (chain.single as any).mockResolvedValue({
-    data: profileData,
-    error,
-  });
-  return chain;
-}
-
 const mockSupabase = {
   auth: mockAuth,
   from: jest.fn(),
@@ -41,7 +25,7 @@ describe('getUserWithRolesSSR', () => {
   });
 
   it('returns user with profile roles when authenticated', async () => {
-    const profile = { role: 'admin' }; // The implementation checks for roles in user_roles table, not profile flags anymore?
+    // The implementation checks for roles in user_roles table, not profile flags anymore?
     // Wait, let's check the implementation of getUserWithRolesSSR again.
     
     /*

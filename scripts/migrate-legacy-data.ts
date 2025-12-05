@@ -78,7 +78,7 @@ function mapLessonSongStatus(status: string | null): Database["public"]["Enums"]
   return 'to_learn';
 }
 
-async function migrateProfiles() {
+export async function migrateProfiles() {
   console.log('Migrating Profiles...');
   const profiles = readJson('profiles.json');
   const mappedProfiles = profiles.map((p: any) => ({
@@ -134,7 +134,7 @@ async function migrateSongs() {
   }
 }
 
-async function migrateLessons() {
+export async function migrateLessons() {
   console.log('Migrating Lessons...');
   const lessons = readJson('lessons.json');
   
@@ -181,7 +181,7 @@ async function migrateLessons() {
   }
 }
 
-async function migrateLessonSongs() {
+export async function migrateLessonSongs() {
   console.log('Migrating Lesson Songs...');
   const lessonSongs = readJson('lesson.songs.json');
   const mappedLessonSongs = lessonSongs.map((ls: any) => ({

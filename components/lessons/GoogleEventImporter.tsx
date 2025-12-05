@@ -37,7 +37,7 @@ export function GoogleEventImporter() {
       } else {
         toast.error(result.error || 'Failed to fetch events');
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred');
     } finally {
       setLoading(false);
@@ -74,7 +74,7 @@ export function GoogleEventImporter() {
       } else {
         toast.error(result.error || 'Import failed');
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred during import');
     } finally {
       setImporting(false);
