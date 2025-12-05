@@ -5,9 +5,7 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-gray-300 m
 
 interface Props {
   formData: {
-    date: string;
-    start_time?: string;
-    title?: string;
+    scheduled_at: string;
     notes?: string;
   };
   validationErrors: { [key: string]: string };
@@ -18,53 +16,24 @@ export function LessonFormFields({ formData, validationErrors, handleChange }: P
   return (
     <>
       <div>
-        <label htmlFor="date" className={labelClass}>
-          Date *
+        <label htmlFor="scheduled_at" className={labelClass}>
+          Scheduled Date & Time *
         </label>
         <input
-          type="date"
-          id="date"
-          name="date"
-          value={formData.date}
+          type="datetime-local"
+          id="scheduled_at"
+          name="scheduled_at"
+          value={formData.scheduled_at}
           onChange={handleChange}
           required
-          data-testid="lesson-date"
+          data-testid="lesson-scheduled-at"
           className={inputClass}
         />
-        {validationErrors.date && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{validationErrors.date}</p>
+        {validationErrors.scheduled_at && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+            {validationErrors.scheduled_at}
+          </p>
         )}
-      </div>
-
-      <div>
-        <label htmlFor="start_time" className={labelClass}>
-          Start Time
-        </label>
-        <input
-          type="time"
-          id="start_time"
-          name="start_time"
-          value={formData.start_time || ''}
-          onChange={handleChange}
-          data-testid="lesson-start-time"
-          className={inputClass}
-        />
-      </div>
-
-      <div>
-        <label htmlFor="title" className={labelClass}>
-          Title
-        </label>
-        <input
-          type="text"
-          id="title"
-          name="title"
-          value={formData.title || ''}
-          onChange={handleChange}
-          placeholder="e.g., Guitar Basics, Advanced Techniques"
-          data-testid="lesson-title"
-          className={inputClass}
-        />
       </div>
 
       <div>

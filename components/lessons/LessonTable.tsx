@@ -7,7 +7,7 @@ import LessonTableEmpty from './LessonTable.Empty';
 interface Props {
   lessons: LessonWithProfiles[];
   role: 'admin' | 'teacher' | 'student';
-  baseUrl?: string; // e.g., '/lessons', '/teacher/lessons', '/student/lessons'
+  baseUrl?: string; // e.g., '/dashboard/lessons', '/teacher/lessons', '/student/lessons'
 }
 
 export default function LessonTable({ lessons, role, baseUrl = '/dashboard/lessons' }: Props) {

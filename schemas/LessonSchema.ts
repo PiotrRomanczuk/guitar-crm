@@ -26,11 +26,17 @@ export const LessonInputSchema = z.object({
   teacher_id: z.string().uuid('Teacher ID is required'),
   title: z.string().min(1, 'Title is required').optional(),
   notes: z.string().optional(),
-  date: z.string().min(1, 'Date is required'), // Date string (YYYY-MM-DD), required by database
+  date: z.string().optional(), // Date string (YYYY-MM-DD) - optional if scheduled_at is provided
   start_time: z.string().optional(), // time (HH:mm)
+  scheduled_at: z.string().optional(), // ISO date string
   status: LessonStatusEnum.optional(),
   song_ids: z.array(z.string().uuid()).optional(),
-}); // Lesson with profile information
+});
+
+export type LessonInput = z.infer<typeof LessonInputSchema>;
+export type Lesson = z.infer<typeof LessonSchema>;
+
+// Lesson with profile information
 export const LessonWithProfilesSchema = LessonSchema.extend({
   profile: z
     .object({
@@ -68,6 +74,8 @@ export const LessonWithProfilesSchema = LessonSchema.extend({
     .optional(),
 });
 
+export type LessonWithProfiles = z.infer<typeof LessonWithProfilesSchema>;
+
 // Lesson song status enum
 export const SongStatusEnum = z.enum([
   'to_learn',
@@ -81,16 +89,7 @@ export const SongStatusEnum = z.enum([
 export const LessonSongSchema = z.object({
   lesson_id: z.string().uuid(),
   song_id: z.string().uuid(),
-  song_status: SongStatusEnum.default('started'),
-  student_id: z.string().uuid(),
-  created_at: z.date().optional(),
-  updated_at: z.date().optional(),
+  song_status: SongStatusEnum.default('to_learn'),
 });
 
-// Types
-export type Lesson = z.infer<typeof LessonSchema>;
-export type LessonInput = z.infer<typeof LessonInputSchema>;
-export type LessonWithProfiles = z.infer<typeof LessonWithProfilesSchema>;
 export type LessonSong = z.infer<typeof LessonSongSchema>;
-export type LessonStatus = z.infer<typeof LessonStatusEnum>;
-export type SongStatus = z.infer<typeof SongStatusEnum>;
