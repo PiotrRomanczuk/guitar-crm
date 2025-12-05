@@ -75,3 +75,5 @@ CODE-AGENTS/
 .vscode/mcp.json
 server.log
 *.log
+
+.LEGACY_DATA
