@@ -1,6 +1,10 @@
 import Link from 'next/link';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import { formatDate, formatTime, getStatusColor } from './LessonTable.helpers';
+import { TableCell, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Eye } from 'lucide-react';
 
 interface Props {
   lesson: LessonWithProfiles;
@@ -9,20 +13,23 @@ interface Props {
   baseUrl: string;
 }
 
-export default function LessonTableRow({ lesson, showTeacherColumn, showActions, baseUrl }: Props) {
-  const songs = lesson.lesson_songs?.map((ls) => ls.song?.title).filter(Boolean) || [];
+export default function LessonTableRow({
+  lesson,
+  showTeacherColumn,
+  showActions,
+  baseUrl,
+}: Props) {
+  const songs =
+    lesson.lesson_songs?.map((ls) => ls.song?.title).filter(Boolean) || [];
   const assignments = lesson.assignments?.map((a) => a.title) || [];
   const hasContent = songs.length > 0 || assignments.length > 0;
 
   return (
-    <tr
-      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
-      data-testid="lesson-row"
-    >
-      <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100 relative">
+    <TableRow className="group" data-testid="lesson-row">
+      <TableCell className="relative font-medium">
         <Link
           href={`${baseUrl}/${lesson.id}`}
-          className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+          className="text-blue-600 dark:text-blue-400 hover:underline"
           data-testid="lesson-title-link"
         >
           {lesson.title || 'Untitled Lesson'}
@@ -42,7 +49,9 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
                     </li>
                   ))}
                   {songs.length > 3 && (
-                    <li className="text-gray-500 italic">+{songs.length - 3} more</li>
+                    <li className="text-gray-500 italic">
+                      +{songs.length - 3} more
+                    </li>
                   )}
                 </ul>
               </div>
@@ -59,59 +68,48 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
                     </li>
                   ))}
                   {assignments.length > 3 && (
-                    <li className="text-gray-500 italic">+{assignments.length - 3} more</li>
+                    <li className="text-gray-500 italic">
+                      +{assignments.length - 3} more
+                    </li>
                   )}
                 </ul>
               </div>
             )}
           </div>
         )}
-      </td>
-      <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
-        {lesson.profile ? lesson.profile.full_name || lesson.profile.email : 'Unknown Student'}
-      </td>
+      </TableCell>
+      <TableCell>
+        {lesson.profile
+          ? lesson.profile.full_name || lesson.profile.email
+          : 'Unknown Student'}
+      </TableCell>
       {showTeacherColumn && (
-        <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
+        <TableCell>
           {lesson.teacher_profile
             ? lesson.teacher_profile.full_name || lesson.teacher_profile.email
             : 'Unknown Teacher'}
-        </td>
+        </TableCell>
       )}
-      <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
-        {formatDate(lesson.date)}
-      </td>
-      <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
-        {formatTime(lesson.start_time)}
-      </td>
-      <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2">
-        <span
-          className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-            lesson.status
-          )}`}
+      <TableCell>{formatDate(lesson.date)}</TableCell>
+      <TableCell>{formatTime(lesson.start_time)}</TableCell>
+      <TableCell>
+        <Badge
+          variant="secondary"
+          className={`font-medium ${getStatusColor(lesson.status)}`}
         >
           {lesson.status || 'SCHEDULED'}
-        </span>
-      </td>
+        </Badge>
+      </TableCell>
       {showActions && (
-        <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2">
-          <div className="flex gap-2">
-            <Link
-              href={`${baseUrl}/${lesson.id}`}
-              className="text-blue-600 dark:text-blue-400 hover:underline text-xs sm:text-sm"
-              data-testid="lesson-view-button"
-            >
+        <TableCell>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href={`${baseUrl}/${lesson.id}`}>
+              <Eye className="h-4 w-4 mr-1" />
               View
             </Link>
-            <Link
-              href={`${baseUrl}/${lesson.id}/edit`}
-              className="text-yellow-600 dark:text-yellow-400 hover:underline text-xs sm:text-sm"
-              data-testid="lesson-edit-button"
-            >
-              Edit
-            </Link>
-          </div>
-        </td>
+          </Button>
+        </TableCell>
       )}
-    </tr>
+    </TableRow>
   );
 }

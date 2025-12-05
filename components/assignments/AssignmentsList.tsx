@@ -2,6 +2,34 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface Assignment {
   id: string;
@@ -32,6 +60,7 @@ export default function AssignmentsList() {
     status: '',
     priority: '',
   });
+  const [assignmentToDelete, setAssignmentToDelete] = useState<string | null>(null);
 
   const fetchAssignments = useCallback(async () => {
     try {
@@ -57,23 +86,30 @@ export default function AssignmentsList() {
     fetchAssignments();
   }, [fetchAssignments]);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this assignment?')) return;
+  const handleDeleteClick = (id: string) => {
+    setAssignmentToDelete(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!assignmentToDelete) return;
 
     try {
-      const response = await fetch(`/api/assignments/${id}`, {
+      const response = await fetch(`/api/assignments/${assignmentToDelete}`, {
         method: 'DELETE',
       });
 
       if (!response.ok) throw new Error('Failed to delete');
-      setAssignments(assignments.filter((a) => a.id !== id));
+      setAssignments(assignments.filter((a) => a.id !== assignmentToDelete));
+      setAssignmentToDelete(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error deleting assignment');
+      console.error(err);
+      setError(err instanceof Error ? err.message : 'Error deleting assignment');
+      setAssignmentToDelete(null);
     }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 space-y-6">
       <AssignmentsHeader />
       <AssignmentsFilters filter={filter} onFilterChange={setFilter} />
 
@@ -84,25 +120,40 @@ export default function AssignmentsList() {
       ) : assignments.length === 0 ? (
         <AssignmentsEmpty />
       ) : (
-        <AssignmentsTable assignments={assignments} onDelete={handleDelete} />
+        <AssignmentsTable assignments={assignments} onDelete={handleDeleteClick} />
       )}
+
+      <AlertDialog open={!!assignmentToDelete} onOpenChange={(open) => !open && setAssignmentToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the assignment.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
 
 function AssignmentsHeader() {
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Assignments</h1>
-        <Link
-          href="/dashboard/assignments/new"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          data-testid="create-assignment-button"
-        >
-          New Assignment
-        </Link>
-      </div>
+    <div className="flex items-center justify-between">
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Assignments</h1>
+      <Link
+        href="/dashboard/assignments/new"
+        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        data-testid="create-assignment-button"
+      >
+        New Assignment
+      </Link>
     </div>
   );
 }
@@ -114,34 +165,52 @@ interface FiltersProps {
 
 function AssignmentsFilters({ filter, onFilterChange }: FiltersProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-      <select
-        value={filter.status}
-        onChange={(e) => onFilterChange({ ...filter, status: e.target.value })}
-        className="px-4 py-2 border border-gray-300 bg-white rounded-lg dark:bg-gray-800 dark:border-gray-600"
-        data-testid="status-filter"
-      >
-        <option value="">All Status</option>
-        <option value="OPEN">Open</option>
-        <option value="IN_PROGRESS">In Progress</option>
-        <option value="PENDING_REVIEW">Pending Review</option>
-        <option value="COMPLETED">Completed</option>
-        <option value="CANCELLED">Cancelled</option>
-        <option value="BLOCKED">Blocked</option>
-      </select>
+    <div className="bg-card rounded-lg border shadow-sm p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Status</Label>
+          <Select
+            value={filter.status || 'all'}
+            onValueChange={(value) =>
+              onFilterChange({ ...filter, status: value === 'all' ? '' : value })
+            }
+          >
+            <SelectTrigger data-testid="status-filter">
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="OPEN">Open</SelectItem>
+              <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+              <SelectItem value="PENDING_REVIEW">Pending Review</SelectItem>
+              <SelectItem value="COMPLETED">Completed</SelectItem>
+              <SelectItem value="CANCELLED">Cancelled</SelectItem>
+              <SelectItem value="BLOCKED">Blocked</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-      <select
-        value={filter.priority}
-        onChange={(e) => onFilterChange({ ...filter, priority: e.target.value })}
-        className="px-4 py-2 border border-gray-300 bg-white rounded-lg dark:bg-gray-800 dark:border-gray-600"
-        data-testid="priority-filter"
-      >
-        <option value="">All Priority</option>
-        <option value="LOW">Low</option>
-        <option value="MEDIUM">Medium</option>
-        <option value="HIGH">High</option>
-        <option value="URGENT">Urgent</option>
-      </select>
+        <div className="space-y-2">
+          <Label>Priority</Label>
+          <Select
+            value={filter.priority || 'all'}
+            onValueChange={(value) =>
+              onFilterChange({ ...filter, priority: value === 'all' ? '' : value })
+            }
+          >
+            <SelectTrigger data-testid="priority-filter">
+              <SelectValue placeholder="All Priority" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Priority</SelectItem>
+              <SelectItem value="LOW">Low</SelectItem>
+              <SelectItem value="MEDIUM">Medium</SelectItem>
+              <SelectItem value="HIGH">High</SelectItem>
+              <SelectItem value="URGENT">Urgent</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
     </div>
   );
 }
@@ -168,7 +237,7 @@ function AssignmentsEmpty() {
 
 interface TableProps {
   assignments: Assignment[];
-  onDelete: (id: string) => Promise<void>;
+  onDelete: (id: string) => void;
 }
 
 function AssignmentsTable({ assignments, onDelete }: TableProps) {
@@ -203,100 +272,82 @@ function AssignmentsTable({ assignments, onDelete }: TableProps) {
   };
 
   return (
-    <div
-      className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700"
-      data-testid="assignments-table"
-    >
-      <table className="w-full">
-        <thead className="bg-gray-100 dark:bg-gray-800">
-          <tr>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
-              Title
-            </th>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
-              Student
-            </th>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
-              Due Date
-            </th>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
-              Priority
-            </th>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
-              Status
-            </th>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+    <div className="rounded-md border" data-testid="assignments-table">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Title</TableHead>
+            <TableHead>Student</TableHead>
+            <TableHead>Due Date</TableHead>
+            <TableHead>Priority</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {assignments.map((assignment) => (
-            <tr
-              key={assignment.id}
-              className="hover:bg-gray-50 dark:hover:bg-gray-900/50"
-              data-testid={`assignment-row-${assignment.id}`}
-            >
-              <td className="px-6 py-3 text-sm text-gray-900 dark:text-white">
+            <TableRow key={assignment.id} data-testid={`assignment-row-${assignment.id}`}>
+              <TableCell>
                 <Link
                   href={`/dashboard/assignments/${assignment.id}`}
-                  className="text-blue-600 hover:underline"
+                  className="text-blue-600 hover:underline font-medium"
                 >
                   {assignment.title}
                 </Link>
-              </td>
-              <td className="px-6 py-3 text-sm text-gray-900 dark:text-white">
+              </TableCell>
+              <TableCell>
                 {assignment.student?.full_name || assignment.student?.email || 'Unknown'}
-              </td>
-              <td
-                className={`px-6 py-3 text-sm ${
+              </TableCell>
+              <TableCell
+                className={
                   isOverdue(assignment.due_date)
                     ? 'text-red-600 dark:text-red-400 font-semibold'
                     : 'text-gray-600 dark:text-gray-400'
-                }`}
+                }
               >
                 {formatDate(assignment.due_date)}
-              </td>
-              <td className="px-6 py-3 text-sm">
-                <span
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                    priorityColors[assignment.priority]
-                  }`}
+              </TableCell>
+              <TableCell>
+                <Badge
+                  variant="secondary"
+                  className={`${priorityColors[assignment.priority]} border-0`}
                 >
                   {assignment.priority}
-                </span>
-              </td>
-              <td className="px-6 py-3 text-sm">
-                <span
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                    statusColors[assignment.status]
-                  }`}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <Badge
+                  variant="secondary"
+                  className={`${statusColors[assignment.status]} border-0`}
                 >
                   {assignment.status.replace(/_/g, ' ')}
-                </span>
-              </td>
-              <td className="px-6 py-3 text-sm">
+                </Badge>
+              </TableCell>
+              <TableCell>
                 <div className="flex gap-2">
-                  <Link
-                    href={`/dashboard/assignments/${assignment.id}`}
-                    className="text-blue-600 hover:underline"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    asChild
                     data-testid={`view-button-${assignment.id}`}
                   >
-                    View
-                  </Link>
-                  <button
+                    <Link href={`/dashboard/assignments/${assignment.id}`}>View</Link>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => onDelete(assignment.id)}
-                    className="text-red-600 hover:underline"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                     data-testid={`delete-button-${assignment.id}`}
                   >
                     Delete
-                  </button>
+                  </Button>
                 </div>
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

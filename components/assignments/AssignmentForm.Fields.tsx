@@ -1,3 +1,14 @@
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 interface FormData {
   title: string;
   description: string;
@@ -9,147 +20,86 @@ interface FormData {
 
 interface AssignmentFormFieldsProps {
   formData: FormData;
-  onChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => void;
+  onChange: (name: string, value: string) => void;
 }
 
 export function AssignmentFormFields({ formData, onChange }: AssignmentFormFieldsProps) {
   return (
     <>
-      <FormField
-        label="Title"
-        name="title"
-        type="text"
-        value={formData.title}
-        onChange={onChange}
-        required
-        placeholder="Assignment title"
-        testId="field-title"
-      />
-
-      <FormField
-        label="Description"
-        name="description"
-        type="textarea"
-        value={formData.description}
-        onChange={onChange}
-        placeholder="Assignment description"
-        testId="field-description"
-      />
-
-      <FormField
-        label="Due Date"
-        name="due_date"
-        type="date"
-        value={formData.due_date ? formData.due_date.split('T')[0] : ''}
-        onChange={onChange}
-        testId="field-due-date"
-      />
-
-      <FormField
-        label="Priority"
-        name="priority"
-        type="select"
-        value={formData.priority}
-        onChange={onChange}
-        options={[
-          { value: 'LOW', label: 'Low' },
-          { value: 'MEDIUM', label: 'Medium' },
-          { value: 'HIGH', label: 'High' },
-          { value: 'URGENT', label: 'Urgent' },
-        ]}
-        testId="field-priority"
-      />
-
-      <FormField
-        label="Status"
-        name="status"
-        type="select"
-        value={formData.status}
-        onChange={onChange}
-        options={[
-          { value: 'OPEN', label: 'Open' },
-          { value: 'IN_PROGRESS', label: 'In Progress' },
-          { value: 'PENDING_REVIEW', label: 'Pending Review' },
-          { value: 'COMPLETED', label: 'Completed' },
-          { value: 'CANCELLED', label: 'Cancelled' },
-          { value: 'BLOCKED', label: 'Blocked' },
-        ]}
-        testId="field-status"
-      />
-    </>
-  );
-}
-
-interface FormFieldProps {
-  label: string;
-  name: string;
-  type: 'text' | 'textarea' | 'date' | 'select';
-  value: string;
-  onChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => void;
-  required?: boolean;
-  placeholder?: string;
-  testId?: string;
-  options?: { value: string; label: string }[];
-}
-
-function FormField({
-  label,
-  name,
-  type,
-  value,
-  onChange,
-  required,
-  placeholder,
-  testId,
-  options,
-}: FormFieldProps) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-        {label}
-        {required && <span className="text-red-600">*</span>}
-      </label>
-
-      {type === 'textarea' ? (
-        <textarea
-          name={name}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          className="w-full px-4 py-2 border border-gray-300 bg-white rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm resize-vertical"
-          rows={4}
-          data-testid={testId}
+      <div className="space-y-2">
+        <Label htmlFor="title">Title <span className="text-red-600">*</span></Label>
+        <Input
+          id="title"
+          name="title"
+          value={formData.title}
+          onChange={(e) => onChange("title", e.target.value)}
+          required
+          placeholder="Assignment title"
+          data-testid="field-title"
         />
-      ) : type === 'select' ? (
-        <select
-          name={name}
-          value={value}
-          onChange={onChange}
-          className="w-full px-4 py-2 border border-gray-300 bg-white rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
-          data-testid={testId}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          name="description"
+          value={formData.description}
+          onChange={(e) => onChange("description", e.target.value)}
+          placeholder="Assignment description"
+          data-testid="field-description"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="due_date">Due Date</Label>
+        <Input
+          id="due_date"
+          name="due_date"
+          type="date"
+          value={formData.due_date ? formData.due_date.split('T')[0] : ''}
+          onChange={(e) => onChange("due_date", e.target.value)}
+          data-testid="field-due-date"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="priority">Priority</Label>
+        <Select
+          value={formData.priority}
+          onValueChange={(value) => onChange("priority", value)}
         >
-          {options?.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <input
-          type={type}
-          name={name}
-          value={value}
-          onChange={onChange}
-          required={required}
-          placeholder={placeholder}
-          className="w-full px-4 py-2 border border-gray-300 bg-white rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
-          data-testid={testId}
-        />
-      )}
-    </div>
+          <SelectTrigger id="priority" data-testid="field-priority">
+            <SelectValue placeholder="Select priority" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="LOW">Low</SelectItem>
+            <SelectItem value="MEDIUM">Medium</SelectItem>
+            <SelectItem value="HIGH">High</SelectItem>
+            <SelectItem value="URGENT">Urgent</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="status">Status</Label>
+        <Select
+          value={formData.status}
+          onValueChange={(value) => onChange("status", value)}
+        >
+          <SelectTrigger id="status" data-testid="field-status">
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="OPEN">Open</SelectItem>
+            <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+            <SelectItem value="PENDING_REVIEW">Pending Review</SelectItem>
+            <SelectItem value="COMPLETED">Completed</SelectItem>
+            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+            <SelectItem value="BLOCKED">Blocked</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </>
   );
 }

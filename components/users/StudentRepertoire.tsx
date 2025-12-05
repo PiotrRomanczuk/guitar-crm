@@ -45,10 +45,7 @@ export function StudentRepertoire({ repertoire }: Props) {
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {songs.map((song) => (
-                  <div
-                    key={song.songId}
-                    className="flex flex-col justify-between rounded-lg border p-3 shadow-sm"
-                  >
+                  <Card key={song.songId} className="flex flex-col justify-between p-3 shadow-sm">
                     <div>
                       <h4 className="font-medium">{song.title}</h4>
                       <p className="text-sm text-muted-foreground">{song.author}</p>
@@ -65,7 +62,7 @@ export function StudentRepertoire({ repertoire }: Props) {
                         })}
                       </span>
                     </div>
-                  </div>
+                  </Card>
                 ))}
               </div>
             </CardContent>

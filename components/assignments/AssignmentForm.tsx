@@ -35,10 +35,7 @@ export default function AssignmentForm({ initialData, mode, userId }: Assignment
     user_id: initialData?.user_id || userId || '',
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
+  const handleFieldChange = (name: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -71,7 +68,7 @@ export default function AssignmentForm({ initialData, mode, userId }: Assignment
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <AssignmentFormFields formData={formData} onChange={handleChange} />
+          <AssignmentFormFields formData={formData} onChange={handleFieldChange} />
           <AssignmentFormActions mode={mode} loading={loading} />
         </form>
       </div>
