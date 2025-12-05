@@ -1,17 +1,13 @@
-import * as z from "zod";
+import * as z from 'zod';
 
 // User role enum
-export const UserRoleEnum = z.enum([
-  "student",
-  "teacher", 
-  "admin"
-]);
+export const UserRoleEnum = z.enum(['student', 'teacher', 'admin']);
 
 // User schema for validation
 export const UserSchema = z.object({
   id: z.number().int().positive().optional(), // bigint, auto-generated
   user_id: z.string().uuid().optional(), // UUID from auth.users
-  email: z.string().email("Valid email is required"),
+  email: z.union([z.string().email('Valid email is required'), z.literal('')]).optional(),
   username: z.string().optional(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
@@ -19,6 +15,7 @@ export const UserSchema = z.object({
   isStudent: z.boolean().default(true),
   isTeacher: z.boolean().default(false),
   isAdmin: z.boolean().default(false),
+  isShadow: z.boolean().default(false).optional(),
   canEdit: z.boolean().default(false),
   isTest: z.boolean().default(false),
   isActive: z.boolean().default(true),
@@ -28,7 +25,7 @@ export const UserSchema = z.object({
 
 // User input schema for creating/updating users
 export const UserInputSchema = z.object({
-  email: z.string().email("Valid email is required"),
+  email: z.union([z.string().email('Valid email is required'), z.literal('')]).optional(),
   username: z.string().optional(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
@@ -36,6 +33,7 @@ export const UserInputSchema = z.object({
   isStudent: z.boolean().optional(),
   isTeacher: z.boolean().optional(),
   isAdmin: z.boolean().optional(),
+  isShadow: z.boolean().optional(),
   canEdit: z.boolean().optional(),
   isTest: z.boolean().optional(),
   isActive: z.boolean().optional(),
@@ -43,15 +41,15 @@ export const UserInputSchema = z.object({
 
 // User update schema (for partial updates)
 export const UserUpdateSchema = UserInputSchema.partial().extend({
-  id: z.number().int().positive("User ID is required"),
+  id: z.number().int().positive('User ID is required'),
 });
 
 // User registration schema (for signup)
 export const UserRegistrationSchema = z.object({
-  email: z.string().email("Valid email is required"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email('Valid email is required'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
   isStudent: z.boolean().default(true),
   isTeacher: z.boolean().default(false),
   isAdmin: z.boolean().default(false),
@@ -77,58 +75,53 @@ export const UserFilterSchema = z.object({
 
 // User sort schema
 export const UserSortSchema = z.object({
-  field: z.enum([
-    "email",
-    "firstName",
-    "lastName",
-    "username",
-    "created_at",
-    "updated_at"
-  ]),
-  direction: z.enum(["asc", "desc"]).default("asc"),
+  field: z.enum(['email', 'firstName', 'lastName', 'username', 'created_at', 'updated_at']),
+  direction: z.enum(['asc', 'desc']).default('asc'),
 });
 
 // User authentication schema
 export const UserAuthSchema = z.object({
-  email: z.string().email("Valid email is required"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email('Valid email is required'),
+  password: z.string().min(1, 'Password is required'),
 });
 
 // User password reset schema
 export const UserPasswordResetSchema = z.object({
-  email: z.string().email("Valid email is required"),
+  email: z.string().email('Valid email is required'),
 });
 
 // User password change schema
-export const UserPasswordChangeSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string().min(8, "New password must be at least 8 characters"),
-  confirmPassword: z.string().min(1, "Password confirmation is required"),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+export const UserPasswordChangeSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Current password is required'),
+    newPassword: z.string().min(8, 'New password must be at least 8 characters'),
+    confirmPassword: z.string().min(1, 'Password confirmation is required'),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 // Helper function to determine user role
 export const getUserRole = (user: z.infer<typeof UserSchema>): z.infer<typeof UserRoleEnum> => {
-  if (user.isAdmin) return "admin";
-  if (user.isTeacher) return "teacher";
-  return "student";
+  if (user.isAdmin) return 'admin';
+  if (user.isTeacher) return 'teacher';
+  return 'student';
 };
 
 // Helper function to check if user has permission
 export const hasPermission = (
-  user: z.infer<typeof UserSchema>, 
-  permission: "edit" | "admin" | "teacher" | "student"
+  user: z.infer<typeof UserSchema>,
+  permission: 'edit' | 'admin' | 'teacher' | 'student'
 ): boolean => {
   switch (permission) {
-    case "edit":
+    case 'edit':
       return user.canEdit || user.isAdmin;
-    case "admin":
+    case 'admin':
       return user.isAdmin;
-    case "teacher":
+    case 'teacher':
       return user.isTeacher || user.isAdmin;
-    case "student":
+    case 'student':
       return user.isStudent;
     default:
       return false;
@@ -146,4 +139,4 @@ export type UserSort = z.infer<typeof UserSortSchema>;
 export type UserAuth = z.infer<typeof UserAuthSchema>;
 export type UserPasswordReset = z.infer<typeof UserPasswordResetSchema>;
 export type UserPasswordChange = z.infer<typeof UserPasswordChangeSchema>;
-export type UserRole = z.infer<typeof UserRoleEnum>; 
+export type UserRole = z.infer<typeof UserRoleEnum>;
