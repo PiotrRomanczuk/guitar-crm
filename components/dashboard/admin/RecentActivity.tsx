@@ -1,4 +1,13 @@
 import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface RecentUser {
   id: string;
@@ -9,48 +18,34 @@ interface RecentUser {
 
 export function RecentActivity({ recentUsers }: { recentUsers: RecentUser[] }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-        📋 Recent Users
-      </h2>
-
-      {recentUsers && recentUsers.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="border-b border-gray-200 dark:border-gray-700">
-              <tr>
-                <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
-                  Name
-                </th>
-                <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
-                  Email
-                </th>
-                <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
-                  Joined
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">📋 Recent Users</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {recentUsers && recentUsers.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Joined</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {recentUsers.map((user) => (
-                <tr
-                  key={user.id}
-                  className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                >
-                  <td className="py-3 px-2 text-gray-900 dark:text-white font-medium">
-                    {user.full_name}
-                  </td>
-                  <td className="py-3 px-2 text-gray-600 dark:text-gray-400">{user.email}</td>
-                  <td className="py-3 px-2 text-gray-600 dark:text-gray-400">
-                    {new Date(user.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
+                <TableRow key={user.id}>
+                  <TableCell className="font-medium">{user.full_name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-gray-600 dark:text-gray-300">No recent users yet.</p>
-      )}
-    </div>
+            </TableBody>
+          </Table>
+        ) : (
+          <p className="text-muted-foreground">No recent users yet.</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

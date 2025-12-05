@@ -6,6 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Mail, Phone } from 'lucide-react';
 import { InviteUserModal } from '../InviteUserModal';
 import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 interface GoogleEvent {
   id: string;
@@ -69,62 +78,78 @@ export function PotentialUsersList() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4 max-h-[400px] overflow-y-auto">
-          {users.map((user) => (
-            <div
-              key={user.id}
-              className="flex flex-col p-3 border rounded-lg hover:bg-accent/50 transition-colors"
-            >
-              <div className="font-medium flex justify-between">
-                <span>{user.name}</span>
-                {user.name === 'Unknown' && (
-                  <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">
-                    Check Details
-                  </span>
-                )}
-              </div>
-              {user.name === 'Unknown' && user.originalSummary && (
-                <div className="text-xs text-muted-foreground mt-0.5">
-                  Event: {user.originalSummary}
-                </div>
+        <div className="max-h-[400px] overflow-y-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Details</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell className="font-medium">
+                    <div className="flex flex-col gap-1">
+                      <span>{user.name}</span>
+                      {user.name === 'Unknown' && (
+                        <Badge variant="secondary" className="w-fit text-xs bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+                          Check Details
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+                      {user.email && (
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-3 h-3" /> {user.email}
+                        </div>
+                      )}
+                      {user.phone && (
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3 h-3" /> {user.phone}
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-sm text-muted-foreground">
+                      {user.name === 'Unknown' && user.originalSummary && (
+                        <div className="text-xs mb-1">
+                          Event: {user.originalSummary}
+                        </div>
+                      )}
+                      {!user.email && !user.phone && user.rawDescription && (
+                        <div className="text-xs bg-muted p-2 rounded whitespace-pre-wrap max-w-[200px]">
+                          {user.rawDescription.length > 100
+                            ? user.rawDescription.substring(0, 100) + '...'
+                            : user.rawDescription}
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <InviteUserModal 
+                      trigger={<Button size="sm">Convert</Button>}
+                      initialEmail={user.email}
+                      initialName={user.name}
+                      initialPhone={user.phone}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+              {users.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground py-4">
+                    No potential users found from recent &apos;First Lesson&apos; events.
+                  </TableCell>
+                </TableRow>
               )}
-
-              <div className="text-sm text-muted-foreground flex flex-col gap-1 mt-1">
-                {user.email && (
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-3 h-3" /> {user.email}
-                  </div>
-                )}
-                {user.phone && (
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-3 h-3" /> {user.phone}
-                  </div>
-                )}
-
-                {!user.email && !user.phone && user.rawDescription && (
-                  <div className="mt-2 text-xs bg-muted p-2 rounded whitespace-pre-wrap">
-                    {user.rawDescription.length > 150
-                      ? user.rawDescription.substring(0, 150) + '...'
-                      : user.rawDescription}
-                  </div>
-                )}
-              </div>
-              
-              <div className="mt-3 flex justify-end">
-                                  <InviteUserModal 
-                    trigger={<Button size="sm">Convert to User</Button>}
-                    initialEmail={user.email}
-                    initialName={user.name}
-                    initialPhone={user.phone}
-                  />
-              </div>
-            </div>
-          ))}
-          {users.length === 0 && (
-            <div className="text-center text-muted-foreground py-4">
-              No potential users found from recent &apos;First Lesson&apos; events.
-            </div>
-          )}
+            </TableBody>
+          </Table>
         </div>
       </CardContent>
     </Card>

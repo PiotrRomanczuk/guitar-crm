@@ -21,8 +21,8 @@
 - [ ] Add "Mark as Paid" functionality.
 
 ### 4. UI/UX Polish
-
-- [ ] Standardize all dashboard layouts (especially all the tables).
+ [ ] Standardize all dashboard layouts (especially all the tables).
+-
 - [ ] Implement Dark Mode.
 - [ ] Add loading skeletons for all data-fetching components.
 
