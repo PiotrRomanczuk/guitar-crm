@@ -3,6 +3,21 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface UserDetailProps {
   user: {
@@ -23,8 +38,6 @@ export default function UserDetail({ user }: UserDetailProps) {
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
-    if (!confirm(`Delete user ${user.email}?`)) return;
-
     setLoading(true);
     try {
       const res = await fetch(`/api/users/${user.id}`, { method: 'DELETE' });
@@ -49,82 +62,100 @@ export default function UserDetail({ user }: UserDetailProps) {
     user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username || 'N/A';
 
   return (
-    <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 space-y-6">
-      {/* User Header */}
-      <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{fullName}</h2>
-        <p className="text-gray-600 dark:text-gray-400">{user.email}</p>
-      </div>
+    <Card className="max-w-2xl mx-auto">
+      <CardHeader className="border-b pb-4 mb-4">
+        <CardTitle className="text-2xl font-bold">{fullName}</CardTitle>
+        <p className="text-sm text-muted-foreground">{user.email}</p>
+      </CardHeader>
 
-      {/* User Details */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-400">First Name</label>
-          <p className="text-gray-900 dark:text-white">{user.firstName || 'N/A'}</p>
-        </div>
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-400">Last Name</label>
-          <p className="text-gray-900 dark:text-white">{user.lastName || 'N/A'}</p>
-        </div>
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-400">Username</label>
-          <p className="text-gray-900 dark:text-white">{user.username || 'N/A'}</p>
-        </div>
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-400">Status</label>
-          <p>
-            <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${
+      <CardContent className="space-y-6">
+        {/* User Details */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Label className="text-muted-foreground">First Name</Label>
+            <p className="font-medium mt-1">{user.firstName || 'N/A'}</p>
+          </div>
+          <div>
+            <Label className="text-muted-foreground">Last Name</Label>
+            <p className="font-medium mt-1">{user.lastName || 'N/A'}</p>
+          </div>
+          <div>
+            <Label className="text-muted-foreground">Username</Label>
+            <p className="font-medium mt-1">{user.username || 'N/A'}</p>
+          </div>
+          <div>
+            <Label className="text-muted-foreground block mb-1">Status</Label>
+            <Badge
+              variant={user.isActive ? 'default' : 'destructive'}
+              className={
                 user.isActive
-                  ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
-                  : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
-              }`}
+                  ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300'
+                  : ''
+              }
               data-testid="status-badge"
             >
               {user.isActive ? 'Active' : 'Inactive'}
-            </span>
-          </p>
+            </Badge>
+          </div>
         </div>
-      </div>
 
-      {/* Roles */}
-      <div>
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-400 block mb-2">
-          Roles
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {getRolesBadges().map((role) => (
-            <span
-              key={role}
-              className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium"
-              data-testid={`role-badge-${role.toLowerCase()}`}
-            >
-              {role}
-            </span>
-          ))}
+        {/* Roles */}
+        <div>
+          <Label className="text-muted-foreground block mb-2">Roles</Label>
+          <div className="flex flex-wrap gap-2">
+            {getRolesBadges().map((role) => (
+              <Badge
+                key={role}
+                variant="secondary"
+                className="bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300"
+                data-testid={`role-badge-${role.toLowerCase()}`}
+              >
+                {role}
+              </Badge>
+            ))}
+          </div>
         </div>
-      </div>
+      </CardContent>
 
-      {/* Actions */}
-      <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <Link href={`/dashboard/users/${user.id}/edit`}>
-          <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+      <CardFooter className="flex gap-3 pt-4 border-t">
+                <Link href={`/dashboard/users/${user.id}/edit`}>
+          <Button>
             Edit
-          </button>
+          </Button>
         </Link>
-        <button
-          onClick={handleDelete}
-          disabled={loading}
-          className="px-4 py-2 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
-        >
-          {loading ? 'Deleting...' : 'Delete'}
-        </button>
+        
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="destructive"
+              disabled={loading}
+            >
+              {loading ? 'Deleting...' : 'Delete'}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the user <strong>{user.email}</strong> and remove their data from our servers.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
         <Link href="/dashboard/users">
-          <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <Button variant="outline">
             Back
-          </button>
+          </Button>
         </Link>
-      </div>
-    </div>
+
+      </CardFooter>
+    </Card>
   );
 }
