@@ -3,21 +3,6 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { randomUUID } from 'crypto';
 
-interface UserProfile {
-  id: string;
-  user_id: string | null;
-  email: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  username: string | null;
-  isAdmin: boolean;
-  isTeacher: boolean | null;
-  isStudent: boolean | null;
-  isActive: boolean;
-  isRegistered: boolean;
-  created_at: string | null;
-  updated_at: string | null;
-}
 
 export async function GET(request: Request) {
   try {

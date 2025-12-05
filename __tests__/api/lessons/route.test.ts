@@ -122,7 +122,7 @@ describe('Lesson API - Main Route', () => {
     it('should filter lessons by userId', async () => {
       const request = new NextRequest(`http://localhost:3000/api/lessons?userId=${validStudentId}`);
       const response = await GET(request);
-      const data = await response.json();
+      await response.json();
 
       expect(response.status).toBe(200);
       expect(mockSupabaseQueryBuilder.or).toHaveBeenCalledWith(
@@ -133,7 +133,7 @@ describe('Lesson API - Main Route', () => {
     it('should filter lessons by status', async () => {
       const request = new NextRequest('http://localhost:3000/api/lessons?filter=SCHEDULED');
       const response = await GET(request);
-      const data = await response.json();
+      await response.json();
 
       expect(response.status).toBe(200);
       expect(mockSupabaseQueryBuilder.eq).toHaveBeenCalledWith('status', 'SCHEDULED');
@@ -163,7 +163,7 @@ describe('Lesson API - Main Route', () => {
         `http://localhost:3000/api/lessons?studentId=${validStudentId}`
       );
       const response = await GET(request);
-      const data = await response.json();
+      await response.json();
 
       expect(response.status).toBe(200);
       expect(mockSupabaseQueryBuilder.eq).toHaveBeenCalledWith(
@@ -182,7 +182,7 @@ describe('Lesson API - Main Route', () => {
     it('should handle database errors gracefully', async () => {
       // For admin, it goes straight to query
       mockSupabaseQueryBuilder.then
-        .mockImplementationOnce((resolve: any) => resolve({
+        .mockImplementationOnce((resolve: (value: unknown) => void) => resolve({
           data: null,
           error: { message: 'Database connection failed' },
           count: 0
@@ -203,7 +203,7 @@ describe('Lesson API - Main Route', () => {
         teacher_profile: null,
       };
 
-      mockSupabaseQueryBuilder.then.mockImplementation((resolve: any) => resolve({
+      mockSupabaseQueryBuilder.then.mockImplementation((resolve: (value: unknown) => void) => resolve({
         data: [lessonWithNullProfile],
         error: null,
         count: 1
@@ -229,7 +229,7 @@ describe('Lesson API - Main Route', () => {
         created_at: '2024-01-01T00:00:00Z',
       };
 
-      mockSupabaseQueryBuilder.then.mockImplementation((resolve: any) => resolve({
+      mockSupabaseQueryBuilder.then.mockImplementation((resolve: (value: unknown) => void) => resolve({
         data: [minimalLesson],
         error: null,
         count: 1
