@@ -64,7 +64,6 @@ describe('Song API Handlers', () => {
         is: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         ilike: jest.fn().mockReturnThis(),
-        is: jest.fn().mockReturnThis(),
         order: jest.fn().mockReturnThis(),
         range: jest.fn().mockResolvedValue({
           data: mockSongs,
@@ -93,7 +92,6 @@ describe('Song API Handlers', () => {
         is: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         ilike: jest.fn().mockReturnThis(),
-        is: jest.fn().mockReturnThis(),
         order: jest.fn().mockReturnThis(),
         range: jest.fn().mockResolvedValue({
           data: [],
@@ -124,7 +122,6 @@ describe('Song API Handlers', () => {
         is: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         ilike: jest.fn().mockReturnThis(),
-        is: jest.fn().mockReturnThis(),
         order: jest.fn().mockReturnThis(),
         range: jest.fn().mockResolvedValue({
           data: null,
