@@ -6,21 +6,42 @@ import UsersListFilters from './UsersListFilters';
 import UsersListTable from './UsersListTable';
 import { useUsersList } from './useUsersList';
 import { deleteUser } from '@/app/dashboard/actions';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function UsersList() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'' | 'admin' | 'teacher' | 'student'>('');
   const [activeFilter, setActiveFilter] = useState<'' | 'true' | 'false'>('');
+  const [userToDelete, setUserToDelete] = useState<{ id: string; email: string } | null>(null);
 
   const { users, loading, error, refetch } = useUsersList(search, roleFilter, activeFilter);
 
-  const handleDelete = async (userId: string, email: string) => {
-    if (!confirm(`Delete user ${email}? This action cannot be undone.`)) return;
+  const handleDeleteClick = (userId: string, email: string) => {
+    setUserToDelete({ id: userId, email });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+    
     try {
-      await deleteUser(userId);
+      await deleteUser(userToDelete.id);
       refetch();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete user');
+      console.error('Failed to delete user:', err);
+      // Ideally use a toast here
+    } finally {
+      setUserToDelete(null);
     }
   };
 
@@ -33,14 +54,12 @@ export default function UsersList() {
   return (
     <div className="w-full space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Users</h1>
-        <Link
-          href="/dashboard/users/new"
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors w-fit"
-          data-testid="create-user-button"
-        >
-          + New User
-        </Link>
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Users</h1>
+        <Button asChild data-testid="create-user-button">
+          <Link href="/dashboard/users/new">
+            <Plus className="mr-2 h-4 w-4" /> New User
+          </Link>
+        </Button>
       </div>
 
       <UsersListFilters
@@ -54,31 +73,38 @@ export default function UsersList() {
       />
 
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-800 dark:text-red-300 px-4 py-3 rounded-lg">
+        <div className="p-4 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded-lg">
           {error}
         </div>
       )}
 
       {loading ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-          <div className="inline-block animate-spin">
-            <div className="w-8 h-8 border-4 border-gray-300 dark:border-gray-600 border-t-blue-600 rounded-full"></div>
-          </div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading users...</p>
-        </div>
-      ) : users.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-          <p className="text-gray-600 dark:text-gray-400 mb-4">No users found</p>
-          <Link
-            href="/dashboard/users/new"
-            className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-          >
-            Create First User
-          </Link>
-        </div>
+        <div className="text-center py-12 text-muted-foreground">Loading users...</div>
       ) : (
-        <UsersListTable users={users} onDelete={handleDelete} />
+        <UsersListTable users={users} onDelete={handleDeleteClick} />
       )}
+
+      <AlertDialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the user
+              {userToDelete && <span className="font-medium text-foreground"> {userToDelete.email} </span>}
+              and remove their data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

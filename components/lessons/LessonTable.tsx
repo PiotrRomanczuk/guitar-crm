@@ -3,6 +3,7 @@
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import LessonTableRow from './LessonTable.Row';
 import LessonTableEmpty from './LessonTable.Empty';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface Props {
   lessons: LessonWithProfiles[];
@@ -22,38 +23,20 @@ export default function LessonTable({ lessons, role, baseUrl = '/dashboard/lesso
   }
 
   return (
-    <div className="overflow-x-auto" data-testid="lesson-table">
-      <table className="w-full min-w-full border-collapse border border-gray-300 dark:border-gray-600">
-        <thead className="bg-gray-100 dark:bg-gray-800">
-          <tr>
-            <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
-              Title
-            </th>
-            <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
-              Student
-            </th>
-            {showTeacherColumn && (
-              <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
-                Teacher
-              </th>
-            )}
-            <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
-              Date
-            </th>
-            <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
-              Time
-            </th>
-            <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
-              Status
-            </th>
-            {showActions && (
-              <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
-                Actions
-              </th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
+    <div className="rounded-md border" data-testid="lesson-table">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Title</TableHead>
+            <TableHead>Student</TableHead>
+            {showTeacherColumn && <TableHead>Teacher</TableHead>}
+            <TableHead>Date</TableHead>
+            <TableHead>Time</TableHead>
+            <TableHead>Status</TableHead>
+            {showActions && <TableHead>Actions</TableHead>}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {lessons.map((lesson) => (
             <LessonTableRow
               key={lesson.id}
@@ -63,8 +46,8 @@ export default function LessonTable({ lessons, role, baseUrl = '/dashboard/lesso
               baseUrl={baseUrl}
             />
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

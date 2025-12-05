@@ -3,6 +3,8 @@
 import { useUserFormState } from './useUserFormState';
 import UserFormFields from './UserFormFields';
 import UserFormActions from './UserFormActions';
+import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface UserFormProps {
   initialData?: {
@@ -26,19 +28,18 @@ export default function UserForm({ initialData, isEdit }: UserFormProps) {
   );
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
-      >
-        {error && (
-          <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-800 dark:text-red-300 px-4 py-3 rounded-lg">
-            {error}
-          </div>
-        )}
-        <UserFormFields formData={formData} onChange={handleChange} />
-        <UserFormActions loading={loading} isEdit={isEdit} />
-      </form>
-    </div>
+    <Card className="max-w-2xl mx-auto">
+      <CardContent className="p-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          <UserFormFields formData={formData} onChange={handleChange} />
+          <UserFormActions loading={loading} isEdit={isEdit} />
+        </form>
+      </CardContent>
+    </Card>
   );
 }

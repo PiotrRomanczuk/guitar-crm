@@ -5,7 +5,16 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog';
-import type { Song } from '../types';
+import type { Song } from '@/components/songs/types';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   songs: Song[];
@@ -52,57 +61,66 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
 
   return (
     <>
-      <div className="overflow-x-auto" data-testid="song-table">
-        <table className="w-full border-collapse border border-gray-300">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border border-gray-300 px-4 py-2 text-left">Title</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Author</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Level</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Key</th>
-              {canDelete && <th className="border border-gray-300 px-4 py-2 text-left">Actions</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {songs.map((song) => (
-              <tr key={song.id} className="hover:bg-gray-50" data-testid="song-row">
-                <td className="border border-gray-300 px-4 py-2">
-                  <Link
-                    href={`/dashboard/songs/${song.id}`}
-                    className="text-blue-600 hover:underline"
-                  >
-                    {song.title}
-                  </Link>
-                </td>
-                <td className="border border-gray-300 px-4 py-2">{song.author}</td>
-                <td className="border border-gray-300 px-4 py-2">{song.level}</td>
-                <td className="border border-gray-300 px-4 py-2">{song.key}</td>
-                {canDelete && (
-                  <td className="border border-gray-300 px-4 py-2">
-                    <button
-                      data-testid="song-delete-button"
-                      onClick={() => handleDeleteClick(song)}
-                      disabled={deletingSongId === song.id}
-                      className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:bg-gray-400"
+      <div className="rounded-md border" data-testid="song-table">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Title</TableHead>
+              <TableHead>Author</TableHead>
+              <TableHead>Level</TableHead>
+              <TableHead>Key</TableHead>
+              {canDelete && <TableHead className="text-right">Actions</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {songs.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={canDelete ? 5 : 4} className="h-24 text-center">
+                  No songs found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              songs.map((song) => (
+                <TableRow key={song.id} data-testid="song-row">
+                  <TableCell className="font-medium">
+                    <Link
+                      href={`/dashboard/songs/${song.id}`}
+                      className="text-blue-600 hover:underline"
                     >
-                      {deletingSongId === song.id ? 'Deleting...' : 'Delete'}
-                    </button>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                      {song.title ?? 'Untitled'}
+                    </Link>
+                  </TableCell>
+                  <TableCell>{song.author}</TableCell>
+                  <TableCell>{song.level}</TableCell>
+                  <TableCell>{song.key}</TableCell>
+                  {canDelete && (
+                    <TableCell className="text-right">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        data-testid="song-delete-button"
+                        onClick={() => handleDeleteClick(song)}
+                        disabled={deletingSongId === song.id}
+                      >
+                        {deletingSongId === song.id ? 'Deleting...' : 'Delete'}
+                      </Button>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       {songToDelete && (
         <DeleteConfirmationDialog
           isOpen={true}
-          songTitle={songToDelete?.title || ''}
+          songTitle={songToDelete.title ?? 'Untitled'}
           hasLessonAssignments={false}
           onConfirm={handleConfirmDelete}
           onClose={handleCancelDelete}
-          isDeleting={deletingSongId === songToDelete?.id}
+          isDeleting={deletingSongId === songToDelete.id}
         />
       )}
     </>
