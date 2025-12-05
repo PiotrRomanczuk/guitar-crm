@@ -1,11 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/database.types';
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
-// @ts-ignore
+import { describe, it, expect, afterAll } from '@jest/globals';
+// @ts-expect-error - node-fetch types might be missing
 import nodeFetch from 'node-fetch';
 
 // Restore real fetch for this test suite to allow network requests
-// @ts-ignore
+// @ts-expect-error - global.fetch type mismatch with node-fetch
 global.fetch = nodeFetch;
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -14,8 +14,8 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
-  }
+    persistSession: false,
+  },
 });
 
 describe('Shadow User Linking', () => {
@@ -42,12 +42,12 @@ describe('Shadow User Linking', () => {
         is_student: true,
         is_teacher: false,
         is_admin: false,
-        is_development: false
-      } as any)
+        is_development: false,
+      })
       .select();
 
     if (insertResult.error) {
-        throw insertResult.error;
+      throw insertResult.error;
     }
 
     // Fetch the created shadow user
@@ -58,18 +58,21 @@ describe('Shadow User Linking', () => {
       .single();
 
     if (fetchShadowError) {
-        throw fetchShadowError;
+      throw fetchShadowError;
     }
     if (!shadowUser) throw new Error('Shadow user creation returned no data');
-    
+
     shadowUserId = shadowUser.id;
 
     // 2. Create a real user with the same email (simulates signup)
-    const { data: { user: realUser }, error: createError } = await supabaseAdmin.auth.admin.createUser({
+    const {
+      data: { user: realUser },
+      error: createError,
+    } = await supabaseAdmin.auth.admin.createUser({
       email: testEmail,
       password: 'Password123!',
       email_confirm: true,
-      user_metadata: { full_name: 'Real Student' }
+      user_metadata: { full_name: 'Real Student' },
     });
 
     if (createError) throw createError;
@@ -97,8 +100,8 @@ describe('Shadow User Linking', () => {
     // Verify data merging
     // The migration updates full_name from metadata if present
     expect(linkedProfile.full_name).toBe('Real Student');
-    
+
     // Verify preservation of existing flags
-    expect((linkedProfile as any).is_student).toBe(true);
+    expect(linkedProfile.is_student).toBe(true);
   });
 });
