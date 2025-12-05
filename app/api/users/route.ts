@@ -1,61 +1,44 @@
-import { createClient } from "@/lib/supabase/server";
-import { getUserWithRolesSSR } from "@/lib/getUserWithRolesSSR";
-import { randomUUID } from "crypto";
-
-interface UserProfile {
-  id: string;
-  email: string;
-  full_name: string | null;
-  phone: string | null;
-  notes: string | null;
-  avatar_url: string | null;
-  is_admin: boolean;
-  is_teacher: boolean;
-  is_student: boolean;
-  is_shadow: boolean | null;
-  created_at: string;
-  updated_at: string;
-}
+import { createClient } from '@/lib/supabase/server';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { randomUUID } from 'crypto';
 
 export async function GET(request: Request) {
   try {
     const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
 
     if (!user || (!isAdmin && !isTeacher)) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const supabase = await createClient();
     const url = new URL(request.url);
 
     // Filtering parameters
-    const searchQuery = url.searchParams.get("search");
-    const roleFilter = url.searchParams.get("role");
-    const limit = parseInt(url.searchParams.get("limit") || "50");
-    const offset = parseInt(url.searchParams.get("offset") || "0");
+    const searchQuery = url.searchParams.get('search');
+    const roleFilter = url.searchParams.get('role');
+    const limit = parseInt(url.searchParams.get('limit') || '50');
+    const offset = parseInt(url.searchParams.get('offset') || '0');
 
-    let query = supabase.from("profiles").select("*", { count: "exact" });
+    let query = supabase.from('profiles').select('*', { count: 'exact' });
 
     if (searchQuery) {
-      query = query.or(
-        `email.ilike.%${searchQuery}%,full_name.ilike.%${searchQuery}%`
-      );
+      query = query.or(`email.ilike.%${searchQuery}%,full_name.ilike.%${searchQuery}%`);
     }
 
     if (roleFilter) {
-      if (roleFilter === "admin") {
-        query = query.eq("is_admin", true);
-      } else if (roleFilter === "teacher") {
-        query = query.eq("is_teacher", true);
-      } else if (roleFilter === "student") {
-        query = query.eq("is_student", true);
-      } else if (roleFilter === "shadow") {
-        query = query.eq("is_shadow", true);
+      if (roleFilter === 'admin') {
+        query = query.eq('is_admin', true);
+      } else if (roleFilter === 'teacher') {
+        query = query.eq('is_teacher', true);
+      } else if (roleFilter === 'student') {
+        query = query.eq('is_student', true);
+      } else if (roleFilter === 'shadow') {
+        query = query.eq('is_shadow', true);
       }
     }
 
     const { data, error, count } = await query
-      .order("created_at", { ascending: false })
+      .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) {
@@ -67,16 +50,16 @@ export async function GET(request: Request) {
     // Let"s check UserSchema again. It expects firstName, lastName.
     // We should probably map it back to match UserSchema or update UserSchema.
     // For now, let"s return the raw profile data and let the frontend adapt or we adapt here.
-    // Given the existing code used camelCase in the response type UserProfile, 
+    // Given the existing code used camelCase in the response type UserProfile,
     // we should probably map it to avoid breaking frontend.
-    
-    const mappedData = data?.map(profile => ({
+
+    const mappedData = data?.map((profile) => ({
       id: profile.id,
       email: profile.email,
       // Split full_name into firstName/lastName if possible, or just return full_name
       // The UserSchema has firstName/lastName.
-      firstName: profile.full_name ? profile.full_name.split(" ")[0] : "",
-      lastName: profile.full_name ? profile.full_name.split(" ").slice(1).join(" ") : "",
+      firstName: profile.full_name ? profile.full_name.split(' ')[0] : '',
+      lastName: profile.full_name ? profile.full_name.split(' ').slice(1).join(' ') : '',
       full_name: profile.full_name,
       isAdmin: profile.is_admin,
       isTeacher: profile.is_teacher,
@@ -97,8 +80,8 @@ export async function GET(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error fetching users:", error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    console.error('Error fetching users:', error);
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -107,7 +90,7 @@ export async function POST(request: Request) {
     const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
 
     if (!user || (!isAdmin && !isTeacher)) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -128,12 +111,12 @@ export async function POST(request: Request) {
     if (!isAdmin && isTeacher) {
       // Teachers can ONLY create Students
       if (reqIsAdmin || reqIsTeacher) {
-        return Response.json({ error: "Teachers can only create students" }, { status: 403 });
+        return Response.json({ error: 'Teachers can only create students' }, { status: 403 });
       }
     }
 
     const supabase = await createClient();
-    
+
     let finalEmail = email;
     let isShadow = reqIsShadow || false;
     const newId = randomUUID();
@@ -141,10 +124,10 @@ export async function POST(request: Request) {
     // Construct full_name
     let finalFullName = full_name;
     if (!finalFullName && (firstName || lastName)) {
-        finalFullName = `${firstName || ""} ${lastName || ""}`.trim();
+      finalFullName = `${firstName || ''} ${lastName || ''}`.trim();
     }
 
-    if (!email || email.trim() === "") {
+    if (!email || email.trim() === '') {
       // Shadow User Creation
       isShadow = true;
       finalEmail = `shadow_${newId}@placeholder.com`;
@@ -152,18 +135,18 @@ export async function POST(request: Request) {
       // Real User Creation (Profile only)
       // Check if email exists
       const { data: existing } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("email", email)
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
         .single();
-      
+
       if (existing) {
-        return Response.json({ error: "User with this email already exists" }, { status: 409 });
+        return Response.json({ error: 'User with this email already exists' }, { status: 409 });
       }
     }
 
     const { data, error } = await supabase
-      .from("profiles")
+      .from('profiles')
       .insert([
         {
           id: newId,
@@ -186,7 +169,7 @@ export async function POST(request: Request) {
 
     return Response.json(data, { status: 201 });
   } catch (error) {
-    console.error("Error creating user:", error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    console.error('Error creating user:', error);
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
