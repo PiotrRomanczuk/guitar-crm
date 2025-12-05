@@ -123,7 +123,10 @@ export default function AssignmentsList() {
         <AssignmentsTable assignments={assignments} onDelete={handleDeleteClick} />
       )}
 
-      <AlertDialog open={!!assignmentToDelete} onOpenChange={(open) => !open && setAssignmentToDelete(null)}>
+      <AlertDialog
+        open={!!assignmentToDelete}
+        onOpenChange={(open) => !open && setAssignmentToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -133,7 +136,10 @@ export default function AssignmentsList() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

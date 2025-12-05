@@ -17,7 +17,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 
 export default function UsersList() {
   const [search, setSearch] = useState('');
@@ -33,7 +33,7 @@ export default function UsersList() {
 
   const handleConfirmDelete = async () => {
     if (!userToDelete) return;
-    
+
     try {
       await deleteUser(userToDelete.id);
       refetch();
@@ -90,7 +90,9 @@ export default function UsersList() {
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the user
-              {userToDelete && <span className="font-medium text-foreground"> {userToDelete.email} </span>}
+              {userToDelete && (
+                <span className="font-medium text-foreground"> {userToDelete.email} </span>
+              )}
               and remove their data from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>

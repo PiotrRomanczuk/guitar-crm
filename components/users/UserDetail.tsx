@@ -118,18 +118,13 @@ export default function UserDetail({ user }: UserDetailProps) {
       </CardContent>
 
       <CardFooter className="flex gap-3 pt-4 border-t">
-                <Link href={`/dashboard/users/${user.id}/edit`}>
-          <Button>
-            Edit
-          </Button>
+        <Link href={`/dashboard/users/${user.id}/edit`}>
+          <Button>Edit</Button>
         </Link>
-        
+
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button
-              variant="destructive"
-              disabled={loading}
-            >
+            <Button variant="destructive" disabled={loading}>
               {loading ? 'Deleting...' : 'Delete'}
             </Button>
           </AlertDialogTrigger>
@@ -137,12 +132,16 @@ export default function UserDetail({ user }: UserDetailProps) {
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the user <strong>{user.email}</strong> and remove their data from our servers.
+                This action cannot be undone. This will permanently delete the user{' '}
+                <strong>{user.email}</strong> and remove their data from our servers.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              <AlertDialogAction
+                onClick={handleDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
                 Delete
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -150,11 +149,8 @@ export default function UserDetail({ user }: UserDetailProps) {
         </AlertDialog>
 
         <Link href="/dashboard/users">
-          <Button variant="outline">
-            Back
-          </Button>
+          <Button variant="outline">Back</Button>
         </Link>
-
       </CardFooter>
     </Card>
   );
