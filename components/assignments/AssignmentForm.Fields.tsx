@@ -1,13 +1,13 @@
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/ui/select';
 
 interface FormData {
   title: string;
@@ -27,12 +27,14 @@ export function AssignmentFormFields({ formData, onChange }: AssignmentFormField
   return (
     <>
       <div className="space-y-2">
-        <Label htmlFor="title">Title <span className="text-red-600">*</span></Label>
+        <Label htmlFor="title">
+          Title <span className="text-red-600">*</span>
+        </Label>
         <Input
           id="title"
           name="title"
           value={formData.title}
-          onChange={(e) => onChange("title", e.target.value)}
+          onChange={(e) => onChange('title', e.target.value)}
           required
           placeholder="Assignment title"
           data-testid="field-title"
@@ -45,7 +47,7 @@ export function AssignmentFormFields({ formData, onChange }: AssignmentFormField
           id="description"
           name="description"
           value={formData.description}
-          onChange={(e) => onChange("description", e.target.value)}
+          onChange={(e) => onChange('description', e.target.value)}
           placeholder="Assignment description"
           data-testid="field-description"
         />
@@ -58,17 +60,14 @@ export function AssignmentFormFields({ formData, onChange }: AssignmentFormField
           name="due_date"
           type="date"
           value={formData.due_date ? formData.due_date.split('T')[0] : ''}
-          onChange={(e) => onChange("due_date", e.target.value)}
+          onChange={(e) => onChange('due_date', e.target.value)}
           data-testid="field-due-date"
         />
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="priority">Priority</Label>
-        <Select
-          value={formData.priority}
-          onValueChange={(value) => onChange("priority", value)}
-        >
+        <Select value={formData.priority} onValueChange={(value) => onChange('priority', value)}>
           <SelectTrigger id="priority" data-testid="field-priority">
             <SelectValue placeholder="Select priority" />
           </SelectTrigger>
@@ -83,10 +82,7 @@ export function AssignmentFormFields({ formData, onChange }: AssignmentFormField
 
       <div className="space-y-2">
         <Label htmlFor="status">Status</Label>
-        <Select
-          value={formData.status}
-          onValueChange={(value) => onChange("status", value)}
-        >
+        <Select value={formData.status} onValueChange={(value) => onChange('status', value)}>
           <SelectTrigger id="status" data-testid="field-status">
             <SelectValue placeholder="Select status" />
           </SelectTrigger>

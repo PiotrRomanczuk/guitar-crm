@@ -7,6 +7,7 @@ import { TextInput } from './UserForm.TextInput';
 import { UserFormHeader } from './UserForm.Header';
 import { UserRoleSection } from './UserForm.RoleSection';
 import { UserFormActions } from './UserForm.Actions';
+import { CheckboxInput } from './UserForm.CheckboxInput';
 import { createUserValidationSchema, extractValidationErrors } from './UserForm.helpers';
 
 interface UserFormProps {
@@ -90,18 +91,12 @@ export function UserForm({ mode, user, onSubmit, onCancel }: UserFormProps) {
 
       <div className="space-y-4">
         {mode === 'create' && (
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="isShadow"
-              checked={formData.isShadow}
-              onChange={(e) => handleInputChange('isShadow', e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-            />
-            <label htmlFor="isShadow" className="text-sm font-medium text-gray-700">
-              Shadow User (No email required)
-            </label>
-          </div>
+			<CheckboxInput
+				id='isShadow'
+				label='Shadow User (Hidden from lists)'
+				checked={formData.isShadow}
+				onChange={(checked) => handleInputChange('isShadow', checked)}
+			/>
         )}
 
         <TextInput
