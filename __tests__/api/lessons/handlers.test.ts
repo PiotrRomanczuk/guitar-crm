@@ -178,15 +178,25 @@ describe('Lesson API Handlers', () => {
 		});
 
 		it('creates lesson for teacher', async () => {
-			const mockQuery = {
-				insert: jest.fn().mockReturnThis(),
+			// Mock for the first call (get existing lessons to calculate number)
+			const mockSelectChain = {
+				eq: jest.fn().mockReturnThis(),
+				order: jest.fn().mockReturnThis(),
+				limit: jest.fn().mockResolvedValue({ data: [], error: null }),
+			};
+
+			// Mock for the second call (insert lesson)
+			const mockInsertChain = {
 				select: jest.fn().mockReturnThis(),
 				eq: jest.fn().mockReturnThis(),
 				order: jest.fn().mockReturnThis(),
 				limit: jest.fn().mockReturnThis(),
 				single: jest.fn().mockResolvedValue({ data: validLesson, error: null }),
 			};
-			mockSupabase.from.mockReturnValue(mockQuery);
+
+			mockSupabase.from
+				.mockReturnValueOnce({ select: jest.fn().mockReturnValue(mockSelectChain) })
+				.mockReturnValueOnce({ insert: jest.fn().mockReturnValue(mockInsertChain) });
 
 			const res = await createLessonHandler(
 				mockSupabase,

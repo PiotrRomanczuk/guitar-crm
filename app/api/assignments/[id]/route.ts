@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { AssignmentUpdateSchema } from '@/schemas/AssignmentSchema';
-import {
-  getAssignmentHandler,
-  updateAssignmentHandler,
-  deleteAssignmentHandler,
-} from './handlers';
+import { getAssignmentHandler, updateAssignmentHandler, deleteAssignmentHandler } from './handlers';
 
 /**
  * Helper to get user profile with roles
@@ -32,10 +28,7 @@ async function getUserProfile(supabase: Awaited<ReturnType<typeof createClient>>
  * GET /api/assignments/[id]
  * Fetch a single assignment by ID
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const supabase = await createClient();
@@ -56,10 +49,9 @@ export async function GET(
 
     const result = await getAssignmentHandler(supabase, id, user.id, profile);
 
-    return NextResponse.json(
-      result.data ? result.data : { error: result.error },
-      { status: result.status }
-    );
+    return NextResponse.json(result.data ? result.data : { error: result.error }, {
+      status: result.status,
+    });
   } catch (error) {
     console.error('Error in GET /api/assignments/[id]:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -70,10 +62,7 @@ export async function GET(
  * PATCH /api/assignments/[id]
  * Update an assignment
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const supabase = await createClient();
@@ -98,10 +87,9 @@ export async function PATCH(
 
     const result = await updateAssignmentHandler(supabase, id, user.id, profile, input, body);
 
-    return NextResponse.json(
-      result.data ? result.data : { error: result.error },
-      { status: result.status }
-    );
+    return NextResponse.json(result.data ? result.data : { error: result.error }, {
+      status: result.status,
+    });
   } catch (error) {
     console.error('Error in PATCH /api/assignments/[id]:', error);
 
@@ -144,10 +132,9 @@ export async function DELETE(
 
     const result = await deleteAssignmentHandler(supabase, id, user.id, profile);
 
-    return NextResponse.json(
-      result.data ? result.data : { error: result.error },
-      { status: result.status }
-    );
+    return NextResponse.json(result.data ? result.data : { error: result.error }, {
+      status: result.status,
+    });
   } catch (error) {
     console.error('Error in DELETE /api/assignments/[id]:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
