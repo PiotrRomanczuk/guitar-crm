@@ -35,8 +35,8 @@ async function fetchLesson(id: string) {
       title,
       created_at,
       updated_at,
-      profile:profiles!student_id(id, full_name, email),
-      teacher_profile:profiles!teacher_id(id, full_name, email),
+      profile:profiles!lessons_student_id_fkey(id, full_name, email),
+      teacher_profile:profiles!lessons_teacher_id_fkey(id, full_name, email),
       lesson_songs(song_id)
     `
     )

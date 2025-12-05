@@ -5,6 +5,8 @@ export { default as LessonList } from './LessonList';
 export { default as LessonListHeader } from './LessonList.Header';
 export { default as LessonListFilter } from './LessonList.Filter';
 export { default as LessonForm } from './LessonForm';
+export { default as LessonDeleteButton } from './LessonDeleteButton';
+export { default as LessonSongs } from './LessonSongs';
 export { default as useLessonList } from './useLessonList';
 export { default as useLessonForm } from './useLessonForm';
 export { useProfiles } from './useProfiles';

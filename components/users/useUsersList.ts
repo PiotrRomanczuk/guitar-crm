@@ -12,6 +12,7 @@ interface UserProfile {
   isTeacher: boolean | null;
   isStudent: boolean | null;
   isActive: boolean;
+  isRegistered: boolean;
   created_at: string | null;
 }
 
