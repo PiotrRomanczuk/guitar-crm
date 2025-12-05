@@ -10,8 +10,7 @@ import { useProfiles } from './useProfiles';
 export interface LessonFormData {
   student_id: string;
   teacher_id: string;
-  date: string;
-  start_time?: string;
+  scheduled_at: string;
   title?: string;
   notes?: string;
   song_ids?: string[];
@@ -58,8 +57,7 @@ export default function useLessonForm({
   const [formData, setFormData] = useState<LessonFormData>({
     student_id: initialData?.student_id || '',
     teacher_id: initialData?.teacher_id || '',
-    date: initialData?.date || '',
-    start_time: initialData?.start_time || '',
+    scheduled_at: initialData?.scheduled_at || '',
     title: initialData?.title || '',
     notes: initialData?.notes || '',
     song_ids: initialData?.song_ids || [],

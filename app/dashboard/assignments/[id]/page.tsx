@@ -1,230 +1,189 @@
-import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
-import { DeleteAssignmentButton } from './DeleteAssignmentButton';
+import { createClient } from '@/lib/supabase/server';
+import Link from 'next/link';
+import StatusBadge, { 
+  getStatusVariant, 
+  formatStatus 
+} from '@/components/shared/StatusBadge';
 
-interface Assignment {
-  id: string;
-  title: string;
-  description: string | null;
-  due_date: string | null;
-  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-  status: 'OPEN' | 'IN_PROGRESS' | 'PENDING_REVIEW' | 'COMPLETED' | 'CANCELLED' | 'BLOCKED';
-  user_id: string;
-  created_at: string;
-  updated_at: string;
-  student?: {
-    full_name: string | null;
-    email: string | null;
-  };
+/**
+ * Format date for display
+ */
+function formatDate(dateString: string | null): string {
+  if (!dateString) return 'Not set';
+  
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 }
 
-async function getAssignment(id: string): Promise<Assignment | null> {
-  const supabase = await createClient();
-  const { user, isAdmin } = await getUserWithRolesSSR();
-
-  if (!user) redirect('/auth/login');
-
-  let query = supabase
-    .from('assignments')
-    .select('*, student:profiles!assignments_student_id_fkey(full_name, email)')
-    .eq('id', id);
-
-  if (!isAdmin) {
-    query = query.eq('student_id', user.id);
-  }
-
-  const { data, error } = await query.single();
-
-  if (error || !data) return null;
-  return data as Assignment;
+/**
+ * Assignment header component
+ */
+function AssignmentHeader({ title, status }: { title: string; status: string }) {
+  return (
+    <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-start 
+                    sm:justify-between gap-3">
+      <div>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold 
+                       text-gray-900 dark:text-white mb-2">
+          {title}
+        </h1>
+        <StatusBadge variant={getStatusVariant(status)}>
+          {formatStatus(status)}
+        </StatusBadge>
+      </div>
+    </div>
+  );
 }
 
-const priorityColors: Record<string, string> = {
-  LOW: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
-  MEDIUM: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300',
-  HIGH: 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300',
-  URGENT: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
-};
+/**
+ * Student and teacher info fields
+ */
+function UserFields({ assignment }: { assignment: any }) { // eslint-disable-line @typescript-eslint/no-explicit-any
+  return (
+    <>
+      <div>
+        <h3 className="text-xs sm:text-sm font-semibold text-gray-900 
+                       dark:text-white mb-1">
+          Student
+        </h3>
+        <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+          {assignment.student_profile?.full_name || 
+           assignment.student_profile?.email || 
+           'Unknown'}
+        </p>
+      </div>
 
-const statusColors: Record<string, string> = {
-  OPEN: 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300',
-  IN_PROGRESS: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
-  PENDING_REVIEW: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300',
-  COMPLETED: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
-  CANCELLED: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
-  BLOCKED: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
-};
+      <div>
+        <h3 className="text-xs sm:text-sm font-semibold text-gray-900 
+                       dark:text-white mb-1">
+          Teacher
+        </h3>
+        <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+          {assignment.teacher_profile?.full_name || 
+           assignment.teacher_profile?.email || 
+           'Unknown'}
+        </p>
+      </div>
 
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return 'No due date';
-  try {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  } catch {
-    return 'Invalid date';
-  }
+      <div>
+        <h3 className="text-xs sm:text-sm font-semibold text-gray-900 
+                       dark:text-white mb-1">
+          Due Date
+        </h3>
+        <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+          {formatDate(assignment.due_date)}
+        </p>
+      </div>
+
+      {assignment.lesson && (
+        <div>
+          <h3 className="text-xs sm:text-sm font-semibold text-gray-900 
+                         dark:text-white mb-1">
+            Related Lesson
+          </h3>
+          <Link
+            href={`/dashboard/lessons/${assignment.lesson.id}`}
+            className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 
+                       hover:underline"
+          >
+            Lesson #{assignment.lesson.lesson_teacher_number}
+          </Link>
+        </div>
+      )}
+    </>
+  );
 }
 
+/**
+ * Assignment info section
+ */
+function AssignmentInfo({ assignment }: { assignment: any }) { // eslint-disable-line @typescript-eslint/no-explicit-any
+  return (
+    <div className="space-y-4 sm:space-y-6">
+      <div>
+        <h2 className="text-sm sm:text-base font-semibold text-gray-900 
+                       dark:text-white mb-2">
+          Description
+        </h2>
+        <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+          {assignment.description || 'No description provided'}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <UserFields assignment={assignment} />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Assignment detail page
+ * Shows full assignment information
+ */
 export default async function AssignmentDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const assignment = await getAssignment(id);
+  const supabase = await createClient();
 
-  if (!assignment) {
-    return <AssignmentNotFound />;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  // Fetch assignment
+  const { data: assignment, error } = await supabase
+    .from('assignments')
+    .select(`
+      *,
+      teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
+      student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
+      lesson:lessons(id, lesson_teacher_number, scheduled_at, status)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error || !assignment) {
+    return (
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 
+                        dark:border-red-800 rounded-lg">
+          <p className="text-xs sm:text-sm text-red-800 dark:text-red-200">
+            Assignment not found
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Link
-        href="/dashboard/assignments"
-        className="text-blue-600 hover:underline mb-6 inline-block"
-        data-testid="back-button"
-      >
-        ← Back to assignments
-      </Link>
-
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
-        <AssignmentHeader assignment={assignment} />
-        <AssignmentMetrics assignment={assignment} />
-
-        {assignment.description && <AssignmentDescription description={assignment.description} />}
-
-        <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-          <DeleteAssignmentButton assignmentId={assignment.id} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AssignmentNotFound() {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="text-center py-16">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-          Assignment not found
-        </h1>
-        <Link href="/dashboard/assignments" className="text-blue-600 hover:underline">
-          Back to assignments
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-function AssignmentHeader({ assignment }: { assignment: Assignment }) {
-  const createdDate = new Date(assignment.created_at).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-
-  return (
-    <div className="mb-8">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <h1
-            className="text-3xl font-bold text-gray-900 dark:text-white mb-2"
-            data-testid="assignment-title"
-          >
-            {assignment.title}
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Created {createdDate}</p>
-        </div>
-
+    <div className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+      <div className="mb-4 sm:mb-6">
         <Link
-          href={`/dashboard/assignments/${assignment.id}/edit`}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          data-testid="edit-button"
+          href="/dashboard/assignments"
+          className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 
+                     hover:underline"
         >
-          Edit
+          ← Back to Assignments
         </Link>
       </div>
-    </div>
-  );
-}
 
-function AssignmentMetrics({ assignment }: { assignment: Assignment }) {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      {assignment.student && (
-        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-          <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-2">
-            Assigned To
-          </p>
-          <p className="text-sm font-medium text-gray-900 dark:text-white">
-            {assignment.student.full_name || 'Unknown'}
-          </p>
-          {assignment.student.email && (
-            <p
-              className="text-xs text-gray-500 dark:text-gray-400 truncate"
-              title={assignment.student.email}
-            >
-              {assignment.student.email}
-            </p>
-          )}
-        </div>
-      )}
-
-      <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-        <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-2">
-          Priority
-        </p>
-        <span
-          className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-            priorityColors[assignment.priority]
-          }`}
-          data-testid="assignment-priority"
-        >
-          {assignment.priority}
-        </span>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border 
+                      border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <AssignmentHeader title={assignment.title} status={assignment.status} />
+        <AssignmentInfo assignment={assignment} />
       </div>
-
-      <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-        <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-2">
-          Status
-        </p>
-        <span
-          className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-            statusColors[assignment.status]
-          }`}
-          data-testid="assignment-status"
-        >
-          {assignment.status.replace(/_/g, ' ')}
-        </span>
-      </div>
-
-      <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-        <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-2">
-          Due Date
-        </p>
-        <p className="text-sm text-gray-900 dark:text-white" data-testid="assignment-due-date">
-          {formatDate(assignment.due_date)}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function AssignmentDescription({ description }: { description: string }) {
-  return (
-    <div className="mb-8">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Description</h2>
-      <p
-        className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"
-        data-testid="assignment-description"
-      >
-        {description}
-      </p>
     </div>
   );
 }

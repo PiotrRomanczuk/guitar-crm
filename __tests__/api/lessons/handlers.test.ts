@@ -81,8 +81,8 @@ describe('Lesson API Handlers', () => {
 			expect(mockSupabase.from).toHaveBeenNthCalledWith(1, 'lessons');
 			expect(baseQueryMock.select).toHaveBeenCalledWith(`
       *,
-      profile:profiles!student_id(id, full_name, email),
-      teacher_profile:profiles!teacher_id(id, full_name, email),
+      profile:profiles!lessons_student_id_fkey(id, full_name, email),
+      teacher_profile:profiles!lessons_teacher_id_fkey(id, full_name, email),
       lesson_songs(
         song:songs(title)
       ),
