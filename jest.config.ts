@@ -26,6 +26,7 @@ const config: Config = {
 	],
 
 	// Coverage configuration
+	coverageReporters: ['json', 'lcov', 'text', 'clover', 'json-summary'],
 	collectCoverageFrom: [
 		'**/*.{js,jsx,ts,tsx}',
 		'!**/*.d.ts',
