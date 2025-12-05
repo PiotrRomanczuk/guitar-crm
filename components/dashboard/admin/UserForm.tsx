@@ -91,12 +91,12 @@ export function UserForm({ mode, user, onSubmit, onCancel }: UserFormProps) {
 
       <div className="space-y-4">
         {mode === 'create' && (
-			<CheckboxInput
-				id='isShadow'
-				label='Shadow User (Hidden from lists)'
-				checked={formData.isShadow}
-				onChange={(checked) => handleInputChange('isShadow', checked)}
-			/>
+          <CheckboxInput
+            id="isShadow"
+            label="Shadow User (Hidden from lists)"
+            checked={formData.isShadow}
+            onChange={(checked) => handleInputChange('isShadow', checked)}
+          />
         )}
 
         <TextInput
