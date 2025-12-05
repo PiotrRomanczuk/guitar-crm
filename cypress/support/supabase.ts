@@ -72,3 +72,44 @@ export function getProfileByEmail(email: string) {
 		return profile;
 	});
 }
+
+export function authRequest<T = unknown>(
+  method: Method,
+  path: string,
+  options: { body?: unknown } = {}
+) {
+  const { url, serviceKey } = getConfig();
+  const headers = {
+    apikey: serviceKey,
+    Authorization: `Bearer ${serviceKey}`,
+    'Content-Type': 'application/json',
+  };
+
+  return cy.request<T>({
+    method,
+    url: `${url}/auth/v1${path}`,
+    headers,
+    body: options.body as Cypress.RequestBody,
+    failOnStatusCode: false,
+  });
+}
+
+export function createTestUser(email: string, password = 'password123', metadata = {}) {
+  return authRequest<{ user: { id: string }; access_token: string }>('POST', '/admin/users', {
+    body: {
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: metadata,
+    },
+  }).then((resp) => {
+    if (resp.status !== 200) {
+      throw new Error(`Failed to create user: ${JSON.stringify(resp.body)}`);
+    }
+    return resp.body.user;
+  });
+}
+
+export function deleteTestUser(userId: string) {
+  return authRequest('DELETE', `/admin/users/${userId}`);
+}
