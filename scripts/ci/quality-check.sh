@@ -9,6 +9,10 @@
 START_TIME=$(date +%s)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMP_OUTPUT=$(mktemp)
+# Save original stdout/stderr
+exec 3>&1
+exec 4>&2
+# Redirect to tee
 exec 1> >(tee -a "$TEMP_OUTPUT")
 exec 2>&1
 
@@ -122,7 +126,12 @@ echo ""
 
 # 3. Run tests with coverage
 echo "🧪 Running tests with coverage..."
-npm test -- --coverage --watchAll=false
+if npm test -- --coverage --watchAll=false; then
+    print_status 0 "Tests passed"
+else
+    print_status 1 "Tests failed"
+    OVERALL_STATUS=1
+fi
 
 # Parse and display coverage in a more readable format
 if [ -f "coverage/coverage-summary.json" ]; then
@@ -186,35 +195,6 @@ else
     fi
 fi
 
-# Parse coverage results
-if [ -f "coverage/coverage-summary.json" ]; then
-    echo ""
-    echo "📊 Code Coverage Summary"
-    echo "======================="
-    
-    # Extract coverage metrics from JSON
-    STATEMENTS=$(jq '.total.statements.pct' coverage/coverage-summary.json)
-    BRANCHES=$(jq '.total.branches.pct' coverage/coverage-summary.json)
-    FUNCTIONS=$(jq '.total.functions.pct' coverage/coverage-summary.json)
-    LINES=$(jq '.total.lines.pct' coverage/coverage-summary.json)
-    
-    echo "Statement Coverage:  $(print_coverage_badge ${STATEMENTS%.*})"
-    echo "Branch Coverage:    $(print_coverage_badge ${BRANCHES%.*})"
-    echo "Function Coverage:  $(print_coverage_badge ${FUNCTIONS%.*})"
-    echo "Line Coverage:      $(print_coverage_badge ${LINES%.*})"
-    
-    # Check against thresholds (ADVISORY ONLY - NOT BLOCKING)
-    if [ ${STATEMENTS%.*} -lt 70 ] || [ ${BRANCHES%.*} -lt 70 ] || [ ${FUNCTIONS%.*} -lt 70 ] || [ ${LINES%.*} -lt 70 ]; then
-        echo -e "\n${YELLOW}⚠️  Coverage is below 70% threshold in some areas (advisory only)${NC}"
-        # OVERALL_STATUS=1  # Temporarily disabled - coverage not blocking
-    fi
-else
-    echo -e "${YELLOW}❌ Coverage report not found (advisory on non-main branch)${NC}"
-    if [ $IS_MAIN_BRANCH -eq 1 ]; then
-        OVERALL_STATUS=1
-    fi
-fi
-
 echo ""
 
 # 4. Check for TODO/FIXME comments
@@ -222,7 +202,7 @@ echo "📝 Checking for TODO/FIXME comments..."
 TODO_COUNT=$(find . -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | xargs grep -i "TODO\|FIXME" | wc -l)
 if [ $TODO_COUNT -gt 0 ]; then
     echo -e "${YELLOW}⚠️  Found $TODO_COUNT TODO/FIXME comments${NC}"
-    find . -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | xargs grep -in "TODO\|FIXME" | head -10
+    find . -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | xargs grep -in "TODO\|FIXME" | head -10 || true
     if [ $TODO_COUNT -gt 10 ]; then
         echo "... and $(($TODO_COUNT - 10)) more"
     fi
@@ -263,7 +243,7 @@ echo ""
 echo ""
 echo "🗄️ Running Database Quality Check..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if "${SCRIPT_DIR}/../database/check-db-quality.sh"; then
+if "${SCRIPT_DIR}/../database/maintenance/check-db-quality.sh"; then
     print_status 0 "Database quality check passed"
 else
     print_status 1 "Database quality issues found"
@@ -317,17 +297,23 @@ echo ""
 echo "======================"
 
 # Generate summaries
-source "$(dirname "$0")/../utils/report_summary.sh"
+if [ -f "$(dirname "$0")/../utils/report_summary.sh" ]; then
+    source "$(dirname "$0")/../utils/report_summary.sh"
 
-# Get the history directory from log_history.sh
-source "$SCRIPT_DIR/../utils/log_history.sh"
+    # Get the history directory from log_history.sh
+    if [ -f "$SCRIPT_DIR/../utils/log_history.sh" ]; then
+        source "$SCRIPT_DIR/../utils/log_history.sh"
 
-# Generate detailed summary for history report
-REPORT_FILE="$HISTORY_DIR/ci/quality-check_$(date '+%Y-%m-%d_%H-%M-%S').md"
-generate_detailed_summary "$REPORT_FILE" "coverage/coverage-summary.json" "lighthouse-results.json" "quality-check" "ci" "$(git branch --show-current)"
+        # Generate detailed summary for history report
+        REPORT_FILE="$HISTORY_DIR/ci/quality-check_$(date '+%Y-%m-%d_%H-%M-%S').md"
+        generate_detailed_summary "$REPORT_FILE" "coverage/coverage-summary.json" "lighthouse-results.json" "quality-check" "ci" "$(git branch --show-current)"
 
-# Generate concise terminal summary
-generate_terminal_summary "coverage/coverage-summary.json" "lighthouse-results.json"
+        # Generate concise terminal summary
+        generate_terminal_summary "coverage/coverage-summary.json" "lighthouse-results.json"
+    fi
+else
+    echo "⚠️  Summary generation scripts not found, skipping."
+fi
 
 echo ""
 echo "======================"
@@ -337,18 +323,25 @@ END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
 
 # Close the tee process and capture final output
-exec 1>&-
-exec 2>&-
+# Restore original stdout/stderr
+exec 1>&3 3>&-
+exec 2>&4 4>&-
 
 # Read captured output
 OUTPUT=$(cat "$TEMP_OUTPUT")
 
 # Log this execution
-source "$SCRIPT_DIR/../utils/log_history.sh"
-log_execution "$0" "$OVERALL_STATUS" "$OUTPUT" "$DURATION"
+if [ -f "$SCRIPT_DIR/../utils/log_history.sh" ]; then
+    source "$SCRIPT_DIR/../utils/log_history.sh"
+    log_execution "$0" "$OVERALL_STATUS" "$OUTPUT" "$DURATION"
+else
+    echo "⚠️  Log history script not found, skipping logging."
+fi
 
 # Clean up temp file
 rm -f "$TEMP_OUTPUT"
+
+echo "DEBUG: OVERALL_STATUS=$OVERALL_STATUS"
 
 # Print final status to stderr (not captured)
 if [ $IS_MAIN_BRANCH -eq 0 ]; then
