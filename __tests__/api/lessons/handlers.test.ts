@@ -182,7 +182,8 @@ describe('Lesson API Handlers', () => {
 			const mockSelectChain = {
 				eq: jest.fn().mockReturnThis(),
 				order: jest.fn().mockReturnThis(),
-				limit: jest.fn().mockResolvedValue({ data: [], error: null }),
+				limit: jest.fn().mockReturnThis(),
+				single: jest.fn().mockResolvedValue({ data: null, error: null }),
 			};
 
 			// Mock for the second call (insert lesson)

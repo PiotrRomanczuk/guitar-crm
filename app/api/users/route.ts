@@ -70,12 +70,16 @@ export async function GET(request: Request) {
         try {
           // Only check auth status if we have an ID (which we should)
           if (profile.id) {
-            const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(profile.id);
-            
+            const {
+              data: { user },
+            } = await supabaseAdmin.auth.admin.getUserById(profile.id);
+
             // Check registration status based on identities and sign-in history
             const hasSignedIn = !!user?.last_sign_in_at;
-            const hasOauthProvider = user?.app_metadata?.providers?.some((p: string) => p !== 'email');
-            
+            const hasOauthProvider = user?.app_metadata?.providers?.some(
+              (p: string) => p !== 'email'
+            );
+
             isRegistered = hasSignedIn || !!hasOauthProvider;
           }
         } catch (err) {
