@@ -15,11 +15,26 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Trash2 } from 'lucide-react';
 
 interface Props {
   songs: Song[];
   canDelete?: boolean;
   onDeleteSuccess?: () => void;
+}
+
+function getLevelBadgeVariant(
+  level: string | null | undefined
+): 'default' | 'secondary' | 'destructive' | 'outline' {
+  if (!level) return 'outline';
+
+  const normalizedLevel = level.toLowerCase();
+  if (normalizedLevel.includes('beginner')) return 'secondary';
+  if (normalizedLevel.includes('intermediate')) return 'default';
+  if (normalizedLevel.includes('advanced')) return 'destructive';
+
+  return 'outline';
 }
 
 export default function SongListTable({ songs, canDelete = false, onDeleteSuccess }: Props) {
@@ -91,18 +106,28 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
                     </Link>
                   </TableCell>
                   <TableCell>{song.author}</TableCell>
-                  <TableCell>{song.level}</TableCell>
+                  <TableCell>
+                    <Badge variant={getLevelBadgeVariant(song.level)}>
+                      {song.level || 'Unknown'}
+                    </Badge>
+                  </TableCell>
                   <TableCell>{song.key}</TableCell>
                   {canDelete && (
                     <TableCell className="text-right">
                       <Button
-                        variant="destructive"
-                        size="sm"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
                         data-testid="song-delete-button"
                         onClick={() => handleDeleteClick(song)}
                         disabled={deletingSongId === song.id}
                       >
-                        {deletingSongId === song.id ? 'Deleting...' : 'Delete'}
+                        {deletingSongId === song.id ? (
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                        <span className="sr-only">Delete {song.title}</span>
                       </Button>
                     </TableCell>
                   )}
