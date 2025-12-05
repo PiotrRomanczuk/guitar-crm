@@ -56,23 +56,16 @@ export default function EntityCard({
             {badge && <div className="shrink-0">{badge}</div>}
           </div>
 
-          {subtitle && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{subtitle}</p>
-          )}
+          {subtitle && <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{subtitle}</p>}
 
           {metadata && metadata.length > 0 && (
             <div className="space-y-2">
               {metadata.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-2 text-xs sm:text-sm"
-                >
+                <div key={index} className="flex items-start gap-2 text-xs sm:text-sm">
                   <span className="font-medium text-gray-700 dark:text-gray-300 min-w-20">
                     {item.label}:
                   </span>
-                  <span className="text-gray-900 dark:text-gray-100 flex-1">
-                    {item.value}
-                  </span>
+                  <span className="text-gray-900 dark:text-gray-100 flex-1">{item.value}</span>
                 </div>
               ))}
             </div>
@@ -80,10 +73,7 @@ export default function EntityCard({
         </div>
 
         {actions && (
-          <div
-            className="shrink-0"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
             {actions}
           </div>
         )}
