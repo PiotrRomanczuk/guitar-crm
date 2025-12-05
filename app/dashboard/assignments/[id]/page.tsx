@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import StatusBadge, { getStatusVariant, formatStatus } from '@/components/shared/StatusBadge';
+import { Assignment } from '@/components/assignments/hooks/useAssignment';
 
 /**
  * Format date for display
@@ -42,8 +43,7 @@ function AssignmentHeader({ title, status }: { title: string; status: string }) 
 /**
  * Student and teacher info fields
  */
-function UserFields({ assignment }: { assignment: any }) {
-  // eslint-disable-line @typescript-eslint/no-explicit-any
+function UserFields({ assignment }: { assignment: Assignment }) {
   return (
     <>
       <div>
@@ -106,8 +106,7 @@ function UserFields({ assignment }: { assignment: any }) {
 /**
  * Assignment info section
  */
-function AssignmentInfo({ assignment }: { assignment: any }) {
-  // eslint-disable-line @typescript-eslint/no-explicit-any
+function AssignmentInfo({ assignment }: { assignment: Assignment }) {
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>

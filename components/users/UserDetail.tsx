@@ -22,16 +22,13 @@ import {
 interface UserDetailProps {
   user: {
     id: string;
-    firstName: string | null;
-    lastName: string | null;
-    username: string | null;
-    email: string | null;
-    isAdmin: boolean;
-    isTeacher: boolean;
-    isStudent: boolean;
-    isActive: boolean;
-    isRegistered: boolean;
-    avatarUrl: string | null;
+    full_name: string | null;
+    email: string;
+    is_admin: boolean;
+    is_teacher: boolean;
+    is_student: boolean;
+    is_shadow: boolean | null;
+    avatar_url: string | null;
     notes: string | null;
   };
 }
@@ -55,19 +52,18 @@ export default function UserDetail({ user }: UserDetailProps) {
 
   const getRolesBadges = () => {
     const roles = [];
-    if (user.isAdmin) roles.push('Admin');
-    if (user.isTeacher) roles.push('Teacher');
-    if (user.isStudent) roles.push('Student');
+    if (user.is_admin) roles.push('Admin');
+    if (user.is_teacher) roles.push('Teacher');
+    if (user.is_student) roles.push('Student');
     return roles.length ? roles : ['No Role'];
   };
 
-  const fullName =
-    [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || 'N/A';
+  const isRegistered = !user.is_shadow;
 
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader className="border-b pb-4 mb-4">
-        <CardTitle className="text-2xl font-bold">{fullName}</CardTitle>
+        <CardTitle className="text-2xl font-bold">{user.full_name || 'N/A'}</CardTitle>
         <p className="text-sm text-muted-foreground">{user.email}</p>
       </CardHeader>
 
@@ -75,40 +71,21 @@ export default function UserDetail({ user }: UserDetailProps) {
         {/* User Details */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label className="text-muted-foreground">First Name</Label>
-            <p className="font-medium mt-1">{user.firstName || 'N/A'}</p>
-          </div>
-          <div>
-            <Label className="text-muted-foreground">Last Name</Label>
-            <p className="font-medium mt-1">{user.lastName || 'N/A'}</p>
-          </div>
-          <div>
-            <Label className="text-muted-foreground">Username</Label>
-            <p className="font-medium mt-1">{user.username || 'N/A'}</p>
+            <Label className="text-muted-foreground">Full Name</Label>
+            <p className="font-medium mt-1">{user.full_name || 'N/A'}</p>
           </div>
           <div>
             <Label className="text-muted-foreground block mb-1">Status</Label>
             <div className="flex gap-2">
               <Badge
-                variant={user.isActive ? 'default' : 'destructive'}
-                className={
-                  user.isActive
-                    ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300'
-                    : ''
-                }
-                data-testid="status-badge"
-              >
-                {user.isActive ? 'Active' : 'Inactive'}
-              </Badge>
-              <Badge
                 variant="outline"
                 className={
-                  user.isRegistered
+                  isRegistered
                     ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-800'
                     : 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
                 }
               >
-                {user.isRegistered ? 'Registered' : 'Shadow'}
+                {isRegistered ? 'Registered' : 'Shadow'}
               </Badge>
             </div>
           </div>

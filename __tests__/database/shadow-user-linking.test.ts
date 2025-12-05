@@ -5,7 +5,6 @@ import { describe, it, expect, afterAll } from '@jest/globals';
 import nodeFetch from 'node-fetch';
 
 // Restore real fetch for this test suite to allow network requests
-// @ts-expect-error - global.fetch type mismatch with node-fetch
 global.fetch = nodeFetch;
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -102,6 +101,6 @@ describe('Shadow User Linking', () => {
     expect(linkedProfile.full_name).toBe('Real Student');
 
     // Verify preservation of existing flags
-    expect(linkedProfile.is_student).toBe(true);
+    expect((linkedProfile as any).is_student).toBe(true);
   });
 });
