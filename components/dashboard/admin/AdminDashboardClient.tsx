@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { AdminStatCard } from '@/components/dashboard/admin/AdminStatCard';
 import { AdminActionCard } from '@/components/dashboard/admin/AdminActionCard';
 import { RecentActivity } from '@/components/dashboard/admin/RecentActivity';
@@ -112,17 +114,18 @@ function DebugViewBanner({ debugView, onReset }: { debugView: DebugView; onReset
   if (debugView === 'admin') return null;
 
   return (
-    <div className="mb-4 p-4 bg-amber-100 dark:bg-amber-900 border border-amber-300 dark:border-amber-700 rounded-lg">
+    <div className="mb-4 p-4 bg-amber-100 dark:bg-amber-900 border border-amber-300 dark:border-amber-700 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <p className="text-amber-800 dark:text-amber-200 font-medium">
         🔧 Debug Mode: Viewing as{' '}
         <span className="font-bold">{debugView === 'teacher' ? 'Teacher' : 'Student'}</span>
       </p>
-      <button
+      <Button
         onClick={onReset}
-        className="mt-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md transition-colors"
+        variant="default"
+        className="bg-amber-600 hover:bg-amber-700 text-white border-none"
       >
         Back to Admin View
-      </button>
+      </Button>
     </div>
   );
 }
@@ -135,46 +138,39 @@ function DebugViewSelector({
   onViewChange: (view: DebugView) => void;
 }) {
   return (
-    <div className="mt-8 p-6 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600">
-      <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">
-        🔧 Debug: Preview Dashboards
-      </h3>
-      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-        Switch between dashboard views to test different user role perspectives:
-      </p>
-      <div className="flex flex-wrap gap-3">
-        <button
-          onClick={() => onViewChange('admin')}
-          className={`px-4 py-2 rounded-md transition-colors ${
-            currentView === 'admin'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500'
-          }`}
-        >
-          ⚙️ Admin View
-        </button>
-        <button
-          onClick={() => onViewChange('teacher')}
-          className={`px-4 py-2 rounded-md transition-colors ${
-            currentView === 'teacher'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500'
-          }`}
-        >
-          👨‍🏫 Teacher View
-        </button>
-        <button
-          onClick={() => onViewChange('student')}
-          className={`px-4 py-2 rounded-md transition-colors ${
-            currentView === 'student'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500'
-          }`}
-        >
-          👨‍🎓 Student View
-        </button>
-      </div>
-    </div>
+    <Card className="mt-8 bg-muted/50">
+      <CardContent className="p-6">
+        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+          <span>🔧</span> Debug: Preview Dashboards
+        </h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Switch between dashboard views to test different user role perspectives:
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Button
+            onClick={() => onViewChange('admin')}
+            variant={currentView === 'admin' ? 'default' : 'outline'}
+            className={currentView === 'admin' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+          >
+            ⚙️ Admin View
+          </Button>
+          <Button
+            onClick={() => onViewChange('teacher')}
+            variant={currentView === 'teacher' ? 'default' : 'outline'}
+            className={currentView === 'teacher' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+          >
+            👨‍🏫 Teacher View
+          </Button>
+          <Button
+            onClick={() => onViewChange('student')}
+            variant={currentView === 'student' ? 'default' : 'outline'}
+            className={currentView === 'student' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+          >
+            👨‍🎓 Student View
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

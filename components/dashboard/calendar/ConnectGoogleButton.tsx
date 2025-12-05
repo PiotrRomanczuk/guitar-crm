@@ -9,10 +9,7 @@ export function ConnectGoogleButton() {
   };
 
   return (
-    <Button
-      onClick={handleConnect}
-      className="flex items-center gap-2 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-    >
+    <Button onClick={handleConnect} variant="outline" className="flex items-center gap-2">
       <Calendar className="w-4 h-4" />
       Connect Google Calendar
     </Button>

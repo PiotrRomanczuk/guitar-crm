@@ -74,8 +74,8 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
 
   if (error) {
     return (
-      <Card className="border-red-200 bg-red-50">
-        <CardContent className="p-4 text-red-600">{error}</CardContent>
+      <Card className="border-destructive/50 bg-destructive/10">
+        <CardContent className="p-4 text-destructive">{error}</CardContent>
       </Card>
     );
   }

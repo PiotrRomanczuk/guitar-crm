@@ -1,26 +1,28 @@
-export function QuickActionButton({
-  emoji,
-  title,
-  description,
-  onClick,
-  disabled,
-}: {
+import { Button } from '@/components/ui/button';
+import { ButtonProps } from '@/components/ui/button';
+import { forwardRef } from 'react';
+
+interface QuickActionButtonProps extends ButtonProps {
   emoji: string;
   title: string;
   description: string;
-  onClick?: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className="text-left p-3 sm:p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 transition-colors w-full disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      <div className="font-semibold text-gray-900 dark:text-white mb-1 text-sm sm:text-base">
-        {emoji} {title}
-      </div>
-      <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{description}</div>
-    </button>
-  );
 }
+
+export const QuickActionButton = forwardRef<HTMLButtonElement, QuickActionButtonProps>(
+  ({ emoji, title, description, className, ...props }, ref) => {
+    return (
+      <Button
+        ref={ref}
+        variant="outline"
+        className={`h-auto flex-col items-start p-3 sm:p-4 w-full text-left whitespace-normal hover:border-primary ${className}`}
+        {...props}
+      >
+        <div className="font-semibold mb-1 text-sm sm:text-base">
+          {emoji} {title}
+        </div>
+        <div className="text-xs sm:text-sm text-muted-foreground font-normal">{description}</div>
+      </Button>
+    );
+  }
+);
+QuickActionButton.displayName = 'QuickActionButton';
