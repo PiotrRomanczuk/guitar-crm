@@ -80,6 +80,7 @@ export type Database = {
 					notes: string | null;
 					title: string | null;
 					lesson_teacher_number: number | null;
+					google_event_id: string | null;
 				};
 				Insert: {
 					id?: string;
@@ -102,6 +103,7 @@ export type Database = {
 					notes?: string | null;
 					title?: string | null;
 					lesson_teacher_number?: number | null;
+					google_event_id?: string | null;
 				};
 				Update: {
 					id?: string;
@@ -124,6 +126,7 @@ export type Database = {
 					notes?: string | null;
 					title?: string | null;
 					lesson_teacher_number?: number | null;
+					google_event_id?: string | null;
 				};
 			};
 
@@ -362,6 +365,36 @@ export type Database = {
 					end_time?: string;
 					is_available?: boolean;
 					created_by?: string;
+					created_at?: string;
+					updated_at?: string;
+				};
+			};
+
+			user_integrations: {
+				Row: {
+					user_id: string;
+					provider: string;
+					access_token: string | null;
+					refresh_token: string | null;
+					expires_at: number | null;
+					created_at: string;
+					updated_at: string;
+				};
+				Insert: {
+					user_id: string;
+					provider: string;
+					access_token?: string | null;
+					refresh_token?: string | null;
+					expires_at?: number | null;
+					created_at?: string;
+					updated_at?: string;
+				};
+				Update: {
+					user_id?: string;
+					provider?: string;
+					access_token?: string | null;
+					refresh_token?: string | null;
+					expires_at?: number | null;
 					created_at?: string;
 					updated_at?: string;
 				};
