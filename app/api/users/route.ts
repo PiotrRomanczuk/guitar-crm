@@ -1,74 +1,95 @@
-import { createClient } from '@/lib/supabase/server';
-import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { createClient } from "@/lib/supabase/server";
+import { getUserWithRolesSSR } from "@/lib/getUserWithRolesSSR";
+import { randomUUID } from "crypto";
 
 interface UserProfile {
   id: string;
-  user_id: string | null;
-  email: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  username: string | null;
-  isAdmin: boolean;
-  isTeacher: boolean | null;
-  isStudent: boolean | null;
-  isActive: boolean;
-  created_at: string | null;
-  updated_at: string | null;
+  email: string;
+  full_name: string | null;
+  phone: string | null;
+  notes: string | null;
+  avatar_url: string | null;
+  is_admin: boolean;
+  is_teacher: boolean;
+  is_student: boolean;
+  is_shadow: boolean | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export async function GET(request: Request) {
   try {
-    const { user, isAdmin } = await getUserWithRolesSSR();
+    const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
 
-    if (!user || !isAdmin) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!user || (!isAdmin && !isTeacher)) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const supabase = await createClient();
     const url = new URL(request.url);
 
     // Filtering parameters
-    const searchQuery = url.searchParams.get('search');
-    const roleFilter = url.searchParams.get('role');
-    const activeFilter = url.searchParams.get('active');
-    const limit = parseInt(url.searchParams.get('limit') || '50');
-    const offset = parseInt(url.searchParams.get('offset') || '0');
+    const searchQuery = url.searchParams.get("search");
+    const roleFilter = url.searchParams.get("role");
+    const limit = parseInt(url.searchParams.get("limit") || "50");
+    const offset = parseInt(url.searchParams.get("offset") || "0");
 
-    let query = supabase.from('profiles').select('*', { count: 'exact' });
+    let query = supabase.from("profiles").select("*", { count: "exact" });
 
     if (searchQuery) {
       query = query.or(
-        `email.ilike.%${searchQuery}%,firstName.ilike.%${searchQuery}%,lastName.ilike.%${searchQuery}%,username.ilike.%${searchQuery}%`
+        `email.ilike.%${searchQuery}%,full_name.ilike.%${searchQuery}%`
       );
     }
 
     if (roleFilter) {
-      if (roleFilter === 'admin') {
-        query = query.eq('isAdmin', true);
-      } else if (roleFilter === 'teacher') {
-        query = query.eq('isTeacher', true);
-      } else if (roleFilter === 'student') {
-        query = query.eq('isStudent', true);
+      if (roleFilter === "admin") {
+        query = query.eq("is_admin", true);
+      } else if (roleFilter === "teacher") {
+        query = query.eq("is_teacher", true);
+      } else if (roleFilter === "student") {
+        query = query.eq("is_student", true);
+      } else if (roleFilter === "shadow") {
+        query = query.eq("is_shadow", true);
       }
     }
 
-    if (activeFilter === 'true') {
-      query = query.eq('isActive', true);
-    } else if (activeFilter === 'false') {
-      query = query.eq('isActive', false);
-    }
-
     const { data, error, count } = await query
-      .order('created_at', { ascending: false })
+      .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) {
       return Response.json({ error: error.message }, { status: 500 });
     }
 
+    // Map back to camelCase for frontend compatibility if needed?
+    // Or just return as is. The frontend types might expect camelCase.
+    // Let"s check UserSchema again. It expects firstName, lastName.
+    // We should probably map it back to match UserSchema or update UserSchema.
+    // For now, let"s return the raw profile data and let the frontend adapt or we adapt here.
+    // Given the existing code used camelCase in the response type UserProfile, 
+    // we should probably map it to avoid breaking frontend.
+    
+    const mappedData = data?.map(profile => ({
+      id: profile.id,
+      email: profile.email,
+      // Split full_name into firstName/lastName if possible, or just return full_name
+      // The UserSchema has firstName/lastName.
+      firstName: profile.full_name ? profile.full_name.split(" ")[0] : "",
+      lastName: profile.full_name ? profile.full_name.split(" ").slice(1).join(" ") : "",
+      full_name: profile.full_name,
+      isAdmin: profile.is_admin,
+      isTeacher: profile.is_teacher,
+      isStudent: profile.is_student,
+      isShadow: profile.is_shadow,
+      // isActive: profile.is_active ?? true, // Assuming active if not present
+      created_at: profile.created_at,
+      updated_at: profile.updated_at,
+    }));
+
     return Response.json(
       {
-        data: data as UserProfile[],
+        data: mappedData,
         total: count || 0,
         limit,
         offset,
@@ -76,17 +97,17 @@ export async function GET(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error fetching users:', error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error fetching users:", error);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const { user, isAdmin } = await getUserWithRolesSSR();
+    const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
 
-    if (!user || !isAdmin) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!user || (!isAdmin && !isTeacher)) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -94,31 +115,66 @@ export async function POST(request: Request) {
       email,
       firstName,
       lastName,
-      username,
-      isAdmin: userIsAdmin,
-      isTeacher,
-      isStudent,
-      isActive,
+      full_name, // Accept full_name directly too
+      phone,
+      notes,
+      isAdmin: reqIsAdmin,
+      isTeacher: reqIsTeacher,
+      isStudent: reqIsStudent,
+      isShadow: reqIsShadow, // Accept explicit isShadow flag
     } = body;
 
-    if (!email) {
-      return Response.json({ error: 'Email is required' }, { status: 400 });
+    // Permission Check
+    if (!isAdmin && isTeacher) {
+      // Teachers can ONLY create Students
+      if (reqIsAdmin || reqIsTeacher) {
+        return Response.json({ error: "Teachers can only create students" }, { status: 403 });
+      }
     }
 
     const supabase = await createClient();
+    
+    let finalEmail = email;
+    let isShadow = reqIsShadow || false;
+    const newId = randomUUID();
+
+    // Construct full_name
+    let finalFullName = full_name;
+    if (!finalFullName && (firstName || lastName)) {
+        finalFullName = `${firstName || ""} ${lastName || ""}`.trim();
+    }
+
+    if (!email || email.trim() === "") {
+      // Shadow User Creation
+      isShadow = true;
+      finalEmail = `shadow_${newId}@placeholder.com`;
+    } else {
+      // Real User Creation (Profile only)
+      // Check if email exists
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("email", email)
+        .single();
+      
+      if (existing) {
+        return Response.json({ error: "User with this email already exists" }, { status: 409 });
+      }
+    }
 
     const { data, error } = await supabase
-      .from('profiles')
+      .from("profiles")
       .insert([
         {
-          email,
-          firstName: firstName || null,
-          lastName: lastName || null,
-          username: username || null,
-          isAdmin: userIsAdmin || false,
-          isTeacher: isTeacher || false,
-          isStudent: isStudent || false,
-          isActive: isActive !== false,
+          id: newId,
+          email: finalEmail,
+          full_name: finalFullName || null,
+          phone: phone || null,
+          notes: notes || null,
+          is_admin: reqIsAdmin || false,
+          is_teacher: reqIsTeacher || false,
+          is_student: reqIsStudent || true, // Default to student
+          is_shadow: isShadow,
         },
       ])
       .select()
@@ -130,7 +186,7 @@ export async function POST(request: Request) {
 
     return Response.json(data, { status: 201 });
   } catch (error) {
-    console.error('Error creating user:', error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error creating user:", error);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }
