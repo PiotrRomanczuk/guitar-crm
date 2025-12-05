@@ -182,7 +182,7 @@ describe('Lesson API - Main Route', () => {
     it('should handle database errors gracefully', async () => {
       // For admin, it goes straight to query
       mockSupabaseQueryBuilder.then
-        .mockImplementationOnce((resolve) => resolve({
+        .mockImplementationOnce((resolve: any) => resolve({
           data: null,
           error: { message: 'Database connection failed' },
           count: 0
@@ -203,7 +203,7 @@ describe('Lesson API - Main Route', () => {
         teacher_profile: null,
       };
 
-      mockSupabaseQueryBuilder.then.mockImplementation((resolve) => resolve({
+      mockSupabaseQueryBuilder.then.mockImplementation((resolve: any) => resolve({
         data: [lessonWithNullProfile],
         error: null,
         count: 1
@@ -229,7 +229,7 @@ describe('Lesson API - Main Route', () => {
         created_at: '2024-01-01T00:00:00Z',
       };
 
-      mockSupabaseQueryBuilder.then.mockImplementation((resolve) => resolve({
+      mockSupabaseQueryBuilder.then.mockImplementation((resolve: any) => resolve({
         data: [minimalLesson],
         error: null,
         count: 1

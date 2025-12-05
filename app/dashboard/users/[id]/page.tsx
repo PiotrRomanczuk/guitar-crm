@@ -21,7 +21,7 @@ interface UserDetailPageProps {
 
 interface UserProfile {
   id: string;
-  email: string | null;
+  email: string;
   full_name: string | null;
   avatar_url: string | null;
   notes: string | null;
@@ -31,6 +31,7 @@ interface UserProfile {
   is_admin: boolean;
   is_teacher: boolean;
   is_student: boolean;
+  is_shadow: boolean | null;
 }
 
 interface Song {
