@@ -12,7 +12,7 @@ jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(),
 }));
 
-describe.skip('Lesson API - Search Route', () => {
+describe('Lesson API - Search Route', () => {
   const mockUser = {
     id: 'user-123',
     email: 'teacher@example.com',

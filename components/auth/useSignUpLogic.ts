@@ -112,6 +112,11 @@ export function useSignUpLogic(onSuccess?: () => void) {
     }
 
     if (response.data.user && checkIfEmailExists(response.data.user)) {
+      // If user exists but has no identities, it might be a shadow user.
+      // However, Supabase returns identities: [] if the user already exists when trying to sign up.
+      // BUT, if it's a shadow user (created by admin), they exist in Auth but have no password.
+      // We should probably allow them to "claim" the account or reset password.
+      // For now, let's guide them to sign in (where they can use "Forgot Password" to set a password).
       setError('This email is already registered. Please sign in instead.');
       return;
     }

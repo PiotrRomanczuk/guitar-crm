@@ -1,19 +1,28 @@
 'use client';
 
 import { useState } from 'react';
-import { fetchGoogleEvents, importLessonsFromGoogle, ImportEvent, EnrichedCalendarEvent } from '@/app/actions/import-lessons';
+import { fetchGoogleEvents, importLessonsFromGoogle, ImportEvent } from '@/app/actions/import-lessons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Loader2, CheckCircle2, HelpCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+
+interface CalendarEvent {
+  id: string;
+  summary: string;
+  description?: string;
+  start: { dateTime: string; timeZone?: string };
+  end: { dateTime: string; timeZone?: string };
+  attendees?: Array<{ email: string; displayName?: string }>;
+}
 
 export function GoogleEventImporter() {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
-  const [events, setEvents] = useState<EnrichedCalendarEvent[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -28,7 +37,7 @@ export function GoogleEventImporter() {
       } else {
         toast.error(result.error || 'Failed to fetch events');
       }
-    } catch {
+    } catch (error) {
       toast.error('An error occurred');
     } finally {
       setLoading(false);
@@ -43,10 +52,9 @@ export function GoogleEventImporter() {
         googleEventId: e.id,
         title: e.summary,
         notes: e.description,
-        startTime: e.start.dateTime || e.start.date || '', // Handle all-day events if necessary
-        attendeeEmail: e.studentAttendee?.email || '',
-        attendeeName: e.studentAttendee?.displayName || '',
-        manualStudentId: e.matchedStudent?.id, // Use matched student ID if available
+        startTime: e.start.dateTime,
+        attendeeEmail: e.attendees?.[0]?.email || '',
+        attendeeName: e.attendees?.[0]?.displayName || '',
       }))
       .filter(e => e.attendeeEmail); // Only import if email exists
 
@@ -66,7 +74,7 @@ export function GoogleEventImporter() {
       } else {
         toast.error(result.error || 'Import failed');
       }
-    } catch {
+    } catch (error) {
       toast.error('An error occurred during import');
     } finally {
       setImporting(false);
@@ -124,16 +132,14 @@ export function GoogleEventImporter() {
                 </TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Summary</TableHead>
-                <TableHead>Student</TableHead>
-                <TableHead>Teacher</TableHead>
+                <TableHead>Attendee</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {events.map((event) => {
-                const attendee = event.studentAttendee;
+                const attendee = event.attendees?.[0];
                 const hasAttendee = !!attendee?.email;
-                const organizer = event.organizer;
                 
                 return (
                   <TableRow key={event.id}>
@@ -144,59 +150,26 @@ export function GoogleEventImporter() {
                         disabled={!hasAttendee}
                       />
                     </TableCell>
-                    <TableCell>
-                      {event.start.dateTime 
-                        ? new Date(event.start.dateTime).toLocaleString() 
-                        : event.start.date}
-                    </TableCell>
+                    <TableCell>{new Date(event.start.dateTime).toLocaleString()}</TableCell>
                     <TableCell>{event.summary}</TableCell>
                     <TableCell>
-                      {event.matchedStudent ? (
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
-                          <div className="flex flex-col">
-                            <span className="font-medium">{event.matchedStudent.full_name}</span>
-                            <span className="text-xs text-muted-foreground">{event.matchedStudent.email}</span>
-                          </div>
-                        </div>
-                      ) : attendee ? (
-                        <div className="flex items-center gap-2">
-                          <HelpCircle className="h-4 w-4 text-yellow-500" />
-                          <div className="flex flex-col">
-                            <span>{attendee.displayName || 'Unknown Name'}</span>
-                            <span className="text-xs text-muted-foreground">{attendee.email}</span>
-                          </div>
+                      {attendee ? (
+                        <div className="flex flex-col">
+                          <span>{attendee.displayName}</span>
+                          <span className="text-xs text-muted-foreground">{attendee.email}</span>
                         </div>
                       ) : (
                         <span className="text-muted-foreground italic">No attendee</span>
                       )}
                     </TableCell>
                     <TableCell>
-                      {organizer ? (
-                        <div className="flex flex-col">
-                          <span>{organizer.displayName || 'Unknown'}</span>
-                          <span className="text-xs text-muted-foreground">{organizer.email}</span>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {event.matchStatus === 'MATCHED' ? (
+                      {hasAttendee ? (
                         <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                          Matched
-                        </Badge>
-                      ) : event.matchStatus === 'AMBIGUOUS' ? (
-                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                          Ambiguous
-                        </Badge>
-                      ) : hasAttendee ? (
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                          New Student
+                          Ready
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                          Invalid
+                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                          Missing Email
                         </Badge>
                       )}
                     </TableCell>
@@ -214,19 +187,6 @@ export function GoogleEventImporter() {
             {importing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             Import Selected ({selected.size})
           </Button>
-        </div>
-      )}
-
-      {events.length > 0 && (
-        <div className="mt-8 p-4 border rounded-md bg-slate-50 overflow-auto">
-          <h3 className="text-sm font-medium mb-2">Debug: Event Data (Piotr Zabuski)</h3>
-          <pre className="text-xs text-muted-foreground">
-            {JSON.stringify(
-              events.find(e => e.summary.includes('Piotr Zabuski')) || events[0], 
-              null, 
-              2
-            )}
-          </pre>
         </div>
       )}
     </div>

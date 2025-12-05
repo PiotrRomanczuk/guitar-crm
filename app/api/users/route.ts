@@ -1,6 +1,23 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { randomUUID } from 'crypto';
+
+interface UserProfile {
+  id: string;
+  user_id: string | null;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  username: string | null;
+  isAdmin: boolean;
+  isTeacher: boolean | null;
+  isStudent: boolean | null;
+  isActive: boolean;
+  isRegistered: boolean;
+  created_at: string | null;
+  updated_at: string | null;
+}
 
 export async function GET(request: Request) {
   try {
@@ -11,6 +28,7 @@ export async function GET(request: Request) {
     }
 
     const supabase = await createClient();
+    const supabaseAdmin = createAdminClient();
     const url = new URL(request.url);
 
     // Filtering parameters
@@ -45,30 +63,44 @@ export async function GET(request: Request) {
       return Response.json({ error: error.message }, { status: 500 });
     }
 
-    // Map back to camelCase for frontend compatibility if needed?
-    // Or just return as is. The frontend types might expect camelCase.
-    // Let"s check UserSchema again. It expects firstName, lastName.
-    // We should probably map it back to match UserSchema or update UserSchema.
-    // For now, let"s return the raw profile data and let the frontend adapt or we adapt here.
-    // Given the existing code used camelCase in the response type UserProfile,
-    // we should probably map it to avoid breaking frontend.
+    // Fetch auth data for each user to check registration status and map to camelCase
+    const mappedData = await Promise.all(
+      (data || []).map(async (profile) => {
+        let isRegistered = false;
+        try {
+          // Only check auth status if we have an ID (which we should)
+          if (profile.id) {
+            const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(profile.id);
+            
+            // Check registration status based on identities and sign-in history
+            const hasSignedIn = !!user?.last_sign_in_at;
+            const hasOauthProvider = user?.app_metadata?.providers?.some((p: string) => p !== 'email');
+            
+            isRegistered = hasSignedIn || !!hasOauthProvider;
+          }
+        } catch (err) {
+          console.error(`Failed to fetch auth user for ${profile.id}:`, err);
+        }
 
-    const mappedData = data?.map((profile) => ({
-      id: profile.id,
-      email: profile.email,
-      // Split full_name into firstName/lastName if possible, or just return full_name
-      // The UserSchema has firstName/lastName.
-      firstName: profile.full_name ? profile.full_name.split(' ')[0] : '',
-      lastName: profile.full_name ? profile.full_name.split(' ').slice(1).join(' ') : '',
-      full_name: profile.full_name,
-      isAdmin: profile.is_admin,
-      isTeacher: profile.is_teacher,
-      isStudent: profile.is_student,
-      isShadow: profile.is_shadow,
-      // isActive: profile.is_active ?? true, // Assuming active if not present
-      created_at: profile.created_at,
-      updated_at: profile.updated_at,
-    }));
+        return {
+          id: profile.id,
+          email: profile.email,
+          // Split full_name into firstName/lastName
+          firstName: profile.full_name ? profile.full_name.split(' ')[0] : '',
+          lastName: profile.full_name ? profile.full_name.split(' ').slice(1).join(' ') : '',
+          full_name: profile.full_name,
+          username: profile.username,
+          isAdmin: profile.is_admin,
+          isTeacher: profile.is_teacher,
+          isStudent: profile.is_student,
+          isShadow: profile.is_shadow,
+          isActive: profile.is_active ?? true,
+          isRegistered: isRegistered,
+          created_at: profile.created_at,
+          updated_at: profile.updated_at,
+        };
+      })
+    );
 
     return Response.json(
       {
