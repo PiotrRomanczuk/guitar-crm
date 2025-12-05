@@ -74,3 +74,4 @@ CODE-AGENTS/
 # Local dev files
 .vscode/mcp.json
 server.log
+*.log
