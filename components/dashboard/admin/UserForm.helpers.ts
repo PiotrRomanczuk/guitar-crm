@@ -1,31 +1,48 @@
 import { z } from 'zod';
 
 export interface ValidationError {
-	field: string;
-	message: string;
+  field: string;
+  message: string;
 }
 
 export interface ZodIssue {
-	path: (string | number)[];
-	message: string;
+  path: (string | number)[];
+  message: string;
 }
 
-export const extractValidationErrors = (
-	error: z.ZodError
-): Record<string, string> => {
-	const validationErrors: Record<string, string> = {};
-	error.issues.forEach((issue: ZodIssue) => {
-		validationErrors[issue.path[0] as string] = issue.message;
-	});
-	return validationErrors;
+export const extractValidationErrors = (error: z.ZodError): Record<string, string> => {
+  const validationErrors: Record<string, string> = {};
+  error.issues.forEach((issue: ZodIssue) => {
+    validationErrors[issue.path[0] as string] = issue.message;
+  });
+  return validationErrors;
 };
 
 export const createUserValidationSchema = () => {
-	return UserInputSchema.extend({
-		firstName: z.string().min(1, 'First name is required'),
-		lastName: z.string().min(1, 'Last name is required'),
-		email: z.string().email('Valid email is required'),
-	});
+  return UserInputSchema.extend({
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+  }).superRefine((data, ctx) => {
+    if (!data.isShadow) {
+      if (!data.email || data.email === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Email is required for standard users',
+          path: ['email'],
+        });
+      } else {
+        const emailSchema = z.string().email('Valid email is required');
+        const result = emailSchema.safeParse(data.email);
+        if (!result.success) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Valid email is required',
+            path: ['email'],
+          });
+        }
+      }
+    }
+  });
 };
 
 // Import the schema types

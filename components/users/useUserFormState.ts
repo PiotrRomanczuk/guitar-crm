@@ -14,6 +14,7 @@ export interface FormData {
   isTeacher: boolean;
   isStudent: boolean;
   isActive: boolean;
+  isShadow: boolean;
 }
 
 interface InitialData {
@@ -26,6 +27,7 @@ interface InitialData {
   isTeacher: boolean | null;
   isStudent: boolean | null;
   isActive: boolean;
+  isShadow?: boolean | null;
 }
 
 interface SaveUserPayload {
@@ -44,6 +46,7 @@ const createInitialData = (initial: InitialData | undefined): FormData => {
     isTeacher: false,
     isStudent: false,
     isActive: true,
+    isShadow: false,
   };
 
   if (!initial) return defaultData;
@@ -57,13 +60,14 @@ const createInitialData = (initial: InitialData | undefined): FormData => {
     isTeacher: initial.isTeacher || defaultData.isTeacher,
     isStudent: initial.isStudent || defaultData.isStudent,
     isActive: initial.isActive !== false,
+    isShadow: initial.isShadow || defaultData.isShadow,
   };
 };
 
 async function saveUserToApi(payload: SaveUserPayload): Promise<void> {
   const { data, initialData, isEdit } = payload;
 
-  if (!data.email) throw new Error('Email is required');
+  if (!data.isShadow && !data.email) throw new Error('Email is required for standard users');
 
   const url = isEdit && initialData ? `/api/users/${initialData.id}` : '/api/users';
   const method = isEdit ? 'PUT' : 'POST';
