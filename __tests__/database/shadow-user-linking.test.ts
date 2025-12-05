@@ -101,6 +101,7 @@ describe('Shadow User Linking', () => {
     expect(linkedProfile.full_name).toBe('Real Student');
 
     // Verify preservation of existing flags
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((linkedProfile as any).is_student).toBe(true);
   });
 });
