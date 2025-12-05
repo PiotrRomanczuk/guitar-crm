@@ -84,7 +84,7 @@ describe('User Seeding Tests', () => {
 			}
 		});
 
-		test('users have isDevelopment flag set', async () => {
+		test('users have is_development flag set', async () => {
 			const { data: profiles } = await supabase
 				.from('profiles')
 				.select('*')
@@ -94,8 +94,7 @@ describe('User Seeding Tests', () => {
 				);
 
 			profiles?.forEach((profile) => {
-				// @ts-expect-error - using lowercase column names from database
-				expect(profile.isdevelopment).toBe(true);
+				expect(profile.is_development).toBe(true);
 			});
 		});
 
@@ -104,7 +103,6 @@ describe('User Seeding Tests', () => {
 				.from('profiles')
 				.select('email');
 
-			// @ts-expect-error - profiles has email column
 			const emails = profiles?.map((p) => p.email) || [];
 			const uniqueEmails = new Set(emails);
 			expect(emails.length).toBe(uniqueEmails.size);
