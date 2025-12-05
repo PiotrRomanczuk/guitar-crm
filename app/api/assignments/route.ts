@@ -44,7 +44,7 @@ function extractQueryParams(searchParams: URLSearchParams) {
 /**
  * GET /api/assignments
  * List assignments with role-based filtering
- * 
+ *
  * Query params:
  * - teacher_id, student_id, lesson_id, status, search, due_date_from, due_date_to
  * - sortField, sortDirection
@@ -86,9 +86,9 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/assignments
  * Create a new assignment
- * 
+ *
  * Request body: AssignmentInput (title, description, due_date, teacher_id, student_id, lesson_id, status)
- * 
+ *
  * Role-based access:
  * - Admin: Can create any assignment
  * - Teacher: Can create assignments for their students (teacher_id must match user)

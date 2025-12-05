@@ -33,9 +33,9 @@ export default async function SongPage({ params }: SongPageProps) {
           { label: 'Song Details' },
         ]}
       />
-      
+
       <SongDetail songId={id} isAdmin={isAdmin} isTeacher={isTeacher} />
-      
+
       <SongLessons songId={id} />
 
       {canViewStudents && (

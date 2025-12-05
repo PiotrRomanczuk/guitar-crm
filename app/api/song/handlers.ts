@@ -174,16 +174,13 @@ export async function createSongHandler(
     console.log('=== Success! Created song:', JSON.stringify(song));
     return { song, status: 201 };
   } catch (err) {
-    console.log('Exception caught:', err);
     if (err instanceof ZodError) {
       const fieldErrors = err.flatten().fieldErrors;
-      console.log('Zod validation error:', JSON.stringify(fieldErrors));
       return {
         error: `Validation failed: ${JSON.stringify(fieldErrors)}`,
         status: 422,
       };
     }
-    console.log('Unknown error:', JSON.stringify(err));
     return { error: 'Internal server error', status: 500 };
   }
 }

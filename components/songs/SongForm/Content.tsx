@@ -75,7 +75,7 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
       console.log('🎸 [FRONTEND] Save successful!');
       onSuccess?.();
     } catch (err) {
-      console.error('🎸 [FRONTEND] Submit error:', err);
+      console.error('🎸 [FRONTEND] Submit error:', err instanceof Error ? err.message : String(err));
       const fieldErrors = parseZodErrors(err);
       if (Object.keys(fieldErrors).length > 0) {
         console.log('🎸 [FRONTEND] Validation errors:', fieldErrors);

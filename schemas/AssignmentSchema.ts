@@ -40,6 +40,31 @@ export const AssignmentUpdateSchema = AssignmentInputSchema.partial().extend({
   id: z.string().uuid(),
 });
 
+// Assignment with profile information
+export const AssignmentWithProfilesSchema = AssignmentSchema.extend({
+  teacher_profile: z
+    .object({
+      id: z.string().uuid(),
+      email: z.string().email(),
+      full_name: z.string().optional().nullable(),
+    })
+    .optional(),
+  student_profile: z
+    .object({
+      id: z.string().uuid(),
+      email: z.string().email(),
+      full_name: z.string().optional().nullable(),
+    })
+    .optional(),
+  lesson: z
+    .object({
+      id: z.string().uuid(),
+      lesson_teacher_number: z.number().int().positive(),
+      scheduled_at: z.string().datetime(),
+    })
+    .optional()
+    .nullable(),
+});
 // Assignment filter schema
 export const AssignmentFilterSchema = z.object({
   teacher_id: z.string().uuid().optional(),
@@ -56,3 +81,36 @@ export const AssignmentSortSchema = z.object({
   field: z.enum(['due_date', 'created_at', 'updated_at', 'title', 'status']).default('due_date'),
   direction: z.enum(['asc', 'desc']).default('asc'),
 });
+
+// Assignment status calculation helper
+export const calculateAssignmentStatus = (
+  dueDate: string | null,
+  currentStatus: z.infer<typeof AssignmentStatusEnum>
+): z.infer<typeof AssignmentStatusEnum> => {
+  // If already completed or cancelled, keep that status
+  if (currentStatus === 'completed' || currentStatus === 'cancelled') {
+    return currentStatus;
+  }
+
+  // If no due date, return current status
+  if (!dueDate) return currentStatus || 'not_started';
+
+  const now = new Date();
+  const due = new Date(dueDate);
+
+  // If overdue
+  if (due < now) {
+    return 'overdue';
+  }
+
+  return currentStatus || 'not_started';
+};
+
+// Types
+export type Assignment = z.infer<typeof AssignmentSchema>;
+export type AssignmentInput = z.infer<typeof AssignmentInputSchema>;
+export type AssignmentUpdate = z.infer<typeof AssignmentUpdateSchema>;
+export type AssignmentWithProfiles = z.infer<typeof AssignmentWithProfilesSchema>;
+export type AssignmentFilter = z.infer<typeof AssignmentFilterSchema>;
+export type AssignmentSort = z.infer<typeof AssignmentSortSchema>;
+export type AssignmentStatus = z.infer<typeof AssignmentStatusEnum>;
