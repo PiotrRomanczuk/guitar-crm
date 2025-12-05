@@ -13,8 +13,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 
 interface GoogleEvent {
   id: string;
@@ -95,7 +95,10 @@ export function PotentialUsersList() {
                     <div className="flex flex-col gap-1">
                       <span>{user.name}</span>
                       {user.name === 'Unknown' && (
-                        <Badge variant="secondary" className="w-fit text-xs bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+                        <Badge
+                          variant="secondary"
+                          className="w-fit text-xs bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+                        >
                           Check Details
                         </Badge>
                       )}
@@ -118,9 +121,7 @@ export function PotentialUsersList() {
                   <TableCell>
                     <div className="text-sm text-muted-foreground">
                       {user.name === 'Unknown' && user.originalSummary && (
-                        <div className="text-xs mb-1">
-                          Event: {user.originalSummary}
-                        </div>
+                        <div className="text-xs mb-1">Event: {user.originalSummary}</div>
                       )}
                       {!user.email && !user.phone && user.rawDescription && (
                         <div className="text-xs bg-muted p-2 rounded whitespace-pre-wrap max-w-[200px]">
@@ -132,7 +133,7 @@ export function PotentialUsersList() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <InviteUserModal 
+                    <InviteUserModal
                       trigger={<Button size="sm">Convert</Button>}
                       initialEmail={user.email}
                       initialName={user.name}
