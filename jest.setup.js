@@ -85,16 +85,32 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock next/server to avoid requiring global Response/Request in skipped route tests
-jest.mock('next/server', () => ({
-  NextRequest: class {},
-  NextResponse: { json: (data, init) => ({ data, ...init }) },
-}));
-
-// Mock next/server to avoid requiring global Response/Request in skipped route tests
-jest.mock('next/server', () => ({
-	NextRequest: class {},
-	NextResponse: { json: (data, init) => ({ data, ...init }) },
-}));
+jest.mock('next/server', () => {
+  return {
+    NextRequest: class {
+      constructor(url, init) {
+        this.url = url;
+        this.method = init?.method || 'GET';
+        this.body = init?.body;
+        this.headers = new Headers(init?.headers);
+        this.nextUrl = new URL(url);
+      }
+      async json() {
+        return typeof this.body === 'string' ? JSON.parse(this.body) : this.body;
+      }
+    },
+    NextResponse: {
+      json: (data, init) => {
+        return {
+          ok: true,
+          status: init?.status || 200,
+          json: async () => data,
+          headers: new Headers(init?.headers),
+        };
+      },
+    },
+  };
+});
 
 // Mock Supabase client
 jest.mock('@/lib/supabase/client', () => ({

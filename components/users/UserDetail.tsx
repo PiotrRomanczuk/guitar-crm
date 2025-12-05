@@ -21,15 +21,18 @@ import {
 
 interface UserDetailProps {
   user: {
-    id: string | number;
+    id: string;
     firstName: string | null;
     lastName: string | null;
-    email: string | null;
     username: string | null;
+    email: string | null;
     isAdmin: boolean;
-    isTeacher: boolean | null;
-    isStudent: boolean | null;
+    isTeacher: boolean;
+    isStudent: boolean;
     isActive: boolean;
+    isRegistered: boolean;
+    avatarUrl: string | null;
+    notes: string | null;
   };
 }
 
@@ -58,8 +61,7 @@ export default function UserDetail({ user }: UserDetailProps) {
     return roles.length ? roles : ['No Role'];
   };
 
-  const fullName =
-    user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username || 'N/A';
+  const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || 'N/A';
 
   return (
     <Card className="max-w-2xl mx-auto">
@@ -85,17 +87,29 @@ export default function UserDetail({ user }: UserDetailProps) {
           </div>
           <div>
             <Label className="text-muted-foreground block mb-1">Status</Label>
-            <Badge
-              variant={user.isActive ? 'default' : 'destructive'}
-              className={
-                user.isActive
-                  ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300'
-                  : ''
-              }
-              data-testid="status-badge"
-            >
-              {user.isActive ? 'Active' : 'Inactive'}
-            </Badge>
+            <div className="flex gap-2">
+              <Badge
+                variant={user.isActive ? 'default' : 'destructive'}
+                className={
+                  user.isActive
+                    ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300'
+                    : ''
+                }
+                data-testid="status-badge"
+              >
+                {user.isActive ? 'Active' : 'Inactive'}
+              </Badge>
+              <Badge
+                variant="outline"
+                className={
+                  user.isRegistered
+                    ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-800'
+                    : 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
+                }
+              >
+                {user.isRegistered ? 'Registered' : 'Shadow'}
+              </Badge>
+            </div>
           </div>
         </div>
 
@@ -113,6 +127,14 @@ export default function UserDetail({ user }: UserDetailProps) {
                 {role}
               </Badge>
             ))}
+          </div>
+        </div>
+
+        {/* Notes */}
+        <div>
+          <Label className="text-muted-foreground block mb-2">Notes</Label>
+          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg text-sm text-gray-700 dark:text-gray-300 min-h-[60px] border">
+            {user.notes || 'No notes available.'}
           </div>
         </div>
       </CardContent>
@@ -138,19 +160,12 @@ export default function UserDetail({ user }: UserDetailProps) {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDelete}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
+              <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
                 Delete
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-
-        <Link href="/dashboard/users">
-          <Button variant="outline">Back</Button>
-        </Link>
       </CardFooter>
     </Card>
   );

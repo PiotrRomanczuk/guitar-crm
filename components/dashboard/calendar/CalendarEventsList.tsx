@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { getGoogleEvents } from '@/app/dashboard/actions';
+import { getGoogleEvents, createShadowUser, syncAllLessonsFromCalendar } from '@/app/dashboard/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, MapPin, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, MapPin, ArrowRight, UserPlus, RefreshCw } from 'lucide-react';
 import { ConnectGoogleButton } from './ConnectGoogleButton';
 
 interface GoogleEvent {
@@ -16,6 +16,7 @@ interface GoogleEvent {
   start: { dateTime?: string; date?: string };
   end: { dateTime?: string; date?: string };
   htmlLink: string;
+  attendees?: { email: string; responseStatus?: string }[];
 }
 
 interface CalendarEventsListProps {
@@ -27,6 +28,7 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     async function fetchEvents() {
@@ -48,6 +50,38 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
 
     fetchEvents();
   }, []);
+
+  const handleCreateShadowUser = (email: string) => {
+    if (!confirm(`Create shadow user for ${email}?`)) return;
+
+    startTransition(async () => {
+      try {
+        const result = await createShadowUser(email);
+        if (result.success) {
+          alert(`Successfully created shadow user for ${email}`);
+        }
+      } catch (error) {
+        console.error(error);
+        alert(error instanceof Error ? error.message : 'Failed to create shadow user');
+      }
+    });
+  };
+
+  const handleSyncAll = () => {
+    if (!confirm('Sync all lessons from calendar? This will create shadow users for any new students found.')) return;
+
+    startTransition(async () => {
+      try {
+        const result = await syncAllLessonsFromCalendar();
+        if (result.success) {
+          alert(`Successfully synced ${result.count} lessons across all users.`);
+        }
+      } catch (error) {
+        console.error(error);
+        alert(error instanceof Error ? error.message : 'Failed to sync all lessons');
+      }
+    });
+  };
 
   if (loading) {
     return <div className="p-4 text-center">Loading calendar events...</div>;
@@ -83,11 +117,23 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="w-5 h-5" />
-          Upcoming Events
-        </CardTitle>
-        <div className="text-xs text-muted-foreground">Connected to Google Calendar</div>
+        <div className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="w-5 h-5" />
+            Upcoming Events
+          </CardTitle>
+          <div className="text-xs text-muted-foreground hidden sm:block">Connected to Google Calendar</div>
+        </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleSyncAll} 
+          disabled={isPending}
+          title="Sync all lessons"
+        >
+          <RefreshCw className={`w-4 h-4 mr-2 ${isPending ? 'animate-spin' : ''}`} />
+          Sync All
+        </Button>
       </CardHeader>
       <CardContent>
         {events && events.length > 0 ? (
@@ -110,6 +156,33 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
                     </div>
                   )}
                 </div>
+
+                {/* Attendees Section - Only show if not limited (full view) or if explicitly needed */}
+                {!limit && event.attendees && event.attendees.length > 0 && (
+                  <div className="mt-2 pt-2 border-t flex flex-wrap gap-2">
+                    {event.attendees.map((attendee) => (
+                      <div
+                        key={attendee.email}
+                        className="flex items-center gap-2 text-xs bg-secondary/50 p-1.5 rounded-md"
+                      >
+                        <span className="text-muted-foreground">{attendee.email}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-5 w-5 hover:bg-primary/10 hover:text-primary"
+                          title="Create Shadow User & Sync"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleCreateShadowUser(attendee.email);
+                          }}
+                          disabled={isPending}
+                        >
+                          <UserPlus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
 

@@ -130,9 +130,9 @@ function LessonHeader({ title, id, status }: { title?: string; id?: string; stat
 
 function LessonInfoGrid({ lesson }: { lesson: LessonDetailsCardProps['lesson'] }) {
   // Fallback to scheduled_at if date/start_time are missing (for imported lessons)
-  // @ts-ignore - scheduled_at might not be in the schema yet but is in DB
+  // @ts-expect-error - scheduled_at might not be in the schema yet but is in DB
   const displayDate = lesson.date || lesson.scheduled_at;
-  // @ts-ignore
+  // @ts-expect-error - scheduled_at might not be in the schema yet but is in DB
   const displayTime = lesson.start_time || lesson.scheduled_at;
 
   return (

@@ -25,6 +25,7 @@ interface UserProfile {
   isTeacher: boolean | null;
   isStudent: boolean | null;
   isActive: boolean;
+  isRegistered: boolean;
   created_at: string | null;
 }
 
@@ -44,6 +45,7 @@ function getRoleDisplay(user: UserProfile): string {
 function getInitials(firstName: string | null, lastName: string | null): string {
   return ((firstName?.[0] || '') + (lastName?.[0] || '')).toUpperCase() || '?';
 }
+
 
 export default function UsersListTable({ users, onDelete }: UsersListTableProps) {
   return (
@@ -82,16 +84,28 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                 <Badge variant="secondary">{getRoleDisplay(user)}</Badge>
               </TableCell>
               <TableCell>
-                <Badge
-                  variant={user.isActive ? 'default' : 'destructive'}
-                  className={
-                    user.isActive
-                      ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200'
-                      : ''
-                  }
-                >
-                  {user.isActive ? 'Active' : 'Inactive'}
-                </Badge>
+                <div className="flex flex-col gap-1">
+                  <Badge
+                    variant={user.isActive ? 'default' : 'destructive'}
+                    className={
+                      user.isActive
+                        ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200 w-fit'
+                        : 'w-fit'
+                    }
+                  >
+                    {user.isActive ? 'Active' : 'Inactive'}
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className={
+                      user.isRegistered
+                        ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-800 w-fit'
+                        : 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 w-fit'
+                    }
+                  >
+                    {user.isRegistered ? 'Registered' : 'Shadow'}
+                  </Badge>
+                </div>
               </TableCell>
               <TableCell>
                 <div className="flex gap-2">
