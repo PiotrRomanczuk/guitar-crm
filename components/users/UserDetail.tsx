@@ -6,15 +6,14 @@ import { useState } from 'react';
 
 interface UserDetailProps {
   user: {
-    id: string | number;
-    firstName: string | null;
-    lastName: string | null;
+    id: string;
+    full_name: string | null;
     email: string | null;
-    username: string | null;
-    isAdmin: boolean;
-    isTeacher: boolean | null;
-    isStudent: boolean | null;
-    isActive: boolean;
+    is_admin: boolean;
+    is_teacher: boolean;
+    is_student: boolean;
+    avatar_url: string | null;
+    notes: string | null;
   };
 }
 
@@ -39,91 +38,95 @@ export default function UserDetail({ user }: UserDetailProps) {
 
   const getRolesBadges = () => {
     const roles = [];
-    if (user.isAdmin) roles.push('Admin');
-    if (user.isTeacher) roles.push('Teacher');
-    if (user.isStudent) roles.push('Student');
+    if (user.is_admin) roles.push('Admin');
+    if (user.is_teacher) roles.push('Teacher');
+    if (user.is_student) roles.push('Student');
     return roles.length ? roles : ['No Role'];
   };
 
-  const fullName =
-    user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username || 'N/A';
+  const fullName = user.full_name || 'N/A';
 
   return (
-    <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 space-y-6">
-      {/* User Header */}
-      <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{fullName}</h2>
-        <p className="text-gray-600 dark:text-gray-400">{user.email}</p>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+      {/* User Header with Avatar */}
+      <div className="flex items-start gap-4 pb-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+          {fullName.charAt(0).toUpperCase()}
+        </div>
+        <div className="flex-1">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            {fullName}
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mt-1 flex items-center gap-2">
+            <span>✉️</span>
+            {user.email}
+          </p>
+
+          {/* Roles Badges */}
+          <div className="flex flex-wrap gap-2 mt-3">
+            {getRolesBadges().map((role) => (
+              <span
+                key={role}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${
+                  role === 'Admin'
+                    ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+                    : role === 'Teacher'
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
+                    : role === 'Student'
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
+                }`}
+                data-testid={`role-badge-${role.toLowerCase()}`}
+              >
+                {role === 'Admin' && '👑'} {role === 'Teacher' && '👨‍🏫'} {role === 'Student' && '👨‍🎓'}{' '}
+                {role}
+              </span>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* User Details */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-400">First Name</label>
-          <p className="text-gray-900 dark:text-white">{user.firstName || 'N/A'}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-gray-700 dark:text-gray-400 flex items-center gap-2">
+            <span>👤</span> Full Name
+          </label>
+          <p className="text-gray-900 dark:text-white font-medium">{fullName}</p>
         </div>
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-400">Last Name</label>
-          <p className="text-gray-900 dark:text-white">{user.lastName || 'N/A'}</p>
-        </div>
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-400">Username</label>
-          <p className="text-gray-900 dark:text-white">{user.username || 'N/A'}</p>
-        </div>
-        <div>
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-400">Status</label>
-          <p>
-            <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${
-                user.isActive
-                  ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
-                  : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
-              }`}
-              data-testid="status-badge"
-            >
-              {user.isActive ? 'Active' : 'Inactive'}
-            </span>
-          </p>
-        </div>
-      </div>
 
-      {/* Roles */}
-      <div>
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-400 block mb-2">
-          Roles
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {getRolesBadges().map((role) => (
-            <span
-              key={role}
-              className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium"
-              data-testid={`role-badge-${role.toLowerCase()}`}
-            >
-              {role}
-            </span>
-          ))}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-gray-700 dark:text-gray-400 flex items-center gap-2">
+            <span>📧</span> Email
+          </label>
+          <p className="text-gray-900 dark:text-white font-medium">{user.email}</p>
+        </div>
+
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-sm font-semibold text-gray-700 dark:text-gray-400 flex items-center gap-2">
+            <span>📝</span> Notes
+          </label>
+          <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg text-gray-700 dark:text-gray-300 min-h-[60px]">
+            {user.notes || 'No notes available.'}
+          </div>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <Link href={`/dashboard/users/${user.id}/edit`}>
-          <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-            Edit
-          </button>
+      <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+        <Link
+          href={`/dashboard/users/${user.id}/edit`}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+        >
+          <span>✏️</span> Edit User
         </Link>
         <button
           onClick={handleDelete}
           disabled={loading}
-          className="px-4 py-2 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+          className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-300 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
         >
-          {loading ? 'Deleting...' : 'Delete'}
+          <span>🗑️</span> {loading ? 'Deleting...' : 'Delete User'}
         </button>
-        <Link href="/dashboard/users">
-          <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            Back
-          </button>
-        </Link>
       </div>
     </div>
   );
