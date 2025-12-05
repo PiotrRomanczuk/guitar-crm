@@ -174,7 +174,15 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
     setLoading(false);
 
     if (signInError) {
-      setError(signInError.message);
+      // Handle specific error for shadow users who haven't set a password yet
+      if (signInError.message === 'Invalid login credentials') {
+        // This is a generic error, but for shadow users it might mean they have no password.
+        // We can't distinguish easily on client side without exposing user existence.
+        // But we can suggest checking if they need to reset password.
+        setError('Invalid email or password. If you haven\'t set a password yet, please use "Forgot password?" to create one.');
+      } else {
+        setError(signInError.message);
+      }
       return;
     }
 

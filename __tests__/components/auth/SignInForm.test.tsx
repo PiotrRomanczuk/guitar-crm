@@ -168,7 +168,7 @@ describe('SignInForm', () => {
 
 			await waitFor(() => {
 				expect(
-					screen.getByText(/invalid login credentials/i)
+					screen.getByText(/invalid email or password/i)
 				).toBeInTheDocument();
 			});
 		});

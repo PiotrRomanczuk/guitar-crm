@@ -1,9 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { EntityLink } from '@/components/shared';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog';
 import type { Song } from '../types';
 
@@ -53,39 +53,64 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
   return (
     <>
       <div className="overflow-x-auto" data-testid="song-table">
-        <table className="w-full border-collapse border border-gray-300">
-          <thead className="bg-gray-100">
+        <table className="w-full border-collapse border border-gray-300 dark:border-gray-600">
+          <thead className="bg-gray-100 dark:bg-gray-800">
             <tr>
-              <th className="border border-gray-300 px-4 py-2 text-left">Title</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Author</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Level</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Key</th>
-              {canDelete && <th className="border border-gray-300 px-4 py-2 text-left">Actions</th>}
+              <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
+                Title
+              </th>
+              <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
+                Author
+              </th>
+              <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
+                Level
+              </th>
+              <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
+                Key
+              </th>
+              {canDelete && (
+                <th className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-left text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">
+                  Actions
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
             {songs.map((song) => (
-              <tr key={song.id} className="hover:bg-gray-50" data-testid="song-row">
-                <td className="border border-gray-300 px-4 py-2">
-                  <Link
+              <tr
+                key={song.id}
+                className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                data-testid="song-row"
+                onClick={() => router.push(`/dashboard/songs/${song.id}`)}
+              >
+                <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
+                  <EntityLink
                     href={`/dashboard/songs/${song.id}`}
-                    className="text-blue-600 hover:underline"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     {song.title}
-                  </Link>
+                  </EntityLink>
                 </td>
-                <td className="border border-gray-300 px-4 py-2">{song.author}</td>
-                <td className="border border-gray-300 px-4 py-2">{song.level}</td>
-                <td className="border border-gray-300 px-4 py-2">{song.key}</td>
+                <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
+                  {song.author}
+                </td>
+                <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
+                  {song.level}
+                </td>
+                <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
+                  {song.key}
+                </td>
                 {canDelete && (
-                  <td className="border border-gray-300 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900 dark:text-gray-100">
                     <button
-                      data-testid="song-delete-button"
-                      onClick={() => handleDeleteClick(song)}
-                      disabled={deletingSongId === song.id}
-                      className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:bg-gray-400"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(song);
+                      }}
+                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium"
+                      data-testid="delete-song-button"
                     >
-                      {deletingSongId === song.id ? 'Deleting...' : 'Delete'}
+                      Delete
                     </button>
                   </td>
                 )}
@@ -95,16 +120,14 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
         </table>
       </div>
 
-      {songToDelete && (
-        <DeleteConfirmationDialog
-          isOpen={true}
-          songTitle={songToDelete?.title || ''}
-          hasLessonAssignments={false}
-          onConfirm={handleConfirmDelete}
-          onClose={handleCancelDelete}
-          isDeleting={deletingSongId === songToDelete?.id}
-        />
-      )}
+      <DeleteConfirmationDialog
+        isOpen={!!songToDelete}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        songTitle={songToDelete?.title || ''}
+        hasLessonAssignments={false}
+        isDeleting={!!deletingSongId}
+      />
     </>
   );
 }
