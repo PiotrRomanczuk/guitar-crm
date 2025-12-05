@@ -46,7 +46,6 @@ function getInitials(firstName: string | null, lastName: string | null): string 
   return ((firstName?.[0] || '') + (lastName?.[0] || '')).toUpperCase() || '?';
 }
 
-
 export default function UsersListTable({ users, onDelete }: UsersListTableProps) {
   return (
     <div className="rounded-md border">

@@ -61,7 +61,8 @@ export default function UserDetail({ user }: UserDetailProps) {
     return roles.length ? roles : ['No Role'];
   };
 
-  const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || 'N/A';
+  const fullName =
+    [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || 'N/A';
 
   return (
     <Card className="max-w-2xl mx-auto">
