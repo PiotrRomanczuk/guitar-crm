@@ -49,7 +49,7 @@ function StudentDashboardContent() {
               <span className="text-4xl">�</span>
             </div>
             <Link
-              href="/dashboard/assignements"
+              href="/dashboard/assignments"
               className="mt-4 inline-block text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm"
             >
               View assignments →

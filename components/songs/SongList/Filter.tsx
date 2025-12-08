@@ -1,3 +1,5 @@
+'use client';
+
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -9,34 +11,52 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { SongFilters } from '../types';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useCallback, useState, useEffect } from 'react';
 
 interface Props {
-  filters: SongFilters;
-  onChange: (filters: SongFilters) => void;
+  students?: { id: string; full_name: string | null }[];
 }
 
-export default function SongListFilter({ filters, onChange }: Props) {
-  const handleLevelChange = (level: string) => {
-    onChange({
-      ...filters,
-      level: level === 'all' ? null : (level as SongFilters['level']),
-    });
-  };
+export default function SongListFilter({ students }: Props) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({
-      ...filters,
-      search: e.target.value,
-    });
-  };
+  // Local state for search input to avoid lag
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+
+  const handleFilterChange = useCallback(
+    (key: string, value: string | null) => {
+      const params = new URLSearchParams(searchParams);
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+      replace(`${pathname}?${params.toString()}`);
+    },
+    [searchParams, pathname, replace]
+  );
 
   const handleReset = () => {
-    onChange({
-      level: null,
-      search: '',
-    });
+    setSearchTerm('');
+    replace(pathname);
   };
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchTerm !== (searchParams.get('search') || '')) {
+        handleFilterChange('search', searchTerm || null);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, handleFilterChange, searchParams]);
+
+  const hasFilters =
+    !!searchParams.get('level') || !!searchParams.get('search') || !!searchParams.get('studentId');
 
   return (
     <div className="bg-card rounded-lg border shadow-sm p-4 space-y-4">
@@ -49,8 +69,8 @@ export default function SongListFilter({ filters, onChange }: Props) {
             <Input
               id="search-filter"
               placeholder="Search by title or artist..."
-              value={filters.search || ''}
-              onChange={handleSearchChange}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-8"
             />
           </div>
@@ -59,7 +79,10 @@ export default function SongListFilter({ filters, onChange }: Props) {
         {/* Level Filter */}
         <div className="space-y-2">
           <Label htmlFor="level-filter">Filter by level</Label>
-          <Select value={filters.level || 'all'} onValueChange={handleLevelChange}>
+          <Select
+            value={searchParams.get('level') || 'all'}
+            onValueChange={(val) => handleFilterChange('level', val === 'all' ? null : val)}
+          >
             <SelectTrigger id="level-filter">
               <SelectValue placeholder="Select level" />
             </SelectTrigger>
@@ -72,14 +95,32 @@ export default function SongListFilter({ filters, onChange }: Props) {
           </Select>
         </div>
 
+        {/* Student Filter */}
+        {students && students.length > 0 && (
+          <div className="space-y-2">
+            <Label htmlFor="student-filter">Filter by Student</Label>
+            <Select
+              value={searchParams.get('studentId') || 'all'}
+              onValueChange={(val) => handleFilterChange('studentId', val === 'all' ? null : val)}
+            >
+              <SelectTrigger id="student-filter">
+                <SelectValue placeholder="Select student" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Students</SelectItem>
+                {students.map((student) => (
+                  <SelectItem key={student.id} value={student.id}>
+                    {student.full_name || 'Unknown Student'}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
         {/* Reset Button */}
         <div className="flex items-end">
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            className="w-full"
-            disabled={!filters.level && !filters.search}
-          >
+          <Button variant="outline" onClick={handleReset} className="w-full" disabled={!hasFilters}>
             <X className="mr-2 h-4 w-4" />
             Reset Filters
           </Button>
