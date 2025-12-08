@@ -7,6 +7,12 @@ import { Dispatch, SetStateAction } from 'react';
 import { AssignmentFormFields } from './AssignmentForm.Fields';
 import { AssignmentFormActions } from './AssignmentForm.Actions';
 
+interface Student {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+}
+
 interface AssignmentFormProps {
   initialData?: {
     id: string;
@@ -19,9 +25,15 @@ interface AssignmentFormProps {
   };
   mode: 'create' | 'edit';
   userId?: string;
+  students?: Student[];
 }
 
-export default function AssignmentForm({ initialData, mode, userId }: AssignmentFormProps) {
+export default function AssignmentForm({
+  initialData,
+  mode,
+  userId,
+  students = [],
+}: AssignmentFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +80,11 @@ export default function AssignmentForm({ initialData, mode, userId }: Assignment
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <AssignmentFormFields formData={formData} onChange={handleFieldChange} />
+          <AssignmentFormFields
+            formData={formData}
+            onChange={handleFieldChange}
+            students={students}
+          />
           <AssignmentFormActions mode={mode} loading={loading} />
         </form>
       </div>

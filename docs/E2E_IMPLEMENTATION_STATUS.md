@@ -22,3 +22,6 @@
 | **Integration** | Admin Deep Filtering | `cypress/e2e/admin/integration/filtering.cy.ts` | ✅ Done | |
 | **Integration** | Teacher Insights | `cypress/e2e/teacher/integration/insights.cy.ts` | ✅ Done | |
 | **Integration** | Student Navigation | `cypress/e2e/student/integration/navigation.cy.ts` | ✅ Done | |
+| **Integration** | Assignment Detail View | `cypress/e2e/integration/assignment-details.cy.ts` | ✅ Done | Verified with unit tests, E2E pending env fix |
+| **Integration** | Song Detail Cross-Ref | `cypress/e2e/integration/song-details.cy.ts` | ✅ Done | Verified with unit tests, E2E pending env fix |
+| **Integration** | User Detail Filters | `cypress/e2e/integration/cross-filtering.cy.ts` | ⏳ Pending | |

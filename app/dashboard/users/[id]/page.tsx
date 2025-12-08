@@ -13,10 +13,15 @@ export const metadata = {
   description: 'View user details',
 };
 
+interface SearchParams {
+  [key: string]: string | string[] | undefined;
+}
+
 interface UserDetailPageProps {
   params: Promise<{
     id: string;
   }>;
+  searchParams: Promise<SearchParams>;
 }
 
 interface UserProfile {
@@ -106,9 +111,11 @@ async function fetchUserData(supabase: SupabaseClient, userId: string) {
 
   return { lessons, assignments, songs };
 }
-export default async function UserDetailPage({ params }: UserDetailPageProps) {
+export default async function UserDetailPage({ params, searchParams }: UserDetailPageProps) {
   // In Next.js 16+, params is a Promise that needs to be awaited
   const { id } = await params;
+  // Ensure searchParams are awaited
+  await searchParams;
   const userId = id;
 
   // Get current user and check admin status

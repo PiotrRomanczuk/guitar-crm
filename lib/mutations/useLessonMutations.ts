@@ -1,7 +1,6 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
-import { queryClient } from '@/lib/query-client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import type { Lesson } from '@/schemas/LessonSchema';
 import { LessonInputSchema } from '@/schemas/LessonSchema';
@@ -43,6 +42,8 @@ async function deleteLesson(payload: DeleteLessonPayload): Promise<DeleteResult>
  * Handles create, update, and delete with automatic cache invalidation
  */
 export function useLessonMutations() {
+  const queryClient = useQueryClient();
+
   const createMutation = useMutation({
     mutationFn: createLesson,
     onSuccess: () => {

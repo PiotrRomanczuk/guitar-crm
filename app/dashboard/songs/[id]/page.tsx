@@ -1,24 +1,32 @@
 import { SongDetail } from '@/components/songs';
 import SongLessons from '@/components/songs/SongLessons';
+import SongAssignments from '@/components/songs/SongAssignments';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { Breadcrumbs } from '@/components/shared';
 import { redirect } from 'next/navigation';
 import { getSongStudents } from './actions';
 import { SongStudents } from '@/components/songs/SongStudents';
 
+interface SearchParams {
+  [key: string]: string | string[] | undefined;
+}
+
 interface SongPageProps {
   params: Promise<{
     id: string;
   }>;
+  searchParams: Promise<SearchParams>;
 }
 
-export default async function SongPage({ params }: SongPageProps) {
+export default async function SongPage({ params, searchParams }: SongPageProps) {
   const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
   if (!user) {
     redirect('/sign-in');
   }
 
   const { id } = await params;
+  // Ensure searchParams are awaited to satisfy the interface, even if unused
+  await searchParams;
 
   // Fetch students if user is teacher or admin
   const canViewStudents = isAdmin || isTeacher;
@@ -37,6 +45,8 @@ export default async function SongPage({ params }: SongPageProps) {
       <SongDetail songId={id} isAdmin={isAdmin} isTeacher={isTeacher} />
 
       <SongLessons songId={id} />
+
+      <SongAssignments songId={id} />
 
       {canViewStudents && (
         <div>

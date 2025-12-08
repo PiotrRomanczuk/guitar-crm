@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 interface SignInFormProps {
@@ -136,10 +136,15 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [touched, setTouched] = useState({
     email: false,
     password: false,
   });
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const validate = () => {
     if (touched.email && !email) return 'Email is required';
@@ -179,7 +184,9 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
         // This is a generic error, but for shadow users it might mean they have no password.
         // We can't distinguish easily on client side without exposing user existence.
         // But we can suggest checking if they need to reset password.
-        setError('Invalid email or password. If you haven\'t set a password yet, please use "Forgot password?" to create one.');
+        setError(
+          'Invalid email or password. If you haven\'t set a password yet, please use "Forgot password?" to create one.'
+        );
       } else {
         setError(signInError.message);
       }
@@ -213,7 +220,7 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6" method="post">
       <EmailInput
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -230,7 +237,7 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
       {error && <AlertMessage message={error} />}
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || !isHydrated}
         data-testid="signin-button"
         className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
       >
