@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 
@@ -16,16 +15,19 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function checkUserRoles() {
   const email = 'student@example.com';
-  
+
   // Get user ID
-  const { data: { users }, error: userError } = await supabase.auth.admin.listUsers();
-  
+  const {
+    data: { users },
+    error: userError,
+  } = await supabase.auth.admin.listUsers();
+
   if (userError) {
     console.error('Error listing users:', userError);
     return;
   }
 
-  const user = users.find(u => u.email === email);
+  const user = users.find((u) => u.email === email);
 
   if (!user) {
     console.log(`User ${email} not found in Auth.`);
