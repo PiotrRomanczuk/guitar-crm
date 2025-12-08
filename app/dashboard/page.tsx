@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { DashboardPageContent } from '@/components/dashboard/Dashboard';
 import { AdminDashboardClient } from '@/components/dashboard/admin/AdminDashboardClient';
+import { StudentDashboardClient } from '@/components/dashboard/student/StudentDashboardClient';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { getStudentDashboardData } from '@/app/actions/student/dashboard';
 
 export default async function DashboardPage() {
   const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
@@ -45,6 +47,12 @@ export default async function DashboardPage() {
     };
 
     return <AdminDashboardClient stats={stats} />;
+  }
+
+  // Show student dashboard for student users (or default users without specific roles)
+  if (!isAdmin && !isTeacher) {
+    const studentData = await getStudentDashboardData();
+    return <StudentDashboardClient data={studentData} email={user.email} />;
   }
 
   return (

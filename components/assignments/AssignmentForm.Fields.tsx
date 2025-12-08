@@ -18,12 +18,23 @@ interface FormData {
   user_id: string;
 }
 
+interface Student {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+}
+
 interface AssignmentFormFieldsProps {
   formData: FormData;
   onChange: (name: string, value: string) => void;
+  students?: Student[];
 }
 
-export function AssignmentFormFields({ formData, onChange }: AssignmentFormFieldsProps) {
+export function AssignmentFormFields({
+  formData,
+  onChange,
+  students = [],
+}: AssignmentFormFieldsProps) {
   return (
     <>
       <div className="space-y-2">
@@ -52,6 +63,24 @@ export function AssignmentFormFields({ formData, onChange }: AssignmentFormField
           data-testid="field-description"
         />
       </div>
+
+      {students.length > 0 && (
+        <div className="space-y-2">
+          <Label htmlFor="student">Student</Label>
+          <Select value={formData.user_id} onValueChange={(value) => onChange('user_id', value)}>
+            <SelectTrigger id="student" data-testid="student-select">
+              <SelectValue placeholder="Select a student" />
+            </SelectTrigger>
+            <SelectContent>
+              {students.map((student) => (
+                <SelectItem key={student.id} value={student.id}>
+                  {student.full_name || student.email}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="due_date">Due Date</Label>
