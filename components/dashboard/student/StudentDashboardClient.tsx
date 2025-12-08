@@ -1,10 +1,10 @@
 'use client';
 
-import { StudentDashboardData } from "@/app/actions/student/dashboard";
-import { LastLessonCard } from "./LastLessonCard";
-import { AssignmentsCard } from "./AssignmentsCard";
-import { RecentSongsCard } from "./RecentSongsCard";
-import { DashboardHeader } from "../DashboardHeader";
+import { StudentDashboardData } from '@/app/actions/student/dashboard';
+import { LastLessonCard } from './LastLessonCard';
+import { AssignmentsCard } from './AssignmentsCard';
+import { RecentSongsCard } from './RecentSongsCard';
+import { DashboardHeader } from '../DashboardHeader';
 
 interface StudentDashboardClientProps {
   data: StudentDashboardData;
