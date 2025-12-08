@@ -1,7 +1,6 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
-import { queryClient } from '@/lib/query-client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import type { User } from '@/schemas/UserSchema';
 
@@ -52,6 +51,8 @@ async function updateUserRole(payload: UpdateUserRolePayload): Promise<User> {
  * Handles create, update, delete, and role management with automatic cache invalidation
  */
 export function useUserMutations() {
+  const queryClient = useQueryClient();
+
   const createMutation = useMutation({
     mutationFn: createUser,
     onSuccess: () => {

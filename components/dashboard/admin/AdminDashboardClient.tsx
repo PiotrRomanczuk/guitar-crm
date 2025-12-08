@@ -227,7 +227,7 @@ function QuickStats({
 function AdminActions() {
   const actions = [
     {
-      href: '/admin/users',
+      href: '/dashboard/users',
       icon: '👥',
       title: 'User Management',
       description: 'Create, edit, and manage user accounts and roles',
@@ -235,7 +235,7 @@ function AdminActions() {
       comingSoon: false,
     },
     {
-      href: '/admin/settings',
+      href: '/dashboard/settings',
       icon: '⚙️',
       title: 'System Settings',
       description: 'Configure system-wide settings and preferences',
