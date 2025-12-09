@@ -3,7 +3,11 @@
  * GET /api/songs/[id] - Can be called with either session cookies or bearer token
  */
 
-import { authenticateWithBearerToken, authenticateWithSession, extractBearerToken } from '@/lib/bearer-auth';
+import {
+  authenticateWithBearerToken,
+  authenticateWithSession,
+  extractBearerToken,
+} from '@/lib/bearer-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
