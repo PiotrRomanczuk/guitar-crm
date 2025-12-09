@@ -79,8 +79,8 @@ jobs:
                (( $(echo "$BRANCHES < 70" | bc -l) )) || \
                (( $(echo "$FUNCTIONS < 70" | bc -l) )) || \
                (( $(echo "$LINES < 70" | bc -l) )); then
-              echo "⚠️ Coverage below 70% threshold (advisory only - not blocking CI)"
-              # exit 1  # Temporarily disabled
+              echo "❌ Coverage below 70% threshold"
+              exit 1
             else
               echo "✅ Coverage meets thresholds"
             fi
@@ -156,7 +156,7 @@ jobs:
     name: Database Quality & Schema Validation
     runs-on: ubuntu-latest
     needs: [lint-and-typecheck, check-secrets]
-    if: false # needs.check-secrets.outputs.has-secrets == 'true'
+    if: needs.check-secrets.outputs.has-secrets == 'true'
 
     steps:
       - name: Checkout code
@@ -266,8 +266,7 @@ jobs:
           cache: 'npm'
 
       - name: Run npm audit
-        run: npm audit --audit-level=moderate
-        continue-on-error: true
+        run: npm audit --audit-level=high
 
       - name: Check for hardcoded secrets
         run: |
@@ -286,11 +285,49 @@ jobs:
 
           echo "✅ Security check complete"
 
-  # Job 7: Quality Gate Summary
+  # Job 7: Lighthouse CI
+  lighthouse:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    needs: [build]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Lighthouse
+        run: npm install -g lighthouse
+
+      - name: Run Lighthouse CI
+        run: |
+          # Start server in background
+          npm run dev &
+          PID=$!
+          
+          # Run lighthouse script
+          chmod +x scripts/ci/lighthouse-ci.sh
+          ./scripts/ci/lighthouse-ci.sh http://localhost:3000
+          
+          # Kill server
+          kill $PID
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'mock-key' }}
+
+  # Job 8: Quality Gate Summary
   quality-gate:
     name: Quality Gate Summary
     runs-on: ubuntu-latest
-    needs: [lint-and-typecheck, unit-tests, build, database-quality, security-audit]
+    needs: [lint-and-typecheck, unit-tests, build, database-quality, security-audit, lighthouse]
     if: always()
 
     steps:
@@ -335,6 +372,13 @@ jobs:
             echo "✅ Security Audit: PASSED"
           fi
 
+          if [[ "${{ needs.lighthouse.result }}" != "success" ]]; then
+            echo "❌ Lighthouse CI: FAILED"
+            exit 1
+          else
+            echo "✅ Lighthouse CI: PASSED"
+          fi
+
           echo "====================="
           echo "✅ All quality gates passed!"
 
@@ -361,15 +405,15 @@ jobs:
         run: npm install -g vercel@latest
 
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }}
 
       - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }}
 
       - name: Deploy to Vercel
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }})
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "Deployed to: $DEPLOYMENT_URL"
 
@@ -408,15 +452,15 @@ jobs:
         run: npm install -g vercel@latest
 
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }}
 
       - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }}
 
       - name: Deploy Preview to Vercel
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }})
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "Deployed preview to: $DEPLOYMENT_URL"
 
