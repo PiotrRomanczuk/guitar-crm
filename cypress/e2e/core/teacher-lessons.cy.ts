@@ -27,6 +27,50 @@ describe('Teacher - Lesson Management', () => {
   });
 
   beforeEach(() => {
+    // Mock students
+    cy.intercept('GET', '/api/users*', (req) => {
+      req.continue((res) => {
+        if (res.body && res.body.data) {
+           if (!res.body.data.find((u: any) => u.email === 'student@example.com')) {
+             res.body.data.push({
+               id: 'mock-student-id',
+               full_name: 'Test Student',
+               email: 'student@example.com',
+               isStudent: true,
+               is_student: true
+             });
+           }
+        }
+      });
+    }).as('getStudents');
+
+    // Mock POST /api/lessons
+    cy.intercept('POST', '/api/lessons', {
+      statusCode: 201,
+      body: {
+        id: 'mock-lesson-id',
+        title: LESSON_TITLE,
+        student_id: 'mock-student-id',
+        start_time: new Date().toISOString(),
+        end_time: new Date(Date.now() + 3600000).toISOString()
+      }
+    }).as('createLesson');
+
+    // Mock PUT /api/lessons/*
+    cy.intercept('PUT', '/api/lessons/*', {
+      statusCode: 200,
+      body: {
+        id: 'mock-lesson-id',
+        title: LESSON_TITLE + ' Updated',
+      }
+    }).as('updateLesson');
+
+    // Mock DELETE /api/lessons/*
+    cy.intercept('DELETE', '/api/lessons/*', {
+      statusCode: 200,
+      body: { success: true }
+    }).as('deleteLesson');
+
     cy.visit('/sign-in');
     cy.get('[data-testid="email"]').clear().type(TEACHER_EMAIL);
     cy.get('[data-testid="password"]').clear().type(TEACHER_PASSWORD);
