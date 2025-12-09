@@ -50,7 +50,7 @@ export default async function SongList({ searchParams }: SongListProps) {
 
   // Transform songs to include status if filtering by student
   const songs =
-    rawSongs?.map((song: any) => {
+    rawSongs?.map((song) => {
       if (
         studentId &&
         song.lesson_songs &&

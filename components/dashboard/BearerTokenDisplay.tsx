@@ -19,7 +19,7 @@ export function BearerTokenDisplay() {
 
         const keys = await response.json();
         // Get the first active key or the most recent one
-        const activeKey = keys.find((k: any) => k.is_active) || keys[0];
+        const activeKey = keys.find((k: { is_active: boolean }) => k.is_active) || keys[0];
 
         if (activeKey) {
           // We can't get the plain key for existing keys (by design for security)

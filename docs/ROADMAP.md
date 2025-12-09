@@ -11,12 +11,12 @@
 ### 2. Authentication & Roles
 
 - [x] Finalize "Shadow User" implementation for students without emails.
-- [ ] Implement password reset flow.
+- [x] Implement password reset flow.
 - [x] Verify RLS policies for all new tables.
 
 ### 3. Lesson Management (Core)
 
-- [ ] Build Calendar View for teachers.
+- [x] Build Calendar View for teachers.
 - [ ] Implement recurring lesson logic (weekly/bi-weekly).
 - [ ] Add "Mark as Paid" functionality.
 

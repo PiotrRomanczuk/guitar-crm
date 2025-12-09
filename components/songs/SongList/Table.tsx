@@ -39,24 +39,6 @@ function getLevelBadgeVariant(
   return 'outline';
 }
 
-function getStatusBadgeVariant(
-  status: string | null | undefined
-): 'default' | 'secondary' | 'destructive' | 'outline' {
-  if (!status) return 'outline';
-
-  switch (status) {
-    case 'mastered':
-      return 'default'; // Green-ish usually
-    case 'started':
-    case 'in_progress':
-      return 'secondary';
-    case 'to_learn':
-      return 'outline';
-    default:
-      return 'outline';
-  }
-}
-
 export default function SongListTable({
   songs,
   canDelete = false,

@@ -1,5 +1,3 @@
-import { redirect } from 'next/navigation';
-import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import SettingsPageClient from '@/components/settings/SettingsPageClient';
 
 // Server Component wrapper for Settings page.
