@@ -14,6 +14,8 @@ TRUNCATE TABLE public.lessons CASCADE;
 TRUNCATE TABLE public.lesson_songs CASCADE;
 TRUNCATE TABLE public.assignments CASCADE;
 TRUNCATE TABLE public.user_roles CASCADE;
+TRUNCATE TABLE public.user_integrations CASCADE;
+TRUNCATE TABLE public.api_keys CASCADE;
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -136,6 +138,19 @@ INSERT INTO public.user_roles (id, user_id, role, assigned_at) VALUES ('529ffa96
 -- PostgreSQL database dump complete
 --
 
+--
+-- Data for Name: user_integrations; Type: TABLE DATA; Schema: public; Owner: postgres
+--
 
+-- Google Calendar integration for admin/teacher
+INSERT INTO public.user_integrations (user_id, provider, access_token, refresh_token, expires_at, created_at, updated_at) VALUES 
+('db44f596-8ccb-4d71-837d-61de0fc791f7', 'google_calendar', 'ya29.test_access_token_admin', 'test_refresh_token_admin', EXTRACT(EPOCH FROM (NOW() + INTERVAL '3600 seconds'))::bigint, NOW(), NOW()),
+('e8cfbe9a-b9ab-4530-a588-3efa26d1f849', 'google_calendar', 'ya29.test_access_token_teacher', 'test_refresh_token_teacher', EXTRACT(EPOCH FROM (NOW() + INTERVAL '3600 seconds'))::bigint, NOW(), NOW());
+
+--
+-- Note: api_keys table seeding skipped
+-- Reason: pgcrypto extension functions (gen_salt, crypt) are not available during seed execution
+-- Solution: API keys should be created through the application interface or via separate migration
+--
 
 SET session_replication_role = 'origin';

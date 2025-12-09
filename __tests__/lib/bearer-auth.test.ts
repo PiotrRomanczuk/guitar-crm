@@ -2,7 +2,11 @@
  * Tests for Bearer Token Authentication
  */
 
-import { authenticateWithBearerToken, authenticateWithSession, extractBearerToken } from '@/lib/bearer-auth';
+import {
+  authenticateWithBearerToken,
+  authenticateWithSession,
+  extractBearerToken,
+} from '@/lib/bearer-auth';
 import { generateApiKey, hashApiKey } from '@/lib/api-keys';
 
 describe('Bearer Token Authentication', () => {
@@ -71,7 +75,7 @@ describe('API Key Management Routes', () => {
       // Test should verify 401 response without valid session/bearer token
     });
 
-    it('should return only user\'s own API keys', async () => {
+    it("should return only user's own API keys", async () => {
       // Test should verify that users only see their own keys
     });
 
@@ -99,7 +103,7 @@ describe('API Key Management Routes', () => {
   });
 
   describe('DELETE /api/api-keys/[id]', () => {
-    it('should delete only user\'s own API keys', async () => {
+    it("should delete only user's own API keys", async () => {
       // Test should verify 403 error when trying to delete others' keys
     });
 
