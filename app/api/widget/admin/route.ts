@@ -113,6 +113,7 @@ export async function GET(request: NextRequest) {
     const teacherLessonCounts = (activeTeachers || []).reduce(
       (acc: Record<string, { name: string; count: number }>, lesson) => {
         const teacherId = (lesson as { teacher_id: string }).teacher_id;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const teacherData = (lesson as any).teacher;
         const teacherName = Array.isArray(teacherData)
           ? teacherData[0]?.full_name
