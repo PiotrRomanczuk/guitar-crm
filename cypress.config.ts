@@ -1,26 +1,35 @@
 import { defineConfig } from 'cypress';
-import * as dotenv from 'dotenv';
-
-// Load .env.local for Cypress
-dotenv.config({ path: '.env.local' });
 
 export default defineConfig({
+  viewportWidth: 1280,
+  viewportHeight: 720,
+  defaultCommandTimeout: 10000,
+  video: false,
+  screenshotOnRunFailure: true,
+  retries: {
+    runMode: 2,
+    openMode: 0,
+  },
   e2e: {
-    baseUrl: process.env.CYPRESS_BASE_URL || 'http://localhost:3000',
-    env: {
-      E2E_TEST_EMAIL: process.env.E2E_TEST_EMAIL || 'p.romanczuk@gmail.com',
-      E2E_TEST_PASSWORD: process.env.E2E_TEST_PASSWORD || 'test123_admin',
-      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321',
-      SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
-    },
+    baseUrl: 'http://localhost:3000',
+    specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
     supportFile: 'cypress/support/e2e.ts',
-    // Default to running only core tests. Use --spec to run legacy tests.
-    specPattern: 'cypress/e2e/core/**/*.cy.{js,jsx,ts,tsx}',
-    excludeSpecPattern: 'cypress/e2e/legacy/**/*',
-    video: false,
-    screenshotOnRunFailure: true,
     setupNodeEvents() {
-      // implement node event listeners here if needed
+      // implement node event listeners here
     },
+  },
+  env: {
+    TEST_ADMIN_EMAIL: 'p.romanczuk@gmail.com',
+    TEST_ADMIN_PASSWORD: 'test123_admin',
+    TEST_TEACHER_EMAIL: 'teacher@example.com',
+    TEST_TEACHER_PASSWORD: 'test123_teacher',
+    TEST_STUDENT_EMAIL: 'student@example.com',
+    TEST_STUDENT_PASSWORD: 'test123_student',
+    TEST_STUDENT_1_EMAIL: 'teststudent1@example.com',
+    TEST_STUDENT_1_PASSWORD: 'test123_student',
+    TEST_STUDENT_2_EMAIL: 'teststudent2@example.com',
+    TEST_STUDENT_2_PASSWORD: 'test123_student',
+    TEST_STUDENT_3_EMAIL: 'teststudent3@example.com',
+    TEST_STUDENT_3_PASSWORD: 'test123_student',
   },
 });
