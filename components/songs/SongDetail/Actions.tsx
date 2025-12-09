@@ -1,23 +1,45 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 
 interface Props {
   songId: string;
-  deleting: boolean;
-  onDelete: () => void;
   isAdmin?: boolean;
   isTeacher?: boolean;
 }
 
 export default function SongDetailActions({
   songId,
-  deleting,
-  onDelete,
   isAdmin = false,
   isTeacher = false,
 }: Props) {
+  const [deleting, setDeleting] = useState(false);
   const canManageSongs = isTeacher || isAdmin;
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this song?')) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const response = await fetch(`/api/songs/${songId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete song');
+      }
+
+      // Optionally reload or redirect
+      window.location.href = '/dashboard/songs';
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Failed to delete song');
+      setDeleting(false);
+    }
+  };
 
   if (!canManageSongs) {
     return null;
@@ -35,7 +57,7 @@ export default function SongDetailActions({
       </Link>
       <button
         data-testid="song-delete-button"
-        onClick={onDelete}
+        onClick={handleDelete}
         disabled={deleting}
         className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-400"
       >

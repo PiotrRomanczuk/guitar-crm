@@ -9,7 +9,6 @@ interface SongAssignment {
   title: string;
   status: string;
   due_date: string | null;
-  priority: string;
   student_id: string;
   lesson_id: string | null;
   student: {
