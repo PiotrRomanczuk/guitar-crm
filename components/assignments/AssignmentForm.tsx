@@ -19,9 +19,9 @@ interface AssignmentFormProps {
     title: string;
     description: string | null;
     due_date: string | null;
-    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-    status: 'OPEN' | 'IN_PROGRESS' | 'PENDING_REVIEW' | 'COMPLETED' | 'CANCELLED' | 'BLOCKED';
-    user_id: string;
+    status: 'not_started' | 'in_progress' | 'completed' | 'overdue' | 'cancelled';
+    teacher_id: string;
+    student_id: string;
   };
   mode: 'create' | 'edit';
   userId?: string;
@@ -42,9 +42,8 @@ export default function AssignmentForm({
     title: initialData?.title || '',
     description: initialData?.description || '',
     due_date: initialData?.due_date || '',
-    priority: initialData?.priority || 'MEDIUM',
-    status: initialData?.status || 'OPEN',
-    user_id: initialData?.user_id || userId || '',
+    status: initialData?.status || 'not_started',
+    student_id: initialData?.student_id || userId || '',
   });
 
   const handleFieldChange = (name: string, value: string) => {

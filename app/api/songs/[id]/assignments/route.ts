@@ -16,7 +16,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         title,
         status,
         due_date,
-        priority,
         student_id,
         lesson_id,
         student:profiles!student_id(id, full_name, email),
