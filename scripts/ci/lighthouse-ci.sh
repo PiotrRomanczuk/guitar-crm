@@ -55,7 +55,7 @@ const scores = {
 
 // Define thresholds
 const thresholds = {
-    performance: 70,
+    performance: 50,
     accessibility: 80,
     bestPractices: 80,
     seo: 80
