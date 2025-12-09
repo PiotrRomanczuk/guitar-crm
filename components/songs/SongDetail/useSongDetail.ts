@@ -58,7 +58,6 @@ async function loadSongDetail(songId: string): Promise<Song | undefined> {
         message: fetchError.message,
         details: fetchError.details,
         hint: fetchError.hint,
-        status: fetchError.status,
       });
 
       // Handle specific Supabase errors
