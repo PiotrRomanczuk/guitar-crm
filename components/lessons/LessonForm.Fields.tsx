@@ -5,6 +5,7 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-gray-300 m
 
 interface Props {
   formData: {
+    title?: string;
     scheduled_at: string;
     notes?: string;
   };
@@ -15,6 +16,22 @@ interface Props {
 export function LessonFormFields({ formData, validationErrors, handleChange }: Props) {
   return (
     <>
+      <div>
+        <label htmlFor="title" className={labelClass}>
+          Title
+        </label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          value={formData.title || ''}
+          onChange={handleChange}
+          placeholder="Lesson Title"
+          data-testid="lesson-title"
+          className={inputClass}
+        />
+      </div>
+
       <div>
         <label htmlFor="scheduled_at" className={labelClass}>
           Scheduled Date & Time *

@@ -74,7 +74,11 @@ describe('Shadow User Linking', () => {
       user_metadata: { full_name: 'Real Student' },
     });
 
-    if (createError) throw createError;
+    if (createError) {
+      console.error('Create user error:', createError);
+      console.error('Error details:', JSON.stringify(createError, null, 2));
+      throw createError;
+    }
     if (!realUser) throw new Error('Failed to create real user');
     realUserId = realUser.id;
 

@@ -6,11 +6,6 @@ import SettingsPageClient from '@/components/settings/SettingsPageClient';
 // Fetches authenticated user (SSR) and redirects if unauthenticated.
 // Interactive logic is delegated to a client component boundary.
 export default async function SettingsPage() {
-  const { user } = await getUserWithRolesSSR();
-  if (!user) {
-    redirect('/sign-in');
-  }
-
   return <SettingsPageClient />;
 }
 

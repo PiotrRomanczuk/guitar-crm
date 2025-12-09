@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { RoleBasedNav } from './RoleBasedNav';
@@ -183,10 +183,10 @@ async function signOutAndRedirect(
 }
 
 export default function Header({
-  user,
-  isAdmin,
-  isTeacher,
-  isStudent,
+  user: initialUser,
+  isAdmin: initialIsAdmin,
+  isTeacher: initialIsTeacher,
+  isStudent: initialIsStudent,
 }: {
   user: { id?: string; email?: string } | null;
   isAdmin: boolean;
@@ -195,6 +195,49 @@ export default function Header({
 }) {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState(initialUser);
+  const [isAdmin, setIsAdmin] = useState(initialIsAdmin);
+  const [isTeacher, setIsTeacher] = useState(initialIsTeacher);
+  const [isStudent, setIsStudent] = useState(initialIsStudent);
+
+  // Poll for auth state changes when user logs in
+  useEffect(() => {
+    const supabase = createClient();
+
+    // Listen for auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
+        // User signed in or session updated, refresh their roles
+        if (session?.user) {
+          setUser({ id: session.user.id, email: session.user.email });
+
+          // Fetch updated roles
+          const { data: roles } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', session.user.id);
+
+          if (roles) {
+            setIsAdmin(roles.some((r) => r.role === 'admin'));
+            setIsTeacher(roles.some((r) => r.role === 'teacher'));
+            setIsStudent(roles.some((r) => r.role === 'student'));
+          }
+
+          // Refresh the page to get updated server state
+          router.refresh();
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setIsAdmin(false);
+        setIsTeacher(false);
+        setIsStudent(false);
+      }
+    });
+
+    return () => {
+      authListener?.unsubscribe();
+    };
+  }, [router]);
 
   const handleSignOut = () => signOutAndRedirect(router, setMobileMenuOpen);
   const handleNavigation = (path: string) => {

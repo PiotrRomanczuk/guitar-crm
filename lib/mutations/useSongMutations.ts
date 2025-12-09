@@ -1,7 +1,6 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
-import { queryClient } from '@/lib/query-client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import type { Song } from '@/schemas/SongSchema';
 import { SongInputSchema, SongUpdateSchema } from '@/schemas/SongSchema';
@@ -43,6 +42,8 @@ async function deleteSong(payload: DeleteSongPayload): Promise<DeleteResult> {
  * Handles create, update, and delete with automatic cache invalidation
  */
 export function useSongMutations() {
+  const queryClient = useQueryClient();
+
   const createMutation = useMutation({
     mutationFn: createSong,
     onSuccess: () => {

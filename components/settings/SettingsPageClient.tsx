@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useSettings } from '@/components/settings/useSettings';
@@ -80,25 +80,10 @@ function SettingsActions({
 
 export default function SettingsPageClient() {
   const router = useRouter();
-  const {
-    user,
-    loading,
-    saving,
-    settings,
-    hasChanges,
-    updateSetting,
-    saveSettings,
-    resetSettings,
-  } = useSettings();
+  const { loading, saving, settings, hasChanges, updateSetting, saveSettings, resetSettings } =
+    useSettings();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-
-  // NOTE: Redirect now handled server-side; keep fallback for safety if auth context empties.
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/sign-in');
-    }
-  }, [user, loading, router]);
 
   const handleSave = async () => {
     try {
