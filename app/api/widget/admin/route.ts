@@ -113,8 +113,10 @@ export async function GET(request: NextRequest) {
     const teacherLessonCounts = (activeTeachers || []).reduce(
       (acc: Record<string, { name: string; count: number }>, lesson) => {
         const teacherId = (lesson as { teacher_id: string }).teacher_id;
-        const teacherName =
-          (lesson as { teacher: { full_name: string } }).teacher?.full_name || 'Unknown';
+        const teacherData = (lesson as any).teacher;
+        const teacherName = Array.isArray(teacherData)
+          ? teacherData[0]?.full_name
+          : teacherData?.full_name || 'Unknown';
         if (!acc[teacherId]) {
           acc[teacherId] = { name: teacherName, count: 0 };
         }

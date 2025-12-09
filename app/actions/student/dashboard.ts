@@ -106,11 +106,12 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
 
   if (rawSongsData) {
     for (const item of rawSongsData) {
-      if (item.songs && !uniqueSongsMap.has(item.songs.id)) {
-        uniqueSongsMap.set(item.songs.id, {
-          id: item.songs.id,
-          title: item.songs.title,
-          artist: item.songs.artist,
+      const song = Array.isArray(item.songs) ? item.songs[0] : item.songs;
+      if (song && !uniqueSongsMap.has(song.id)) {
+        uniqueSongsMap.set(song.id, {
+          id: song.id,
+          title: song.title,
+          artist: song.artist,
           last_played: item.updated_at, // or item.lessons.scheduled_at
         });
       }
