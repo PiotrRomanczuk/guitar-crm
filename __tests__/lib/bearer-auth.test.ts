@@ -2,9 +2,7 @@
  * Tests for Bearer Token Authentication
  */
 
-import {
-  extractBearerToken,
-} from '@/lib/bearer-auth';
+import { extractBearerToken } from '@/lib/bearer-auth';
 import { generateApiKey, hashApiKey } from '@/lib/api-keys';
 
 describe('Bearer Token Authentication', () => {

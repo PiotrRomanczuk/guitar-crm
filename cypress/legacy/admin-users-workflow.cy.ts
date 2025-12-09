@@ -30,8 +30,8 @@ describe('Admin - Users Workflow', () => {
         email: TEST_USER_EMAIL,
         username: TEST_USERNAME,
         full_name: 'Test User',
-        is_student: true
-      }
+        is_student: true,
+      },
     }).as('createUser');
 
     // Mock GET /api/users
@@ -39,30 +39,30 @@ describe('Admin - Users Workflow', () => {
       req.continue((res) => {
         if (res.body && res.body.data) {
           res.body.data.unshift({
-             id: `mock-id-${timestamp}`,
-             email: TEST_USER_EMAIL,
-             username: TEST_USERNAME,
-             full_name: 'Test User',
-             firstName: 'Test',
-             lastName: 'User',
-             isStudent: true,
-             isActive: true,
-             created_at: new Date().toISOString()
+            id: `mock-id-${timestamp}`,
+            email: TEST_USER_EMAIL,
+            username: TEST_USERNAME,
+            full_name: 'Test User',
+            firstName: 'Test',
+            lastName: 'User',
+            isStudent: true,
+            isActive: true,
+            created_at: new Date().toISOString(),
           });
         }
       });
     }).as('getUsers');
 
     cy.visit('/dashboard/users/new');
-    
+
     cy.get('[data-testid="firstName-input"]').type('Test');
     cy.get('[data-testid="lastName-input"]').type('User');
     cy.get('[data-testid="email-input"]').type(TEST_USER_EMAIL);
     cy.get('[data-testid="username-input"]').type(TEST_USERNAME);
-    
+
     // Select Student role
-    cy.get('[data-testid="isStudent-checkbox"]').check();
-    
+    cy.get('[data-testid="isStudent-checkbox"]').click();
+
     // Submit (assuming there is a submit button in UserFormActions)
     // I need to check UserFormActions for the submit button selector.
     // Usually type="submit".
@@ -70,7 +70,7 @@ describe('Admin - Users Workflow', () => {
 
     // Verify redirect to list
     cy.location('pathname', { timeout: 10000 }).should('eq', '/dashboard/users');
-    
+
     // Verify user in list
     cy.contains(TEST_USER_EMAIL).should('be.visible');
   });
@@ -83,8 +83,8 @@ describe('Admin - Users Workflow', () => {
         id: 'mock-id',
         full_name: 'UpdatedName User',
         firstName: 'UpdatedName',
-        lastName: 'User'
-      }
+        lastName: 'User',
+      },
     }).as('updateUser');
 
     // Mock GET /api/users to show updated name
@@ -100,28 +100,28 @@ describe('Admin - Users Workflow', () => {
     // First create a user to edit or use one from the list
     // For simplicity, let's assume the previous test ran or we pick the first one that is not admin
     cy.visit('/dashboard/users');
-    
+
     // Find a user row and click edit
     // We need to be careful not to edit the logged in admin if possible, or just edit a test user.
     // Let's search for the user we just created if possible, or just pick the last one.
-    
+
     // For now, let's just check if we can navigate to edit page of a user
     cy.get('[data-testid^="edit-user-"]').first().click();
-    
+
     cy.location('pathname').should('include', '/edit');
     cy.get('[data-testid="firstName-input"]').should('be.visible');
-    
+
     // Update name
     cy.get('[data-testid="firstName-input"]').clear().type('UpdatedName');
     cy.get('button[type="submit"]').click();
-    
+
     cy.location('pathname').should('eq', '/dashboard/users');
     cy.contains('UpdatedName').should('be.visible');
   });
 
   it('should delete a user', () => {
-     // This is risky without a dedicated test user.
-     // I'll skip this for now or implement it carefully later.
-     // Or I can create a user specifically for deletion.
+    // This is risky without a dedicated test user.
+    // I'll skip this for now or implement it carefully later.
+    // Or I can create a user specifically for deletion.
   });
 });
