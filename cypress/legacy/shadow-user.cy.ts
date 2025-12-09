@@ -24,8 +24,8 @@ describe('Shadow User Management', () => {
         username: shadowUsername,
         full_name: `Test ${shadowName}`,
         is_shadow: true,
-        is_student: true
-      }
+        is_student: true,
+      },
     }).as('createUser');
 
     // Mock GET /api/users to include the new user
@@ -33,16 +33,16 @@ describe('Shadow User Management', () => {
       req.continue((res) => {
         if (res.body && res.body.data) {
           res.body.data.unshift({
-             id: `mock-id-${timestamp}`,
-             username: shadowUsername,
-             full_name: `Test ${shadowName}`,
-             firstName: 'Test',
-             lastName: shadowName,
-             email: `shadow_${timestamp}@placeholder.com`,
-             isShadow: true,
-             isStudent: true,
-             isActive: true,
-             created_at: new Date().toISOString()
+            id: `mock-id-${timestamp}`,
+            username: shadowUsername,
+            full_name: `Test ${shadowName}`,
+            firstName: 'Test',
+            lastName: shadowName,
+            email: `shadow_${timestamp}@placeholder.com`,
+            isShadow: true,
+            isStudent: true,
+            isActive: true,
+            created_at: new Date().toISOString(),
           });
         }
       });
@@ -92,8 +92,8 @@ describe('Shadow User Management', () => {
         full_name: `Test ${shadowName}`,
         email: shadowEmail,
         is_shadow: true,
-        is_student: true
-      }
+        is_student: true,
+      },
     }).as('createUserWithEmail');
 
     // Mock GET /api/users
@@ -101,16 +101,16 @@ describe('Shadow User Management', () => {
       req.continue((res) => {
         if (res.body && res.body.data) {
           res.body.data.unshift({
-             id: `mock-id-email-${timestamp}`,
-             username: shadowUsername,
-             full_name: `Test ${shadowName}`,
-             firstName: 'Test',
-             lastName: shadowName,
-             email: shadowEmail,
-             isShadow: true,
-             isStudent: true,
-             isActive: true,
-             created_at: new Date().toISOString()
+            id: `mock-id-email-${timestamp}`,
+            username: shadowUsername,
+            full_name: `Test ${shadowName}`,
+            firstName: 'Test',
+            lastName: shadowName,
+            email: shadowEmail,
+            isShadow: true,
+            isStudent: true,
+            isActive: true,
+            created_at: new Date().toISOString(),
           });
         }
       });

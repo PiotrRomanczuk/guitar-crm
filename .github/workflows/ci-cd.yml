@@ -313,11 +313,11 @@ jobs:
           # Start server in background
           npm run dev &
           PID=$!
-          
+
           # Run lighthouse script
           chmod +x scripts/ci/lighthouse-ci.sh
           ./scripts/ci/lighthouse-ci.sh http://localhost:3000
-          
+
           # Kill server
           kill $PID
         env:
