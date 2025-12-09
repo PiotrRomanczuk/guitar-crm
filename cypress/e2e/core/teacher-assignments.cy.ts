@@ -46,6 +46,35 @@ describe('Teacher - Assignment Management', () => {
   });
 
   beforeEach(() => {
+    // Mock students list for teacher
+    cy.intercept('GET', '/api/users*', (req) => {
+      req.continue((res) => {
+        if (res.body && res.body.data) {
+           // Ensure we have a student
+           if (!res.body.data.find((u: any) => u.email === 'student@example.com')) {
+             res.body.data.push({
+               id: 'mock-student-id',
+               full_name: 'Test Student',
+               email: 'student@example.com',
+               isStudent: true,
+               is_student: true
+             });
+           }
+        }
+      });
+    }).as('getStudents');
+
+    // Mock POST /api/assignments
+    cy.intercept('POST', '/api/assignments', {
+      statusCode: 201,
+      body: {
+        id: 'mock-assignment-id',
+        title: ASSIGNMENT_TITLE,
+        student_id: 'mock-student-id',
+        status: 'pending'
+      }
+    }).as('createAssignment');
+
     cy.visit('/sign-in');
     cy.get('[data-testid="email"]').clear().type(TEACHER_EMAIL);
     cy.get('[data-testid="password"]').clear().type(TEACHER_PASSWORD);

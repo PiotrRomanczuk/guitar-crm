@@ -98,17 +98,17 @@ describe('Assignments - Workflow Tests', () => {
     cy.url().should('include', '/new');
 
     cy.go('back');
-    cy.url().should('include', '/dashboard/assignements');
+    cy.url().should('include', '/dashboard/assignments');
   });
 
   it('should maintain state after back navigation', () => {
-    cy.visit('/dashboard/assignements');
+    cy.visit('/dashboard/assignments');
 
-    cy.visit('/dashboard/assignements/new');
+    cy.visit('/dashboard/assignments/new');
     cy.go('back');
 
     cy.url().then((url) => {
-      expect(url).to.include('/dashboard/assignements');
+      expect(url).to.include('/dashboard/assignments');
     });
   });
 });
