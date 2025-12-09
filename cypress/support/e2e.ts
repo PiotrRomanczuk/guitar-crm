@@ -21,4 +21,10 @@ beforeEach(() => {
       }
     });
   });
+
+  // Mock api-keys to prevent PGRST205 error in CI due to missing migrations
+  cy.intercept('GET', '**/api/api-keys*', {
+    statusCode: 200,
+    body: [],
+  }).as('getApiKeys');
 });

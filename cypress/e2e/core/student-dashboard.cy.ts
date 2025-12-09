@@ -5,6 +5,21 @@ describe('Student - Dashboard', () => {
   const STUDENT_PASSWORD = 'test123_student';
 
   beforeEach(() => {
+    // Mock lessons to ensure dashboard loads correctly
+    cy.intercept('GET', '/api/lessons*', {
+      statusCode: 200,
+      body: {
+        data: [
+          {
+            id: 'mock-lesson',
+            title: 'Mock Lesson',
+            start_time: new Date(Date.now() + 86400000).toISOString(),
+            end_time: new Date(Date.now() + 90000000).toISOString()
+          }
+        ]
+      }
+    }).as('getLessons');
+
     cy.visit('/sign-in');
     cy.get('[data-testid="email"]').clear().type(STUDENT_EMAIL);
     cy.get('[data-testid="password"]').clear().type(STUDENT_PASSWORD);
