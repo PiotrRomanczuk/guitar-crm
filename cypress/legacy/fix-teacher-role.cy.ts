@@ -7,15 +7,26 @@ describe('Fix Teacher Role and Verify', () => {
 
   it('should fix teacher role and see student', () => {
     // Mock API calls
-    cy.intercept('POST', '/api/users', { statusCode: 201, body: { id: 'mock-student', email: STUDENT_EMAIL, is_student: true } }).as('createStudent');
-    cy.intercept('PUT', '/api/users/*', { statusCode: 200, body: { id: 'mock-teacher', email: TEACHER_EMAIL, is_teacher: true } }).as('updateTeacher');
+    cy.intercept('POST', '/api/users', {
+      statusCode: 201,
+      body: { id: 'mock-student', email: STUDENT_EMAIL, is_student: true },
+    }).as('createStudent');
+    cy.intercept('PUT', '/api/users/*', {
+      statusCode: 200,
+      body: { id: 'mock-teacher', email: TEACHER_EMAIL, is_teacher: true },
+    }).as('updateTeacher');
     cy.intercept('GET', '/api/users*', (req) => {
       req.continue((res) => {
         if (res.body && res.body.data) {
-           // Ensure teacher is in the list
-           if (!res.body.data.find((u: any) => u.email === TEACHER_EMAIL)) {
-             res.body.data.push({ id: 'mock-teacher', email: TEACHER_EMAIL, full_name: 'Teacher', isTeacher: true });
-           }
+          // Ensure teacher is in the list
+          if (!res.body.data.find((u: any) => u.email === TEACHER_EMAIL)) {
+            res.body.data.push({
+              id: 'mock-teacher',
+              email: TEACHER_EMAIL,
+              full_name: 'Teacher',
+              isTeacher: true,
+            });
+          }
         }
       });
     }).as('getUsers');

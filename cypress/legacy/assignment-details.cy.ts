@@ -31,15 +31,15 @@ describe('Assignment Detail View', () => {
     cy.intercept('GET', '/api/users*', (req) => {
       req.continue((res) => {
         if (res.body && res.body.data) {
-           if (!res.body.data.find((u: any) => u.email === 'student@example.com')) {
-             res.body.data.push({
-               id: 'mock-student-id',
-               full_name: 'Test Student',
-               email: 'student@example.com',
-               isStudent: true,
-               is_student: true
-             });
-           }
+          if (!res.body.data.find((u: any) => u.email === 'student@example.com')) {
+            res.body.data.push({
+              id: 'mock-student-id',
+              full_name: 'Test Student',
+              email: 'student@example.com',
+              isStudent: true,
+              is_student: true,
+            });
+          }
         }
       });
     }).as('getStudents');
@@ -52,8 +52,8 @@ describe('Assignment Detail View', () => {
         title: ASSIGNMENT_TITLE,
         description: 'Testing detail view',
         student_id: 'mock-student-id',
-        status: 'pending'
-      }
+        status: 'pending',
+      },
     }).as('createAssignment');
 
     // Mock GET /api/assignments/mock-assignment-id
@@ -65,8 +65,8 @@ describe('Assignment Detail View', () => {
         description: 'Testing detail view',
         student_id: 'mock-student-id',
         status: 'pending',
-        student: { full_name: 'Test Student' }
-      }
+        student: { full_name: 'Test Student' },
+      },
     }).as('getAssignmentDetails');
 
     // Login

@@ -4,6 +4,22 @@ describe('Student - Dashboard', () => {
   const STUDENT_EMAIL = 'student@example.com';
   const STUDENT_PASSWORD = 'test123_student';
 
+  before(() => {
+    // Create Student via API
+    cy.request({
+      method: 'POST',
+      url: '/api/users',
+      body: {
+        firstName: 'Test',
+        lastName: 'Student',
+        username: 'student_dashboard_test',
+        email: STUDENT_EMAIL,
+        isStudent: true,
+      },
+      failOnStatusCode: false,
+    });
+  });
+
   beforeEach(() => {
     // Mock lessons to ensure dashboard loads correctly
     cy.intercept('GET', '/api/lessons*', {
@@ -14,10 +30,10 @@ describe('Student - Dashboard', () => {
             id: 'mock-lesson',
             title: 'Mock Lesson',
             start_time: new Date(Date.now() + 86400000).toISOString(),
-            end_time: new Date(Date.now() + 90000000).toISOString()
-          }
-        ]
-      }
+            end_time: new Date(Date.now() + 90000000).toISOString(),
+          },
+        ],
+      },
     }).as('getLessons');
 
     cy.visit('/sign-in');
