@@ -1,0 +1,174 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticateWithBearerToken, extractBearerToken } from '@/lib/bearer-auth';
+import { createClient } from '@/lib/supabase';
+
+export async function GET(request: NextRequest) {
+  // Extract and validate bearer token
+  const authHeader = request.headers.get('authorization');
+  const token = extractBearerToken(authHeader ?? undefined);
+
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized. Bearer token required.' }, { status: 401 });
+  }
+
+  try {
+    // Authenticate with bearer token
+    const auth = await authenticateWithBearerToken(token);
+
+    if (!auth) {
+      return NextResponse.json({ error: 'Invalid or inactive API key.' }, { status: 401 });
+    }
+
+    const { userId, profile } = auth;
+    const supabase = createClient();
+
+    // Check if user is admin
+    const { data: userWithRoles } = await supabase
+      .from('users')
+      .select('*, user_roles(role)')
+      .eq('id', userId)
+      .single();
+
+    const isAdmin = userWithRoles?.user_roles?.some((ur: { role: string }) => ur.role === 'admin');
+
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden. Admin access required.' }, { status: 403 });
+    }
+
+    // Fetch admin statistics
+    const today = new Date().toISOString().split('T')[0];
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0];
+
+    // Total counts
+    const [
+      { count: totalUsers },
+      { count: totalTeachers },
+      { count: totalStudents },
+      { count: totalSongs },
+      { count: totalLessons },
+    ] = await Promise.all([
+      supabase.from('users').select('*', { count: 'exact', head: true }),
+      supabase.from('user_roles').select('*', { count: 'exact', head: true }).eq('role', 'teacher'),
+      supabase.from('user_roles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
+      supabase.from('songs').select('*', { count: 'exact', head: true }),
+      supabase.from('lessons').select('*', { count: 'exact', head: true }),
+    ]);
+
+    // Recent activity (last 30 days)
+    const { count: recentLessons } = await supabase
+      .from('lessons')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', thirtyDaysAgo);
+
+    const { count: recentUsers } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', thirtyDaysAgo);
+
+    // Upcoming lessons (next 7 days)
+    const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    const { data: upcomingLessons } = await supabase
+      .from('lessons')
+      .select(
+        `
+        id,
+        date,
+        teacher:profiles!lessons_teacher_id_fkey(full_name),
+        student:profiles!lessons_student_id_fkey(full_name)
+      `
+      )
+      .gte('date', today)
+      .lte('date', nextWeek)
+      .order('date', { ascending: true })
+      .limit(10);
+
+    // Recent assignments (pending)
+    const { count: pendingAssignments } = await supabase
+      .from('assignments')
+      .select('*', { count: 'exact', head: true })
+      .in('status', ['assigned', 'in_progress']);
+
+    // Active API keys
+    const { count: activeApiKeys } = await supabase
+      .from('api_keys')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true);
+
+    // Most active teachers (by lesson count in last 30 days)
+    const { data: activeTeachers } = await supabase
+      .from('lessons')
+      .select(
+        `
+        teacher_id,
+        teacher:profiles!lessons_teacher_id_fkey(full_name)
+      `
+      )
+      .gte('created_at', thirtyDaysAgo)
+      .limit(1000);
+
+    // Count lessons per teacher
+    const teacherLessonCounts = (activeTeachers || []).reduce(
+      (acc: Record<string, { name: string; count: number }>, lesson) => {
+        const teacherId = (lesson as { teacher_id: string }).teacher_id;
+        const teacherName =
+          (lesson as { teacher: { full_name: string } }).teacher?.full_name || 'Unknown';
+        if (!acc[teacherId]) {
+          acc[teacherId] = { name: teacherName, count: 0 };
+        }
+        acc[teacherId].count++;
+        return acc;
+      },
+      {}
+    );
+
+    const topTeachers = Object.values(teacherLessonCounts)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    return NextResponse.json({
+      user: {
+        name: profile?.full_name || 'Admin',
+        role: 'admin',
+      },
+      stats: {
+        users: {
+          total: totalUsers || 0,
+          teachers: totalTeachers || 0,
+          students: totalStudents || 0,
+          recentNew: recentUsers || 0,
+        },
+        lessons: {
+          total: totalLessons || 0,
+          recent30Days: recentLessons || 0,
+          upcoming7Days: (upcomingLessons || []).length,
+        },
+        assignments: {
+          pending: pendingAssignments || 0,
+        },
+        songs: {
+          total: totalSongs || 0,
+        },
+        apiKeys: {
+          active: activeApiKeys || 0,
+        },
+      },
+      upcomingLessons: (upcomingLessons || []).map((lesson: Record<string, unknown>) => ({
+        id: lesson.id,
+        date: lesson.date,
+        teacher: lesson.teacher ? (lesson.teacher as { full_name: string }).full_name : 'Unknown',
+        student: lesson.student ? (lesson.student as { full_name: string }).full_name : 'Unknown',
+      })),
+      topTeachers: topTeachers.map((teacher) => ({
+        name: teacher.name,
+        lessons: teacher.count,
+      })),
+      lastUpdated: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Error fetching admin widget data:', error);
+    return NextResponse.json({ error: 'Failed to fetch admin widget data.' }, { status: 500 });
+  }
+}
