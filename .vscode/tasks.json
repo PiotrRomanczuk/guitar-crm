@@ -1,16 +1,28 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "type": "npm",
-      "script": "test",
-      "group": {
-        "kind": "test",
-        "isDefault": true
-      },
-      "problemMatcher": [],
-      "label": "npm: test",
-      "detail": "jest"
-    }
-  ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "test",
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			},
+			"problemMatcher": [],
+			"label": "npm: test",
+			"detail": "jest"
+		},
+		{
+			"label": "Run CRUD Tests",
+			"type": "shell",
+			"command": "npx cypress run --spec 'cypress/e2e/admin-*-workflow.cy.ts'",
+			"group": "test"
+		},
+		{
+			"label": "Run All CRUD Workflows",
+			"type": "shell",
+			"command": "npx cypress run --spec 'cypress/e2e/admin-*-workflow.cy.ts'",
+			"group": "test"
+		}
+	]
 }
