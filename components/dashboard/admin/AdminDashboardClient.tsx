@@ -8,6 +8,7 @@ import { AdminActionCard } from '@/components/dashboard/admin/AdminActionCard';
 import { RecentActivity } from '@/components/dashboard/admin/RecentActivity';
 import { CalendarEventsList } from '@/components/dashboard/calendar/CalendarEventsList';
 import { PotentialUsersList } from '@/components/dashboard/admin/PotentialUsersList';
+import { BearerTokenDisplay } from '@/components/dashboard/BearerTokenDisplay';
 
 type DebugView = 'admin' | 'teacher' | 'student';
 
@@ -72,6 +73,8 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
     <div className={`min-h-screen bg-linear-to-br ${getBackgroundColor()}`}>
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-7xl">
         <DebugViewBanner debugView={debugView} onReset={() => setDebugView('admin')} />
+
+        <BearerTokenDisplay />
 
         <header className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
