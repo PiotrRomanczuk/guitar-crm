@@ -57,7 +57,7 @@ jobs:
         run: npm ci
 
       - name: Run tests with coverage
-        run: npm run test:ci -- --testPathIgnorePatterns='integration.test.ts' --testPathIgnorePatterns='database/'
+        run: npm run test:ci -- --coverage --testPathIgnorePatterns='integration.test.ts' --testPathIgnorePatterns='database/'
         env:
           CI: true
           SKIP_DB_TESTS: true

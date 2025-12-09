@@ -3,8 +3,6 @@
  */
 
 import {
-  authenticateWithBearerToken,
-  authenticateWithSession,
   extractBearerToken,
 } from '@/lib/bearer-auth';
 import { generateApiKey, hashApiKey } from '@/lib/api-keys';
@@ -68,8 +66,6 @@ describe('Bearer Token Authentication', () => {
 });
 
 describe('API Key Management Routes', () => {
-  const mockUserId = '11111111-1111-1111-1111-111111111111';
-
   describe('GET /api/api-keys', () => {
     it('should require authentication', async () => {
       // Test should verify 401 response without valid session/bearer token
@@ -118,8 +114,6 @@ describe('API Key Management Routes', () => {
 });
 
 describe('Bearer Token Usage Examples', () => {
-  const exampleApiKey = 'gcrm_examplekey123';
-
   it('should accept bearer token in Authorization header', async () => {
     // Example: GET /api/songs/[id]
     // Headers: { Authorization: 'Bearer gcrm_examplekey123' }

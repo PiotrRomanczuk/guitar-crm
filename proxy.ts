@@ -2,13 +2,12 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import type { Database } from '@/types/database.types';
-// import { logActivity } from '@/lib/logging';
 
 export async function proxy(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // Skip proxy if Supabase is not configured
+  // Skip middleware if Supabase is not configured
   if (!supabaseUrl || !supabaseAnonKey) {
     return NextResponse.next();
   }
@@ -35,30 +34,36 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  // Refresh/validate user (also renews cookies on change)
-  const { data: userData } = await supabase.auth.getUser();
-  const user = userData.user;
+  // Get the current session - this will not throw errors for missing tokens
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  // Extract roles from user metadata if available (fallback to empty array)
-  const roles: string[] = Array.isArray(user?.user_metadata?.roles)
-    ? (user!.user_metadata!.roles as string[])
-    : typeof user?.user_metadata?.role === 'string'
-    ? [user!.user_metadata!.role as string]
-    : [];
+  let user = null;
+  let roles: string[] = [];
+
+  // Only attempt to refresh the session if one exists
+  // This prevents "Refresh Token Not Found" errors for unauthenticated users
+  if (session) {
+    // Refresh session if expired - this also handles cookie renewal
+    const { data: userData } = await supabase.auth.getUser();
+    user = userData.user;
+
+    // Extract roles from user metadata if available (fallback to empty array)
+    if (user) {
+      roles = Array.isArray(user?.user_metadata?.roles)
+        ? (user!.user_metadata!.roles as string[])
+        : typeof user?.user_metadata?.role === 'string'
+        ? [user!.user_metadata!.role as string]
+        : [];
+    }
+  }
 
   const pathname = request.nextUrl.pathname;
   const isDashboard = pathname.startsWith('/dashboard');
 
   // Enforce auth for dashboard routes
   if (isDashboard && !user) {
-    /*
-		await logActivity({
-			activity_type: 'auth_redirect',
-			event_name: 'Unauthenticated dashboard access',
-			page_url: request.nextUrl.toString(),
-			additional_data: { reason: 'no_user' },
-		});
-		*/
     const url = request.nextUrl.clone();
     url.pathname = '/sign-in';
     // Preserve original destination for post-login redirect
@@ -68,14 +73,6 @@ export async function proxy(request: NextRequest) {
 
   // Admin gating example: block /dashboard/admin without 'admin' role
   if (pathname.startsWith('/dashboard/admin') && user && !roles.includes('admin')) {
-    /*
-		await logActivity({
-			activity_type: 'auth_forbidden',
-			event_name: 'Forbidden admin access',
-			page_url: request.nextUrl.toString(),
-			additional_data: { reason: 'missing_admin_role', roles },
-		});
-		*/
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     url.searchParams.set('error', 'forbidden');
@@ -93,15 +90,18 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+// Configure which routes use this middleware
 export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
+     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
+     * - public folder
+     * - sign-in, sign-up, forgot-password (auth pages)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*..*|sign-in|sign-up|forgot-password).*)',
   ],
 };

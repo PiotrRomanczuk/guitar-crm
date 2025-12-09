@@ -15,7 +15,7 @@ export async function updateLessonSongStatus(lessonSongId: string, status: strin
 
   const { error } = await supabase
     .from('lesson_songs')
-    .update({ status: status as any })
+    .update({ status: status as 'not_started' | 'in_progress' | 'completed' })
     .eq('id', lessonSongId);
 
   if (error) {
