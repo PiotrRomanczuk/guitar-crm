@@ -58,7 +58,7 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
   // We need to join lesson_songs -> songs and lesson_songs -> lessons to get the date
   // Since Supabase join syntax can be tricky for "last unique", we might fetch a bit more and filter in JS or use a specific query.
   // A simple approach: fetch recent lesson_songs, expand song details.
-  const { data: recentSongsData } = await supabase
+  await supabase
     .from('lesson_songs')
     .select(
       `
