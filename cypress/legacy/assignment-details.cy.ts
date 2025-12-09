@@ -31,7 +31,7 @@ describe('Assignment Detail View', () => {
     cy.intercept('GET', '/api/users*', (req) => {
       req.continue((res) => {
         if (res.body && res.body.data) {
-          if (!res.body.data.find((u: any) => u.email === 'student@example.com')) {
+          if (!res.body.data.find((u: { email: string }) => u.email === 'student@example.com')) {
             res.body.data.push({
               id: 'mock-student-id',
               full_name: 'Test Student',
