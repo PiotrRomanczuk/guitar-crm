@@ -19,7 +19,7 @@ describe('Fix Teacher Role and Verify', () => {
       req.continue((res) => {
         if (res.body && res.body.data) {
           // Ensure teacher is in the list
-          if (!res.body.data.find((u: any) => u.email === TEACHER_EMAIL)) {
+          if (!res.body.data.find((u: { email: string }) => u.email === TEACHER_EMAIL)) {
             res.body.data.push({
               id: 'mock-teacher',
               email: TEACHER_EMAIL,
