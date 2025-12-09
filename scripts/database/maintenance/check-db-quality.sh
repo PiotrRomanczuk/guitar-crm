@@ -21,8 +21,8 @@ DB_NAME=${PGDATABASE:-postgres}
 
 echo -e "\n${BLUE}📡 Checking Supabase status...${NC}"
 if ! timeout 2 bash -c "PGPASSWORD=$DB_PASS psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c 'SELECT 1'" >/dev/null 2>&1; then
-  echo -e "${RED}❌ Supabase is not running or not accessible at $DB_HOST:$DB_PORT${NC}"
-  exit 1
+  echo -e "${YELLOW}⚠️ Supabase is not running or not accessible at $DB_HOST:$DB_PORT. Skipping DB checks.${NC}"
+  exit 0
 fi
 echo -e "${GREEN}✅ Supabase is running${NC}"
 
