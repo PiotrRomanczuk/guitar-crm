@@ -1,0 +1,139 @@
+/**
+ * Widget Dashboard API Endpoint
+ * Provides data for iOS Scriptable widget with API key authentication
+ */
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticateWithBearerToken, extractBearerToken } from '@/lib/bearer-auth';
+import { createClient } from '@/lib/supabase';
+
+export async function GET(request: NextRequest) {
+  // Extract and validate bearer token
+  const authHeader = request.headers.get('authorization');
+  const token = extractBearerToken(authHeader ?? undefined);
+
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized. Bearer token required.' }, { status: 401 });
+  }
+
+  // Authenticate with API key
+  const auth = await authenticateWithBearerToken(token);
+  if (!auth) {
+    return NextResponse.json({ error: 'Invalid or inactive API key.' }, { status: 401 });
+  }
+
+  const { userId, profile } = auth;
+
+  try {
+    const supabase = await createClient();
+
+    // Check user roles to determine what data to show
+    const { data: userWithRoles } = await supabase
+      .from('users')
+      .select('*, user_roles(role)')
+      .eq('id', userId)
+      .single();
+
+    const isTeacher = userWithRoles?.user_roles?.some(
+      (ur: { role: string }) => ur.role === 'teacher'
+    );
+    const isStudent = userWithRoles?.user_roles?.some(
+      (ur: { role: string }) => ur.role === 'student'
+    );
+
+    // Fetch upcoming lessons (next 7 days)
+    const today = new Date().toISOString().split('T')[0];
+    const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    let lessons: unknown[] = [];
+    if (isTeacher) {
+      // Teacher: show lessons they're teaching
+      const { data } = await supabase
+        .from('lessons')
+        .select(
+          `
+          id,
+          date,
+          notes,
+          student:profiles!lessons_student_id_fkey(full_name)
+        `
+        )
+        .eq('teacher_id', userId)
+        .gte('date', today)
+        .lte('date', nextWeek)
+        .order('date', { ascending: true })
+        .limit(5);
+      lessons = data || [];
+    } else if (isStudent) {
+      // Student: show their assigned lessons
+      const { data } = await supabase
+        .from('lessons')
+        .select(
+          `
+          id,
+          date,
+          notes,
+          teacher:profiles!lessons_teacher_id_fkey(full_name)
+        `
+        )
+        .eq('student_id', userId)
+        .gte('date', today)
+        .lte('date', nextWeek)
+        .order('date', { ascending: true })
+        .limit(5);
+      lessons = data || [];
+    }
+
+    // Fetch pending assignments (for students)
+    let assignments: unknown[] = [];
+    if (isStudent) {
+      const { data } = await supabase
+        .from('assignments')
+        .select(
+          `
+          id,
+          due_date,
+          status,
+          song:songs(title, artist)
+        `
+        )
+        .eq('student_id', userId)
+        .in('status', ['assigned', 'in_progress'])
+        .order('due_date', { ascending: true })
+        .limit(5);
+      assignments = data || [];
+    }
+
+    // Format response for widget
+    return NextResponse.json({
+      user: {
+        name: profile?.full_name || 'User',
+        role: isTeacher ? 'teacher' : isStudent ? 'student' : 'user',
+      },
+      lessons: (lessons as Record<string, unknown>[]).map((lesson) => ({
+        id: lesson.id,
+        date: lesson.date,
+        notes: lesson.notes,
+        with:
+          isTeacher && lesson.student
+            ? (lesson.student as { full_name: string }).full_name
+            : isStudent && lesson.teacher
+            ? (lesson.teacher as { full_name: string }).full_name
+            : null,
+      })),
+      assignments: (assignments as Record<string, unknown>[]).map((assignment) => ({
+        id: assignment.id,
+        dueDate: assignment.due_date,
+        status: assignment.status,
+        song: assignment.song
+          ? `${(assignment.song as { title: string; artist: string }).title} - ${
+              (assignment.song as { title: string; artist: string }).artist
+            }`
+          : 'Unknown',
+      })),
+      lastUpdated: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Widget dashboard error:', error);
+    return NextResponse.json({ error: 'Failed to fetch widget data.' }, { status: 500 });
+  }
+}
