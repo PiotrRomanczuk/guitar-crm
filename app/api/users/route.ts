@@ -3,7 +3,6 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { randomUUID } from 'crypto';
 
-
 export async function GET(request: Request) {
   try {
     const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
@@ -114,7 +113,18 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
+    let body;
+    try {
+      const text = await request.text();
+      if (!text) {
+        return Response.json({ error: 'Empty request body' }, { status: 400 });
+      }
+      body = JSON.parse(text);
+    } catch (e) {
+      console.error('Error parsing JSON body:', e);
+      return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+
     const {
       email,
       firstName,
