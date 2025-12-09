@@ -19,7 +19,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // Try bearer token first
     const authHeader = request.headers.get('authorization');
-    const bearerToken = extractBearerToken(authHeader);
+    const bearerToken = extractBearerToken(authHeader || undefined);
 
     let user = null;
     if (bearerToken) {

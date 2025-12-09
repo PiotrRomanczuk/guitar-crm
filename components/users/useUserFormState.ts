@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
-import { queryClient } from '@/lib/query-client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface FormData {
   firstName: string;
@@ -89,6 +88,7 @@ export function useUserFormState(
   isEdit: boolean | undefined
 ) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState<FormData>(createInitialData(initialData));
 
   const {

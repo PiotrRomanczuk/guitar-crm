@@ -10,9 +10,9 @@
 
 ### 2. Authentication & Roles
 
-- [ ] Finalize "Shadow User" implementation for students without emails.
+- [x] Finalize "Shadow User" implementation for students without emails.
 - [ ] Implement password reset flow.
-- [ ] Verify RLS policies for all new tables.
+- [x] Verify RLS policies for all new tables.
 
 ### 3. Lesson Management (Core)
 
