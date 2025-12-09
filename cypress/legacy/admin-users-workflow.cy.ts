@@ -3,7 +3,6 @@
 describe('Admin - Users Workflow', () => {
   const ADMIN_EMAIL = 'p.romanczuk@gmail.com';
   const ADMIN_PASSWORD = 'test123_admin';
-  const TEST_USER_EMAIL = `test.user.${Date.now()}@example.com`;
 
   beforeEach(() => {
     cy.visit('/sign-in');
