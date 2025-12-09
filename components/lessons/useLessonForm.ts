@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LessonInputSchema } from '@/schemas/LessonSchema';
 import { z } from 'zod';
-import { queryClient } from '@/lib/query-client';
 import { useProfiles } from './useProfiles';
 
 export interface LessonFormData {
@@ -54,6 +53,7 @@ export default function useLessonForm({
   partial = false,
   fieldsToSubmit,
 }: UseLessonFormProps = {}) {
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState<LessonFormData>({
     student_id: initialData?.student_id || '',
     teacher_id: initialData?.teacher_id || '',

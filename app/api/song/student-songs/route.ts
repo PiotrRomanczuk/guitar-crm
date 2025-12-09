@@ -4,7 +4,7 @@ import {
 	SongWithLessonsSchema,
 	type SongWithLessons,
 } from '@/schemas/SongSchema';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 
 const querySchema = z.object({
 	userId: z.string().uuid(),
@@ -23,6 +23,8 @@ export async function GET(request: Request) {
 			{ status: 400 }
 		);
 	}
+
+	const supabase = await createClient();
 
 	// Fetch assigned songs for student
 	const { data, error } = await supabase

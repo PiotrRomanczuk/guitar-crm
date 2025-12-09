@@ -7,21 +7,33 @@ import { Dispatch, SetStateAction } from 'react';
 import { AssignmentFormFields } from './AssignmentForm.Fields';
 import { AssignmentFormActions } from './AssignmentForm.Actions';
 
+interface Student {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+}
+
 interface AssignmentFormProps {
   initialData?: {
     id: string;
     title: string;
     description: string | null;
     due_date: string | null;
-    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-    status: 'OPEN' | 'IN_PROGRESS' | 'PENDING_REVIEW' | 'COMPLETED' | 'CANCELLED' | 'BLOCKED';
-    user_id: string;
+    status: 'not_started' | 'in_progress' | 'completed' | 'overdue' | 'cancelled';
+    teacher_id: string;
+    student_id: string;
   };
   mode: 'create' | 'edit';
   userId?: string;
+  students?: Student[];
 }
 
-export default function AssignmentForm({ initialData, mode, userId }: AssignmentFormProps) {
+export default function AssignmentForm({
+  initialData,
+  mode,
+  userId,
+  students = [],
+}: AssignmentFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,9 +42,8 @@ export default function AssignmentForm({ initialData, mode, userId }: Assignment
     title: initialData?.title || '',
     description: initialData?.description || '',
     due_date: initialData?.due_date || '',
-    priority: initialData?.priority || 'MEDIUM',
-    status: initialData?.status || 'OPEN',
-    user_id: initialData?.user_id || userId || '',
+    status: initialData?.status || 'not_started',
+    student_id: initialData?.student_id || userId || '',
   });
 
   const handleFieldChange = (name: string, value: string) => {
@@ -68,7 +79,11 @@ export default function AssignmentForm({ initialData, mode, userId }: Assignment
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <AssignmentFormFields formData={formData} onChange={handleFieldChange} />
+          <AssignmentFormFields
+            formData={formData}
+            onChange={handleFieldChange}
+            students={students}
+          />
           <AssignmentFormActions mode={mode} loading={loading} />
         </form>
       </div>

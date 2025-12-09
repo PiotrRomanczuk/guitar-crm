@@ -52,7 +52,7 @@ export function RoleBasedNav({
       { href: '/dashboard/songs', label: 'Songs', icon: '🎵' },
       { href: '/dashboard/lessons', label: 'Lessons', icon: '📚' },
       { href: '/dashboard/assignments', label: 'Assignments', icon: '📋' },
-      { href: '/dashboard/calendar', label: 'Calendar', icon: '📅' },
+      // { href: '/dashboard/calendar', label: 'Calendar', icon: '📅' },
       { href: '/dashboard/users', label: 'Users', icon: '👥' }
     );
   } else {
@@ -65,7 +65,7 @@ export function RoleBasedNav({
     }
 
     if (isStudent && !isTeacher) {
-      navItems.push({ href: '/student', label: 'Student Dashboard', icon: '👨‍🎓' });
+      // navItems.push({ href: '/student', label: 'Student Dashboard', icon: '👨‍🎓' });
       // TODO: Implement these routes
       // { href: '/my-lessons', label: 'My Lessons', icon: '📖' },
       // { href: '/progress', label: 'My Progress', icon: '📈' }
@@ -80,7 +80,7 @@ export function RoleBasedNav({
   }
 
   // Everyone can access Settings
-  navItems.push({ href: '/dashboard/settings', label: 'Settings', icon: '⚙️' });
+  // navItems.push({ href: '/dashboard/settings', label: 'Settings', icon: '⚙️' });
 
   return (
     <nav className="flex flex-row flex-wrap gap-1 md:gap-2">
