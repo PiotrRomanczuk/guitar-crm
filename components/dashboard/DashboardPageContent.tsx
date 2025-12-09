@@ -1,4 +1,4 @@
-import { DashboardCardGrid } from './DashboardCardGrid';
+import { DashboardCardGrid } from '../home/DashboardCardGrid';
 import { DashboardHeader } from './DashboardHeader';
 import { QuickActionsSection } from './QuickActionsSection';
 import { BearerTokenDisplay } from './BearerTokenDisplay';
