@@ -13,17 +13,27 @@ interface FormData {
   title: string;
   description: string;
   due_date: string;
-  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-  status: 'OPEN' | 'IN_PROGRESS' | 'PENDING_REVIEW' | 'COMPLETED' | 'CANCELLED' | 'BLOCKED';
-  user_id: string;
+  status: 'not_started' | 'in_progress' | 'completed' | 'overdue' | 'cancelled';
+  student_id: string;
+}
+
+interface Student {
+  id: string;
+  full_name: string | null;
+  email: string | null;
 }
 
 interface AssignmentFormFieldsProps {
   formData: FormData;
   onChange: (name: string, value: string) => void;
+  students?: Student[];
 }
 
-export function AssignmentFormFields({ formData, onChange }: AssignmentFormFieldsProps) {
+export function AssignmentFormFields({
+  formData,
+  onChange,
+  students = [],
+}: AssignmentFormFieldsProps) {
   return (
     <>
       <div className="space-y-2">
@@ -53,6 +63,27 @@ export function AssignmentFormFields({ formData, onChange }: AssignmentFormField
         />
       </div>
 
+      {students.length > 0 && (
+        <div className="space-y-2">
+          <Label htmlFor="student">Student</Label>
+          <Select
+            value={formData.student_id}
+            onValueChange={(value) => onChange('student_id', value)}
+          >
+            <SelectTrigger id="student" data-testid="student-select">
+              <SelectValue placeholder="Select a student" />
+            </SelectTrigger>
+            <SelectContent>
+              {students.map((student) => (
+                <SelectItem key={student.id} value={student.id}>
+                  {student.full_name || student.email}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="due_date">Due Date</Label>
         <Input
@@ -66,33 +97,17 @@ export function AssignmentFormFields({ formData, onChange }: AssignmentFormField
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="priority">Priority</Label>
-        <Select value={formData.priority} onValueChange={(value) => onChange('priority', value)}>
-          <SelectTrigger id="priority" data-testid="field-priority">
-            <SelectValue placeholder="Select priority" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="LOW">Low</SelectItem>
-            <SelectItem value="MEDIUM">Medium</SelectItem>
-            <SelectItem value="HIGH">High</SelectItem>
-            <SelectItem value="URGENT">Urgent</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
         <Label htmlFor="status">Status</Label>
         <Select value={formData.status} onValueChange={(value) => onChange('status', value)}>
           <SelectTrigger id="status" data-testid="field-status">
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="OPEN">Open</SelectItem>
-            <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-            <SelectItem value="PENDING_REVIEW">Pending Review</SelectItem>
-            <SelectItem value="COMPLETED">Completed</SelectItem>
-            <SelectItem value="CANCELLED">Cancelled</SelectItem>
-            <SelectItem value="BLOCKED">Blocked</SelectItem>
+            <SelectItem value="not_started">Not Started</SelectItem>
+            <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="overdue">Overdue</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
           </SelectContent>
         </Select>
       </div>

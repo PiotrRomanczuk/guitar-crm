@@ -75,10 +75,10 @@ export async function getGoogleEvents() {
 
     return response.data.items;
   } catch (error) {
-    console.error('Error fetching calendar events:', error);
     if (error instanceof Error && error.message === 'Google Calendar not connected') {
       return null;
     }
+    console.error('Error fetching calendar events:', error);
     throw new Error('Failed to fetch calendar events');
   }
 }
@@ -109,10 +109,10 @@ export async function getPotentialCustomerEvents() {
 
     return response.data.items;
   } catch (error) {
-    console.error('Error fetching potential customer events:', error);
     if (error instanceof Error && error.message === 'Google Calendar not connected') {
       return null;
     }
+    console.error('Error fetching potential customer events:', error);
     throw new Error('Failed to fetch potential customer events');
   }
 }
@@ -217,15 +217,16 @@ export async function createShadowUser(studentEmail: string) {
 
       if (linkError) {
         console.error('Generate link failed:', linkError);
-        const { data: newUser, error: createUserError } =
-          await supabaseAdmin.auth.admin.createUser({
+        const { data: newUser, error: createUserError } = await supabaseAdmin.auth.admin.createUser(
+          {
             email: studentEmail,
             email_confirm: true,
             user_metadata: {
               is_student: true,
               full_name: studentEmail.split('@')[0],
             },
-          });
+          }
+        );
 
         if (createUserError) {
           throw new Error(`Failed to create/find user: ${createUserError.message}`);
@@ -266,8 +267,13 @@ export async function createShadowUser(studentEmail: string) {
 
   if (upsertProfileError) {
     // Handle duplicate email error (orphan profile cleanup)
-    if (upsertProfileError.code === '23505' && upsertProfileError.message?.includes('profiles_email_key')) {
-      console.log(`[createShadowUser] Detected orphan profile for ${studentEmail}. Attempting cleanup...`);
+    if (
+      upsertProfileError.code === '23505' &&
+      upsertProfileError.message?.includes('profiles_email_key')
+    ) {
+      console.log(
+        `[createShadowUser] Detected orphan profile for ${studentEmail}. Attempting cleanup...`
+      );
 
       // 1. Find the orphan profile
       const { data: orphanProfile } = await supabaseAdmin
@@ -310,20 +316,37 @@ export async function createShadowUser(studentEmail: string) {
 
         // 4. Migrate related data
         // Lessons
-        await supabaseAdmin.from('lessons').update({ student_id: userId }).eq('student_id', orphanProfile.id);
-        await supabaseAdmin.from('lessons').update({ teacher_id: userId }).eq('teacher_id', orphanProfile.id);
+        await supabaseAdmin
+          .from('lessons')
+          .update({ student_id: userId })
+          .eq('student_id', orphanProfile.id);
+        await supabaseAdmin
+          .from('lessons')
+          .update({ teacher_id: userId })
+          .eq('teacher_id', orphanProfile.id);
 
         // Assignments
-        await supabaseAdmin.from('assignments').update({ student_id: userId }).eq('student_id', orphanProfile.id);
-        await supabaseAdmin.from('assignments').update({ teacher_id: userId }).eq('teacher_id', orphanProfile.id);
+        await supabaseAdmin
+          .from('assignments')
+          .update({ student_id: userId })
+          .eq('student_id', orphanProfile.id);
+        await supabaseAdmin
+          .from('assignments')
+          .update({ teacher_id: userId })
+          .eq('teacher_id', orphanProfile.id);
 
         // User Roles
-        await supabaseAdmin.from('user_roles').update({ user_id: userId }).eq('user_id', orphanProfile.id);
+        await supabaseAdmin
+          .from('user_roles')
+          .update({ user_id: userId })
+          .eq('user_id', orphanProfile.id);
 
         // 5. Delete orphan profile
         await supabaseAdmin.from('profiles').delete().eq('id', orphanProfile.id);
 
-        console.log(`[createShadowUser] Successfully migrated data from orphan profile ${orphanProfile.id} to ${userId}`);
+        console.log(
+          `[createShadowUser] Successfully migrated data from orphan profile ${orphanProfile.id} to ${userId}`
+        );
         return { success: true, userId };
       }
     }
@@ -433,8 +456,8 @@ export async function syncAllLessonsFromCalendar() {
       // Identify potential students from attendees
       const attendees = event.attendees || [];
       const studentEmails = attendees
-        .map(a => a.email)
-        .filter(email => email && email !== user.email && email.includes('@')) as string[];
+        .map((a) => a.email)
+        .filter((email) => email && email !== user.email && email.includes('@')) as string[];
 
       for (const email of studentEmails) {
         try {
@@ -442,20 +465,14 @@ export async function syncAllLessonsFromCalendar() {
           // We cache processed students to avoid repeated API calls in this loop if possible,
           // but createShadowUser is idempotent-ish (checks existence).
           // However, to be safe and efficient:
-          
+
           // We can reuse createShadowUser which handles the "get or create" logic
           const userResult = await createShadowUser(email);
           const studentId = userResult.userId;
 
           // Sync the event
-          const created = await syncSingleEvent(
-            supabaseAdmin,
-            event,
-            user.id,
-            studentId,
-            email
-          );
-          
+          const created = await syncSingleEvent(supabaseAdmin, event, user.id, studentId, email);
+
           if (created) totalSynced++;
         } catch (err) {
           console.error(`Failed to sync event ${event.id} for student ${email}:`, err);

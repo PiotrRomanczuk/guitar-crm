@@ -21,11 +21,9 @@ export async function getSongStudents(songId: string): Promise<SongStudentItem[]
       created_at,
       lessons!inner (
         scheduled_at,
-        profiles!inner (
+        profiles!lessons_student_id_fkey!inner (
           id,
-          full_name,
-          first_name,
-          last_name
+          full_name
         )
       )
     `
@@ -53,11 +51,7 @@ export async function getSongStudents(songId: string): Promise<SongStudentItem[]
 
     // Since ordered by created_at desc, first one is latest
     if (!studentMap.has(studentId)) {
-      const name =
-        student.full_name ||
-        (student.first_name && student.last_name
-          ? `${student.first_name} ${student.last_name}`
-          : 'Unknown Student');
+      const name = student.full_name || 'Unknown Student';
 
       studentMap.set(studentId, {
         studentId,

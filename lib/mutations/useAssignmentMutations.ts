@@ -1,7 +1,6 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
-import { queryClient } from '@/lib/query-client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import {
   AssignmentSchema,
@@ -47,6 +46,8 @@ async function deleteAssignment(payload: DeleteAssignmentPayload): Promise<Delet
  * Handles create, update, and delete with automatic cache invalidation
  */
 export function useAssignmentMutations() {
+  const queryClient = useQueryClient();
+
   const createMutation = useMutation({
     mutationFn: createAssignment,
     onSuccess: () => {

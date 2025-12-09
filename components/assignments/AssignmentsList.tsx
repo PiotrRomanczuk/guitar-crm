@@ -36,9 +36,10 @@ interface Assignment {
   title: string;
   description: string | null;
   due_date: string | null;
-  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-  status: 'OPEN' | 'IN_PROGRESS' | 'PENDING_REVIEW' | 'COMPLETED' | 'CANCELLED' | 'BLOCKED';
-  user_id: string;
+  status: 'not_started' | 'in_progress' | 'completed' | 'overdue' | 'cancelled';
+  teacher_id: string;
+  student_id: string;
+  lesson_id: string | null;
   created_at: string;
   updated_at: string;
   student?: {
@@ -49,7 +50,6 @@ interface Assignment {
 
 interface FilterState {
   status: string;
-  priority: string;
 }
 
 export default function AssignmentsList() {
@@ -58,7 +58,6 @@ export default function AssignmentsList() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterState>({
     status: '',
-    priority: '',
   });
   const [assignmentToDelete, setAssignmentToDelete] = useState<string | null>(null);
 
@@ -67,7 +66,6 @@ export default function AssignmentsList() {
       setLoading(true);
       const params = new URLSearchParams();
       if (filter.status) params.append('status', filter.status);
-      if (filter.priority) params.append('priority', filter.priority);
 
       const response = await fetch(`/api/assignments?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to fetch assignments');
@@ -172,50 +170,26 @@ interface FiltersProps {
 function AssignmentsFilters({ filter, onFilterChange }: FiltersProps) {
   return (
     <div className="bg-card rounded-lg border shadow-sm p-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Status</Label>
-          <Select
-            value={filter.status || 'all'}
-            onValueChange={(value) =>
-              onFilterChange({ ...filter, status: value === 'all' ? '' : value })
-            }
-          >
-            <SelectTrigger data-testid="status-filter">
-              <SelectValue placeholder="All Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="OPEN">Open</SelectItem>
-              <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-              <SelectItem value="PENDING_REVIEW">Pending Review</SelectItem>
-              <SelectItem value="COMPLETED">Completed</SelectItem>
-              <SelectItem value="CANCELLED">Cancelled</SelectItem>
-              <SelectItem value="BLOCKED">Blocked</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Priority</Label>
-          <Select
-            value={filter.priority || 'all'}
-            onValueChange={(value) =>
-              onFilterChange({ ...filter, priority: value === 'all' ? '' : value })
-            }
-          >
-            <SelectTrigger data-testid="priority-filter">
-              <SelectValue placeholder="All Priority" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Priority</SelectItem>
-              <SelectItem value="LOW">Low</SelectItem>
-              <SelectItem value="MEDIUM">Medium</SelectItem>
-              <SelectItem value="HIGH">High</SelectItem>
-              <SelectItem value="URGENT">Urgent</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-2">
+        <Label>Status</Label>
+        <Select
+          value={filter.status || 'all'}
+          onValueChange={(value) =>
+            onFilterChange({ ...filter, status: value === 'all' ? '' : value })
+          }
+        >
+          <SelectTrigger data-testid="status-filter">
+            <SelectValue placeholder="All Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="not_started">Not Started</SelectItem>
+            <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="overdue">Overdue</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
@@ -247,13 +221,6 @@ interface TableProps {
 }
 
 function AssignmentsTable({ assignments, onDelete }: TableProps) {
-  const priorityColors: Record<string, string> = {
-    LOW: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
-    MEDIUM: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300',
-    HIGH: 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300',
-    URGENT: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
-  };
-
   const statusColors: Record<string, string> = {
     OPEN: 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300',
     IN_PROGRESS: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
@@ -285,7 +252,6 @@ function AssignmentsTable({ assignments, onDelete }: TableProps) {
             <TableHead>Title</TableHead>
             <TableHead>Student</TableHead>
             <TableHead>Due Date</TableHead>
-            <TableHead>Priority</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -312,14 +278,6 @@ function AssignmentsTable({ assignments, onDelete }: TableProps) {
                 }
               >
                 {formatDate(assignment.due_date)}
-              </TableCell>
-              <TableCell>
-                <Badge
-                  variant="secondary"
-                  className={`${priorityColors[assignment.priority]} border-0`}
-                >
-                  {assignment.priority}
-                </Badge>
               </TableCell>
               <TableCell>
                 <Badge

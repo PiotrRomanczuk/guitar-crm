@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog';
-import type { Song } from '@/components/songs/types';
+import type { Song, SongWithStatus } from '@/components/songs/types';
 import {
   Table,
   TableBody,
@@ -17,11 +17,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Trash2 } from 'lucide-react';
+import StatusSelect from './StatusSelect';
 
 interface Props {
-  songs: Song[];
+  songs: (Song | SongWithStatus)[];
   canDelete?: boolean;
   onDeleteSuccess?: () => void;
+  selectedStudentId?: string;
 }
 
 function getLevelBadgeVariant(
@@ -37,7 +39,30 @@ function getLevelBadgeVariant(
   return 'outline';
 }
 
-export default function SongListTable({ songs, canDelete = false, onDeleteSuccess }: Props) {
+function getStatusBadgeVariant(
+  status: string | null | undefined
+): 'default' | 'secondary' | 'destructive' | 'outline' {
+  if (!status) return 'outline';
+
+  switch (status) {
+    case 'mastered':
+      return 'default'; // Green-ish usually
+    case 'started':
+    case 'in_progress':
+      return 'secondary';
+    case 'to_learn':
+      return 'outline';
+    default:
+      return 'outline';
+  }
+}
+
+export default function SongListTable({
+  songs,
+  canDelete = false,
+  onDeleteSuccess,
+  selectedStudentId,
+}: Props) {
   const router = useRouter();
   const [deletingSongId, setDeletingSongId] = useState<string | null>(null);
   const [songToDelete, setSongToDelete] = useState<Song | null>(null);
@@ -82,7 +107,7 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
             <TableRow>
               <TableHead>Title</TableHead>
               <TableHead>Author</TableHead>
-              <TableHead>Level</TableHead>
+              <TableHead>{selectedStudentId ? 'Status' : 'Level'}</TableHead>
               <TableHead>Key</TableHead>
               {canDelete && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
@@ -107,9 +132,18 @@ export default function SongListTable({ songs, canDelete = false, onDeleteSucces
                   </TableCell>
                   <TableCell>{song.author}</TableCell>
                   <TableCell>
-                    <Badge variant={getLevelBadgeVariant(song.level)}>
-                      {song.level || 'Unknown'}
-                    </Badge>
+                    {selectedStudentId && (song as SongWithStatus).lesson_song_id ? (
+                      <StatusSelect
+                        lessonSongId={(song as SongWithStatus).lesson_song_id!}
+                        currentStatus={(song as SongWithStatus).status || 'to_learn'}
+                      />
+                    ) : selectedStudentId ? (
+                      <Badge variant="outline">Not Assigned</Badge>
+                    ) : (
+                      <Badge variant={getLevelBadgeVariant(song.level)}>
+                        {song.level || 'Unknown'}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell>{song.key}</TableCell>
                   {canDelete && (

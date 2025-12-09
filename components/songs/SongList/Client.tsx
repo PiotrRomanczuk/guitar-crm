@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Song, SongFilters } from '../types';
+import type { Song } from '../types';
 import SongListFilter from './Filter';
 import SongListTable from './Table';
 import SongListHeader from './Header';
@@ -11,35 +10,12 @@ import SongListEmpty from './Empty';
 interface Props {
   initialSongs: Song[];
   isAdmin: boolean;
+  students?: { id: string; full_name: string | null }[];
+  selectedStudentId?: string;
 }
 
-export function SongListClient({ initialSongs, isAdmin }: Props) {
+export function SongListClient({ initialSongs, isAdmin, students, selectedStudentId }: Props) {
   const router = useRouter();
-  const [filters, setFilters] = useState<SongFilters>({
-    level: null,
-    search: '',
-  });
-
-  const filteredSongs = useMemo(() => {
-    return initialSongs.filter((song) => {
-      // Filter by level
-      if (filters.level && song.level !== filters.level) {
-        return false;
-      }
-
-      // Filter by search text (title or author)
-      if (filters.search) {
-        const searchLower = filters.search.toLowerCase();
-        const titleMatch = (song.title || '').toLowerCase().includes(searchLower);
-        const authorMatch = (song.author || '').toLowerCase().includes(searchLower);
-        if (!titleMatch && !authorMatch) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [initialSongs, filters]);
 
   const handleDeleteSuccess = () => {
     router.refresh();
@@ -49,15 +25,16 @@ export function SongListClient({ initialSongs, isAdmin }: Props) {
     <div className="space-y-6">
       <SongListHeader canManageSongs={isAdmin} />
 
-      <SongListFilter filters={filters} onChange={setFilters} />
+      <SongListFilter students={students} />
 
-      {filteredSongs.length === 0 ? (
+      {initialSongs.length === 0 ? (
         <SongListEmpty />
       ) : (
         <SongListTable
-          songs={filteredSongs}
+          songs={initialSongs}
           canDelete={isAdmin}
           onDeleteSuccess={handleDeleteSuccess}
+          selectedStudentId={selectedStudentId}
         />
       )}
     </div>

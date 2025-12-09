@@ -25,9 +25,11 @@ export function DashboardPageContent({
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-6xl">
         <DashboardHeader email={email} roleText={roleText} />
         <DashboardCardGrid isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
-        <div className="mt-8">
-          <CalendarEventsList limit={7} />
-        </div>
+        {isAdmin && (
+          <div className="mt-8">
+            <CalendarEventsList limit={7} />
+          </div>
+        )}
         <QuickActionsSection isAdmin={isAdmin} isTeacher={isTeacher} />
       </main>
     </div>
