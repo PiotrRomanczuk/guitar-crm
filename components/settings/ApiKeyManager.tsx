@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 
 interface ApiKey {
   id: string;
@@ -24,7 +23,6 @@ export function ApiKeyManager() {
   const [showNewKey, setShowNewKey] = useState<NewKeyResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     fetchApiKeys();

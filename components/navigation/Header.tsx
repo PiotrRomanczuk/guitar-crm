@@ -205,7 +205,9 @@ export default function Header({
     const supabase = createClient();
 
     // Listen for auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
         // User signed in or session updated, refresh their roles
         if (session?.user) {
@@ -235,7 +237,7 @@ export default function Header({
     });
 
     return () => {
-      authListener?.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, [router]);
 
