@@ -1,6 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 
 export const createQueryClient = () => {
+  console.log('[lib/query-client] createQueryClient called');
   return new QueryClient({
     defaultOptions: {
       queries: {
