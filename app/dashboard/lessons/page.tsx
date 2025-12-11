@@ -9,7 +9,14 @@ interface LessonsPageData {
   error: string | null;
 }
 
-async function fetchInitialLessons(): Promise<LessonsPageData> {
+interface LessonsPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+async function fetchInitialLessons(
+  filter?: string,
+  studentId?: string
+): Promise<LessonsPageData> {
   try {
     const supabase = await createClient();
     const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
@@ -21,7 +28,10 @@ async function fetchInitialLessons(): Promise<LessonsPageData> {
     };
 
     // Use the same handler as the API route
-    const result = await getLessonsHandler(supabase, user, profile, {});
+    const result = await getLessonsHandler(supabase, user, profile, {
+      filter,
+      studentId,
+    });
 
     if (result.error) {
       return { lessons: [], error: result.error };
@@ -36,7 +46,7 @@ async function fetchInitialLessons(): Promise<LessonsPageData> {
   }
 }
 
-export default async function LessonsPage() {
+export default async function LessonsPage({ searchParams }: LessonsPageProps) {
   const { user } = await getUserWithRolesSSR();
 
   if (!user) {
@@ -50,7 +60,12 @@ export default async function LessonsPage() {
     );
   }
 
-  const { lessons, error } = await fetchInitialLessons();
+  const resolvedParams = await searchParams;
+  const filter = typeof resolvedParams.filter === 'string' ? resolvedParams.filter : undefined;
+  const studentId =
+    typeof resolvedParams.studentId === 'string' ? resolvedParams.studentId : undefined;
+
+  const { lessons, error } = await fetchInitialLessons(filter, studentId);
 
   return (
     <div className="container mx-auto px-4 py-8">
