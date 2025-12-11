@@ -57,7 +57,9 @@ export default function useSong(songId: string) {
           const sessionTimeout = new Promise((_, reject) =>
             setTimeout(() => reject('timeout'), 5000)
           );
-          const result = (await Promise.race([sessionPromise, sessionTimeout])) as any;
+          const result = (await Promise.race([sessionPromise, sessionTimeout])) as {
+            data: { session: { access_token: string } | null } | null;
+          };
 
           if (result?.data?.session?.access_token) {
             console.log('[useSong-Effect] Got token from getSession');
@@ -120,42 +122,15 @@ export default function useSong(songId: string) {
           }
           setLoading(false);
           return; // Exit if raw fetch works
-        } catch (fetchErr: any) {
+        } catch (fetchErr: unknown) {
           console.error('[useSong-Effect] Raw fetch failed:', fetchErr);
           // If raw fetch fails, we can try the client or just report error
           throw fetchErr;
         }
-
-        /*
-        const supabase = getSupabaseBrowserClient();
-        
-        // Timeout for the whole operation
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Manual fetch timeout')), 5000)
-        );
-
-        const fetchPromise = supabase
-          .from('songs')
-          .select('*')
-          .eq('id', songId)
-          .single();
-
-        const { data, error: fetchError } = await Promise.race([fetchPromise, timeoutPromise]) as any;
-
-        if (!mounted) return;
-
-        if (fetchError) {
-          console.error('[useSong-Effect] Error:', fetchError);
-          setError(fetchError.message);
-        } else {
-          console.log('[useSong-Effect] Success:', data);
-          setSong(data);
-        }
-        */
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!mounted) return;
         console.error('[useSong-Effect] Catch:', err);
-        setError(err.message || 'Unknown error');
+        setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         if (mounted) {
           setLoading(false);
