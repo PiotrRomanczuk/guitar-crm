@@ -10,9 +10,20 @@ import {
 interface Props {
   filterStatus: string;
   onFilterChange: (status: string) => void;
+  filterStudentId?: string;
+  onStudentFilterChange?: (studentId: string) => void;
+  students?: { id: string; full_name: string }[];
+  showStudentFilter?: boolean;
 }
 
-export default function LessonListFilter({ filterStatus, onFilterChange }: Props) {
+export default function LessonListFilter({
+  filterStatus,
+  onFilterChange,
+  filterStudentId = 'all',
+  onStudentFilterChange,
+  students = [],
+  showStudentFilter = false,
+}: Props) {
   return (
     <div
       data-testid="lessons-filters"
@@ -35,6 +46,25 @@ export default function LessonListFilter({ filterStatus, onFilterChange }: Props
             </SelectContent>
           </Select>
         </div>
+
+        {showStudentFilter && onStudentFilterChange && (
+          <div className="space-y-2">
+            <Label htmlFor="filter-student">Filter by Student</Label>
+            <Select value={filterStudentId} onValueChange={onStudentFilterChange}>
+              <SelectTrigger id="filter-student" data-testid="filter-student-trigger">
+                <SelectValue placeholder="Select student" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Students</SelectItem>
+                {students.map((student) => (
+                  <SelectItem key={student.id} value={student.id}>
+                    {student.full_name || student.id}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
     </div>
   );

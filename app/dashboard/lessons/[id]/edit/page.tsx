@@ -102,8 +102,7 @@ export default async function LessonEditPage({ params }: LessonEditPageProps) {
   const initialData = {
     student_id: lesson.student_id,
     teacher_id: lesson.teacher_id,
-    date: lesson.date,
-    start_time: lesson.start_time || '',
+    scheduled_at: `${lesson.date}T${lesson.start_time || '00:00'}`,
     title: lesson.title || '',
     notes: lesson.notes || '',
     song_ids: lesson.lesson_songs?.map((ls) => ls.song_id) || [],
