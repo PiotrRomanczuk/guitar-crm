@@ -13,10 +13,7 @@ interface LessonsPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-async function fetchInitialLessons(
-  filter?: string,
-  studentId?: string
-): Promise<LessonsPageData> {
+async function fetchInitialLessons(filter?: string, studentId?: string): Promise<LessonsPageData> {
   try {
     const supabase = await createClient();
     const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();

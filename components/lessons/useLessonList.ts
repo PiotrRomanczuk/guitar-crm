@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
@@ -14,13 +14,8 @@ export default function useLessonList(
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Initialize state from URL params
-  const [filterStatus, setFilterStatusState] = useState<string>(
-    searchParams.get('filter') || 'all'
-  );
-  const [filterStudentId, setFilterStudentIdState] = useState<string>(
-    searchParams.get('studentId') || 'all'
-  );
+  const filterStatus = searchParams.get('filter') || 'all';
+  const filterStudentId = searchParams.get('studentId') || 'all';
 
   // Update URL helper
   const updateUrl = useCallback(
@@ -38,22 +33,12 @@ export default function useLessonList(
 
   // Wrappers for state setters that also update URL
   const setFilterStatus = (status: string) => {
-    setFilterStatusState(status);
     updateUrl('filter', status);
   };
 
   const setFilterStudentId = (studentId: string) => {
-    setFilterStudentIdState(studentId);
     updateUrl('studentId', studentId);
   };
-
-  // Sync state with URL params if they change externally (e.g. back button)
-  useEffect(() => {
-    const status = searchParams.get('filter') || 'all';
-    const studentId = searchParams.get('studentId') || 'all';
-    setFilterStatusState(status);
-    setFilterStudentIdState(studentId);
-  }, [searchParams]);
 
   const {
     data: lessons = initialLessons,
