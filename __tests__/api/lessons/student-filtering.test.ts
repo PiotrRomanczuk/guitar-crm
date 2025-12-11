@@ -1,4 +1,3 @@
-
 import { getLessonsHandler } from '@/app/api/lessons/handlers';
 
 describe('Lesson API Student Filtering', () => {
@@ -47,23 +46,23 @@ describe('Lesson API Student Filtering', () => {
     // Mock getTeacherStudentIds response
     // First call to from('lessons') is inside getTeacherStudentIds
     // We need to handle multiple calls to from()
-    
+
     // Mock implementation for from()
     mockSupabase.from.mockImplementation((table: string) => {
       if (table === 'lessons') {
         return {
           select: jest.fn().mockImplementation((cols) => {
-             if (cols === 'student_id') {
-                 // This is getTeacherStudentIds query
-                 return {
-                     eq: jest.fn().mockResolvedValue({ 
-                         data: [{ student_id: 'student-456' }, { student_id: 'student-789' }] 
-                     })
-                 }
-             }
-             // This is the main query
-             return baseQueryMock;
-          })
+            if (cols === 'student_id') {
+              // This is getTeacherStudentIds query
+              return {
+                eq: jest.fn().mockResolvedValue({
+                  data: [{ student_id: 'student-456' }, { student_id: 'student-789' }],
+                }),
+              };
+            }
+            // This is the main query
+            return baseQueryMock;
+          }),
         };
       }
       return baseQueryMock;
