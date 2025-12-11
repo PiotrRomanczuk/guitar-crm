@@ -1,6 +1,8 @@
-import SongFormGuard from '@/components/songs/SongFormGuard';
+import { SongForm } from '@/components/songs';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
-import { redirect } from 'next/navigation';
+import { redirect, notFound } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
+import { Song } from '@/schemas/SongSchema';
 
 interface EditSongPageProps {
   params: Promise<{
@@ -25,9 +27,16 @@ export default async function EditSongPage({ params }: EditSongPageProps) {
   }
   const { id } = await params;
 
+  const supabase = await createClient();
+  const { data: song, error } = await supabase.from('songs').select('*').eq('id', id).single();
+
+  if (error || !song) {
+    notFound();
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <SongFormGuard mode="edit" songId={id} />
+      <SongForm mode="edit" song={song as unknown as Song} />
     </div>
   );
 }
