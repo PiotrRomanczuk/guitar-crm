@@ -1,4 +1,4 @@
-import { SongSchema, SongInputSchema } from '@/schemas/SongSchema';
+import { SongSchema, SongInputSchema, SongUpdateSchema } from '@/schemas/SongSchema';
 
 describe('SongSchema', () => {
 	describe('SongInputSchema', () => {
@@ -125,6 +125,58 @@ describe('SongSchema', () => {
 			};
 
 			expect(() => SongSchema.parse(minimalSong)).not.toThrow();
+		});
+	});
+
+	describe('SongUpdateSchema', () => {
+		it('should allow partial updates without requiring id in body', () => {
+			const partialUpdate = {
+				title: 'Updated Title',
+			};
+
+			expect(() => SongUpdateSchema.parse(partialUpdate)).not.toThrow();
+			const result = SongUpdateSchema.parse(partialUpdate);
+			expect(result.title).toBe('Updated Title');
+		});
+
+		it('should allow updating multiple fields without id', () => {
+			const multiFieldUpdate = {
+				title: 'New Title',
+				author: 'New Author',
+				level: 'advanced' as const,
+			};
+
+			expect(() => SongUpdateSchema.parse(multiFieldUpdate)).not.toThrow();
+			const result = SongUpdateSchema.parse(multiFieldUpdate);
+			expect(result.title).toBe('New Title');
+			expect(result.author).toBe('New Author');
+			expect(result.level).toBe('advanced');
+		});
+
+		it('should allow empty update object', () => {
+			const emptyUpdate = {};
+
+			expect(() => SongUpdateSchema.parse(emptyUpdate)).not.toThrow();
+		});
+
+		it('should validate field types even in partial updates', () => {
+			const invalidUpdate = {
+				level: 'invalid_level' as never,
+			};
+
+			expect(() => SongUpdateSchema.parse(invalidUpdate)).toThrow();
+		});
+
+		it('should not require id field in the update payload', () => {
+			// This test verifies that id is NOT part of the update schema
+			const updateWithoutId = {
+				title: 'Title Update',
+				author: 'Author Update',
+			};
+
+			const result = SongUpdateSchema.parse(updateWithoutId);
+			// Verify id is not in the parsed result
+			expect('id' in result).toBe(false);
 		});
 	});
 });
