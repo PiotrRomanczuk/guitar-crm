@@ -35,6 +35,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  console.log('[Layout] RootLayout rendering');
   const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
   // console.log(user, isAdmin, isTeacher, isStudent);
   return (

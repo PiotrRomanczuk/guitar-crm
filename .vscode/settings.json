@@ -14,5 +14,6 @@
   },
   "editor.formatOnSave": true,
   "prettier.enable": true,
-  "prettier.ignorePath": ".prettierignore"
+  "prettier.ignorePath": ".prettierignore",
+  "terminal.integrated.shellIntegration.enabled": true
 }

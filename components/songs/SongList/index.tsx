@@ -90,7 +90,7 @@ export default async function SongList({ searchParams }: SongListProps) {
   return (
     <SongListClient
       initialSongs={songs}
-      isAdmin={isAdmin}
+      isAdmin={isAdmin || isTeacher}
       students={students}
       selectedStudentId={studentId}
     />

@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog';
 import type { Song, SongWithStatus } from '@/components/songs/types';
@@ -48,30 +49,78 @@ export default function SongListTable({
   const router = useRouter();
   const [deletingSongId, setDeletingSongId] = useState<string | null>(null);
   const [songToDelete, setSongToDelete] = useState<Song | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [assignmentCount, setAssignmentCount] = useState<number>(0);
+  const [isCheckingAssignments, setIsCheckingAssignments] = useState(false);
+
+  // Check for assignments when a song is selected for deletion
+  useEffect(() => {
+    if (!songToDelete) {
+      setAssignmentCount(0);
+      return;
+    }
+
+    const checkAssignments = async () => {
+      setIsCheckingAssignments(true);
+      
+      try {
+        const supabase = getSupabaseBrowserClient();
+        const { count, error } = await supabase
+          .from('lesson_songs')
+          .select('*', { count: 'exact', head: true })
+          .eq('song_id', songToDelete.id);
+        
+        if (error) {
+          console.error('Error checking assignments:', error);
+        } else {
+          setAssignmentCount(count || 0);
+        }
+      } catch (err) {
+        console.error('Unexpected error checking assignments:', err);
+      } finally {
+        setIsCheckingAssignments(false);
+      }
+    };
+
+    checkAssignments();
+  }, [songToDelete]);
 
   const handleDeleteClick = (song: Song) => {
     setSongToDelete(song);
+    setDeleteError(null);
   };
 
   const handleConfirmDelete = async () => {
     if (!songToDelete) return;
 
     setDeletingSongId(songToDelete.id);
+    setDeleteError(null);
 
     try {
-      const supabase = getSupabaseBrowserClient();
-      const { error } = await supabase.from('songs').delete().eq('id', songToDelete.id);
+      const response = await fetch(`/api/song?id=${songToDelete.id}`, {
+        method: 'DELETE',
+      });
 
-      if (error) {
-        throw new Error(error.message);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to delete song');
       }
 
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to delete song');
+      }
+
+      toast.success('Song deleted successfully');
       setSongToDelete(null);
-      setDeletingSongId(null);
       onDeleteSuccess?.();
       router.refresh();
     } catch (error) {
-      console.error('🎸 [FRONTEND] Delete failed:', error);
+      console.error('Delete failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete song';
+      setDeleteError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
       setDeletingSongId(null);
     }
   };
@@ -79,6 +128,7 @@ export default function SongListTable({
   const handleCancelDelete = () => {
     setSongToDelete(null);
     setDeletingSongId(null);
+    setDeleteError(null);
   };
 
   return (
@@ -158,10 +208,13 @@ export default function SongListTable({
         <DeleteConfirmationDialog
           isOpen={true}
           songTitle={songToDelete.title ?? 'Untitled'}
-          hasLessonAssignments={false}
+          hasLessonAssignments={assignmentCount > 0}
+          lessonCount={assignmentCount}
           onConfirm={handleConfirmDelete}
           onClose={handleCancelDelete}
           isDeleting={deletingSongId === songToDelete.id}
+          error={deleteError}
+          // Pass loading state if the dialog supports it, or just let the warning appear when ready
         />
       )}
     </>
