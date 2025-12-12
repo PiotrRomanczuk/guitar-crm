@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { RoleBasedNav } from './RoleBasedNav';
 import { ConnectionStatus } from './ConnectionStatus';
 import { ModeToggle } from '@/components/ui/mode-toggle';
@@ -200,8 +200,14 @@ export default function Header({
   isStudent: boolean;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(initialUser);
+
+  if (['/sign-in', '/sign-up', '/forgot-password', '/reset-password'].includes(pathname)) {
+    return null;
+  }
+
   const [isAdmin, setIsAdmin] = useState(initialIsAdmin);
   const [isTeacher, setIsTeacher] = useState(initialIsTeacher);
   const [isStudent, setIsStudent] = useState(initialIsStudent);
