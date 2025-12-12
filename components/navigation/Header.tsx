@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { RoleBasedNav } from './RoleBasedNav';
 import { ConnectionStatus } from './ConnectionStatus';
+import { ModeToggle } from '@/components/ui/mode-toggle';
 
 function MobileMenu({
   open,
@@ -37,6 +38,10 @@ function MobileMenu({
         </div>
       )}
       <div className="flex sm:hidden flex-col gap-2 pt-3 border-t border-blue-500 dark:border-blue-700">
+        <div className="px-2 mb-2 flex items-center justify-between">
+          <span className="text-blue-50">Theme</span>
+          <ModeToggle />
+        </div>
         {loading ? (
           <div className="text-blue-100">Loading...</div>
         ) : user ? (
@@ -105,6 +110,7 @@ function DesktopAuthControls({
 }) {
   return (
     <div className="hidden sm:flex items-center gap-2 sm:gap-3 lg:gap-4">
+      <ModeToggle />
       {loading ? (
         <div className="text-blue-100 text-sm">Loading...</div>
       ) : user ? (

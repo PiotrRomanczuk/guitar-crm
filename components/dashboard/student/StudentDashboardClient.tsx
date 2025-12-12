@@ -48,20 +48,21 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
     id: s.id,
     title: s.title,
     artist: s.artist,
-    difficulty: 'Intermediate', // Mocked
-    status: 'In Progress' as const, // Mocked
-    progress: 50, // Mocked
+    difficulty: 'Medium' as const, // Mocked
+    duration: '3:45', // Mocked
+    studentsLearning: 12, // Mocked
   }));
 
   const assignments = data.assignments.map((a) => ({
     id: a.id,
     title: a.title,
+    studentName: 'You', // Mocked
     dueDate: a.due_date || 'No due date',
     status: (a.status === 'completed'
-      ? 'Completed'
+      ? 'completed'
       : a.status === 'overdue'
-      ? 'Overdue'
-      : 'Pending') as 'Pending' | 'Completed' | 'Overdue',
+      ? 'overdue'
+      : 'pending') as 'pending' | 'completed' | 'overdue',
   }));
 
   return (
@@ -79,13 +80,13 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
             title="Total Songs"
             value={data.stats.totalSongs.toString()}
             icon={Music}
-            trend="+2 this week"
+            change="+2 this week"
           />
           <StatCard
             title="Completed Lessons"
             value={data.stats.completedLessons.toString()}
             icon={BookOpen}
-            trend="+1 this week"
+            change="+1 this week"
           />
           <StatCard
             title="Active Assignments"
@@ -96,7 +97,7 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
             title="Practice Hours"
             value={data.stats.practiceHours.toString()}
             icon={Clock}
-            trend="+2.5h this week"
+            change="+2.5h this week"
           />
         </div>
 
