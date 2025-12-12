@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Header } from './Header';
 import { Table } from './Table';
 import { Empty } from './Empty';
+import { Filters } from './Filters';
 import { useAssignmentList } from '../hooks';
 
 interface AssignmentListProps {
@@ -15,8 +17,48 @@ interface AssignmentListProps {
  * Displays list of assignments with filtering and actions
  */
 export default function AssignmentList({ canCreate = false }: AssignmentListProps) {
-  const [filters] = useState({});
-  const { assignments, isLoading, error } = useAssignmentList(filters);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const search = searchParams.get('search') || '';
+  const status = searchParams.get('status') || '';
+  const studentId = searchParams.get('studentId') || '';
+
+  const { assignments, isLoading, error } = useAssignmentList({
+    search,
+    status,
+    student_id: studentId,
+  });
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value) {
+        params.set(name, value);
+      } else {
+        params.delete(name);
+      }
+      return params.toString();
+    },
+    [searchParams]
+  );
+
+  const handleSearchChange = (value: string) => {
+    router.replace(pathname + '?' + createQueryString('search', value));
+  };
+
+  const handleStatusChange = (value: string) => {
+    router.replace(pathname + '?' + createQueryString('status', value));
+  };
+
+  const handleStudentChange = (value: string) => {
+    router.replace(pathname + '?' + createQueryString('studentId', value));
+  };
+
+  const handleReset = () => {
+    router.replace(pathname);
+  };
 
   if (error) {
     return (
@@ -32,6 +74,17 @@ export default function AssignmentList({ canCreate = false }: AssignmentListProp
   return (
     <div className="space-y-4 sm:space-y-6">
       <Header canCreate={canCreate} />
+
+      <Filters
+        search={search}
+        status={status}
+        studentId={studentId}
+        showStudentFilter={canCreate}
+        onSearchChange={handleSearchChange}
+        onStatusChange={handleStatusChange}
+        onStudentChange={handleStudentChange}
+        onReset={handleReset}
+      />
 
       {isLoading ? (
         <div className="flex justify-center items-center py-8 sm:py-12">

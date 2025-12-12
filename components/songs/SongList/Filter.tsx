@@ -59,7 +59,10 @@ export default function SongListFilter({ students }: Props) {
     !!searchParams.get('level') || !!searchParams.get('search') || !!searchParams.get('studentId');
 
   return (
-    <div className="bg-card rounded-lg border shadow-sm p-4 space-y-4">
+    <div
+      className="bg-card rounded-xl border border-border p-6 space-y-4 opacity-0 animate-fade-in"
+      style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
+    >
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {/* Search Filter */}
         <div className="space-y-2">
