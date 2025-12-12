@@ -203,11 +203,6 @@ export default function Header({
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(initialUser);
-
-  if (['/sign-in', '/sign-up', '/forgot-password', '/reset-password'].includes(pathname)) {
-    return null;
-  }
-
   const [isAdmin, setIsAdmin] = useState(initialIsAdmin);
   const [isTeacher, setIsTeacher] = useState(initialIsTeacher);
   const [isStudent, setIsStudent] = useState(initialIsStudent);
@@ -252,6 +247,10 @@ export default function Header({
       subscription?.unsubscribe();
     };
   }, [router]);
+
+  if (['/sign-in', '/sign-up', '/forgot-password', '/reset-password'].includes(pathname)) {
+    return null;
+  }
 
   const handleSignOut = () => signOutAndRedirect(router, setMobileMenuOpen);
   const handleNavigation = (path: string) => {
