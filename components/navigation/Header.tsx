@@ -252,6 +252,14 @@ export default function Header({
     return null;
   }
 
+  if (pathname === '/') {
+    return (
+      <div className="absolute top-4 right-4 z-50">
+        <ModeToggle />
+      </div>
+    );
+  }
+
   const handleSignOut = () => signOutAndRedirect(router, setMobileMenuOpen);
   const handleNavigation = (path: string) => {
     router.push(path);
