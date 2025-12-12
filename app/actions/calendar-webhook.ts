@@ -6,22 +6,22 @@ import { watchCalendar } from '@/lib/google';
 
 export async function enableCalendarWebhook() {
   const { user, isTeacher } = await getUserWithRolesSSR();
-  
+
   if (!user || !isTeacher) {
     return { success: false, error: 'Unauthorized' };
   }
 
   const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/google-calendar`;
-  
+
   try {
     const { channelId, resourceId, expiration } = await watchCalendar(user.id, webhookUrl);
-    
+
     if (!channelId || !resourceId) {
       throw new Error('Failed to register webhook');
     }
 
     const supabase = await createClient();
-    
+
     // Store subscription
     const { error } = await supabase.from('webhook_subscriptions').insert({
       user_id: user.id,

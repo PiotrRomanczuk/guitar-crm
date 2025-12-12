@@ -79,7 +79,11 @@ function SettingsActions({
   );
 }
 
-export default function SettingsPageClient({ isGoogleConnected = false }: { isGoogleConnected?: boolean }) {
+export default function SettingsPageClient({
+  isGoogleConnected = false,
+}: {
+  isGoogleConnected?: boolean;
+}) {
   const router = useRouter();
   const { loading, saving, settings, hasChanges, updateSetting, saveSettings, resetSettings } =
     useSettings();

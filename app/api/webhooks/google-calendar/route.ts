@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   const channelId = req.headers.get('x-goog-channel-id');
   const resourceId = req.headers.get('x-goog-resource-id');
   const resourceState = req.headers.get('x-goog-resource-state');
-  
+
   if (!channelId || !resourceId) {
     return NextResponse.json({ error: 'Missing headers' }, { status: 400 });
   }
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   }
 
   const supabase = await createClient();
-  
+
   // Find the user associated with this channel
   const { data: subscription, error } = await supabase
     .from('webhook_subscriptions')
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   // Trigger sync for the user
   // We don't await this to return quickly to Google
-  fetchAndSyncRecentEvents(subscription.user_id).catch(err => {
+  fetchAndSyncRecentEvents(subscription.user_id).catch((err) => {
     console.error('Background sync failed:', err);
   });
 
