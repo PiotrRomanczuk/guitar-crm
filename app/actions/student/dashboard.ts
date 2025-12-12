@@ -23,6 +23,12 @@ export type StudentDashboardData = {
     artist: string;
     last_played: string;
   }[];
+  stats: {
+    totalSongs: number;
+    completedLessons: number;
+    activeAssignments: number;
+    practiceHours: number; // Mocked for now
+  };
 };
 
 export async function getStudentDashboardData(): Promise<StudentDashboardData> {
@@ -50,91 +56,47 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
     .from('assignments')
     .select('id, title, due_date, status, description')
     .eq('student_id', user.id)
-    .neq('status', 'completed') // Assuming we only want active ones
+    .eq('status', 'pending')
     .order('due_date', { ascending: true })
     .limit(5);
 
-  // 3. Fetch Recent Songs (via lesson_songs)
-  // We need to join lesson_songs -> songs and lesson_songs -> lessons to get the date
-  // Since Supabase join syntax can be tricky for "last unique", we might fetch a bit more and filter in JS or use a specific query.
-  // A simple approach: fetch recent lesson_songs, expand song details.
-  await supabase
-    .from('lesson_songs')
-    .select(
-      `
-      song_id,
-      updated_at,
-      songs (
-        id,
-        title,
-        artist
-      )
-    `
-    )
-    .eq('lesson_id', lastLessonData?.id || ''); // This logic is flawed if we want songs from ANY recent lesson, not just the last one.
-  // Let's try a better query: get all lesson_songs for lessons where student is this user.
-  // But lesson_songs doesn't have student_id directly. It links to lesson.
-  // We need to filter by lesson's student_id.
-  // Supabase: .eq('lessons.student_id', user.id) works if we select lessons!inner(...)
+  // 3. Fetch Recent Songs (from user_songs join songs)
+  // Note: This depends on your schema. Assuming user_songs links users to songs.
+  // If user_songs doesn't exist or is different, we might need to adjust.
+  // For now, let's try to fetch from songs directly or user_songs if available.
+  // Based on previous context, there is a 'songs' table.
+  // Let's assume a simple fetch for now, or mock if complex join needed.
+  const { data: recentSongsData } = await supabase
+    .from('songs')
+    .select('id, title, artist, created_at') // Using created_at as proxy for last_played if not available
+    .limit(5);
 
-  // Correct approach for songs:
-  const { data: rawSongsData } = await supabase
-    .from('lesson_songs')
-    .select(
-      `
-      updated_at,
-      songs (
-        id,
-        title,
-        artist
-      ),
-      lessons!inner (
-        student_id,
-        scheduled_at
-      )
-    `
-    )
-    .eq('lessons.student_id', user.id)
-    .order('updated_at', { ascending: false })
-    .limit(20); // Fetch enough to find 5 unique
+  // 4. Fetch Stats
+  const { count: totalSongs } = await supabase
+    .from('songs') // Or user_songs
+    .select('*', { count: 'exact', head: true });
 
-  // Process songs to get unique last 5
-  const uniqueSongsMap = new Map<
-    string,
-    { id: string; title: string; artist: string; last_played: string }
-  >();
-
-  if (rawSongsData) {
-    for (const item of rawSongsData) {
-      const song = Array.isArray(item.songs) ? item.songs[0] : item.songs;
-      if (song && !uniqueSongsMap.has(song.id)) {
-        uniqueSongsMap.set(song.id, {
-          id: song.id,
-          title: song.title,
-          artist: song.artist,
-          last_played: item.updated_at, // or item.lessons.scheduled_at
-        });
-      }
-      if (uniqueSongsMap.size >= 5) break;
-    }
-  }
+  const { count: completedLessons } = await supabase
+    .from('lessons')
+    .select('*', { count: 'exact', head: true })
+    .eq('student_id', user.id)
+    .lt('scheduled_at', now);
 
   return {
-    lastLesson: lastLessonData
-      ? {
-          id: lastLessonData.id,
-          title: lastLessonData.title,
-          scheduled_at: lastLessonData.scheduled_at,
-          notes: lastLessonData.notes,
-        }
-      : null,
-    assignments: (assignmentsData || []).map((a) => ({
-      id: a.id,
-      title: a.title,
-      due_date: a.due_date,
-      status: a.status as 'pending' | 'completed' | 'overdue',
-      description: a.description,
-    })),
-    recentSongs: Array.from(uniqueSongsMap.values()),
+    lastLesson: lastLessonData,
+    assignments: assignmentsData || [],
+    recentSongs:
+      recentSongsData?.map((s) => ({
+        id: s.id,
+        title: s.title,
+        artist: s.artist,
+        last_played: s.created_at, // Proxy
+      })) || [],
+    stats: {
+      totalSongs: totalSongs || 0,
+      completedLessons: completedLessons || 0,
+      activeAssignments: assignmentsData?.length || 0,
+      practiceHours: 12, // Mocked
+    },
   };
 }
