@@ -1,0 +1,53 @@
+export const getSupabaseConfig = () => {
+  const localUrl = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL;
+  const localAnonKey = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY;
+  const remoteUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const remoteAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // Prioritize local if both URL and Key are present
+  if (localUrl && localAnonKey) {
+    return {
+      url: localUrl,
+      anonKey: localAnonKey,
+      isLocal: true,
+    };
+  }
+
+  // Fallback to remote
+  if (remoteUrl && remoteAnonKey) {
+    return {
+      url: remoteUrl,
+      anonKey: remoteAnonKey,
+      isLocal: false,
+    };
+  }
+
+  throw new Error('Supabase configuration missing. Please check your .env file.');
+};
+
+export const getSupabaseAdminConfig = () => {
+  const config = getSupabaseConfig();
+
+  // For admin, we need the service role key.
+  // We assume if we are using local URL, we should use local service role key if available.
+
+  const localServiceRoleKey = process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY;
+  const remoteServiceRoleKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY; // Fallback for some setups
+
+  if (config.isLocal && localServiceRoleKey) {
+    return {
+      ...config,
+      serviceRoleKey: localServiceRoleKey,
+    };
+  }
+
+  if (remoteServiceRoleKey) {
+    return {
+      ...config,
+      serviceRoleKey: remoteServiceRoleKey,
+    };
+  }
+
+  throw new Error('Supabase Admin configuration missing (Service Role Key).');
+};
