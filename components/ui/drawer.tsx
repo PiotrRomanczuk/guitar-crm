@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 
 interface DrawerContextValue {
@@ -58,7 +59,8 @@ function DrawerTrigger({
       ...props,
       onClick: (e: React.MouseEvent) => {
         onOpenChange(true);
-        children.props.onClick?.(e);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (children as any).props.onClick?.(e);
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
@@ -80,7 +82,7 @@ function DrawerPortal({ children }: { children: React.ReactNode }) {
     <>
       {typeof document !== 'undefined' &&
         document.body &&
-        React.createPortal(children, document.body)}
+        createPortal(children, document.body)}
     </>
   );
 }

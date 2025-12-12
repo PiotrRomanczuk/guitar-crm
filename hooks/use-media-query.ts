@@ -16,9 +16,7 @@ export function useMediaQuery(query: string): boolean {
       }
 
       // Fallback for older browsers
-      // @ts-expect-error - Deprecated method support
       media.addListener(callback);
-      // @ts-expect-error - Deprecated method support
       return () => media.removeListener(callback);
     },
     [query]
