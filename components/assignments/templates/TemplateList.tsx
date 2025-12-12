@@ -86,7 +86,7 @@ export default function TemplateList({ templates }: TemplateListProps) {
                         Edit
                       </Link>
                       <button
-                        onClick={() => handleDelete(template.id)}
+                        onClick={() => template.id && handleDelete(template.id)}
                         className="text-red-600 hover:text-red-900"
                       >
                         Delete
