@@ -2,7 +2,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useDashboardStats, AdminStats, TeacherStats, StudentStats } from '@/hooks/useDashboardStats';
+import {
+  useDashboardStats,
+  AdminStats,
+  TeacherStats,
+  StudentStats,
+} from '@/hooks/useDashboardStats';
 import { Users, BookOpen, Music, GraduationCap, TrendingUp, Award } from 'lucide-react';
 import { StatsCard } from './StatsCard';
 

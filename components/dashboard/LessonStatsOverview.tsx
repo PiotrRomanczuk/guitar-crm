@@ -88,9 +88,7 @@ export function LessonStatsOverview({ filters }: LessonStatsOverviewProps) {
             <div className="text-2xl font-bold">{data.upcoming}</div>
           </div>
           <div className="space-y-1">
-            <div className="flex items-center text-sm text-muted-foreground">
-              With Songs
-            </div>
+            <div className="flex items-center text-sm text-muted-foreground">With Songs</div>
             <div className="text-2xl font-bold">{data.lessonsWithSongs}</div>
           </div>
         </div>
