@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Check, Guitar, Rocket, Terminal } from 'lucide-react';
+import { Check, Guitar, Users, Music } from 'lucide-react';
 
 export function NewLandingPage() {
   return (
@@ -20,8 +20,8 @@ export function NewLandingPage() {
               Guitar CRM
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              The ultimate Student Management System for guitar teachers. 
-              Manage lessons, track progress, and grow your studio with ease.
+              The complete platform for modern guitar education. 
+              Empowering teachers to manage their studios and inspiring students to master their craft.
             </p>
           </div>
           
@@ -33,7 +33,7 @@ export function NewLandingPage() {
             </Link>
             <Link href="/sign-up">
               <Button variant="outline" size="lg" className="w-full sm:w-auto px-8 text-base">
-                Sign Up
+                Start Free Trial
               </Button>
             </Link>
           </div>
@@ -42,28 +42,28 @@ export function NewLandingPage() {
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in opacity-0" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
           
-          {/* Project Features */}
+          {/* For Teachers */}
           <Card className="hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md">
             <CardHeader>
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-primary/10 rounded-lg">
-                  <Rocket className="w-5 h-5 text-primary" />
+                  <Users className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <CardTitle>Project Features</CardTitle>
-                  <CardDescription>Built with modern web technologies</CardDescription>
+                  <CardTitle>For Teachers</CardTitle>
+                  <CardDescription>Streamline your studio management</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
-                  "Next.js 16 App Router",
-                  "TypeScript Strict",
-                  "Supabase Database",
-                  "Zod Validation",
-                  "Jest Testing",
-                  "Tailwind CSS"
+                  "Student Management",
+                  "Smart Scheduling",
+                  "Lesson Plans & Notes",
+                  "Payment Tracking",
+                  "Repertoire Database",
+                  "Automated Reminders"
                 ].map((feature, i) => (
                   <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Check className="w-4 h-4 text-green-500 shrink-0" />
@@ -74,43 +74,53 @@ export function NewLandingPage() {
             </CardContent>
           </Card>
 
-          {/* Development Tools */}
+          {/* For Students */}
           <Card className="hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md">
             <CardHeader>
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-primary/10 rounded-lg">
-                  <Terminal className="w-5 h-5 text-primary" />
+                  <Music className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <CardTitle>Development Ready</CardTitle>
-                  <CardDescription>Automated workflows and scripts</CardDescription>
+                  <CardTitle>For Students</CardTitle>
+                  <CardDescription>Accelerate your learning journey</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
-                  { cmd: "npm run setup", desc: "Complete environment setup" },
-                  { cmd: "npm run new-feature", desc: "Create feature branch" },
-                  { cmd: "npm run tdd", desc: "Start TDD workflow" },
-                  { cmd: "npm run quality", desc: "Run quality checks" }
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-2.5 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors">
-                    <code className="text-xs font-mono bg-background px-2 py-1 rounded border border-border text-primary">
-                      {item.cmd}
-                    </code>
-                    <span className="text-xs text-muted-foreground font-medium">{item.desc}</span>
-                  </div>
+                  "Interactive Practice Logs",
+                  "Song Library Access",
+                  "Goal Tracking",
+                  "Lesson History",
+                  "Assignment Views",
+                  "Progress Analytics"
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Check className="w-4 h-4 text-green-500 shrink-0" />
+                    {feature}
+                  </li>
                 ))}
-              </div>
+              </ul>
             </CardContent>
           </Card>
 
         </div>
+
+        {/* Additional Value Prop / Social Proof (Optional placeholder) */}
+        <div className="text-center pt-8 animate-fade-in opacity-0" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
+           <p className="text-sm text-muted-foreground">
+             Trusted by guitar teachers and music schools worldwide.
+           </p>
+        </div>
+
       </main>
       
-      <footer className="py-6 text-center text-sm text-muted-foreground border-t border-border bg-card/50">
-        <p>Built with Next.js, TypeScript & Supabase</p>
+      <footer className="py-6 text-center text-sm text-muted-foreground border-t">
+        <div className="container mx-auto px-4">
+          &copy; {new Date().getFullYear()} Guitar CRM. All rights reserved.
+        </div>
       </footer>
     </div>
   );
