@@ -16,7 +16,14 @@ interface StatsCardProps {
   isLoading?: boolean;
 }
 
-export function StatsCard({ title, value, description, icon: Icon, trend, isLoading }: StatsCardProps) {
+export function StatsCard({
+  title,
+  value,
+  description,
+  icon: Icon,
+  trend,
+  isLoading,
+}: StatsCardProps) {
   if (isLoading) {
     return (
       <Card>
@@ -47,7 +54,9 @@ export function StatsCard({ title, value, description, icon: Icon, trend, isLoad
           <div className="flex items-center mt-2">
             <span
               className={`text-xs font-medium ${
-                trend.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                trend.isPositive
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-red-600 dark:text-red-400'
               }`}
             >
               {trend.isPositive ? '+' : ''}
