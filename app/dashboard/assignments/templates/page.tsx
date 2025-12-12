@@ -5,7 +5,9 @@ import Link from 'next/link';
 
 export default async function TemplatesPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/login');
@@ -44,9 +46,7 @@ export default async function TemplatesPage() {
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-gray-900">Assignment Templates</h1>
-          <p className="mt-2 text-sm text-gray-700">
-            A list of reusable assignment templates.
-          </p>
+          <p className="mt-2 text-sm text-gray-700">A list of reusable assignment templates.</p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Link

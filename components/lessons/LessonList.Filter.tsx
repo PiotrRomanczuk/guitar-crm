@@ -27,7 +27,8 @@ export default function LessonListFilter({
   return (
     <div
       data-testid="lessons-filters"
-      className="bg-card text-card-foreground rounded-lg border shadow-sm p-6 mb-6"
+      className="bg-card rounded-xl border border-border p-6 mb-6 opacity-0 animate-fade-in"
+      style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="space-y-2">

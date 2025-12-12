@@ -53,8 +53,11 @@ export default function UsersList() {
 
   return (
     <div className="w-full space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Users</h1>
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">Users</h1>
+          <p className="text-muted-foreground">Manage system users and their roles</p>
+        </div>
         <Button asChild data-testid="create-user-button">
           <Link href="/dashboard/users/new">
             <Plus className="mr-2 h-4 w-4" /> New User

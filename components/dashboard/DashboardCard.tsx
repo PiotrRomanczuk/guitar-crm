@@ -14,14 +14,14 @@ export function DashboardCard({
   href: string;
 }) {
   return (
-    <Card className="hover:shadow-lg transition-shadow h-full flex flex-col">
+    <Card className="rounded-xl hover:shadow-md transition-all duration-300 h-full flex flex-col animate-fade-in border-border/50 hover:border-border">
       <CardHeader>
         <div className="text-2xl sm:text-3xl mb-2">{emoji}</div>
-        <CardTitle className="text-lg sm:text-xl">{title}</CardTitle>
+        <CardTitle className="text-lg sm:text-xl tracking-tight">{title}</CardTitle>
         <CardDescription className="text-xs sm:text-sm">{description}</CardDescription>
       </CardHeader>
       <CardFooter className="mt-auto">
-        <Button asChild variant="link" className="px-0 text-blue-600 hover:text-blue-700">
+        <Button asChild variant="ghost" className="px-0 hover:bg-transparent hover:text-primary">
           <Link href={href}>View →</Link>
         </Button>
       </CardFooter>
