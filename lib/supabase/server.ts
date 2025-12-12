@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { getSupabaseConfig } from './config';
 
 /**
  * If using Fluid compute: Don't put this client in a global variable. Always create a new client within each
@@ -7,15 +8,9 @@ import { cookies } from 'next/headers';
  */
 export async function createClient() {
   const cookieStore = await cookies();
+  const { url, anonKey } = getSupabaseConfig();
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !anon) {
-    throw new Error('Supabase URL or ANON key is missing in environment variables');
-  }
-
-  return createServerClient(url!, anon!, {
+  return createServerClient(url, anonKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
