@@ -75,7 +75,7 @@ export default function LessonList({
         </Alert>
       )}
 
-      <LessonListHeader />
+      <LessonListHeader role={role} />
 
       <LessonListFilter
         filterStatus={filterStatus}
