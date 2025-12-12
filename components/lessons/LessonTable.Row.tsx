@@ -13,23 +13,20 @@ interface Props {
   baseUrl: string;
 }
 
-export default function LessonTableRow({
-  lesson,
-  showTeacherColumn,
-  showActions,
-  baseUrl,
-}: Props) {
-  const songs =
-    lesson.lesson_songs?.map((ls) => ls.song?.title).filter(Boolean) || [];
+export default function LessonTableRow({ lesson, showTeacherColumn, showActions, baseUrl }: Props) {
+  const songs = lesson.lesson_songs?.map((ls) => ls.song?.title).filter(Boolean) || [];
   const assignments = lesson.assignments?.map((a) => a.title) || [];
   const hasContent = songs.length > 0 || assignments.length > 0;
 
   return (
-    <TableRow className="group" data-testid="lesson-row">
+    <TableRow
+      className="group hover:bg-secondary/50 border-border transition-colors"
+      data-testid="lesson-row"
+    >
       <TableCell className="relative font-medium">
         <Link
           href={`${baseUrl}/${lesson.id}`}
-          className="text-blue-600 dark:text-blue-400 hover:underline"
+          className="text-foreground hover:text-primary transition-colors"
           data-testid="lesson-title-link"
         >
           {lesson.title || 'Untitled Lesson'}
@@ -49,9 +46,7 @@ export default function LessonTableRow({
                     </li>
                   ))}
                   {songs.length > 3 && (
-                    <li className="text-gray-500 italic">
-                      +{songs.length - 3} more
-                    </li>
+                    <li className="text-gray-500 italic">+{songs.length - 3} more</li>
                   )}
                 </ul>
               </div>
@@ -68,9 +63,7 @@ export default function LessonTableRow({
                     </li>
                   ))}
                   {assignments.length > 3 && (
-                    <li className="text-gray-500 italic">
-                      +{assignments.length - 3} more
-                    </li>
+                    <li className="text-gray-500 italic">+{assignments.length - 3} more</li>
                   )}
                 </ul>
               </div>
@@ -79,9 +72,7 @@ export default function LessonTableRow({
         )}
       </TableCell>
       <TableCell>
-        {lesson.profile
-          ? lesson.profile.full_name || lesson.profile.email
-          : 'Unknown Student'}
+        {lesson.profile ? lesson.profile.full_name || lesson.profile.email : 'Unknown Student'}
       </TableCell>
       {showTeacherColumn && (
         <TableCell>
@@ -93,10 +84,7 @@ export default function LessonTableRow({
       <TableCell>{formatDate(lesson.date)}</TableCell>
       <TableCell>{formatTime(lesson.start_time)}</TableCell>
       <TableCell>
-        <Badge
-          variant="secondary"
-          className={`font-medium ${getStatusColor(lesson.status)}`}
-        >
+        <Badge variant="outline" className={`font-medium ${getStatusColor(lesson.status)}`}>
           {lesson.status || 'SCHEDULED'}
         </Badge>
       </TableCell>

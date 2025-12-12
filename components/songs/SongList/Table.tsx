@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import { useState } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import DeleteConfirmationDialog from '../DeleteConfirmationDialog';
 import type { Song, SongWithStatus } from '@/components/songs/types';
@@ -20,6 +19,8 @@ import { Badge } from '@/components/ui/badge';
 import { Trash2 } from 'lucide-react';
 import StatusSelect from './StatusSelect';
 
+import { cn } from '@/lib/utils';
+
 interface Props {
   songs: (Song | SongWithStatus)[];
   canDelete?: boolean;
@@ -27,17 +28,18 @@ interface Props {
   selectedStudentId?: string;
 }
 
-function getLevelBadgeVariant(
-  level: string | null | undefined
-): 'default' | 'secondary' | 'destructive' | 'outline' {
-  if (!level) return 'outline';
+const levelColors = {
+  Beginner: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  Intermediate: 'bg-primary/10 text-primary border-primary/20',
+  Advanced: 'bg-destructive/10 text-destructive border-destructive/20',
+  Unknown: 'bg-muted text-muted-foreground border-border',
+};
 
-  const normalizedLevel = level.toLowerCase();
-  if (normalizedLevel.includes('beginner')) return 'secondary';
-  if (normalizedLevel.includes('intermediate')) return 'default';
-  if (normalizedLevel.includes('advanced')) return 'destructive';
-
-  return 'outline';
+function getLevelBadgeClass(level: string | null | undefined): string {
+  if (!level) return levelColors.Unknown;
+  const normalizedLevel = level.charAt(0).toUpperCase() + level.slice(1).toLowerCase();
+  // @ts-ignore
+  return levelColors[normalizedLevel] || levelColors.Unknown;
 }
 
 export default function SongListTable({
@@ -51,43 +53,34 @@ export default function SongListTable({
   const [songToDelete, setSongToDelete] = useState<Song | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [assignmentCount, setAssignmentCount] = useState<number>(0);
-  const [isCheckingAssignments, setIsCheckingAssignments] = useState(false);
+  const [checkingId, setCheckingId] = useState<string | null>(null);
 
-  // Check for assignments when a song is selected for deletion
-  useEffect(() => {
-    if (!songToDelete) {
-      setAssignmentCount(0);
-      return;
-    }
+  const handleDeleteClick = async (song: Song) => {
+    console.log('🎸 [FRONTEND] handleDeleteClick called for song:', song.id);
+    setCheckingId(song.id);
 
-    const checkAssignments = async () => {
-      setIsCheckingAssignments(true);
-      
-      try {
-        const supabase = getSupabaseBrowserClient();
-        const { count, error } = await supabase
-          .from('lesson_songs')
-          .select('*', { count: 'exact', head: true })
-          .eq('song_id', songToDelete.id);
-        
-        if (error) {
-          console.error('Error checking assignments:', error);
-        } else {
-          setAssignmentCount(count || 0);
-        }
-      } catch (err) {
-        console.error('Unexpected error checking assignments:', err);
-      } finally {
-        setIsCheckingAssignments(false);
+    try {
+      const supabase = getSupabaseBrowserClient();
+      console.log('🎸 [FRONTEND] Checking assignments for song:', song.id);
+      const { count, error } = await supabase
+        .from('lesson_songs')
+        .select('*', { count: 'exact', head: true })
+        .eq('song_id', song.id);
+
+      if (error) {
+        console.error('🎸 [FRONTEND] Error checking assignments:', error);
+      } else {
+        console.log('🎸 [FRONTEND] Assignment count:', count);
       }
-    };
 
-    checkAssignments();
-  }, [songToDelete]);
-
-  const handleDeleteClick = (song: Song) => {
-    setSongToDelete(song);
-    setDeleteError(null);
+      setAssignmentCount(count || 0);
+      setSongToDelete(song);
+    } catch (err) {
+      console.error('🎸 [FRONTEND] Unexpected error in handleDeleteClick:', err);
+    } finally {
+      setCheckingId(null);
+      setDeleteError(null);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -97,30 +90,38 @@ export default function SongListTable({
     setDeleteError(null);
 
     try {
-      const response = await fetch(`/api/song?id=${songToDelete.id}`, {
-        method: 'DELETE',
+      const supabase = getSupabaseBrowserClient();
+
+      // Get current user for the RPC
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Use RPC for soft delete
+      const { data, error } = await supabase.rpc('soft_delete_song_with_cascade', {
+        song_uuid: songToDelete.id,
+        user_uuid: user.id,
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to delete song');
+      if (error) {
+        throw new Error(error.message);
       }
 
+      // Check result from RPC
+      // The RPC returns JSON, so we cast it to any or a specific type
+      const result = data as { success: boolean; error?: string };
       if (!result.success) {
         throw new Error(result.error || 'Failed to delete song');
       }
 
-      toast.success('Song deleted successfully');
       setSongToDelete(null);
+      setDeletingSongId(null);
       onDeleteSuccess?.();
       router.refresh();
     } catch (error) {
-      console.error('Delete failed:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to delete song';
-      setDeleteError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
+      console.error('🎸 [FRONTEND] Delete failed:', error);
+      setDeleteError(error instanceof Error ? error.message : 'Failed to delete song');
       setDeletingSongId(null);
     }
   };
@@ -133,36 +134,50 @@ export default function SongListTable({
 
   return (
     <>
-      <div className="rounded-md border" data-testid="song-table">
+      <div
+        className="bg-card rounded-xl border border-border overflow-hidden"
+        data-testid="song-table"
+      >
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Author</TableHead>
-              <TableHead>{selectedStudentId ? 'Status' : 'Level'}</TableHead>
-              <TableHead>Key</TableHead>
-              {canDelete && <TableHead className="text-right">Actions</TableHead>}
+            <TableRow className="hover:bg-transparent border-border">
+              <TableHead className="text-muted-foreground">Title</TableHead>
+              <TableHead className="text-muted-foreground">Author</TableHead>
+              <TableHead className="text-muted-foreground">
+                {selectedStudentId ? 'Status' : 'Level'}
+              </TableHead>
+              <TableHead className="text-muted-foreground">Key</TableHead>
+              {canDelete && (
+                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
             {songs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={canDelete ? 5 : 4} className="h-24 text-center">
+                <TableCell
+                  colSpan={canDelete ? 5 : 4}
+                  className="h-24 text-center text-muted-foreground"
+                >
                   No songs found.
                 </TableCell>
               </TableRow>
             ) : (
               songs.map((song) => (
-                <TableRow key={song.id} data-testid="song-row">
+                <TableRow
+                  key={song.id}
+                  data-testid="song-row"
+                  className="hover:bg-secondary/50 border-border transition-colors"
+                >
                   <TableCell className="font-medium">
                     <Link
                       href={`/dashboard/songs/${song.id}`}
-                      className="text-blue-600 hover:underline"
+                      className="text-foreground hover:text-primary transition-colors"
                     >
                       {song.title ?? 'Untitled'}
                     </Link>
                   </TableCell>
-                  <TableCell>{song.author}</TableCell>
+                  <TableCell className="text-muted-foreground">{song.author}</TableCell>
                   <TableCell>
                     {selectedStudentId && (song as SongWithStatus).lesson_song_id ? (
                       <StatusSelect
@@ -170,25 +185,30 @@ export default function SongListTable({
                         currentStatus={(song as SongWithStatus).status || 'to_learn'}
                       />
                     ) : selectedStudentId ? (
-                      <Badge variant="outline">Not Assigned</Badge>
+                      <Badge
+                        variant="outline"
+                        className="bg-muted text-muted-foreground border-border"
+                      >
+                        Not Assigned
+                      </Badge>
                     ) : (
-                      <Badge variant={getLevelBadgeVariant(song.level)}>
+                      <Badge variant="outline" className={cn(getLevelBadgeClass(song.level))}>
                         {song.level || 'Unknown'}
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell>{song.key}</TableCell>
+                  <TableCell className="text-muted-foreground">{song.key}</TableCell>
                   {canDelete && (
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                         data-testid="song-delete-button"
                         onClick={() => handleDeleteClick(song)}
-                        disabled={deletingSongId === song.id}
+                        disabled={deletingSongId === song.id || checkingId === song.id}
                       >
-                        {deletingSongId === song.id ? (
+                        {deletingSongId === song.id || checkingId === song.id ? (
                           <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                         ) : (
                           <Trash2 className="h-4 w-4" />
@@ -214,7 +234,6 @@ export default function SongListTable({
           onClose={handleCancelDelete}
           isDeleting={deletingSongId === songToDelete.id}
           error={deleteError}
-          // Pass loading state if the dialog supports it, or just let the warning appear when ready
         />
       )}
     </>
