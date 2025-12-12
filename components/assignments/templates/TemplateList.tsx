@@ -23,7 +23,9 @@ export default function TemplateList({ templates }: TemplateListProps) {
     return (
       <div className="text-center py-12">
         <h3 className="mt-2 text-sm font-semibold text-gray-900">No templates</h3>
-        <p className="mt-1 text-sm text-gray-500">Get started by creating a new assignment template.</p>
+        <p className="mt-1 text-sm text-gray-500">
+          Get started by creating a new assignment template.
+        </p>
         <div className="mt-6">
           <Link
             href="/dashboard/assignments/templates/new"
@@ -44,10 +46,16 @@ export default function TemplateList({ templates }: TemplateListProps) {
             <table className="min-w-full divide-y divide-gray-300">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
+                  <th
+                    scope="col"
+                    className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                  >
                     Title
                   </th>
-                  <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                  <th
+                    scope="col"
+                    className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                  >
                     Description
                   </th>
                   <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">

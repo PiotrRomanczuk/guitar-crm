@@ -2,7 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { createAssignmentTemplate, updateAssignmentTemplate } from '@/app/actions/assignment-templates';
+import {
+  createAssignmentTemplate,
+  updateAssignmentTemplate,
+} from '@/app/actions/assignment-templates';
 import { AssignmentTemplate } from '@/schemas';
 
 interface TemplateFormProps {
@@ -54,11 +57,7 @@ export default function TemplateForm({ initialData, mode, userId }: TemplateForm
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-      {error && (
-        <div className="bg-red-50 text-red-500 p-4 rounded-md">
-          {error}
-        </div>
-      )}
+      {error && <div className="bg-red-50 text-red-500 p-4 rounded-md">{error}</div>}
 
       <div className="space-y-2">
         <label htmlFor="title" className="block text-sm font-medium text-gray-700">

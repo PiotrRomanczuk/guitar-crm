@@ -4,7 +4,9 @@ import TemplateForm from '@/components/assignments/templates/TemplateForm';
 
 export default async function NewTemplatePage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/login');
