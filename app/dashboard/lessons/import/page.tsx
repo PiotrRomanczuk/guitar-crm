@@ -4,9 +4,9 @@ import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { redirect } from 'next/navigation';
 
 export default async function ImportLessonsPage() {
-  const { user, isTeacher } = await getUserWithRolesSSR();
+  const { user, isTeacher, isAdmin } = await getUserWithRolesSSR();
   
-  if (!user || !isTeacher) {
+  if (!user || (!isTeacher && !isAdmin)) {
     redirect('/dashboard');
   }
   
