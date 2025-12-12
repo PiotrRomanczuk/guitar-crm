@@ -34,7 +34,7 @@ export interface LessonStatsResponse {
  */
 export function useLessonStats(filters?: LessonStatsFilters) {
   const params = new URLSearchParams();
-  
+
   if (filters?.userId) params.append('userId', filters.userId);
   if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom);
   if (filters?.dateTo) params.append('dateTo', filters.dateTo);
