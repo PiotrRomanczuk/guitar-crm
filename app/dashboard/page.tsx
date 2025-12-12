@@ -13,8 +13,8 @@ export default async function DashboardPage() {
     return <div>Please log in to access the dashboard.</div>;
   }
 
-  // Show admin dashboard for admin users
-  if (isAdmin) {
+  // Show admin dashboard for admin users AND teachers (for now, same view)
+  if (isAdmin || isTeacher) {
     const supabase = await createClient();
 
     // Fetch Admin Stats
@@ -51,12 +51,6 @@ export default async function DashboardPage() {
     const teacherData = await getTeacherDashboardData();
 
     return <TeacherDashboardClient data={teacherData} email={user.email} adminStats={adminStats} />;
-  }
-
-  // Show teacher dashboard
-  if (isTeacher) {
-    const teacherData = await getTeacherDashboardData();
-    return <TeacherDashboardClient data={teacherData} email={user.email} />;
   }
 
   // Show student dashboard for student users (or default users without specific roles)

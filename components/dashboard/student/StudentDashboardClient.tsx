@@ -6,6 +6,7 @@ import { RecentActivity } from '@/components/student/dashboard/RecentActivity';
 import { ProgressChart } from '@/components/student/dashboard/ProgressChart';
 import { SongLibrary } from '@/components/student/songs/SongLibrary';
 import { AssignmentList } from '@/components/student/assignments/AssignmentList';
+import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
 import { Music, BookOpen, ClipboardList, Clock } from 'lucide-react';
 
 interface StudentDashboardClientProps {
@@ -75,6 +76,10 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
           </p>
         </div>
 
+        {/* API-driven stats */}
+        <DashboardStatsGrid />
+
+        {/* Legacy stats for additional context */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Total Songs"
