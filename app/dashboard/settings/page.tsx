@@ -17,7 +17,7 @@ export default async function SettingsPage() {
       .eq('user_id', user.id)
       .eq('provider', 'google')
       .single();
-    
+
     if (data) {
       isGoogleConnected = true;
     }

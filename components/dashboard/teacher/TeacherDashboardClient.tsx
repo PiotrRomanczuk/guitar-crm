@@ -7,10 +7,9 @@ import { RecentActivity } from '@/components/student/dashboard/RecentActivity'; 
 import { ProgressChart } from '@/components/student/dashboard/ProgressChart'; // Reusing generic one
 import { SongLibrary } from '@/components/teacher/dashboard/SongLibrary';
 import { AssignmentList } from '@/components/teacher/dashboard/AssignmentList';
-import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
 import { LessonStatsOverview } from '@/components/dashboard/LessonStatsOverview';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
-import { Users, BookOpen, Music, ClipboardList, Shield } from 'lucide-react';
+import { Users, BookOpen, Music, Shield } from 'lucide-react';
 
 interface RecentUser {
   id: string;
