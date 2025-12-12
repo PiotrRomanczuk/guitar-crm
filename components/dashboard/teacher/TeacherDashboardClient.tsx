@@ -7,6 +7,8 @@ import { RecentActivity } from '@/components/student/dashboard/RecentActivity'; 
 import { ProgressChart } from '@/components/student/dashboard/ProgressChart'; // Reusing generic one
 import { SongLibrary } from '@/components/teacher/dashboard/SongLibrary';
 import { AssignmentList } from '@/components/teacher/dashboard/AssignmentList';
+import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
+import { LessonStatsOverview } from '@/components/dashboard/LessonStatsOverview';
 import { Users, BookOpen, Music, ClipboardList, Shield } from 'lucide-react';
 
 interface RecentUser {
@@ -44,6 +46,10 @@ export function TeacherDashboardClient({ data, adminStats }: TeacherDashboardCli
           </p>
         </div>
 
+        {/* API-driven stats */}
+        <DashboardStatsGrid />
+
+        {/* Legacy stats for additional context */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="Total Students"
@@ -75,9 +81,8 @@ export function TeacherDashboardClient({ data, adminStats }: TeacherDashboardCli
             change="3 due today"
             changeType="neutral"
             icon={ClipboardList}
-            delay={200}
-          />
-        </div>
+        {/* Lesson Statistics */}
+        <LessonStatsOverview />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
@@ -86,6 +91,10 @@ export function TeacherDashboardClient({ data, adminStats }: TeacherDashboardCli
             <SongLibrary songs={data.songs} />
           </div>
           <div className="space-y-8">
+            <RecentActivity activities={data.activities} />
+            <AssignmentList assignments={data.assignments} />
+          </div>
+        </div> className="space-y-8">
             <RecentActivity activities={data.activities} />
             <AssignmentList assignments={data.assignments} />
           </div>
