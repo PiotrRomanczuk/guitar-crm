@@ -19,13 +19,6 @@ Comprehensive continuous integration and deployment workflow that runs on push a
 2. **Unit & Integration Tests** - Jest with 70% coverage threshold
 3. **Build** - Next.js production build
 
-### CodeQL Analysis (`codeql.yml`)
-
-Automated security analysis using GitHub's CodeQL engine.
-
-- **Triggers**: Push to `main`, PRs to `main`, and weekly schedule.
-- **Checks**: Scans JavaScript and TypeScript for security vulnerabilities.
-
 ## Related Configuration
 
 - **Dependabot**: Configured in `../dependabot.yml` for weekly dependency updates.
