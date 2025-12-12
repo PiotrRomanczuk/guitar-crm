@@ -70,7 +70,7 @@ export function BearerTokenDisplay() {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 border border-blue-200 dark:border-blue-900">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 mb-8 border border-blue-200 dark:border-blue-900">
       <div className="flex items-start justify-between mb-4">
         <div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
