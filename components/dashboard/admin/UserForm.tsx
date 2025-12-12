@@ -65,7 +65,7 @@ export function UserForm({ mode, user, onSubmit, onCancel }: UserFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 space-y-6">
+    <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-6">
       <UserFormHeader mode={mode} onCancel={onCancel} generalError={errors.general} />
 
       <div className="grid grid-cols-2 gap-4">
