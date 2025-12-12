@@ -68,7 +68,17 @@ export function GoogleEventImporter() {
       const result = await importLessonsFromGoogle(toImport);
       if (result.success) {
         const successCount = result.results?.filter(r => r.success).length || 0;
-        toast.success(`Imported ${successCount} lessons`);
+        const failedCount = result.results?.filter(r => !r.success).length || 0;
+        
+        if (successCount > 0) {
+          toast.success(`Imported ${successCount} lessons`);
+        }
+        
+        if (failedCount > 0) {
+          const errors = result.results?.filter(r => !r.success).map(r => r.error).join(', ');
+          toast.error(`Failed to import ${failedCount} lessons: ${errors}`);
+        }
+        
         // Refresh events or remove imported ones?
         handleFetch();
       } else {
