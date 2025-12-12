@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Download } from 'lucide-react';
 
 export default function LessonListHeader() {
   return (
@@ -11,12 +11,20 @@ export default function LessonListHeader() {
         </h1>
         <p className="text-muted-foreground">Manage your lessons and schedule</p>
       </div>
-      <Link href="/dashboard/lessons/new">
-        <Button className="gap-2" data-testid="create-lesson-button">
-          <Plus className="w-4 h-4" />
-          Create New Lesson
-        </Button>
-      </Link>
+      <div className="flex gap-2">
+        <Link href="/dashboard/lessons/import">
+          <Button variant="outline" className="gap-2">
+            <Download className="w-4 h-4" />
+            Import
+          </Button>
+        </Link>
+        <Link href="/dashboard/lessons/new">
+          <Button className="gap-2" data-testid="create-lesson-button">
+            <Plus className="w-4 h-4" />
+            Create New Lesson
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }
