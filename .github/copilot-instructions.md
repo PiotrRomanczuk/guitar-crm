@@ -14,6 +14,13 @@
 - **DO NOT RECREATE**: Never manually recreate components that are available in shadcn/ui.
 - **EXTEND, DON'T REPLACE**: If you need custom behavior, extend the shadcn component rather than building from scratch.
 
+### 3. Dashboard Development
+
+- **TEACHER = ADMIN (TEMPORARY)**: Currently, teacher dashboard displays the same view as admin dashboard. The owner is the only teacher and needs full admin functionality.
+- **FOCUS ON ADMIN DASHBOARD**: All dashboard enhancements should target the admin dashboard experience.
+- **FUTURE SEPARATION**: Later, we will create a separate teacher dashboard with reduced features. For now, treat teacher role as having full admin access to the dashboard.
+- **Implementation**: See `app/dashboard/page.tsx` where `isAdmin || isTeacher` condition shows admin view for both roles.
+
 ## Project Standards
 
 Please refer to the `.github/instructions/` directory for detailed development standards:
