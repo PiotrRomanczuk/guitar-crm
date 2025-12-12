@@ -8,6 +8,7 @@ export interface AdminStats {
   totalTeachers: number;
   totalStudents: number;
   totalSongs: number;
+  totalLessons: number;
 }
 
 export interface TeacherStats {
