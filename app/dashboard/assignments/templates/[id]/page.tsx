@@ -11,7 +11,9 @@ interface EditTemplatePageProps {
 export default async function EditTemplatePage({ params }: EditTemplatePageProps) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/login');

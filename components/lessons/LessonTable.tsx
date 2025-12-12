@@ -23,17 +23,20 @@ export default function LessonTable({ lessons, role, baseUrl = '/dashboard/lesso
   }
 
   return (
-    <div className="rounded-md border" data-testid="lesson-table">
+    <div
+      className="bg-card rounded-xl border border-border overflow-hidden"
+      data-testid="lesson-table"
+    >
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Student</TableHead>
-            {showTeacherColumn && <TableHead>Teacher</TableHead>}
-            <TableHead>Date</TableHead>
-            <TableHead>Time</TableHead>
-            <TableHead>Status</TableHead>
-            {showActions && <TableHead>Actions</TableHead>}
+          <TableRow className="hover:bg-transparent border-border">
+            <TableHead className="text-muted-foreground">Title</TableHead>
+            <TableHead className="text-muted-foreground">Student</TableHead>
+            {showTeacherColumn && <TableHead className="text-muted-foreground">Teacher</TableHead>}
+            <TableHead className="text-muted-foreground">Date</TableHead>
+            <TableHead className="text-muted-foreground">Time</TableHead>
+            <TableHead className="text-muted-foreground">Status</TableHead>
+            {showActions && <TableHead className="text-muted-foreground">Actions</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -1,0 +1,22 @@
+{
+  "watch": [
+    "next.config.ts",
+    "next.config.js",
+    "package.json",
+    ".env",
+    ".env.local",
+    "tsconfig.json"
+  ],
+  "ignore": [
+    ".next/*",
+    "node_modules/*",
+    "app/*",
+    "components/*",
+    "lib/*",
+    "public/*",
+    "styles/*",
+    "*.test.ts",
+    "*.spec.ts"
+  ],
+  "ext": "ts,js,json"
+}
