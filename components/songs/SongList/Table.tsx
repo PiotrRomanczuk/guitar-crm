@@ -138,90 +138,92 @@ export default function SongListTable({
         className="bg-card rounded-xl border border-border overflow-hidden"
         data-testid="song-table"
       >
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent border-border">
-              <TableHead className="text-muted-foreground">Title</TableHead>
-              <TableHead className="text-muted-foreground">Author</TableHead>
-              <TableHead className="text-muted-foreground">
-                {selectedStudentId ? 'Status' : 'Level'}
-              </TableHead>
-              <TableHead className="text-muted-foreground">Key</TableHead>
-              {canDelete && (
-                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
-              )}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {songs.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={canDelete ? 5 : 4}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  No songs found.
-                </TableCell>
+        <div className="overflow-x-auto">
+          <Table className="min-w-[600px]">
+            <TableHeader>
+              <TableRow className="hover:bg-transparent border-border">
+                <TableHead className="text-muted-foreground">Title</TableHead>
+                <TableHead className="text-muted-foreground">Author</TableHead>
+                <TableHead className="text-muted-foreground">
+                  {selectedStudentId ? 'Status' : 'Level'}
+                </TableHead>
+                <TableHead className="text-muted-foreground">Key</TableHead>
+                {canDelete && (
+                  <TableHead className="text-right text-muted-foreground">Actions</TableHead>
+                )}
               </TableRow>
-            ) : (
-              songs.map((song) => (
-                <TableRow
-                  key={song.id}
-                  data-testid="song-row"
-                  className="hover:bg-secondary/50 border-border transition-colors"
-                >
-                  <TableCell className="font-medium">
-                    <Link
-                      href={`/dashboard/songs/${song.id}`}
-                      className="text-foreground hover:text-primary transition-colors"
-                    >
-                      {song.title ?? 'Untitled'}
-                    </Link>
+            </TableHeader>
+            <TableBody>
+              {songs.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={canDelete ? 5 : 4}
+                    className="h-24 text-center text-muted-foreground"
+                  >
+                    No songs found.
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{song.author}</TableCell>
-                  <TableCell>
-                    {selectedStudentId && (song as SongWithStatus).lesson_song_id ? (
-                      <StatusSelect
-                        lessonSongId={(song as SongWithStatus).lesson_song_id!}
-                        currentStatus={(song as SongWithStatus).status || 'to_learn'}
-                      />
-                    ) : selectedStudentId ? (
-                      <Badge
-                        variant="outline"
-                        className="bg-muted text-muted-foreground border-border"
-                      >
-                        Not Assigned
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className={cn(getLevelBadgeClass(song.level))}>
-                        {song.level || 'Unknown'}
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{song.key}</TableCell>
-                  {canDelete && (
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                        data-testid="song-delete-button"
-                        onClick={() => handleDeleteClick(song)}
-                        disabled={deletingSongId === song.id || checkingId === song.id}
-                      >
-                        {deletingSongId === song.id || checkingId === song.id ? (
-                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
-                        <span className="sr-only">Delete {song.title}</span>
-                      </Button>
-                    </TableCell>
-                  )}
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                songs.map((song) => (
+                  <TableRow
+                    key={song.id}
+                    data-testid="song-row"
+                    className="hover:bg-secondary/50 border-border transition-colors"
+                  >
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/dashboard/songs/${song.id}`}
+                        className="text-foreground hover:text-primary transition-colors"
+                      >
+                        {song.title ?? 'Untitled'}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{song.author}</TableCell>
+                    <TableCell>
+                      {selectedStudentId && (song as SongWithStatus).lesson_song_id ? (
+                        <StatusSelect
+                          lessonSongId={(song as SongWithStatus).lesson_song_id!}
+                          currentStatus={(song as SongWithStatus).status || 'to_learn'}
+                        />
+                      ) : selectedStudentId ? (
+                        <Badge
+                          variant="outline"
+                          className="bg-muted text-muted-foreground border-border"
+                        >
+                          Not Assigned
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className={cn(getLevelBadgeClass(song.level))}>
+                          {song.level || 'Unknown'}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{song.key}</TableCell>
+                    {canDelete && (
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                          data-testid="song-delete-button"
+                          onClick={() => handleDeleteClick(song)}
+                          disabled={deletingSongId === song.id || checkingId === song.id}
+                        >
+                          {deletingSongId === song.id || checkingId === song.id ? (
+                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                          <span className="sr-only">Delete {song.title}</span>
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       {songToDelete && (
