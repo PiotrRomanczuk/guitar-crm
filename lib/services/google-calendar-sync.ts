@@ -16,52 +16,52 @@ export interface ImportEvent {
 export async function syncGoogleEventsForUser(userId: string, events: ImportEvent[]) {
   const supabase = await createClient();
   const results = [];
-  
+
   for (const event of events) {
     let studentId = event.manualStudentId;
-    
+
     // If no manual override, try to match or create
     if (!studentId) {
       const match = await matchStudentByEmail(event.attendeeEmail);
-      
+
       if (match.status === 'MATCHED') {
         studentId = match.candidates[0].id.toString();
       } else if (match.status === 'NONE' && event.attendeeName) {
         // Create shadow student
         const [firstName, ...lastNameParts] = event.attendeeName.split(' ');
         const lastName = lastNameParts.join(' ') || '';
-        
-        const createResult = await createShadowStudent(
-          event.attendeeEmail,
-          firstName,
-          lastName
-        );
-        
+
+        const createResult = await createShadowStudent(event.attendeeEmail, firstName, lastName);
+
         if (!createResult.success) {
           results.push({ eventId: event.googleEventId, success: false, error: createResult.error });
           continue;
         }
-        
+
         studentId = createResult.profileId!;
       } else {
         // If ambiguous, we skip for now in automated flow
-        results.push({ eventId: event.googleEventId, success: false, error: 'Student match ambiguous or required' });
+        results.push({
+          eventId: event.googleEventId,
+          success: false,
+          error: 'Student match ambiguous or required',
+        });
         continue;
       }
     }
-    
+
     // Check for duplicate
     const { data: existing } = await supabase
       .from('lessons')
       .select('id')
       .eq('google_event_id', event.googleEventId)
       .single();
-    
+
     if (existing) {
       results.push({ eventId: event.googleEventId, success: false, error: 'Already imported' });
       continue;
     }
-    
+
     // Insert lesson
     const lessonData: TablesInsert<'lessons'> = {
       student_id: studentId,
@@ -73,16 +73,16 @@ export async function syncGoogleEventsForUser(userId: string, events: ImportEven
       google_event_id: event.googleEventId,
       status: 'SCHEDULED',
     };
-    
+
     const { error } = await supabase.from('lessons').insert(lessonData);
-    
+
     if (error) {
       results.push({ eventId: event.googleEventId, success: false, error: error.message });
     } else {
       results.push({ eventId: event.googleEventId, success: true });
     }
   }
-  
+
   return { success: true, results };
 }
 
@@ -93,13 +93,13 @@ export async function fetchAndSyncRecentEvents(userId: string) {
   const startDate = new Date();
   const endDate = new Date();
   endDate.setDate(endDate.getDate() + 30);
-  
+
   try {
     const googleEvents = await getCalendarEventsInRange(userId, startDate, endDate);
-    
+
     const importEvents: ImportEvent[] = googleEvents
-      .filter(e => e.attendees && e.attendees.length > 0 && e.attendees[0].email)
-      .map(e => ({
+      .filter((e) => e.attendees && e.attendees.length > 0 && e.attendees[0].email)
+      .map((e) => ({
         googleEventId: e.id,
         title: e.summary,
         notes: e.description,
@@ -113,7 +113,11 @@ export async function fetchAndSyncRecentEvents(userId: string) {
     }
 
     const result = await syncGoogleEventsForUser(userId, importEvents);
-    return { success: true, count: result.results.filter(r => r.success).length, details: result };
+    return {
+      success: true,
+      count: result.results.filter((r) => r.success).length,
+      details: result,
+    };
   } catch (error) {
     console.error('Error syncing events:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };

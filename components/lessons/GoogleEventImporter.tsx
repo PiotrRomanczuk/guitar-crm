@@ -1,10 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { fetchGoogleEvents, importLessonsFromGoogle, ImportEvent } from '@/app/actions/import-lessons';
+import {
+  fetchGoogleEvents,
+  importLessonsFromGoogle,
+  ImportEvent,
+} from '@/app/actions/import-lessons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -21,7 +32,9 @@ interface CalendarEvent {
 
 export function GoogleEventImporter() {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  );
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -47,8 +60,8 @@ export function GoogleEventImporter() {
   const handleImport = async () => {
     setImporting(true);
     const toImport: ImportEvent[] = events
-      .filter(e => selected.has(e.id))
-      .map(e => ({
+      .filter((e) => selected.has(e.id))
+      .map((e) => ({
         googleEventId: e.id,
         title: e.summary,
         notes: e.description,
@@ -56,7 +69,7 @@ export function GoogleEventImporter() {
         attendeeEmail: e.attendees?.[0]?.email || '',
         attendeeName: e.attendees?.[0]?.displayName || '',
       }))
-      .filter(e => e.attendeeEmail); // Only import if email exists
+      .filter((e) => e.attendeeEmail); // Only import if email exists
 
     if (toImport.length === 0) {
       toast.error('No valid events selected');
@@ -67,18 +80,21 @@ export function GoogleEventImporter() {
     try {
       const result = await importLessonsFromGoogle(toImport);
       if (result.success) {
-        const successCount = result.results?.filter(r => r.success).length || 0;
-        const failedCount = result.results?.filter(r => !r.success).length || 0;
-        
+        const successCount = result.results?.filter((r) => r.success).length || 0;
+        const failedCount = result.results?.filter((r) => !r.success).length || 0;
+
         if (successCount > 0) {
           toast.success(`Imported ${successCount} lessons`);
         }
-        
+
         if (failedCount > 0) {
-          const errors = result.results?.filter(r => !r.success).map(r => r.error).join(', ');
+          const errors = result.results
+            ?.filter((r) => !r.success)
+            .map((r) => r.error)
+            .join(', ');
           toast.error(`Failed to import ${failedCount} lessons: ${errors}`);
         }
-        
+
         // Refresh events or remove imported ones?
         handleFetch();
       } else {
@@ -106,19 +122,11 @@ export function GoogleEventImporter() {
       <div className="flex items-end gap-4">
         <div className="grid gap-2">
           <label className="text-sm font-medium">Start Date</label>
-          <Input 
-            type="date" 
-            value={startDate} 
-            onChange={(e) => setStartDate(e.target.value)} 
-          />
+          <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
         </div>
         <div className="grid gap-2">
           <label className="text-sm font-medium">End Date</label>
-          <Input 
-            type="date" 
-            value={endDate} 
-            onChange={(e) => setEndDate(e.target.value)} 
-          />
+          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
         </div>
         <Button onClick={handleFetch} disabled={loading}>
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -132,10 +140,10 @@ export function GoogleEventImporter() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[50px]">
-                  <Checkbox 
+                  <Checkbox
                     checked={selected.size === events.length && events.length > 0}
                     onCheckedChange={(checked) => {
-                      if (checked) setSelected(new Set(events.map(e => e.id)));
+                      if (checked) setSelected(new Set(events.map((e) => e.id)));
                       else setSelected(new Set());
                     }}
                   />
@@ -150,11 +158,11 @@ export function GoogleEventImporter() {
               {events.map((event) => {
                 const attendee = event.attendees?.[0];
                 const hasAttendee = !!attendee?.email;
-                
+
                 return (
                   <TableRow key={event.id}>
                     <TableCell>
-                      <Checkbox 
+                      <Checkbox
                         checked={selected.has(event.id)}
                         onCheckedChange={() => toggleSelection(event.id)}
                         disabled={!hasAttendee}
@@ -174,11 +182,17 @@ export function GoogleEventImporter() {
                     </TableCell>
                     <TableCell>
                       {hasAttendee ? (
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        <Badge
+                          variant="outline"
+                          className="bg-green-50 text-green-700 border-green-200"
+                        >
                           Ready
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                        <Badge
+                          variant="outline"
+                          className="bg-yellow-50 text-yellow-700 border-yellow-200"
+                        >
                           Missing Email
                         </Badge>
                       )}

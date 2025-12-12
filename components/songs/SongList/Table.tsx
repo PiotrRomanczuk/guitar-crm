@@ -38,7 +38,7 @@ const levelColors = {
 function getLevelBadgeClass(level: string | null | undefined): string {
   if (!level) return levelColors.Unknown;
   const normalizedLevel = level.charAt(0).toUpperCase() + level.slice(1).toLowerCase();
-  // @ts-ignore
+  // @ts-expect-error - indexing with string
   return levelColors[normalizedLevel] || levelColors.Unknown;
 }
 
