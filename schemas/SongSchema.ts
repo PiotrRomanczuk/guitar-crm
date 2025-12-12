@@ -29,9 +29,8 @@ export const SongInputSchema = z.object({
 });
 
 // Song update schema (for partial updates)
-export const SongUpdateSchema = SongInputSchema.partial().extend({
-  id: z.string().uuid("Song ID is required"),
-});
+// Note: ID is provided via path parameter, not in the request body
+export const SongUpdateSchema = SongInputSchema.partial();
 
 // Song with lesson information
 export const SongWithLessonsSchema = SongSchema.extend({

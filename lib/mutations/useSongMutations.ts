@@ -26,11 +26,11 @@ interface DeleteSongPayload {
 }
 
 async function createSong(payload: CreateSongPayload): Promise<Song> {
-  return await apiClient.post<Song>('/api/songs', payload.data);
+  return await apiClient.post<Song>('/api/song', payload.data);
 }
 
 async function updateSong(payload: UpdateSongPayload): Promise<Song> {
-  return await apiClient.put<Song>(`/api/songs/${payload.id}`, payload.data);
+  return await apiClient.put<Song>(`/api/song?id=${payload.id}`, payload.data);
 }
 
 async function deleteSong(payload: DeleteSongPayload): Promise<DeleteResult> {
@@ -62,8 +62,11 @@ export function useSongMutations() {
 
   const deleteMutation = useMutation({
     mutationFn: deleteSong,
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      // Invalidate list cache
       queryClient.invalidateQueries({ queryKey: ['songs'] });
+      // Remove/invalidate detail cache for the deleted song
+      queryClient.removeQueries({ queryKey: ['songs', variables.id] });
     },
   });
 
