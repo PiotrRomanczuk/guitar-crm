@@ -18,6 +18,18 @@ Comprehensive continuous integration and deployment workflow that runs on push a
 1. **Lint & Type Check** - ESLint and TypeScript validation
 2. **Unit & Integration Tests** - Jest with 70% coverage threshold
 3. **Build** - Next.js production build
+
+### CodeQL Analysis (`codeql.yml`)
+
+Automated security analysis using GitHub's CodeQL engine.
+
+- **Triggers**: Push to `main`, PRs to `main`, and weekly schedule.
+- **Checks**: Scans JavaScript and TypeScript for security vulnerabilities.
+
+## Related Configuration
+
+- **Dependabot**: Configured in `../dependabot.yml` for weekly dependency updates.
+
 4. **Database Quality** - Validates existing database schema and test data
 5. **E2E Tests** - Cypress tests with remote Supabase database
 6. **Security Audit** - npm audit and secret scanning
