@@ -1,5 +1,6 @@
 import { google } from 'googleapis';
 import { createClient } from '@/lib/supabase/server';
+import crypto from 'crypto';
 
 export const getGoogleOAuth2Client = () => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -78,4 +79,26 @@ export async function getCalendarEventsInRange(
   });
   
   return (response.data.items || []) as CalendarEvent[];
+}
+
+export async function watchCalendar(userId: string, webhookUrl: string) {
+  const client = await getGoogleClient(userId);
+  const calendar = google.calendar({ version: 'v3', auth: client });
+  
+  const channelId = crypto.randomUUID();
+  
+  const response = await calendar.events.watch({
+    calendarId: 'primary',
+    requestBody: {
+      id: channelId,
+      type: 'web_hook',
+      address: webhookUrl,
+    },
+  });
+  
+  return {
+    channelId: response.data.id,
+    resourceId: response.data.resourceId,
+    expiration: response.data.expiration ? parseInt(response.data.expiration) : undefined,
+  };
 }
