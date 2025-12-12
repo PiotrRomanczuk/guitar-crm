@@ -37,7 +37,7 @@ export default async function NewAssignmentPage({ searchParams }: NewAssignmentP
       .select('*')
       .eq('id', templateId)
       .single();
-    
+
     if (template) {
       initialData = {
         title: template.title,
@@ -53,7 +53,12 @@ export default async function NewAssignmentPage({ searchParams }: NewAssignmentP
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <AssignmentForm mode="create" students={students || []} initialData={initialData} userId={user.id} />
+      <AssignmentForm
+        mode="create"
+        students={students || []}
+        initialData={initialData}
+        userId={user.id}
+      />
     </div>
   );
 }
