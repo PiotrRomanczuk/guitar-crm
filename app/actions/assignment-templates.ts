@@ -11,7 +11,7 @@ export async function createAssignmentTemplate(
 ) {
   const { isAdmin, isTeacher, user } = await getUserWithRolesSSR();
 
-  if (!isAdmin && !isTeacher) {
+  if ((!isAdmin && !isTeacher) || !user) {
     throw new Error('Unauthorized');
   }
 
@@ -40,7 +40,7 @@ export async function updateAssignmentTemplate(
 ) {
   const { isAdmin, isTeacher, user } = await getUserWithRolesSSR();
 
-  if (!isAdmin && !isTeacher) {
+  if ((!isAdmin && !isTeacher) || !user) {
     throw new Error('Unauthorized');
   }
 
@@ -80,7 +80,7 @@ export async function updateAssignmentTemplate(
 export async function deleteAssignmentTemplate(id: string) {
   const { isAdmin, isTeacher, user } = await getUserWithRolesSSR();
 
-  if (!isAdmin && !isTeacher) {
+  if ((!isAdmin && !isTeacher) || !user) {
     throw new Error('Unauthorized');
   }
 
