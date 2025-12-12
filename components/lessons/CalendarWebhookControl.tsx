@@ -4,19 +4,26 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { enableCalendarWebhook } from '@/app/actions/calendar-webhook';
 import { toast } from 'sonner';
-import { RadioReceiver } from 'lucide-react';
+import { RadioReceiver, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
 
 export function CalendarWebhookControl() {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleEnable = async () => {
     setLoading(true);
+    setError(null);
     try {
       const result = await enableCalendarWebhook();
       if (result.success) {
         toast.success('Real-time sync enabled!');
       } else {
-        toast.error(result.error || 'Failed to enable sync');
+        const msg = result.error || 'Failed to enable sync';
+        toast.error(msg);
+        if (msg.includes('Google integration not found')) {
+          setError('Google Calendar is not connected.');
+        }
       }
     } catch {
       toast.error('An error occurred');
@@ -36,6 +43,15 @@ export function CalendarWebhookControl() {
           <p className="text-sm text-muted-foreground">
             Automatically import new lessons when they are added to your Google Calendar.
           </p>
+          {error && (
+            <div className="flex items-center gap-2 text-destructive text-sm mt-2">
+              <AlertCircle className="h-4 w-4" />
+              <span>{error}</span>
+              <Link href="/dashboard/settings" className="underline hover:text-destructive/80">
+                Connect Google Calendar
+              </Link>
+            </div>
+          )}
         </div>
         <Button onClick={handleEnable} disabled={loading} variant="outline">
           {loading ? 'Enabling...' : 'Enable Sync'}
