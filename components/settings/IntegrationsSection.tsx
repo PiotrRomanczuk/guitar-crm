@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, CheckCircle2, XCircle } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
 interface IntegrationsSectionProps {
@@ -28,7 +27,7 @@ export function IntegrationsSection({ isGoogleConnected }: IntegrationsSectionPr
           Manage your connections to third-party services.
         </p>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -54,7 +53,7 @@ export function IntegrationsSection({ isGoogleConnected }: IntegrationsSectionPr
                 </>
               )}
             </div>
-            
+
             {isGoogleConnected ? (
               <Button variant="outline" disabled>
                 Connected
