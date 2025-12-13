@@ -46,7 +46,7 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => clearFieldError(prev, field));
@@ -75,7 +75,10 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
       console.log('🎸 [FRONTEND] Save successful!');
       onSuccess?.();
     } catch (err) {
-      console.error('🎸 [FRONTEND] Submit error:', err instanceof Error ? err.message : String(err));
+      console.error(
+        '🎸 [FRONTEND] Submit error:',
+        err instanceof Error ? err.message : String(err)
+      );
       const fieldErrors = parseZodErrors(err);
       if (Object.keys(fieldErrors).length > 0) {
         console.log('🎸 [FRONTEND] Validation errors:', fieldErrors);

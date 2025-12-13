@@ -1,45 +1,53 @@
-import * as z from "zod";
-import { DifficultyLevelEnum, MusicKeyEnum, URLField } from "./CommonSchema";
+import * as z from 'zod';
+import { DifficultyLevelEnum, MusicKeyEnum, URLField } from './CommonSchema';
 
 // Song schema for validation
 export const SongSchema = z.object({
   id: z.string().uuid().optional(), // UUID, auto-generated
-  title: z.string().min(1, "Title is required").max(200, "Title too long"),
-  author: z.string().min(1, "Author is required").max(100, "Author name too long"),
+  title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
+  author: z.string().min(1, 'Author is required').max(100, 'Author name too long'),
   level: DifficultyLevelEnum,
   key: MusicKeyEnum,
   chords: z.string().optional(),
   audio_files: z.record(z.any()).optional(), // JSONB field
   ultimate_guitar_link: URLField,
-  short_title: z.string().max(50, "Short title too long").optional(),
+  youtube_url: URLField,
+  gallery_images: z.array(z.string()).optional(),
+  short_title: z.string().max(50, 'Short title too long').optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
 });
 
 // Song input schema for creating/updating songs
 export const SongInputSchema = z.object({
-  title: z.string().min(1, "Title is required").max(200, "Title too long"),
-  author: z.string().min(1, "Author is required").max(100, "Author name too long"),
+  title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
+  author: z.string().min(1, 'Author is required').max(100, 'Author name too long'),
   level: DifficultyLevelEnum,
   key: MusicKeyEnum,
   chords: z.string().optional(),
   ultimate_guitar_link: URLField,
+  youtube_url: URLField,
+  gallery_images: z.array(z.string()).optional(),
   audio_files: z.record(z.any()).optional(),
-  short_title: z.string().max(50, "Short title too long").optional(),
+  short_title: z.string().max(50, 'Short title too long').optional(),
 });
 
 // Song update schema (for partial updates)
 export const SongUpdateSchema = SongInputSchema.partial().extend({
-  id: z.string().uuid("Song ID is required"),
+  id: z.string().uuid('Song ID is required'),
 });
 
 // Song with lesson information
 export const SongWithLessonsSchema = SongSchema.extend({
-  lessons: z.array(z.object({
-    lesson_id: z.string().uuid(),
-    song_status: z.enum(["to_learn", "started", "remembered", "with_author", "mastered"]),
-    created_at: z.date().optional(),
-  })).optional(),
+  lessons: z
+    .array(
+      z.object({
+        lesson_id: z.string().uuid(),
+        song_status: z.enum(['to_learn', 'started', 'remembered', 'with_author', 'mastered']),
+        created_at: z.date().optional(),
+      })
+    )
+    .optional(),
 });
 
 // Song filter schema
@@ -54,21 +62,14 @@ export const SongFilterSchema = z.object({
 
 // Song sort schema
 export const SongSortSchema = z.object({
-  field: z.enum([
-    "title",
-    "author",
-    "level",
-    "key",
-    "created_at",
-    "updated_at"
-  ]),
-  direction: z.enum(["asc", "desc"]).default("desc"),
+  field: z.enum(['title', 'author', 'level', 'key', 'created_at', 'updated_at']),
+  direction: z.enum(['asc', 'desc']).default('desc'),
 });
 
 // Song search schema
 export const SongSearchSchema = z.object({
-  query: z.string().min(1, "Search query is required"),
-  fields: z.array(z.enum(["title", "author", "chords"])).optional(),
+  query: z.string().min(1, 'Search query is required'),
+  fields: z.array(z.enum(['title', 'author', 'chords'])).optional(),
   level: DifficultyLevelEnum.optional(),
   key: MusicKeyEnum.optional(),
 });
@@ -101,7 +102,7 @@ export const SongImportValidationSchema = z.object({
 
 // Song export schema
 export const SongExportSchema = z.object({
-  format: z.enum(["json", "csv", "pdf"]).default("json"),
+  format: z.enum(['json', 'csv', 'pdf']).default('json'),
   filters: SongFilterSchema.optional(),
   include_lessons: z.boolean().default(false),
   include_audio_urls: z.boolean().default(false),

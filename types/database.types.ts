@@ -123,6 +123,8 @@ export type Database = {
           created_at: string;
           author: string | null;
           ultimate_guitar_link: string | null;
+          youtube_url: string | null;
+          gallery_images: string[] | null;
           short_title: string | null;
           updated_at: string | null;
         };
@@ -136,6 +138,8 @@ export type Database = {
           created_at?: string;
           author?: string | null;
           ultimate_guitar_link?: string | null;
+          youtube_url?: string | null;
+          gallery_images?: string[] | null;
           short_title?: string | null;
           updated_at?: string | null;
         };
@@ -149,6 +153,8 @@ export type Database = {
           created_at?: string;
           author?: string | null;
           ultimate_guitar_link?: string | null;
+          youtube_url?: string | null;
+          gallery_images?: string[] | null;
           short_title?: string | null;
           updated_at?: string | null;
         };

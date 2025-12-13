@@ -71,8 +71,8 @@ export default async function SongDetail({ songId, isAdmin = false, isTeacher = 
 
       <div className="space-y-8">
         <SongDetailInfo song={song} />
-        <YouTubeEmbed />
-        <ImageGallery />
+        <YouTubeEmbed url={song.youtube_url} />
+        <ImageGallery images={song.gallery_images} />
       </div>
     </div>
   );
