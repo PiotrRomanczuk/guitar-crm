@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { SongInputSchema, Song } from '@/schemas/SongSchema';
 import SongFormFields from './Fields';
-import { createFormData, clearFieldError, parseZodErrors } from './helpers';
+import { createFormData, clearFieldError, parseZodErrors, SongFormData } from './helpers';
 
 interface Props {
   mode: 'create' | 'edit';
@@ -46,7 +46,7 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: SongFormData[keyof SongFormData]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => clearFieldError(prev, field));
