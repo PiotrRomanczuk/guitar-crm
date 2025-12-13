@@ -436,6 +436,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [quality-gate]
     if: github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+      issues: write
     environment:
       name: preview
       url: ${{ steps.deploy.outputs.url }}
