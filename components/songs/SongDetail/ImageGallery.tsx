@@ -1,8 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Image as ImageIcon, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
 
 interface Props {
