@@ -55,7 +55,7 @@ const FORM_DEFAULTS: SongFormData = {
 /**
  * Creates default form data from a song or empty values
  */
-export function createFormData(song?: any): SongFormData {
+export function createFormData(song?: Partial<SongFormData> | null): SongFormData {
   return {
     ...FORM_DEFAULTS,
     ...song,
