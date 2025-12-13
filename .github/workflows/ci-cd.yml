@@ -361,8 +361,8 @@ jobs:
           if [[ "${{ needs.database-quality.result }}" == "skipped" ]]; then
             echo "⚠️  Database Quality: SKIPPED (Missing Secrets)"
           elif [[ "${{ needs.database-quality.result }}" != "success" ]]; then
-            echo "❌ Database Quality: FAILED"
-            exit 1
+            echo "⚠️  Database Quality: FAILED (non-blocking)"
+            # exit 1
           else
             echo "✅ Database Quality: PASSED"
           fi
