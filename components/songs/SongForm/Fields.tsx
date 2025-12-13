@@ -6,7 +6,7 @@ import { SongFormData } from './helpers';
 interface Props {
   formData: SongFormData;
   errors: Record<string, string>;
-  onChange: (field: keyof SongFormData, value: any) => void;
+  onChange: (field: keyof SongFormData, value: SongFormData[keyof SongFormData]) => void;
 }
 
 export default function SongFormFields({ formData, errors, onChange }: Props) {
