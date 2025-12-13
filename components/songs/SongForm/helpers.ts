@@ -1,4 +1,5 @@
 import { ZodError } from 'zod';
+import { Song } from '@/schemas/SongSchema';
 
 /**
  * Helper function to handle form validation errors
@@ -55,10 +56,16 @@ const FORM_DEFAULTS: SongFormData = {
 /**
  * Creates default form data from a song or empty values
  */
-export function createFormData(song?: Partial<SongFormData> | null): SongFormData {
+export function createFormData(song?: Song | null): SongFormData {
   return {
     ...FORM_DEFAULTS,
-    ...song,
+    title: song?.title || '',
+    author: song?.author || '',
+    level: song?.level || 'beginner',
+    key: song?.key || 'C',
+    ultimate_guitar_link: song?.ultimate_guitar_link || '',
+    chords: song?.chords || '',
+    short_title: song?.short_title || '',
     youtube_url: song?.youtube_url || '',
     gallery_images: song?.gallery_images || [],
   };
