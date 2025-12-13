@@ -34,6 +34,7 @@ export const PasswordField = z.string().min(8, "Password must be at least 8 char
 export const NameField = z.string().min(1, "Name is required").max(100, "Name too long");
 export const DescriptionField = z.string().max(1000, "Description too long").optional();
 export const URLField = z.union([z.string().url("Valid URL is required"), z.literal('')])
+  .nullable()
   .optional()
   .transform((e) => (e === '' ? null : e));
 export const DateField = z.date().optional();
