@@ -11,6 +11,7 @@ import {
   AppearanceSection,
   PrivacySection,
 } from '@/components/settings/SettingsSections';
+import { IntegrationsSection } from '@/components/settings/IntegrationsSection';
 
 function SettingsAlert({ type, message }: { type: 'error' | 'success'; message: string }) {
   if (type === 'error') {
@@ -78,7 +79,11 @@ function SettingsActions({
   );
 }
 
-export default function SettingsPageClient() {
+export default function SettingsPageClient({
+  isGoogleConnected = false,
+}: {
+  isGoogleConnected?: boolean;
+}) {
   const router = useRouter();
   const { loading, saving, settings, hasChanges, updateSetting, saveSettings, resetSettings } =
     useSettings();
@@ -113,17 +118,26 @@ export default function SettingsPageClient() {
         {error && <SettingsAlert type="error" message={error} />}
         {success && <SettingsAlert type="success" message="Settings saved successfully" />}
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-          <NotificationsSection settings={settings} updateSetting={updateSetting} />
-          <AppearanceSection settings={settings} updateSetting={updateSetting} />
-          <PrivacySection settings={settings} updateSetting={updateSetting} />
-          <SettingsActions
-            hasChanges={hasChanges}
-            saving={saving}
-            onSave={handleSave}
-            onReset={resetSettings}
-            onCancel={() => router.back()}
-          />
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 space-y-8">
+          <IntegrationsSection isGoogleConnected={isGoogleConnected} />
+          <div className="border-t pt-6">
+            <NotificationsSection settings={settings} updateSetting={updateSetting} />
+          </div>
+          <div className="border-t pt-6">
+            <AppearanceSection settings={settings} updateSetting={updateSetting} />
+          </div>
+          <div className="border-t pt-6">
+            <PrivacySection settings={settings} updateSetting={updateSetting} />
+          </div>
+          <div className="border-t pt-6">
+            <SettingsActions
+              hasChanges={hasChanges}
+              saving={saving}
+              onSave={handleSave}
+              onReset={resetSettings}
+              onCancel={() => router.back()}
+            />
+          </div>
         </div>
       </div>
     </div>

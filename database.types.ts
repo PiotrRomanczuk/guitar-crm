@@ -321,6 +321,8 @@ export type Database = {
           short_title: string | null;
           title: string;
           ultimate_guitar_link: string;
+          youtube_url: string | null;
+          gallery_images: string[] | null;
           updated_at: string;
         };
         Insert: {
@@ -334,6 +336,8 @@ export type Database = {
           short_title?: string | null;
           title: string;
           ultimate_guitar_link: string;
+          youtube_url?: string | null;
+          gallery_images?: string[] | null;
           updated_at?: string;
         };
         Update: {
@@ -347,6 +351,8 @@ export type Database = {
           short_title?: string | null;
           title?: string;
           ultimate_guitar_link?: string;
+          youtube_url?: string | null;
+          gallery_images?: string[] | null;
           updated_at?: string;
         };
         Relationships: [];
