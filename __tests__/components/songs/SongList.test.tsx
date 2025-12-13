@@ -40,6 +40,8 @@ describe('SongList Components', () => {
         chords: 'C G Am F',
         audio_files: null,
         short_title: null,
+        youtube_url: null,
+        gallery_images: null,
         updated_at: null,
       },
     ];
