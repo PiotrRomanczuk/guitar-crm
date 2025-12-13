@@ -79,11 +79,7 @@ function DrawerPortal({ children }: { children: React.ReactNode }) {
   if (!open) return null;
 
   return (
-    <>
-      {typeof document !== 'undefined' &&
-        document.body &&
-        createPortal(children, document.body)}
-    </>
+    <>{typeof document !== 'undefined' && document.body && createPortal(children, document.body)}</>
   );
 }
 
