@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
 import { DashboardPageContent } from '@/components/dashboard/Dashboard';
-import { AdminDashboardClient } from '@/components/dashboard/admin/AdminDashboardClient';
 import { StudentDashboardClient } from '@/components/dashboard/student/StudentDashboardClient';
+import { TeacherDashboardClient } from '@/components/dashboard/teacher/TeacherDashboardClient';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { getStudentDashboardData } from '@/app/actions/student/dashboard';
+import { getTeacherDashboardData } from '@/app/actions/teacher/dashboard';
 
 export default async function DashboardPage() {
   const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
@@ -12,11 +13,11 @@ export default async function DashboardPage() {
     return <div>Please log in to access the dashboard.</div>;
   }
 
-  // Show admin dashboard for admin users
-  if (isAdmin) {
-    // Fetch actual stats from Supabase
+  // Show admin dashboard for admin users AND teachers (for now, same view)
+  if (isAdmin || isTeacher) {
     const supabase = await createClient();
 
+    // Fetch Admin Stats
     const [
       { count: totalUsers },
       { count: totalTeachers },
@@ -37,7 +38,7 @@ export default async function DashboardPage() {
         .limit(5),
     ]);
 
-    const stats = {
+    const adminStats = {
       totalUsers: totalUsers || 0,
       totalTeachers: totalTeachers || 0,
       totalStudents: totalStudents || 0,
@@ -46,7 +47,10 @@ export default async function DashboardPage() {
       recentUsers: recentUsers || [],
     };
 
-    return <AdminDashboardClient stats={stats} />;
+    // Fetch Teacher Dashboard Data (for the main UI)
+    const teacherData = await getTeacherDashboardData();
+
+    return <TeacherDashboardClient data={teacherData} email={user.email} adminStats={adminStats} />;
   }
 
   // Show student dashboard for student users (or default users without specific roles)

@@ -1,4 +1,4 @@
-import { LandingPage } from '@/components/home';
+import { NewLandingPage } from '@/components/home/NewLandingPage';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { redirect } from 'next/navigation';
 
@@ -9,7 +9,7 @@ export default async function Home() {
 
   // If not authenticated, show the marketing/landing page
   if (!user) {
-    return <LandingPage />;
+    return <NewLandingPage />;
   }
 
   // If authenticated, redirect to dashboard

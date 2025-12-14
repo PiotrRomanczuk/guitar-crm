@@ -31,7 +31,7 @@ export default function UsersListFilters({
   onReset,
 }: UsersListFiltersProps) {
   return (
-    <div className="bg-card rounded-lg border shadow-sm p-4 space-y-4">
+    <div className="bg-card rounded-xl border shadow-sm p-4 space-y-4 animate-fade-in">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <div className="space-y-2">
           <Label>Search</Label>
@@ -47,8 +47,10 @@ export default function UsersListFilters({
         <div className="space-y-2">
           <Label>Role</Label>
           <Select
-            value={roleFilter || "all"}
-            onValueChange={(value) => onRoleFilterChange(value === "all" ? "" : value as typeof roleFilter)}
+            value={roleFilter || 'all'}
+            onValueChange={(value) =>
+              onRoleFilterChange(value === 'all' ? '' : (value as typeof roleFilter))
+            }
           >
             <SelectTrigger data-testid="role-filter">
               <SelectValue placeholder="All Roles" />
@@ -65,8 +67,10 @@ export default function UsersListFilters({
         <div className="space-y-2">
           <Label>Status</Label>
           <Select
-            value={activeFilter || "all"}
-            onValueChange={(value) => onActiveFilterChange(value === "all" ? "" : value as typeof activeFilter)}
+            value={activeFilter || 'all'}
+            onValueChange={(value) =>
+              onActiveFilterChange(value === 'all' ? '' : (value as typeof activeFilter))
+            }
           >
             <SelectTrigger data-testid="status-filter">
               <SelectValue placeholder="All Users" />

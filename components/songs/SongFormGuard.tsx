@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import SongForm from './SongForm';
 import { useSong } from './hooks';
 import { useRouter } from 'next/navigation';
@@ -16,12 +16,29 @@ export default function SongFormGuard({ mode, songId, onSuccess }: Props) {
   // TODO: Accept an isAdmin prop from parent SSR component instead of relying on fallback.
   // Fallback: show form; server-side API will still enforce authorization.
   const router = useRouter();
+
+  useEffect(() => {
+    console.log('[SongFormGuard] Component MOUNTED on client', { mode, songId });
+  }, [mode, songId]);
+
+  console.log('[SongFormGuard] Rendering with props:', { mode, songId });
+
   const { song, loading, error } = useSong(songId || '');
+  console.log('[SongFormGuard] useSong hook result:', { song, loading, error });
 
   if (mode === 'edit' && loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
         <div className="text-xl text-gray-600">Loading...</div>
+        <div className="p-4 bg-gray-100 rounded text-xs font-mono max-w-lg break-all border border-gray-300">
+          <p className="font-bold mb-2">Debug Info:</p>
+          <p>Song ID: {songId}</p>
+          <p>Loading: {String(loading)}</p>
+          <p>Error: {String(error)}</p>
+          <p>Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Defined' : 'Missing'}</p>
+          <p>Supabase Key: {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Defined' : 'Missing'}</p>
+          <p>Timestamp: {new Date().toISOString()}</p>
+        </div>
       </div>
     );
   }

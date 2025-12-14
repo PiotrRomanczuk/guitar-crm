@@ -3,7 +3,6 @@
 //   - Extract POST/PUT/DELETE handlers to separate functions
 //   - Move Supabase client creation to shared utility
 //   - Consider splitting by HTTP method into separate route files
- 
 
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
@@ -100,9 +99,13 @@ export async function GET(request: NextRequest) {
         cookies: {
           getAll: () => cookieStore.getAll(),
           setAll: (cookiesToSet) => {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+              // Ignored
+            }
           },
         },
       }
@@ -167,9 +170,13 @@ export async function POST(request: NextRequest) {
         cookies: {
           getAll: () => cookieStore.getAll(),
           setAll: (cookiesToSet) => {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+              // Ignored
+            }
           },
         },
       }
@@ -247,9 +254,13 @@ export async function PUT(request: NextRequest) {
         cookies: {
           getAll: () => cookieStore.getAll(),
           setAll: (cookiesToSet) => {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+              // Ignored
+            }
           },
         },
       }
@@ -286,15 +297,19 @@ export async function PUT(request: NextRequest) {
  * Delete a song (requires teacher or admin role)
  */
 export async function DELETE(request: NextRequest) {
+  console.log('[API] DELETE /api/song - Request received');
   try {
     const { searchParams } = new URL(request.url);
     const songId = searchParams.get('id');
+    console.log('[API] DELETE /api/song - Song ID:', songId);
 
     if (!songId) {
       return NextResponse.json({ error: 'Song ID is required' }, { status: 400 });
     }
 
     const cookieStore = await cookies();
+    console.log('[API] DELETE /api/song - Cookies count:', cookieStore.getAll().length);
+
     const supabase = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -302,9 +317,13 @@ export async function DELETE(request: NextRequest) {
         cookies: {
           getAll: () => cookieStore.getAll(),
           setAll: (cookiesToSet) => {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+              // Ignored
+            }
           },
         },
       }
@@ -312,17 +331,21 @@ export async function DELETE(request: NextRequest) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    console.log('[API] DELETE /api/song - User:', user?.id);
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const profile = await getOrCreateProfile(supabase, user.id, user.email || '');
+    console.log('[API] DELETE /api/song - Profile found:', !!profile);
+
     if (!profile) {
       return NextResponse.json({ error: 'Error creating user profile' }, { status: 500 });
     }
 
     const result = await deleteSongHandler(supabase, user, profile, songId);
+    console.log('[API] DELETE /api/song - Handler result:', result);
 
     if (result.error) {
       return NextResponse.json({ error: result.error }, { status: result.status });
