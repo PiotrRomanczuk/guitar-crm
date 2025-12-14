@@ -3,7 +3,16 @@ import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import type { Database } from '@/types/database.types';
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  console.log(`[Middleware] ${request.method} ${request.nextUrl.pathname}`);
+  console.log(
+    '[Middleware] Request cookies:',
+    request.cookies
+      .getAll()
+      .map((c) => c.name)
+      .join(', ')
+  );
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -23,9 +32,14 @@ export async function proxy(request: NextRequest) {
   const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
+        console.log('[Middleware] cookies.getAll called');
         return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
+        console.log(
+          '[Middleware] cookies.setAll called',
+          cookiesToSet.map((c) => c.name)
+        );
         cookiesToSet.forEach(({ name, value, options }) => {
           request.cookies.set(name, value);
           response.cookies.set(name, value, options);
@@ -34,29 +48,31 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  // Get the current session - this will not throw errors for missing tokens
+  // Get the current user - this will not throw errors for missing tokens
+  // Use getUser instead of getSession for better security and reliability in middleware
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-  let user = null;
+  console.log('[Middleware] Auth Check:', {
+    hasUser: !!user,
+    userId: user?.id,
+    email: user?.email,
+    error: userError?.message,
+  });
+
   let roles: string[] = [];
 
   // Only attempt to refresh the session if one exists
   // This prevents "Refresh Token Not Found" errors for unauthenticated users
-  if (session) {
-    // Refresh session if expired - this also handles cookie renewal
-    const { data: userData } = await supabase.auth.getUser();
-    user = userData.user;
-
+  if (user) {
     // Extract roles from user metadata if available (fallback to empty array)
-    if (user) {
-      roles = Array.isArray(user?.user_metadata?.roles)
-        ? (user!.user_metadata!.roles as string[])
-        : typeof user?.user_metadata?.role === 'string'
-        ? [user!.user_metadata!.role as string]
-        : [];
-    }
+    roles = Array.isArray(user?.user_metadata?.roles)
+      ? (user!.user_metadata!.roles as string[])
+      : typeof user?.user_metadata?.role === 'string'
+      ? [user!.user_metadata!.role as string]
+      : [];
   }
 
   const pathname = request.nextUrl.pathname;
@@ -64,6 +80,7 @@ export async function proxy(request: NextRequest) {
 
   // Enforce auth for dashboard routes
   if (isDashboard && !user) {
+    console.log('[Middleware] Redirecting to sign-in (unauthenticated)');
     const url = request.nextUrl.clone();
     url.pathname = '/sign-in';
     // Preserve original destination for post-login redirect
@@ -73,6 +90,7 @@ export async function proxy(request: NextRequest) {
 
   // Admin gating example: block /dashboard/admin without 'admin' role
   if (pathname.startsWith('/dashboard/admin') && user && !roles.includes('admin')) {
+    console.log('[Middleware] Redirecting to dashboard (forbidden admin access)');
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     url.searchParams.set('error', 'forbidden');

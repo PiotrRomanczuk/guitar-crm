@@ -1,20 +1,21 @@
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 export default function LessonListHeader() {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-      <h1
-        data-testid="page-title"
-        className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100"
-      >
-        Lessons
-      </h1>
-      <Link
-        href="/dashboard/lessons/new"
-        data-testid="create-lesson-button"
-        className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base font-medium shadow-sm hover:shadow-md"
-      >
-        + Create New Lesson
+    <div className="flex items-center justify-between opacity-0 animate-fade-in">
+      <div className="space-y-1">
+        <h1 data-testid="page-title" className="text-3xl font-bold tracking-tight">
+          Lessons
+        </h1>
+        <p className="text-muted-foreground">Manage your lessons and schedule</p>
+      </div>
+      <Link href="/dashboard/lessons/new">
+        <Button className="gap-2" data-testid="create-lesson-button">
+          <Plus className="w-4 h-4" />
+          Create New Lesson
+        </Button>
       </Link>
     </div>
   );

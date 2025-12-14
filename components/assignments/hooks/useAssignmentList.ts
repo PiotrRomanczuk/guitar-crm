@@ -6,6 +6,7 @@ interface AssignmentListFilters {
   status?: string;
   startDate?: string;
   endDate?: string;
+  student_id?: string;
 }
 
 /**
@@ -17,6 +18,7 @@ function buildSearchParams(filters?: AssignmentListFilters): URLSearchParams {
   if (filters?.status) params.append('status', filters.status);
   if (filters?.startDate) params.append('startDate', filters.startDate);
   if (filters?.endDate) params.append('endDate', filters.endDate);
+  if (filters?.student_id) params.append('student_id', filters.student_id);
   return params;
 }
 
@@ -54,7 +56,7 @@ export function useAssignmentList(filters?: AssignmentListFilters) {
 
     fetchAssignments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters?.search, filters?.status, filters?.startDate, filters?.endDate]);
+  }, [filters?.search, filters?.status, filters?.startDate, filters?.endDate, filters?.student_id]);
 
   const refresh = async () => {
     setIsLoading(true);

@@ -10,6 +10,7 @@ import LessonListFilter from './LessonList.Filter';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useProfiles } from './useProfiles';
 
 interface LessonListProps {
   initialLessons?: LessonWithProfiles[];
@@ -23,10 +24,17 @@ export default function LessonList({
   role = 'admin',
 }: LessonListProps) {
   const searchParams = useSearchParams();
-  const { lessons, loading, error, filterStatus, setFilterStatus } = useLessonList(
-    initialLessons,
-    initialError
-  );
+  const {
+    lessons,
+    loading,
+    error,
+    filterStatus,
+    setFilterStatus,
+    filterStudentId,
+    setFilterStudentId,
+  } = useLessonList(initialLessons, initialError);
+
+  const { students } = useProfiles();
 
   // Check if we should show success message
   const showSuccess = searchParams.get('created') === 'true';
@@ -69,7 +77,14 @@ export default function LessonList({
 
       <LessonListHeader />
 
-      <LessonListFilter filterStatus={filterStatus} onFilterChange={setFilterStatus} />
+      <LessonListFilter
+        filterStatus={filterStatus}
+        onFilterChange={setFilterStatus}
+        filterStudentId={filterStudentId}
+        onStudentFilterChange={setFilterStudentId}
+        students={students}
+        showStudentFilter={role === 'admin' || role === 'teacher'}
+      />
 
       <LessonTable lessons={lessons} role={role} baseUrl="/dashboard/lessons" />
     </div>
