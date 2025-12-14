@@ -18,7 +18,7 @@ function EmailInput({
 }) {
   return (
     <div className="space-y-1 sm:space-y-2">
-      <label htmlFor="email" className="block text-sm font-medium text-gray-400">
+      <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-gray-400">
         Email
       </label>
       <input
@@ -30,7 +30,7 @@ function EmailInput({
         onBlur={onBlur}
         required
         data-testid="email"
-        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-base border border-gray-700 bg-gray-800 rounded-lg shadow-sm transition-all duration-200 text-white hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-700 bg-gray-800 rounded-lg shadow-sm transition-all duration-200 text-white hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       />
     </div>
   );
@@ -51,7 +51,7 @@ function PasswordInput({
 }) {
   return (
     <div className="space-y-1 sm:space-y-2">
-      <label htmlFor="password" className="block text-sm font-medium text-gray-400">
+      <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-gray-400">
         Password
       </label>
       <div className="relative">
@@ -64,7 +64,7 @@ function PasswordInput({
           onBlur={onBlur}
           required
           data-testid="password"
-          className="w-full px-3 sm:px-4 py-2 sm:py-3 text-base border border-gray-700 bg-gray-800 rounded-lg shadow-sm transition-all duration-200 text-white hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-700 bg-gray-800 rounded-lg shadow-sm transition-all duration-200 text-white hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
         <button
           type="button"
