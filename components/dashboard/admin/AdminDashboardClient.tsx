@@ -142,7 +142,7 @@ function DebugViewSelector({
 }) {
   return (
     <Card className="mt-8 bg-muted/50">
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
           <span>🔧</span> Debug: Preview Dashboards
         </h3>

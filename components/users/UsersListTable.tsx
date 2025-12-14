@@ -48,107 +48,106 @@ function getInitials(firstName: string | null, lastName: string | null): string 
 
 export default function UsersListTable({ users, onDelete }: UsersListTableProps) {
   return (
-    <div className="rounded-md border">
-      <Table data-testid="users-table">
-        <TableHeader>
-          <TableRow>
-            <TableHead>User</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id} data-testid={`user-row-${user.id}`}>
-              <TableCell>
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-blue-600 text-white font-semibold text-sm">
-                      {getInitials(user.firstName, user.lastName)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium text-sm">
-                      {user.firstName && user.lastName
-                        ? `${user.firstName} ${user.lastName}`
-                        : user.username || 'N/A'}
-                    </p>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell className="text-muted-foreground">{user.email || 'N/A'}</TableCell>
-              <TableCell>
-                <Badge variant="secondary">{getRoleDisplay(user)}</Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-col gap-1">
-                  <Badge
-                    variant={user.isActive ? 'default' : 'destructive'}
-                    className={
-                      user.isActive
-                        ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200 w-fit'
-                        : 'w-fit'
-                    }
-                  >
-                    {user.isActive ? 'Active' : 'Inactive'}
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className={
-                      user.isRegistered
-                        ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-800 w-fit'
-                        : 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 w-fit'
-                    }
-                  >
-                    {user.isRegistered ? 'Registered' : 'Shadow'}
-                  </Badge>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    asChild
-                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/30"
-                  >
-                    <Link href={`/dashboard/users/${user.id}`} data-testid={`view-user-${user.id}`}>
-                      <Eye className="h-4 w-4 mr-1" />
-                      View
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    asChild
-                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/30"
-                  >
-                    <Link
-                      href={`/dashboard/users/${user.id}/edit`}
-                      data-testid={`edit-user-${user.id}`}
-                    >
-                      <Pencil className="h-4 w-4 mr-1" />
-                      Edit
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDelete(user.id, user.email || 'User')}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30"
-                    data-testid={`delete-user-${user.id}`}
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
-                  </Button>
-                </div>
-              </TableCell>
+    <div className="bg-card rounded-xl border shadow-sm overflow-hidden animate-fade-in">
+      <div className="overflow-x-auto">
+        <Table data-testid="users-table" className="min-w-[600px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead>User</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow
+                key={user.id}
+                data-testid={`user-row-${user.id}`}
+                className="hover:bg-muted/50 transition-colors"
+              >
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                        {getInitials(user.firstName, user.lastName)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium text-sm">
+                        {user.firstName && user.lastName
+                          ? `${user.firstName} ${user.lastName}`
+                          : user.username || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="text-muted-foreground">{user.email || 'N/A'}</TableCell>
+                <TableCell>
+                  <Badge variant="secondary">{getRoleDisplay(user)}</Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col gap-1">
+                    <Badge
+                      variant="secondary"
+                      className={
+                        user.isActive
+                          ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/25 border-0 w-fit'
+                          : 'bg-destructive/10 text-destructive hover:bg-destructive/20 border-0 w-fit'
+                      }
+                    >
+                      {user.isActive ? 'Active' : 'Inactive'}
+                    </Badge>
+                    <Badge
+                      variant="secondary"
+                      className={
+                        user.isRegistered
+                          ? 'bg-primary/10 text-primary hover:bg-primary/20 border-0 w-fit'
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80 border-0 w-fit'
+                      }
+                    >
+                      {user.isRegistered ? 'Registered' : 'Shadow'}
+                    </Badge>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link
+                        href={`/dashboard/users/${user.id}`}
+                        data-testid={`view-user-${user.id}`}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Link>
+                    </Button>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link
+                        href={`/dashboard/users/${user.id}/edit`}
+                        data-testid={`edit-user-${user.id}`}
+                      >
+                        <Pencil className="h-4 w-4 mr-1" />
+                        Edit
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onDelete(user.id, user.email || 'User')}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      data-testid={`delete-user-${user.id}`}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

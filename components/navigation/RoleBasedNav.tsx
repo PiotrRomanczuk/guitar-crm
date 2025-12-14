@@ -65,18 +65,19 @@ export function RoleBasedNav({
     }
 
     if (isStudent && !isTeacher) {
-      // navItems.push({ href: '/student', label: 'Student Dashboard', icon: '👨‍🎓' });
-      // TODO: Implement these routes
-      // { href: '/my-lessons', label: 'My Lessons', icon: '📖' },
-      // { href: '/progress', label: 'My Progress', icon: '📈' }
+      navItems.push(
+        { href: '/student', label: 'Dashboard', icon: '👨‍🎓' },
+        { href: '/student/songs', label: 'My Songs', icon: '🎵' },
+        { href: '/student/lessons', label: 'My Lessons', icon: '📖' }
+      );
+    } else {
+      // Everyone else (Teacher/Admin/Guest?) can access shared dashboard routes
+      navItems.push(
+        { href: '/dashboard/songs', label: 'Songs', icon: '🎵' },
+        { href: '/dashboard/lessons', label: 'Lessons', icon: '📚' },
+        { href: '/dashboard/assignments', label: 'Assignments', icon: '📋' }
+      );
     }
-
-    // Everyone can access songs, lessons, and assignments
-    navItems.push(
-      { href: '/dashboard/songs', label: 'Songs', icon: '🎵' },
-      { href: '/dashboard/lessons', label: 'Lessons', icon: '��' },
-      { href: '/dashboard/assignments', label: 'Assignments', icon: '📋' }
-    );
   }
 
   // Everyone can access Settings

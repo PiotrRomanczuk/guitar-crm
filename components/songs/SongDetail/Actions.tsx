@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface Props {
   songId: string;
@@ -9,11 +11,7 @@ interface Props {
   isTeacher?: boolean;
 }
 
-export default function SongDetailActions({
-  songId,
-  isAdmin = false,
-  isTeacher = false,
-}: Props) {
+export default function SongDetailActions({ songId, isAdmin = false, isTeacher = false }: Props) {
   const [deleting, setDeleting] = useState(false);
   const canManageSongs = isTeacher || isAdmin;
 
@@ -46,23 +44,17 @@ export default function SongDetailActions({
   }
 
   return (
-    <div className="flex gap-4">
-      <Link href={`/dashboard/songs/${songId}/edit`}>
-        <button
-          data-testid="song-edit-button"
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Edit song
-        </button>
-      </Link>
-      <button
-        data-testid="song-delete-button"
-        onClick={handleDelete}
-        disabled={deleting}
-        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-400"
-      >
-        {deleting ? 'Deleting...' : 'Delete song'}
-      </button>
+    <div className="flex gap-3">
+      <Button asChild variant="outline">
+        <Link href={`/dashboard/songs/${songId}/edit`}>
+          <Pencil className="w-4 h-4 mr-2" />
+          Edit Song
+        </Link>
+      </Button>
+      <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+        <Trash2 className="w-4 h-4 mr-2" />
+        {deleting ? 'Deleting...' : 'Delete Song'}
+      </Button>
     </div>
   );
 }

@@ -1,164 +1,164 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { StatCard } from '@/components/student/dashboard/StatCard';
+import { RecentActivity } from '@/components/student/dashboard/RecentActivity';
+import { ProgressChart } from '@/components/student/dashboard/ProgressChart';
+import { SongLibrary } from '@/components/student/songs/SongLibrary';
+import { AssignmentList } from '@/components/student/assignments/AssignmentList';
+import { Music, BookOpen, ClipboardList, Clock } from 'lucide-react';
 
-function StudentDashboardContent() {
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
-            Student Dashboard
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">View lessons and track progress</p>
-        </div>
+// Mock data for Student Dashboard
+const activities = [
+  {
+    id: '1',
+    type: 'lesson_completed' as const,
+    message: "You completed 'Blues Basics' lesson",
+    time: '2 hours ago',
+  },
+  {
+    id: '2',
+    type: 'assignment_submitted' as const,
+    message: "You submitted 'G Major Scale' practice",
+    time: '4 hours ago',
+  },
+  {
+    id: '3',
+    type: 'song_added' as const,
+    message: "New song added to your library: 'Hotel California'",
+    time: 'Yesterday',
+  },
+  {
+    id: '4',
+    type: 'assignment_due' as const,
+    message: "Assignment 'Fingerpicking' is due tomorrow",
+    time: 'Reminder',
+  },
+];
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <DashboardCard
-            title="My Lessons"
-            icon="📖"
-            href="/dashboard/lessons"
-            label="View lessons"
-          />
-          <DashboardCard
-            title="Progress"
-            icon="📈"
-            href="/dashboard/lessons"
-            label="View progress"
-          />
-          <DashboardCard
-            title="Songs Library"
-            icon="🎵"
-            href="/dashboard/songs"
-            label="View songs"
-          />
-        </div>
+const chartData = [
+  { name: 'Mon', lessons: 1, assignments: 1 },
+  { name: 'Tue', lessons: 2, assignments: 0 },
+  { name: 'Wed', lessons: 1, assignments: 2 },
+  { name: 'Thu', lessons: 0, assignments: 1 },
+  { name: 'Fri', lessons: 3, assignments: 2 },
+  { name: 'Sat', lessons: 4, assignments: 3 },
+  { name: 'Sun', lessons: 2, assignments: 1 },
+];
 
-        <div className="mt-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  My Assignments
-                </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">—</p>
-              </div>
-              <span className="text-4xl">�</span>
-            </div>
-            <Link
-              href="/dashboard/assignments"
-              className="mt-4 inline-block text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm"
-            >
-              View assignments →
-            </Link>
-          </div>
-        </div>
+const mySongs = [
+  {
+    id: '1',
+    title: 'Wonderwall',
+    artist: 'Oasis',
+    difficulty: 'Easy' as const,
+    duration: '4:18',
+    studentsLearning: 120,
+  },
+  {
+    id: '2',
+    title: 'Blackbird',
+    artist: 'The Beatles',
+    difficulty: 'Medium' as const,
+    duration: '2:18',
+    studentsLearning: 85,
+  },
+  {
+    id: '3',
+    title: 'Tears in Heaven',
+    artist: 'Eric Clapton',
+    difficulty: 'Medium' as const,
+    duration: '4:33',
+    studentsLearning: 64,
+  },
+];
 
-        <div className="mt-12 bg-blue-50 dark:bg-blue-900 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
-            📝 Need Help?
-          </h2>
-          <p className="text-blue-800 dark:text-blue-200">
-            Contact your teacher or check settings.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DashboardCard({
-  title,
-  icon,
-  href,
-  label,
-}: {
-  title: string;
-  icon: string;
-  href: string;
-  label: string;
-}) {
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">—</p>
-        </div>
-        <span className="text-4xl">{icon}</span>
-      </div>
-      <Link
-        href={href}
-        className="mt-4 inline-block text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm"
-      >
-        {label} →
-      </Link>
-    </div>
-  );
-}
+const myAssignments = [
+  {
+    id: '1',
+    title: 'Practice G Major Scale',
+    studentName: 'Me',
+    dueDate: 'Dec 12',
+    status: 'pending' as const,
+  },
+  {
+    id: '2',
+    title: 'Learn Intro Riff',
+    studentName: 'Me',
+    dueDate: 'Dec 11',
+    status: 'submitted' as const,
+    songTitle: 'Smoke on the Water',
+  },
+  {
+    id: '3',
+    title: 'Chord Transitions Exercise',
+    studentName: 'Me',
+    dueDate: 'Dec 10',
+    status: 'overdue' as const,
+  },
+];
 
 export default function StudentDashboard() {
-  const router = useRouter();
-  const supabase = createClient();
-  const [loading, setLoading] = useState(true);
-  const [hasAccess, setHasAccess] = useState(false);
+  return (
+    <div className="min-h-screen bg-background p-8">
+      {/* Header */}
+      <div className="mb-8 opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
+        <h1 className="text-3xl font-semibold">
+          Welcome back, <span className="text-primary">Student</span>
+        </h1>
+        <p className="text-muted-foreground mt-1">Here&apos;s your progress overview.</p>
+      </div>
 
-  useEffect(() => {
-    async function checkRole() {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) {
-          router.push('/sign-in');
-          return;
-        }
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatCard
+          title="My Songs"
+          value={12}
+          change="+2 this month"
+          changeType="positive"
+          icon={Music}
+          delay={50}
+        />
+        <StatCard
+          title="Lessons Completed"
+          value={24}
+          change="+4 this week"
+          changeType="positive"
+          icon={BookOpen}
+          delay={100}
+        />
+        <StatCard
+          title="Practice Hours"
+          value="18h"
+          change="+2.5h from last week"
+          changeType="positive"
+          icon={Clock}
+          delay={150}
+        />
+        <StatCard
+          title="Pending Assignments"
+          value={3}
+          change="1 due today"
+          changeType="neutral"
+          icon={ClipboardList}
+          delay={200}
+        />
+      </div>
 
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('isStudent')
-          .eq('id', user.id)
-          .single();
-
-        if (profile?.isStudent) {
-          setHasAccess(true);
-        } else {
-          router.push('/dashboard');
-        }
-      } catch (error) {
-        console.error('Error checking role:', error);
-        router.push('/dashboard');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    checkRole();
-  }, [supabase, router]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-          <p className="mt-4 text-gray-600">Loading...</p>
+      {/* Charts & Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="lg:col-span-2">
+          <ProgressChart data={chartData} />
+        </div>
+        <div>
+          <RecentActivity activities={activities} />
         </div>
       </div>
-    );
-  }
 
-  if (!hasAccess) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-red-600">Access denied.</p>
-        </div>
+      {/* Lists */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AssignmentList assignments={myAssignments} />
+        <SongLibrary songs={mySongs} />
       </div>
-    );
-  }
-
-  return <StudentDashboardContent />;
+    </div>
+  );
 }
