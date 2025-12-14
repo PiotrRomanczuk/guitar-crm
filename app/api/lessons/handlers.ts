@@ -92,7 +92,12 @@ async function applyRoleBasedFiltering(
       return { lessons: [], count: 0, status: 200 };
     }
     const filteredQuery = dbQuery.in('student_id', studentIds);
-    return { query: applyLessonFilters(filteredQuery, { filter: params.filter }) };
+    return {
+      query: applyLessonFilters(filteredQuery, {
+        filter: params.filter,
+        studentId: params.studentId,
+      }),
+    };
   }
 
   // Student sees only their own lessons

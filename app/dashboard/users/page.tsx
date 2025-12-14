@@ -7,11 +7,7 @@ export const metadata = {
 
 export default function UsersPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Users</h1>
-        <p className="text-gray-600 dark:text-gray-400">Manage system users and their roles</p>
-      </div>
+    <div className="space-y-6 opacity-0 animate-fade-in">
       <UsersList />
     </div>
   );

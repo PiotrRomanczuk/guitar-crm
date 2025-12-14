@@ -9,6 +9,7 @@ interface DeleteConfirmationDialogProps {
   lessonCount?: number;
   favoriteCount?: number;
   isDeleting?: boolean;
+  error?: string | null;
 }
 
 export default function DeleteConfirmationDialog({
@@ -20,6 +21,7 @@ export default function DeleteConfirmationDialog({
   lessonCount = 0,
   favoriteCount = 0,
   isDeleting = false,
+  error,
 }: DeleteConfirmationDialogProps) {
   if (!isOpen) return null;
 
@@ -56,6 +58,14 @@ export default function DeleteConfirmationDialog({
         </div>
 
         <div className="mb-6">
+          {error && (
+            <div
+              className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm"
+              data-testid="delete-error"
+            >
+              {error}
+            </div>
+          )}
           <p className="text-sm text-gray-600 mb-4">
             Are you sure you want to delete <strong>&ldquo;{songTitle}&rdquo;</strong>? This action
             cannot be undone.

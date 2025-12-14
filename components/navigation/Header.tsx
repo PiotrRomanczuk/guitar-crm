@@ -1,9 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { RoleBasedNav } from './RoleBasedNav';
 import { ConnectionStatus } from './ConnectionStatus';
+import { ModeToggle } from '@/components/ui/mode-toggle';
 
 function MobileMenu({
   open,
@@ -37,6 +38,10 @@ function MobileMenu({
         </div>
       )}
       <div className="flex sm:hidden flex-col gap-2 pt-3 border-t border-blue-500 dark:border-blue-700">
+        <div className="px-2 mb-2 flex items-center justify-between">
+          <span className="text-blue-50">Theme</span>
+          <ModeToggle />
+        </div>
         {loading ? (
           <div className="text-blue-100">Loading...</div>
         ) : user ? (
@@ -105,6 +110,7 @@ function DesktopAuthControls({
 }) {
   return (
     <div className="hidden sm:flex items-center gap-2 sm:gap-3 lg:gap-4">
+      <ModeToggle />
       {loading ? (
         <div className="text-blue-100 text-sm">Loading...</div>
       ) : user ? (
@@ -194,6 +200,7 @@ export default function Header({
   isStudent: boolean;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(initialUser);
   const [isAdmin, setIsAdmin] = useState(initialIsAdmin);
@@ -240,6 +247,18 @@ export default function Header({
       subscription?.unsubscribe();
     };
   }, [router]);
+
+  if (['/sign-in', '/sign-up', '/forgot-password', '/reset-password'].includes(pathname)) {
+    return null;
+  }
+
+  if (pathname === '/') {
+    return (
+      <div className="absolute top-4 right-4 z-50">
+        <ModeToggle />
+      </div>
+    );
+  }
 
   const handleSignOut = () => signOutAndRedirect(router, setMobileMenuOpen);
   const handleNavigation = (path: string) => {
