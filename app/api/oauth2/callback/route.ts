@@ -27,7 +27,8 @@ export async function GET(request: NextRequest) {
       return redirect('/login?error=unauthorized');
     }
 
-    const oauth2Client = getGoogleOAuth2Client();
+    const redirectUri = `${request.nextUrl.origin}/api/oauth2/callback`;
+    const oauth2Client = getGoogleOAuth2Client(redirectUri);
     const { tokens } = await oauth2Client.getToken(code);
 
     // Store tokens in database

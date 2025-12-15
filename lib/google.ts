@@ -2,20 +2,20 @@ import { google } from 'googleapis';
 import { createClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
 
-export const getGoogleOAuth2Client = () => {
+export const getGoogleOAuth2Client = (redirectUri?: string) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+  const uri = redirectUri || process.env.GOOGLE_REDIRECT_URI;
 
-  if (!clientId || !clientSecret || !redirectUri) {
+  if (!clientId || !clientSecret || !uri) {
     throw new Error('Missing Google OAuth2 credentials');
   }
 
-  return new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+  return new google.auth.OAuth2(clientId, clientSecret, uri);
 };
 
-export const getGoogleAuthUrl = () => {
-  const oauth2Client = getGoogleOAuth2Client();
+export const getGoogleAuthUrl = (redirectUri?: string) => {
+  const oauth2Client = getGoogleOAuth2Client(redirectUri);
 
   const scopes = [
     'https://www.googleapis.com/auth/calendar.readonly',
