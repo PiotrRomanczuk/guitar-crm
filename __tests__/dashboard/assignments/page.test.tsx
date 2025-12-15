@@ -64,6 +64,7 @@ describe('AssignmentDetailPage', () => {
       description: 'Do this',
       status: 'pending',
       due_date: '2023-01-01',
+      student_id: 's1',
       student_profile: { id: 's1', full_name: 'Student One' },
       teacher_profile: { id: 't1', full_name: 'Teacher One' },
       lesson: {
@@ -73,12 +74,36 @@ describe('AssignmentDetailPage', () => {
       },
     };
 
-    mockSupabase.from.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({ data: mockAssignment, error: null }),
-        }),
-      }),
+    const mockProfile = {
+      is_admin: true,
+      is_teacher: false,
+      is_student: false,
+    };
+
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'profiles') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({ data: mockProfile, error: null }),
+            }),
+          }),
+        };
+      }
+      if (table === 'assignments') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({ data: mockAssignment, error: null }),
+            }),
+          }),
+        };
+      }
+      return {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: null, error: null }),
+      };
     });
 
     const params = Promise.resolve({ id: '123' });
@@ -102,14 +127,38 @@ describe('AssignmentDetailPage', () => {
       id: '123',
       title: 'Test Assignment',
       status: 'pending',
+      student_id: 's1',
+      lesson: { lesson_songs: [] }, // Add minimal lesson structure
     };
 
-    mockSupabase.from.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({ data: mockAssignment, error: null }),
-        }),
-      }),
+    const mockProfile = {
+      is_admin: true,
+    };
+
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'profiles') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({ data: mockProfile, error: null }),
+            }),
+          }),
+        };
+      }
+      if (table === 'assignments') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              single: jest.fn().mockResolvedValue({ data: mockAssignment, error: null }),
+            }),
+          }),
+        };
+      }
+      return {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: null, error: null }),
+      };
     });
 
     const params = Promise.resolve({ id: '123' });
