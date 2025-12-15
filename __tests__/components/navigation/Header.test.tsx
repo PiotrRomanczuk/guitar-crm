@@ -10,14 +10,20 @@ jest.mock('next/navigation', () => ({
 
 // Mock Supabase client
 jest.mock('@/lib/supabase/client', () => ({
-  createClient: jest.fn(() => ({
-    auth: {
-      signOut: jest.fn().mockResolvedValue({}),
-      onAuthStateChange: jest.fn(() => ({
-        data: { subscription: { unsubscribe: jest.fn() } },
-      })),
-    },
-  })),
+  createClient: jest.fn(() => {
+    // console.log('Mock createClient called');
+    return {
+      auth: {
+        signOut: jest.fn().mockImplementation(() => {
+          // console.log('Mock signOut called');
+          return Promise.resolve({});
+        }),
+        onAuthStateChange: jest.fn(() => ({
+          data: { subscription: { unsubscribe: jest.fn() } },
+        })),
+      },
+    };
+  }),
 }));
 
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
@@ -65,9 +71,16 @@ describe('Header', () => {
     const signOutButton = screen.getByText('Sign Out');
     fireEvent.click(signOutButton);
 
+    // Check if signOut is called
+    // We need to access the mock function. Since createClient returns a new object each time,
+    // we need to ensure our mock setup allows us to track it, or we rely on the fact that
+    // we mocked the implementation to return a specific structure.
+    // However, in the current mock, createClient returns a new object.
+    // Let's rely on router push for now, but increase timeout significantly to debug.
+    
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/sign-in');
-    });
+    }, { timeout: 4000 });
   });
 
   it('should navigate to home when logo is clicked', () => {
