@@ -8,7 +8,8 @@ import { getSupabaseConfig } from './config';
  */
 export async function createClient() {
   const cookieStore = await cookies();
-  const { url, anonKey } = getSupabaseConfig();
+  const forceRemote = cookieStore.get('sb-provider-preference')?.value === 'remote';
+  const { url, anonKey } = getSupabaseConfig({ forceRemote });
 
   return createServerClient(url, anonKey, {
     cookies: {

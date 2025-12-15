@@ -1,11 +1,14 @@
-export const getSupabaseConfig = () => {
+export const getSupabaseConfig = (options: { forceRemote?: boolean } = {}) => {
   const localUrl = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL;
   const localAnonKey = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY;
   const remoteUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const remoteAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // Prioritize local if both URL and Key are present
-  if (localUrl && localAnonKey) {
+  // console.log('[SupabaseConfig] Checking config:', { options, hasLocalUrl: !!localUrl, hasLocalKey: !!localAnonKey, hasRemoteUrl: !!remoteUrl });
+
+  // Prioritize local if both URL and Key are present, unless forced remote
+  if (!options.forceRemote && localUrl && localAnonKey) {
+    // console.log('[SupabaseConfig] Using Local Config');
     return {
       url: localUrl,
       anonKey: localAnonKey,
@@ -15,6 +18,7 @@ export const getSupabaseConfig = () => {
 
   // Fallback to remote
   if (remoteUrl && remoteAnonKey) {
+    // console.log('[SupabaseConfig] Using Remote Config');
     return {
       url: remoteUrl,
       anonKey: remoteAnonKey,
@@ -22,6 +26,7 @@ export const getSupabaseConfig = () => {
     };
   }
 
+  console.error('[SupabaseConfig] Missing configuration', { localUrl, remoteUrl });
   throw new Error('Supabase configuration missing. Please check your .env file.');
 };
 

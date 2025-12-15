@@ -1,13 +1,11 @@
 'use client';
 
 import { StudentDashboardData } from '@/app/actions/student/dashboard';
-import { StatCard } from '@/components/student/dashboard/StatCard';
 import { RecentActivity } from '@/components/student/dashboard/RecentActivity';
 import { ProgressChart } from '@/components/student/dashboard/ProgressChart';
 import { SongLibrary } from '@/components/student/songs/SongLibrary';
 import { AssignmentList } from '@/components/student/assignments/AssignmentList';
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
-import { Music, BookOpen, ClipboardList, Clock } from 'lucide-react';
 
 interface StudentDashboardClientProps {
   data: StudentDashboardData;
@@ -69,7 +67,7 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
   return (
     <div className="min-h-screen bg-background font-sans">
       <main className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 opacity-0 animate-fade-in">
           <h1 className="text-3xl font-bold tracking-tight">Welcome back, Student!</h1>
           <p className="text-muted-foreground">
             Here&apos;s what&apos;s happening with your guitar journey.
@@ -78,33 +76,6 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
 
         {/* API-driven stats */}
         <DashboardStatsGrid />
-
-        {/* Legacy stats for additional context */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            title="Total Songs"
-            value={data.stats.totalSongs.toString()}
-            icon={Music}
-            change="+2 this week"
-          />
-          <StatCard
-            title="Completed Lessons"
-            value={data.stats.completedLessons.toString()}
-            icon={BookOpen}
-            change="+1 this week"
-          />
-          <StatCard
-            title="Active Assignments"
-            value={data.stats.activeAssignments.toString()}
-            icon={ClipboardList}
-          />
-          <StatCard
-            title="Practice Hours"
-            value={data.stats.practiceHours.toString()}
-            icon={Clock}
-            change="+2.5h this week"
-          />
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
