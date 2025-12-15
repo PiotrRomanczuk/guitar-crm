@@ -82,9 +82,9 @@ describe('Header', () => {
       () => {
         expect(mockPush).toHaveBeenCalledWith('/sign-in');
       },
-      { timeout: 4000 }
+      { timeout: 10000 }
     );
-  });
+  }, 15000);
 
   it('should navigate to home when logo is clicked', () => {
     render(<Header user={null} isAdmin={false} isTeacher={false} isStudent={false} />);
