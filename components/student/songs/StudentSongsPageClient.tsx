@@ -64,7 +64,9 @@ export function StudentSongsPageClient() {
 
         const processedSongsMap = new Map<string, Song>();
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data?.forEach((song: any) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const userLessonSongs = song.lesson_songs.filter((ls: any) => ls.lessons.student_id === user.id);
           const status = userLessonSongs.length > 0 ? userLessonSongs[0].status : undefined;
 
@@ -106,7 +108,7 @@ export function StudentSongsPageClient() {
         <div className="text-center py-12">
           <Music2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium">No songs found</h3>
-          <p className="text-muted-foreground">You haven't been assigned any songs yet.</p>
+          <p className="text-muted-foreground">You haven&apos;t been assigned any songs yet.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -18,7 +18,7 @@ export function TestimonialsSection() {
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-6 w-full'>
 					<div className='bg-gray-50 dark:bg-gray-700 p-6 rounded-xl'>
 						<p className='text-gray-600 dark:text-gray-300 italic mb-4'>
-							"This CRM has completely transformed how I manage my guitar students. Scheduling is a breeze and I can focus on teaching!"
+							&quot;This CRM has completely transformed how I manage my guitar students. Scheduling is a breeze and I can focus on teaching!&quot;
 						</p>
 						<div className='flex items-center'>
 							<div className='w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold mr-3'>
@@ -32,7 +32,7 @@ export function TestimonialsSection() {
 					</div>
 					<div className='bg-gray-50 dark:bg-gray-700 p-6 rounded-xl'>
 						<p className='text-gray-600 dark:text-gray-300 italic mb-4'>
-							"I love being able to see my upcoming lessons and practice assignments in one place. It keeps me motivated."
+							&quot;I love being able to see my upcoming lessons and practice assignments in one place. It keeps me motivated.&quot;
 						</p>
 						<div className='flex items-center'>
 							<div className='w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold mr-3'>
