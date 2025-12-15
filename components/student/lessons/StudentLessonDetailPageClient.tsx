@@ -42,12 +42,15 @@ export function StudentLessonDetailPageClient() {
       if (!id) return;
 
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return;
 
         const { data, error } = await supabase
           .from('lessons')
-          .select(`
+          .select(
+            `
             *,
             profile:profiles!lessons_student_id_fkey(id, full_name, email),
             teacher_profile:profiles!lessons_teacher_id_fkey(id, full_name, email),
@@ -62,7 +65,8 @@ export function StudentLessonDetailPageClient() {
               status,
               due_date
             )
-          `)
+          `
+          )
           .eq('id', id)
           .eq('student_id', user.id)
           .maybeSingle();
@@ -91,7 +95,7 @@ export function StudentLessonDetailPageClient() {
     }
 
     fetchLesson();
-  }, [id]);
+  }, [id, supabase]);
 
   if (loading) {
     return (
@@ -105,7 +109,9 @@ export function StudentLessonDetailPageClient() {
     return (
       <div className="min-h-screen bg-background p-8 flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold mb-4">Lesson not found</h1>
-        <p className="text-muted-foreground mb-6">You don&apos;t have access to this lesson or it doesn&apos;t exist.</p>
+        <p className="text-muted-foreground mb-6">
+          You don&apos;t have access to this lesson or it doesn&apos;t exist.
+        </p>
         <Link href="/dashboard/lessons">
           <Button>Back to Lessons</Button>
         </Link>
@@ -115,7 +121,10 @@ export function StudentLessonDetailPageClient() {
 
   return (
     <div className="min-h-screen bg-background p-8">
-      <div className="max-w-4xl mx-auto opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
+      <div
+        className="max-w-4xl mx-auto opacity-0 animate-fade-in"
+        style={{ animationFillMode: 'forwards' }}
+      >
         <Link
           href="/dashboard/lessons"
           className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-6 transition-colors"

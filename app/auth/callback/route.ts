@@ -13,19 +13,25 @@ export async function GET(request: Request) {
     if (!error) {
       const forwardedHost = request.headers.get('x-forwarded-host'); // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === 'development';
-      
+
       // Check if user needs onboarding
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
           .select('is_student, is_teacher, is_admin')
           .eq('id', user.id)
           .single();
-        
+
         if (!profile?.is_student && !profile?.is_teacher && !profile?.is_admin) {
-           const onboardingUrl = isLocalEnv ? `${origin}/onboarding` : (forwardedHost ? `https://${forwardedHost}/onboarding` : `${origin}/onboarding`);
-           return NextResponse.redirect(onboardingUrl);
+          const onboardingUrl = isLocalEnv
+            ? `${origin}/onboarding`
+            : forwardedHost
+            ? `https://${forwardedHost}/onboarding`
+            : `${origin}/onboarding`;
+          return NextResponse.redirect(onboardingUrl);
         }
       }
 
