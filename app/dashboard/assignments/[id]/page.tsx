@@ -219,6 +219,13 @@ export default async function AssignmentDetailPage({ params, searchParams }: Pag
     redirect('/login');
   }
 
+  // Get user profile for role checking
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin, is_teacher, is_student')
+    .eq('id', user.id)
+    .single();
+
   // Fetch assignment with extended relations
   const { data: assignment, error } = await supabase
     .from('assignments')
@@ -249,6 +256,27 @@ export default async function AssignmentDetailPage({ params, searchParams }: Pag
                         dark:border-red-800 rounded-lg"
         >
           <p className="text-xs sm:text-sm text-red-800 dark:text-red-200">Assignment not found</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Permission check
+  const isAuthorized =
+    profile?.is_admin ||
+    profile?.is_teacher ||
+    (profile?.is_student && assignment.student_id === user.id);
+
+  if (!isAuthorized) {
+    return (
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+        <div
+          className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 
+                        dark:border-red-800 rounded-lg"
+        >
+          <p className="text-xs sm:text-sm text-red-800 dark:text-red-200">
+            You are not authorized to view this assignment.
+          </p>
         </div>
       </div>
     );

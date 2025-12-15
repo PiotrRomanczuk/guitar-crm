@@ -1,5 +1,3 @@
--- Enable moddatetime extension
-create extension if not exists moddatetime schema extensions;
 
 create table if not exists public.user_integrations (
   user_id uuid references auth.users(id) on delete cascade not null,
@@ -34,4 +32,4 @@ create policy "Users can delete their own integrations"
 
 -- Create updated_at trigger
 create trigger handle_updated_at before update on public.user_integrations
-  for each row execute procedure moddatetime (updated_at);
+  for each row execute procedure update_updated_at_column();

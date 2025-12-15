@@ -10,6 +10,7 @@ export default function SignInPage() {
   const router = useRouter();
 
   const handleSuccess = () => {
+    router.refresh();
     router.push('/');
   };
 

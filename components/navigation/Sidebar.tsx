@@ -43,9 +43,9 @@ export function Sidebar({ user, isAdmin, isTeacher, isStudent }: SidebarProps) {
   if (!user) return null;
 
   const getMenuItems = () => {
-    const items = [{ id: 'home', label: 'Home', icon: LayoutDashboard, path: '/' }];
+    const items = [{ id: 'home', label: 'Home', icon: LayoutDashboard, path: '/dashboard' }];
 
-    if (isAdmin) {
+    if (isAdmin || isTeacher) {
       items.push(
         { id: 'songs', label: 'Songs', icon: Music, path: '/dashboard/songs' },
         { id: 'lessons', label: 'Lessons', icon: BookOpen, path: '/dashboard/lessons' },
@@ -57,29 +57,17 @@ export function Sidebar({ user, isAdmin, isTeacher, isStudent }: SidebarProps) {
         },
         { id: 'users', label: 'Users', icon: Users, path: '/dashboard/users' }
       );
-    } else {
-      if (isTeacher) {
-        items.push({ id: 'teacher', label: 'Teacher Dashboard', icon: Users, path: '/teacher' });
-      }
-
-      if (isStudent && !isTeacher) {
-        items.push(
-          { id: 'student', label: 'Dashboard', icon: LayoutDashboard, path: '/student' },
-          { id: 'my-songs', label: 'My Songs', icon: Music, path: '/student/songs' },
-          { id: 'my-lessons', label: 'My Lessons', icon: BookOpen, path: '/student/lessons' }
-        );
-      } else {
-        items.push(
-          { id: 'songs', label: 'Songs', icon: Music, path: '/dashboard/songs' },
-          { id: 'lessons', label: 'Lessons', icon: BookOpen, path: '/dashboard/lessons' },
-          {
-            id: 'assignments',
-            label: 'Assignments',
-            icon: ClipboardList,
-            path: '/dashboard/assignments',
-          }
-        );
-      }
+    } else if (isStudent) {
+      items.push(
+        { id: 'my-songs', label: 'My Songs', icon: Music, path: '/dashboard/songs' },
+        { id: 'my-lessons', label: 'My Lessons', icon: BookOpen, path: '/dashboard/lessons' },
+        {
+          id: 'my-assignments',
+          label: 'My Assignments',
+          icon: ClipboardList,
+          path: '/dashboard/assignments',
+        }
+      );
     }
     return items;
   };
