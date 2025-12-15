@@ -2,7 +2,7 @@
 
 import { StudentDashboardData } from '@/app/actions/student/dashboard';
 import { RecentActivity } from '@/components/student/dashboard/RecentActivity';
-import { ProgressChart } from '@/components/student/dashboard/ProgressChart';
+// import { ProgressChart } from '@/components/student/dashboard/ProgressChart';
 import { SongLibrary } from '@/components/student/songs/SongLibrary';
 import { AssignmentList } from '@/components/student/assignments/AssignmentList';
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
@@ -34,6 +34,7 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
     })),
   ].slice(0, 5);
 
+  /*
   const chartData = [
     { name: 'Mon', lessons: 1, assignments: 1 },
     { name: 'Tue', lessons: 2, assignments: 0 },
@@ -43,6 +44,7 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
     { name: 'Sat', lessons: 4, assignments: 3 },
     { name: 'Sun', lessons: 2, assignments: 1 },
   ];
+  */
 
   const songs = data.recentSongs.map((s) => ({
     id: s.id,

@@ -111,6 +111,7 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
     lastLesson: lastLessonData,
     assignments: assignmentsData || [],
     recentSongs:
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       recentLessonSongs?.map((ls: any) => ({
         id: ls.songs.id,
         title: ls.songs.title,

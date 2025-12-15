@@ -74,6 +74,7 @@ export function StudentSongDetailPageClient() {
 
         if (data) {
           // Extract status from the first matching lesson_song
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const userLessonSongs = data.lesson_songs.filter((ls: any) => ls.lessons.student_id === user.id);
           const status = userLessonSongs.length > 0 ? userLessonSongs[0].status : undefined;
           
@@ -106,7 +107,7 @@ export function StudentSongDetailPageClient() {
     return (
       <div className="min-h-screen bg-background p-8 flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold mb-4">Song not found</h1>
-        <p className="text-muted-foreground mb-6">You don't have access to this song or it doesn't exist.</p>
+        <p className="text-muted-foreground mb-6">You don&apos;t have access to this song or it doesn&apos;t exist.</p>
         <Link href="/dashboard/songs">
           <Button>Back to Songs</Button>
         </Link>
