@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { Toaster } from 'sonner';
 
-import Header from '@/components/navigation/Header';
-import { Sidebar } from '@/components/navigation/Sidebar';
+import { AppShell } from '@/components/layout/AppShell';
 import { Providers } from '@/components/providers/QueryProvider';
 
 import './globals.css';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+
+export const dynamic = 'force-dynamic';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -43,17 +43,9 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
-          {user ? (
-            <Sidebar user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
-          ) : (
-            <Header user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
-          )}
-          <main
-            className={user ? 'md:ml-64 min-h-screen bg-background' : 'min-h-screen bg-background'}
-          >
+          <AppShell user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent}>
             {children}
-          </main>
-          <Toaster />
+          </AppShell>
         </Providers>
       </body>
     </html>

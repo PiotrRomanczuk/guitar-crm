@@ -1,6 +1,7 @@
 import { NewLandingPage } from '@/components/home/NewLandingPage';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { redirect } from 'next/navigation';
+import { DatabaseStatus } from '@/components/debug/DatabaseStatus';
 
 export default async function Home() {
   const { user } = await getUserWithRolesSSR();
@@ -9,7 +10,12 @@ export default async function Home() {
 
   // If not authenticated, show the marketing/landing page
   if (!user) {
-    return <NewLandingPage />;
+    return (
+      <>
+        <NewLandingPage />
+        <DatabaseStatus />
+      </>
+    );
   }
 
   // If authenticated, redirect to dashboard
