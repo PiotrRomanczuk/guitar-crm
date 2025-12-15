@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { SignInForm } from '@/components/auth';
 import { AnimatedText } from '@/components/auth/AnimatedText';
 import { ArrowUp } from 'lucide-react';
+import { DatabaseStatus } from '@/components/debug/DatabaseStatus';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen flex w-full bg-black">
+      <DatabaseStatus />
       {/* Left Side - Login Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 bg-[#1C1C1C]">
         <div className="w-full max-w-md space-y-8">
