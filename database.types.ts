@@ -268,6 +268,7 @@ export type Database = {
           email: string;
           full_name: string | null;
           id: string;
+          user_id: string | null;
           is_admin: boolean;
           is_development: boolean;
           is_shadow: boolean | null;
@@ -298,6 +299,7 @@ export type Database = {
           email?: string;
           full_name?: string | null;
           id?: string;
+          user_id?: string | null;
           is_admin?: boolean;
           is_development?: boolean;
           is_shadow?: boolean | null;
@@ -307,7 +309,15 @@ export type Database = {
           phone?: string | null;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "profiles_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       songs: {
         Row: {
