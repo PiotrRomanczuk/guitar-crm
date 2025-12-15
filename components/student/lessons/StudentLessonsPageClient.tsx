@@ -63,6 +63,7 @@ export function StudentLessonsPageClient() {
         if (error) throw error;
 
         // Transform data to match LessonWithDetails interface
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const transformedLessons: LessonWithDetails[] = (data || []).map((lesson: any) => ({
           id: lesson.id,
           scheduled_at: lesson.scheduled_at,
@@ -105,7 +106,7 @@ export function StudentLessonsPageClient() {
         <div className="text-center py-12">
           <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium">No lessons found</h3>
-          <p className="text-muted-foreground">You haven't been assigned any lessons yet.</p>
+          <p className="text-muted-foreground">You haven&apos;t been assigned any lessons yet.</p>
         </div>
       ) : (
         <div className="space-y-4">
