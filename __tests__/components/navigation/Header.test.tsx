@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
-  usePathname: jest.fn(() => '/dashboard'),
+  usePathname: jest.fn(() => '/profile'),
 }));
 
 // Mock Supabase client

@@ -42,7 +42,6 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
       const supabase = createClient();
       
       // Get the URL from the client to display it
-      // @ts-expect-error - accessing private property for debug
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const clientUrl = (supabase as any).supabaseUrl;
       console.log('[DatabaseStatus] Testing connection to:', clientUrl);
