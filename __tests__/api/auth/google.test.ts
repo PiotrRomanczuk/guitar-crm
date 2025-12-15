@@ -28,9 +28,10 @@ describe('Google Auth API', () => {
     it('should redirect to Google Auth URL', async () => {
       (getGoogleAuthUrl as jest.Mock).mockReturnValue('https://google.com/auth');
 
-      await authRoute();
+      const req = new NextRequest('http://localhost:3000/api/auth/google');
+      await authRoute(req);
 
-      expect(getGoogleAuthUrl).toHaveBeenCalled();
+      expect(getGoogleAuthUrl).toHaveBeenCalledWith('http://localhost:3000/api/oauth2/callback');
       expect(redirect).toHaveBeenCalledWith('https://google.com/auth');
     });
   });
@@ -52,6 +53,7 @@ describe('Google Auth API', () => {
       const req = {
         nextUrl: {
           searchParams: new URLSearchParams('error=access_denied'),
+          origin: 'http://localhost:3000',
         },
       } as unknown as NextRequest;
 
@@ -64,6 +66,7 @@ describe('Google Auth API', () => {
       const req = {
         nextUrl: {
           searchParams: new URLSearchParams(''),
+          origin: 'http://localhost:3000',
         },
       } as unknown as NextRequest;
 
@@ -76,6 +79,7 @@ describe('Google Auth API', () => {
       const req = {
         nextUrl: {
           searchParams: new URLSearchParams('code=valid-code'),
+          origin: 'http://localhost:3000',
         },
       } as unknown as NextRequest;
       mockSupabase.auth.getUser.mockResolvedValue({ data: { user: null }, error: 'No user' });
@@ -89,6 +93,7 @@ describe('Google Auth API', () => {
       const req = {
         nextUrl: {
           searchParams: new URLSearchParams('code=valid-code'),
+          origin: 'http://localhost:3000',
         },
       } as unknown as NextRequest;
 
@@ -132,6 +137,7 @@ describe('Google Auth API', () => {
       const req = {
         nextUrl: {
           searchParams: new URLSearchParams('code=valid-code'),
+          origin: 'http://localhost:3000',
         },
       } as unknown as NextRequest;
 
