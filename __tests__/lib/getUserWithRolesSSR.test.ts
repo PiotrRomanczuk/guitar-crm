@@ -15,6 +15,7 @@ describe('getUserWithRolesSSR', () => {
   const mockCookieStore = {
     getAll: jest.fn(),
     set: jest.fn(),
+    get: jest.fn(),
   };
 
   const mockSupabaseClient = {
