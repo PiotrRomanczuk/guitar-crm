@@ -9,17 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, ClipboardList, Calendar, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { Loader2, ClipboardList, Calendar, CheckCircle2, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -63,7 +55,7 @@ const statusLabels: Record<string, string> = {
 export function StudentAssignmentsPageClient() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterState>({
     status: '',
   });
@@ -79,9 +71,10 @@ export function StudentAssignmentsPageClient() {
 
       const data = await response.json();
       setAssignments(data);
-      setError(null);
+      // setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error loading assignments');
+      console.error('Error loading assignments:', err);
+      // setError(err instanceof Error ? err.message : 'Error loading assignments');
     } finally {
       setLoading(false);
     }
@@ -130,7 +123,7 @@ export function StudentAssignmentsPageClient() {
         <div className="text-center py-12">
           <ClipboardList className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium">No assignments found</h3>
-          <p className="text-muted-foreground">You don't have any assignments yet.</p>
+          <p className="text-muted-foreground">You don&apos;t have any assignments yet.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

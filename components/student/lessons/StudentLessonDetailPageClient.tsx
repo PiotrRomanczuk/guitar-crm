@@ -105,7 +105,7 @@ export function StudentLessonDetailPageClient() {
     return (
       <div className="min-h-screen bg-background p-8 flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold mb-4">Lesson not found</h1>
-        <p className="text-muted-foreground mb-6">You don't have access to this lesson or it doesn't exist.</p>
+        <p className="text-muted-foreground mb-6">You don&apos;t have access to this lesson or it doesn&apos;t exist.</p>
         <Link href="/dashboard/lessons">
           <Button>Back to Lessons</Button>
         </Link>
