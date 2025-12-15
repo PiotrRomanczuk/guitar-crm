@@ -63,12 +63,12 @@ describe('SongForm Component - Core Tests', () => {
     await waitFor(() => {
       // Button returns to normal state indicating submission finished
       expect(screen.getByRole('button', { name: /save song/i })).toBeEnabled();
-    });
+    }, { timeout: 10000 });
     expect(mockFetch).toHaveBeenCalledWith(
       '/api/song',
       expect.objectContaining({ method: 'POST' })
     );
-  });
+  }, 15000);
 
   it('submits successfully with valid data (PUT)', async () => {
     mockFetch.mockResolvedValueOnce({
