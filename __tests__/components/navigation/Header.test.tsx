@@ -77,10 +77,13 @@ describe('Header', () => {
     // we mocked the implementation to return a specific structure.
     // However, in the current mock, createClient returns a new object.
     // Let's rely on router push for now, but increase timeout significantly to debug.
-    
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/sign-in');
-    }, { timeout: 4000 });
+
+    await waitFor(
+      () => {
+        expect(mockPush).toHaveBeenCalledWith('/sign-in');
+      },
+      { timeout: 4000 }
+    );
   });
 
   it('should navigate to home when logo is clicked', () => {

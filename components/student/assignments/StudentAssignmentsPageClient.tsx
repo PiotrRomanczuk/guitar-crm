@@ -148,7 +148,7 @@ export function StudentAssignmentsPageClient() {
               <h3 className="font-semibold text-lg mb-2 line-clamp-1" title={assignment.title}>
                 {assignment.title}
               </h3>
-              
+
               {assignment.description && (
                 <p className="text-muted-foreground text-sm mb-4 line-clamp-2 flex-grow">
                   {assignment.description}
@@ -162,7 +162,7 @@ export function StudentAssignmentsPageClient() {
                     Due: {format(new Date(assignment.due_date), 'MMM d, yyyy')}
                   </div>
                 )}
-                
+
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Clock className="w-4 h-4 mr-2 text-primary/70" />
                   Assigned: {format(new Date(assignment.created_at), 'MMM d, yyyy')}
@@ -178,9 +178,7 @@ export function StudentAssignmentsPageClient() {
 
               <div className="mt-4 pt-2">
                 <Button asChild variant="outline" className="w-full">
-                  <Link href={`/dashboard/assignments/${assignment.id}`}>
-                    View Details
-                  </Link>
+                  <Link href={`/dashboard/assignments/${assignment.id}`}>View Details</Link>
                 </Button>
               </div>
             </div>

@@ -11,7 +11,26 @@ export async function enableCalendarWebhook() {
     return { success: false, error: 'Unauthorized' };
   }
 
-  const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/google-calendar`;
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '');
+
+  if (!appUrl) {
+    console.error('Missing NEXT_PUBLIC_APP_URL or NEXT_PUBLIC_API_BASE_URL');
+    return { success: false, error: 'Server configuration error: Missing App URL' };
+  }
+
+  // Google Webhooks require HTTPS. Localhost is not supported without a tunnel (e.g. ngrok).
+  if (appUrl.includes('localhost') && !appUrl.includes('ngrok')) {
+    console.warn('Google Calendar Webhooks require HTTPS and a public URL. Localhost will fail.');
+    // We can return a specific error to the UI so the user knows they need a tunnel
+    return {
+      success: false,
+      error:
+        'Google Webhooks require a public HTTPS URL. Please use ngrok or deploy to a public server.',
+    };
+  }
+
+  const webhookUrl = `${appUrl}/api/webhooks/google-calendar`;
 
   try {
     const { channelId, resourceId, expiration } = await watchCalendar(user.id, webhookUrl);

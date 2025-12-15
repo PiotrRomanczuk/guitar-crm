@@ -43,12 +43,15 @@ export function StudentLessonsPageClient() {
   useEffect(() => {
     async function fetchLessons() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return;
 
         const { data, error } = await supabase
           .from('lessons')
-          .select(`
+          .select(
+            `
             id,
             scheduled_at,
             status,
@@ -56,7 +59,8 @@ export function StudentLessonsPageClient() {
             lesson_teacher_number,
             teacher:profiles!lessons_teacher_id_fkey(full_name, email),
             student:profiles!lessons_student_id_fkey(full_name, email)
-          `)
+          `
+          )
           .eq('student_id', user.id)
           .order('scheduled_at', { ascending: false });
 
@@ -83,7 +87,7 @@ export function StudentLessonsPageClient() {
     }
 
     fetchLessons();
-  }, []);
+  }, [supabase]);
 
   if (loading) {
     return (
@@ -152,10 +156,12 @@ export function StudentLessonsPageClient() {
                 <div className="flex items-center gap-4">
                   {lesson.notes && (
                     <div className="hidden md:block md:max-w-xs lg:max-w-md bg-secondary/30 rounded-lg p-3 text-sm truncate">
-                      <p className="text-muted-foreground italic truncate">&quot;{lesson.notes}&quot;</p>
+                      <p className="text-muted-foreground italic truncate">
+                        &quot;{lesson.notes}&quot;
+                      </p>
                     </div>
                   )}
-                  
+
                   <Button asChild variant="ghost" size="sm" className="ml-auto">
                     <Link href={`/dashboard/lessons/${lesson.id}`}>
                       View Details

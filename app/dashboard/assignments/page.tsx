@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import AssignmentList from '@/components/assignments/AssignmentsList';
+import AssignmentList from '@/components/assignments/AssignmentList';
 import { StudentAssignmentsPageClient } from '@/components/student/assignments/StudentAssignmentsPageClient';
 
 /**
