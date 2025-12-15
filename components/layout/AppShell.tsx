@@ -16,7 +16,7 @@ interface AppShellProps {
 export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppShellProps) {
   const pathname = usePathname();
   // Hide sidebar on auth pages even if user data is present (e.g. stale state during logout)
-  const isAuthPage = pathname === '/sign-in' || pathname === '/sign-up';
+  const isAuthPage = ['/sign-in', '/sign-up', '/auth/login', '/auth/register'].includes(pathname || '');
   const showSidebar = !!user && !isAuthPage;
 
   console.log('AppShell:', { pathname, hasUser: !!user, isAuthPage, showSidebar });
