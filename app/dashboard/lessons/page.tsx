@@ -3,6 +3,7 @@ import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { createClient } from '@/lib/supabase/server';
 import { getLessonsHandler } from '@/app/api/lessons/handlers';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
+import { StudentLessonsPageClient } from '@/components/student/lessons/StudentLessonsPageClient';
 
 interface LessonsPageData {
   lessons: LessonWithProfiles[];
@@ -44,7 +45,7 @@ async function fetchInitialLessons(filter?: string, studentId?: string): Promise
 }
 
 export default async function LessonsPage({ searchParams }: LessonsPageProps) {
-  const { user } = await getUserWithRolesSSR();
+  const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
 
   if (!user) {
     return (
@@ -55,6 +56,11 @@ export default async function LessonsPage({ searchParams }: LessonsPageProps) {
         </div>
       </div>
     );
+  }
+
+  // If user is a student and NOT an admin/teacher, show the student view
+  if (isStudent && !isAdmin && !isTeacher) {
+    return <StudentLessonsPageClient />;
   }
 
   const resolvedParams = await searchParams;

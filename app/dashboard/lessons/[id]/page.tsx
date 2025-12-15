@@ -8,6 +8,7 @@ import { Database } from '@/database.types';
 import { LessonSongsList } from '@/components/lessons/LessonSongsList';
 import { LessonDetailsCard } from '@/components/lessons/LessonDetailsCard';
 import { LessonAssignmentsList } from '@/components/lessons/LessonAssignmentsList';
+import { StudentLessonDetailPageClient } from '@/components/student/lessons/StudentLessonDetailPageClient';
 
 interface LessonDetailPageProps {
   params: Promise<{ id: string }>;
@@ -84,10 +85,15 @@ async function handleDeleteLesson(id: string) {
 
 export default async function LessonDetailPage({ params }: LessonDetailPageProps) {
   const { id } = await params;
-  const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
+  const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
 
   if (!user) {
     redirect('/sign-in');
+  }
+
+  // If user is a student and NOT an admin/teacher, show the student view
+  if (isStudent && !isAdmin && !isTeacher) {
+    return <StudentLessonDetailPageClient />;
   }
 
   const lesson = await fetchLesson(id);

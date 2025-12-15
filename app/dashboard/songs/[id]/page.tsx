@@ -6,6 +6,7 @@ import { Breadcrumbs } from '@/components/shared';
 import { redirect } from 'next/navigation';
 import { getSongStudents } from './actions';
 import { SongStudents } from '@/components/songs/SongStudents';
+import { StudentSongDetailPageClient } from '@/components/student/songs/StudentSongDetailPageClient';
 
 interface SearchParams {
   [key: string]: string | string[] | undefined;
@@ -19,9 +20,14 @@ interface SongPageProps {
 }
 
 export default async function SongPage({ params, searchParams }: SongPageProps) {
-  const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
+  const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
   if (!user) {
     redirect('/sign-in');
+  }
+
+  // If user is a student and NOT an admin/teacher, show the student view
+  if (isStudent && !isAdmin && !isTeacher) {
+    return <StudentSongDetailPageClient />;
   }
 
   const { id } = await params;

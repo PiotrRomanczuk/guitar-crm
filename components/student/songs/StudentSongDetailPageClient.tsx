@@ -1,12 +1,14 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Guitar, Music2, ExternalLink, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, Guitar, Music2, ExternalLink, Calendar, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Song } from '@/types/Song';
+import { createClient } from '@/lib/supabase/client';
 
 const difficultyColors = {
   beginner: 'bg-green-500/10 text-green-500 border-green-500/20',
@@ -20,86 +22,92 @@ const difficultyLabels = {
   advanced: 'Advanced',
 };
 
-// Dummy data matching the Song interface
-const dummySongs: Partial<Song>[] = [
-  {
-    id: '1',
-    title: 'Wonderwall',
-    author: 'Oasis',
-    level: 'beginner',
-    key: 'C',
-    chords: 'Em7 - G - Dsus4 - A7sus4',
-    ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/oasis/wonderwall-chords-27596',
-    created_at: new Date(),
-    updated_at: new Date(),
-  },
-  {
-    id: '2',
-    title: 'Hotel California',
-    author: 'Eagles',
-    level: 'intermediate',
-    key: 'Bm',
-    chords: 'Bm - F# - A - E - G - D - Em - F#',
-    ultimate_guitar_link:
-      'https://tabs.ultimate-guitar.com/tab/eagles/hotel-california-chords-46190',
-    created_at: new Date(),
-    updated_at: new Date(),
-  },
-  {
-    id: '3',
-    title: 'Stairway to Heaven',
-    author: 'Led Zeppelin',
-    level: 'advanced',
-    key: 'Am',
-    chords: 'Am - G#+ - C/G - D/F# - Fmaj7 - G - Am',
-    created_at: new Date(),
-    updated_at: new Date(),
-  },
-  {
-    id: '4',
-    title: 'Sweet Home Alabama',
-    author: 'Lynyrd Skynyrd',
-    level: 'beginner',
-    key: 'G',
-    chords: 'D - C - G',
-    ultimate_guitar_link:
-      'https://tabs.ultimate-guitar.com/tab/lynyrd-skynyrd/sweet-home-alabama-chords-106473',
-    created_at: new Date(),
-    updated_at: new Date(),
-  },
-  {
-    id: '5',
-    title: 'Nothing Else Matters',
-    author: 'Metallica',
-    level: 'intermediate',
-    key: 'Em',
-    chords: 'Em - Am - C - D - G - B7',
-    created_at: new Date(),
-    updated_at: new Date(),
-  },
-  {
-    id: '6',
-    title: 'Blackbird',
-    author: 'The Beatles',
-    level: 'advanced',
-    key: 'G',
-    chords: 'G - Am7 - G/B - G - C - C#dim - D - D#dim - Em',
-    ultimate_guitar_link: 'https://tabs.ultimate-guitar.com/tab/the-beatles/blackbird-chords-17609',
-    created_at: new Date(),
-    updated_at: new Date(),
-  },
-];
+const statusColors: Record<string, string> = {
+  'to_learn': 'bg-slate-500/10 text-slate-500 border-slate-500/20',
+  'started': 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+  'remembered': 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
+  'with_author': 'bg-purple-500/10 text-purple-500 border-purple-500/20',
+  'mastered': 'bg-green-500/10 text-green-500 border-green-500/20',
+};
 
-export default function SongDetailPage() {
+const statusLabels: Record<string, string> = {
+  'to_learn': 'To Learn',
+  'started': 'Started',
+  'remembered': 'Remembered',
+  'with_author': 'With Author',
+  'mastered': 'Mastered',
+};
+
+export function StudentSongDetailPageClient() {
   const params = useParams();
   const id = params?.id as string;
-  const song = dummySongs.find((s) => s.id === id);
+  const [song, setSong] = useState<Song | null>(null);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function fetchSong() {
+      if (!id) return;
+      
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Fetch song details and status
+        // We use maybeSingle() because RLS might return no rows if access is denied
+        const { data, error } = await supabase
+          .from('songs')
+          .select(`
+            *,
+            lesson_songs!inner (
+              status,
+              lessons!inner (
+                student_id
+              )
+            )
+          `)
+          .eq('id', id)
+          .eq('lesson_songs.lessons.student_id', user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data) {
+          // Extract status from the first matching lesson_song
+          const userLessonSongs = data.lesson_songs.filter((ls: any) => ls.lessons.student_id === user.id);
+          const status = userLessonSongs.length > 0 ? userLessonSongs[0].status : undefined;
+          
+          setSong({
+            ...data,
+            status
+          });
+        } else {
+          setSong(null);
+        }
+      } catch (error) {
+        console.error('Error fetching song:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchSong();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!song) {
     return (
       <div className="min-h-screen bg-background p-8 flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold mb-4">Song not found</h1>
-        <Link href="/student/songs">
+        <p className="text-muted-foreground mb-6">You don't have access to this song or it doesn't exist.</p>
+        <Link href="/dashboard/songs">
           <Button>Back to Songs</Button>
         </Link>
       </div>
@@ -113,7 +121,7 @@ export default function SongDetailPage() {
         style={{ animationFillMode: 'forwards' }}
       >
         <Link
-          href="/student/songs"
+          href="/dashboard/songs"
           className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -141,6 +149,14 @@ export default function SongDetailPage() {
                       <Guitar className="w-3 h-3 mr-1" />
                       Key: {song.key}
                     </Badge>
+                    {song.status && (
+                      <Badge
+                        variant="outline"
+                        className={cn('capitalize', statusColors[song.status] || 'bg-gray-100 text-gray-800')}
+                      >
+                        {statusLabels[song.status] || song.status.replace('_', ' ')}
+                      </Badge>
+                    )}
                     <Badge variant="outline" className="bg-secondary/50">
                       <Calendar className="w-3 h-3 mr-1" />
                       Added:{' '}
