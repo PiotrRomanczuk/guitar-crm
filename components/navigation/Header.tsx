@@ -201,6 +201,7 @@ export default function Header({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(initialUser);
   const [isAdmin, setIsAdmin] = useState(initialIsAdmin);
@@ -247,6 +248,11 @@ export default function Header({
       subscription?.unsubscribe();
     };
   }, [router]);
+
+  // Hide header on dashboard routes where Sidebar is used
+  if (pathname?.startsWith('/dashboard') || pathname?.startsWith('/student') || pathname?.startsWith('/teacher')) {
+    return null;
+  }
 
   if (['/sign-in', '/sign-up', '/forgot-password', '/reset-password'].includes(pathname)) {
     return null;

@@ -14,12 +14,13 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ui/mode-toggle';
+import { DatabaseStatus } from '@/components/debug/DatabaseStatus';
 
 interface SidebarProps {
   user: { email?: string } | null;
@@ -30,14 +31,13 @@ interface SidebarProps {
 
 export function Sidebar({ user, isAdmin, isTeacher, isStudent }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleSignOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.refresh();
-    router.push('/auth/sign-in');
+    // Force a full page reload to clear all client-side state and cookies
+    window.location.href = '/sign-in';
   };
 
   if (!user) return null;
@@ -190,6 +190,9 @@ function SidebarContent({
 
       {/* Footer */}
       <div className="p-4 border-t border-sidebar-border space-y-1">
+        <div className="px-4 py-2">
+          <DatabaseStatus variant="inline" className="w-full justify-center" />
+        </div>
         <div className="flex items-center justify-between px-4 py-2">
           <span className="text-sm font-medium text-muted-foreground">Theme</span>
           <ModeToggle />
