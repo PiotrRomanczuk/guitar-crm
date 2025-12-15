@@ -47,37 +47,20 @@ export function RoleBasedNav({
   const navItems: NavLinkProps[] = [{ href: '/', label: 'Home', icon: '🏠' }];
 
   // Admin navigation
-  if (isAdmin) {
+  if (isAdmin || isTeacher) {
     navItems.push(
       { href: '/dashboard/songs', label: 'Songs', icon: '🎵' },
       { href: '/dashboard/lessons', label: 'Lessons', icon: '📚' },
       { href: '/dashboard/assignments', label: 'Assignments', icon: '📋' },
-      // { href: '/dashboard/calendar', label: 'Calendar', icon: '📅' },
       { href: '/dashboard/users', label: 'Users', icon: '👥' }
     );
-  } else {
-    // Teacher/Student navigation
-    if (isTeacher) {
-      navItems.push({ href: '/teacher', label: 'Teacher Dashboard', icon: '👨‍🏫' });
-      // TODO: Implement these routes
-      // { href: '/students', label: 'Students', icon: '👨‍🎓' },
-      // { href: '/lessons', label: 'Lessons', icon: '📚' }
-    }
-
-    if (isStudent && !isTeacher) {
-      navItems.push(
-        { href: '/student', label: 'Dashboard', icon: '👨‍🎓' },
-        { href: '/student/songs', label: 'My Songs', icon: '🎵' },
-        { href: '/student/lessons', label: 'My Lessons', icon: '📖' }
-      );
-    } else {
-      // Everyone else (Teacher/Admin/Guest?) can access shared dashboard routes
-      navItems.push(
-        { href: '/dashboard/songs', label: 'Songs', icon: '🎵' },
-        { href: '/dashboard/lessons', label: 'Lessons', icon: '📚' },
-        { href: '/dashboard/assignments', label: 'Assignments', icon: '📋' }
-      );
-    }
+  } else if (isStudent) {
+    navItems.push(
+      { href: '/dashboard', label: 'Dashboard', icon: '👨‍🎓' },
+      { href: '/dashboard/songs', label: 'My Songs', icon: '🎵' },
+      { href: '/dashboard/lessons', label: 'My Lessons', icon: '📖' },
+      { href: '/dashboard/assignments', label: 'My Assignments', icon: '📋' }
+    );
   }
 
   // Everyone can access Settings

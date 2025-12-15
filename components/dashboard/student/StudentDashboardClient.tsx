@@ -6,6 +6,7 @@ import { ProgressChart } from '@/components/student/dashboard/ProgressChart';
 import { SongLibrary } from '@/components/student/songs/SongLibrary';
 import { AssignmentList } from '@/components/student/assignments/AssignmentList';
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
+import { NextLessonCard } from '@/components/student/dashboard/NextLessonCard';
 
 interface StudentDashboardClientProps {
   data: StudentDashboardData;
@@ -65,29 +66,29 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
   }));
 
   return (
-    <div className="min-h-screen bg-background font-sans">
-      <main className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-        <div className="flex flex-col gap-2 opacity-0 animate-fade-in">
-          <h1 className="text-3xl font-bold tracking-tight">Welcome back, Student!</h1>
-          <p className="text-muted-foreground">
-            Here&apos;s what&apos;s happening with your guitar journey.
-          </p>
-        </div>
+    <div className="space-y-8">
+      <div className="flex flex-col gap-2 opacity-0 animate-fade-in">
+        <h1 className="text-3xl font-bold tracking-tight">Welcome back, Student!</h1>
+        <p className="text-muted-foreground">
+          Here&apos;s what&apos;s happening with your guitar journey.
+        </p>
+      </div>
 
-        {/* API-driven stats */}
-        <DashboardStatsGrid />
+      {/* API-driven stats */}
+      <DashboardStatsGrid />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <ProgressChart data={chartData} />
-            <SongLibrary songs={songs} />
-          </div>
-          <div className="space-y-8">
-            <RecentActivity activities={activities} />
-            <AssignmentList assignments={assignments} />
-          </div>
+      <NextLessonCard lesson={data.nextLesson} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          {/* <ProgressChart data={chartData} /> */}
+          <SongLibrary songs={songs} />
         </div>
-      </main>
+        <div className="space-y-8">
+          <RecentActivity activities={activities} />
+          <AssignmentList assignments={assignments} />
+        </div>
+      </div>
     </div>
   );
 }

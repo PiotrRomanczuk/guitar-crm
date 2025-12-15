@@ -4,6 +4,11 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
 export type StudentDashboardData = {
+  nextLesson: {
+    id: string;
+    title: string | null;
+    scheduled_at: string;
+  } | null;
   lastLesson: {
     id: string;
     title: string | null;
@@ -41,6 +46,16 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
   const supabase = await createClient();
   const now = new Date().toISOString();
 
+  // 0. Fetch Next Lesson
+  const { data: nextLessonData } = await supabase
+    .from('lessons')
+    .select('id, title, scheduled_at')
+    .eq('student_id', user.id)
+    .gte('scheduled_at', now)
+    .order('scheduled_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
   // 1. Fetch Last Lesson
   const { data: lastLessonData } = await supabase
     .from('lessons')
@@ -60,21 +75,30 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
     .order('due_date', { ascending: true })
     .limit(5);
 
-  // 3. Fetch Recent Songs (from user_songs join songs)
-  // Note: This depends on your schema. Assuming user_songs links users to songs.
-  // If user_songs doesn't exist or is different, we might need to adjust.
-  // For now, let's try to fetch from songs directly or user_songs if available.
-  // Based on previous context, there is a 'songs' table.
-  // Let's assume a simple fetch for now, or mock if complex join needed.
-  const { data: recentSongsData } = await supabase
-    .from('songs')
-    .select('id, title, artist, created_at') // Using created_at as proxy for last_played if not available
+  // 3. Fetch Recent Songs (from lesson_songs join songs)
+  const { data: recentLessonSongs } = await supabase
+    .from('lesson_songs')
+    .select(`
+      updated_at,
+      songs (
+        id,
+        title,
+        author,
+        created_at
+      ),
+      lessons!inner (
+        student_id
+      )
+    `)
+    .eq('lessons.student_id', user.id)
+    .order('updated_at', { ascending: false })
     .limit(5);
 
   // 4. Fetch Stats
   const { count: totalSongs } = await supabase
-    .from('songs') // Or user_songs
-    .select('*', { count: 'exact', head: true });
+    .from('songs')
+    .select('lesson_songs!inner(lessons!inner(student_id))', { count: 'exact', head: true })
+    .eq('lesson_songs.lessons.student_id', user.id);
 
   const { count: completedLessons } = await supabase
     .from('lessons')
@@ -83,14 +107,15 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
     .lt('scheduled_at', now);
 
   return {
+    nextLesson: nextLessonData,
     lastLesson: lastLessonData,
     assignments: assignmentsData || [],
     recentSongs:
-      recentSongsData?.map((s) => ({
-        id: s.id,
-        title: s.title,
-        artist: s.artist,
-        last_played: s.created_at, // Proxy
+      recentLessonSongs?.map((ls: any) => ({
+        id: ls.songs.id,
+        title: ls.songs.title,
+        artist: ls.songs.author,
+        last_played: ls.updated_at,
       })) || [],
     stats: {
       totalSongs: totalSongs || 0,

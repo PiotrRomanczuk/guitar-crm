@@ -28,4 +28,4 @@ create policy "Users can delete their own webhook subscriptions"
   using (auth.uid() = user_id);
 
 create trigger handle_updated_at before update on public.webhook_subscriptions
-  for each row execute procedure moddatetime (updated_at);
+  for each row execute procedure update_updated_at_column();
