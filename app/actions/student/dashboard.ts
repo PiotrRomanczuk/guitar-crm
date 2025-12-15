@@ -78,7 +78,8 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
   // 3. Fetch Recent Songs (from lesson_songs join songs)
   const { data: recentLessonSongs } = await supabase
     .from('lesson_songs')
-    .select(`
+    .select(
+      `
       updated_at,
       songs (
         id,
@@ -89,7 +90,8 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
       lessons!inner (
         student_id
       )
-    `)
+    `
+    )
     .eq('lessons.student_id', user.id)
     .order('updated_at', { ascending: false })
     .limit(5);

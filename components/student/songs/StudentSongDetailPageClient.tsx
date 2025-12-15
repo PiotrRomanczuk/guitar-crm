@@ -23,19 +23,19 @@ const difficultyLabels = {
 };
 
 const statusColors: Record<string, string> = {
-  'to_learn': 'bg-slate-500/10 text-slate-500 border-slate-500/20',
-  'started': 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-  'remembered': 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-  'with_author': 'bg-purple-500/10 text-purple-500 border-purple-500/20',
-  'mastered': 'bg-green-500/10 text-green-500 border-green-500/20',
+  to_learn: 'bg-slate-500/10 text-slate-500 border-slate-500/20',
+  started: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+  remembered: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
+  with_author: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
+  mastered: 'bg-green-500/10 text-green-500 border-green-500/20',
 };
 
 const statusLabels: Record<string, string> = {
-  'to_learn': 'To Learn',
-  'started': 'Started',
-  'remembered': 'Remembered',
-  'with_author': 'With Author',
-  'mastered': 'Mastered',
+  to_learn: 'To Learn',
+  started: 'Started',
+  remembered: 'Remembered',
+  with_author: 'With Author',
+  mastered: 'Mastered',
 };
 
 export function StudentSongDetailPageClient() {
@@ -48,16 +48,19 @@ export function StudentSongDetailPageClient() {
   useEffect(() => {
     async function fetchSong() {
       if (!id) return;
-      
+
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return;
 
         // Fetch song details and status
         // We use maybeSingle() because RLS might return no rows if access is denied
         const { data, error } = await supabase
           .from('songs')
-          .select(`
+          .select(
+            `
             *,
             lesson_songs!inner (
               status,
@@ -65,7 +68,8 @@ export function StudentSongDetailPageClient() {
                 student_id
               )
             )
-          `)
+          `
+          )
           .eq('id', id)
           .eq('lesson_songs.lessons.student_id', user.id)
           .maybeSingle();
@@ -74,13 +78,14 @@ export function StudentSongDetailPageClient() {
 
         if (data) {
           // Extract status from the first matching lesson_song
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const userLessonSongs = data.lesson_songs.filter((ls: any) => ls.lessons.student_id === user.id);
+          const userLessonSongs = (
+            data.lesson_songs as unknown as { status: string; lessons: { student_id: string } }[]
+          ).filter((ls) => ls.lessons.student_id === user.id);
           const status = userLessonSongs.length > 0 ? userLessonSongs[0].status : undefined;
-          
+
           setSong({
             ...data,
-            status
+            status,
           });
         } else {
           setSong(null);
@@ -93,7 +98,7 @@ export function StudentSongDetailPageClient() {
     }
 
     fetchSong();
-  }, [id]);
+  }, [id, supabase]);
 
   if (loading) {
     return (
@@ -107,7 +112,9 @@ export function StudentSongDetailPageClient() {
     return (
       <div className="min-h-screen bg-background p-8 flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold mb-4">Song not found</h1>
-        <p className="text-muted-foreground mb-6">You don&apos;t have access to this song or it doesn&apos;t exist.</p>
+        <p className="text-muted-foreground mb-6">
+          You don&apos;t have access to this song or it doesn&apos;t exist.
+        </p>
         <Link href="/dashboard/songs">
           <Button>Back to Songs</Button>
         </Link>
@@ -153,7 +160,10 @@ export function StudentSongDetailPageClient() {
                     {song.status && (
                       <Badge
                         variant="outline"
-                        className={cn('capitalize', statusColors[song.status] || 'bg-gray-100 text-gray-800')}
+                        className={cn(
+                          'capitalize',
+                          statusColors[song.status] || 'bg-gray-100 text-gray-800'
+                        )}
                       >
                         {statusLabels[song.status] || song.status.replace('_', ' ')}
                       </Badge>
