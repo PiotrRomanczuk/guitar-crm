@@ -4,7 +4,12 @@
       "text": "When using shadcn/ui components, always use the @shadcn-ui MCP tool to fetch the latest component code and examples."
     }
   ],
-  "github.copilot.chat.modelContextProtocol.mcpServers": {},
+  "github.copilot.chat.modelContextProtocol.mcpServers": {
+    "sentry": {
+      "url": "https://mcp.sentry.dev/mcp",
+      "transport": "sse"
+    }
+  },
   "[sql]": {
     "editor.formatOnSave": false,
     "editor.defaultFormatter": null

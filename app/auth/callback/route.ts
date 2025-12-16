@@ -41,6 +41,12 @@ export async function GET(request: Request) {
       } else if (forwardedHost) {
         return NextResponse.redirect(`https://${forwardedHost}${next}`);
       } else {
+        // Fallback to environment variables if origin is localhost (behind proxy) but not local env
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL;
+        if (siteUrl && origin.includes('localhost')) {
+          const baseUrl = siteUrl.replace(/\/$/, '');
+          return NextResponse.redirect(`${baseUrl}${next}`);
+        }
         return NextResponse.redirect(`${origin}${next}`);
       }
     }
