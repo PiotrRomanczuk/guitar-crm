@@ -16,7 +16,9 @@ interface AppShellProps {
 export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppShellProps) {
   const pathname = usePathname();
   // Hide sidebar on auth pages even if user data is present (e.g. stale state during logout)
-  const isAuthPage = ['/sign-in', '/sign-up', '/auth/login', '/auth/register'].includes(pathname || '');
+  const isAuthPage = ['/sign-in', '/sign-up', '/auth/login', '/auth/register'].includes(
+    pathname || ''
+  );
   const showSidebar = !!user && !isAuthPage;
 
   console.log('AppShell:', { pathname, hasUser: !!user, isAuthPage, showSidebar });
@@ -29,7 +31,9 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
         <Header user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
       )}
       <main
-        className={showSidebar ? 'md:ml-64 min-h-screen bg-background' : 'min-h-screen bg-background'}
+        className={
+          showSidebar ? 'md:ml-64 min-h-screen bg-background' : 'min-h-screen bg-background'
+        }
       >
         {children}
       </main>
