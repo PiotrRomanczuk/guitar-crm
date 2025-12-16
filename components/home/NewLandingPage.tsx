@@ -9,7 +9,7 @@ export function NewLandingPage() {
       <main className="container mx-auto px-4 py-16 max-w-7xl space-y-16 flex-1">
         
         {/* Hero Section */}
-        <div className="text-center space-y-6 animate-fade-in">
+        <div className="text-center space-y-6">
           <div className="flex justify-center">
              <div className="p-4 bg-primary/10 rounded-full ring-1 ring-primary/20">
                 <Guitar className="w-12 h-12 text-primary" />
@@ -26,12 +26,12 @@ export function NewLandingPage() {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-            <Link href="/sign-in">
+            <Link href="/sign-in" prefetch={false}>
               <Button size="lg" className="w-full sm:w-auto px-8 text-base">
                 Sign In
               </Button>
             </Link>
-            <Link href="/sign-up">
+            <Link href="/sign-up" prefetch={false}>
               <Button variant="outline" size="lg" className="w-full sm:w-auto px-8 text-base">
                 Start Free Trial
               </Button>
@@ -40,7 +40,7 @@ export function NewLandingPage() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in opacity-0" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           
           {/* For Teachers */}
           <Card className="hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md">
