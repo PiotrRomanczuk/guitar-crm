@@ -19,16 +19,24 @@ export default async function SongList({ searchParams }: SongListProps) {
     typeof searchParams?.studentId === 'string' ? searchParams.studentId : undefined;
   const search = typeof searchParams?.search === 'string' ? searchParams.search : undefined;
   const level = typeof searchParams?.level === 'string' ? searchParams.level : undefined;
+  const pageParam = typeof searchParams?.page === 'string' ? parseInt(searchParams.page) : 1;
+  const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+  
+  const pageSizeParam = typeof searchParams?.pageSize === 'string' ? parseInt(searchParams.pageSize) : 15;
+  const pageSize = isNaN(pageSizeParam) || pageSizeParam < 1 ? 15 : pageSizeParam;
+
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
 
   let songQuery;
 
   if (studentId) {
     songQuery = supabase
       .from('songs')
-      .select('*, lesson_songs!inner(id, status, lessons!inner(student_id))')
+      .select('*, lesson_songs!inner(id, status, lessons!inner(student_id))', { count: 'exact' })
       .eq('lesson_songs.lessons.student_id', studentId);
   } else {
-    songQuery = supabase.from('songs').select('*');
+    songQuery = supabase.from('songs').select('*', { count: 'exact' });
   }
 
   if (search) {
@@ -39,14 +47,16 @@ export default async function SongList({ searchParams }: SongListProps) {
     songQuery = songQuery.eq('level', level);
   }
 
-  songQuery = songQuery.order('created_at', { ascending: false });
+  songQuery = songQuery.order('created_at', { ascending: false }).range(from, to);
 
-  const { data: rawSongs, error } = await songQuery;
+  const { data: rawSongs, count, error } = await songQuery;
 
   if (error) {
     console.error('Error fetching songs:', error);
     return <div data-testid="song-list-error">Error loading songs: {error.message}</div>;
   }
+
+  const totalPages = count ? Math.ceil(count / pageSize) : 0;
 
   // Transform songs to include status if filtering by student
   const songs =
@@ -93,6 +103,9 @@ export default async function SongList({ searchParams }: SongListProps) {
       isAdmin={isAdmin || isTeacher}
       students={students}
       selectedStudentId={studentId}
+      totalPages={totalPages}
+      currentPage={page}
+      pageSize={pageSize}
     />
   );
 }
