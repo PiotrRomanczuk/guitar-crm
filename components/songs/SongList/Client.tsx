@@ -47,15 +47,15 @@ export function SongListClient({
       const otherContentHeight = 300; // Header, filters, pagination, padding
       const availableHeight = window.innerHeight - otherContentHeight;
       const calculatedPageSize = Math.max(5, Math.floor(availableHeight / rowHeight));
-      
+
       // Snap to nearest 5 to keep it clean, minimum 10
       const snappedSize = Math.max(10, Math.ceil(calculatedPageSize / 5) * 5);
 
       // Only update if significantly different from default (15) to avoid unnecessary reloads on standard screens
       // But user asked for "dependent on browser height", so we should probably respect it if it's different.
       if (snappedSize !== pageSize) {
-         params.set('pageSize', snappedSize.toString());
-         router.replace(`${pathname}?${params.toString()}`);
+        params.set('pageSize', snappedSize.toString());
+        router.replace(`${pathname}?${params.toString()}`);
       }
     }
   }, []); // Run once on mount
@@ -104,10 +104,7 @@ export function SongListClient({
                 </PaginationItem>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <PaginationItem key={page}>
-                    <PaginationLink
-                      href={createPageURL(page)}
-                      isActive={page === currentPage}
-                    >
+                    <PaginationLink href={createPageURL(page)} isActive={page === currentPage}>
                       {page}
                     </PaginationLink>
                   </PaginationItem>
@@ -117,7 +114,9 @@ export function SongListClient({
                     href={createPageURL(currentPage + 1)}
                     aria-disabled={currentPage >= totalPages}
                     tabIndex={currentPage >= totalPages ? -1 : undefined}
-                    className={currentPage >= totalPages ? 'pointer-events-none opacity-50' : undefined}
+                    className={
+                      currentPage >= totalPages ? 'pointer-events-none opacity-50' : undefined
+                    }
                   />
                 </PaginationItem>
               </PaginationContent>
