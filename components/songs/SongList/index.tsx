@@ -21,8 +21,9 @@ export default async function SongList({ searchParams }: SongListProps) {
   const level = typeof searchParams?.level === 'string' ? searchParams.level : undefined;
   const pageParam = typeof searchParams?.page === 'string' ? parseInt(searchParams.page) : 1;
   const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
-  
-  const pageSizeParam = typeof searchParams?.pageSize === 'string' ? parseInt(searchParams.pageSize) : 15;
+
+  const pageSizeParam =
+    typeof searchParams?.pageSize === 'string' ? parseInt(searchParams.pageSize) : 15;
   const pageSize = isNaN(pageSizeParam) || pageSizeParam < 1 ? 15 : pageSizeParam;
 
   const from = (page - 1) * pageSize;
