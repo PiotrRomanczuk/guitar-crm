@@ -13,6 +13,7 @@ ALTER TABLE assignment_templates ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
 -- 1. View policies
+DROP POLICY IF EXISTS "Admins can view all assignment templates" ON assignment_templates;
 CREATE POLICY "Admins can view all assignment templates"
     ON assignment_templates
     FOR SELECT
@@ -24,6 +25,7 @@ CREATE POLICY "Admins can view all assignment templates"
         )
     );
 
+DROP POLICY IF EXISTS "Teachers can view their own assignment templates" ON assignment_templates;
 CREATE POLICY "Teachers can view their own assignment templates"
     ON assignment_templates
     FOR SELECT
@@ -32,6 +34,7 @@ CREATE POLICY "Teachers can view their own assignment templates"
     );
 
 -- 2. Insert policies
+DROP POLICY IF EXISTS "Admins can insert assignment templates" ON assignment_templates;
 CREATE POLICY "Admins can insert assignment templates"
     ON assignment_templates
     FOR INSERT
@@ -43,6 +46,7 @@ CREATE POLICY "Admins can insert assignment templates"
         )
     );
 
+DROP POLICY IF EXISTS "Teachers can insert their own assignment templates" ON assignment_templates;
 CREATE POLICY "Teachers can insert their own assignment templates"
     ON assignment_templates
     FOR INSERT
@@ -56,6 +60,7 @@ CREATE POLICY "Teachers can insert their own assignment templates"
     );
 
 -- 3. Update policies
+DROP POLICY IF EXISTS "Admins can update all assignment templates" ON assignment_templates;
 CREATE POLICY "Admins can update all assignment templates"
     ON assignment_templates
     FOR UPDATE
@@ -67,6 +72,7 @@ CREATE POLICY "Admins can update all assignment templates"
         )
     );
 
+DROP POLICY IF EXISTS "Teachers can update their own assignment templates" ON assignment_templates;
 CREATE POLICY "Teachers can update their own assignment templates"
     ON assignment_templates
     FOR UPDATE
@@ -75,6 +81,7 @@ CREATE POLICY "Teachers can update their own assignment templates"
     );
 
 -- 4. Delete policies
+DROP POLICY IF EXISTS "Admins can delete all assignment templates" ON assignment_templates;
 CREATE POLICY "Admins can delete all assignment templates"
     ON assignment_templates
     FOR DELETE
@@ -86,6 +93,7 @@ CREATE POLICY "Admins can delete all assignment templates"
         )
     );
 
+DROP POLICY IF EXISTS "Teachers can delete their own assignment templates" ON assignment_templates;
 CREATE POLICY "Teachers can delete their own assignment templates"
     ON assignment_templates
     FOR DELETE
@@ -94,6 +102,7 @@ CREATE POLICY "Teachers can delete their own assignment templates"
     );
 
 -- Add trigger for updated_at
+DROP TRIGGER IF EXISTS update_assignment_templates_updated_at ON assignment_templates;
 CREATE TRIGGER update_assignment_templates_updated_at
     BEFORE UPDATE ON assignment_templates
     FOR EACH ROW

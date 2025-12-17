@@ -2,11 +2,13 @@ import UserDetail from '@/components/users/UserDetail';
 import UserLessons from '@/components/users/UserLessons';
 import UserAssignments from '@/components/users/UserAssignments';
 import UserSongs from '@/components/users/UserSongs';
+import UserSkills from '@/components/users/UserSkills';
 import { Breadcrumbs } from '@/components/shared';
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { notFound } from 'next/navigation';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { SkillWithStudentStatus } from '@/types/skills';
 
 export const metadata = {
   title: 'User Detail',
@@ -109,7 +111,31 @@ async function fetchUserData(supabase: SupabaseClient, userId: string) {
   console.log('Final songs array:', songs);
   console.log('Final songs count:', songs.length);
 
-  return { lessons, assignments, songs };
+  // Fetch all skills
+  const { data: allSkills } = await supabase
+    .from('skills')
+    .select('*')
+    .order('category', { ascending: true })
+    .order('name', { ascending: true });
+
+  // Fetch student skills
+  const { data: studentSkills } = await supabase
+    .from('student_skills')
+    .select('*')
+    .eq('student_id', userId);
+
+  // Merge skills
+  const skillsWithStatus: SkillWithStudentStatus[] = (allSkills || []).map((skill: any) => {
+    const studentSkill = (studentSkills || []).find((ss: any) => ss.skill_id === skill.id);
+    return {
+      ...skill,
+      status: studentSkill?.status || null,
+      student_skill_id: studentSkill?.id || null,
+      notes: studentSkill?.notes || null,
+    };
+  });
+
+  return { lessons, assignments, songs, skills: skillsWithStatus };
 }
 export default async function UserDetailPage({ params, searchParams }: UserDetailPageProps) {
   // In Next.js 16+, params is a Promise that needs to be awaited
@@ -139,7 +165,7 @@ export default async function UserDetailPage({ params, searchParams }: UserDetai
   }
 
   // Fetch related data
-  const { lessons, assignments, songs } = await fetchUserData(supabase, userId);
+  const { lessons, assignments, songs, skills } = await fetchUserData(supabase, userId);
 
   const userName = user.full_name || user.email || 'User';
 
@@ -154,6 +180,12 @@ export default async function UserDetailPage({ params, searchParams }: UserDetai
       />
 
       <UserDetail user={user as UserProfile} />
+
+      {/* Skills Section */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">🧠 Skills & Knowledge</h2>
+        <UserSkills studentId={userId} initialSkills={skills} />
+      </div>
 
       {/* Lessons Section */}
       <div className="mt-8">
