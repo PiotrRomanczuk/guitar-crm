@@ -43,7 +43,8 @@ export default function AssignmentForm({
     description: initialData?.description || '',
     due_date: initialData?.due_date || '',
     status: initialData?.status || 'not_started',
-    student_id: initialData?.student_id || userId || '',
+    student_id: initialData?.student_id || '',
+    teacher_id: initialData?.teacher_id || userId || '',
   });
 
   const handleFieldChange = (name: string, value: string) => {
@@ -106,10 +107,17 @@ async function submitAssignment(
     const url = mode === 'create' ? '/api/assignments' : `/api/assignments/${id}`;
     const method = mode === 'create' ? 'POST' : 'PUT';
 
+    // Clean up data before sending
+    const payload = {
+      ...formData,
+      due_date: formData.due_date ? new Date(formData.due_date).toISOString() : undefined,
+      description: formData.description || undefined,
+    };
+
     const response = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
