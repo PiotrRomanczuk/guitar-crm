@@ -21,6 +21,11 @@
 - **FUTURE SEPARATION**: Later, we will create a separate teacher dashboard with reduced features. For now, treat teacher role as having full admin access to the dashboard.
 - **Implementation**: See `app/dashboard/page.tsx` where `isAdmin || isTeacher` condition shows admin view for both roles.
 
+### 4. Code Quality & Commits
+
+- **RUN CHECKS BEFORE COMMIT**: Always run `npm run lint` and `npx tsc --noEmit` to check for linting and type errors before committing any changes.
+- **FIX ERRORS**: Resolve all reported errors and warnings before proceeding with the commit.
+
 ## Project Standards
 
 Please refer to the `.github/instructions/` directory for detailed development standards:
