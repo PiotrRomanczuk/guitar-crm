@@ -52,7 +52,6 @@ export function RoleBasedNav({
       { href: '/dashboard/songs', label: 'Songs', icon: '🎵' },
       { href: '/dashboard/lessons', label: 'Lessons', icon: '📚' },
       { href: '/dashboard/assignments', label: 'Assignments', icon: '📋' },
-      { href: '/dashboard/skills', label: 'Skills', icon: '🧠' },
       // { href: '/dashboard/calendar', label: 'Calendar', icon: '📅' },
       { href: '/dashboard/users', label: 'Users', icon: '👥' }
     );
@@ -76,8 +75,7 @@ export function RoleBasedNav({
       navItems.push(
         { href: '/dashboard/songs', label: 'Songs', icon: '🎵' },
         { href: '/dashboard/lessons', label: 'Lessons', icon: '📚' },
-        { href: '/dashboard/assignments', label: 'Assignments', icon: '📋' },
-        { href: '/dashboard/skills', label: 'Skills', icon: '🧠' }
+        { href: '/dashboard/assignments', label: 'Assignments', icon: '📋' }
       );
     }
   }
