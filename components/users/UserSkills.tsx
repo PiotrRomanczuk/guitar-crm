@@ -32,7 +32,7 @@ export default function UserSkills({ studentId, initialSkills }: UserSkillsProps
     // Optimistic update
     setSkills(
       skills.map((s) =>
-        s.id === skillId ? { ...s, status: newStatus === 'none' ? null : newStatus as any } : s
+        s.id === skillId ? { ...s, status: newStatus === 'none' ? null : newStatus as 'todo' | 'in_progress' | 'mastered' } : s
       )
     );
 
@@ -66,7 +66,7 @@ export default function UserSkills({ studentId, initialSkills }: UserSkillsProps
         
         setSkills(
             skills.map((s) =>
-              s.id === skillId ? { ...s, status: newStatus as any, student_skill_id: data.id } : s
+              s.id === skillId ? { ...s, status: newStatus as 'todo' | 'in_progress' | 'mastered', student_skill_id: data.id } : s
             )
           );
       }
