@@ -55,7 +55,7 @@ export function SongListClient({
       // But user asked for "dependent on browser height", so we should probably respect it if it's different.
       if (snappedSize !== pageSize) {
         params.set('pageSize', snappedSize.toString());
-         router.replace(`${pathname}?${params.toString()}`);
+        router.replace(`${pathname}?${params.toString()}`);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -92,9 +92,14 @@ describe('UserDetailPage', () => {
     mockIn.mockReturnValue({
       // for lesson_songs and songs
     });
-    mockOrder.mockReturnValue({
-      // for lists
-    });
+    
+    // Fix for chained .order() calls
+    const mockChain = {
+      order: mockOrder,
+      eq: mockEq,
+      single: mockSingle,
+    };
+    mockOrder.mockReturnValue(mockChain);
 
     // Specific responses
     // 1. Profile
@@ -127,17 +132,19 @@ describe('UserDetailPage', () => {
   it('accepts searchParams without error', async () => {
     (getUserWithRolesSSR as jest.Mock).mockResolvedValue({ user: { id: 'admin-1' } });
 
-    // Setup minimal mocks again
-    const mockSelect = jest.fn().mockReturnThis();
-    const mockEq = jest.fn().mockReturnThis();
-    const mockSingle = jest.fn().mockResolvedValue({ data: { id: 'user-123' } });
-    const mockOr = jest.fn().mockReturnThis();
-    const mockOrder = jest.fn().mockResolvedValue({ data: [] });
+    // Setup robust recursive mock
+    const mockBuilder: any = {
+      then: (resolve: any) => resolve({ data: [] }), // Default await response
+    };
+    
+    mockBuilder.select = jest.fn().mockReturnValue(mockBuilder);
+    mockBuilder.eq = jest.fn().mockReturnValue(mockBuilder);
+    mockBuilder.or = jest.fn().mockReturnValue(mockBuilder);
+    mockBuilder.order = jest.fn().mockReturnValue(mockBuilder);
+    mockBuilder.single = jest.fn().mockResolvedValue({ data: { id: 'user-123' } });
+    mockBuilder.in = jest.fn().mockReturnValue(mockBuilder);
 
-    mockSupabase.from.mockReturnValue({ select: mockSelect });
-    mockSelect.mockReturnValue({ eq: mockEq, or: mockOr, single: mockSingle, order: mockOrder });
-    mockEq.mockReturnValue({ single: mockSingle, order: mockOrder });
-    mockOr.mockReturnValue({ order: mockOrder });
+    mockSupabase.from.mockReturnValue(mockBuilder);
 
     const paramsWithQuery = Promise.resolve({ filter: 'active' });
     const jsx = await UserDetailPage({ params: mockParams, searchParams: paramsWithQuery });
