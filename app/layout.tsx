@@ -40,7 +40,7 @@ export default async function RootLayout({
   const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
   // console.log(user, isAdmin, isTeacher, isStudent);
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
           <AppShell user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent}>
