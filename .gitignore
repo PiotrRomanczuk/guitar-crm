@@ -80,3 +80,6 @@ server.log
 
 /guitar-mastery-hubmcp-server-dash/
 /guitar-mastery-hub
+
+# Sentry Config File
+.env.sentry-build-plugin
