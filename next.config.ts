@@ -4,6 +4,18 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   /* config options here */
   // allowedDevOrigins: ['piotrs-macbook-air.local'],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'zmlluqqqwrfhygvpfqka.supabase.co',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+      },
+    ],
+  },
 };
 
 export default withSentryConfig(nextConfig, {

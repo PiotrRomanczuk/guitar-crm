@@ -1,5 +1,7 @@
 import SongFormFieldText from './FieldText';
 import SongFormFieldSelect from './FieldSelect';
+import ImageUpload from '@/components/shared/ImageUpload';
+import { Label } from '@/components/ui/label';
 import { MUSIC_KEY_OPTIONS, LEVEL_OPTIONS } from './options';
 import { SongFormData } from './helpers';
 
@@ -71,6 +73,14 @@ export default function SongFormFields({ formData, errors, onChange }: Props) {
         onChange={(value) => onChange('youtube_url', value)}
         placeholder="https://youtube.com/watch?v=..."
       />
+
+      <div className="space-y-2">
+        <Label>Gallery Images</Label>
+        <ImageUpload
+          value={formData.gallery_images}
+          onChange={(value) => onChange('gallery_images', value)}
+        />
+      </div>
 
       <SongFormFieldText
         label="Chords"
