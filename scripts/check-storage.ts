@@ -32,7 +32,7 @@ async function checkStorage() {
     console.error('❌ Bucket "song-images" NOT found!');
     console.log('Attempting to create bucket "song-images"...');
     
-    const { data, error: createError } = await supabase.storage.createBucket('song-images', {
+    const { error: createError } = await supabase.storage.createBucket('song-images', {
       public: true,
       fileSizeLimit: 5242880, // 5MB
       allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']

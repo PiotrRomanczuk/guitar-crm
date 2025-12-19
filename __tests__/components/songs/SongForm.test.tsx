@@ -2,6 +2,14 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SongForm from '@/components/songs/SongForm';
 
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(() => ({
+    push: jest.fn(),
+    refresh: jest.fn(),
+  })),
+}));
+
 // Mock fetch for API interactions
 const mockFetch = jest.fn();
 global.fetch = mockFetch as unknown as typeof fetch;
