@@ -36,7 +36,7 @@ async function testUpload() {
     console.log('✅ Test user created:', userId);
 
     console.log('2. Signing in...');
-    const { data: sessionData, error: signInError } = await authClient.auth.signInWithPassword({
+    const { error: signInError } = await authClient.auth.signInWithPassword({
       email: testEmail,
       password: testPassword
     });

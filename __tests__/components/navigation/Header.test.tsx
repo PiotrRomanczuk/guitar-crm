@@ -35,6 +35,11 @@ describe('Header', () => {
     jest.clearAllMocks();
     mockUseRouter.mockReturnValue({
       push: mockPush,
+      refresh: jest.fn(),
+      replace: jest.fn(),
+      back: jest.fn(),
+      forward: jest.fn(),
+      prefetch: jest.fn(),
     } as never);
   });
 
