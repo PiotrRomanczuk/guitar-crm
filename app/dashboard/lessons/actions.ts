@@ -4,6 +4,89 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { Database } from '@/database.types';
 
+import { sendLessonCompletedEmail } from '@/lib/email/send-lesson-email';
+
+export async function sendLessonSummaryEmail(lessonId: string) {
+  console.log(`[sendLessonSummaryEmail] Starting for lessonId: ${lessonId}`);
+  const supabase = await createClient();
+
+  try {
+    const { data: lesson, error } = await supabase
+      .from('lessons')
+      .select(`
+        *,
+        student:profiles!lessons_student_id_fkey (
+          email,
+          full_name
+        ),
+        lesson_songs (
+          notes,
+          status,
+          song:songs (
+            title,
+            author
+          )
+        )
+      `)
+      .eq('id', lessonId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching lesson details for email:', error);
+      return { success: false, error: `Failed to fetch lesson details: ${error.message}` };
+    }
+
+    if (!lesson || !lesson.student) {
+      return { success: false, error: 'Lesson or student not found' };
+    }
+
+    // @ts-ignore
+    const studentEmail = lesson.student.email;
+    // @ts-ignore
+    const studentName = lesson.student.full_name || 'Student';
+
+    if (!studentEmail) {
+      return { success: false, error: 'Student has no email address' };
+    }
+
+    // @ts-ignore
+    const songs = lesson.lesson_songs?.map((ls) => ({
+      title: ls.song?.title || 'Unknown Song',
+      artist: ls.song?.author || 'Unknown Artist',
+      status: ls.status,
+      notes: ls.notes,
+    })) || [];
+
+    console.log(`[sendLessonSummaryEmail] Sending email to ${studentEmail}`);
+    const emailResult = await sendLessonCompletedEmail({
+      studentEmail,
+      studentName,
+      lessonDate: new Date(lesson.scheduled_at).toLocaleDateString(),
+      lessonTitle: lesson.title,
+      notes: lesson.notes,
+      songs,
+    });
+
+    if (!emailResult) {
+      console.error('[sendLessonSummaryEmail] Email sending failed: No result returned (API Key missing or Exception)');
+      return { success: false, error: 'Email configuration missing or service unavailable' };
+    }
+
+    if (emailResult.error) {
+        console.error('[sendLessonSummaryEmail] Email sending failed:', emailResult.error);
+        // @ts-ignore
+        const errorMessage = emailResult.error.message || 'Failed to send email via provider';
+        return { success: false, error: errorMessage };
+    }
+
+    console.log('[sendLessonSummaryEmail] Email sent successfully');
+    return { success: true };
+  } catch (error) {
+    console.error('[sendLessonSummaryEmail] Exception:', error);
+    return { success: false, error: 'Internal server error' };
+  }
+}
+
 export async function getAvailableSongs() {
   const supabase = await createClient();
 
