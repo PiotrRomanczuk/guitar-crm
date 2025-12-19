@@ -140,7 +140,7 @@ export function StudentSongDetailPageClient() {
           <div className="p-8 border-b border-border">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
               <div className="flex items-start gap-6">
-                <div className="w-20 h-20 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <div className="w-20 h-20 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                   <Music2 className="w-10 h-10 text-primary" />
                 </div>
                 <div>
@@ -178,7 +178,7 @@ export function StudentSongDetailPageClient() {
               </div>
 
               {song.ultimate_guitar_link && (
-                <Button asChild className="flex-shrink-0">
+                <Button asChild className="shrink-0">
                   <a href={song.ultimate_guitar_link} target="_blank" rel="noopener noreferrer">
                     View Tabs <ExternalLink className="w-4 h-4 ml-2" />
                   </a>
