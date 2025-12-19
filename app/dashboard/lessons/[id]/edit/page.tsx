@@ -15,6 +15,7 @@ interface LessonWithSongs {
   start_time: string | null;
   title: string | null;
   notes: string | null;
+  status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   lesson_songs: { song_id: string }[];
 }
 
@@ -105,6 +106,7 @@ export default async function LessonEditPage({ params }: LessonEditPageProps) {
     scheduled_at: `${lesson.date}T${lesson.start_time || '00:00'}`,
     title: lesson.title || '',
     notes: lesson.notes || '',
+    status: lesson.status,
     song_ids: lesson.lesson_songs?.map((ls) => ls.song_id) || [],
   };
 

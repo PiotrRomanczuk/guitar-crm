@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
+import SendEmailButton from './SendEmailButton';
 
 type LessonDetail = LessonWithProfiles & {
   lesson_songs: {
@@ -76,22 +77,24 @@ function ActionButtons({
   onDelete: (formData: FormData) => void;
 }) {
   return (
-    <div className="flex gap-3 mt-8">
+    <div className="flex gap-3 mt-8 flex-wrap">
       {canEdit && (
         <Link
           href={`/dashboard/lessons/${lessonId}/edit`}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
           data-testid="lesson-edit-button"
         >
           Edit
         </Link>
       )}
 
+      {canEdit && <SendEmailButton lessonId={lessonId} />}
+
       {canDelete && (
         <form action={onDelete} className="inline">
           <button
             type="submit"
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center"
             data-testid="lesson-delete-button"
           >
             Delete
