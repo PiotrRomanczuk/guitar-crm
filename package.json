@@ -32,6 +32,7 @@
     "dev:server": "./scripts/dev-server.sh",
     "pre-commit": "./scripts/ci/pre-commit.sh",
     "deploy:check": "./scripts/deploy-check.sh",
+    "deploy:prod": "vercel deploy --prod",
     "lighthouse": "./scripts/lighthouse-audit.sh",
     "lighthouse:ci": "./scripts/lighthouse-ci.sh",
     "cypress:open": "cypress open",
