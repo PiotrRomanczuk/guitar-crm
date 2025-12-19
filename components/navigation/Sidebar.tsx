@@ -11,6 +11,7 @@ import {
   Guitar,
   Menu,
   LucideIcon,
+  Mail,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -55,7 +56,8 @@ export function Sidebar({ user, isAdmin, isTeacher, isStudent }: SidebarProps) {
           icon: ClipboardList,
           path: '/dashboard/assignments',
         },
-        { id: 'users', label: 'Users', icon: Users, path: '/dashboard/users' }
+        { id: 'users', label: 'Users', icon: Users, path: '/dashboard/users' },
+        { id: 'contacts', label: 'Contacts', icon: Mail, path: '/dashboard/contacts' }
       );
     } else if (isStudent) {
       items.push(
