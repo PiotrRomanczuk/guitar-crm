@@ -25,6 +25,17 @@ export async function importLessonsFromGoogle(events: ImportEvent[]) {
   
   const supabase = await createClient();
   const results = [];
+
+  // Get the last lesson number for the teacher
+  const { data: lastLesson } = await supabase
+    .from('lessons')
+    .select('lesson_teacher_number')
+    .eq('teacher_id', user.id)
+    .order('lesson_teacher_number', { ascending: false })
+    .limit(1)
+    .single();
+
+  let nextLessonNumber = (lastLesson?.lesson_teacher_number || 0) + 1;
   
   for (const event of events) {
     let studentId = event.manualStudentId;
@@ -35,10 +46,27 @@ export async function importLessonsFromGoogle(events: ImportEvent[]) {
       
       if (match.status === 'MATCHED') {
         studentId = match.candidates[0].id.toString();
-      } else if (match.status === 'NONE' && event.attendeeName) {
+      } else if (match.status === 'NONE') {
         // Create shadow student
-        const [firstName, ...lastNameParts] = event.attendeeName.split(' ');
-        const lastName = lastNameParts.join(' ') || '';
+        let firstName = '';
+        let lastName = '';
+
+        const cleanName = (name: string) => name.replace(/\$\$\$\s*/g, '').trim();
+        const displayName = event.attendeeName ? cleanName(event.attendeeName) : '';
+
+        if (displayName) {
+          const parts = displayName.split(' ');
+          firstName = parts[0];
+          lastName = parts.slice(1).join(' ') || '';
+        } else {
+          // Fallback to email if name is missing
+          const namePart = event.attendeeEmail.split('@')[0];
+          const parts = namePart.split(/[._]/);
+          firstName = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+          if (parts.length > 1) {
+            lastName = parts.slice(1).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+          }
+        }
         
         const createResult = await createShadowStudent(
           event.attendeeEmail,
@@ -53,7 +81,7 @@ export async function importLessonsFromGoogle(events: ImportEvent[]) {
         
         studentId = createResult.profileId!;
       } else {
-        results.push({ eventId: event.googleEventId, success: false, error: 'Student match required' });
+        results.push({ eventId: event.googleEventId, success: false, error: 'Student match ambiguous' });
         continue;
       }
     }
@@ -74,12 +102,12 @@ export async function importLessonsFromGoogle(events: ImportEvent[]) {
     const lessonData: TablesInsert<'lessons'> = {
       student_id: studentId,
       teacher_id: user.id,
-      creator_user_id: user.id,
       title: event.title || 'Lesson',
       notes: event.notes,
-      start_time: event.startTime,
+      scheduled_at: event.startTime,
       google_event_id: event.googleEventId,
       status: 'SCHEDULED',
+      lesson_teacher_number: nextLessonNumber++,
     };
     
     const { error } = await supabase.from('lessons').insert(lessonData);

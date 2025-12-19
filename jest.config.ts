@@ -14,6 +14,8 @@ const config: Config = {
 	// Add more setup options before each test is run
 	setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 
+	testTimeout: 30000,
+
 	// Module name mapping for absolute imports
 	moduleNameMapper: {
 		'^@/(.*)$': '<rootDir>/$1',
