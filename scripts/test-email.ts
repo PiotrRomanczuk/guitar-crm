@@ -6,47 +6,44 @@ import path from 'path';
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 async function testEmail() {
-  console.log('🧪 Starting Resend Email Test...');
+  console.log('🧪 Starting SMTP Email Test...');
 
-  if (!process.env.RESEND_API_KEY) {
-    console.error('❌ RESEND_API_KEY is missing in .env.local');
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    console.error('❌ GMAIL_USER or GMAIL_APP_PASSWORD is missing in .env.local');
     return;
   }
 
   // Dynamic import
-  const { Resend } = await import('resend');
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const { sendLessonCompletedEmail } = await import('../lib/email/send-lesson-email');
 
-  const testEmail = 'delivered@resend.dev'; // Resend's magic address that always succeeds (or use your own verified email)
-  // Actually, in Sandbox, you can only send TO your own email.
-  // 'delivered@resend.dev' might not work if it's not verified in your sandbox.
-  // Let's try sending to the address configured in the account if possible, but we don't know it.
-  // We'll try a generic one and see the error.
-  
-  const toEmail = 'p.romanczuk@gmail.com'; // Using the verified sandbox email
+  const toEmail = process.env.GMAIL_USER; // Send to self for testing
 
   console.log(`\nAttempting to send email to: ${toEmail}`);
-  console.log(`From: Guitar CRM <onboarding@resend.dev>`);
 
   try {
-    const { data, error } = await resend.emails.send({
-      from: 'Guitar CRM <onboarding@resend.dev>',
-      to: toEmail,
-      subject: 'Test Email from Guitar CRM Script',
-      html: '<p>This is a test email to verify Resend configuration.</p>',
+    await sendLessonCompletedEmail({
+      studentEmail: toEmail,
+      studentName: 'Test Student',
+      lessonDate: new Date().toLocaleDateString(),
+      lessonTitle: 'Advanced Fingerstyle Techniques',
+      notes: 'Great progress today! Remember to keep your thumb independent from the fingers.',
+      songs: [
+        {
+          title: 'Blackbird',
+          artist: 'The Beatles',
+          status: 'In Progress',
+          notes: 'Focus on the timing in the bridge.'
+        },
+        {
+          title: 'Neon',
+          artist: 'John Mayer',
+          status: 'Started',
+          notes: 'Just the intro riff for now.'
+        }
+      ]
     });
 
-    if (error) {
-      console.error('❌ Resend API Error:', JSON.stringify(error, null, 2));
-      
-      if (error.name === 'validation_error' && error.message.includes('resend.dev')) {
-         console.log('\n💡 TIP: In Resend Sandbox mode, you can only send emails to the address you signed up with.');
-         console.log('   Please update the "to" address in this script to your verified email to test success.');
-      }
-    } else {
-      console.log('✅ Email sent successfully!');
-      console.log('ID:', data?.id);
-    }
+    console.log('✅ Template email sent successfully!');
   } catch (err) {
     console.error('❌ Exception:', err);
   }
