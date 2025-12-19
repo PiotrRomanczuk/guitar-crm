@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop, 'feature/**', 'fix/**', 'copilot/**']
+    branches: [main, production, develop, 'feature/**', 'fix/**', 'copilot/**']
   pull_request:
     branches: [main, develop]
 
@@ -430,7 +430,42 @@ jobs:
               body: '🚀 Deployed to preview (main): ${{ steps.deploy.outputs.url }}'
             })
 
-  # Job 9: Deploy Preview (for PRs)
+  # Job 9: Deploy to Vercel (Production)
+  deploy-production:
+    name: Deploy to Vercel (Production)
+    runs-on: ubuntu-latest
+    needs: [quality-gate, e2e-tests]
+    if: github.ref == 'refs/heads/production' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://guitar-crm.vercel.app
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }}
+
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }}
+
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }})
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "Deployed to: $DEPLOYMENT_URL"
+
+  # Job 10: Deploy Preview (for PRs)
   deploy-preview:
     name: Deploy Preview (PR)
     runs-on: ubuntu-latest
