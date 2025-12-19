@@ -21,6 +21,15 @@
 - **FUTURE SEPARATION**: Later, we will create a separate teacher dashboard with reduced features. For now, treat teacher role as having full admin access to the dashboard.
 - **Implementation**: See `app/dashboard/page.tsx` where `isAdmin || isTeacher` condition shows admin view for both roles.
 
+### 4. Deployment Workflow
+
+- **Main Branch (`main`)**: Deploys to **Preview** environment. Use for testing and staging.
+- **Production Branch (`production`)**: Deploys to **Production** environment. Use for live releases.
+- **Release Process**:
+  1. Merge features into `main`.
+  2. Verify on Preview deployment.
+  3. Merge `main` into `production` to release.
+
 ## Project Standards
 
 Please refer to the `.github/instructions/` directory for detailed development standards:
