@@ -30,7 +30,11 @@ interface CalendarEvent {
   attendees?: Array<{ email: string; displayName?: string }>;
 }
 
-export function GoogleEventImporter() {
+interface GoogleEventImporterProps {
+  userEmail: string;
+}
+
+export function GoogleEventImporter({ userEmail }: GoogleEventImporterProps) {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(
     new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -61,14 +65,22 @@ export function GoogleEventImporter() {
     setImporting(true);
     const toImport: ImportEvent[] = events
       .filter((e) => selected.has(e.id))
-      .map((e) => ({
-        googleEventId: e.id,
-        title: e.summary,
-        notes: e.description,
-        startTime: e.start.dateTime,
-        attendeeEmail: e.attendees?.[0]?.email || '',
-        attendeeName: e.attendees?.[0]?.displayName || '',
-      }))
+      .map((e) => {
+        // Find the attendee that is NOT the user (teacher)
+        // If multiple attendees, prefer the one that isn't the current user
+        const studentAttendee = e.attendees?.find(a => a.email.toLowerCase() !== userEmail.toLowerCase()) || e.attendees?.[0];
+
+        const cleanName = (name: string) => name.replace(/\$\$\$\s*/g, '').trim();
+
+        return {
+          googleEventId: e.id,
+          title: e.summary,
+          notes: e.description,
+          startTime: e.start.dateTime,
+          attendeeEmail: studentAttendee?.email || '',
+          attendeeName: studentAttendee?.displayName ? cleanName(studentAttendee.displayName) : '',
+        };
+      })
       .filter((e) => e.attendeeEmail); // Only import if email exists
 
     if (toImport.length === 0) {

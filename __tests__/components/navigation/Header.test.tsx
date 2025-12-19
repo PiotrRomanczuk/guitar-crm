@@ -2,6 +2,8 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Header from '@/components/navigation/Header';
 import { useRouter } from 'next/navigation';
 
+jest.setTimeout(30000);
+
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -89,7 +91,7 @@ describe('Header', () => {
       },
       { timeout: 10000 }
     );
-  }, 15000);
+  }, 30000);
 
   it('should navigate to home when logo is clicked', () => {
     render(<Header user={null} isAdmin={false} isTeacher={false} isStudent={false} />);

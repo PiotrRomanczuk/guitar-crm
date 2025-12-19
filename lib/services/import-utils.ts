@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { TablesInsert } from '@/types/database.types';
+// import { TablesInsert } from '@/types/database.types'; // Types are incorrect
 
 export type MatchStatus = 'MATCHED' | 'AMBIGUOUS' | 'NONE';
 
@@ -20,13 +20,15 @@ export interface StudentMatch {
 export async function matchStudentByEmail(email: string): Promise<StudentMatch> {
   const supabase = await createClient();
   
+  // Use correct column names: is_student, full_name
   const { data: profiles, error } = await supabase
     .from('profiles')
-    .select('id, email, firstName, lastName, user_id')
-    .eq('email', email)
-    .eq('isStudent', true);
+    .select('id, email, full_name, user_id')
+    .eq('email', email);
+    // .eq('is_student', true); // Don't filter by is_student, we want to match any existing user to avoid duplicates
   
   if (error || !profiles) {
+    console.error('Error matching student:', error);
     return { status: 'NONE', candidates: [] };
   }
   
@@ -34,11 +36,23 @@ export async function matchStudentByEmail(email: string): Promise<StudentMatch> 
     return { status: 'NONE', candidates: [] };
   }
   
-  if (profiles.length === 1) {
-    return { status: 'MATCHED', candidates: profiles };
+  // Map to expected format
+  const candidates = profiles.map((p) => {
+    const [firstName, ...lastNameParts] = (p.full_name || '').split(' ');
+    return {
+      id: p.id.toString(),
+      email: p.email,
+      firstName: firstName || '',
+      lastName: lastNameParts.join(' ') || '',
+      user_id: p.user_id
+    };
+  });
+  
+  if (candidates.length === 1) {
+    return { status: 'MATCHED', candidates };
   }
   
-  return { status: 'AMBIGUOUS', candidates: profiles };
+  return { status: 'AMBIGUOUS', candidates };
 }
 
 /**
@@ -51,15 +65,16 @@ export async function createShadowStudent(
 ): Promise<{ success: boolean; profileId?: string; error?: string }> {
   const supabase = await createClient();
   
-  const profileData: TablesInsert<'profiles'> = {
+  const fullName = `${firstName} ${lastName}`.trim();
+
+  // Use correct column names
+  const profileData = {
     email,
-    firstName,
-    lastName,
-    isStudent: true,
-    isTeacher: false,
-    isAdmin: false,
-    isActive: true,
-    canEdit: false,
+    full_name: fullName,
+    is_student: true,
+    is_teacher: false,
+    is_admin: false,
+    is_shadow: true,
     user_id: null, // Shadow profile
   };
   
@@ -70,8 +85,9 @@ export async function createShadowStudent(
     .single();
   
   if (error) {
+    console.error('Error creating shadow student:', error);
     return { success: false, error: error.message };
   }
   
-  return { success: true, profileId: data.id.toString() }; // Ensure ID is string if needed, though DB type is number usually for profiles.id in this project based on types file.
+  return { success: true, profileId: data.id.toString() };
 }
