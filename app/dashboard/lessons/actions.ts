@@ -40,9 +40,7 @@ export async function sendLessonSummaryEmail(lessonId: string) {
       return { success: false, error: 'Lesson or student not found' };
     }
 
-    // @ts-expect-error - Supabase types are complex with joins
     const studentEmail = lesson.student.email;
-    // @ts-expect-error - Supabase types are complex with joins
     const studentName = lesson.student.full_name || 'Student';
 
     if (!studentEmail) {
@@ -74,7 +72,6 @@ export async function sendLessonSummaryEmail(lessonId: string) {
 
     if (emailResult.error) {
         console.error('[sendLessonSummaryEmail] Email sending failed:', emailResult.error);
-        // @ts-expect-error - Error type is unknown
         const errorMessage = (emailResult.error as { message?: string }).message || 'Failed to send email via provider';
         return { success: false, error: errorMessage };
     }

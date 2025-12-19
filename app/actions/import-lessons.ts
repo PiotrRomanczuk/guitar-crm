@@ -3,8 +3,10 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { matchStudentByEmail, createShadowStudent } from '@/lib/services/import-utils';
-import { TablesInsert } from '@/types/database.types';
+import { Database } from '@/database.types';
 import { getCalendarEventsInRange } from '@/lib/google';
+
+type LessonsInsert = Database['public']['Tables']['lessons']['Insert'];
 
 export interface ImportEvent {
   googleEventId: string;
@@ -99,7 +101,7 @@ export async function importLessonsFromGoogle(events: ImportEvent[]) {
     }
     
     // Insert lesson
-    const lessonData: TablesInsert<'lessons'> = {
+    const lessonData: LessonsInsert = {
       student_id: studentId,
       teacher_id: user.id,
       title: event.title || 'Lesson',
