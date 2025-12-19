@@ -383,15 +383,15 @@ jobs:
           echo "====================="
           echo "✅ All quality gates passed!"
 
-  # Job 8: Deploy to Vercel (Production)
-  deploy-production:
-    name: Deploy to Vercel (Production)
+  # Job 8: Deploy to Vercel (Preview - Main)
+  deploy-preview-main:
+    name: Deploy to Vercel (Preview - Main)
     runs-on: ubuntu-latest
     needs: [quality-gate, e2e-tests]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
-      name: production
-      url: https://guitar-crm.vercel.app
+      name: preview
+      url: ${{ steps.deploy.outputs.url }}
 
     steps:
       - name: Checkout code
@@ -406,15 +406,15 @@ jobs:
         run: npm install -g vercel@latest
 
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }}
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }}
 
       - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }}
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }}
 
       - name: Deploy to Vercel
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }})
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN_GITHUB_ACTIONS }})
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "Deployed to: $DEPLOYMENT_URL"
 
@@ -427,7 +427,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '🚀 Deployed to production: ${{ steps.deploy.outputs.url }}'
+              body: '🚀 Deployed to preview (main): ${{ steps.deploy.outputs.url }}'
             })
 
   # Job 9: Deploy Preview (for PRs)
