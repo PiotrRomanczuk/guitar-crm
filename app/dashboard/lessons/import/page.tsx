@@ -14,7 +14,7 @@ export default async function ImportLessonsPage() {
     <div className="container mx-auto py-8">
       <h1 className="text-2xl font-bold mb-4">Import Lessons from Google Calendar</h1>
       <CalendarWebhookControl />
-      <GoogleEventImporter />
+      <GoogleEventImporter userEmail={user.email || ''} />
     </div>
   );
 }
