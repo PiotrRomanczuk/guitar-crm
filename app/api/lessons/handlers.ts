@@ -303,9 +303,7 @@ async function handleLessonCompletionEmail(supabase: SupabaseClient, lessonId: s
       return;
     }
 
-    // @ts-expect-error - Supabase types are complex with joins
     const studentEmail = lesson.student.email;
-    // @ts-expect-error - Supabase types are complex with joins
     const studentName = lesson.student.full_name || 'Student';
 
     if (!studentEmail) {
@@ -387,7 +385,6 @@ export async function updateLessonHandler(
     }
 
     // Check if status changed to COMPLETED and send email
-    // @ts-expect-error - dbData type inference issue
     if (dbData.status === 'COMPLETED') {
       // Await to ensure email is sent before function terminates (important for serverless)
       await handleLessonCompletionEmail(supabase, id);
