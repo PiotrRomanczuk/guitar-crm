@@ -8,9 +8,12 @@ interface Props {
     title?: string;
     scheduled_at: string;
     notes?: string;
+    status?: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   };
   validationErrors: { [key: string]: string };
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => void;
 }
 
 export function LessonFormFields({ formData, validationErrors, handleChange }: Props) {
@@ -51,6 +54,25 @@ export function LessonFormFields({ formData, validationErrors, handleChange }: P
             {validationErrors.scheduled_at}
           </p>
         )}
+      </div>
+
+      <div>
+        <label htmlFor="status" className={labelClass}>
+          Status
+        </label>
+        <select
+          id="status"
+          name="status"
+          value={formData.status || 'SCHEDULED'}
+          onChange={handleChange}
+          className={inputClass}
+          data-testid="lesson-status"
+        >
+          <option value="SCHEDULED">Scheduled</option>
+          <option value="IN_PROGRESS">In Progress</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
       </div>
 
       <div>

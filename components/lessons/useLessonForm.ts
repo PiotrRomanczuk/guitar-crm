@@ -12,6 +12,7 @@ export interface LessonFormData {
   scheduled_at: string;
   title?: string;
   notes?: string;
+  status?: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   song_ids?: string[];
 }
 
@@ -60,6 +61,7 @@ export default function useLessonForm({
     scheduled_at: initialData?.scheduled_at || '',
     title: initialData?.title || '',
     notes: initialData?.notes || '',
+    status: initialData?.status || 'SCHEDULED',
     song_ids: initialData?.song_ids || [],
   });
 
