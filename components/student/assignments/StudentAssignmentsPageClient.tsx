@@ -134,7 +134,7 @@ export function StudentAssignmentsPageClient() {
               style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
             >
               <div className="flex items-start justify-between mb-4">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                   <ClipboardList className="w-5 h-5 text-primary" />
                 </div>
                 <Badge
@@ -150,7 +150,7 @@ export function StudentAssignmentsPageClient() {
               </h3>
 
               {assignment.description && (
-                <p className="text-muted-foreground text-sm mb-4 line-clamp-2 flex-grow">
+                <p className="text-muted-foreground text-sm mb-4 line-clamp-2 grow">
                   {assignment.description}
                 </p>
               )}
