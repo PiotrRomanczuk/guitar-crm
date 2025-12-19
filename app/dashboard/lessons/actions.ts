@@ -40,16 +40,16 @@ export async function sendLessonSummaryEmail(lessonId: string) {
       return { success: false, error: 'Lesson or student not found' };
     }
 
-    // @ts-ignore
+    // @ts-expect-error - Supabase types are complex with joins
     const studentEmail = lesson.student.email;
-    // @ts-ignore
+    // @ts-expect-error - Supabase types are complex with joins
     const studentName = lesson.student.full_name || 'Student';
 
     if (!studentEmail) {
       return { success: false, error: 'Student has no email address' };
     }
 
-    // @ts-ignore
+    // @ts-expect-error - Supabase types are complex with joins
     const songs = lesson.lesson_songs?.map((ls) => ({
       title: ls.song?.title || 'Unknown Song',
       artist: ls.song?.author || 'Unknown Artist',
@@ -74,8 +74,8 @@ export async function sendLessonSummaryEmail(lessonId: string) {
 
     if (emailResult.error) {
         console.error('[sendLessonSummaryEmail] Email sending failed:', emailResult.error);
-        // @ts-ignore
-        const errorMessage = emailResult.error.message || 'Failed to send email via provider';
+        // @ts-expect-error - Error type is unknown
+        const errorMessage = (emailResult.error as { message?: string }).message || 'Failed to send email via provider';
         return { success: false, error: errorMessage };
     }
 
