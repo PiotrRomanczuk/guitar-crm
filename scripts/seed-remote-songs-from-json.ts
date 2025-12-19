@@ -34,6 +34,7 @@ async function seedSongs() {
 
     console.log(`Found ${songsData.length} songs.`);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const songsToInsert = songsData.map((song: any) => {
       // Handle required fields and defaults
       let level = song.level;
