@@ -303,9 +303,9 @@ async function handleLessonCompletionEmail(supabase: SupabaseClient, lessonId: s
       return;
     }
 
-    // @ts-ignore
+    // @ts-expect-error - Supabase types are complex with joins
     const studentEmail = lesson.student.email;
-    // @ts-ignore
+    // @ts-expect-error - Supabase types are complex with joins
     const studentName = lesson.student.full_name || 'Student';
 
     if (!studentEmail) {
@@ -313,7 +313,7 @@ async function handleLessonCompletionEmail(supabase: SupabaseClient, lessonId: s
       return;
     }
 
-    // @ts-ignore
+    // @ts-expect-error - Supabase types are complex with joins
     const songs = lesson.lesson_songs?.map((ls) => ({
       title: ls.song?.title || 'Unknown Song',
       artist: ls.song?.author || 'Unknown Artist',
@@ -387,7 +387,7 @@ export async function updateLessonHandler(
     }
 
     // Check if status changed to COMPLETED and send email
-    // @ts-ignore
+    // @ts-expect-error - dbData type inference issue
     if (dbData.status === 'COMPLETED') {
       // Await to ensure email is sent before function terminates (important for serverless)
       await handleLessonCompletionEmail(supabase, id);
