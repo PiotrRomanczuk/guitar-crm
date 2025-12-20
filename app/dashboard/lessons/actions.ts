@@ -23,6 +23,7 @@ export async function sendLessonSummaryEmail(lessonId: string) {
           notes,
           status,
           song:songs (
+            id,
             title,
             author
           )
@@ -49,6 +50,7 @@ export async function sendLessonSummaryEmail(lessonId: string) {
 
     // @ts-expect-error - Supabase types are complex with joins
     const songs = lesson.lesson_songs?.map((ls) => ({
+      id: ls.song?.id,
       title: ls.song?.title || 'Unknown Song',
       artist: ls.song?.author || 'Unknown Artist',
       status: ls.status,

@@ -9,7 +9,7 @@ console.log('NEXT_PUBLIC_API_BASE_URL_REMOTE:', process.env.NEXT_PUBLIC_API_BASE
 async function testReminderEmail() {
   // Dynamic import to ensure env vars are loaded first
   const { sendLessonReminderEmail } = await import('../lib/email/send-reminder-email');
-  
+
   console.log('Starting reminder email test...');
 
   const testData = {
@@ -18,14 +18,14 @@ async function testReminderEmail() {
     lessonDate: 'Monday, December 22, 2025',
     lessonTime: '18:00',
     location: 'Online (Zoom)',
-    agenda: 'Reviewing "Blackbird" and starting new theory module.'
+    agenda: 'Reviewing "Blackbird" and starting new theory module.',
   };
 
   console.log('Sending test email to:', testData.studentEmail);
-  
+
   try {
     const result = await sendLessonReminderEmail(testData);
-    
+
     if (result.error) {
       console.error('Failed to send email:', result.error);
     } else {
