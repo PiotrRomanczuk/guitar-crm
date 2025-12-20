@@ -61,6 +61,7 @@ const nextConfig = async (): Promise<NextConfig> => {
         },
       ],
     },
+    serverExternalPackages: ['nodemailer'],
   };
 };
 
@@ -100,5 +101,4 @@ export default withSentryConfig(nextConfig, {
       removeDebugLogging: true,
     },
   },
-  serverExternalPackages: ['nodemailer'],
 });
