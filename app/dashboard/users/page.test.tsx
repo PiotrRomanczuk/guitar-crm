@@ -12,19 +12,19 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock child components
-jest.mock('@/components/users/UserDetail', () => ({
+jest.mock('@/components/users/details/UserDetail', () => ({
   __esModule: true,
   default: () => <div data-testid="user-detail">User Detail</div>,
 }));
-jest.mock('@/components/users/UserLessons', () => ({
+jest.mock('@/components/users/details/UserLessons', () => ({
   __esModule: true,
   default: () => <div data-testid="user-lessons">User Lessons</div>,
 }));
-jest.mock('@/components/users/UserAssignments', () => ({
+jest.mock('@/components/users/details/UserAssignments', () => ({
   __esModule: true,
   default: () => <div data-testid="user-assignments">User Assignments</div>,
 }));
-jest.mock('@/components/users/UserSongs', () => ({
+jest.mock('@/components/users/details/UserSongs', () => ({
   __esModule: true,
   default: () => <div data-testid="user-songs">User Songs</div>,
 }));

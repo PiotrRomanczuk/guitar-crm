@@ -16,18 +16,8 @@ jest.mock('@/app/dashboard/songs/[id]/actions', () => ({
 // Mock child components
 jest.mock('@/components/songs', () => ({
   SongDetail: () => <div data-testid="song-detail">Song Detail</div>,
-}));
-jest.mock('@/components/songs/SongLessons', () => {
-  const MockSongLessons = () => <div data-testid="song-lessons">Song Lessons</div>;
-  MockSongLessons.displayName = 'SongLessons';
-  return MockSongLessons;
-});
-jest.mock('@/components/songs/SongAssignments', () => {
-  const MockSongAssignments = () => <div data-testid="song-assignments">Song Assignments</div>;
-  MockSongAssignments.displayName = 'SongAssignments';
-  return MockSongAssignments;
-});
-jest.mock('@/components/songs/SongStudents', () => ({
+  SongLessons: () => <div data-testid="song-lessons">Song Lessons</div>,
+  SongAssignments: () => <div data-testid="song-assignments">Song Assignments</div>,
   SongStudents: () => <div data-testid="song-students">Song Students</div>,
 }));
 jest.mock('@/components/shared', () => ({
