@@ -179,6 +179,7 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
     if (data.user) {
       setEmail('');
       setPassword('');
+      setTouched({ email: false, password: false });
       if (onSuccess) {
         onSuccess();
       }
