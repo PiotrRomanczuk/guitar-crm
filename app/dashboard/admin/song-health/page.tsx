@@ -1,10 +1,9 @@
-import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { getSongDatabaseStatistics } from '@/lib/services/song-analytics';
 import { SongStatsTable } from '@/components/dashboard/admin/SongStatsTable';
 import { SendAdminReportButton } from '@/components/dashboard/admin/SendAdminReportButton';
 import { redirect } from 'next/navigation';
-import { Shield, Music } from 'lucide-react';
+import { Music } from 'lucide-react';
 
 export const metadata = {
   title: 'Song Database Health | Guitar CRM',
