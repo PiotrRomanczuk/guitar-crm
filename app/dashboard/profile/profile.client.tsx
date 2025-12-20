@@ -1,12 +1,12 @@
 'use client';
 
-import { useProfileData } from '@/components/profile/useProfileData';
 import {
+  useProfileData,
   ProfileHeader,
   ProfileAlert,
   ProfileLoadingState,
-} from '@/components/profile/ProfileComponents';
-import { ProfileForm } from '@/components/profile/ProfileForm';
+  ProfileForm,
+} from '@/components/profile';
 import { redirect } from 'next/navigation';
 
 interface ProfilePageClientProps {

@@ -5,7 +5,7 @@ import {
 	ProfileAlert,
 	ProfileFormActions,
 	ProfileLoadingState,
-} from '@/components/profile/ProfileComponents';
+} from '@/components/profile';
 
 describe('ProfileComponents', () => {
 	describe('ProfileHeader', () => {

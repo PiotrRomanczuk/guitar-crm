@@ -1,12 +1,9 @@
-import { SongDetail } from '@/components/songs';
-import SongLessons from '@/components/songs/SongLessons';
-import SongAssignments from '@/components/songs/SongAssignments';
+import { SongDetail, SongLessons, SongAssignments, SongStudents } from '@/components/songs';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { Breadcrumbs } from '@/components/shared';
 import { redirect } from 'next/navigation';
 import { getSongStudents } from './actions';
-import { SongStudents } from '@/components/songs/SongStudents';
-import { StudentSongDetailPageClient } from '@/components/student/songs/StudentSongDetailPageClient';
+import { StudentSongDetailPageClient } from '@/components/songs/student/StudentSongDetailPageClient';
 
 interface SearchParams {
   [key: string]: string | string[] | undefined;

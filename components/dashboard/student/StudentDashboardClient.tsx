@@ -1,12 +1,12 @@
 'use client';
 
 import { StudentDashboardData } from '@/app/actions/student/dashboard';
-import { RecentActivity } from '@/components/student/dashboard/RecentActivity';
-// import { ProgressChart } from '@/components/student/dashboard/ProgressChart';
-import { SongLibrary } from '@/components/student/songs/SongLibrary';
-import { AssignmentList } from '@/components/student/assignments/AssignmentList';
+import { RecentActivity } from '@/components/dashboard/student/RecentActivity';
+// import { ProgressChart } from '@/components/dashboard/student/ProgressChart';
+import { SongLibrary } from '@/components/songs/student/SongLibrary';
+import { AssignmentList } from '@/components/assignments/student/AssignmentList';
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
-import { NextLessonCard } from '@/components/student/dashboard/NextLessonCard';
+import { NextLessonCard } from '@/components/dashboard/student/NextLessonCard';
 
 interface StudentDashboardClientProps {
   data: StudentDashboardData;

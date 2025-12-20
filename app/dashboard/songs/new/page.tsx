@@ -1,4 +1,4 @@
-import SongFormGuard from '@/components/songs/SongFormGuard';
+import { SongFormGuard } from '@/components/songs';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { redirect } from 'next/navigation';
 

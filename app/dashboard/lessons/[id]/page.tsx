@@ -5,10 +5,12 @@ import { createClient } from '@/lib/supabase/server';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import { Database } from '@/database.types';
 
-import { LessonSongsList } from '@/components/lessons/LessonSongsList';
-import { LessonDetailsCard } from '@/components/lessons/LessonDetailsCard';
-import { LessonAssignmentsList } from '@/components/lessons/LessonAssignmentsList';
-import { StudentLessonDetailPageClient } from '@/components/student/lessons/StudentLessonDetailPageClient';
+import {
+  LessonSongsList,
+  LessonDetailsCard,
+  LessonAssignmentsList,
+} from '@/components/lessons';
+import { StudentLessonDetailPageClient } from '@/components/lessons/student/StudentLessonDetailPageClient';
 
 interface LessonDetailPageProps {
   params: Promise<{ id: string }>;

@@ -1,4 +1,4 @@
-import UsersList from '@/components/users/UsersList';
+import { UsersList } from '@/components/users';
 
 export const metadata = {
   title: 'Users',

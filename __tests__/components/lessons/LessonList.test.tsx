@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import LessonList from '@/components/lessons/LessonList';
-import useLessonList from '@/components/lessons/useLessonList';
+import { LessonList, useLessonList } from '@/components/lessons';
 import { useSearchParams } from 'next/navigation';
 
 // Mock dependencies
@@ -9,8 +8,9 @@ jest.mock('next/navigation', () => ({
   useSearchParams: jest.fn(),
 }));
 
-jest.mock('@/components/lessons/useLessonList');
-jest.mock('@/components/lessons/useProfiles', () => ({
+jest.mock('@/components/lessons', () => ({
+  ...jest.requireActual('@/components/lessons'),
+  useLessonList: jest.fn(),
   useProfiles: jest.fn(() => ({
     students: [],
     isLoading: false,

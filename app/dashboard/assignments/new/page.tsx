@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import AssignmentForm from '@/components/assignments/AssignmentForm';
+import { AssignmentForm } from '@/components/assignments';
 import { redirect } from 'next/navigation';
 
 interface NewAssignmentPageProps {
