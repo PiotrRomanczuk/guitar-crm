@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import Header from '@/components/navigation/Header';
 import { Sidebar } from '@/components/navigation/Sidebar';
 import { Toaster } from 'sonner';
+import { getSupabaseConfig } from '@/lib/supabase/config';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -21,7 +22,14 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
   );
   const showSidebar = !!user && !isAuthPage;
 
-  console.log('AppShell:', { pathname, hasUser: !!user, isAuthPage, showSidebar });
+  const { isLocal } = getSupabaseConfig();
+  console.log('AppShell:', {
+    pathname,
+    hasUser: !!user,
+    isAuthPage,
+    showSidebar,
+    db: isLocal ? 'local' : 'remote',
+  });
 
   return (
     <>
