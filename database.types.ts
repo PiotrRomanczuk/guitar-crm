@@ -333,6 +333,14 @@ export type Database = {
           ultimate_guitar_link: string;
           youtube_url: string | null;
           gallery_images: string[] | null;
+          spotify_link_url: string | null;
+          capo_fret: number | null;
+          strumming_pattern: string | null;
+          category: string | null;
+          tempo: number | null;
+          time_signature: number | null;
+          duration_ms: number | null;
+          release_year: number | null;
           updated_at: string;
         };
         Insert: {
@@ -348,6 +356,14 @@ export type Database = {
           ultimate_guitar_link: string;
           youtube_url?: string | null;
           gallery_images?: string[] | null;
+          spotify_link_url?: string | null;
+          capo_fret?: number | null;
+          strumming_pattern?: string | null;
+          category?: string | null;
+          tempo?: number | null;
+          time_signature?: number | null;
+          duration_ms?: number | null;
+          release_year?: number | null;
           updated_at?: string;
         };
         Update: {
@@ -363,6 +379,14 @@ export type Database = {
           ultimate_guitar_link?: string;
           youtube_url?: string | null;
           gallery_images?: string[] | null;
+          spotify_link_url?: string | null;
+          capo_fret?: number | null;
+          strumming_pattern?: string | null;
+          category?: string | null;
+          tempo?: number | null;
+          time_signature?: number | null;
+          duration_ms?: number | null;
+          release_year?: number | null;
           updated_at?: string;
         };
         Relationships: [];

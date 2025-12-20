@@ -94,6 +94,54 @@ describe('SongSchema', () => {
 			expect(result.short_title).toBe('Wonderwall');
 			expect(result.audio_files).toEqual({ backing_track: 'url' });
 		});
+
+		it('should validate a valid song input with all new fields', () => {
+			const validSong = {
+				title: 'Wonderwall',
+				author: 'Oasis',
+				level: 'intermediate' as const,
+				key: 'F#m' as const,
+				ultimate_guitar_link: 'https://www.ultimate-guitar.com/tab/oasis/wonderwall-chords-82664',
+				tempo: 87,
+				time_signature: 4,
+				duration_ms: 258000,
+				release_year: 1995,
+				capo_fret: 2,
+				category: 'Rock',
+				strumming_pattern: 'D D U U D U',
+			};
+
+			expect(() => SongInputSchema.parse(validSong)).not.toThrow();
+			const result = SongInputSchema.parse(validSong);
+			expect(result.tempo).toBe(87);
+			expect(result.time_signature).toBe(4);
+			expect(result.duration_ms).toBe(258000);
+			expect(result.release_year).toBe(1995);
+			expect(result.capo_fret).toBe(2);
+			expect(result.category).toBe('Rock');
+			expect(result.strumming_pattern).toBe('D D U U D U');
+		});
+
+		it('should validate nullable fields', () => {
+			const validSong = {
+				title: 'Simple Song',
+				author: 'Unknown',
+				level: 'beginner' as const,
+				key: 'C' as const,
+				ultimate_guitar_link: 'https://example.com',
+				tempo: null,
+				time_signature: null,
+				duration_ms: null,
+				release_year: null,
+				capo_fret: null,
+				category: null,
+				strumming_pattern: null,
+			};
+
+			expect(() => SongInputSchema.parse(validSong)).not.toThrow();
+			const result = SongInputSchema.parse(validSong);
+			expect(result.tempo).toBeNull();
+		});
 	});
 
 	describe('SongSchema', () => {

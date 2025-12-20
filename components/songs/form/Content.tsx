@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { SongInputSchema, Song } from '@/schemas/SongSchema';
 import SongFormFields from './Fields';
 import { createFormData, clearFieldError, parseZodErrors, SongFormData } from './helpers';
+import { SpotifyTrack } from '@/types/spotify';
 
 interface Props {
   mode: 'create' | 'edit';
@@ -53,6 +54,41 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
     }
   };
 
+  const handleSpotifySelect = async (track: SpotifyTrack) => {
+    // Update basic info immediately
+    setFormData((prev) => ({
+      ...prev,
+      title: track.name,
+      author: track.artist,
+      spotify_link_url: `https://open.spotify.com/track/${track.id}`,
+      release_year: track.release_date ? parseInt(track.release_date.split('-')[0]) : null,
+    }));
+
+    // Fetch audio features for key
+    try {
+      const res = await fetch(`/api/spotify/features?id=${track.id}`);
+      const data = await res.json();
+
+      if (data.key !== undefined && data.mode !== undefined) {
+        const pitchClass = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        let key = pitchClass[data.key];
+        if (data.mode === 0) {
+          key += 'm';
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          key: key,
+          tempo: data.tempo ? Math.round(data.tempo) : null,
+          time_signature: data.time_signature || null,
+          duration_ms: data.duration_ms || null,
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch audio features', error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
@@ -99,7 +135,12 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
         </div>
       )}
 
-      <SongFormFields formData={formData} errors={errors} onChange={handleChange} />
+      <SongFormFields
+        formData={formData}
+        errors={errors}
+        onChange={handleChange}
+        onSpotifySelect={handleSpotifySelect}
+      />
 
       <button
         type="submit"

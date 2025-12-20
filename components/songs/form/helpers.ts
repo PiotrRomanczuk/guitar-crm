@@ -39,6 +39,14 @@ export type SongFormData = {
   short_title: string;
   youtube_url: string;
   gallery_images: string[];
+  spotify_link_url: string;
+  capo_fret: number | null;
+  strumming_pattern: string;
+  category: string;
+  tempo: number | null;
+  time_signature: number | null;
+  duration_ms: number | null;
+  release_year: number | null;
 };
 
 const FORM_DEFAULTS: SongFormData = {
@@ -51,6 +59,14 @@ const FORM_DEFAULTS: SongFormData = {
   short_title: '',
   youtube_url: '',
   gallery_images: [],
+  spotify_link_url: '',
+  capo_fret: null,
+  strumming_pattern: '',
+  category: '',
+  tempo: null,
+  time_signature: null,
+  duration_ms: null,
+  release_year: null,
 };
 
 /**
@@ -68,5 +84,13 @@ export function createFormData(song?: Song | null): SongFormData {
     short_title: song?.short_title || '',
     youtube_url: song?.youtube_url || '',
     gallery_images: song?.gallery_images || [],
+    spotify_link_url: song?.spotify_link_url || '',
+    capo_fret: song?.capo_fret ?? null,
+    strumming_pattern: song?.strumming_pattern || '',
+    category: song?.category || '',
+    tempo: song?.tempo ?? null,
+    time_signature: song?.time_signature ?? null,
+    duration_ms: song?.duration_ms ?? null,
+    release_year: song?.release_year ?? null,
   };
 }
