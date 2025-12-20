@@ -1,21 +1,67 @@
 import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
+import net from 'net';
 
-const nextConfig: NextConfig = {
-  /* config options here */
-  // allowedDevOrigins: ['piotrs-macbook-air.local'],
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'zmlluqqqwrfhygvpfqka.supabase.co',
-      },
-      {
-        protocol: 'http',
-        hostname: '127.0.0.1',
-      },
-    ],
-  },
+// Check if Local Supabase is running
+const checkLocalSupabase = async (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const socket = new net.Socket();
+    const onError = () => {
+      socket.destroy();
+      resolve(false);
+    };
+    socket.setTimeout(500); // Fast timeout
+    socket.once('error', onError);
+    socket.once('timeout', onError);
+    socket.connect(54321, '127.0.0.1', () => {
+      socket.end();
+      resolve(true);
+    });
+  });
+};
+
+const nextConfig = async (): Promise<NextConfig> => {
+  console.log('🔍 [NextConfig] Checking environment...');
+  
+  // Only run this check in development
+  if (process.env.NODE_ENV === 'development') {
+    const isLocalSupabaseRunning = await checkLocalSupabase();
+    console.log(`🔍 [NextConfig] Local Supabase running: ${isLocalSupabaseRunning}`);
+
+    if (!isLocalSupabaseRunning && process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL) {
+      console.warn('\n⚠️  Local Supabase not detected on port 54321.');
+      console.warn('🔄 Switching to REMOTE Supabase configuration...\n');
+      
+      // Unset local variables so config.ts falls back to remote
+      delete process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL;
+      delete process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY;
+      delete process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY;
+      
+      // Also switch API URL if it was set to local
+      if (process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL) {
+         delete process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL;
+      }
+    } else if (isLocalSupabaseRunning) {
+       console.log('\n✅ Local Supabase detected on port 54321.\n');
+    }
+  }
+
+  return {
+    /* config options here */
+    // allowedDevOrigins: ['piotrs-macbook-air.local'],
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'zmlluqqqwrfhygvpfqka.supabase.co',
+        },
+        {
+          protocol: 'http',
+          hostname: '127.0.0.1',
+        },
+      ],
+    },
+  };
 };
 
 export default withSentryConfig(nextConfig, {
