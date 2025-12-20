@@ -1,38 +1,43 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { LessonList, useLessonList } from '@/components/lessons';
+import { LessonList } from '@/components/lessons';
+import useLessonList from '../hooks/useLessonList';
+import { useProfiles } from '../hooks/useProfiles';
 import { useSearchParams } from 'next/navigation';
 
 // Mock dependencies
 jest.mock('next/navigation', () => ({
   useSearchParams: jest.fn(),
+  useRouter: jest.fn(() => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+  })),
+  usePathname: jest.fn(() => '/dashboard/lessons'),
 }));
+
+jest.mock('../hooks/useLessonList');
+jest.mock('../hooks/useProfiles');
 
 jest.mock('@/components/lessons', () => ({
   ...jest.requireActual('@/components/lessons'),
-  useLessonList: jest.fn(),
-  useProfiles: jest.fn(() => ({
-    students: [],
-    isLoading: false,
-    error: null,
-  })),
 }));
 jest.mock(
-  '@/components/lessons/LessonList.Header',
+  '@/components/lessons/list/LessonList.Header',
   () =>
     function MockHeader() {
       return <div data-testid="lesson-list-header">Header</div>;
     }
 );
 jest.mock(
-  '@/components/lessons/LessonList.Filter',
+  '@/components/lessons/list/LessonList.Filter',
   () =>
     function MockFilter() {
       return <div data-testid="lesson-list-filter">Filter</div>;
     }
 );
 jest.mock(
-  '@/components/lessons/LessonTable',
+  '@/components/lessons/list/LessonTable',
   () =>
     function MockTable({ role }: { role: string }) {
       return <div data-testid="lesson-table">Table ({role})</div>;
@@ -42,6 +47,7 @@ jest.mock(
 describe('LessonList', () => {
   const mockUseSearchParams = useSearchParams as jest.Mock;
   const mockUseLessonList = useLessonList as jest.Mock;
+  const mockUseProfiles = useProfiles as jest.Mock;
 
   beforeEach(() => {
     mockUseSearchParams.mockReturnValue({
@@ -53,6 +59,11 @@ describe('LessonList', () => {
       error: null,
       filterStatus: 'all',
       setFilterStatus: jest.fn(),
+    });
+    mockUseProfiles.mockReturnValue({
+      students: [],
+      isLoading: false,
+      error: null,
     });
   });
 
