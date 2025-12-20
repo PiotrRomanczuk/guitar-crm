@@ -16,11 +16,11 @@ jest.mock('../hooks', () => ({
 
 // Mock child components
 jest.mock('./Header', () => ({
-  Header: ({ canCreate }: any) => <div data-testid="header">{canCreate ? 'Can Create' : 'No Create'}</div>,
+  Header: ({ canCreate }: { canCreate: boolean }) => <div data-testid="header">{canCreate ? 'Can Create' : 'No Create'}</div>,
 }));
 
 jest.mock('./Filters', () => ({
-  Filters: ({ onSearchChange, onStatusChange, onReset }: any) => (
+  Filters: ({ onSearchChange, onStatusChange, onReset }: { onSearchChange: (v: string) => void; onStatusChange: (v: string) => void; onReset: () => void }) => (
     <div data-testid="filters">
       <button onClick={() => onSearchChange('test')}>Search</button>
       <button onClick={() => onStatusChange('active')}>Status</button>
@@ -30,9 +30,9 @@ jest.mock('./Filters', () => ({
 }));
 
 jest.mock('./Table', () => ({
-  Table: ({ assignments }: any) => (
+  Table: ({ assignments }: { assignments: { id: string; title: string }[] }) => (
     <div data-testid="table">
-      {assignments.map((a: any) => (
+      {assignments.map((a: { id: string; title: string }) => (
         <div key={a.id}>{a.title}</div>
       ))}
     </div>
