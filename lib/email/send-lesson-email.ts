@@ -41,7 +41,9 @@ export async function sendLessonCompletedEmail(data: LessonEmailData) {
     return { data: { id: info.messageId }, error: null };
   } catch (error) {
     console.error('EXCEPTION sending email:', error);
-    return { data: null, error: error };
+    // Return a serializable error object
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error sending email';
+    return { data: null, error: { message: errorMessage } };
   }
 }
 
