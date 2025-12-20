@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import SongForm from '@/components/songs/SongForm';
+import { SongForm } from '@/components/songs';
 
 jest.setTimeout(30000);
 

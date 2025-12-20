@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import SongListTable from '@/components/songs/SongList/Table';
-import SongListHeader from '@/components/songs/SongList/Header';
-import SongListEmpty from '@/components/songs/SongList/Empty';
+import SongListTable from '@/components/songs/list/Table';
+import SongListHeader from '@/components/songs/list/Header';
+import SongListEmpty from '@/components/songs/list/Empty';
 import type { Tables } from '@/types/database.types';
 
 type Song = Tables<'songs'>;

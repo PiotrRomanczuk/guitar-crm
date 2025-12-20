@@ -1,5 +1,4 @@
-import { GoogleEventImporter } from '@/components/lessons/GoogleEventImporter';
-import { CalendarWebhookControl } from '@/components/lessons/CalendarWebhookControl';
+import { GoogleEventImporter, CalendarWebhookControl } from '@/components/lessons';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { redirect } from 'next/navigation';
 

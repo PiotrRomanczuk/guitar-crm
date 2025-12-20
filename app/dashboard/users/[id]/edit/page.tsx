@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import UserForm from '@/components/users/UserForm';
+import { UserForm } from '@/components/users';
 
 export const metadata = {
   title: 'Edit User',
