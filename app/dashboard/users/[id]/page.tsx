@@ -1,7 +1,4 @@
-import UserDetail from '@/components/users/UserDetail';
-import UserLessons from '@/components/users/UserLessons';
-import UserAssignments from '@/components/users/UserAssignments';
-import UserSongs from '@/components/users/UserSongs';
+import { UserDetail, UserLessons, UserAssignments, UserSongs } from '@/components/users';
 import { Breadcrumbs } from '@/components/shared';
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';

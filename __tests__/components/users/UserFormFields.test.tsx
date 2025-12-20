@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import UserFormFields from '@/components/users/UserFormFields';
+import { UserFormFields } from '@/components/users';
 import '@testing-library/jest-dom';
 
 describe('UserFormFields', () => {

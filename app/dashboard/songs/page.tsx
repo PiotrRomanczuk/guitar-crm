@@ -1,7 +1,7 @@
 import { SongList } from '@/components/songs';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { redirect } from 'next/navigation';
-import { StudentSongsPageClient } from '@/components/student/songs/StudentSongsPageClient';
+import { StudentSongsPageClient } from '@/components/songs/student/StudentSongsPageClient';
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;

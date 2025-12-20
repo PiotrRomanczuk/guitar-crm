@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { createClient } from '@/lib/supabase/server';
-import LessonForm from '@/components/lessons/LessonForm';
+import { LessonForm } from '@/components/lessons';
 import { transformLessonData } from '@/app/api/lessons/utils';
 
 interface LessonEditPageProps {

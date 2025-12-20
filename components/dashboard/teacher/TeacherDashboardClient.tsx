@@ -1,12 +1,12 @@
 'use client';
 
 import { TeacherDashboardData } from '@/app/actions/teacher/dashboard';
-import { StudentList } from '@/components/teacher/dashboard/StudentList';
-import { StatCard } from '@/components/student/dashboard/StatCard';
-import { RecentActivity } from '@/components/student/dashboard/RecentActivity'; // Reusing generic one
-import { ProgressChart } from '@/components/student/dashboard/ProgressChart'; // Reusing generic one
-import { SongLibrary } from '@/components/teacher/dashboard/SongLibrary';
-import { AssignmentList } from '@/components/teacher/dashboard/AssignmentList';
+import { StudentList } from '@/components/dashboard/teacher/StudentList';
+import { StatCard } from '@/components/dashboard/student/StatCard';
+import { RecentActivity } from '@/components/dashboard/student/RecentActivity'; // Reusing generic one
+import { ProgressChart } from '@/components/dashboard/student/ProgressChart'; // Reusing generic one
+import { SongLibrary } from '@/components/dashboard/teacher/SongLibrary';
+import { AssignmentList } from '@/components/dashboard/teacher/AssignmentList';
 import { LessonStatsOverview } from '@/components/dashboard/LessonStatsOverview';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
 import { Users, BookOpen, Music, Shield } from 'lucide-react';

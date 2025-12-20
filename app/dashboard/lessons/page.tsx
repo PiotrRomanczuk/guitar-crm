@@ -3,7 +3,7 @@ import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { createClient } from '@/lib/supabase/server';
 import { getLessonsHandler } from '@/app/api/lessons/handlers';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
-import { StudentLessonsPageClient } from '@/components/student/lessons/StudentLessonsPageClient';
+import { StudentLessonsPageClient } from '@/components/lessons/student/StudentLessonsPageClient';
 
 interface LessonsPageData {
   lessons: LessonWithProfiles[];
