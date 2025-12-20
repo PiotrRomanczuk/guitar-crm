@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import type { Database } from '@/types/database.types';
+import { getSupabaseConfig } from '@/lib/supabase/config';
 
 export async function middleware(request: NextRequest) {
   console.log(`[Middleware] ${request.method} ${request.nextUrl.pathname}`);
@@ -13,8 +14,7 @@ export async function middleware(request: NextRequest) {
       .join(', ')
   );
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseConfig();
 
   // Skip middleware if Supabase is not configured
   if (!supabaseUrl || !supabaseAnonKey) {
