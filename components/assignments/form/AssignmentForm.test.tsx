@@ -9,7 +9,7 @@ jest.mock('next/navigation', () => ({
 
 // Mock child components
 jest.mock('./AssignmentForm.Fields', () => ({
-  AssignmentFormFields: ({ formData, onChange }: any) => (
+  AssignmentFormFields: ({ formData, onChange }: { formData: { title: string }; onChange: (field: string, value: string) => void }) => (
     <div data-testid="assignment-form-fields">
       <input
         data-testid="input-title"
@@ -21,7 +21,7 @@ jest.mock('./AssignmentForm.Fields', () => ({
 }));
 
 jest.mock('./AssignmentForm.Actions', () => ({
-  AssignmentFormActions: ({ loading }: any) => (
+  AssignmentFormActions: ({ loading }: { loading: boolean }) => (
     <button type="submit" disabled={loading}>
       {loading ? 'Saving...' : 'Save'}
     </button>

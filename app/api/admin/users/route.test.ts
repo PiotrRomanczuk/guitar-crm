@@ -1,6 +1,5 @@
 import { GET } from './route';
 import { createClient } from '@/lib/supabase/server';
-import { NextResponse } from 'next/server';
 
 // Mock dependencies
 jest.mock('@/lib/supabase/server', () => ({
@@ -42,13 +41,6 @@ describe('Admin Users API', () => {
   it('returns users list if admin', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: 'admin1' } }, error: null });
     
-    // Mock roles check
-    const rolesQuery = {
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockResolvedValue({ data: [{ role: 'admin' }], error: null }),
-      }),
-    };
-
     // Mock users fetch
     const usersQuery = {
       select: jest.fn().mockReturnValue({
@@ -56,14 +48,6 @@ describe('Admin Users API', () => {
           data: [{ id: 'u1', full_name: 'User 1' }], 
           error: null 
         }),
-      }),
-    };
-
-    // Mock all roles fetch
-    const allRolesQuery = {
-      select: jest.fn().mockResolvedValue({ 
-        data: [{ user_id: 'u1', role: 'student' }], 
-        error: null 
       }),
     };
 
@@ -80,7 +64,7 @@ describe('Admin Users API', () => {
             };
             return {
               // This handles the second call .select('*')
-              then: (resolve: any) => resolve({ data: [{ user_id: 'u1', role: 'student' }], error: null })
+              then: (resolve: (value: { data: { user_id: string; role: string }[]; error: null }) => void) => resolve({ data: [{ user_id: 'u1', role: 'student' }], error: null })
             };
           })
         };
