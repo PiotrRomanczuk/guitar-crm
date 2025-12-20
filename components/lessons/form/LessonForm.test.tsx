@@ -15,7 +15,7 @@ jest.mock('../hooks/useLessonForm', () => ({
 
 // Mock child components to isolate LessonForm logic
 jest.mock('./LessonForm.ProfileSelect', () => ({
-  ProfileSelect: ({ label, value, onChange, error, options }: any) => (
+  ProfileSelect: ({ label, value, onChange, error, options }: { label: string; value: string; onChange: React.ChangeEventHandler<HTMLSelectElement>; error?: string; options: { id: string; full_name: string }[] }) => (
     <div data-testid={`profile-select-${label.toLowerCase()}`}>
       <label>{label}</label>
       <select
@@ -25,7 +25,7 @@ jest.mock('./LessonForm.ProfileSelect', () => ({
         name={label === 'Student' ? 'student_id' : 'teacher_id'}
       >
         <option value="">Select {label}</option>
-        {options?.map((opt: any) => (
+        {options?.map((opt: { id: string; full_name: string }) => (
           <option key={opt.id} value={opt.id}>{opt.full_name}</option>
         ))}
       </select>
@@ -35,7 +35,7 @@ jest.mock('./LessonForm.ProfileSelect', () => ({
 }));
 
 jest.mock('./LessonForm.SongSelect', () => ({
-  SongSelect: ({ selectedSongIds, onChange, error }: any) => (
+  SongSelect: ({ selectedSongIds, onChange, error }: { selectedSongIds: string[]; onChange: (ids: string[]) => void; error?: string }) => (
     <div data-testid="song-select">
       <input
         data-testid="input-songs"
@@ -48,7 +48,7 @@ jest.mock('./LessonForm.SongSelect', () => ({
 }));
 
 jest.mock('./LessonForm.Fields', () => ({
-  LessonFormFields: ({ formData, handleChange, validationErrors }: any) => (
+  LessonFormFields: ({ formData, handleChange }: { formData: { title: string }; handleChange: React.ChangeEventHandler<HTMLInputElement>; validationErrors?: Record<string, string> }) => (
     <div data-testid="lesson-form-fields">
       <input
         data-testid="input-title"
@@ -61,7 +61,7 @@ jest.mock('./LessonForm.Fields', () => ({
 }));
 
 jest.mock('./LessonForm.Actions', () => ({
-  LessonFormActions: ({ isSubmitting, onCancel }: any) => (
+  LessonFormActions: ({ isSubmitting, onCancel }: { isSubmitting: boolean; onCancel: () => void }) => (
     <div data-testid="lesson-form-actions">
       <button type="submit" disabled={isSubmitting}>Submit</button>
       <button type="button" onClick={onCancel}>Cancel</button>

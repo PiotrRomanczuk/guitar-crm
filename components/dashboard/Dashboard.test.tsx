@@ -3,7 +3,7 @@ import { DashboardPageContent } from './Dashboard';
 
 // Mock child components
 jest.mock('./DashboardHeader', () => ({
-  DashboardHeader: ({ email, roleText }: any) => (
+  DashboardHeader: ({ email, roleText }: { email: string; roleText: string }) => (
     <div data-testid="dashboard-header">
       <span>{email}</span>
       <span>{roleText}</span>
@@ -20,7 +20,7 @@ jest.mock('./calendar/CalendarEventsList', () => ({
 }));
 
 jest.mock('./QuickActionsSection', () => ({
-  QuickActionsSection: ({ isAdmin, isTeacher }: any) => (
+  QuickActionsSection: ({ isAdmin, isTeacher }: { isAdmin: boolean; isTeacher: boolean }) => (
     <div data-testid="quick-actions">
       {isAdmin && 'Admin Actions'}
       {isTeacher && 'Teacher Actions'}
