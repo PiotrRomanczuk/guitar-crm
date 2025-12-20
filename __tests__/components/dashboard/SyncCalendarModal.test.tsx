@@ -6,7 +6,7 @@ jest.mock('@/app/dashboard/actions', () => ({
   syncLessonsFromCalendar: jest.fn(),
 }));
 
-jest.mock('@/components/home/QuickActionButton', () => ({
+jest.mock('@/components/dashboard/QuickActionButton', () => ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   QuickActionButton: ({ title, description }: { title: string; description: string }) => (
     <button>{title}</button>

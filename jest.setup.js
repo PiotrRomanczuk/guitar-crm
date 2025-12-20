@@ -1,3 +1,4 @@
+console.log('Jest setup starting...');
 import '@testing-library/jest-dom';
 
 // Polyfill for encoding APIs
@@ -242,3 +243,5 @@ global.testUtils = {
 // These functions are injected into the code during test execution but not defined in the global scope
 global.oo_tx = (id, ...args) => args;
 global.oo_oo = (id, ...args) => args;
+
+console.log('Jest setup finished.');
