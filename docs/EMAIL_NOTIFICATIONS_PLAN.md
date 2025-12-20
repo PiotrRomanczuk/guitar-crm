@@ -5,10 +5,12 @@ This document outlines the strategy for implementing email notifications in Guit
 
 ## Implementation Priority
 
-### 1. Admin Song Database Report (Immediate Priority)
+### 1. Admin Song Database Report (Implemented)
 A data quality report for the admin to track the completeness of the song database.
 
-*   **Trigger**: On-demand (Admin Dashboard button) or Scheduled (Weekly Cron).
+*   **Trigger**: 
+    *   **Manual**: "Send Song Report" button in Admin Dashboard > Song Health.
+    *   **Automated**: Daily at 8:00 PM UTC via Vercel Cron.
 *   **Audience**: Admin / Teacher.
 *   **Purpose**: Identify songs that need metadata updates (chords, links, videos).
 *   **Content**:
@@ -51,3 +53,28 @@ A data quality report for the admin to track the completeness of the song databa
     *   Welcome message from the teacher.
     *   Login credentials / Magic Link.
     *   Guide to the Student Dashboard.
+
+## Configuration
+
+### Environment Variables
+The following environment variables are required for email notifications and cron jobs:
+
+```bash
+# Email Provider (Gmail SMTP)
+GMAIL_USER=your-email@gmail.com
+GMAIL_APP_PASSWORD=your-app-password
+
+# Cron Job Security
+CRON_SECRET=your-secure-random-string
+```
+
+### Vercel Cron
+The daily report is configured in `vercel.json` to run at 20:00 UTC.
+```json
+"crons": [
+  {
+    "path": "/api/cron/daily-report",
+    "schedule": "0 20 * * *"
+  }
+]
+```

@@ -1,7 +1,7 @@
 'use client';
 
 import { SongDatabaseStats } from '@/lib/services/song-analytics';
-import { CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface SongStatsTableProps {
