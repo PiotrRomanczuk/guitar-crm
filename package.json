@@ -80,6 +80,10 @@
     "vaul": "^1.1.2",
     "zod": "^3.25.76"
   },
+  "overrides": {
+    "require-in-the-middle": "8.0.1",
+    "import-in-the-middle": "2.0.0"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@testing-library/cypress": "^10.1.0",
