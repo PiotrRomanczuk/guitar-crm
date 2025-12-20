@@ -8,7 +8,7 @@ jest.mock('@/hooks/useDashboardStats', () => ({
 }));
 
 jest.mock('./StatsCard', () => ({
-  StatsCard: ({ title, value, description }: any) => (
+  StatsCard: ({ title, value, description }: { title: string; value: string | number; description: string }) => (
     <div data-testid="stats-card">
       <h3>{title}</h3>
       <p>{value}</p>
@@ -19,10 +19,10 @@ jest.mock('./StatsCard', () => ({
 
 // Mock UI components
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div className={className} data-testid="card">{children}</div>,
-  CardHeader: ({ children }: any) => <div>{children}</div>,
-  CardTitle: ({ children }: any) => <h1>{children}</h1>,
-  CardDescription: ({ children }: any) => <p>{children}</p>,
+  Card: ({ children, className }: { children: React.ReactNode; className?: string }) => <div className={className} data-testid="card">{children}</div>,
+  CardHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CardTitle: ({ children }: { children: React.ReactNode }) => <h1>{children}</h1>,
+  CardDescription: ({ children }: { children: React.ReactNode }) => <p>{children}</p>,
 }));
 
 jest.mock('@/components/ui/skeleton', () => ({
