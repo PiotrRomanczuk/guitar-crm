@@ -22,7 +22,7 @@ export default function SendEmailButton({ lessonId }: SendEmailButtonProps) {
       }
     } catch (error) {
       console.error('Error sending email:', error);
-      toast.error('An unexpected error occurred');
+      toast.error(error instanceof Error ? error.message : 'An unexpected error occurred');
     } finally {
       setIsSending(false);
     }

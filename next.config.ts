@@ -100,4 +100,5 @@ export default withSentryConfig(nextConfig, {
       removeDebugLogging: true,
     },
   },
+  serverExternalPackages: ['nodemailer'],
 });
