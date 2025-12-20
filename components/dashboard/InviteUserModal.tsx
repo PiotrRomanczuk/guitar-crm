@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { inviteUser } from '@/app/dashboard/actions';
-import { QuickActionButton } from '../home/QuickActionButton';
+import { QuickActionButton } from './QuickActionButton';
 
 interface InviteUserModalProps {
   trigger?: React.ReactNode;

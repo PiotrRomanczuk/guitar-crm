@@ -39,11 +39,11 @@ if (typeof global.oo_tx === 'undefined') {
 }
 
 // Mock console to avoid issues with instrumentation
-global.console.log = (...args) => {};
-global.console.error = (...args) => {};
-global.console.warn = (...args) => {};
-global.console.info = (...args) => {};
-global.console.debug = (...args) => {};
+// global.console.log = (...args) => {};
+// global.console.error = (...args) => {};
+// global.console.warn = (...args) => {};
+// global.console.info = (...args) => {};
+// global.console.debug = (...args) => {};
 
 // Provide a minimal default fetch for relative API routes used by component tests.
 // Delegates to existing fetch if present; otherwise returns a harmless default for '/api/*'.
