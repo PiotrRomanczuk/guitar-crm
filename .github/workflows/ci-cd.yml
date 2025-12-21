@@ -310,7 +310,9 @@ jobs:
           echo "✅ Security check complete"
 
   # Job 7: Lighthouse CI
-  lighthouse:    if: false    name: Lighthouse CI
+  lighthouse:
+    if: false
+    name: Lighthouse CI
     runs-on: ubuntu-latest
     needs: [build]
 
