@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
 import { LessonStatusEnum } from "@/schemas";
 
@@ -15,36 +16,55 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Check if user is admin
+    // Use adminClient to check role to bypass potential RLS on user_roles
+    const adminClient = createAdminClient();
+    const { data: adminRole } = await adminClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .maybeSingle();
+
+    const isAdmin = !!adminRole;
+
     const userId = searchParams.get("userId");
     const dateFrom = searchParams.get("dateFrom");
     const dateTo = searchParams.get("dateTo");
 
-    // Build base query
-    let baseQuery = supabase.from("lessons").select("*");
-
-    if (userId) {
-      baseQuery = baseQuery.or(`student_id.eq.${userId},teacher_id.eq.${userId}`);
+    // Determine which client to use
+    let clientToUse = supabase;
+    if (isAdmin) {
+        clientToUse = adminClient;
     }
 
-    if (dateFrom) {
-      baseQuery = baseQuery.gte("date", dateFrom);
-    }
-
-    if (dateTo) {
-      baseQuery = baseQuery.lte("date", dateTo);
-    }
+    // Helper to build query
+    const buildQuery = () => {
+        let q = clientToUse.from("lessons").select("*", { count: 'exact', head: true });
+        if (userId) {
+            q = q.or(`student_id.eq.${userId},teacher_id.eq.${userId}`);
+        }
+        if (dateFrom) {
+            q = q.gte("scheduled_at", dateFrom);
+        }
+        if (dateTo) {
+            q = q.lte("scheduled_at", dateTo);
+        }
+        return q;
+    };
 
     // Get total lessons count
-    const { count: totalLessons, error: totalError } = await baseQuery;
+    const { count: totalLessons, error: totalError } = await buildQuery();
+    
     if (totalError) {
-      console.error("Error getting total lessons:", totalError);
+      console.error("[LessonStats] Error getting total lessons:", totalError);
       return NextResponse.json({ error: totalError.message }, { status: 500 });
     }
 
     // Get lessons by status
     const statusStats: { [key: string]: number } = {};
     for (const status of LessonStatusEnum.options) {
-      const { count, error } = await baseQuery.eq("status", status);
+      const { count, error } = await buildQuery().eq("status", status);
       if (!error) {
         statusStats[status] = count || 0;
       }
@@ -58,9 +78,9 @@ export async function GET(request: NextRequest) {
       const monthStart = monthDate.toISOString();
       const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).toISOString();
       
-      const { count, error } = await baseQuery
-        .gte("date", monthStart)
-        .lte("date", monthEnd);
+      const { count, error } = await buildQuery()
+        .gte("scheduled_at", monthStart)
+        .lte("scheduled_at", monthEnd);
       
       if (!error) {
         monthlyStats.push({
@@ -71,9 +91,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Get lessons with songs count
-    const { data: lessonsWithSongs, error: songsError } = await supabase
+    const { data: lessonsWithSongs, error: songsError } = await clientToUse
       .from("lesson_songs")
-      .select("lesson_id", { count: "exact" });
+      .select("lesson_id");
 
     const uniqueLessonsWithSongs = songsError ? 0 : 
       new Set(lessonsWithSongs?.map((ls: { lesson_id: string }) => ls.lesson_id) || []).size;
@@ -81,10 +101,9 @@ export async function GET(request: NextRequest) {
     // Get average lessons per student (if userId not specified)
     let avgLessonsPerStudent = 0;
     if (!userId) {
-      // Use a separate query for unique students
-      const { data: studentStats, error: studentError } = await supabase
+      const { data: studentStats, error: studentError } = await clientToUse
         .from("lessons")
-        .select("student_id", { count: "exact" });
+        .select("student_id");
 
       let studentCount = 0;
       if (!studentError && studentStats) {
@@ -94,15 +113,15 @@ export async function GET(request: NextRequest) {
     }
 
     // Get upcoming lessons (scheduled for future)
-    const { count: upcomingLessons } = await baseQuery
+    const { count: upcomingLessons } = await buildQuery()
       .eq("status", "SCHEDULED")
-      .gte("date", new Date().toISOString());
+      .gte("scheduled_at", new Date().toISOString());
 
     // Get completed lessons this month
     const currentMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString();
-    const { count: completedThisMonth } = await baseQuery
+    const { count: completedThisMonth } = await buildQuery()
       .eq("status", "COMPLETED")
-      .gte("date", currentMonthStart);
+      .gte("scheduled_at", currentMonthStart);
 
     const stats = {
       total: totalLessons || 0,
@@ -120,10 +139,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(stats);
   } catch (error) {
-    console.error("Error in lesson stats API:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("[LessonStats] Internal error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 } 

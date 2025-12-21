@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function GET() {
   try {
@@ -15,24 +16,35 @@ export async function GET() {
     }
 
     // Check if user is admin
-    const { data: adminRole } = await supabase
+    // Use adminClient to check role to bypass potential RLS on user_roles
+    const adminClient = createAdminClient();
+    const { data: adminRole, error: roleError } = await adminClient
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .eq('role', 'admin')
       .maybeSingle();
 
+    if (roleError) {
+      console.error('[SongStats] Error checking role:', roleError);
+    }
+
     if (!adminRole) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Get total songs count
-    const { count: totalSongs } = await supabase
+    const { count: totalSongs, error: countError } = await adminClient
       .from('songs')
       .select('*', { count: 'exact', head: true });
 
+    if (countError) {
+      console.error('[SongStats] Error counting songs:', countError);
+    }
+
+
     // Get songs by level
-    const { data: songsByLevel } = await supabase
+    const { data: songsByLevel } = await adminClient
       .from('songs')
       .select('level')
       .not('level', 'is', null);
@@ -46,7 +58,7 @@ export async function GET() {
       }, {} as Record<string, number>) || {};
 
     // Get songs by key
-    const { data: songsByKey } = await supabase.from('songs').select('key').not('key', 'is', null);
+    const { data: songsByKey } = await adminClient.from('songs').select('key').not('key', 'is', null);
 
     const keyStats =
       songsByKey?.reduce((acc: Record<string, number>, song: { key: string | null }) => {
@@ -57,19 +69,19 @@ export async function GET() {
       }, {} as Record<string, number>) || {};
 
     // Get songs with audio files
-    const { count: songsWithAudio } = await supabase
+    const { count: songsWithAudio } = await adminClient
       .from('songs')
       .select('*', { count: 'exact', head: true })
       .not('audio_files', 'is', null);
 
     // Get songs with chords
-    const { count: songsWithChords } = await supabase
+    const { count: songsWithChords } = await adminClient
       .from('songs')
       .select('*', { count: 'exact', head: true })
       .not('chords', 'is', null);
 
     // Get top authors
-    const { data: topAuthors } = await supabase
+    const { data: topAuthors } = await adminClient
       .from('songs')
       .select('author')
       .not('author', 'is', null);
@@ -95,22 +107,22 @@ export async function GET() {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const { count: recentSongs } = await supabase
+    const { count: recentSongs } = await adminClient
       .from('songs')
       .select('*', { count: 'exact', head: true })
       .gte('created_at', thirtyDaysAgo.toISOString());
 
     return NextResponse.json({
-      total_songs: totalSongs || 0,
-      songs_by_level: levelStats,
-      songs_by_key: keyStats,
-      songs_with_audio: songsWithAudio || 0,
-      songs_with_chords: songsWithChords || 0,
-      top_authors: topAuthorsList,
-      average_songs_per_author: Math.round(averageSongsPerAuthor * 100) / 100,
-      recent_songs: recentSongs || 0,
-      songs_without_audio: (totalSongs || 0) - (songsWithAudio || 0),
-      songs_without_chords: (totalSongs || 0) - (songsWithChords || 0),
+      totalSongs: totalSongs || 0,
+      levelStats,
+      keyStats,
+      songsWithAudio: songsWithAudio || 0,
+      songsWithChords: songsWithChords || 0,
+      topAuthorsList,
+      averageSongsPerAuthor: Math.round(averageSongsPerAuthor * 100) / 100,
+      recentSongs: recentSongs || 0,
+      songsWithoutAudio: (totalSongs || 0) - (songsWithAudio || 0),
+      songsWithoutChords: (totalSongs || 0) - (songsWithChords || 0),
     });
   } catch (error) {
     console.error('Error in song stats API:', error);

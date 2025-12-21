@@ -11,7 +11,7 @@ import {
   Guitar,
   Menu,
   LucideIcon,
-  Activity,
+  BarChart,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -58,10 +58,16 @@ export function Sidebar({ user, isAdmin, isTeacher, isStudent }: SidebarProps) {
         },
         { id: 'users', label: 'Users', icon: Users, path: '/dashboard/users' },
         {
-          id: 'song-health',
-          label: 'Song Health',
-          icon: Activity,
-          path: '/dashboard/admin/song-health',
+          id: 'song-stats',
+          label: 'Song Stats',
+          icon: BarChart,
+          path: '/dashboard/admin/stats/songs',
+        },
+        {
+          id: 'lesson-stats',
+          label: 'Lesson Stats',
+          icon: BarChart,
+          path: '/dashboard/admin/stats/lessons',
         }
       );
     } else if (isStudent) {

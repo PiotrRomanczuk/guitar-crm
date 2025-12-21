@@ -8,6 +8,7 @@ import { ProgressChart } from '@/components/dashboard/student/ProgressChart'; //
 import { SongLibrary } from '@/components/dashboard/teacher/SongLibrary';
 import { AssignmentList } from '@/components/dashboard/teacher/AssignmentList';
 import { LessonStatsOverview } from '@/components/dashboard/LessonStatsOverview';
+import { AnalyticsCharts } from '@/components/dashboard/analytics-charts';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
 import { Users, BookOpen, Music, Shield } from 'lucide-react';
 
@@ -116,6 +117,10 @@ export function TeacherDashboardClient({ data, adminStats }: TeacherDashboardCli
                 icon={BookOpen}
                 delay={550}
               />
+            </div>
+
+            <div className="pt-4">
+              <AnalyticsCharts />
             </div>
           </div>
         )}
