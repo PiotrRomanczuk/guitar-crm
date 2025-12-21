@@ -19,6 +19,9 @@ export default async function SongList({ searchParams }: SongListProps) {
     typeof searchParams?.studentId === 'string' ? searchParams.studentId : undefined;
   const search = typeof searchParams?.search === 'string' ? searchParams.search : undefined;
   const level = typeof searchParams?.level === 'string' ? searchParams.level : undefined;
+  const key = typeof searchParams?.key === 'string' ? searchParams.key : undefined;
+  const category = typeof searchParams?.category === 'string' ? searchParams.category : undefined;
+  const author = typeof searchParams?.author === 'string' ? searchParams.author : undefined;
 
   let songQuery;
 
@@ -32,11 +35,23 @@ export default async function SongList({ searchParams }: SongListProps) {
   }
 
   if (search) {
-    songQuery = songQuery.or(`title.ilike.%${search}%,artist.ilike.%${search}%`);
+    songQuery = songQuery.or(`title.ilike.%${search}%,author.ilike.%${search}%`);
   }
 
   if (level && level !== 'all') {
     songQuery = songQuery.eq('level', level);
+  }
+
+  if (key && key !== 'all') {
+    songQuery = songQuery.eq('key', key);
+  }
+
+  if (category && category !== 'all') {
+    songQuery = songQuery.eq('category', category);
+  }
+
+  if (author && author !== 'all') {
+    songQuery = songQuery.eq('author', author);
   }
 
   songQuery = songQuery.order('created_at', { ascending: false });
@@ -47,6 +62,28 @@ export default async function SongList({ searchParams }: SongListProps) {
     console.error('Error fetching songs:', error);
     return <div data-testid="song-list-error">Error loading songs: {error.message}</div>;
   }
+
+  // Fetch distinct categories for filter
+  const { data: categoriesData } = await supabase
+    .from('songs')
+    .select('category')
+    .not('category', 'is', null)
+    .order('category');
+
+  const categories = Array.from(
+    new Set(categoriesData?.map((c) => c.category).filter(Boolean))
+  ) as string[];
+
+  // Fetch distinct authors for filter
+  const { data: authorsData } = await supabase
+    .from('songs')
+    .select('author')
+    .not('author', 'is', null)
+    .order('author');
+
+  const authors = Array.from(
+    new Set(authorsData?.map((a) => a.author).filter(Boolean))
+  ) as string[];
 
   // Transform songs to include status if filtering by student
   const songs =
@@ -93,6 +130,8 @@ export default async function SongList({ searchParams }: SongListProps) {
       isAdmin={isAdmin || isTeacher}
       students={students}
       selectedStudentId={studentId}
+      categories={categories}
+      authors={authors}
     />
   );
 }

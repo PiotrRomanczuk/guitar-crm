@@ -39,6 +39,7 @@ export type SongFormData = {
   short_title: string;
   youtube_url: string;
   gallery_images: string[];
+  cover_image_url: string;
   spotify_link_url: string;
   capo_fret: number | null;
   strumming_pattern: string;
@@ -59,6 +60,7 @@ const FORM_DEFAULTS: SongFormData = {
   short_title: '',
   youtube_url: '',
   gallery_images: [],
+  cover_image_url: '',
   spotify_link_url: '',
   capo_fret: null,
   strumming_pattern: '',
@@ -84,6 +86,7 @@ export function createFormData(song?: Song | null): SongFormData {
     short_title: song?.short_title || '',
     youtube_url: song?.youtube_url || '',
     gallery_images: song?.gallery_images || [],
+    cover_image_url: song?.cover_image_url || '',
     spotify_link_url: song?.spotify_link_url || '',
     capo_fret: song?.capo_fret ?? null,
     strumming_pattern: song?.strumming_pattern || '',

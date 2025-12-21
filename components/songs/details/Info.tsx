@@ -35,7 +35,7 @@ export default function SongDetailInfo({ song }: Props) {
   return (
     <div className="space-y-6">
       {song.cover_image_url && (
-        <div className="relative w-full h-64 md:h-80 rounded-xl overflow-hidden shadow-lg mb-6">
+        <div className="relative w-full max-w-md aspect-square mx-auto rounded-xl overflow-hidden shadow-lg mb-6">
           <Image
             src={song.cover_image_url}
             alt={`${song.title} cover`}
@@ -43,12 +43,6 @@ export default function SongDetailInfo({ song }: Props) {
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
-            <div className="text-white">
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">{song.title}</h1>
-              <p className="text-lg md:text-xl opacity-90">{song.author}</p>
-            </div>
-          </div>
         </div>
       )}
 

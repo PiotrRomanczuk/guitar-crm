@@ -9,7 +9,7 @@ import { SpotifyTrack } from '@/types/spotify';
 interface Props {
   mode: 'create' | 'edit';
   song?: Song;
-  onSuccess?: () => void;
+  onSuccess?: (songId?: string) => void;
 }
 
 async function saveSong(mode: 'create' | 'edit', data: unknown, songId?: string) {
@@ -56,13 +56,23 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
 
   const handleSpotifySelect = async (track: SpotifyTrack) => {
     // Update basic info immediately
-    setFormData((prev) => ({
-      ...prev,
-      title: track.name,
-      author: track.artist,
-      spotify_link_url: `https://open.spotify.com/track/${track.id}`,
-      release_year: track.release_date ? parseInt(track.release_date.split('-')[0]) : null,
-    }));
+    setFormData((prev) => {
+      // Add image if available and not already present
+      const newImages =
+        track.image && !prev.gallery_images.includes(track.image)
+          ? [...prev.gallery_images, track.image]
+          : prev.gallery_images;
+
+      return {
+        ...prev,
+        title: track.name,
+        author: track.artist,
+        spotify_link_url: `https://open.spotify.com/track/${track.id}`,
+        release_year: track.release_date ? parseInt(track.release_date.split('-')[0]) : null,
+        gallery_images: newImages,
+        cover_image_url: track.image || prev.cover_image_url,
+      };
+    });
 
     // Fetch audio features for key
     try {
@@ -101,7 +111,7 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
       const validatedData = SongInputSchema.parse(formData);
       console.log('🎸 [FRONTEND] Validation passed:', validatedData);
 
-      const { error } = await saveSong(mode, validatedData, song?.id);
+      const { error, data } = await saveSong(mode, validatedData, song?.id);
       if (error) {
         console.error('🎸 [FRONTEND] Save failed:', error.message);
         setSubmitError('Failed to save song');
@@ -109,7 +119,10 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
       }
 
       console.log('🎸 [FRONTEND] Save successful!');
-      onSuccess?.();
+      // data.song should be available from the API response
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const savedSongId = (data as any)?.song?.id || song?.id;
+      onSuccess?.(savedSongId);
     } catch (err) {
       console.error(
         '🎸 [FRONTEND] Submit error:',

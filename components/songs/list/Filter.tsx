@@ -13,12 +13,15 @@ import {
 } from '@/components/ui/select';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useState, useEffect } from 'react';
+import { MUSIC_KEY_OPTIONS } from '../form/options';
 
 interface Props {
   students?: { id: string; full_name: string | null }[];
+  categories?: string[];
+  authors?: string[];
 }
 
-export default function SongListFilter({ students }: Props) {
+export default function SongListFilter({ students, categories, authors }: Props) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -56,29 +59,34 @@ export default function SongListFilter({ students }: Props) {
   }, [searchTerm, handleFilterChange, searchParams]);
 
   const hasFilters =
-    !!searchParams.get('level') || !!searchParams.get('search') || !!searchParams.get('studentId');
+    !!searchParams.get('level') ||
+    !!searchParams.get('search') ||
+    !!searchParams.get('studentId') ||
+    !!searchParams.get('key') ||
+    !!searchParams.get('category') ||
+    !!searchParams.get('author');
 
   return (
     <div
-      className="bg-card rounded-xl border border-border p-6 space-y-4 opacity-0 animate-fade-in"
+      className="bg-card rounded-xl border border-border p-6 space-y-6 opacity-0 animate-fade-in"
       style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        {/* Search Filter */}
-        <div className="space-y-2">
-          <Label htmlFor="search-filter">Search</Label>
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="search-filter"
-              placeholder="Search by title or artist..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8"
-            />
-          </div>
+      {/* Search Filter - Full Width */}
+      <div className="space-y-2">
+        <Label htmlFor="search-filter">Search</Label>
+        <div className="relative">
+          <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+          <Input
+            id="search-filter"
+            placeholder="Search by title or artist..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 py-6 text-lg"
+          />
         </div>
+      </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {/* Level Filter */}
         <div className="space-y-2">
           <Label htmlFor="level-filter">Filter by level</Label>
@@ -97,6 +105,73 @@ export default function SongListFilter({ students }: Props) {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Key Filter */}
+        <div className="space-y-2">
+          <Label htmlFor="key-filter">Filter by Key</Label>
+          <Select
+            value={searchParams.get('key') || 'all'}
+            onValueChange={(val) => handleFilterChange('key', val === 'all' ? null : val)}
+          >
+            <SelectTrigger id="key-filter">
+              <SelectValue placeholder="Select key" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Keys</SelectItem>
+              {MUSIC_KEY_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Category Filter */}
+        {categories && categories.length > 0 && (
+          <div className="space-y-2">
+            <Label htmlFor="category-filter">Filter by Category</Label>
+            <Select
+              value={searchParams.get('category') || 'all'}
+              onValueChange={(val) => handleFilterChange('category', val === 'all' ? null : val)}
+            >
+              <SelectTrigger id="category-filter">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {/* Author Filter */}
+        {authors && authors.length > 0 && (
+          <div className="space-y-2">
+            <Label htmlFor="author-filter">Filter by Author</Label>
+            <Select
+              value={searchParams.get('author') || 'all'}
+              onValueChange={(val) => handleFilterChange('author', val === 'all' ? null : val)}
+            >
+              <SelectTrigger id="author-filter">
+                <SelectValue placeholder="Select author" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Authors</SelectItem>
+                {authors.map((author) => (
+                  <SelectItem key={author} value={author}>
+                    {author}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {/* Student Filter */}
         {students && students.length > 0 && (

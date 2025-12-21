@@ -12,9 +12,18 @@ interface Props {
   isAdmin: boolean;
   students?: { id: string; full_name: string | null }[];
   selectedStudentId?: string;
+  categories?: string[];
+  authors?: string[];
 }
 
-export function SongListClient({ initialSongs, isAdmin, students, selectedStudentId }: Props) {
+export function SongListClient({
+  initialSongs,
+  isAdmin,
+  students,
+  selectedStudentId,
+  categories,
+  authors,
+}: Props) {
   const router = useRouter();
 
   const handleDeleteSuccess = () => {
@@ -25,7 +34,7 @@ export function SongListClient({ initialSongs, isAdmin, students, selectedStuden
     <div className="space-y-6">
       <SongListHeader canManageSongs={isAdmin} />
 
-      <SongListFilter students={students} />
+      <SongListFilter students={students} categories={categories} authors={authors} />
 
       {initialSongs.length === 0 ? (
         <SongListEmpty />

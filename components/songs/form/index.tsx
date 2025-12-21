@@ -8,15 +8,18 @@ import { useRouter } from 'next/navigation';
 interface Props {
   mode: 'create' | 'edit';
   song?: Song;
-  onSuccess?: () => void;
+  onSuccess?: (songId?: string) => void;
 }
 
 export default function SongForm({ mode, song, onSuccess }: Props) {
   const router = useRouter();
 
-  const handleSuccess = () => {
+  const handleSuccess = (songId?: string) => {
     if (onSuccess) {
-      onSuccess();
+      onSuccess(songId);
+    } else if (songId) {
+      router.push(`/dashboard/songs/${songId}`);
+      router.refresh();
     } else {
       router.push('/dashboard/songs');
       router.refresh();
