@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { Database } from '@/database.types';
 
 type Song = Database['public']['Tables']['songs']['Row'];
@@ -26,7 +26,7 @@ export interface SongDatabaseStats {
 }
 
 export async function getSongDatabaseStatistics(): Promise<SongDatabaseStats> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   // Fetch all songs that are not deleted
   const { data: songs, error } = await supabase

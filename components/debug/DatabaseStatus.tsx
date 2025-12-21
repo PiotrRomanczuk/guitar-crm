@@ -25,6 +25,8 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
   const checkConnection = async () => {
     setLoading(true);
     try {
+      console.log('[DatabaseStatus] Starting connection check...');
+
       // Check cookie preference
       const match = document.cookie.match(new RegExp('(^| )sb-provider-preference=([^;]+)'));
       const currentPref = match && match[2] === 'remote' ? 'remote' : 'local';
@@ -39,21 +41,35 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
       setIsLocal(actuallyLocal);
 
       // Test actual connection
-      const supabase = createClient();
+      let supabase;
+      try {
+        supabase = createClient();
+      } catch (err) {
+        console.error('[DatabaseStatus] Failed to create Supabase client:', err);
+        setConnectionStatus('error');
+        return;
+      }
       
       // Get the URL from the client to display it
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const clientUrl = (supabase as any).supabaseUrl;
       console.log('[DatabaseStatus] Testing connection to:', clientUrl);
 
-      const { error } = await supabase.from('profiles').select('count').limit(1).maybeSingle();
+      // Create a timeout promise (5 seconds)
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Connection check timed out')), 5000)
+      );
+
+      // Race the connection check against the timeout
+      const checkPromise = supabase.from('profiles').select('count').limit(1).maybeSingle();
+      
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await Promise.race([checkPromise, timeoutPromise]) as any;
+      const { error } = result;
       
       if (error) {
-        console.error('Database connection check failed:', error);
-        // If it's an auth error (401), it might just be RLS, which means we ARE connected.
-        // But "Invalid API key" is also 401/403.
-        // Invalid API key usually comes with a specific message.
-        if (error.message.includes('Invalid API key')) {
+        console.error('[DatabaseStatus] Connection check failed:', error);
+        if (error.message?.includes('Invalid API key')) {
              setConnectionStatus('error');
              toast.error(`Invalid API Key for ${clientUrl}. Check your .env file.`);
         } else if (error.code === 'PGRST301' || error.code === '42501') {
@@ -63,11 +79,12 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
             setConnectionStatus('error');
         }
       } else {
+        console.log('[DatabaseStatus] Connection successful');
         setConnectionStatus('connected');
       }
 
     } catch (error) {
-      console.error('Failed to check database status', error);
+      console.error('[DatabaseStatus] Failed to check database status', error);
       setConnectionStatus('error');
     } finally {
       setLoading(false);

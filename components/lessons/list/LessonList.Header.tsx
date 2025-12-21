@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Plus, Download } from 'lucide-react';
+import { ExportButton } from '@/components/shared/export-button';
 
 interface LessonListHeaderProps {
   role?: 'admin' | 'teacher' | 'student';
@@ -19,6 +20,7 @@ export default function LessonListHeader({ role = 'admin' }: LessonListHeaderPro
       </div>
       {canEdit && (
         <div className="flex gap-2">
+          <ExportButton endpoint="/api/lessons/export" />
           <Link href="/dashboard/lessons/import">
             <Button variant="outline" className="gap-2">
               <Download className="w-4 h-4" />

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { SyncSpotifyButton } from './SyncSpotifyButton';
+import { ExportButton } from '@/components/shared/export-button';
 
 interface Props {
   canManageSongs: boolean;
@@ -16,6 +17,7 @@ export default function SongListHeader({ canManageSongs }: Props) {
       </div>
       {canManageSongs && (
         <div className="flex items-center gap-2">
+          <ExportButton endpoint="/api/song/export" />
           <SyncSpotifyButton />
           <Link href="/dashboard/songs/new">
             <Button className="gap-2" data-testid="song-new-button">
