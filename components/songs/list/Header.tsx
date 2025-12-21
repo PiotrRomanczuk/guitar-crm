@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { SyncSpotifyButton } from './SyncSpotifyButton';
 
 interface Props {
   canManageSongs: boolean;
@@ -14,12 +15,15 @@ export default function SongListHeader({ canManageSongs }: Props) {
         <p className="text-muted-foreground">Manage your collection of songs and exercises</p>
       </div>
       {canManageSongs && (
-        <Link href="/dashboard/songs/new">
-          <Button className="gap-2" data-testid="song-new-button">
-            <Plus className="w-4 h-4" />
-            Add Song
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <SyncSpotifyButton />
+          <Link href="/dashboard/songs/new">
+            <Button className="gap-2" data-testid="song-new-button">
+              <Plus className="w-4 h-4" />
+              Add Song
+            </Button>
+          </Link>
+        </div>
       )}
     </div>
   );

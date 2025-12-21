@@ -35,11 +35,12 @@ describe('Spotify Search API', () => {
             name: 'Wonderwall',
             artists: [{ name: 'Oasis' }],
             album: {
-              name: '(What\'s The Story) Morning Glory?',
+              name: "(What's The Story) Morning Glory?",
               release_date: '1995-10-02',
               images: [{ url: 'image-url' }],
             },
             external_urls: { spotify: 'spotify-url' },
+            duration_ms: 258000,
           },
         ],
       },
@@ -57,16 +58,16 @@ describe('Spotify Search API', () => {
 
     const req = new NextRequest('http://localhost:3000/api/spotify/search?q=Wonderwall');
     const response = await GET(req);
-    
+
     expect(response.status).toBe(200);
     const data = await response.json();
-    
+
     expect(data.tracks).toHaveLength(1);
     expect(data.tracks[0]).toEqual({
       id: 'track1',
       name: 'Wonderwall',
       artist: 'Oasis',
-      album: '(What\'s The Story) Morning Glory?',
+      album: "(What's The Story) Morning Glory?",
       image: 'image-url',
       release_date: '1995-10-02',
     });
@@ -77,7 +78,7 @@ describe('Spotify Search API', () => {
 
     const req = new NextRequest('http://localhost:3000/api/spotify/search?q=Wonderwall');
     const response = await GET(req);
-    
+
     expect(response.status).toBe(500);
     const data = await response.json();
     expect(data.error).toBe('Internal Server Error');
