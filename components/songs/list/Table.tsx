@@ -143,10 +143,7 @@ export default function SongListTable({
           </div>
         ) : (
           songs.map((song) => (
-            <div
-              key={song.id}
-              className="bg-card rounded-xl border border-border p-4 space-y-3"
-            >
+            <div key={song.id} className="bg-card rounded-xl border border-border p-4 space-y-3">
               <div className="flex items-start gap-3">
                 <div className="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-muted flex items-center justify-center border border-border">
                   {song.cover_image_url ? (

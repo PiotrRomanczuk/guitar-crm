@@ -2,7 +2,11 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { getGoogleEvents, createShadowUser, syncAllLessonsFromCalendar } from '@/app/dashboard/actions';
+import {
+  getGoogleEvents,
+  createShadowUser,
+  syncAllLessonsFromCalendar,
+} from '@/app/dashboard/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, MapPin, ArrowRight, UserPlus, RefreshCw } from 'lucide-react';
@@ -68,7 +72,12 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
   };
 
   const handleSyncAll = () => {
-    if (!confirm('Sync all lessons from calendar? This will create shadow users for any new students found.')) return;
+    if (
+      !confirm(
+        'Sync all lessons from calendar? This will create shadow users for any new students found.'
+      )
+    )
+      return;
 
     startTransition(async () => {
       try {
@@ -122,12 +131,14 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
             <Calendar className="w-5 h-5" />
             Upcoming Events
           </CardTitle>
-          <div className="text-xs text-muted-foreground hidden sm:block">Connected to Google Calendar</div>
+          <div className="text-xs text-muted-foreground hidden sm:block">
+            Connected to Google Calendar
+          </div>
         </div>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleSyncAll} 
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleSyncAll}
           disabled={isPending}
           title="Sync all lessons"
           className="w-full sm:w-auto"
