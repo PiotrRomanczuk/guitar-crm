@@ -43,6 +43,15 @@ describe('SongList Components', () => {
         youtube_url: null,
         gallery_images: null,
         updated_at: null,
+        spotify_link_url: null,
+        capo_fret: null,
+        strumming_pattern: null,
+        category: null,
+        tempo: null,
+        time_signature: null,
+        duration_ms: null,
+        release_year: null,
+        cover_image_url: null,
       },
     ];
 

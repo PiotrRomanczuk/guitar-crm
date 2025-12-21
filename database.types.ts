@@ -368,14 +368,6 @@ export type Database = {
           cover_image_url?: string | null;
           updated_at?: string;
         };
-          strumming_pattern?: string | null;
-          category?: string | null;
-          tempo?: number | null;
-          time_signature?: number | null;
-          duration_ms?: number | null;
-          release_year?: number | null;
-          updated_at?: string;
-        };
         Update: {
           author?: string;
           chords?: string | null;
