@@ -66,7 +66,6 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         value={formData.ultimate_guitar_link}
         error={errors.ultimate_guitar_link}
         onChange={(value) => onChange('ultimate_guitar_link', value)}
-        required
       />
 
       <SongFormFieldText

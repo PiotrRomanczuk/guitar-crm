@@ -330,7 +330,7 @@ export type Database = {
           level: Database['public']['Enums']['difficulty_level'];
           short_title: string | null;
           title: string;
-          ultimate_guitar_link: string;
+          ultimate_guitar_link: string | null;
           youtube_url: string | null;
           gallery_images: string[] | null;
           spotify_link_url: string | null;
@@ -354,7 +354,7 @@ export type Database = {
           level: Database['public']['Enums']['difficulty_level'];
           short_title?: string | null;
           title: string;
-          ultimate_guitar_link: string;
+          ultimate_guitar_link?: string | null;
           youtube_url?: string | null;
           gallery_images?: string[] | null;
           spotify_link_url?: string | null;
@@ -378,7 +378,7 @@ export type Database = {
           level?: Database['public']['Enums']['difficulty_level'];
           short_title?: string | null;
           title?: string;
-          ultimate_guitar_link?: string;
+          ultimate_guitar_link?: string | null;
           youtube_url?: string | null;
           gallery_images?: string[] | null;
           spotify_link_url?: string | null;
