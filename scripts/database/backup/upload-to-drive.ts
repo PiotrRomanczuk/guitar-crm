@@ -69,10 +69,11 @@ async function uploadFile() {
     console.log('   File ID:', response.data.id);
     console.log('   Link:', response.data.webViewLink);
 
-  } catch (error: any) {
-    console.error('❌ Upload failed:', error.message);
-    if (error.response) {
-      console.error('   Details:', error.response.data);
+  } catch (error) {
+    const err = error as { message: string; response?: { data: unknown } };
+    console.error('❌ Upload failed:', err.message);
+    if (err.response) {
+      console.error('   Details:', err.response.data);
     }
     process.exit(1);
   }
