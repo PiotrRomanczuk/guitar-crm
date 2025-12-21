@@ -38,11 +38,11 @@ export default async function SongStatsPage() {
           <TabsTrigger value="charts">Analytics Charts</TabsTrigger>
           <TabsTrigger value="health">Database Health</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="charts" className="space-y-4">
           <SongStatsCharts />
         </TabsContent>
-        
+
         <TabsContent value="health" className="space-y-4">
           <div className="flex flex-col gap-4">
             <div>

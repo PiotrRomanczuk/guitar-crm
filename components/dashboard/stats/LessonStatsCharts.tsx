@@ -38,14 +38,17 @@ export function LessonStatsCharts() {
     );
   }
 
-  const monthlyData = lessonStats?.monthly?.map(item => ({
-    name: new Date(item.month).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
-    lessons: item.count
-  })).reverse() || [];
+  const monthlyData =
+    lessonStats?.monthly
+      ?.map((item) => ({
+        name: new Date(item.month).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+        lessons: item.count,
+      }))
+      .reverse() || [];
 
   const statusData = Object.entries(lessonStats?.byStatus || {}).map(([status, count]) => ({
     status,
-    count
+    count,
   }));
 
   return (
@@ -60,9 +63,17 @@ export function LessonStatsCharts() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyData}>
                 <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))' }}
+                <YAxis
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `${value}`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--background))',
+                    borderColor: 'hsl(var(--border))',
+                  }}
                   itemStyle={{ color: 'hsl(var(--foreground))' }}
                   cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }}
                 />
