@@ -34,6 +34,7 @@
     "deploy:check": "./scripts/deploy-check.sh",
     "deploy:prod": "vercel deploy --prod",
     "lighthouse": "./scripts/lighthouse-audit.sh",
+    "lighthouse:prod": "./scripts/lighthouse-prod-audit.sh",
     "lighthouse:ci": "./scripts/lighthouse-ci.sh",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
