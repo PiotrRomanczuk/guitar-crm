@@ -11,11 +11,16 @@ if [ -z "$PGHOST" ] || [ -z "$PGPASSWORD" ]; then
   exit 1
 fi
 
+# Resolve IPv4 address to avoid IPv6 connection issues on GitHub Actions
+echo "Resolving IPv4 for $PGHOST..."
+PGHOST_IPV4=$(node -e "require('dns').lookup(process.env.PGHOST, { family: 4 }, (err, address) => { if (err) { console.error(err); process.exit(1); } console.log(address); })")
+echo "Resolved to: $PGHOST_IPV4"
+
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
 BACKUP_FILE="backup_${TIMESTAMP}.sql"
 
 echo "📦 Starting full database backup..."
-echo "Target: $PGHOST"
+echo "Target: $PGHOST ($PGHOST_IPV4)"
 echo "Schemas: public, auth, storage"
 
 # Dump public, auth, and storage schemas
@@ -24,7 +29,7 @@ echo "Schemas: public, auth, storage"
 # --no-owner: Do not output commands to set ownership of objects
 # --no-acl: Do not output commands to set privileges (grant/revoke)
 pg_dump \
-  -h "$PGHOST" \
+  -h "$PGHOST_IPV4" \
   -p "${PGPORT:-5432}" \
   -U "${PGUSER:-postgres}" \
   -d "${PGDATABASE:-postgres}" \
