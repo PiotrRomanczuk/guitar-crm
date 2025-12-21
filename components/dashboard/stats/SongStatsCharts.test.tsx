@@ -1,4 +1,3 @@
-
 import { render, screen } from '@testing-library/react';
 import { SongStatsCharts } from './SongStatsCharts';
 import { useQuery } from '@tanstack/react-query';
@@ -11,12 +10,16 @@ jest.mock('@tanstack/react-query', () => ({
 // Mock Recharts to avoid rendering issues in JSDOM
 jest.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  PieChart: ({ children }: { children: React.ReactNode }) => <div data-testid="pie-chart">{children}</div>,
+  PieChart: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="pie-chart">{children}</div>
+  ),
   Pie: () => <div data-testid="pie" />,
   Cell: () => <div />,
   Tooltip: () => <div />,
   Legend: () => <div />,
-  BarChart: ({ children }: { children: React.ReactNode }) => <div data-testid="bar-chart">{children}</div>,
+  BarChart: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="bar-chart">{children}</div>
+  ),
   Bar: () => <div />,
   XAxis: () => <div />,
   YAxis: () => <div />,

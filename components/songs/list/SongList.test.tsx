@@ -57,7 +57,9 @@ describe('SongList Components', () => {
 
     it('should render table with songs', () => {
       render(<SongListTable songs={mockSongs} />);
-      expect(screen.getByText('Test Song')).toBeInTheDocument();
+      const elements = screen.getAllByText('Test Song');
+      expect(elements.length).toBeGreaterThan(0);
+      expect(elements[0]).toBeInTheDocument();
     });
   });
 });

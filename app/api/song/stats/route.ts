@@ -42,7 +42,6 @@ export async function GET() {
       console.error('[SongStats] Error counting songs:', countError);
     }
 
-
     // Get songs by level
     const { data: songsByLevel } = await adminClient
       .from('songs')
@@ -58,7 +57,10 @@ export async function GET() {
       }, {} as Record<string, number>) || {};
 
     // Get songs by key
-    const { data: songsByKey } = await adminClient.from('songs').select('key').not('key', 'is', null);
+    const { data: songsByKey } = await adminClient
+      .from('songs')
+      .select('key')
+      .not('key', 'is', null);
 
     const keyStats =
       songsByKey?.reduce((acc: Record<string, number>, song: { key: string | null }) => {

@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import { getSupabaseConfig } from '../lib/supabase/config';
 import * as dotenv from 'dotenv';
@@ -13,7 +12,7 @@ async function testConnection() {
     const config = getSupabaseConfig();
     console.log('Config used:', {
       url: config.url,
-      isLocal: config.isLocal
+      isLocal: config.isLocal,
     });
 
     const supabase = createClient(config.url, config.anonKey);
@@ -25,7 +24,6 @@ async function testConnection() {
     } else {
       console.log('Connection successful! Data received.');
     }
-
   } catch (err) {
     console.error('Error during test:', err);
   }

@@ -135,8 +135,97 @@ export default function SongListTable({
 
   return (
     <>
+      {/* Mobile View (Cards) */}
+      <div className="md:hidden space-y-4">
+        {songs.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground bg-card rounded-xl border border-border">
+            No songs found.
+          </div>
+        ) : (
+          songs.map((song) => (
+            <div
+              key={song.id}
+              className="bg-card rounded-xl border border-border p-4 space-y-3"
+            >
+              <div className="flex items-start gap-3">
+                <div className="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-muted flex items-center justify-center border border-border">
+                  {song.cover_image_url ? (
+                    <Image
+                      src={song.cover_image_url}
+                      alt={song.title || 'Song cover'}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <Music className="w-8 h-8 text-muted-foreground" />
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <Link
+                    href={`/dashboard/songs/${song.id}`}
+                    className="font-medium text-foreground hover:text-primary block truncate text-base"
+                  >
+                    {song.title ?? 'Untitled'}
+                  </Link>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {song.author || 'Unknown Artist'}
+                  </p>
+                  {song.key && (
+                    <p className="text-xs text-muted-foreground mt-1">Key: {song.key}</p>
+                  )}
+                </div>
+
+                {canDelete && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 -mr-2 -mt-2"
+                    onClick={() => handleDeleteClick(song)}
+                    disabled={deletingSongId === song.id || checkingId === song.id}
+                  >
+                    {deletingSongId === song.id || checkingId === song.id ? (
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                    <span className="sr-only">Delete {song.title}</span>
+                  </Button>
+                )}
+              </div>
+
+              <div className="pt-2 border-t border-border flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">
+                  {selectedStudentId ? 'Status' : 'Level'}
+                </span>
+                <div>
+                  {selectedStudentId && (song as SongWithStatus).lesson_song_id ? (
+                    <StatusSelect
+                      lessonSongId={(song as SongWithStatus).lesson_song_id!}
+                      currentStatus={(song as SongWithStatus).status || 'to_learn'}
+                    />
+                  ) : selectedStudentId ? (
+                    <Badge
+                      variant="outline"
+                      className="bg-muted text-muted-foreground border-border"
+                    >
+                      Not Assigned
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className={cn(getLevelBadgeClass(song.level))}>
+                      {song.level || 'Unknown'}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop View (Table) */}
       <div
-        className="bg-card rounded-xl border border-border overflow-hidden"
+        className="hidden md:block bg-card rounded-xl border border-border overflow-hidden"
         data-testid="song-table"
       >
         <div className="overflow-x-auto">
