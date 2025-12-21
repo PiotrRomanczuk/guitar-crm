@@ -145,6 +145,7 @@ jobs:
             .next
             public
           retention-days: 1
+          include-hidden-files: true
 
   # Job 4: Check Secrets
   check-secrets:
