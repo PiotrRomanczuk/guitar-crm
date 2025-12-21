@@ -158,6 +158,11 @@ export async function POST(request: Request) {
       finalFullName = `${firstName || ''} ${lastName || ''}`.trim();
     }
 
+    // Clean up $$$ from name if present (common in imported data)
+    if (finalFullName && finalFullName.includes('$$$')) {
+      finalFullName = finalFullName.replace(/\$\$\$\s*/g, '').trim();
+    }
+
     if (!email || email.trim() === '') {
       // Shadow User Creation
       isShadow = true;
