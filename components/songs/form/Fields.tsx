@@ -168,7 +168,12 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         <ImageUpload
           value={formData.gallery_images}
           onChange={(value) => onChange('gallery_images', value)}
+          coverImage={formData.cover_image_url}
+          onCoverSelect={(url) => onChange('cover_image_url', url)}
         />
+        <p className="text-xs text-muted-foreground">
+          Upload images for the song gallery. Click the star icon to set an image as the cover.
+        </p>
       </div>
 
       <SongFormFieldText

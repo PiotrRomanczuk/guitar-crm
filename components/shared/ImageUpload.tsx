@@ -4,20 +4,25 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { X, Upload, Loader2 } from 'lucide-react';
+import { X, Upload, Loader2, Star } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface ImageUploadProps {
   value: string[];
   onChange: (value: string[]) => void;
   disabled?: boolean;
+  coverImage?: string;
+  onCoverSelect?: (url: string) => void;
 }
 
 export default function ImageUpload({
   value,
   onChange,
-  disabled
+  disabled,
+  coverImage,
+  onCoverSelect,
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const supabase = createClient();
@@ -43,9 +48,7 @@ export default function ImageUpload({
           throw uploadError;
         }
 
-        const { data } = supabase.storage
-          .from('song-images')
-          .getPublicUrl(filePath);
+        const { data } = supabase.storage.from('song-images').getPublicUrl(filePath);
 
         newUrls.push(data.publicUrl);
       }
@@ -71,24 +74,47 @@ export default function ImageUpload({
       {value.length > 0 && (
         <div className="flex flex-wrap gap-4">
           {value.map((url) => (
-            <div key={url} className="relative w-[200px] h-[200px] rounded-md overflow-hidden border">
-              <div className="z-10 absolute top-2 right-2">
+            <div
+              key={url}
+              className={cn(
+                'relative w-[200px] h-[200px] rounded-md overflow-hidden border-2',
+                coverImage === url ? 'border-primary' : 'border-border'
+              )}
+            >
+              <div className="z-10 absolute top-2 right-2 flex gap-2">
+                {onCoverSelect && (
+                  <Button
+                    type="button"
+                    onClick={() => onCoverSelect(url)}
+                    variant="secondary"
+                    size="icon"
+                    className={cn(
+                      'h-8 w-8',
+                      coverImage === url && 'bg-primary text-primary-foreground hover:bg-primary/90'
+                    )}
+                    disabled={disabled}
+                    title="Set as cover image"
+                  >
+                    <Star className={cn('h-4 w-4', coverImage === url && 'fill-current')} />
+                  </Button>
+                )}
                 <Button
                   type="button"
                   onClick={() => onRemove(url)}
                   variant="destructive"
                   size="icon"
+                  className="h-8 w-8"
                   disabled={disabled}
                 >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              <Image
-                fill
-                className="object-cover"
-                alt="Song Image"
-                src={url}
-              />
+              <Image fill className="object-cover" alt="Song Image" src={url} />
+              {coverImage === url && (
+                <div className="absolute bottom-0 left-0 right-0 bg-primary/80 text-primary-foreground text-xs py-1 text-center font-medium">
+                  Cover Image
+                </div>
+              )}
             </div>
           ))}
         </div>
