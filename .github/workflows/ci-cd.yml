@@ -235,6 +235,17 @@ jobs:
         with:
           name: nextjs-build
 
+      - name: Debug - List files
+        run: |
+          echo "Current directory: $(pwd)"
+          ls -la
+          if [ -d ".next" ]; then
+            echo ".next directory exists"
+            ls -la .next
+          else
+            echo ".next directory MISSING"
+          fi
+
       - name: Run Cypress E2E tests
         uses: cypress-io/github-action@v6
         with:
@@ -322,6 +333,17 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: nextjs-build
+
+      - name: Debug - List files
+        run: |
+          echo "Current directory: $(pwd)"
+          ls -la
+          if [ -d ".next" ]; then
+            echo ".next directory exists"
+            ls -la .next
+          else
+            echo ".next directory MISSING"
+          fi
 
       - name: Install Lighthouse
         run: npm install -g lighthouse
