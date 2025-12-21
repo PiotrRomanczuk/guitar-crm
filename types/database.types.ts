@@ -133,6 +133,7 @@ export type Database = {
           time_signature: number | null;
           duration_ms: number | null;
           release_year: number | null;
+          cover_image_url: string | null;
           short_title: string | null;
           updated_at: string | null;
         };
@@ -156,6 +157,7 @@ export type Database = {
           time_signature?: number | null;
           duration_ms?: number | null;
           release_year?: number | null;
+          cover_image_url?: string | null;
           short_title?: string | null;
           updated_at?: string | null;
         };
@@ -179,6 +181,7 @@ export type Database = {
           time_signature?: number | null;
           duration_ms?: number | null;
           release_year?: number | null;
+          cover_image_url?: string | null;
           short_title?: string | null;
           updated_at?: string | null;
         };
