@@ -45,6 +45,12 @@ jobs:
         with:
           version: latest
 
+      - name: Debug Network
+        run: |
+          echo "Resolving db.$SUPABASE_PROJECT_ID.supabase.co..."
+          nslookup db.$SUPABASE_PROJECT_ID.supabase.co || true
+          ping -c 4 db.$SUPABASE_PROJECT_ID.supabase.co || true
+
       - name: Run Full Backup
         run: |
           TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
@@ -53,17 +59,10 @@ jobs:
           # URL encode the password
           DB_PASSWORD_ENCODED=$(python3 -c "import urllib.parse, os; print(urllib.parse.quote(os.environ['SUPABASE_DB_PASSWORD']))")
           
-          # Try aws-1-us-east-1 as seen in previous logs
-          DB_URL="postgresql://postgres.$SUPABASE_PROJECT_ID:$DB_PASSWORD_ENCODED@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
+          # Try DIRECT connection
+          DB_URL="postgresql://postgres:$DB_PASSWORD_ENCODED@db.$SUPABASE_PROJECT_ID.supabase.co:5432/postgres"
           
-          echo "📦 Starting full database backup via Supabase CLI using Connection Pooler (aws-0)..."
-          # I will try aws-0 first again but with correct user format. 
-          # Wait, I used aws-0 in the last failed run.
-          # So I should try aws-1.
-          
-          DB_URL="postgresql://postgres.$SUPABASE_PROJECT_ID:$DB_PASSWORD_ENCODED@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
-          
-          echo "📦 Starting full database backup via Supabase CLI using Connection Pooler (aws-1)..."
+          echo "📦 Starting full database backup via Supabase CLI using DIRECT connection..."
           supabase db dump \
             --db-url "$DB_URL" \
             --schema public,auth,storage \
