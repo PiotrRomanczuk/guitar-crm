@@ -2,7 +2,18 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, Legend } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from 'recharts';
 import { Loader2 } from 'lucide-react';
 import {
   Table,
@@ -43,13 +54,14 @@ export function SongStatsCharts() {
 
   const levelData = Object.entries(songStats?.levelStats || {}).map(([name, value]) => ({
     name: name || 'Unknown',
-    value
+    value,
   }));
 
-  const authorData = songStats?.topAuthorsList?.map(item => ({
-    name: item.author,
-    songs: item.count
-  })) || [];
+  const authorData =
+    songStats?.topAuthorsList?.map((item) => ({
+      name: item.author,
+      songs: item.count,
+    })) || [];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -76,9 +88,12 @@ export function SongStatsCharts() {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
-                   contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))' }}
-                   itemStyle={{ color: 'hsl(var(--foreground))' }}
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--background))',
+                    borderColor: 'hsl(var(--border))',
+                  }}
+                  itemStyle={{ color: 'hsl(var(--foreground))' }}
                 />
                 <Legend />
               </PieChart>
@@ -98,11 +113,21 @@ export function SongStatsCharts() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={authorData} layout="vertical" margin={{ left: 40 }}>
                 <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" width={100} fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip 
-                   contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))' }}
-                   itemStyle={{ color: 'hsl(var(--foreground))' }}
-                   cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }}
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  width={100}
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--background))',
+                    borderColor: 'hsl(var(--border))',
+                  }}
+                  itemStyle={{ color: 'hsl(var(--foreground))' }}
+                  cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }}
                 />
                 <Bar dataKey="songs" fill="hsl(var(--secondary))" radius={[0, 4, 4, 0]} />
               </BarChart>

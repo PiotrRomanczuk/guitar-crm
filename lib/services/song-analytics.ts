@@ -52,14 +52,16 @@ export async function getSongDatabaseStatistics(): Promise<SongDatabaseStats> {
   const totalSongs = songs.length;
 
   // Helper to check if a field is "present"
-  const hasValue = (val: string | null | undefined) => val !== null && val !== undefined && val.trim() !== '';
-  const hasArrayValue = (val: string[] | null | undefined) => val !== null && val !== undefined && val.length > 0;
+  const hasValue = (val: string | null | undefined) =>
+    val !== null && val !== undefined && val.trim() !== '';
+  const hasArrayValue = (val: string[] | null | undefined) =>
+    val !== null && val !== undefined && val.length > 0;
 
   // Categorize songs
-  const missingChords = songs.filter(s => !hasValue(s.chords));
-  const missingYoutube = songs.filter(s => !hasValue(s.youtube_url));
-  const missingUltimateGuitar = songs.filter(s => !hasValue(s.ultimate_guitar_link));
-  const missingGalleryImages = songs.filter(s => !hasArrayValue(s.gallery_images));
+  const missingChords = songs.filter((s) => !hasValue(s.chords));
+  const missingYoutube = songs.filter((s) => !hasValue(s.youtube_url));
+  const missingUltimateGuitar = songs.filter((s) => !hasValue(s.ultimate_guitar_link));
+  const missingGalleryImages = songs.filter((s) => !hasArrayValue(s.gallery_images));
 
   const withChordsCount = totalSongs - missingChords.length;
   const withYoutubeCount = totalSongs - missingYoutube.length;
@@ -67,7 +69,8 @@ export async function getSongDatabaseStatistics(): Promise<SongDatabaseStats> {
   const withGalleryImagesCount = totalSongs - missingGalleryImages.length;
 
   // Calculate percentages
-  const calculatePercentage = (count: number) => (totalSongs > 0 ? Math.round((count / totalSongs) * 100) : 0);
+  const calculatePercentage = (count: number) =>
+    totalSongs > 0 ? Math.round((count / totalSongs) * 100) : 0;
 
   // Map to simple objects for the report
   const mapToSummary = (s: Song) => ({ id: s.id, title: s.title, author: s.author });

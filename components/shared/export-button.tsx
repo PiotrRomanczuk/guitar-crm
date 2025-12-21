@@ -18,7 +18,7 @@ export function ExportButton({ endpoint }: ExportButtonProps) {
     // Construct URL with query parameters
     const url = new URL(endpoint, window.location.origin);
     url.searchParams.set('format', format);
-    
+
     // Open in new tab to trigger download
     window.open(url.toString(), '_blank');
   };
@@ -32,12 +32,8 @@ export function ExportButton({ endpoint }: ExportButtonProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => handleExport('csv')}>
-          Export as CSV
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleExport('json')}>
-          Export as JSON
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleExport('csv')}>Export as CSV</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleExport('json')}>Export as JSON</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

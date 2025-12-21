@@ -1,4 +1,3 @@
-
 import { render, screen } from '@testing-library/react';
 import { LessonStatsCharts } from './LessonStatsCharts';
 import { useQuery } from '@tanstack/react-query';
@@ -11,7 +10,9 @@ jest.mock('@tanstack/react-query', () => ({
 // Mock Recharts
 jest.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  BarChart: ({ children }: { children: React.ReactNode }) => <div data-testid="bar-chart">{children}</div>,
+  BarChart: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="bar-chart">{children}</div>
+  ),
   Bar: () => <div />,
   XAxis: () => <div />,
   YAxis: () => <div />,
@@ -55,7 +56,7 @@ describe('LessonStatsCharts', () => {
     expect(screen.getByText('Lessons Trend')).toBeInTheDocument();
     expect(screen.getByText('Monthly Breakdown')).toBeInTheDocument();
     expect(screen.getByText('Status Breakdown')).toBeInTheDocument();
-    
+
     // Check for table headers
     expect(screen.getByText('Month')).toBeInTheDocument();
     expect(screen.getByText('Lessons')).toBeInTheDocument();

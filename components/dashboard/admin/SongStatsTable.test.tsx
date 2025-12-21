@@ -1,4 +1,3 @@
-
 import { render, screen } from '@testing-library/react';
 import { SongStatsTable } from './SongStatsTable';
 import { SongDatabaseStats } from '@/lib/services/song-analytics';
@@ -19,9 +18,7 @@ describe('SongStatsTable', () => {
       withGalleryImages: 10,
     },
     missing: {
-      chords: [
-        { id: '1', title: 'Song 1', author: 'Author 1' },
-      ],
+      chords: [{ id: '1', title: 'Song 1', author: 'Author 1' }],
       youtube: [],
       ultimateGuitar: [],
       galleryImages: [],
