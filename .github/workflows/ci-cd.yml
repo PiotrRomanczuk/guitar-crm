@@ -53,11 +53,17 @@ jobs:
           # URL encode the password
           DB_PASSWORD_ENCODED=$(python3 -c "import urllib.parse, os; print(urllib.parse.quote(os.environ['SUPABASE_DB_PASSWORD']))")
           
-          # Construct the connection string for the pooler (Session mode port 5432)
-          # User format: postgres.[project-ref]
+          # Try aws-1-us-east-1 as seen in previous logs
           DB_URL="postgresql://postgres.$SUPABASE_PROJECT_ID:$DB_PASSWORD_ENCODED@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
           
-          echo "📦 Starting full database backup via Supabase CLI using Connection Pooler..."
+          echo "📦 Starting full database backup via Supabase CLI using Connection Pooler (aws-0)..."
+          # I will try aws-0 first again but with correct user format. 
+          # Wait, I used aws-0 in the last failed run.
+          # So I should try aws-1.
+          
+          DB_URL="postgresql://postgres.$SUPABASE_PROJECT_ID:$DB_PASSWORD_ENCODED@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
+          
+          echo "📦 Starting full database backup via Supabase CLI using Connection Pooler (aws-1)..."
           supabase db dump \
             --db-url "$DB_URL" \
             --schema public,auth,storage \
