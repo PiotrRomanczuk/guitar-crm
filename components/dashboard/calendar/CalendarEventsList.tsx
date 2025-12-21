@@ -116,7 +116,7 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <CardTitle className="flex items-center gap-2">
             <Calendar className="w-5 h-5" />
@@ -130,6 +130,7 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
           onClick={handleSyncAll} 
           disabled={isPending}
           title="Sync all lessons"
+          className="w-full sm:w-auto"
         >
           <RefreshCw className={`w-4 h-4 mr-2 ${isPending ? 'animate-spin' : ''}`} />
           Sync All
