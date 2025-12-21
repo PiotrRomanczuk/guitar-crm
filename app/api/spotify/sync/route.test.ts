@@ -1,7 +1,6 @@
 import { POST } from './route';
 import { createClient } from '@/lib/supabase/server';
 import { searchTracks } from '@/lib/spotify';
-import { NextResponse } from 'next/server';
 
 // Mock dependencies
 jest.mock('@/lib/supabase/server', () => ({

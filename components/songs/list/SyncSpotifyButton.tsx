@@ -27,8 +27,8 @@ export function SyncSpotifyButton() {
         `Synced ${data.updated} songs. Skipped ${data.skipped}. Failed ${data.failed}.`
       );
       router.refresh();
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'An unknown error occurred');
     } finally {
       setIsLoading(false);
     }

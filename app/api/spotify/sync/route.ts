@@ -57,7 +57,7 @@ export async function POST(request: Request) {
   for (const song of songs) {
     try {
       // Search query: track name and artist
-      let query = `track:${song.title} artist:${song.author}`;
+      const query = `track:${song.title} artist:${song.author}`;
       let searchData = await searchTracks(query);
 
       // Fallback search if strict search fails
@@ -70,7 +70,12 @@ export async function POST(request: Request) {
         const track: SpotifyApiTrack = searchData.tracks.items[0];
 
         // Prepare update data
-        const updateData: any = {
+        const updateData: {
+          spotify_link_url: string;
+          duration_ms: number;
+          release_year: number | null;
+          cover_image_url?: string;
+        } = {
           spotify_link_url: track.external_urls.spotify,
           duration_ms: track.duration_ms,
           release_year: track.album.release_date
@@ -100,9 +105,10 @@ export async function POST(request: Request) {
       } else {
         results.skipped++; // No match found
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Unknown error';
       results.failed++;
-      results.errors.push(`Error processing ${song.title}: ${e.message}`);
+      results.errors.push(`Error processing ${song.title}: ${errorMessage}`);
     }
 
     // Simple delay to be nice to API

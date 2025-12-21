@@ -177,7 +177,7 @@ export default function SongListTable({
                           {song.cover_image_url ? (
                             <Image
                               src={song.cover_image_url}
-                              alt={song.title}
+                              alt={song.title || 'Song cover'}
                               fill
                               className="object-cover"
                             />
