@@ -461,7 +461,7 @@ jobs:
           ./scripts/database/backup/full-backup.sh
 
       - name: Upload to Google Drive
-        if: secrets.GOOGLE_SERVICE_ACCOUNT_KEY != '' && secrets.GOOGLE_DRIVE_FOLDER_ID != ''
+        if: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY != '' && secrets.GOOGLE_DRIVE_FOLDER_ID != '' }}
         env:
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
           GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
