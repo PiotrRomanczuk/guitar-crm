@@ -417,6 +417,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y postgresql-client
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Run Full Backup
         env:
           PGHOST: db.${{ secrets.SUPABASE_PROJECT_ID }}.supabase.co
@@ -427,6 +436,15 @@ jobs:
         run: |
           chmod +x scripts/database/backup/full-backup.sh
           ./scripts/database/backup/full-backup.sh
+
+      - name: Upload to Google Drive
+        if: env.GOOGLE_SERVICE_ACCOUNT_KEY != '' && env.GOOGLE_DRIVE_FOLDER_ID != ''
+        env:
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+        run: |
+          BACKUP_FILE=$(ls backup_*.sql | head -n 1)
+          npx ts-node scripts/database/backup/upload-to-drive.ts "$BACKUP_FILE"
 
       - name: Upload Backup Artifact
         uses: actions/upload-artifact@v4
