@@ -5,7 +5,15 @@ const TOKEN_ENDPOINT = `https://accounts.spotify.com/api/token`;
 const SEARCH_ENDPOINT = 'https://api.spotify.com/v1/search';
 const AUDIO_FEATURES_ENDPOINT = 'https://api.spotify.com/v1/audio-features';
 
+let cachedToken: string | null = null;
+let tokenExpiration: number | null = null;
+
 const getAccessToken = async () => {
+  const now = Date.now();
+  if (cachedToken && tokenExpiration && now < tokenExpiration) {
+    return { access_token: cachedToken };
+  }
+
   const response = await fetch(TOKEN_ENDPOINT, {
     method: 'POST',
     headers: {
@@ -17,7 +25,15 @@ const getAccessToken = async () => {
     }),
   });
 
-  return response.json();
+  const data = await response.json();
+
+  if (data.access_token) {
+    cachedToken = data.access_token;
+    // expires_in is usually 3600 seconds. Subtract a small buffer (e.g. 60s)
+    tokenExpiration = now + (data.expires_in * 1000) - 60000;
+  }
+
+  return data;
 };
 
 export const searchTracks = async (query: string) => {
