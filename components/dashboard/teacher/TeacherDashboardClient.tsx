@@ -120,13 +120,12 @@ export function TeacherDashboardClient({ data, adminStats, token }: TeacherDashb
                 delay={550}
               />
             </div>
-{token && (
+            {token && (
               <div className="pt-4">
                 <BearerTokenCard token={token} />
               </div>
             )}
 
-            
             <div className="pt-4">
               <AnalyticsCharts />
             </div>
