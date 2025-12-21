@@ -143,22 +143,24 @@ export function SongStatsCharts() {
           <CardDescription>Song counts by level</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Level</TableHead>
-                <TableHead className="text-right">Songs</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {levelData.map((item) => (
-                <TableRow key={item.name}>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell className="text-right">{item.value}</TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Level</TableHead>
+                  <TableHead className="text-right">Songs</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {levelData.map((item) => (
+                  <TableRow key={item.name}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell className="text-right">{item.value}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
@@ -168,22 +170,24 @@ export function SongStatsCharts() {
           <CardDescription>Top authors by song count</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Author</TableHead>
-                <TableHead className="text-right">Songs</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {authorData.map((item) => (
-                <TableRow key={item.name}>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell className="text-right">{item.songs}</TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Author</TableHead>
+                  <TableHead className="text-right">Songs</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {authorData.map((item) => (
+                  <TableRow key={item.name}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell className="text-right">{item.songs}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

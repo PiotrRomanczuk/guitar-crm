@@ -25,7 +25,7 @@ Manage all users in the system (Students, Teachers, and other Admins).
 ### Mobile Experience (iPhone 17 Pro Max)
 - [x] **User List**: Table should either scroll horizontally OR transform into a card-based layout for each user.
 - [x] **Search/Filter**: Input fields and dropdowns should stack vertically and be full-width.
-- [ ] **Modals/Drawers**: User details/edit forms should open in full-screen sheets or drawers.
+- [x] **Modals/Drawers**: User details/edit forms should open in full-screen sheets or drawers.
 
 ## 3. Song Library (`/dashboard/songs`)
 A central repository for all music resources.
@@ -41,8 +41,8 @@ A central repository for all music resources.
 ### Mobile Experience (iPhone 17 Pro Max)
 - [x] **Song List**: Should display essential info (Title, Artist) prominently; secondary info (Key, Level) can be smaller or hidden.
 - [x] **Filters**: Filter bar should be collapsible or stack vertically.
-- [ ] **Edit Form**: Long forms should be single-column. Rich text editors or complex inputs must be usable on touch.
-- [ ] **Media Players**: YouTube embeds and audio players must resize to fit the screen width.
+- [x] **Edit Form**: Long forms should be single-column. Rich text editors or complex inputs must be usable on touch.
+- [x] **Media Players**: YouTube embeds and audio players must resize to fit the screen width.
 
 ## 4. Lesson Management (`/dashboard/lessons`)
 Comprehensive scheduling and lesson tracking.
@@ -56,7 +56,7 @@ Comprehensive scheduling and lesson tracking.
 
 ### Mobile Experience (iPhone 17 Pro Max)
 - [x] **Calendar**: Month view usually too cramped; should default to Agenda/List or Day view on mobile.
-- [ ] **Booking Form**: Date/Time pickers must be native or touch-friendly.
+- [x] **Booking Form**: Date/Time pickers must be native or touch-friendly.
 - [x] **Lesson Card**: Details should be legible without zooming.
 
 ## 5. Assignments (`/dashboard/assignments`)
@@ -67,7 +67,7 @@ Manage homework and practice tasks for students.
 
 ### Mobile Experience (iPhone 17 Pro Max)
 - [x] **Assignment List**: Cards or list items with clear status indicators.
-- [ ] **Creation Flow**: Multi-step selection (Student -> Song -> Due Date) should be easy to navigate on a small screen.
+- [x] **Creation Flow**: Multi-step selection (Student -> Song -> Due Date) should be easy to navigate on a small screen.
 
 ## 6. Analytics & Reporting
 Deep dive into system usage and health.
@@ -83,9 +83,9 @@ Deep dive into system usage and health.
 - **Breakdown**: See lessons by status (Scheduled vs. Completed) and monthly counts.
 
 ### Mobile Experience (iPhone 17 Pro Max)
-- [ ] **Charts**: Graphs (Pie, Bar) must resize to fit width. Tooltips should activate on tap.
-- [ ] **Data Tables**: "Database Health" tables should scroll horizontally or reflow.
-- [ ] **Tabs**: Navigation tabs (Charts vs Health) should be easily tappable.
+- [x] **Charts**: Graphs (Pie, Bar) must resize to fit width. Tooltips should activate on tap.
+- [x] **Data Tables**: "Database Health" tables should scroll horizontally or reflow.
+- [x] **Tabs**: Navigation tabs (Charts vs Health) should be easily tappable.
 
 ## 7. Settings (`/dashboard/settings`)
 Configure personal and system-wide preferences.
@@ -94,8 +94,8 @@ Configure personal and system-wide preferences.
 - **Theme**: Toggle between Light and Dark mode.
 
 ### Mobile Experience (iPhone 17 Pro Max)
-- [ ] **Layout**: Settings categories should be a list; clicking one opens the specific settings page.
-- [ ] **Toggles/Inputs**: All form controls must be large enough for touch interaction.
+- [x] **Layout**: Settings categories should be a list; clicking one opens the specific settings page.
+- [x] **Toggles/Inputs**: All form controls must be large enough for touch interaction.
 
 ## Role-Based Access Control
 - **Admins**: Have full access to all sections listed above.

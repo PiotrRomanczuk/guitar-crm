@@ -37,7 +37,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         required
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <SongFormFieldSelect
           label="Difficulty Level"
           id="level"
@@ -89,7 +89,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         placeholder="https://open.spotify.com/track/..."
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <SongFormFieldText
           label="Capo Fret"
           id="capo_fret"

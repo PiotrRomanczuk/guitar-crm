@@ -91,22 +91,24 @@ export function LessonStatsCharts() {
             <CardDescription>Detailed lesson counts by month</CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Month</TableHead>
-                  <TableHead className="text-right">Lessons</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {monthlyData.map((item) => (
-                  <TableRow key={item.name}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell className="text-right">{item.lessons}</TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Month</TableHead>
+                    <TableHead className="text-right">Lessons</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {monthlyData.map((item) => (
+                    <TableRow key={item.name}>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell className="text-right">{item.lessons}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
 
@@ -116,22 +118,24 @@ export function LessonStatsCharts() {
             <CardDescription>Lessons by current status</CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Count</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {statusData.map((item) => (
-                  <TableRow key={item.status}>
-                    <TableCell className="capitalize">{item.status.toLowerCase()}</TableCell>
-                    <TableCell className="text-right">{item.count}</TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Count</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {statusData.map((item) => (
+                    <TableRow key={item.status}>
+                      <TableCell className="capitalize">{item.status.toLowerCase()}</TableCell>
+                      <TableCell className="text-right">{item.count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </div>
