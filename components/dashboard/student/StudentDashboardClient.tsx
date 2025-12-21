@@ -7,13 +7,15 @@ import { SongLibrary } from '@/components/songs/student/SongLibrary';
 import { AssignmentList } from '@/components/assignments/student/AssignmentList';
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
 import { NextLessonCard } from '@/components/dashboard/student/NextLessonCard';
+import { BearerTokenCard } from '@/components/dashboard/BearerTokenCard';
 
 interface StudentDashboardClientProps {
   data: StudentDashboardData;
   email?: string;
+  token?: string;
 }
 
-export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
+export function StudentDashboardClient({ data, token }: StudentDashboardClientProps) {
   // Transform data for components
   const activities = [
     ...(data.lastLesson
@@ -91,6 +93,12 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
           <AssignmentList assignments={assignments} />
         </div>
       </div>
+
+      {token && (
+        <div className="pt-8 border-t">
+          <BearerTokenCard token={token} />
+        </div>
+      )}
     </div>
   );
 }
