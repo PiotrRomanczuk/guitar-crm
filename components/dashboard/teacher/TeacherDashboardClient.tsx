@@ -9,6 +9,7 @@ import { SongLibrary } from '@/components/dashboard/teacher/SongLibrary';
 import { AssignmentList } from '@/components/dashboard/teacher/AssignmentList';
 import { LessonStatsOverview } from '@/components/dashboard/LessonStatsOverview';
 import { AnalyticsCharts } from '@/components/dashboard/analytics-charts';
+import { BearerTokenCard } from '@/components/dashboard/BearerTokenCard';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
 import { Users, BookOpen, Music, Shield } from 'lucide-react';
 
@@ -32,9 +33,10 @@ interface TeacherDashboardClientProps {
   data: TeacherDashboardData;
   email?: string;
   adminStats?: AdminStats;
+  token?: string;
 }
 
-export function TeacherDashboardClient({ data, adminStats }: TeacherDashboardClientProps) {
+export function TeacherDashboardClient({ data, adminStats, token }: TeacherDashboardClientProps) {
   const { data: dashboardData } = useDashboardStats();
   const apiAdminStats =
     dashboardData?.role === 'admin' ? (dashboardData.stats as DashboardAdminStats) : null;
@@ -118,7 +120,13 @@ export function TeacherDashboardClient({ data, adminStats }: TeacherDashboardCli
                 delay={550}
               />
             </div>
+{token && (
+              <div className="pt-4">
+                <BearerTokenCard token={token} />
+              </div>
+            )}
 
+            
             <div className="pt-4">
               <AnalyticsCharts />
             </div>
