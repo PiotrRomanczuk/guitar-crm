@@ -22,14 +22,13 @@ async function uploadFile() {
   const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
 
   if (!serviceAccountKey) {
-    console.error('❌ Error: GOOGLE_SERVICE_ACCOUNT_KEY environment variable is required');
-    console.error('   This should be the JSON content of your service account key');
-    process.exit(1);
+    console.warn('⚠️  GOOGLE_SERVICE_ACCOUNT_KEY environment variable is not set. Skipping upload.');
+    process.exit(0);
   }
 
   if (!folderId) {
-    console.error('❌ Error: GOOGLE_DRIVE_FOLDER_ID environment variable is required');
-    process.exit(1);
+    console.warn('⚠️  GOOGLE_DRIVE_FOLDER_ID environment variable is not set. Skipping upload.');
+    process.exit(0);
   }
 
   try {
