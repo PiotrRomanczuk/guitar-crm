@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Music2, Guitar, ExternalLink, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -126,8 +127,17 @@ export function StudentSongsPageClient() {
             >
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Music2 className="w-6 h-6 text-primary" />
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden relative">
+                    {song.cover_image_url ? (
+                      <Image
+                        src={song.cover_image_url}
+                        alt={song.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <Music2 className="w-6 h-6 text-primary" />
+                    )}
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <Badge

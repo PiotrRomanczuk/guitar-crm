@@ -16,10 +16,11 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Music } from 'lucide-react';
 import StatusSelect from './StatusSelect';
 
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface Props {
   songs: (Song | SongWithStatus)[];
@@ -171,12 +172,26 @@ export default function SongListTable({
                     className="hover:bg-secondary/50 border-border transition-colors"
                   >
                     <TableCell className="font-medium">
-                      <Link
-                        href={`/dashboard/songs/${song.id}`}
-                        className="text-foreground hover:text-primary transition-colors"
-                      >
-                        {song.title ?? 'Untitled'}
-                      </Link>
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-12 h-12 rounded-md overflow-hidden flex-shrink-0 bg-muted flex items-center justify-center border border-border">
+                          {song.cover_image_url ? (
+                            <Image
+                              src={song.cover_image_url}
+                              alt={song.title}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <Music className="w-6 h-6 text-muted-foreground" />
+                          )}
+                        </div>
+                        <Link
+                          href={`/dashboard/songs/${song.id}`}
+                          className="text-foreground hover:text-primary transition-colors"
+                        >
+                          {song.title ?? 'Untitled'}
+                        </Link>
+                      </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{song.author}</TableCell>
                     <TableCell>

@@ -341,6 +341,7 @@ export type Database = {
           time_signature: number | null;
           duration_ms: number | null;
           release_year: number | null;
+          cover_image_url: string | null;
           updated_at: string;
         };
         Insert: {
@@ -358,6 +359,15 @@ export type Database = {
           gallery_images?: string[] | null;
           spotify_link_url?: string | null;
           capo_fret?: number | null;
+          strumming_pattern?: string | null;
+          category?: string | null;
+          tempo?: number | null;
+          time_signature?: number | null;
+          duration_ms?: number | null;
+          release_year?: number | null;
+          cover_image_url?: string | null;
+          updated_at?: string;
+        };
           strumming_pattern?: string | null;
           category?: string | null;
           tempo?: number | null;
