@@ -22,7 +22,7 @@ const checkLocalSupabase = async (): Promise<boolean> => {
 
 const nextConfig = async (): Promise<NextConfig> => {
   console.log('🔍 [NextConfig] Checking environment...');
-  
+
   // Only run this check in development
   if (process.env.NODE_ENV === 'development') {
     const isLocalSupabaseRunning = await checkLocalSupabase();
@@ -31,18 +31,18 @@ const nextConfig = async (): Promise<NextConfig> => {
     if (!isLocalSupabaseRunning && process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL) {
       console.warn('\n⚠️  Local Supabase not detected on port 54321.');
       console.warn('🔄 Switching to REMOTE Supabase configuration...\n');
-      
+
       // Unset local variables so config.ts falls back to remote
       delete process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL;
       delete process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY;
       delete process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY;
-      
+
       // Also switch API URL if it was set to local
       if (process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL) {
-         delete process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL;
+        delete process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL;
       }
     } else if (isLocalSupabaseRunning) {
-       console.log('\n✅ Local Supabase detected on port 54321.\n');
+      console.log('\n✅ Local Supabase detected on port 54321.\n');
     }
   }
 
@@ -73,9 +73,9 @@ export default withSentryConfig(nextConfig, {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-  org: "bmr-p0",
+  org: 'bmr-p0',
 
-  project: "guitar-crm",
+  project: 'guitar-crm',
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
@@ -90,7 +90,7 @@ export default withSentryConfig(nextConfig, {
   // This can increase your server load as well as your hosting bill.
   // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
   // side errors will fail.
-  tunnelRoute: "/monitoring",
+  tunnelRoute: '/monitoring',
 
   webpack: {
     // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)

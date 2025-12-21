@@ -20,4 +20,5 @@ export interface SpotifyApiTrack {
   external_urls: {
     spotify: string;
   };
+  duration_ms: number;
 }
