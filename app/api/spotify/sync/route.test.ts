@@ -1,6 +1,7 @@
 import { POST } from './route';
 import { createClient } from '@/lib/supabase/server';
 import { searchTracks } from '@/lib/spotify';
+import { NextRequest } from 'next/server';
 
 // Mock dependencies
 jest.mock('@/lib/supabase/server', () => ({
@@ -40,7 +41,7 @@ describe('Spotify Sync API', () => {
   it('returns 401 if not authenticated', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user: null }, error: null });
 
-    const res = await POST(new Request('http://localhost/api/spotify/sync', { method: 'POST' }));
+    const res = await POST(new NextRequest('http://localhost/api/spotify/sync', { method: 'POST' }));
     expect(res.status).toBe(401);
   });
 
@@ -51,7 +52,7 @@ describe('Spotify Sync API', () => {
       error: null,
     });
 
-    const res = await POST(new Request('http://localhost/api/spotify/sync', { method: 'POST' }));
+    const res = await POST(new NextRequest('http://localhost/api/spotify/sync', { method: 'POST' }));
     expect(res.status).toBe(403);
   });
 
@@ -66,7 +67,8 @@ describe('Spotify Sync API', () => {
 
     const songsBuilder = {
       select: jest.fn().mockReturnThis(),
-      is: jest.fn().mockResolvedValue({
+      is: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue({
         data: [
           { id: '1', title: 'Song 1', author: 'Artist 1' },
           { id: '2', title: 'Song 2', author: 'Artist 2' },
@@ -105,16 +107,20 @@ describe('Spotify Sync API', () => {
       .mockResolvedValueOnce({
         // For Song 2 (no match)
         tracks: { items: [] },
+      })
+      .mockResolvedValueOnce({
+        // For Song 2 (fallback no match)
+        tracks: { items: [] },
       });
 
-    const res = await POST(new Request('http://localhost/api/spotify/sync', { method: 'POST' }));
+    const res = await POST(new NextRequest('http://localhost/api/spotify/sync', { method: 'POST' }));
     const data = await res.json();
 
     expect(res.status).toBe(200);
     expect(data.total).toBe(2);
     expect(data.updated).toBe(1);
     expect(data.skipped).toBe(1);
-    expect(searchTracks).toHaveBeenCalledTimes(2);
+    expect(searchTracks).toHaveBeenCalledTimes(3);
     expect(updateBuilder.update).toHaveBeenCalledTimes(1);
     expect(updateBuilder.update).toHaveBeenCalledWith(
       expect.objectContaining({
