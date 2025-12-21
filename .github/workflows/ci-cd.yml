@@ -53,9 +53,9 @@ jobs:
 
       - name: Run Full Backup
         env:
-          PGHOST: db.${{ secrets.SUPABASE_PROJECT_ID }}.supabase.co
+          PGHOST: aws-0-us-east-1.pooler.supabase.com
           PGPORT: 5432
-          PGUSER: postgres
+          PGUSER: postgres.${{ secrets.SUPABASE_PROJECT_ID }}
           PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
           PGDATABASE: postgres
         run: |
