@@ -170,7 +170,7 @@ jobs:
     name: Database Quality & Schema Validation
     runs-on: ubuntu-latest
     needs: [lint-and-typecheck, check-secrets]
-    if: needs.check-secrets.outputs.has-secrets == 'true'
+    # if: needs.check-secrets.outputs.has-secrets == 'true'
 
     steps:
       - name: Checkout code
@@ -471,7 +471,7 @@ jobs:
     name: Deploy Database Changes
     runs-on: ubuntu-latest
     needs: [quality-gate, check-secrets, backup-database]
-    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production') && github.event_name == 'push' && needs.check-secrets.outputs.has-secrets == 'true'
+    # if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production') && github.event_name == 'push' && needs.check-secrets.outputs.has-secrets == 'true'
 
     steps:
       - name: Checkout code
@@ -499,7 +499,7 @@ jobs:
     name: Deploy to Vercel (Preview - Main)
     runs-on: ubuntu-latest
     needs: [quality-gate, e2e-tests, deploy-database]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: preview
       url: ${{ steps.deploy.outputs.url }}
@@ -547,7 +547,7 @@ jobs:
     name: Deploy to Vercel (Production)
     runs-on: ubuntu-latest
     needs: [quality-gate, e2e-tests, deploy-database]
-    if: github.ref == 'refs/heads/production' && github.event_name == 'push'
+    # if: github.ref == 'refs/heads/production' && github.event_name == 'push'
     environment:
       name: production
       url: https://guitar-crm.vercel.app
@@ -583,7 +583,7 @@ jobs:
     name: Deploy Preview (PR)
     runs-on: ubuntu-latest
     needs: [quality-gate]
-    if: github.event_name == 'pull_request'
+    # if: github.event_name == 'pull_request'
     permissions:
       pull-requests: write
       issues: write
