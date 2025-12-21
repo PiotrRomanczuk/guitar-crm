@@ -66,10 +66,7 @@ export function Table({ assignments }: TableProps) {
                   </p>
                 )}
               </div>
-              <StatusBadge
-                variant={getStatusVariant(assignment.status)}
-                className="flex-shrink-0"
-              >
+              <StatusBadge variant={getStatusVariant(assignment.status)} className="flex-shrink-0">
                 {getStatusText(assignment.status)}
               </StatusBadge>
             </div>

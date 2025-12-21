@@ -32,10 +32,7 @@ export default function LessonTable({ lessons, role, baseUrl = '/dashboard/lesso
       {/* Mobile View (Cards) */}
       <div className="md:hidden space-y-4">
         {lessons.map((lesson) => (
-          <div
-            key={lesson.id}
-            className="bg-card rounded-xl border border-border p-4 space-y-3"
-          >
+          <div key={lesson.id} className="bg-card rounded-xl border border-border p-4 space-y-3">
             <div className="flex justify-between items-start gap-3">
               <div className="min-w-0">
                 <Link
@@ -94,33 +91,33 @@ export default function LessonTable({ lessons, role, baseUrl = '/dashboard/lesso
       >
         <div className="overflow-x-auto">
           <Table className="min-w-[600px]">
-          <TableHeader>
-            <TableRow className="hover:bg-transparent border-border">
-              <TableHead className="text-muted-foreground">Title</TableHead>
-              <TableHead className="text-muted-foreground">Student</TableHead>
-              {showTeacherColumn && (
-                <TableHead className="text-muted-foreground">Teacher</TableHead>
-              )}
-              <TableHead className="text-muted-foreground">Date</TableHead>
-              <TableHead className="text-muted-foreground">Time</TableHead>
-              <TableHead className="text-muted-foreground">Status</TableHead>
-              {showActions && <TableHead className="text-muted-foreground">Actions</TableHead>}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {lessons.map((lesson) => (
-              <LessonTableRow
-                key={lesson.id}
-                lesson={lesson}
-                showTeacherColumn={showTeacherColumn}
-                showActions={showActions}
-                baseUrl={baseUrl}
-              />
-            ))}
-          </TableBody>
-        </Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent border-border">
+                <TableHead className="text-muted-foreground">Title</TableHead>
+                <TableHead className="text-muted-foreground">Student</TableHead>
+                {showTeacherColumn && (
+                  <TableHead className="text-muted-foreground">Teacher</TableHead>
+                )}
+                <TableHead className="text-muted-foreground">Date</TableHead>
+                <TableHead className="text-muted-foreground">Time</TableHead>
+                <TableHead className="text-muted-foreground">Status</TableHead>
+                {showActions && <TableHead className="text-muted-foreground">Actions</TableHead>}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {lessons.map((lesson) => (
+                <LessonTableRow
+                  key={lesson.id}
+                  lesson={lesson}
+                  showTeacherColumn={showTeacherColumn}
+                  showActions={showActions}
+                  baseUrl={baseUrl}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </div>
     </>
   );
 }
