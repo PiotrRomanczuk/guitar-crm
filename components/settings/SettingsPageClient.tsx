@@ -12,6 +12,7 @@ import {
   PrivacySection,
 } from '@/components/settings/SettingsSections';
 import { IntegrationsSection } from '@/components/settings/IntegrationsSection';
+import { ApiKeysSection } from '@/components/settings/ApiKeysSection';
 
 function SettingsAlert({ type, message }: { type: 'error' | 'success'; message: string }) {
   if (type === 'error') {
@@ -128,6 +129,9 @@ export default function SettingsPageClient({
           </div>
           <div className="border-t pt-6">
             <PrivacySection settings={settings} updateSetting={updateSetting} />
+          </div>
+          <div className="border-t pt-6">
+            <ApiKeysSection />
           </div>
           <div className="border-t pt-6">
             <SettingsActions
