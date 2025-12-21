@@ -11,7 +11,9 @@ import { LessonStatsOverview } from '@/components/dashboard/LessonStatsOverview'
 import { AnalyticsCharts } from '@/components/dashboard/analytics-charts';
 import { BearerTokenCard } from '@/components/dashboard/BearerTokenCard';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
-import { Users, BookOpen, Music, Shield } from 'lucide-react';
+import { Users, BookOpen, Music, Shield, FileText } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 interface RecentUser {
   id: string;
@@ -86,6 +88,15 @@ export function TeacherDashboardClient({ data, adminStats, token }: TeacherDashb
               <p className="text-muted-foreground">
                 Administrative statistics and platform metrics.
               </p>
+            </div>
+            
+            <div className="flex justify-end">
+              <Link href="/dashboard/admin/documentation">
+                <Button variant="outline" className="gap-2">
+                  <FileText className="h-4 w-4" />
+                  Developer Documentation
+                </Button>
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
