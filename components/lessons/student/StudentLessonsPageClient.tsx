@@ -153,7 +153,7 @@ export function StudentLessonsPageClient() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 w-full md:w-auto mt-4 md:mt-0">
                   {lesson.notes && (
                     <div className="hidden md:block md:max-w-xs lg:max-w-md bg-secondary/30 rounded-lg p-3 text-sm truncate">
                       <p className="text-muted-foreground italic truncate">
@@ -162,7 +162,7 @@ export function StudentLessonsPageClient() {
                     </div>
                   )}
 
-                  <Button asChild variant="ghost" size="sm" className="ml-auto">
+                  <Button asChild variant="ghost" size="sm" className="ml-auto w-full md:w-auto">
                     <Link href={`/dashboard/lessons/${lesson.id}`}>
                       View Details
                       <ArrowRight className="w-4 h-4 ml-2" />

@@ -44,7 +44,7 @@ export function SongLibrary({ songs }: SongLibraryProps) {
                 <p className="font-medium truncate">{song.title}</p>
                 <p className="text-sm text-muted-foreground">{song.artist}</p>
 
-                <div className="flex items-center gap-3 mt-2">
+                <div className="flex flex-wrap items-center gap-3 mt-2">
                   <Badge
                     variant="outline"
                     className={cn('text-xs', difficultyColors[song.difficulty])}
