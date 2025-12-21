@@ -61,8 +61,11 @@ export function NextLessonCard({ lesson }: NextLessonCardProps) {
               </div>
             </div>
           </div>
-          
-          <Button asChild className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-md">
+
+          <Button
+            asChild
+            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-md"
+          >
             <Link href={`/dashboard/lessons/${lesson.id}`}>
               View Details <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
