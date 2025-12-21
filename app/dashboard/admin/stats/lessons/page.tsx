@@ -1,0 +1,27 @@
+import { LessonStatsCharts } from '@/components/dashboard/stats/LessonStatsCharts';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { redirect } from 'next/navigation';
+
+export default async function LessonStatsPage() {
+  const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
+
+  if (!user) {
+    redirect('/sign-in');
+  }
+
+  if (!isAdmin && !isTeacher) {
+    redirect('/dashboard');
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8 space-y-8">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold tracking-tight">Lesson Statistics</h1>
+        <p className="text-muted-foreground">
+          Detailed analytics about lessons and scheduling.
+        </p>
+      </div>
+      <LessonStatsCharts />
+    </div>
+  );
+}
