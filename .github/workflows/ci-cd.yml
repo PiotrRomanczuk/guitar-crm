@@ -45,18 +45,21 @@ jobs:
         with:
           version: latest
 
-      - name: Link to Remote Supabase
-        run: |
-          supabase link --project-ref $SUPABASE_PROJECT_ID --password $SUPABASE_DB_PASSWORD
-
       - name: Run Full Backup
         run: |
           TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
           BACKUP_FILE="backup_$TIMESTAMP.sql"
           
-          echo "📦 Starting full database backup via Supabase CLI..."
+          # URL encode the password
+          DB_PASSWORD_ENCODED=$(python3 -c "import urllib.parse, os; print(urllib.parse.quote(os.environ['SUPABASE_DB_PASSWORD']))")
+          
+          # Construct the connection string for the pooler (Session mode port 5432)
+          # User format: postgres.[project-ref]
+          DB_URL="postgresql://postgres.$SUPABASE_PROJECT_ID:$DB_PASSWORD_ENCODED@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
+          
+          echo "📦 Starting full database backup via Supabase CLI using Connection Pooler..."
           supabase db dump \
-            --linked \
+            --db-url "$DB_URL" \
             --schema public,auth,storage \
             -f "$BACKUP_FILE" \
             --debug
