@@ -20,8 +20,6 @@ const eslintConfig = defineConfig([
     '*.js',
     // History/backup files
     'scripts/history/**',
-    // Source project for migration
-    'guitar-mastery-hub/**',
   ]),
   // Project-wide rules and overrides
   {

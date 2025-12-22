@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Book, Code, Smartphone, Zap, Lock } from 'lucide-react';
+import { Book, Smartphone, Zap, Lock } from 'lucide-react';
 
 export function AdminDocsClient() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -142,7 +142,7 @@ export function AdminDocsClient() {
                   <div className="space-y-2">
                     <h3 className="font-semibold">Step 1: Get an API Key</h3>
                     <p className="text-sm text-muted-foreground">
-                      Go to Settings &gt; API Keys and create a new key named "iPhone Widget". Copy the key.
+                      Go to Settings &gt; API Keys and create a new key named &quot;iPhone Widget&quot;. Copy the key.
                     </p>
                   </div>
 
@@ -225,5 +225,4 @@ async function createWidget() {
       </div>
     </div>
   );
-
-import { Button } from '@/components/ui/button';
+}

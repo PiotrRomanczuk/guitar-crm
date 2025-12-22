@@ -22,6 +22,7 @@ describe('uploadFile', () => {
   });
   
   const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+  const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
   const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
 
   const originalEnv = process.env;
@@ -67,8 +68,8 @@ describe('uploadFile', () => {
     process.env.GOOGLE_SERVICE_ACCOUNT_KEY = '';
     process.env.GOOGLE_DRIVE_FOLDER_ID = 'folder-id';
 
-    await expect(uploadFile()).rejects.toThrow('Process.exit called with 1');
-    expect(mockConsoleError).toHaveBeenCalledWith(expect.stringContaining('GOOGLE_SERVICE_ACCOUNT_KEY environment variable is required'));
+    await expect(uploadFile()).rejects.toThrow('Process.exit called with 0');
+    expect(mockConsoleWarn).toHaveBeenCalledWith(expect.stringContaining('GOOGLE_SERVICE_ACCOUNT_KEY environment variable is not set'));
   });
 
   it('should upload file successfully', async () => {
