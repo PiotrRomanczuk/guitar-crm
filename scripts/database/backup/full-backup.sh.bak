@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# Full Database Backup Script
+# Creates a complete backup of the database (schema + data) using pg_dump
+
+set -e
+
+# Function to load env vars
+load_env() {
+  if [ -f "$1" ]; then
+    echo "Loading environment from $1..."
+    export $(grep -v '^#' "$1" | xargs)
+  fi
+}
+
+# Load environment variables
+# Priority: .env.local > .env
+if [ -f .env.local ]; then
+  load_env .env.local
+elif [ -f .env ]; then
+  load_env .env
+fi
+
+# Check if DATABASE_URL is set
+if [ -z "$DATABASE_URL" ]; then
+  # Fallback to POSTGRES_URL if available (common in Vercel/Next.js setups)
+  if [ -n "$POSTGRES_URL" ]; then
+    echo "ℹ️  Using POSTGRES_URL as DATABASE_URL"
+    DATABASE_URL="$POSTGRES_URL"
+  else
+    echo "❌ Error: DATABASE_URL is not set."
+    echo "Please set DATABASE_URL or POSTGRES_URL in your .env or .env.local file."
+    echo "Format: postgres://user:password@host:port/dbname"
+    exit 1
+  fi
+fi
+
+echo "💾 FULL DATABASE BACKUP UTILITY"
+echo "=============================="
+
+# Create backup directory with timestamp
+TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
+BACKUP_DIR="supabase/backups/full_$TIMESTAMP"
+mkdir -p "$BACKUP_DIR"
+
+echo "📁 Creating backup in: $BACKUP_DIR"
+
+# Backup file path
+BACKUP_FILE="$BACKUP_DIR/full_backup.dump"
+
+echo "⏳ Starting backup..."
+# Mask password in output for security
+MASKED_URL=$(echo "$DATABASE_URL" | sed 's/:[^:@]*@/:****@/')
+echo "Target Database: $MASKED_URL"
+
+# Run pg_dump
+# -F c: Custom format (compressed, allows reordering, suitable for pg_restore)
+# --no-owner: Skip ownership commands (useful when restoring to different user)
+# --no-acl: Skip privilege commands
+pg_dump -F c --no-owner --no-acl -f "$BACKUP_FILE" "$DATABASE_URL"
+
+# Create a metadata file
+cat > "$BACKUP_DIR/backup_info.json" << EOL
+{
+  "timestamp": "$TIMESTAMP",
+  "type": "full",
+  "format": "custom (pg_dump -Fc)",
+  "file": "full_backup.dump"
+}
+EOL
+
+echo "✅ Backup created successfully!"
+echo "📄 File: $BACKUP_FILE"
+echo "📦 Size: $(du -h "$BACKUP_FILE" | cut -f1)"
+echo ""
+echo "To restore this backup:"
+echo "pg_restore --clean --if-exists --no-owner --no-acl -d <TARGET_DATABASE_URL> $BACKUP_FILE"

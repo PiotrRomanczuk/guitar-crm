@@ -53,7 +53,7 @@ export function ApiKeysSection() {
       } else {
         toast.error(result.error || 'Failed to load API keys');
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred');
     } finally {
       setLoading(false);
@@ -74,7 +74,7 @@ export function ApiKeysSection() {
       } else {
         toast.error(result.error || 'Failed to create API key');
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred');
     } finally {
       setIsSubmitting(false);
@@ -94,7 +94,7 @@ export function ApiKeysSection() {
       } else {
         toast.error(result.error || 'Failed to revoke API key');
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred');
     }
   }

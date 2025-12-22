@@ -17,7 +17,7 @@ async function testConnection() {
 
     const supabase = createClient(config.url, config.anonKey);
 
-    const { data, error } = await supabase.from('profiles').select('count').limit(1).single();
+    const { error } = await supabase.from('profiles').select('count').limit(1).single();
 
     if (error) {
       console.error('Connection failed:', error.message);

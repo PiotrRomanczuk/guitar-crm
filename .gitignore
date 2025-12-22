@@ -59,6 +59,9 @@ supabase/tables\ information/
 lighthouse-reports/
 lighthouse-results.json
 lighthouse-simple.html
+lighthouse-report.json
+lighthouse-signin.html
+lighthouse-ci-results.json
 
 # Scripts history
 scripts/history/
@@ -77,9 +80,6 @@ server.log
 *.log
 
 .LEGACY_DATA
-
-/guitar-mastery-hubmcp-server-dash/
-/guitar-mastery-hub
 
 # Sentry Config File
 .env.sentry-build-plugin

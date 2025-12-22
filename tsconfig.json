@@ -35,7 +35,6 @@
     "node_modules",
     "cypress.config.ts",
     "cypress/**/*",
-    "scripts/**/*",
-    "guitar-mastery-hub"
+    "scripts/**/*"
   ]
 }
