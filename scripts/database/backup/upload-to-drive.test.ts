@@ -20,7 +20,7 @@ describe('uploadFile', () => {
   const mockExit = jest.spyOn(process, 'exit').mockImplementation((code?: number) => {
     throw new Error(`Process.exit called with ${code}`);
   });
-  
+
   const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
   const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
   const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -32,7 +32,7 @@ describe('uploadFile', () => {
     jest.clearAllMocks();
     process.env = { ...originalEnv };
     process.argv = [...originalArgv];
-    
+
     // Default mocks
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.statSync as jest.Mock).mockReturnValue({ size: 1024 });
@@ -50,7 +50,7 @@ describe('uploadFile', () => {
 
   it('should fail if no file path provided', async () => {
     process.argv = ['node', 'script.ts']; // No file path arg
-    
+
     await expect(uploadFile()).rejects.toThrow('Process.exit called with 1');
     expect(mockConsoleError).toHaveBeenCalledWith('Please provide a file path');
   });
@@ -69,7 +69,9 @@ describe('uploadFile', () => {
     process.env.GOOGLE_DRIVE_FOLDER_ID = 'folder-id';
 
     await expect(uploadFile()).rejects.toThrow('Process.exit called with 0');
-    expect(mockConsoleWarn).toHaveBeenCalledWith(expect.stringContaining('GOOGLE_SERVICE_ACCOUNT_KEY environment variable is not set'));
+    expect(mockConsoleWarn).toHaveBeenCalledWith(
+      expect.stringContaining('GOOGLE_SERVICE_ACCOUNT_KEY environment variable is not set')
+    );
   });
 
   it('should upload file successfully', async () => {
@@ -78,13 +80,13 @@ describe('uploadFile', () => {
     process.env.GOOGLE_DRIVE_FOLDER_ID = 'folder-id';
 
     const mockCreate = jest.fn().mockResolvedValue({
-      data: { id: 'file-id', webViewLink: 'http://link' }
+      data: { id: 'file-id', webViewLink: 'http://link' },
     });
 
     (google.drive as jest.Mock).mockReturnValue({
       files: {
-        create: mockCreate
-      }
+        create: mockCreate,
+      },
     });
 
     await uploadFile();
@@ -118,8 +120,8 @@ describe('uploadFile', () => {
 
     (google.drive as jest.Mock).mockReturnValue({
       files: {
-        create: mockCreate
-      }
+        create: mockCreate,
+      },
     });
 
     await expect(uploadFile()).rejects.toThrow('Process.exit called with 1');
