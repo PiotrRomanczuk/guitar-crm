@@ -3,13 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -121,8 +115,8 @@ export function ApiKeysSection() {
           <div>
             <CardTitle>API Keys</CardTitle>
             <CardDescription>
-              Manage API keys for accessing the API programmatically.
-              These keys do not expire until revoked.
+              Manage API keys for accessing the API programmatically. These keys do not expire until
+              revoked.
             </CardDescription>
           </div>
           <Dialog open={isCreateOpen} onOpenChange={(open) => !open && handleCloseDialog()}>
@@ -135,9 +129,7 @@ export function ApiKeysSection() {
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Create API Key</DialogTitle>
-                <DialogDescription>
-                  Generate a new API key for your applications.
-                </DialogDescription>
+                <DialogDescription>Generate a new API key for your applications.</DialogDescription>
               </DialogHeader>
 
               {!createdKey ? (
@@ -153,20 +145,21 @@ export function ApiKeysSection() {
                 </div>
               ) : (
                 <div className="py-4 space-y-4">
-                  <Alert variant="default" className="bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
+                  <Alert
+                    variant="default"
+                    className="bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800"
+                  >
                     <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-500" />
-                    <AlertTitle className="text-yellow-800 dark:text-yellow-500">Save this key</AlertTitle>
+                    <AlertTitle className="text-yellow-800 dark:text-yellow-500">
+                      Save this key
+                    </AlertTitle>
                     <AlertDescription className="text-yellow-700 dark:text-yellow-400">
                       This is the only time we will show you the key. Make sure to copy it now.
                     </AlertDescription>
                   </Alert>
                   <div className="flex items-center space-x-2">
                     <div className="grid flex-1 gap-2">
-                      <Input
-                        readOnly
-                        value={createdKey}
-                        className="font-mono text-sm"
-                      />
+                      <Input readOnly value={createdKey} className="font-mono text-sm" />
                     </div>
                     <Button size="sm" className="px-3" onClick={handleCopy}>
                       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -217,9 +210,7 @@ export function ApiKeysSection() {
                   <TableCell className="font-medium">{key.name}</TableCell>
                   <TableCell>{new Date(key.created_at).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    {key.last_used_at
-                      ? new Date(key.last_used_at).toLocaleDateString()
-                      : 'Never'}
+                    {key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : 'Never'}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
