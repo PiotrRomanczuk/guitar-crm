@@ -57,9 +57,9 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
       const clientUrl = (supabase as any).supabaseUrl;
       console.log('[DatabaseStatus] Testing connection to:', clientUrl);
 
-      // Create a timeout promise (5 seconds)
+      // Create a timeout promise (10 seconds)
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Connection check timed out')), 5000)
+        setTimeout(() => reject(new Error('Connection check timed out')), 10000)
       );
 
       // Race the connection check against the timeout
@@ -79,6 +79,10 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
           setConnectionStatus('connected');
         } else {
           setConnectionStatus('error');
+          // If it's a timeout, show a specific toast
+          if (error.message === 'Connection check timed out') {
+            toast.error(`Connection timed out connecting to ${clientUrl}`);
+          }
         }
       } else {
         console.log('[DatabaseStatus] Connection successful');

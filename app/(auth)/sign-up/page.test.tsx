@@ -33,7 +33,7 @@ describe('SignUpPage', () => {
 
   it('renders the sign up page structure', () => {
     render(<SignUpPage />);
-    
+
     expect(screen.getByText('🎸 Guitar CRM')).toBeInTheDocument();
     expect(screen.getByText('Create your account')).toBeInTheDocument();
     expect(screen.getByTestId('sign-up-form')).toBeInTheDocument();
@@ -41,7 +41,7 @@ describe('SignUpPage', () => {
 
   it('handles successful sign up with redirect delay', async () => {
     render(<SignUpPage />);
-    
+
     const successButton = screen.getByText('Simulate Success');
     fireEvent.click(successButton);
 

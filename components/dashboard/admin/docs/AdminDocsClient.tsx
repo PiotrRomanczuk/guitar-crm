@@ -76,13 +76,12 @@ export function AdminDocsClient() {
                 <CardHeader>
                   <CardTitle>Welcome to Guitar CRM Developer Docs</CardTitle>
                   <CardDescription>
-                    This documentation is intended for administrators and developers working on extending the Guitar CRM platform.
+                    This documentation is intended for administrators and developers working on
+                    extending the Guitar CRM platform.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p>
-                    Here you will find information about:
-                  </p>
+                  <p>Here you will find information about:</p>
                   <ul className="list-disc pl-6 space-y-2">
                     <li>Authenticating with the API using Bearer tokens and API Keys.</li>
                     <li>Creating external widgets (e.g., for iOS using Scriptable).</li>
@@ -104,8 +103,8 @@ export function AdminDocsClient() {
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Bearer Tokens</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      For short-lived sessions (e.g., testing in browser), you can use the session token found on the dashboard.
-                      These tokens expire after 1 hour.
+                      For short-lived sessions (e.g., testing in browser), you can use the session
+                      token found on the dashboard. These tokens expire after 1 hour.
                     </p>
                     <div className="bg-muted p-4 rounded-md font-mono text-sm">
                       Authorization: Bearer &lt;your-session-token&gt;
@@ -113,10 +112,12 @@ export function AdminDocsClient() {
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">API Keys (Recommended for Scripts)</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      API Keys (Recommended for Scripts)
+                    </h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      For long-running scripts or external widgets, generate an API Key in the Settings page.
-                      These keys do not expire until revoked.
+                      For long-running scripts or external widgets, generate an API Key in the
+                      Settings page. These keys do not expire until revoked.
                     </p>
                     <div className="bg-muted p-4 rounded-md font-mono text-sm">
                       Authorization: Bearer gcrm_&lt;random-string&gt;
@@ -136,13 +137,15 @@ export function AdminDocsClient() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p>
-                    You can use the <strong>Scriptable</strong> app on iOS to create custom widgets that display data from Guitar CRM.
+                    You can use the <strong>Scriptable</strong> app on iOS to create custom widgets
+                    that display data from Guitar CRM.
                   </p>
-                  
+
                   <div className="space-y-2">
                     <h3 className="font-semibold">Step 1: Get an API Key</h3>
                     <p className="text-sm text-muted-foreground">
-                      Go to Settings &gt; API Keys and create a new key named &quot;iPhone Widget&quot;. Copy the key.
+                      Go to Settings &gt; API Keys and create a new key named &quot;iPhone
+                      Widget&quot;. Copy the key.
                     </p>
                   </div>
 
@@ -152,7 +155,7 @@ export function AdminDocsClient() {
                       Create a new script in Scriptable and use the following template:
                     </p>
                     <pre className="bg-slate-950 text-slate-50 p-4 rounded-md overflow-x-auto text-xs">
-{`const API_URL = "https://your-app-url.com/api";
+                      {`const API_URL = "https://your-app-url.com/api";
 const API_KEY = "gcrm_YOUR_API_KEY_HERE";
 
 let widget = await createWidget();

@@ -37,7 +37,7 @@ describe('SignInPage', () => {
 
   it('renders the sign in page structure', () => {
     render(<SignInPage />);
-    
+
     expect(screen.getByText('Log in')).toBeInTheDocument();
     expect(screen.getByTestId('sign-in-form')).toBeInTheDocument();
     expect(screen.getByTestId('animated-text')).toBeInTheDocument();
@@ -46,7 +46,7 @@ describe('SignInPage', () => {
 
   it('handles successful sign in', () => {
     render(<SignInPage />);
-    
+
     const successButton = screen.getByText('Simulate Success');
     fireEvent.click(successButton);
 
