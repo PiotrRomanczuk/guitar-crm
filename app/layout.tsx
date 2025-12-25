@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { AppShell } from '@/components/layout/AppShell';
 import { Providers } from '@/components/providers/QueryProvider';
@@ -47,6 +48,7 @@ export default async function RootLayout({
             {children}
           </AppShell>
         </Providers>
+        <SpeedInsights />
       </body>
     </html>
   );
