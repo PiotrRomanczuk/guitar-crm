@@ -2,6 +2,7 @@ import { QuickActionsSection } from './QuickActionsSection';
 import { DashboardStatsGrid } from './DashboardStatsGrid';
 import { DashboardHeader } from './DashboardHeader';
 import { CalendarEventsList } from './calendar/CalendarEventsList';
+import { AIAssistantCard } from './admin/AIAssistantCard';
 
 export function DashboardPageContent({
   email,
@@ -26,8 +27,9 @@ export function DashboardPageContent({
         <DashboardHeader email={email} roleText={roleText} />
         <DashboardStatsGrid />
         {isAdmin && (
-          <div className="mt-8">
-            <CalendarEventsList limit={7} />
+          <div className="mt-8 grid gap-8 md:grid-cols-2">
+            <CalendarEventsList limit={5} />
+            <AIAssistantCard />
           </div>
         )}
         <QuickActionsSection isAdmin={isAdmin} isTeacher={isTeacher} />
