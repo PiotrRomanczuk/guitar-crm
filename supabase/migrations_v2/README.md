@@ -10,7 +10,7 @@ The original `migrations/` folder accumulated 58 migration files over time with 
 - Policy corrections
 - Schema restructuring
 
-This `migrations_v2/` folder consolidates everything into **28 clean migration files** that create the same final database state.
+This `migrations_v2/` folder consolidates everything into **29 clean migration files** that create the same final database state.
 
 ## Migration Files
 
@@ -31,6 +31,7 @@ This `migrations_v2/` folder consolidates everything into **28 clean migration f
 | 013 | `013_create_webhook_subscriptions_table.sql` | Webhook subscriptions |
 | 014 | `014_create_practice_sessions_table.sql` | Practice sessions |
 | 015 | `015_create_song_status_history_table.sql` | Song status history |
+| 015b | `015b_create_student_song_progress_table.sql` | Student song progress tracking |
 | 016 | `016_create_views.sql` | All views |
 | 017 | `017_create_triggers.sql` | All triggers |
 | 018 | `018_enable_rls.sql` | Enable RLS on all tables |
@@ -44,6 +45,7 @@ This `migrations_v2/` folder consolidates everything into **28 clean migration f
 | 026 | `026_storage_policies.sql` | Storage bucket policies |
 | 027 | `027_handle_new_user_trigger.sql` | Auth user trigger |
 | 028 | `028_seed_initial_data.sql` | Seed data |
+| 029 | `029_add_full_text_search.sql` | Full-text search indexes |
 
 ## Usage
 
@@ -75,20 +77,44 @@ To use these consolidated migrations for a fresh database:
 - **6 superseded RLS migrations** - Replaced by final versions
 - **2 legacy table migrations** - `task_management` renamed to `assignments`
 
-### Kept Items (But Unused)
+### Removed Legacy Items
 
-The following items exist in the current database but are **unused**:
+The following legacy items were **removed** from consolidated migrations:
 - `task_priority` enum - Legacy from task_management, not used in assignments
 - `task_status` enum - Legacy from task_management, not used in assignments
 
-These were intentionally left out of the consolidated migrations but exist in production.
+## Improvements Over Original
+
+The consolidated migrations include several improvements:
+
+### Data Integrity
+- **CHECK constraints** on songs (capo_fret, tempo, time_signature, duration_ms, release_year)
+- **CHECK constraints** on lessons and assignments (teacher ≠ student)
+- **CHECK constraints** on practice_sessions (duration 1-480 minutes)
+
+### Soft Delete
+- Lessons and assignments support soft delete via `deleted_at` column
+- Indexes for efficient filtering of non-deleted records
+
+### New Tables
+- `student_song_progress` - Tracks overall song mastery across lessons
+
+### Full-Text Search
+- Generated tsvector column on songs for efficient full-text search
+- pg_trgm extension for fuzzy matching
+
+### Documentation
+- Comprehensive COMMENT statements on all tables and columns
+
+### Trigger Consistency
+- All updated_at triggers follow consistent naming: `trigger_update_updated_at`
 
 ## Comparison
 
 | Metric | Original | Consolidated |
 |--------|----------|--------------|
-| Total files | 58 | 28 |
-| Lines of SQL | ~3000 | ~1200 |
+| Total files | 58 | 29 |
+| Lines of SQL | ~3000 | ~1400 |
 | Bug fix files | 11 | 0 |
 | Policy rewrites | 8+ | 0 |
 

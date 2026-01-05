@@ -12,3 +12,11 @@ CREATE TABLE user_integrations (
     
     PRIMARY KEY (user_id, provider)
 );
+
+-- Comments
+COMMENT ON TABLE user_integrations IS 'OAuth tokens for external service integrations (Google Calendar, etc.)';
+COMMENT ON COLUMN user_integrations.user_id IS 'User who authorized this integration';
+COMMENT ON COLUMN user_integrations.provider IS 'Integration provider name (e.g., google, spotify)';
+COMMENT ON COLUMN user_integrations.access_token IS 'OAuth access token (encrypted at rest)';
+COMMENT ON COLUMN user_integrations.refresh_token IS 'OAuth refresh token for obtaining new access tokens';
+COMMENT ON COLUMN user_integrations.expires_at IS 'Token expiration timestamp in milliseconds from epoch';

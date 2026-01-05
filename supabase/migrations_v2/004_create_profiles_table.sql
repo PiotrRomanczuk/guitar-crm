@@ -33,4 +33,17 @@ CREATE INDEX profiles_email_idx ON profiles(email);
 CREATE INDEX idx_profiles_user_id ON profiles(user_id);
 
 -- Comments
-COMMENT ON COLUMN profiles.is_shadow IS 'Flag to identify students created by teachers without real email addresses';
+COMMENT ON TABLE profiles IS 'User profiles linked to auth.users - stores user details and role flags';
+COMMENT ON COLUMN profiles.id IS 'Unique profile identifier';
+COMMENT ON COLUMN profiles.user_id IS 'Reference to Supabase auth.users (null for shadow students)';
+COMMENT ON COLUMN profiles.email IS 'User email address - must be unique across all profiles';
+COMMENT ON COLUMN profiles.full_name IS 'Display name shown in UI';
+COMMENT ON COLUMN profiles.avatar_url IS 'URL to user avatar image';
+COMMENT ON COLUMN profiles.notes IS 'Admin/teacher notes about the user';
+COMMENT ON COLUMN profiles.phone IS 'Contact phone number';
+COMMENT ON COLUMN profiles.is_admin IS 'Has full system access (synced to user_roles)';
+COMMENT ON COLUMN profiles.is_teacher IS 'Can teach students and manage lessons (synced to user_roles)';
+COMMENT ON COLUMN profiles.is_student IS 'Takes lessons (synced to user_roles)';
+COMMENT ON COLUMN profiles.is_development IS 'Development/test account flag';
+COMMENT ON COLUMN profiles.is_active IS 'Active account - false disables login';
+COMMENT ON COLUMN profiles.is_shadow IS 'Shadow student - created by teacher without real email/auth account';

@@ -14,3 +14,10 @@ CREATE TABLE user_roles (
 -- Indexes
 CREATE INDEX user_roles_user_id_idx ON user_roles(user_id);
 CREATE INDEX user_roles_role_idx ON user_roles(role);
+
+-- Comments
+COMMENT ON TABLE user_roles IS 'User role assignments - junction table linking profiles to roles for RBAC';
+COMMENT ON COLUMN user_roles.id IS 'Unique role assignment identifier';
+COMMENT ON COLUMN user_roles.user_id IS 'Reference to profile receiving the role';
+COMMENT ON COLUMN user_roles.role IS 'Role type: admin, teacher, or student';
+COMMENT ON COLUMN user_roles.assigned_at IS 'When the role was assigned';

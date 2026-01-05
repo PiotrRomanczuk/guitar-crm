@@ -12,12 +12,12 @@ CREATE TABLE songs (
     -- Music attributes
     level difficulty_level NOT NULL,
     key music_key NOT NULL,
-    capo_fret INTEGER,
+    capo_fret INTEGER CHECK (capo_fret IS NULL OR (capo_fret >= 0 AND capo_fret <= 20)),
     strumming_pattern TEXT,
-    tempo INTEGER,
-    time_signature INTEGER,
-    duration_ms INTEGER,
-    release_year INTEGER,
+    tempo INTEGER CHECK (tempo IS NULL OR (tempo >= 20 AND tempo <= 300)),
+    time_signature INTEGER CHECK (time_signature IS NULL OR (time_signature >= 1 AND time_signature <= 16)),
+    duration_ms INTEGER CHECK (duration_ms IS NULL OR duration_ms > 0),
+    release_year INTEGER CHECK (release_year IS NULL OR (release_year >= 1900 AND release_year <= 2100)),
     category TEXT,
     chords TEXT,
     

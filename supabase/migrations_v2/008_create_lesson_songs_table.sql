@@ -17,3 +17,11 @@ CREATE TABLE lesson_songs (
 -- Indexes
 CREATE INDEX lesson_songs_lesson_id_idx ON lesson_songs(lesson_id);
 CREATE INDEX lesson_songs_song_id_idx ON lesson_songs(song_id);
+
+-- Comments
+COMMENT ON TABLE lesson_songs IS 'Junction table linking songs to lessons with learning status tracking';
+COMMENT ON COLUMN lesson_songs.id IS 'Unique lesson-song link identifier';
+COMMENT ON COLUMN lesson_songs.lesson_id IS 'Reference to the lesson';
+COMMENT ON COLUMN lesson_songs.song_id IS 'Reference to the song being learned';
+COMMENT ON COLUMN lesson_songs.status IS 'Learning status: to_learn, learning, or learned';
+COMMENT ON COLUMN lesson_songs.notes IS 'Teacher notes about the song for this lesson';

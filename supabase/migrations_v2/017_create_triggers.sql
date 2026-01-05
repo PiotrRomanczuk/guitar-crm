@@ -44,19 +44,31 @@ CREATE TRIGGER trigger_update_updated_at
     EXECUTE FUNCTION update_updated_at_column();
 
 -- Trigger: Auto-update updated_at on assignment_templates
-CREATE TRIGGER update_assignment_templates_updated_at
+CREATE TRIGGER trigger_update_updated_at
     BEFORE UPDATE ON assignment_templates
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
 -- Trigger: Auto-update updated_at on user_integrations
-CREATE TRIGGER handle_updated_at
+CREATE TRIGGER trigger_update_updated_at
     BEFORE UPDATE ON user_integrations
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
 -- Trigger: Auto-update updated_at on webhook_subscriptions
-CREATE TRIGGER handle_updated_at
+CREATE TRIGGER trigger_update_updated_at
     BEFORE UPDATE ON webhook_subscriptions
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Trigger: Auto-update updated_at on practice_sessions
+CREATE TRIGGER trigger_update_updated_at
+    BEFORE UPDATE ON practice_sessions
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Trigger: Auto-update updated_at on student_song_progress
+CREATE TRIGGER trigger_update_updated_at
+    BEFORE UPDATE ON student_song_progress
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
