@@ -98,7 +98,7 @@ export const ErrorResponseSchema = z.object({
   error: z.string(),
   message: z.string().optional(),
   code: z.string().optional(),
-  details: z.record(z.string()).optional(), // field: error message
+  details: z.record(z.string(), z.string()).optional(), // field: error message
 });
 
 // Success response schema
