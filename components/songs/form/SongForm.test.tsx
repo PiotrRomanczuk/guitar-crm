@@ -37,6 +37,7 @@ describe('SongForm Component - Core Tests', () => {
       level: 'intermediate' as const,
       key: 'C' as const,
       ultimate_guitar_link: 'https://example.com',
+      youtube_url: 'https://youtube.com/watch?v=123',
     };
 
     render(<SongForm mode="edit" song={mockSong} />);

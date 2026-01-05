@@ -261,7 +261,7 @@ export async function createLessonHandler(
   } catch (error) {
     if (error instanceof ZodError) {
       return {
-        error: `Validation error: ${error.errors.map((e) => e.message).join(', ')}`,
+        error: `Validation error: ${error.issues.map((e) => e.message).join(', ')}`,
         status: 400,
       };
     }
@@ -394,7 +394,7 @@ export async function updateLessonHandler(
   } catch (error) {
     if (error instanceof ZodError) {
       return {
-        error: `Validation error: ${error.errors.map((e) => e.message).join(', ')}`,
+        error: `Validation error: ${error.issues.map((e) => e.message).join(', ')}`,
         status: 400,
       };
     }
