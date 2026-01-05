@@ -593,20 +593,29 @@ export async function deleteUser(userId: string) {
 
   const supabaseAdmin = createAdminClient();
 
+  // Check if user exists in auth.users before trying to delete
+  const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId);
+
   // Delete from profiles first (to ensure clean state if no cascade)
   const { error: profileError } = await supabaseAdmin.from('profiles').delete().eq('id', userId);
 
   if (profileError) {
     console.error('Error deleting profile:', profileError);
-    // Continue to delete auth user even if profile delete fails (might be already gone)
+    // Continue anyway - profile might be already gone
   }
 
-  // Delete from auth.users
-  const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+  // Only delete from auth.users if user exists there
+  if (authUser?.user) {
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
-  if (error) {
-    console.error('Error deleting user:', error);
-    throw new Error(`Failed to delete user: ${error.message}`);
+    if (error) {
+      console.error('Error deleting auth user:', error);
+      // If profile was already deleted successfully, don't fail completely
+      if (!profileError) {
+        return { success: true, warning: 'Profile deleted but auth user deletion failed' };
+      }
+      throw new Error(`Failed to delete user: ${error.message}`);
+    }
   }
 
   return { success: true };
