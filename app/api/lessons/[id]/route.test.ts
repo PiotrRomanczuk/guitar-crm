@@ -13,10 +13,10 @@ jest.mock('@/lib/supabase/server', () => ({
 }));
 
 describe('Lesson API - [id] Route', () => {
-  const validStudentId = '00000000-0000-0000-0000-000000000001';
-  const validTeacherId = '00000000-0000-0000-0000-000000000002';
-  const validUserId = '00000000-0000-0000-0000-000000000003';
-  const validLessonId = '00000000-0000-0000-0000-000000000004';
+  const validStudentId = '00000001-0000-4000-a000-000000000001';
+  const validTeacherId = '00000002-0000-4000-a000-000000000002';
+  const validUserId = '00000003-0000-4000-a000-000000000003';
+  const validLessonId = '00000004-0000-4000-a000-000000000004';
 
   const mockUser = {
     id: validUserId,

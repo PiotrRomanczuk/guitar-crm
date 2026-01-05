@@ -145,8 +145,8 @@ describe('Lesson API Handlers', () => {
 
 	describe('createLessonHandler', () => {
 		const validLesson = {
-			teacher_id: '11111111-1111-1111-1111-111111111111',
-			student_id: '22222222-2222-2222-2222-222222222222',
+			teacher_id: '11111111-1111-4111-a111-111111111111',
+			student_id: '22222222-2222-4222-a222-222222222222',
 			date: '2025-01-01',
 			start_time: '10:00',
 			title: 'Intro',
