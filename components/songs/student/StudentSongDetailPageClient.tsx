@@ -7,14 +7,20 @@ import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  ArrowLeft, 
-  Music2, 
-  ExternalLink, 
-  Calendar, 
-  Clock, 
-  Loader2, 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  ArrowLeft,
+  Music2,
+  ExternalLink,
+  Calendar,
+  Clock,
+  Loader2,
   Signal,
   Timer,
   Mic2,
@@ -22,11 +28,13 @@ import {
   Tag,
   Youtube,
   Play,
-  FileText
+  FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Song } from '@/types/Song';
+import { SongStatus } from '@/lib/constants';
 import { createClient } from '@/lib/supabase/client';
+import { SongStatusHistory } from './SongStatusHistory';
 import { toast } from 'sonner';
 
 const difficultyColors = {
@@ -65,47 +73,45 @@ export function StudentSongDetailPageClient() {
   const [song, setSong] = useState<Song | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [historyKey, setHistoryKey] = useState(0);
   const supabase = createClient();
 
   // Update song status
   const updateSongStatus = async (newStatus: string) => {
-    if (!song) return;
-    
-    setUpdatingStatus(true);
-    
+    if (!song?.id) return;
+
+    const previousStatus = song.status;
+
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      setUpdatingStatus(true);
+      setSong({ ...song, status: newStatus as any });
 
-      // Find the lesson_song record to update
-      const { data: lessonSong } = await supabase
-        .from('lesson_songs')
-        .select(`
-          id,
-          lessons!inner (student_id)
-        `)
-        .eq('song_id', song.id)
-        .eq('lessons.student_id', user.id)
-        .single();
+      const response = await fetch('/api/student/song-status', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          songId: song.id,
+          status: newStatus,
+          notes: `Status changed from ${
+            statusLabels[previousStatus || ''] || previousStatus || 'None'
+          } to ${statusLabels[newStatus] || newStatus}`,
+        }),
+      });
 
-      if (!lessonSong) {
-        throw new Error('No lesson found for this song. Please contact your instructor.');
+      if (!response.ok) {
+        throw new Error('Failed to update status');
       }
 
-      // Update the status
-      const { error } = await supabase
-        .from('lesson_songs')
-        .update({ status: newStatus })
-        .eq('id', lessonSong.id);
-
-      if (error) throw error;
-
-      // Update local state
-      setSong({ ...song, status: newStatus });
+      // Trigger a refresh of the status history
+      setHistoryKey((prev) => prev + 1);
 
       toast.success(`Song status updated to ${statusLabels[newStatus] || newStatus}!`);
     } catch (error) {
-      console.error('Error updating song status:', error);
+      console.error('Error updating status:', error);
+      // Revert on error
+      setSong({ ...song, status: previousStatus });
       toast.error('Failed to update song status. Please try again.');
     } finally {
       setUpdatingStatus(false);
@@ -208,7 +214,7 @@ export function StudentSongDetailPageClient() {
               <h1 className="text-3xl font-bold mb-2">{song.title}</h1>
               <p className="text-xl text-muted-foreground">{song.author}</p>
             </div>
-            
+
             {/* Status Update Controls */}
             <div className="flex flex-col gap-4 md:items-end">
               <div className="space-y-2 min-w-48">
@@ -321,7 +327,9 @@ export function StudentSongDetailPageClient() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Duration</p>
-                    <p className="text-lg font-semibold mt-0.5">{formatDuration(song.duration_ms)}</p>
+                    <p className="text-lg font-semibold mt-0.5">
+                      {formatDuration(song.duration_ms)}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -438,7 +446,7 @@ export function StudentSongDetailPageClient() {
                 </div>
                 <h3 className="text-lg font-semibold">Learning Resources</h3>
               </div>
-              
+
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {song.youtube_url && (
                   <Button variant="outline" asChild className="h-12">
@@ -453,7 +461,7 @@ export function StudentSongDetailPageClient() {
                     </a>
                   </Button>
                 )}
-                
+
                 {song.ultimate_guitar_link && (
                   <Button variant="outline" asChild className="h-12">
                     <a
@@ -467,7 +475,7 @@ export function StudentSongDetailPageClient() {
                     </a>
                   </Button>
                 )}
-                
+
                 {song.spotify_link_url && (
                   <Button variant="outline" asChild className="h-12">
                     <a
@@ -481,7 +489,7 @@ export function StudentSongDetailPageClient() {
                     </a>
                   </Button>
                 )}
-                
+
                 {song.audio_files && (
                   <Button variant="outline" asChild className="h-12">
                     <a
@@ -496,12 +504,15 @@ export function StudentSongDetailPageClient() {
                   </Button>
                 )}
               </div>
-              
-              {!song.youtube_url && !song.ultimate_guitar_link && !song.spotify_link_url && !song.audio_files && (
-                <div className="text-sm text-muted-foreground italic text-center py-4">
-                  No additional resources available yet
-                </div>
-              )}
+
+              {!song.youtube_url &&
+                !song.ultimate_guitar_link &&
+                !song.spotify_link_url &&
+                !song.audio_files && (
+                  <div className="text-sm text-muted-foreground italic text-center py-4">
+                    No additional resources available yet
+                  </div>
+                )}
             </CardContent>
           </Card>
 
@@ -537,6 +548,13 @@ export function StudentSongDetailPageClient() {
               </CardContent>
             </Card>
           )}
+
+          {/* Status History */}
+          <SongStatusHistory
+            key={historyKey}
+            songId={song.id}
+            className="lg:col-span-2 opacity-0 animate-fade-in [animation-delay:600ms] [animation-fill-mode:forwards]"
+          />
         </div>
       </div>
     </div>

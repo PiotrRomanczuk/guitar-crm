@@ -3,7 +3,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Play, Pause, Square, Timer, Music } from 'lucide-react';
@@ -51,7 +57,7 @@ export function PracticeTimerCard({ songs, className }: PracticeTimerCardProps) 
       // Start timer
       setIsRunning(true);
       intervalRef.current = setInterval(() => {
-        setTime(prev => prev + 1);
+        setTime((prev) => prev + 1);
       }, 1000);
     }
   };
@@ -71,34 +77,36 @@ export function PracticeTimerCard({ songs, className }: PracticeTimerCardProps) 
   // Save practice session
   const savePracticeSession = async () => {
     if (time === 0) {
-      toast.error("No practice time recorded. Start the timer and practice before saving.");
+      toast.error('No practice time recorded. Start the timer and practice before saving.');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { error } = await supabase
-        .from('practice_sessions')
-        .insert({
-          student_id: user.id,
-          song_id: selectedSong === 'general' ? null : selectedSong,
-          duration_minutes: Math.ceil(time / 60),
-          notes: notes.trim() || null
-        });
+      const { error } = await supabase.from('practice_sessions').insert({
+        student_id: user.id,
+        song_id: selectedSong === 'general' ? null : selectedSong,
+        duration_minutes: Math.ceil(time / 60),
+        notes: notes.trim() || null,
+      });
 
       if (error) throw error;
 
-      toast.success(`Practice session saved! Recorded ${Math.ceil(time / 60)} minutes of practice.`);
+      toast.success(
+        `Practice session saved! Recorded ${Math.ceil(time / 60)} minutes of practice.`
+      );
 
       // Reset the timer after successful save
       resetTimer();
     } catch (error) {
       console.error('Error saving practice session:', error);
-      toast.error("Failed to save session. Please try again.");
+      toast.error('Failed to save session. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -114,7 +122,10 @@ export function PracticeTimerCard({ songs, className }: PracticeTimerCardProps) 
   }, []);
 
   return (
-    <Card className={cn("opacity-0 animate-fade-in", className)} style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
+    <Card
+      className={cn('opacity-0 animate-fade-in', className)}
+      style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}
+    >
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Timer className="w-5 h-5 text-primary" />
@@ -124,12 +135,10 @@ export function PracticeTimerCard({ songs, className }: PracticeTimerCardProps) 
       <CardContent className="space-y-6">
         {/* Timer Display */}
         <div className="text-center">
-          <div className="text-4xl font-mono font-bold text-primary mb-2">
-            {formatTime(time)}
-          </div>
+          <div className="text-4xl font-mono font-bold text-primary mb-2">{formatTime(time)}</div>
           <div className="flex items-center justify-center gap-2">
-            <Badge variant={isRunning ? "default" : "secondary"}>
-              {isRunning ? "Recording" : "Stopped"}
+            <Badge variant={isRunning ? 'default' : 'secondary'}>
+              {isRunning ? 'Recording' : 'Stopped'}
             </Badge>
             {time > 0 && (
               <Badge variant="outline">
@@ -141,9 +150,7 @@ export function PracticeTimerCard({ songs, className }: PracticeTimerCardProps) 
 
         {/* Song Selection */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">
-            Practice Song (Optional)
-          </label>
+          <label className="text-sm font-medium">Practice Song (Optional)</label>
           <Select value={selectedSong} onValueChange={setSelectedSong}>
             <SelectTrigger>
               <SelectValue placeholder="Choose a song to practice">
@@ -152,11 +159,13 @@ export function PracticeTimerCard({ songs, className }: PracticeTimerCardProps) 
                     <Music className="w-4 h-4" />
                     General Practice
                   </div>
-                ) : selectedSong && (
-                  <div className="flex items-center gap-2">
-                    <Music className="w-4 h-4" />
-                    {songs.find(s => s.id === selectedSong)?.title}
-                  </div>
+                ) : (
+                  selectedSong && (
+                    <div className="flex items-center gap-2">
+                      <Music className="w-4 h-4" />
+                      {songs.find((s) => s.id === selectedSong)?.title}
+                    </div>
+                  )
                 )}
               </SelectValue>
             </SelectTrigger>
@@ -166,7 +175,9 @@ export function PracticeTimerCard({ songs, className }: PracticeTimerCardProps) 
                 <SelectItem key={song.id} value={song.id}>
                   <div className="flex items-center gap-2">
                     <Music className="w-4 h-4" />
-                    <span>{song.title} - {song.artist}</span>
+                    <span>
+                      {song.title} - {song.artist}
+                    </span>
                   </div>
                 </SelectItem>
               ))}
@@ -178,7 +189,7 @@ export function PracticeTimerCard({ songs, className }: PracticeTimerCardProps) 
         <div className="flex justify-center gap-3">
           <Button
             onClick={toggleTimer}
-            variant={isRunning ? "secondary" : "default"}
+            variant={isRunning ? 'secondary' : 'default'}
             size="lg"
             className="flex items-center gap-2"
           >
@@ -194,7 +205,7 @@ export function PracticeTimerCard({ songs, className }: PracticeTimerCardProps) 
               </>
             )}
           </Button>
-          
+
           <Button
             onClick={resetTimer}
             variant="outline"
@@ -210,9 +221,7 @@ export function PracticeTimerCard({ songs, className }: PracticeTimerCardProps) 
         {/* Notes */}
         {time > 0 && (
           <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Practice Notes (Optional)
-            </label>
+            <label className="text-sm font-medium">Practice Notes (Optional)</label>
             <Textarea
               placeholder="What did you work on? Any challenges or breakthroughs?"
               value={notes}
@@ -231,7 +240,7 @@ export function PracticeTimerCard({ songs, className }: PracticeTimerCardProps) 
             className="w-full"
             size="lg"
           >
-            {isSubmitting ? "Saving..." : "Save Practice Session"}
+            {isSubmitting ? 'Saving...' : 'Save Practice Session'}
           </Button>
         )}
 

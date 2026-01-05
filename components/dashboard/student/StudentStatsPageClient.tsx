@@ -3,27 +3,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
 } from 'recharts';
-import { 
-  BookOpen, 
-  Music, 
-  ClipboardList, 
-  TrendingUp, 
-  Calendar,
-  Award,
-  Target
-} from 'lucide-react';
+import { BookOpen, Music, ClipboardList, TrendingUp, Calendar, Award, Target } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface StudentStatsPageClientProps {
@@ -66,7 +58,7 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
 
   const songProgressData = Object.entries(songStatusCounts).map(([status, count]) => ({
     name: status.replace('_', ' ').charAt(0).toUpperCase() + status.replace('_', ' ').slice(1),
-    value: count
+    value: count,
   }));
 
   // Weekly lesson activity (mock data based on recent lessons)
@@ -74,9 +66,9 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
     const date = new Date();
     date.setDate(date.getDate() - (6 - i));
     const dayName = format(date, 'EEE');
-    
+
     // Check if there are lessons on this day
-    const lessonsOnDay = stats.recentLessons.filter(lesson => {
+    const lessonsOnDay = stats.recentLessons.filter((lesson) => {
       const lessonDate = new Date(lesson.scheduled_at);
       return lessonDate.toDateString() === date.toDateString();
     }).length;
@@ -84,13 +76,16 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
     return {
       name: dayName,
       lessons: lessonsOnDay,
-      practice: 45 + (i % 4) * 5 // Deterministic mock practice minutes (45-60)
+      practice: 45 + (i % 4) * 5, // Deterministic mock practice minutes (45-60)
     };
   });
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8">
-      <div className="mb-6 sm:mb-8 opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
+      <div
+        className="mb-6 sm:mb-8 opacity-0 animate-fade-in"
+        style={{ animationFillMode: 'forwards' }}
+      >
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">
           My Learning Statistics
         </h1>
@@ -101,7 +96,10 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-        <Card className="opacity-0 animate-fade-in" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
+        <Card
+          className="opacity-0 animate-fade-in"
+          style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
+        >
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
               <BookOpen className="w-5 h-5 text-primary" />
@@ -114,7 +112,10 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
           </CardContent>
         </Card>
 
-        <Card className="opacity-0 animate-fade-in" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
+        <Card
+          className="opacity-0 animate-fade-in"
+          style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}
+        >
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
               <Music className="w-5 h-5 text-primary" />
@@ -127,7 +128,10 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
           </CardContent>
         </Card>
 
-        <Card className="opacity-0 animate-fade-in" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
+        <Card
+          className="opacity-0 animate-fade-in"
+          style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}
+        >
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
               <Target className="w-5 h-5 text-primary" />
@@ -140,7 +144,10 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
           </CardContent>
         </Card>
 
-        <Card className="opacity-0 animate-fade-in" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
+        <Card
+          className="opacity-0 animate-fade-in"
+          style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}
+        >
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
               <ClipboardList className="w-5 h-5 text-primary" />
@@ -156,7 +163,10 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         {/* Weekly Activity Chart */}
-        <Card className="opacity-0 animate-fade-in" style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
+        <Card
+          className="opacity-0 animate-fade-in"
+          style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5" />
@@ -180,7 +190,10 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
         </Card>
 
         {/* Song Progress */}
-        <Card className="opacity-0 animate-fade-in" style={{ animationDelay: '600ms', animationFillMode: 'forwards' }}>
+        <Card
+          className="opacity-0 animate-fade-in"
+          style={{ animationDelay: '600ms', animationFillMode: 'forwards' }}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Music className="w-5 h-5" />
@@ -197,7 +210,9 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => 
+                        `${name} ${((percent || 0) * 100).toFixed(0)}%`
+                      }
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -219,7 +234,10 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
         </Card>
 
         {/* Recent Lessons */}
-        <Card className="lg:col-span-2 opacity-0 animate-fade-in" style={{ animationDelay: '700ms', animationFillMode: 'forwards' }}>
+        <Card
+          className="lg:col-span-2 opacity-0 animate-fade-in"
+          style={{ animationDelay: '700ms', animationFillMode: 'forwards' }}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5" />
@@ -230,7 +248,10 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
             {stats.recentLessons.length > 0 ? (
               <div className="space-y-4">
                 {stats.recentLessons.slice(0, 5).map((lesson) => (
-                  <div key={lesson.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                  <div
+                    key={lesson.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                         <BookOpen className="w-5 h-5 text-primary" />
@@ -258,7 +279,10 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
       </div>
 
       {/* Achievement Preview */}
-      <Card className="mt-8 opacity-0 animate-fade-in" style={{ animationDelay: '800ms', animationFillMode: 'forwards' }}>
+      <Card
+        className="mt-8 opacity-0 animate-fade-in"
+        style={{ animationDelay: '800ms', animationFillMode: 'forwards' }}
+      >
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Award className="w-5 h-5" />
@@ -285,7 +309,9 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
               <div className="text-2xl mb-2">⭐</div>
               <p className="font-medium">Star Student</p>
               <p className="text-sm text-muted-foreground">
-                {stats.assignmentCompletionRate === 100 ? 'Completed!' : `${stats.assignmentCompletionRate}% completion`}
+                {stats.assignmentCompletionRate === 100
+                  ? 'Completed!'
+                  : `${stats.assignmentCompletionRate}% completion`}
               </p>
             </div>
           </div>

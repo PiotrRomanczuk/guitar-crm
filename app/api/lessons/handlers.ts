@@ -315,7 +315,11 @@ async function handleLessonCompletionEmail(supabase: SupabaseClient, lessonId: s
 
     const songs =
       lesson.lesson_songs?.map((ls: unknown) => {
-        const lessonSong = ls as { song?: { title?: string; author?: string }; status?: string; notes?: string };
+        const lessonSong = ls as {
+          song?: { title?: string; author?: string };
+          status?: string;
+          notes?: string;
+        };
         return {
           title: lessonSong.song?.title || 'Unknown Song',
           artist: lessonSong.song?.author || 'Unknown Artist',

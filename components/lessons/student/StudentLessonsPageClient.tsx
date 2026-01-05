@@ -6,23 +6,39 @@ import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BookOpen, User, ArrowRight, Loader2 } from 'lucide-react';
-import { Lesson } from '@/types/Lesson';
 import { createClient } from '@/lib/supabase/client';
 
+interface StudentLessonView {
+  id: string;
+  title: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  status: string;
+  notes: string | null;
+  teacher: Array<{
+    id: string;
+    first_name: string;
+    last_name: string;
+  }>;
+}
+
 export function StudentLessonsPageClient() {
-  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [lessons, setLessons] = useState<StudentLessonView[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
     async function fetchLessons() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return;
 
         const { data, error } = await supabase
           .from('lessons')
-          .select(`
+          .select(
+            `
             id,
             title,
             scheduled_at,
@@ -34,7 +50,8 @@ export function StudentLessonsPageClient() {
               first_name,
               last_name
             )
-          `)
+          `
+          )
           .eq('student_id', user.id)
           .order('scheduled_at', { ascending: false });
 
@@ -61,11 +78,16 @@ export function StudentLessonsPageClient() {
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8">
-      <div className="mb-6 sm:mb-8 opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
+      <div
+        className="mb-6 sm:mb-8 opacity-0 animate-fade-in"
+        style={{ animationFillMode: 'forwards' }}
+      >
         <h1 className="text-2xl sm:text-3xl font-semibold">
           <span className="text-primary">Lessons</span>
         </h1>
-        <p className="text-muted-foreground mt-1 text-sm sm:text-base">View and manage all scheduled lessons</p>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
+          View and manage all scheduled lessons
+        </p>
       </div>
 
       {lessons.length === 0 ? (
@@ -79,7 +101,8 @@ export function StudentLessonsPageClient() {
           </div>
           <h3 className="text-lg font-medium mb-2">No lessons scheduled</h3>
           <p className="text-muted-foreground mb-4">
-            You don&apos;t have any lessons scheduled yet. Your teacher will schedule lessons as you begin your guitar journey.
+            You don&apos;t have any lessons scheduled yet. Your teacher will schedule lessons as you
+            begin your guitar journey.
           </p>
           <p className="text-sm text-muted-foreground">
             Ready to start? Contact your teacher to schedule your first lesson.
@@ -116,8 +139,8 @@ export function StudentLessonsPageClient() {
                             <Badge variant="outline" className="text-xs">
                               {lesson.duration_minutes} min
                             </Badge>
-                            <Badge 
-                              variant={lesson.status === 'completed' ? 'default' : 'secondary'} 
+                            <Badge
+                              variant={lesson.status === 'completed' ? 'default' : 'secondary'}
                               className="text-xs"
                             >
                               {lesson.status === 'completed' ? 'Completed' : 'Scheduled'}
@@ -128,7 +151,7 @@ export function StudentLessonsPageClient() {
                         <div className="flex items-center text-xs sm:text-sm text-muted-foreground mt-1 gap-2">
                           <User className="w-3 h-3 sm:w-4 sm:h-4" />
                           <span className="truncate">
-                            Teacher: {lesson.teacher?.first_name} {lesson.teacher?.last_name}
+                            Teacher: {lesson.teacher?.[0]?.first_name} {lesson.teacher?.[0]?.last_name}
                           </span>
                         </div>
                       </div>

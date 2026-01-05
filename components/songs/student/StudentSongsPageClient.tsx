@@ -6,8 +6,26 @@ import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Music2, Guitar, ExternalLink, Loader2, TrendingUp, Search, Filter, SortAsc, Youtube, Play, FileText } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Music2,
+  Guitar,
+  ExternalLink,
+  Loader2,
+  TrendingUp,
+  Search,
+  Filter,
+  SortAsc,
+  Youtube,
+  Play,
+  FileText,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Song } from '@/types/Song';
 import { createClient } from '@/lib/supabase/client';
@@ -32,7 +50,6 @@ const statusColors: Record<string, string> = {
   improving: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
   mastered: 'bg-green-500/10 text-green-500 border-green-500/20',
   // Legacy statuses
-  to_learn: 'bg-slate-500/10 text-slate-500 border-slate-500/20',
   started: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
   remembered: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
   with_author: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
@@ -54,30 +71,34 @@ export function StudentSongsPageClient() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
-  
+
   // Filter and sort states
   const [searchQuery, setSearchQuery] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('name');
-  
+
   const supabase = createClient();
 
   // Update song status
   const updateSongStatus = async (songId: string, newStatus: string) => {
     setUpdatingStatus(songId);
-    
+
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       // Find the lesson_song record to update
       const { data: lessonSong } = await supabase
         .from('lesson_songs')
-        .select(`
+        .select(
+          `
           id,
           lessons!inner (student_id)
-        `)
+        `
+        )
         .eq('song_id', songId)
         .eq('lessons.student_id', user.id)
         .single();
@@ -94,11 +115,7 @@ export function StudentSongsPageClient() {
       if (error) throw error;
 
       // Update local state
-      setSongs(songs.map(song => 
-        song.id === songId 
-          ? { ...song, status: newStatus }
-          : song
-      ));
+      setSongs(songs.map((song) => (song.id === songId ? { ...song, status: newStatus as any } : song)));
 
       toast.success(`Song status updated to ${statusLabels[newStatus] || newStatus}!`);
     } catch (error) {
@@ -116,20 +133,20 @@ export function StudentSongsPageClient() {
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(song => 
-        song.title.toLowerCase().includes(query) ||
-        song.artist.toLowerCase().includes(query)
+      filtered = filtered.filter(
+        (song) =>
+          song.title.toLowerCase().includes(query) || song.author.toLowerCase().includes(query)
       );
     }
 
     // Apply difficulty filter
     if (difficultyFilter !== 'all') {
-      filtered = filtered.filter(song => song.level === difficultyFilter);
+      filtered = filtered.filter((song) => song.level === difficultyFilter);
     }
 
     // Apply status filter
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(song => song.status === statusFilter);
+      filtered = filtered.filter((song) => song.status === statusFilter);
     }
 
     // Apply sorting
@@ -137,16 +154,26 @@ export function StudentSongsPageClient() {
       switch (sortBy) {
         case 'name':
           return a.title.localeCompare(b.title);
-        case 'artist':
-          return a.artist.localeCompare(b.artist);
+        case 'author':
+          return a.author.localeCompare(b.author);
         case 'difficulty':
           const difficultyOrder = { beginner: 0, intermediate: 1, advanced: 2 };
-          return difficultyOrder[a.level as keyof typeof difficultyOrder] - 
-                 difficultyOrder[b.level as keyof typeof difficultyOrder];
+          return (
+            difficultyOrder[a.level as keyof typeof difficultyOrder] -
+            difficultyOrder[b.level as keyof typeof difficultyOrder]
+          );
         case 'status':
-          const statusOrder = { to_learn: 0, learning: 1, practicing: 2, improving: 3, mastered: 4 };
-          return statusOrder[a.status as keyof typeof statusOrder] - 
-                 statusOrder[b.status as keyof typeof statusOrder];
+          const statusOrder = {
+            to_learn: 0,
+            learning: 1,
+            practicing: 2,
+            improving: 3,
+            mastered: 4,
+          };
+          return (
+            statusOrder[a.status as keyof typeof statusOrder] -
+            statusOrder[b.status as keyof typeof statusOrder]
+          );
         default:
           return 0;
       }
@@ -165,7 +192,8 @@ export function StudentSongsPageClient() {
 
         const { data, error } = await supabase
           .from('lesson_songs')
-          .select(`
+          .select(
+            `
             id,
             status,
             lessons!inner (student_id),
@@ -179,7 +207,8 @@ export function StudentSongsPageClient() {
               ultimate_guitar_link,
               cover_image_url
             )
-          `)
+          `
+          )
           .eq('lessons.student_id', user.id);
 
         if (error) throw error;
@@ -187,13 +216,13 @@ export function StudentSongsPageClient() {
         const processedSongsMap = new Map<string, Song>();
 
         data?.forEach((lessonSong) => {
-          const song = lessonSong.songs;
+          const song = Array.isArray(lessonSong.songs) ? lessonSong.songs[0] : lessonSong.songs;
           if (!song || processedSongsMap.has(song.id)) return;
 
           processedSongsMap.set(song.id, {
             ...song,
             status: lessonSong.status,
-          });
+          } as Song);
         });
 
         setSongs(Array.from(processedSongsMap.values()));
@@ -217,7 +246,10 @@ export function StudentSongsPageClient() {
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8">
-      <div className="mb-6 sm:mb-8 opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
+      <div
+        className="mb-6 sm:mb-8 opacity-0 animate-fade-in"
+        style={{ animationFillMode: 'forwards' }}
+      >
         <h1 className="text-2xl sm:text-3xl font-semibold">My Songs</h1>
         <p className="text-muted-foreground mt-1 text-sm sm:text-base">
           Songs you are currently learning or have mastered.
@@ -225,7 +257,10 @@ export function StudentSongsPageClient() {
       </div>
 
       {songs.length > 0 && (
-        <div className="mb-6 sm:mb-8 space-y-4 opacity-0 animate-fade-in" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
+        <div
+          className="mb-6 sm:mb-8 space-y-4 opacity-0 animate-fade-in"
+          style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
+        >
           {/* Search Bar */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -282,7 +317,7 @@ export function StudentSongsPageClient() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="name">Song Name</SelectItem>
-                  <SelectItem value="artist">Artist</SelectItem>
+                  <SelectItem value="author">Author</SelectItem>
                   <SelectItem value="difficulty">Difficulty</SelectItem>
                   <SelectItem value="status">Learning Status</SelectItem>
                 </SelectContent>
@@ -310,7 +345,8 @@ export function StudentSongsPageClient() {
           </div>
           <h3 className="text-lg font-medium mb-2">No songs assigned yet</h3>
           <p className="text-muted-foreground mb-4">
-            You haven&apos;t been assigned any songs yet. Your teacher will add songs as you progress through your lessons.
+            You haven&apos;t been assigned any songs yet. Your teacher will add songs as you
+            progress through your lessons.
           </p>
           <p className="text-sm text-muted-foreground">
             Have questions? Contact your teacher for guidance on what to practice next.
@@ -325,8 +361,8 @@ export function StudentSongsPageClient() {
           <p className="text-muted-foreground mb-4">
             Try adjusting your search or filter criteria to see more songs.
           </p>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => {
               setSearchQuery('');
               setDifficultyFilter('all');
@@ -434,7 +470,7 @@ export function StudentSongsPageClient() {
                     <h4 className="text-xs font-medium text-muted-foreground mb-2">
                       Quick Resources
                     </h4>
-                    
+
                     {/* Primary Resource Buttons */}
                     <div className="grid grid-cols-2 gap-2">
                       {song.youtube_url && (
@@ -448,7 +484,7 @@ export function StudentSongsPageClient() {
                           YouTube
                         </a>
                       )}
-                      
+
                       {song.ultimate_guitar_link && (
                         <a
                           href={song.ultimate_guitar_link}
@@ -460,7 +496,7 @@ export function StudentSongsPageClient() {
                           Tabs
                         </a>
                       )}
-                      
+
                       {song.spotify_link_url && (
                         <a
                           href={song.spotify_link_url}
@@ -472,7 +508,7 @@ export function StudentSongsPageClient() {
                           Spotify
                         </a>
                       )}
-                      
+
                       {song.audio_files && (
                         <a
                           href={song.audio_files}
@@ -485,13 +521,16 @@ export function StudentSongsPageClient() {
                         </a>
                       )}
                     </div>
-                    
+
                     {/* Resource availability indicator */}
-                    {!song.youtube_url && !song.ultimate_guitar_link && !song.spotify_link_url && !song.audio_files && (
-                      <div className="text-xs text-muted-foreground text-center py-2">
-                        No resources available yet
-                      </div>
-                    )}
+                    {!song.youtube_url &&
+                      !song.ultimate_guitar_link &&
+                      !song.spotify_link_url &&
+                      !song.audio_files && (
+                        <div className="text-xs text-muted-foreground text-center py-2">
+                          No resources available yet
+                        </div>
+                      )}
                   </div>
 
                   {/* View Details Button */}

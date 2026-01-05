@@ -94,11 +94,16 @@ export function StudentAssignmentsPageClient() {
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8">
-      <div className="mb-6 sm:mb-8 opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
+      <div
+        className="mb-6 sm:mb-8 opacity-0 animate-fade-in"
+        style={{ animationFillMode: 'forwards' }}
+      >
         <h1 className="text-2xl sm:text-3xl font-semibold">
           <span className="text-primary">My Assignments</span>
         </h1>
-        <p className="text-muted-foreground mt-1 text-sm sm:text-base">Track your progress and upcoming tasks</p>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
+          Track your progress and upcoming tasks
+        </p>
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -131,7 +136,8 @@ export function StudentAssignmentsPageClient() {
           </div>
           <h3 className="text-lg font-medium mb-2">No assignments yet</h3>
           <p className="text-muted-foreground mb-4">
-            You don&apos;t have any assignments at the moment. Your teacher will assign practice tasks as you progress.
+            You don&apos;t have any assignments at the moment. Your teacher will assign practice
+            tasks as you progress.
           </p>
           <p className="text-sm text-muted-foreground">
             Keep practicing and check back for new assignments!

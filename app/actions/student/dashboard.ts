@@ -112,14 +112,16 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
   // 3.1 Fetch All Songs for Practice Timer
   const { data: allStudentSongs } = await supabase
     .from('songs')
-    .select(`
+    .select(
+      `
       id,
       title,
       author,
       lesson_songs!inner(
         lessons!inner(student_id)
       )
-    `)
+    `
+    )
     .eq('lesson_songs.lessons.student_id', user.id);
 
   // 4. Fetch Stats
@@ -147,11 +149,12 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
         artist: ls.songs.author,
         last_played: ls.updated_at,
       })) || [],
-    allSongs: allStudentSongs?.map((song) => ({
-      id: song.id,
-      title: song.title,
-      artist: song.author || 'Unknown Artist',
-    })) || [],
+    allSongs:
+      allStudentSongs?.map((song) => ({
+        id: song.id,
+        title: song.title,
+        artist: song.author || 'Unknown Artist',
+      })) || [],
     stats: {
       totalSongs: totalSongs || 0,
       completedLessons: completedLessons || 0,
