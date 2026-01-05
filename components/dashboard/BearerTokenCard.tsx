@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Eye, EyeOff, Copy, Check } from 'lucide-react';
+import { CLIPBOARD_FEEDBACK_DURATION } from '@/lib/constants';
 
 interface BearerTokenCardProps {
   token: string;
@@ -17,7 +18,7 @@ export function BearerTokenCard({ token }: BearerTokenCardProps) {
   const handleCopy = async () => {
     await navigator.clipboard.writeText(token);
     setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+    setTimeout(() => setIsCopied(false), CLIPBOARD_FEEDBACK_DURATION);
   };
 
   return (

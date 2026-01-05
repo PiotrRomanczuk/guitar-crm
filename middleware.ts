@@ -3,16 +3,16 @@ import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import type { Database } from '@/types/database.types';
 import { getSupabaseConfig } from '@/lib/supabase/config';
+import { middlewareLogger as log } from '@/lib/logger';
 
 export async function middleware(request: NextRequest) {
-  console.log(`[Middleware] ${request.method} ${request.nextUrl.pathname}`);
-  console.log(
-    '[Middleware] Request cookies:',
-    request.cookies
+  log.info(`${request.method} ${request.nextUrl.pathname}`);
+  log.debug('Request cookies', {
+    cookies: request.cookies
       .getAll()
       .map((c) => c.name)
-      .join(', ')
-  );
+      .join(', '),
+  });
 
   const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseConfig();
 
@@ -32,14 +32,13 @@ export async function middleware(request: NextRequest) {
   const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
-        console.log('[Middleware] cookies.getAll called');
+        log.debug('cookies.getAll called');
         return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
-        console.log(
-          '[Middleware] cookies.setAll called',
-          cookiesToSet.map((c) => c.name)
-        );
+        log.debug('cookies.setAll called', {
+          cookies: cookiesToSet.map((c) => c.name),
+        });
         cookiesToSet.forEach(({ name, value, options }) => {
           request.cookies.set(name, value);
           response.cookies.set(name, value, options);
@@ -55,7 +54,7 @@ export async function middleware(request: NextRequest) {
     error: userError,
   } = await supabase.auth.getUser();
 
-  console.log('[Middleware] Auth Check:', {
+  log.info('Auth Check', {
     hasUser: !!user,
     userId: user?.id,
     email: user?.email,
@@ -80,7 +79,7 @@ export async function middleware(request: NextRequest) {
 
   // Enforce auth for dashboard routes
   if (isDashboard && !user) {
-    console.log('[Middleware] Redirecting to sign-in (unauthenticated)');
+    log.info('Redirecting to sign-in (unauthenticated)');
     const url = request.nextUrl.clone();
     url.pathname = '/sign-in';
     // Preserve original destination for post-login redirect
@@ -90,7 +89,7 @@ export async function middleware(request: NextRequest) {
 
   // Admin gating example: block /dashboard/admin without 'admin' role
   if (pathname.startsWith('/dashboard/admin') && user && !roles.includes('admin')) {
-    console.log('[Middleware] Redirecting to dashboard (forbidden admin access)');
+    log.info('Redirecting to dashboard (forbidden admin access)');
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     url.searchParams.set('error', 'forbidden');

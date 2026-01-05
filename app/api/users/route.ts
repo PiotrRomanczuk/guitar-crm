@@ -77,7 +77,6 @@ export async function GET(request: Request) {
           firstName: profile.full_name ? profile.full_name.split(' ')[0] : '',
           lastName: profile.full_name ? profile.full_name.split(' ').slice(1).join(' ') : '',
           full_name: profile.full_name,
-          username: profile.username,
           isAdmin: profile.is_admin,
           isTeacher: profile.is_teacher,
           isStudent: profile.is_student,
@@ -147,10 +146,9 @@ export async function POST(request: Request) {
     }
 
     const supabase = await createClient();
+    const supabaseAdmin = createAdminClient();
 
-    let finalEmail = email;
     let isShadow = reqIsShadow || false;
-    const newId = randomUUID();
 
     // Construct full_name
     let finalFullName = full_name;
@@ -163,47 +161,94 @@ export async function POST(request: Request) {
       finalFullName = finalFullName.replace(/\$\$\$\s*/g, '').trim();
     }
 
+    let userId: string;
+    let finalEmail = email;
+
     if (!email || email.trim() === '') {
-      // Shadow User Creation
+      // Shadow User Creation - profile only, no auth user
       isShadow = true;
+      const newId = randomUUID();
       finalEmail = `shadow_${newId}@placeholder.com`;
-    } else {
-      // Real User Creation (Profile only)
-      // Check if email exists
-      const { data: existing } = await supabase
+
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('id')
-        .eq('email', email)
+        .insert([
+          {
+            id: newId,
+            email: finalEmail,
+            full_name: finalFullName || null,
+            phone: phone || null,
+            notes: notes || null,
+            is_admin: reqIsAdmin || false,
+            is_teacher: reqIsTeacher || false,
+            is_student: reqIsStudent || true,
+            is_shadow: true,
+          },
+        ])
+        .select()
         .single();
 
-      if (existing) {
-        return Response.json({ error: 'User with this email already exists' }, { status: 409 });
+      if (profileError) {
+        return Response.json({ error: profileError.message }, { status: 500 });
       }
+
+      return Response.json(profileData, { status: 201 });
     }
 
-    const { data, error } = await supabase
+    // Real User Creation - create in auth.users (trigger creates profile)
+    // Check if email exists in profiles
+    const { data: existing } = await supabase
       .from('profiles')
-      .insert([
-        {
-          id: newId,
-          email: finalEmail,
-          full_name: finalFullName || null,
-          phone: phone || null,
-          notes: notes || null,
-          is_admin: reqIsAdmin || false,
-          is_teacher: reqIsTeacher || false,
-          is_student: reqIsStudent || true, // Default to student
-          is_shadow: isShadow,
-        },
-      ])
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (existing) {
+      return Response.json({ error: 'User with this email already exists' }, { status: 409 });
+    }
+
+    // Create user in auth.users - this triggers handle_new_user to create profile
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: email,
+      email_confirm: true, // Auto-confirm email
+      user_metadata: {
+        firstName: firstName || '',
+        lastName: lastName || '',
+        full_name: finalFullName || '',
+      },
+    });
+
+    if (authError) {
+      console.error('Error creating auth user:', authError);
+      return Response.json({ error: authError.message }, { status: 500 });
+    }
+
+    userId = authData.user.id;
+
+    // Update the profile with additional fields (trigger creates basic profile)
+    const { data: profileData, error: updateError } = await supabaseAdmin
+      .from('profiles')
+      .update({
+        full_name: finalFullName || null,
+        phone: phone || null,
+        notes: notes || null,
+        is_admin: reqIsAdmin || false,
+        is_teacher: reqIsTeacher || false,
+        is_student: reqIsStudent !== false, // Default to true unless explicitly false
+        is_shadow: false,
+      })
+      .eq('id', userId)
       .select()
       .single();
 
-    if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+    if (updateError) {
+      console.error('Error updating profile:', updateError);
+      // Profile was created by trigger, just couldn't update extra fields
+      // Return success anyway with basic data
+      return Response.json({ id: userId, email: email }, { status: 201 });
     }
 
-    return Response.json(data, { status: 201 });
+    return Response.json(profileData, { status: 201 });
   } catch (error) {
     console.error('Error creating user:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
