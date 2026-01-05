@@ -1,9 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { ActivityLogInputSchema, type ActivityLogInput, type ActivityLog } from '@/schemas/ActivityLogSchema';
 
-interface ActivityData {
-	[key: string]: string | number | boolean | null | undefined | Record<string, unknown>;
-}
+type ActivityData = Record<string, string | number | boolean | null>;
+type ActivityDataInput = Record<string, string | number | boolean | null | undefined>;
 
 function getSessionId(): string {
 	if (typeof window === 'undefined') return 'server-session';
@@ -14,14 +13,23 @@ function getSessionId(): string {
 	return newId;
 }
 
-function prepareActivityData(eventName: string, data?: ActivityData): ActivityData {
+function prepareActivityData(eventName: string, data?: ActivityDataInput): ActivityData {
 	const baseData: ActivityData = {
 		timestamp: new Date().toISOString(),
 		url: typeof window !== 'undefined' ? window.location.href : '',
 		userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
 		sessionId: getSessionId(),
 	};
-	if (data) return { ...baseData, ...data };
+	if (data) {
+		// Filter out undefined values to satisfy ActivityData type
+		const filtered: ActivityData = {};
+		for (const [key, value] of Object.entries(data)) {
+			if (value !== undefined) {
+				filtered[key] = value;
+			}
+		}
+		return { ...baseData, ...filtered };
+	}
 	return baseData;
 }
 
@@ -56,7 +64,7 @@ export async function logPageView(pagePath: string, pageTitle?: string): Promise
 export async function logButtonClick(
 	buttonId: string,
 	buttonText?: string,
-	data?: ActivityData,
+	data?: ActivityDataInput,
 ): Promise<{ success: boolean; error?: string }> {
 	const preparedData = prepareActivityData(`Button clicked: ${buttonText || buttonId}`, {
 		button_id: buttonId,
@@ -84,10 +92,10 @@ export async function logLinkClick(linkHref: string, linkText?: string): Promise
 	});
 }
 
-export async function logFormSubmit(formId: string, formData?: Record<string, unknown>): Promise<{ success: boolean; error?: string }> {
+export async function logFormSubmit(formId: string, formData?: ActivityDataInput): Promise<{ success: boolean; error?: string }> {
 	const preparedData = prepareActivityData(`Form submitted: ${formId}`, {
 		form_id: formId,
-		form_data: formData,
+		...formData,
 	});
 	return logActivity({
 		activity_type: 'form_submit',
