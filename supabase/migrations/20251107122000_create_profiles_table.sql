@@ -13,6 +13,7 @@ CREATE TABLE profiles (
     is_admin boolean NOT NULL DEFAULT false,
     is_teacher boolean NOT NULL DEFAULT false,
     is_student boolean NOT NULL DEFAULT false,
+    is_active boolean NOT NULL DEFAULT true,
     -- Add other fields as needed
     CONSTRAINT profiles_email_check CHECK (email ~* '^.+@.+\..+$')
 );

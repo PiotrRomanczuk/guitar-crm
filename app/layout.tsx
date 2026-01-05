@@ -6,6 +6,9 @@ import { Providers } from '@/components/providers/QueryProvider';
 
 import './globals.css';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('Layout');
 
 export const dynamic = 'force-dynamic';
 
@@ -36,9 +39,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log('[Layout] RootLayout rendering');
+  log.debug('RootLayout rendering');
   const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
-  // console.log(user, isAdmin, isTeacher, isStudent);
+  log.debug('User roles', { userId: user?.id, isAdmin, isTeacher, isStudent });
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>

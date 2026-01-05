@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 import { Database } from '@/types/database.types.generated';
+import { getSupabaseConfig } from '@/lib/supabase/config';
 import {
   getSongsHandler,
   createSongHandler,
@@ -92,24 +93,21 @@ function parseQueryParams(searchParams: URLSearchParams) {
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll: () => cookieStore.getAll(),
-          setAll: (cookiesToSet) => {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // Ignored
-            }
-          },
+    const config = getSupabaseConfig();
+    const supabase = createServerClient<Database>(config.url, config.anonKey, {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Ignored
+          }
         },
-      }
-    );
+      },
+    });
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -163,24 +161,29 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
     console.log('🎵 [BACKEND] Cookies retrieved, count:', cookieStore.getAll().length);
 
-    const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll: () => cookieStore.getAll(),
-          setAll: (cookiesToSet) => {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // Ignored
-            }
-          },
+    let config;
+    try {
+      config = getSupabaseConfig();
+      console.log('🎵 [BACKEND] Using database:', config.isLocal ? 'LOCAL' : 'REMOTE');
+    } catch (configError) {
+      console.error('🎵 [BACKEND] Supabase config error:', configError);
+      return NextResponse.json({ error: 'Database configuration error' }, { status: 500 });
+    }
+
+    const supabase = createServerClient<Database>(config.url, config.anonKey, {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Ignored
+          }
         },
-      }
-    );
+      },
+    });
     console.log('🎵 [BACKEND] Supabase client created');
 
     const {
@@ -247,24 +250,21 @@ export async function PUT(request: NextRequest) {
     }
 
     const cookieStore = await cookies();
-    const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll: () => cookieStore.getAll(),
-          setAll: (cookiesToSet) => {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // Ignored
-            }
-          },
+    const config = getSupabaseConfig();
+    const supabase = createServerClient<Database>(config.url, config.anonKey, {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Ignored
+          }
         },
-      }
-    );
+      },
+    });
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -310,24 +310,21 @@ export async function DELETE(request: NextRequest) {
     const cookieStore = await cookies();
     console.log('[API] DELETE /api/song - Cookies count:', cookieStore.getAll().length);
 
-    const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll: () => cookieStore.getAll(),
-          setAll: (cookiesToSet) => {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // Ignored
-            }
-          },
+    const config = getSupabaseConfig();
+    const supabase = createServerClient<Database>(config.url, config.anonKey, {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Ignored
+          }
         },
-      }
-    );
+      },
+    });
     const {
       data: { user },
     } = await supabase.auth.getUser();
