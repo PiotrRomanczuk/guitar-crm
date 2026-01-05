@@ -134,7 +134,7 @@ export async function POST(request: Request) {
       isAdmin: reqIsAdmin,
       isTeacher: reqIsTeacher,
       isStudent: reqIsStudent,
-      isShadow: reqIsShadow, // Accept explicit isShadow flag
+      // isShadow: flag is available but not used currently
     } = body;
 
     // Permission Check
@@ -148,8 +148,6 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     const supabaseAdmin = createAdminClient();
 
-    let isShadow = reqIsShadow || false;
-
     // Construct full_name
     let finalFullName = full_name;
     if (!finalFullName && (firstName || lastName)) {
@@ -161,12 +159,10 @@ export async function POST(request: Request) {
       finalFullName = finalFullName.replace(/\$\$\$\s*/g, '').trim();
     }
 
-    let userId: string;
     let finalEmail = email;
 
     if (!email || email.trim() === '') {
       // Shadow User Creation - profile only, no auth user
-      isShadow = true;
       const newId = randomUUID();
       finalEmail = `shadow_${newId}@placeholder.com`;
 
@@ -223,7 +219,7 @@ export async function POST(request: Request) {
       return Response.json({ error: authError.message }, { status: 500 });
     }
 
-    userId = authData.user.id;
+    const userId = authData.user.id;
 
     // Update the profile with additional fields (trigger creates basic profile)
     const { data: profileData, error: updateError } = await supabaseAdmin
