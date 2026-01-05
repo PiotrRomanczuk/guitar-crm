@@ -22,7 +22,7 @@ export default function SongDetailActions({ songId, isAdmin = false, isTeacher =
 
     setDeleting(true);
     try {
-      const response = await fetch(`/api/songs/${songId}`, {
+      const response = await fetch(`/api/song?id=${songId}`, {
         method: 'DELETE',
       });
 

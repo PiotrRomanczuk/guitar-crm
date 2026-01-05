@@ -79,6 +79,10 @@ CODE-AGENTS/
 server.log
 *.log
 
+# Backup files
+*.bak
+*.old
+
 .LEGACY_DATA
 
 # Sentry Config File

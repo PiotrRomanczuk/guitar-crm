@@ -11,3 +11,11 @@ export type { LessonStatsResponse, LessonStatsFilters, MonthlyStats } from './us
 
 // Media query hook
 export { useMediaQuery } from './use-media-query';
+
+// Database status hook
+export { useDatabaseStatus } from './useDatabaseStatus';
+export type {
+  DatabaseType,
+  DatabaseStatusState,
+  UseDatabaseStatusReturn,
+} from './useDatabaseStatus';

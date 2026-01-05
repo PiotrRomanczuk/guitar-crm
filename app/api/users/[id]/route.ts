@@ -58,7 +58,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       .from('profiles')
       .update({
         full_name: fullName,
-        username: body.username,
         is_admin: body.isAdmin,
         is_teacher: body.isTeacher,
         is_student: body.isStudent,
