@@ -1,4 +1,7 @@
 {
+  "console-ninja.featureSet": "Community",
+  "console-ninja.toolsToEnableSupportFor": {},
+  "console-ninja.enabled": false,
   "github.copilot.chat.codeGeneration.instructions": [
     {
       "text": "When using shadcn/ui components, always use the @shadcn-ui MCP tool to fetch the latest component code and examples."

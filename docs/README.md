@@ -1,79 +1,70 @@
 # Guitar CRM Documentation
 
-Welcome to the Guitar CRM documentation. This folder contains all the necessary information to understand, develop, and deploy the application.
+Welcome to the Guitar CRM documentation. This folder contains all necessary information to understand, develop, and deploy the application.
 
-## 📚 Core Documentation
+## 📚 Documentation Structure
 
-We have consolidated our documentation into 4 key files for easier navigation:
+### Core Documentation
 
-### 1. [ARCHITECTURE.md](./ARCHITECTURE.md)
+| File | Audience | Description |
+|------|----------|-------------|
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | Architects & Lead Devs | System design, tech stack, database schema, RBAC |
+| [DEVELOPMENT.md](./DEVELOPMENT.md) | Developers | Setup guide, Git workflow, testing, CI/CD |
+| [FEATURES.md](./FEATURES.md) | Product & Devs | Feature implementation plans |
+| [ROADMAP.md](./ROADMAP.md) | Everyone | Project priorities and vision |
 
-#### For Architects & Lead Devs
+### User Guides
 
-- High-level system design.
-- Tech stack details (Next.js 16, Supabase, etc.).
-- Database schema and relationships.
-- Role-Based Access Control (RBAC) matrix.
-- State management patterns.
+| File | Audience | Description |
+|------|----------|-------------|
+| [ADMIN_USER_GUIDE.md](./ADMIN_USER_GUIDE.md) | Admins/Teachers | Admin dashboard features and workflows |
+| [STUDENT_USER_GUIDE.md](./STUDENT_USER_GUIDE.md) | Students | Student portal features |
 
-### 2. [DEVELOPMENT.md](./DEVELOPMENT.md)
+### Technical References
 
-#### For Developers
+| File | Description |
+|------|-------------|
+| [UI_STANDARDS.md](./UI_STANDARDS.md) | Design system, components, mobile-first patterns |
+| [COMPONENT_STRUCTURE.md](./COMPONENT_STRUCTURE.md) | Component organization and conventions |
+| [NAVIGATION.md](./NAVIGATION.md) | Navigation architecture and implementation |
+| [BEARER_TOKEN.md](./BEARER_TOKEN.md) | API authentication with bearer tokens |
 
-- Environment setup guide.
-- Git workflow and branching strategy.
-- Testing standards (Jest, Cypress).
-- CI/CD pipeline details.
-- Code style and linting rules.
-- **AI Agents Workflow & Implementation**.
+### Feature Specs
 
-### 3. [FEATURES.md](./FEATURES.md)
+| File | Description |
+|------|-------------|
+| [SONG_PAGE_SPEC.md](./SONG_PAGE_SPEC.md) | Song detail page specification |
+| [E2E_TEST_PLAN.md](./E2E_TEST_PLAN.md) | End-to-end testing strategy |
+| [EMAIL_NOTIFICATIONS_PLAN.md](./EMAIL_NOTIFICATIONS_PLAN.md) | Email notification system |
+| [GOOGLE_CALENDAR_IMPORT_PLAN.md](./GOOGLE_CALENDAR_IMPORT_PLAN.md) | Google Calendar integration |
 
-#### For Product Owners & Devs
+### Platform Guides
 
-- Detailed implementation plans for core features.
-- Authentication flows.
-- Lesson management logic.
-- Admin dashboard specifications.
-- Assignment and song library features.
-
-### 4. [ROADMAP.md](./ROADMAP.md)
-
-#### For Everyone
-
-- Immediate next steps and priorities.
-- Short-term goals (v1.0 release).
-- Long-term vision (v2.0+).
-- Tracking of known issues and completed milestones.
+| File | Description |
+|------|-------------|
+| [IOS_WIDGET_SETUP.md](./IOS_WIDGET_SETUP.md) | Student iOS widget with Scriptable |
+| [IOS_ADMIN_WIDGET_SETUP.md](./IOS_ADMIN_WIDGET_SETUP.md) | Admin iOS widget with Scriptable |
+| [MCP_SERVERS_LIST.md](./MCP_SERVERS_LIST.md) | Model Context Protocol servers |
 
 ---
 
 ## 🚀 Quick Start
 
-1. **Clone the repo**:
+```bash
+# Clone and install
+git clone <repo-url>
+npm install
 
-   ```bash
-   git clone <repo-url>
-   ```
+# Setup environment
+cp .env.example .env.local
+# Fill in Supabase credentials
 
-2. **Install dependencies**:
-
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**:
-
-   Copy `.env.example` to `.env.local` and fill in your Supabase credentials.
-
-4. **Run the development server**:
-
-   ```bash
-   npm run dev
-   ```
+# Run development server
+npm run dev
+```
 
 ---
 
 ## 🤝 Contributing
 
-Please read [DEVELOPMENT.md](./DEVELOPMENT.md) for details on our code of conduct and the process for submitting pull requests.
+Please read [DEVELOPMENT.md](./DEVELOPMENT.md) for our code of conduct and PR process.
