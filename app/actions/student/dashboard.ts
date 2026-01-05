@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
 export type StudentDashboardData = {
+  studentName: string | null;
   nextLesson: {
     id: string;
     title: string | null;
@@ -28,6 +29,11 @@ export type StudentDashboardData = {
     artist: string;
     last_played: string;
   }[];
+  allSongs: {
+    id: string;
+    title: string;
+    artist: string;
+  }[];
   stats: {
     totalSongs: number;
     completedLessons: number;
@@ -45,6 +51,13 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
 
   const supabase = await createClient();
   const now = new Date().toISOString();
+
+  // Fetch student profile
+  const { data: profileData } = await supabase
+    .from('profiles')
+    .select('full_name')
+    .eq('id', user.id)
+    .single();
 
   // 0. Fetch Next Lesson
   const { data: nextLessonData } = await supabase
@@ -96,6 +109,19 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
     .order('updated_at', { ascending: false })
     .limit(5);
 
+  // 3.1 Fetch All Songs for Practice Timer
+  const { data: allStudentSongs } = await supabase
+    .from('songs')
+    .select(`
+      id,
+      title,
+      author,
+      lesson_songs!inner(
+        lessons!inner(student_id)
+      )
+    `)
+    .eq('lesson_songs.lessons.student_id', user.id);
+
   // 4. Fetch Stats
   const { count: totalSongs } = await supabase
     .from('songs')
@@ -109,6 +135,7 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
     .lt('scheduled_at', now);
 
   return {
+    studentName: profileData?.full_name || null,
     nextLesson: nextLessonData,
     lastLesson: lastLessonData,
     assignments: assignmentsData || [],
@@ -120,6 +147,11 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
         artist: ls.songs.author,
         last_played: ls.updated_at,
       })) || [],
+    allSongs: allStudentSongs?.map((song) => ({
+      id: song.id,
+      title: song.title,
+      artist: song.author || 'Unknown Artist',
+    })) || [],
     stats: {
       totalSongs: totalSongs || 0,
       completedLessons: completedLessons || 0,

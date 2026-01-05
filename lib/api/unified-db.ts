@@ -172,7 +172,10 @@ export class UnifiedDatabaseAPI {
   /**
    * Raw SQL query execution (use with caution)
    */
-  async raw<TResult = unknown>(query: string, params: unknown[] = []): Promise<ApiResponse<TResult>> {
+  async raw<TResult = unknown>(
+    query: string,
+    params: unknown[] = []
+  ): Promise<ApiResponse<TResult>> {
     return dbRouter.post<TResult>('/rpc/sql', {
       query,
       params,

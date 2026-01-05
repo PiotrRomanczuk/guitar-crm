@@ -43,12 +43,12 @@ describe('Admin Users CRUD Workflow', () => {
       .should('be.visible')
       .clear()
       .type(testData.firstName);
-      
+
     cy.get('[data-testid="lastName-input"]', { timeout: 10000 })
       .should('be.visible')
       .clear()
       .type(testData.lastName);
-      
+
     cy.get('[data-testid="email-input"]', { timeout: 10000 })
       .should('be.visible')
       .clear()
@@ -67,7 +67,7 @@ describe('Admin Users CRUD Workflow', () => {
 
     // Wait for successful redirect (should leave /new page)
     cy.url({ timeout: 30000 }).should('not.include', '/new');
-    
+
     // Verify we're back on the users list page
     cy.url({ timeout: 15000 }).should('include', '/dashboard/users');
     cy.url({ timeout: 15000 }).should('not.include', '/dashboard/users/new');
@@ -75,36 +75,33 @@ describe('Admin Users CRUD Workflow', () => {
 
   it('2. VERIFY CREATE: should find created user in list', () => {
     cy.visit('/dashboard/users');
-    
+
     // Wait for page to load completely
     cy.wait(3000);
-    
+
     // Wait for either desktop table or mobile cards to load
     cy.get('body', { timeout: 15000 }).should('exist');
-    
+
     // Try to find and use search input (flexible selector)
     cy.get('body').then(($body) => {
       const searchSelectors = [
         'input[placeholder*="Search"]',
-        'input[placeholder*="search"]', 
+        'input[placeholder*="search"]',
         '#search-filter',
         '[data-testid="search-input"]',
         'input[type="search"]',
-        'input[name="search"]'
+        'input[name="search"]',
       ];
-      
+
       let foundSearchInput = false;
       for (const selector of searchSelectors) {
         if ($body.find(selector).length > 0) {
-          cy.get(selector, { timeout: 10000 })
-            .should('be.visible')
-            .clear()
-            .type(testData.email);
+          cy.get(selector, { timeout: 10000 }).should('be.visible').clear().type(testData.email);
           foundSearchInput = true;
           break;
         }
       }
-      
+
       if (!foundSearchInput) {
         cy.log('No search input found, checking if user is visible in list');
       }
@@ -125,10 +122,10 @@ describe('Admin Users CRUD Workflow', () => {
     cy.get('body').then(($body) => {
       const searchSelectors = [
         'input[placeholder*="Search"]',
-        'input[placeholder*="search"]', 
-        '#search-filter'
+        'input[placeholder*="search"]',
+        '#search-filter',
       ];
-      
+
       for (const selector of searchSelectors) {
         if ($body.find(selector).length > 0) {
           cy.get(selector).clear().type(testData.email);
@@ -136,9 +133,9 @@ describe('Admin Users CRUD Workflow', () => {
         }
       }
     });
-    
+
     cy.wait(3000);
-    
+
     // Look for edit button with more flexible approach
     cy.get('body').then(($body) => {
       // First try to find by data-testid
@@ -153,9 +150,9 @@ describe('Admin Users CRUD Workflow', () => {
           'a[href*="/edit"]',
           'button:contains("Edit")',
           'a:contains("Edit")',
-          '[title*="Edit"]'
+          '[title*="Edit"]',
         ];
-        
+
         let foundEdit = false;
         for (const selector of editSelectors) {
           if ($body.find(selector).length > 0) {
@@ -164,7 +161,7 @@ describe('Admin Users CRUD Workflow', () => {
             break;
           }
         }
-        
+
         if (!foundEdit) {
           cy.log('No edit button found, attempting alternative approach');
           // Try to find user row and click on it
@@ -176,7 +173,7 @@ describe('Admin Users CRUD Workflow', () => {
 
     // Wait for edit form to load
     cy.url({ timeout: 15000 }).should('include', '/edit');
-    
+
     // Update the first name
     cy.get('[data-testid="firstName-input"]', { timeout: 10000 })
       .should('be.visible')
@@ -184,9 +181,7 @@ describe('Admin Users CRUD Workflow', () => {
       .type(testData.firstNameEdited);
 
     // Submit the changes
-    cy.get('button[type="submit"]', { timeout: 10000 })
-      .should('be.visible')
-      .click({ force: true });
+    cy.get('button[type="submit"]', { timeout: 10000 }).should('be.visible').click({ force: true });
 
     // Wait for redirect back to users list
     cy.url({ timeout: 15000 }).should('not.include', '/edit');
@@ -201,10 +196,10 @@ describe('Admin Users CRUD Workflow', () => {
     cy.get('body').then(($body) => {
       const searchSelectors = [
         'input[placeholder*="Search"]',
-        'input[placeholder*="search"]', 
-        '#search-filter'
+        'input[placeholder*="search"]',
+        '#search-filter',
       ];
-      
+
       for (const selector of searchSelectors) {
         if ($body.find(selector).length > 0) {
           cy.get(selector).clear().type(testData.email);
@@ -227,10 +222,10 @@ describe('Admin Users CRUD Workflow', () => {
     cy.get('body').then(($body) => {
       const searchSelectors = [
         'input[placeholder*="Search"]',
-        'input[placeholder*="search"]', 
-        '#search-filter'
+        'input[placeholder*="search"]',
+        '#search-filter',
       ];
-      
+
       for (const selector of searchSelectors) {
         if ($body.find(selector).length > 0) {
           cy.get(selector).clear().type(testData.email);
@@ -238,9 +233,9 @@ describe('Admin Users CRUD Workflow', () => {
         }
       }
     });
-    
+
     cy.wait(3000);
-    
+
     // Look for delete button with flexible approach
     cy.get('body').then(($body) => {
       // First try to find by data-testid
@@ -255,9 +250,9 @@ describe('Admin Users CRUD Workflow', () => {
           'button:contains("Delete")',
           'a:contains("Delete")',
           '[title*="Delete"]',
-          'button[class*="destructive"]'
+          'button[class*="destructive"]',
         ];
-        
+
         let foundDelete = false;
         for (const selector of deleteSelectors) {
           if ($body.find(selector).length > 0) {
@@ -266,7 +261,7 @@ describe('Admin Users CRUD Workflow', () => {
             break;
           }
         }
-        
+
         if (!foundDelete) {
           cy.log('No delete button found, skipping delete test');
           return;
@@ -280,9 +275,9 @@ describe('Admin Users CRUD Workflow', () => {
         '[role="alertdialog"] button:contains("Delete")',
         'button:contains("Confirm")',
         '[data-testid*="confirm"]',
-        '[data-testid*="delete-confirm"]'
+        '[data-testid*="delete-confirm"]',
       ];
-      
+
       for (const selector of confirmSelectors) {
         if ($body.find(selector).length > 0) {
           cy.get(selector, { timeout: 5000 }).click({ force: true });
@@ -313,7 +308,7 @@ describe('Admin Users CRUD Workflow', () => {
     cy.get('body').then(($body) => {
       const hasTable = $body.find('[data-testid="users-table"]').is(':visible');
       const hasMobileView = $body.find('.md\\:hidden').is(':visible');
-      
+
       if (hasTable || hasMobileView) {
         // If we have results displayed, make sure our test user is not in them
         cy.get('body').should('not.contain', testData.firstNameEdited);

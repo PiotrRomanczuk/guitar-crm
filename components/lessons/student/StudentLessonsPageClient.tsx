@@ -2,83 +2,45 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, User, BookOpen, Loader2, ArrowRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { createClient } from '@/lib/supabase/client';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-
-interface LessonWithDetails {
-  id: string;
-  scheduled_at: string;
-  status: string;
-  notes: string | null;
-  lesson_teacher_number: number;
-  teacher: { full_name: string | null; email: string } | null;
-  student: { full_name: string | null; email: string } | null;
-}
-
-const statusColors: Record<string, string> = {
-  SCHEDULED: 'bg-primary/10 text-primary border-primary/20',
-  IN_PROGRESS: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-  COMPLETED: 'bg-green-500/10 text-green-500 border-green-500/20',
-  CANCELLED: 'bg-destructive/10 text-destructive border-destructive/20',
-  RESCHEDULED: 'bg-muted text-muted-foreground border-border',
-};
-
-const statusLabels: Record<string, string> = {
-  SCHEDULED: 'Scheduled',
-  IN_PROGRESS: 'In Progress',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
-  RESCHEDULED: 'Rescheduled',
-};
+import { BookOpen, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Lesson } from '@/types/Lesson';
+import { createClient } from '@/lib/supabase/client';
 
 export function StudentLessonsPageClient() {
-  const [lessons, setLessons] = useState<LessonWithDetails[]>([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
     async function fetchLessons() {
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+        const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
         const { data, error } = await supabase
           .from('lessons')
-          .select(
-            `
+          .select(`
             id,
+            title,
             scheduled_at,
+            duration_minutes,
             status,
             notes,
-            lesson_teacher_number,
-            teacher:profiles!lessons_teacher_id_fkey(full_name, email),
-            student:profiles!lessons_student_id_fkey(full_name, email)
-          `
-          )
+            teacher:teacher_id (
+              id,
+              first_name,
+              last_name
+            )
+          `)
           .eq('student_id', user.id)
           .order('scheduled_at', { ascending: false });
 
         if (error) throw error;
 
-        // Transform data to match LessonWithDetails interface
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const transformedLessons: LessonWithDetails[] = (data || []).map((lesson: any) => ({
-          id: lesson.id,
-          scheduled_at: lesson.scheduled_at,
-          status: lesson.status,
-          notes: lesson.notes,
-          lesson_teacher_number: lesson.lesson_teacher_number,
-          teacher: lesson.teacher,
-          student: lesson.student,
-        }));
-
-        setLessons(transformedLessons);
+        setLessons(data || []);
       } catch (error) {
         console.error('Error fetching lessons:', error);
       } finally {
@@ -98,80 +60,101 @@ export function StudentLessonsPageClient() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="mb-8 opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
-        <h1 className="text-3xl font-semibold">
+    <div className="min-h-screen bg-background p-4 sm:p-8">
+      <div className="mb-6 sm:mb-8 opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
+        <h1 className="text-2xl sm:text-3xl font-semibold">
           <span className="text-primary">Lessons</span>
         </h1>
-        <p className="text-muted-foreground mt-1">View and manage all scheduled lessons</p>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">View and manage all scheduled lessons</p>
       </div>
 
       {lessons.length === 0 ? (
         <div className="text-center py-12">
-          <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium">No lessons found</h3>
-          <p className="text-muted-foreground">You haven&apos;t been assigned any lessons yet.</p>
+          <div className="relative w-64 h-48 mx-auto mb-6">
+            <img
+              src="/illustrations/no-upcoming-lessons--future-focused---a-forward-lo.png"
+              alt="No lessons scheduled"
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <h3 className="text-lg font-medium mb-2">No lessons scheduled</h3>
+          <p className="text-muted-foreground mb-4">
+            You don&apos;t have any lessons scheduled yet. Your teacher will schedule lessons as you begin your guitar journey.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Ready to start? Contact your teacher to schedule your first lesson.
+          </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {lessons.map((lesson, index) => (
-            <div
-              key={lesson.id}
-              className="bg-card rounded-xl border border-border p-6 hover:border-primary/30 transition-all duration-300 opacity-0 animate-fade-in"
-              style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
-            >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <BookOpen className="w-6 h-6 text-primary" />
+        <div className="space-y-3 sm:space-y-4">
+          {lessons.map((lesson, index) => {
+            return (
+              <div
+                key={lesson.id}
+                className="bg-card rounded-xl border border-border p-4 sm:p-6 hover:border-primary/30 transition-all duration-300 opacity-0 animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
+              >
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                          <h3 className="font-semibold text-sm sm:text-base truncate">
+                            {lesson.title}
+                          </h3>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Badge variant="outline" className="text-xs">
+                              {format(new Date(lesson.scheduled_at), 'MMM d, yyyy')}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {format(new Date(lesson.scheduled_at), 'h:mm a')}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {lesson.duration_minutes} min
+                            </Badge>
+                            <Badge 
+                              variant={lesson.status === 'completed' ? 'default' : 'secondary'} 
+                              className="text-xs"
+                            >
+                              {lesson.status === 'completed' ? 'Completed' : 'Scheduled'}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center text-xs sm:text-sm text-muted-foreground mt-1 gap-2">
+                          <User className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="truncate">
+                            Teacher: {lesson.teacher?.first_name} {lesson.teacher?.last_name}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-3 mb-1">
-                      <h3 className="font-semibold text-lg">
-                        Lesson #{lesson.lesson_teacher_number}
-                      </h3>
-                      <Badge variant="outline" className={cn(statusColors[lesson.status])}>
-                        {statusLabels[lesson.status]}
-                      </Badge>
-                    </div>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    {lesson.notes && (
+                      <div className="hidden md:block md:max-w-xs lg:max-w-md bg-secondary/30 rounded-lg p-3 text-sm truncate">
+                        <p className="text-muted-foreground italic truncate">
+                          &quot;{lesson.notes}&quot;
+                        </p>
+                      </div>
+                    )}
 
-                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        {format(new Date(lesson.scheduled_at), 'MMMM d, yyyy')}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {format(new Date(lesson.scheduled_at), 'h:mm a')}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <User className="w-4 h-4" />
-                        {lesson.teacher?.full_name || 'Unknown Teacher'}
-                      </div>
-                    </div>
+                    <Button asChild variant="ghost" size="sm" className="ml-auto w-full md:w-auto">
+                      <Link href={`/dashboard/lessons/${lesson.id}`}>
+                        View Details
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </Button>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-4 w-full md:w-auto mt-4 md:mt-0">
-                  {lesson.notes && (
-                    <div className="hidden md:block md:max-w-xs lg:max-w-md bg-secondary/30 rounded-lg p-3 text-sm truncate">
-                      <p className="text-muted-foreground italic truncate">
-                        &quot;{lesson.notes}&quot;
-                      </p>
-                    </div>
-                  )}
-
-                  <Button asChild variant="ghost" size="sm" className="ml-auto w-full md:w-auto">
-                    <Link href={`/dashboard/lessons/${lesson.id}`}>
-                      View Details
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Link>
-                  </Button>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

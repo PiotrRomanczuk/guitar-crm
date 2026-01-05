@@ -25,6 +25,22 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY && !process.env.SUPABASE_
   process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
 }
 
+// Mock Supabase client methods to prevent database calls in tests
+jest.mock('@/lib/supabase-browser', () => ({
+  supabase: {
+    from: jest.fn(() => ({
+      select: jest.fn(() => ({
+        limit: jest.fn(() => Promise.resolve({ data: [], error: null })),
+      })),
+    })),
+    auth: {
+      getUser: jest.fn(() => Promise.resolve({ data: { user: null }, error: null })),
+      signInWithPassword: jest.fn(),
+      signOut: jest.fn(),
+    },
+  },
+}));
+
 // Fix for Console Ninja instrumentation in tests
 // The instrumentation adds calls to a global function `oo_oo` which might be missing or broken in the test environment.
 // We define it here to prevent crashes.

@@ -33,8 +33,8 @@ export function SongLibrary({ songs }: SongLibraryProps) {
       </div>
 
       <div className="divide-y divide-border">
-        {songs.map((song) => (
-          <div key={song.id} className="p-4 hover:bg-muted/50 transition-colors">
+        {songs.map((song, index) => (
+          <div key={`${song.id}-${index}`} className="p-4 hover:bg-muted/50 transition-colors">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <Music2 className="w-6 h-6 text-primary" />

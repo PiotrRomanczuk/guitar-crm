@@ -55,12 +55,18 @@ const config: Config = {
 		'<rootDir>/.next/',
 		'<rootDir>/node_modules/',
 		'<rootDir>/__tests__/auth/credentials.test.ts', // Integration tests - require live database
+		'<rootDir>/scripts/database/shadow-user-linking.test.ts', // Integration test - requires network
 	],
 
 	// Transform files
 	transform: {
 		'^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
 	},
+
+	// Transform ignore patterns for ES modules
+	transformIgnorePatterns: [
+		'node_modules/(?!(node-fetch|data-uri-to-buffer|fetch-blob|formdata-polyfill)/)',
+	],
 
 	// Use separate TypeScript config for tests
 	globals: {

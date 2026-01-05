@@ -12,10 +12,10 @@ describe('ConnectGoogleButton', () => {
     // This test verifies the button is clickable and doesn't throw
     render(<ConnectGoogleButton />);
     const button = screen.getByText('Connect Google Calendar');
-    
+
     // Verify button is clickable (will throw if handler errors)
     expect(() => fireEvent.click(button)).not.toThrow();
-    
+
     // Verify button has correct role
     expect(screen.getByRole('button', { name: 'Connect Google Calendar' })).toBeInTheDocument();
   });

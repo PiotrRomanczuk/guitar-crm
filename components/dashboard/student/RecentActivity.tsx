@@ -31,10 +31,10 @@ export function RecentActivity({ activities }: RecentActivityProps) {
       </div>
 
       <div className="p-4 space-y-4">
-        {activities.map((activity) => {
+        {activities.map((activity, index) => {
           const { icon: Icon, color } = activityIcons[activity.type];
           return (
-            <div key={activity.id} className="flex items-start gap-3">
+            <div key={`${activity.id}-${index}`} className="flex items-start gap-3">
               <div className={cn('mt-0.5', color)}>
                 <Icon className="w-5 h-5" />
               </div>

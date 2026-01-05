@@ -64,7 +64,7 @@ describe('Lesson API - [id] Route', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Setup query builder mock
     mockSupabaseQueryBuilder = {
       select: jest.fn().mockReturnThis(),
@@ -179,13 +179,10 @@ describe('Lesson API - [id] Route', () => {
         error: null,
       });
 
-      const request = new NextRequest(
-        `http://localhost:3000/api/lessons/${validLessonId}`,
-        {
-          method: 'PUT',
-          body: JSON.stringify({ title: 'Updated Title' }),
-        }
-      );
+      const request = new NextRequest(`http://localhost:3000/api/lessons/${validLessonId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ title: 'Updated Title' }),
+      });
       const params = Promise.resolve({ id: validLessonId });
       const response = await PUT(request, { params });
       const data = await response.json();
@@ -201,13 +198,10 @@ describe('Lesson API - [id] Route', () => {
         error: null,
       });
 
-      const request = new NextRequest(
-        `http://localhost:3000/api/lessons/${validLessonId}`,
-        {
-          method: 'PUT',
-          body: JSON.stringify({ title: 'Updated Title' }),
-        }
-      );
+      const request = new NextRequest(`http://localhost:3000/api/lessons/${validLessonId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ title: 'Updated Title' }),
+      });
       const params = Promise.resolve({ id: validLessonId });
       const response = await PUT(request, { params });
       const data = await response.json();
@@ -228,13 +222,10 @@ describe('Lesson API - [id] Route', () => {
         error: null,
       });
 
-      const request = new NextRequest(
-        `http://localhost:3000/api/lessons/${validLessonId}`,
-        {
-          method: 'PUT',
-          body: JSON.stringify({ title: 'Updated Title' }),
-        }
-      );
+      const request = new NextRequest(`http://localhost:3000/api/lessons/${validLessonId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ title: 'Updated Title' }),
+      });
       const params = Promise.resolve({ id: validLessonId });
       const response = await PUT(request, { params });
       const data = await response.json();
@@ -258,13 +249,10 @@ describe('Lesson API - [id] Route', () => {
         error: { code: 'PGRST116', message: 'No rows returned' },
       });
 
-      const request = new NextRequest(
-        `http://localhost:3000/api/lessons/${validLessonId}`,
-        {
-          method: 'PUT',
-          body: JSON.stringify({ title: 'Updated Title' }),
-        }
-      );
+      const request = new NextRequest(`http://localhost:3000/api/lessons/${validLessonId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ title: 'Updated Title' }),
+      });
       const params = Promise.resolve({ id: validLessonId });
       const response = await PUT(request, { params });
       const data = await response.json();
@@ -280,13 +268,10 @@ describe('Lesson API - [id] Route', () => {
         error: null,
       });
 
-      const request = new NextRequest(
-        `http://localhost:3000/api/lessons/${validLessonId}`,
-        {
-          method: 'PUT',
-          body: JSON.stringify({ status: 'INVALID_STATUS' }),
-        }
-      );
+      const request = new NextRequest(`http://localhost:3000/api/lessons/${validLessonId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: 'INVALID_STATUS' }),
+      });
       const params = Promise.resolve({ id: validLessonId });
       const response = await PUT(request, { params });
       const data = await response.json();
@@ -303,12 +288,9 @@ describe('Lesson API - [id] Route', () => {
         error: null,
       });
 
-      const request = new NextRequest(
-        `http://localhost:3000/api/lessons/${validLessonId}`,
-        {
-          method: 'DELETE',
-        }
-      );
+      const request = new NextRequest(`http://localhost:3000/api/lessons/${validLessonId}`, {
+        method: 'DELETE',
+      });
       const params = Promise.resolve({ id: validLessonId });
       const response = await DELETE(request, { params });
       const data = await response.json();
@@ -324,12 +306,9 @@ describe('Lesson API - [id] Route', () => {
         error: null,
       });
 
-      const request = new NextRequest(
-        `http://localhost:3000/api/lessons/${validLessonId}`,
-        {
-          method: 'DELETE',
-        }
-      );
+      const request = new NextRequest(`http://localhost:3000/api/lessons/${validLessonId}`, {
+        method: 'DELETE',
+      });
       const params = Promise.resolve({ id: validLessonId });
       const response = await DELETE(request, { params });
       const data = await response.json();
@@ -344,40 +323,37 @@ describe('Lesson API - [id] Route', () => {
         data: mockProfile,
         error: null,
       });
-      
+
       // 2. Delete result
       // The handler likely uses delete().eq() and checks error
       // It might NOT use single() or select() if it just deletes.
       // But if it returns the deleted lesson, it uses select().single()
       // Let's assume it just checks for error based on previous test failure analysis (it didn't fail on this step before)
-      
+
       // However, the previous test passed!
       // "should delete a lesson successfully" passed.
       // That means my previous mock setup for DELETE was "good enough" or lucky.
       // Previous setup:
       // mockSupabaseQueryBuilder.eq.mockReturnThis();
       // mockSupabaseQueryBuilder.then = jest.fn((resolve) => resolve({ error: null }));
-      
+
       // I'll stick to that for DELETE, but I need to handle the profile fetch first.
-      
+
       // Wait, if I use `mockResolvedValueOnce` for single(), it only affects `single()`.
       // `delete()` returns the builder. `eq()` returns the builder.
       // `then()` is called at the end.
       // If `deleteLessonHandler` calls `single()` (e.g. to return the deleted lesson), I need to mock it.
       // If it just awaits the query builder, `then()` is called.
-      
+
       // Let's check `deleteLessonHandler` in `handlers.ts` if possible, or just assume standard Supabase usage.
       // Usually `delete().eq('id', id)` returns `{ error, count, data }`.
-      
+
       // I will mock `then` to return success.
       mockSupabaseQueryBuilder.then = jest.fn((resolve) => resolve({ error: null }));
 
-      const request = new NextRequest(
-        `http://localhost:3000/api/lessons/${validLessonId}`,
-        {
-          method: 'DELETE',
-        }
-      );
+      const request = new NextRequest(`http://localhost:3000/api/lessons/${validLessonId}`, {
+        method: 'DELETE',
+      });
       const params = Promise.resolve({ id: validLessonId });
       const response = await DELETE(request, { params });
       const data = await response.json();
@@ -392,16 +368,15 @@ describe('Lesson API - [id] Route', () => {
         data: mockProfile,
         error: null,
       });
-      
-      // 2. Delete error
-      mockSupabaseQueryBuilder.then = jest.fn((resolve) => resolve({ error: { message: 'Database connection failed' } }));
 
-      const request = new NextRequest(
-        `http://localhost:3000/api/lessons/${validLessonId}`,
-        {
-          method: 'DELETE',
-        }
+      // 2. Delete error
+      mockSupabaseQueryBuilder.then = jest.fn((resolve) =>
+        resolve({ error: { message: 'Database connection failed' } })
       );
+
+      const request = new NextRequest(`http://localhost:3000/api/lessons/${validLessonId}`, {
+        method: 'DELETE',
+      });
       const params = Promise.resolve({ id: validLessonId });
       const response = await DELETE(request, { params });
       const data = await response.json();

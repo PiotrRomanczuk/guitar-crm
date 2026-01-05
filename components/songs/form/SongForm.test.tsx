@@ -71,10 +71,13 @@ describe('SongForm Component - Core Tests', () => {
       target: { value: 'https://example.com' },
     });
     fireEvent.click(screen.getByRole('button', { name: /save song/i }));
-    await waitFor(() => {
-      // Button returns to normal state indicating submission finished
-      expect(screen.getByRole('button', { name: /save song/i })).toBeEnabled();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        // Button returns to normal state indicating submission finished
+        expect(screen.getByRole('button', { name: /save song/i })).toBeEnabled();
+      },
+      { timeout: 10000 }
+    );
     expect(mockFetch).toHaveBeenCalledWith(
       '/api/song',
       expect.objectContaining({ method: 'POST' })

@@ -199,8 +199,7 @@ describe('Admin Song CRUD', () => {
         .click({ force: true });
 
       // Wait for delete confirmation dialog to appear
-      cy.get('[data-testid="delete-confirmation-dialog"]', { timeout: 10000 })
-        .should('be.visible');
+      cy.get('[data-testid="delete-confirmation-dialog"]', { timeout: 10000 }).should('be.visible');
 
       // Handle delete confirmation dialog
       cy.get('[data-testid="delete-confirm-button"]', { timeout: 10000 })
@@ -208,9 +207,8 @@ describe('Admin Song CRUD', () => {
         .click({ force: true });
 
       // Wait for deletion to process and dialog to close
-      cy.get('[data-testid="delete-confirmation-dialog"]', { timeout: 15000 })
-        .should('not.exist');
-      
+      cy.get('[data-testid="delete-confirmation-dialog"]', { timeout: 15000 }).should('not.exist');
+
       // Additional wait for backend processing
       cy.wait(3000);
 
