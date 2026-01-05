@@ -127,7 +127,7 @@ export default function useLessonForm({
     } catch (err) {
       if (err instanceof z.ZodError) {
         const errors: ValidationErrors = {};
-        err.errors.forEach((e) => {
+        err.issues.forEach((e) => {
           errors[e.path[0] as string] = e.message;
         });
         setValidationErrors(errors);

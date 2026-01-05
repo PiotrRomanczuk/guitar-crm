@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
 				return {
 					index,
 					valid: result.success,
-					errors: result.success ? null : result.error.errors,
+					errors: result.success ? null : result.error.issues,
 				};
 			});
 
