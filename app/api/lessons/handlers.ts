@@ -275,7 +275,8 @@ async function handleLessonCompletionEmail(supabase: SupabaseClient, lessonId: s
   try {
     const { data: lesson, error } = await supabase
       .from('lessons')
-      .select(`
+      .select(
+        `
         *,
         student:profiles!lessons_student_id_fkey (
           email,
@@ -289,7 +290,8 @@ async function handleLessonCompletionEmail(supabase: SupabaseClient, lessonId: s
             author
           )
         )
-      `)
+      `
+      )
       .eq('id', lessonId)
       .single();
 
@@ -311,13 +313,16 @@ async function handleLessonCompletionEmail(supabase: SupabaseClient, lessonId: s
       return;
     }
 
-    // @ts-expect-error - Supabase types are complex with joins
-    const songs = lesson.lesson_songs?.map((ls) => ({
-      title: ls.song?.title || 'Unknown Song',
-      artist: ls.song?.author || 'Unknown Artist',
-      status: ls.status,
-      notes: ls.notes,
-    })) || [];
+    const songs =
+      lesson.lesson_songs?.map((ls: unknown) => {
+        const lessonSong = ls as { song?: { title?: string; author?: string }; status?: string; notes?: string };
+        return {
+          title: lessonSong.song?.title || 'Unknown Song',
+          artist: lessonSong.song?.author || 'Unknown Artist',
+          status: lessonSong.status,
+          notes: lessonSong.notes,
+        };
+      }) || [];
 
     await sendLessonCompletedEmail({
       studentEmail,

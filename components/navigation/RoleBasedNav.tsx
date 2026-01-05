@@ -59,7 +59,8 @@ export function RoleBasedNav({
       { href: '/dashboard', label: 'Dashboard', icon: '👨‍🎓' },
       { href: '/dashboard/songs', label: 'My Songs', icon: '🎵' },
       { href: '/dashboard/lessons', label: 'My Lessons', icon: '📖' },
-      { href: '/dashboard/assignments', label: 'My Assignments', icon: '📋' }
+      { href: '/dashboard/assignments', label: 'My Assignments', icon: '📋' },
+      { href: '/dashboard/stats', label: 'My Stats', icon: '📊' }
     );
   }
 

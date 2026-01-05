@@ -79,7 +79,8 @@ export function Sidebar({ user, isAdmin, isTeacher, isStudent }: SidebarProps) {
           label: 'My Assignments',
           icon: ClipboardList,
           path: '/dashboard/assignments',
-        }
+        },
+        { id: 'my-stats', label: 'My Stats', icon: BarChart, path: '/dashboard/stats' }
       );
     }
     return items;

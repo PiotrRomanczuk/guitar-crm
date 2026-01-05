@@ -93,20 +93,21 @@ export function StudentAssignmentsPageClient() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="mb-8 opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
-        <h1 className="text-3xl font-semibold">
+    <div className="min-h-screen bg-background p-4 sm:p-8">
+      <div className="mb-6 sm:mb-8 opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
+        <h1 className="text-2xl sm:text-3xl font-semibold">
           <span className="text-primary">My Assignments</span>
         </h1>
-        <p className="text-muted-foreground mt-1">Track your progress and upcoming tasks</p>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">Track your progress and upcoming tasks</p>
       </div>
 
-      <div className="flex justify-end mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div></div>
         <Select
           value={filter.status}
           onValueChange={(value) => setFilter({ ...filter, status: value })}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -121,12 +122,23 @@ export function StudentAssignmentsPageClient() {
 
       {assignments.length === 0 ? (
         <div className="text-center py-12">
-          <ClipboardList className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium">No assignments found</h3>
-          <p className="text-muted-foreground">You don&apos;t have any assignments yet.</p>
+          <div className="relative w-64 h-48 mx-auto mb-6">
+            <img
+              src="/illustrations/no-upcoming-lessons--future-focused---a-forward-lo.png"
+              alt="No assignments"
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <h3 className="text-lg font-medium mb-2">No assignments yet</h3>
+          <p className="text-muted-foreground mb-4">
+            You don&apos;t have any assignments at the moment. Your teacher will assign practice tasks as you progress.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Keep practicing and check back for new assignments!
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {assignments.map((assignment, index) => (
             <div
               key={assignment.id}

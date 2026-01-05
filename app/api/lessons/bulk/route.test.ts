@@ -97,13 +97,10 @@ describe('Lesson API - Bulk Operations', () => {
         error: null,
       });
 
-      const request = new NextRequest(
-        'http://localhost:3000/api/lessons/bulk',
-        {
-          method: 'POST',
-          body: JSON.stringify({ lessons: [] }),
-        }
-      );
+      const request = new NextRequest('http://localhost:3000/api/lessons/bulk', {
+        method: 'POST',
+        body: JSON.stringify({ lessons: [] }),
+      });
       const response = await POST(request);
       const data = await response.json();
 
@@ -117,13 +114,10 @@ describe('Lesson API - Bulk Operations', () => {
         error: null,
       });
 
-      const request = new NextRequest(
-        'http://localhost:3000/api/lessons/bulk',
-        {
-          method: 'POST',
-          body: JSON.stringify({ lessons: [] }),
-        }
-      );
+      const request = new NextRequest('http://localhost:3000/api/lessons/bulk', {
+        method: 'POST',
+        body: JSON.stringify({ lessons: [] }),
+      });
       const response = await POST(request);
       const data = await response.json();
 
@@ -132,13 +126,10 @@ describe('Lesson API - Bulk Operations', () => {
     });
 
     it('should return error if lessons array is missing', async () => {
-      const request = new NextRequest(
-        'http://localhost:3000/api/lessons/bulk',
-        {
-          method: 'POST',
-          body: JSON.stringify({}),
-        }
-      );
+      const request = new NextRequest('http://localhost:3000/api/lessons/bulk', {
+        method: 'POST',
+        body: JSON.stringify({}),
+      });
       const response = await POST(request);
       const data = await response.json();
 
@@ -147,13 +138,10 @@ describe('Lesson API - Bulk Operations', () => {
     });
 
     it('should return error if lessons array is empty', async () => {
-      const request = new NextRequest(
-        'http://localhost:3000/api/lessons/bulk',
-        {
-          method: 'POST',
-          body: JSON.stringify({ lessons: [] }),
-        }
-      );
+      const request = new NextRequest('http://localhost:3000/api/lessons/bulk', {
+        method: 'POST',
+        body: JSON.stringify({ lessons: [] }),
+      });
       const response = await POST(request);
       const data = await response.json();
 
@@ -167,13 +155,10 @@ describe('Lesson API - Bulk Operations', () => {
         teacher_id: validTeacherId,
       });
 
-      const request = new NextRequest(
-        'http://localhost:3000/api/lessons/bulk',
-        {
-          method: 'POST',
-          body: JSON.stringify({ lessons }),
-        }
-      );
+      const request = new NextRequest('http://localhost:3000/api/lessons/bulk', {
+        method: 'POST',
+        body: JSON.stringify({ lessons }),
+      });
       const response = await POST(request);
       const data = await response.json();
 
@@ -195,13 +180,10 @@ describe('Lesson API - Bulk Operations', () => {
         },
       ];
 
-      const request = new NextRequest(
-        'http://localhost:3000/api/lessons/bulk',
-        {
-          method: 'POST',
-          body: JSON.stringify({ lessons }),
-        }
-      );
+      const request = new NextRequest('http://localhost:3000/api/lessons/bulk', {
+        method: 'POST',
+        body: JSON.stringify({ lessons }),
+      });
       const response = await POST(request);
       const data = await response.json();
 
@@ -224,13 +206,10 @@ describe('Lesson API - Bulk Operations', () => {
         },
       ];
 
-      const request = new NextRequest(
-        'http://localhost:3000/api/lessons/bulk',
-        {
-          method: 'POST',
-          body: JSON.stringify({ lessons }),
-        }
-      );
+      const request = new NextRequest('http://localhost:3000/api/lessons/bulk', {
+        method: 'POST',
+        body: JSON.stringify({ lessons }),
+      });
       const response = await POST(request);
       const data = await response.json();
 
@@ -265,13 +244,10 @@ describe('Lesson API - Bulk Operations', () => {
         },
       ];
 
-      const request = new NextRequest(
-        'http://localhost:3000/api/lessons/bulk',
-        {
-          method: 'POST',
-          body: JSON.stringify({ lessons }),
-        }
-      );
+      const request = new NextRequest('http://localhost:3000/api/lessons/bulk', {
+        method: 'POST',
+        body: JSON.stringify({ lessons }),
+      });
       const response = await POST(request);
       const data = await response.json();
 
@@ -294,13 +270,10 @@ describe('Lesson API - Bulk Operations', () => {
         },
       ];
 
-      const request = new NextRequest(
-        'http://localhost:3000/api/lessons/bulk',
-        {
-          method: 'PUT',
-          body: JSON.stringify({ updates }),
-        }
-      );
+      const request = new NextRequest('http://localhost:3000/api/lessons/bulk', {
+        method: 'PUT',
+        body: JSON.stringify({ updates }),
+      });
       const response = await PUT(request);
       const data = await response.json();
 
@@ -317,13 +290,10 @@ describe('Lesson API - Bulk Operations', () => {
         },
       ];
 
-      const request = new NextRequest(
-        'http://localhost:3000/api/lessons/bulk',
-        {
-          method: 'PUT',
-          body: JSON.stringify({ updates }),
-        }
-      );
+      const request = new NextRequest('http://localhost:3000/api/lessons/bulk', {
+        method: 'PUT',
+        body: JSON.stringify({ updates }),
+      });
       const response = await PUT(request);
       const data = await response.json();
 
@@ -340,13 +310,10 @@ describe('Lesson API - Bulk Operations', () => {
 
       const lessonIds = [validLessonId1, validLessonId2, validLessonId3];
 
-      const request = new NextRequest(
-        'http://localhost:3000/api/lessons/bulk',
-        {
-          method: 'DELETE',
-          body: JSON.stringify({ lessonIds }),
-        }
-      );
+      const request = new NextRequest('http://localhost:3000/api/lessons/bulk', {
+        method: 'DELETE',
+        body: JSON.stringify({ lessonIds }),
+      });
       const response = await DELETE(request);
       const data = await response.json();
 
@@ -357,39 +324,32 @@ describe('Lesson API - Bulk Operations', () => {
     });
 
     it('should return error if lessonIds array is missing', async () => {
-      const request = new NextRequest(
-        'http://localhost:3000/api/lessons/bulk',
-        {
-          method: 'DELETE',
-          body: JSON.stringify({}),
-        }
-      );
+      const request = new NextRequest('http://localhost:3000/api/lessons/bulk', {
+        method: 'DELETE',
+        body: JSON.stringify({}),
+      });
       const response = await DELETE(request);
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error).toBe(
-        'Lesson IDs array is required and cannot be empty'
-      );
+      expect(data.error).toBe('Lesson IDs array is required and cannot be empty');
     });
 
     it('should handle deletion errors for individual lessons', async () => {
       // Mock delete responses
       // First two succeed, third fails
-      lessonBuilder.then = jest.fn()
+      lessonBuilder.then = jest
+        .fn()
         .mockImplementationOnce((resolve) => resolve({ error: null }))
         .mockImplementationOnce((resolve) => resolve({ error: null }))
         .mockImplementationOnce((resolve) => resolve({ error: { message: 'Not found' } }));
 
       const lessonIds = [validLessonId1, validLessonId2, validLessonId3];
 
-      const request = new NextRequest(
-        'http://localhost:3000/api/lessons/bulk',
-        {
-          method: 'DELETE',
-          body: JSON.stringify({ lessonIds }),
-        }
-      );
+      const request = new NextRequest('http://localhost:3000/api/lessons/bulk', {
+        method: 'DELETE',
+        body: JSON.stringify({ lessonIds }),
+      });
       const response = await DELETE(request);
       const data = await response.json();
 

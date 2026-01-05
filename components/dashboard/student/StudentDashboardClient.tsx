@@ -6,6 +6,9 @@ import { SongLibrary } from '@/components/songs/student/SongLibrary';
 import { AssignmentList } from '@/components/assignments/student/AssignmentList';
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
 import { NextLessonCard } from '@/components/dashboard/student/NextLessonCard';
+import { LastLessonCard } from '@/components/dashboard/student/LastLessonCard';
+import { ProgressChart } from '@/components/dashboard/student/ProgressChart';
+import { PracticeTimerCard } from '@/components/dashboard/student/PracticeTimerCard';
 import { BearerTokenCard } from '@/components/dashboard/BearerTokenCard';
 
 interface StudentDashboardClientProps {
@@ -35,17 +38,16 @@ export function StudentDashboardClient({ data, token }: StudentDashboardClientPr
     })),
   ].slice(0, 5);
 
-  /*
+  // Create weekly chart data based on student's data
   const chartData = [
-    { name: 'Mon', lessons: 1, assignments: 1 },
-    { name: 'Tue', lessons: 2, assignments: 0 },
-    { name: 'Wed', lessons: 1, assignments: 2 },
-    { name: 'Thu', lessons: 0, assignments: 1 },
-    { name: 'Fri', lessons: 3, assignments: 2 },
-    { name: 'Sat', lessons: 4, assignments: 3 },
-    { name: 'Sun', lessons: 2, assignments: 1 },
+    { name: 'Mon', lessons: data.stats.completedLessons > 0 ? 1 : 0, assignments: data.assignments.length > 0 ? 1 : 0 },
+    { name: 'Tue', lessons: data.stats.completedLessons > 1 ? 1 : 0, assignments: data.assignments.length > 1 ? 1 : 0 },
+    { name: 'Wed', lessons: data.stats.completedLessons > 2 ? 1 : 0, assignments: data.assignments.length > 2 ? 2 : 0 },
+    { name: 'Thu', lessons: 0, assignments: data.assignments.length > 3 ? 1 : 0 },
+    { name: 'Fri', lessons: data.stats.completedLessons > 3 ? 2 : 0, assignments: data.assignments.length > 4 ? 2 : 0 },
+    { name: 'Sat', lessons: data.stats.completedLessons > 4 ? 3 : 0, assignments: Math.min(data.assignments.length, 3) },
+    { name: 'Sun', lessons: data.stats.completedLessons > 5 ? 2 : 0, assignments: Math.min(data.assignments.length, 2) },
   ];
-  */
 
   const songs = data.recentSongs.map((s) => ({
     id: s.id,
@@ -71,9 +73,14 @@ export function StudentDashboardClient({ data, token }: StudentDashboardClientPr
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-2 opacity-0 animate-fade-in">
-        <h1 className="text-3xl font-bold tracking-tight">Welcome back, Student!</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Welcome back, {data.studentName || 'Student'}!
+        </h1>
         <p className="text-muted-foreground">
-          Here&apos;s what&apos;s happening with your guitar journey.
+          {data.stats.completedLessons > 0 
+            ? `You've completed ${data.stats.completedLessons} lesson${data.stats.completedLessons === 1 ? '' : 's'}. Keep up the great work!`
+            : "Here's what's happening with your guitar journey."
+          }
         </p>
       </div>
 
@@ -81,13 +88,16 @@ export function StudentDashboardClient({ data, token }: StudentDashboardClientPr
       <DashboardStatsGrid />
 
       <NextLessonCard lesson={data.nextLesson} />
+      
+      {data.lastLesson && <LastLessonCard lesson={data.lastLesson} />}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          {/* <ProgressChart data={chartData} /> */}
+          <ProgressChart data={chartData} />
           <SongLibrary songs={songs} />
         </div>
         <div className="space-y-8">
+          <PracticeTimerCard songs={data.allSongs} />
           <RecentActivity activities={activities} />
           <AssignmentList assignments={assignments} />
         </div>
