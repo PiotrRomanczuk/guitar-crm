@@ -40,13 +40,37 @@ export function StudentDashboardClient({ data, token }: StudentDashboardClientPr
 
   // Create weekly chart data based on student's data
   const chartData = [
-    { name: 'Mon', lessons: data.stats.completedLessons > 0 ? 1 : 0, assignments: data.assignments.length > 0 ? 1 : 0 },
-    { name: 'Tue', lessons: data.stats.completedLessons > 1 ? 1 : 0, assignments: data.assignments.length > 1 ? 1 : 0 },
-    { name: 'Wed', lessons: data.stats.completedLessons > 2 ? 1 : 0, assignments: data.assignments.length > 2 ? 2 : 0 },
+    {
+      name: 'Mon',
+      lessons: data.stats.completedLessons > 0 ? 1 : 0,
+      assignments: data.assignments.length > 0 ? 1 : 0,
+    },
+    {
+      name: 'Tue',
+      lessons: data.stats.completedLessons > 1 ? 1 : 0,
+      assignments: data.assignments.length > 1 ? 1 : 0,
+    },
+    {
+      name: 'Wed',
+      lessons: data.stats.completedLessons > 2 ? 1 : 0,
+      assignments: data.assignments.length > 2 ? 2 : 0,
+    },
     { name: 'Thu', lessons: 0, assignments: data.assignments.length > 3 ? 1 : 0 },
-    { name: 'Fri', lessons: data.stats.completedLessons > 3 ? 2 : 0, assignments: data.assignments.length > 4 ? 2 : 0 },
-    { name: 'Sat', lessons: data.stats.completedLessons > 4 ? 3 : 0, assignments: Math.min(data.assignments.length, 3) },
-    { name: 'Sun', lessons: data.stats.completedLessons > 5 ? 2 : 0, assignments: Math.min(data.assignments.length, 2) },
+    {
+      name: 'Fri',
+      lessons: data.stats.completedLessons > 3 ? 2 : 0,
+      assignments: data.assignments.length > 4 ? 2 : 0,
+    },
+    {
+      name: 'Sat',
+      lessons: data.stats.completedLessons > 4 ? 3 : 0,
+      assignments: Math.min(data.assignments.length, 3),
+    },
+    {
+      name: 'Sun',
+      lessons: data.stats.completedLessons > 5 ? 2 : 0,
+      assignments: Math.min(data.assignments.length, 2),
+    },
   ];
 
   const songs = data.recentSongs.map((s) => ({
@@ -77,10 +101,11 @@ export function StudentDashboardClient({ data, token }: StudentDashboardClientPr
           Welcome back, {data.studentName || 'Student'}!
         </h1>
         <p className="text-muted-foreground">
-          {data.stats.completedLessons > 0 
-            ? `You've completed ${data.stats.completedLessons} lesson${data.stats.completedLessons === 1 ? '' : 's'}. Keep up the great work!`
-            : "Here's what's happening with your guitar journey."
-          }
+          {data.stats.completedLessons > 0
+            ? `You've completed ${data.stats.completedLessons} lesson${
+                data.stats.completedLessons === 1 ? '' : 's'
+              }. Keep up the great work!`
+            : "Here's what's happening with your guitar journey."}
         </p>
       </div>
 
@@ -88,7 +113,7 @@ export function StudentDashboardClient({ data, token }: StudentDashboardClientPr
       <DashboardStatsGrid />
 
       <NextLessonCard lesson={data.nextLesson} />
-      
+
       {data.lastLesson && <LastLessonCard lesson={data.lastLesson} />}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
