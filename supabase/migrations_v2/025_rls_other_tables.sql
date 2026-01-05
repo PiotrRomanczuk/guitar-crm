@@ -154,3 +154,49 @@ CREATE POLICY "Teachers and admins can view all song status history" ON song_sta
             AND (profiles.is_admin = true OR profiles.is_teacher = true)
         )
     );
+
+-- =============================================
+-- STUDENT SONG PROGRESS
+-- =============================================
+
+-- Students can view their own progress
+CREATE POLICY "Students can view their own song progress" ON student_song_progress
+    FOR SELECT USING (auth.uid() = student_id);
+
+-- Students can insert their own progress records
+CREATE POLICY "Students can insert their own song progress" ON student_song_progress
+    FOR INSERT WITH CHECK (auth.uid() = student_id);
+
+-- Students can update their own progress
+CREATE POLICY "Students can update their own song progress" ON student_song_progress
+    FOR UPDATE USING (auth.uid() = student_id);
+
+-- Teachers and admins can view all progress
+CREATE POLICY "Teachers and admins can view all song progress" ON student_song_progress
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM profiles
+            WHERE profiles.id = auth.uid()
+            AND (profiles.is_admin = true OR profiles.is_teacher = true)
+        )
+    );
+
+-- Teachers can update student progress (for adding notes, etc.)
+CREATE POLICY "Teachers can update student song progress" ON student_song_progress
+    FOR UPDATE USING (
+        EXISTS (
+            SELECT 1 FROM profiles
+            WHERE profiles.id = auth.uid()
+            AND (profiles.is_admin = true OR profiles.is_teacher = true)
+        )
+    );
+
+-- Teachers can insert progress for students
+CREATE POLICY "Teachers can insert student song progress" ON student_song_progress
+    FOR INSERT WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM profiles
+            WHERE profiles.id = auth.uid()
+            AND (profiles.is_admin = true OR profiles.is_teacher = true)
+        )
+    );

@@ -40,6 +40,5 @@ CREATE TYPE assignment_status AS ENUM (
     'cancelled'
 );
 
--- NOTE: Legacy enums kept for backwards compatibility (can be removed if not used)
--- CREATE TYPE task_priority AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'URGENT');
--- CREATE TYPE task_status AS ENUM ('OPEN', 'IN_PROGRESS', 'PENDING_REVIEW', 'COMPLETED', 'CANCELLED', 'BLOCKED');
+-- NOTE: Legacy enums (task_priority, task_status) have been removed as they were unused.
+-- They were leftovers from the old task_management table before it was renamed to assignments.
