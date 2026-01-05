@@ -176,7 +176,10 @@ export class DatabaseRouter {
   /**
    * Convenience method for DELETE requests
    */
-  async delete<T = unknown>(path: string, params?: Record<string, string>): Promise<ApiResponse<T>> {
+  async delete<T = unknown>(
+    path: string,
+    params?: Record<string, string>
+  ): Promise<ApiResponse<T>> {
     return this.executeRequest<T>({ method: 'DELETE', path, params });
   }
 
