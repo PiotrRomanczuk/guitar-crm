@@ -6,12 +6,12 @@ CREATE TABLE songs (
     
     -- Core song information
     title TEXT NOT NULL,
-    author TEXT NOT NULL,
+    author TEXT,  -- Optional, many legacy songs don't have author
     short_title VARCHAR(50),
     
     -- Music attributes
-    level difficulty_level NOT NULL,
-    key music_key NOT NULL,
+    level difficulty_level,  -- Optional
+    key music_key,  -- Optional
     capo_fret INTEGER CHECK (capo_fret IS NULL OR (capo_fret >= 0 AND capo_fret <= 20)),
     strumming_pattern TEXT,
     tempo INTEGER CHECK (tempo IS NULL OR (tempo >= 20 AND tempo <= 300)),
