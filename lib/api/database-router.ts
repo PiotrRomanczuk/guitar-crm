@@ -9,12 +9,12 @@ export interface DatabaseEndpoint {
 export interface HttpRequestOptions {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   path: string;
-  body?: any;
+  body?: unknown;
   headers?: Record<string, string>;
   params?: Record<string, string>;
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data: T;
   error: Error | null;
   status: number;
@@ -73,7 +73,7 @@ export class DatabaseRouter {
   /**
    * Execute HTTP request to the appropriate database endpoint
    */
-  async executeRequest<T = any>(options: HttpRequestOptions): Promise<ApiResponse<T>> {
+  async executeRequest<T = unknown>(options: HttpRequestOptions): Promise<ApiResponse<T>> {
     const { method, path, body, headers = {}, params = {} } = options;
 
     // Build URL with query parameters
@@ -136,16 +136,16 @@ export class DatabaseRouter {
   /**
    * Convenience method for GET requests
    */
-  async get<T = any>(path: string, params?: Record<string, string>): Promise<ApiResponse<T>> {
+  async get<T = unknown>(path: string, params?: Record<string, string>): Promise<ApiResponse<T>> {
     return this.executeRequest<T>({ method: 'GET', path, params });
   }
 
   /**
    * Convenience method for POST requests
    */
-  async post<T = any>(
+  async post<T = unknown>(
     path: string,
-    body?: any,
+    body?: unknown,
     headers?: Record<string, string>
   ): Promise<ApiResponse<T>> {
     return this.executeRequest<T>({ method: 'POST', path, body, headers });
@@ -154,9 +154,9 @@ export class DatabaseRouter {
   /**
    * Convenience method for PUT requests
    */
-  async put<T = any>(
+  async put<T = unknown>(
     path: string,
-    body?: any,
+    body?: unknown,
     headers?: Record<string, string>
   ): Promise<ApiResponse<T>> {
     return this.executeRequest<T>({ method: 'PUT', path, body, headers });
@@ -165,9 +165,9 @@ export class DatabaseRouter {
   /**
    * Convenience method for PATCH requests
    */
-  async patch<T = any>(
+  async patch<T = unknown>(
     path: string,
-    body?: any,
+    body?: unknown,
     headers?: Record<string, string>
   ): Promise<ApiResponse<T>> {
     return this.executeRequest<T>({ method: 'PATCH', path, body, headers });
@@ -176,7 +176,7 @@ export class DatabaseRouter {
   /**
    * Convenience method for DELETE requests
    */
-  async delete<T = any>(path: string, params?: Record<string, string>): Promise<ApiResponse<T>> {
+  async delete<T = unknown>(path: string, params?: Record<string, string>): Promise<ApiResponse<T>> {
     return this.executeRequest<T>({ method: 'DELETE', path, params });
   }
 
