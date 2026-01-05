@@ -1,0 +1,5 @@
+ALTER TABLE songs
+ADD COLUMN tempo INTEGER,
+ADD COLUMN time_signature INTEGER,
+ADD COLUMN duration_ms INTEGER,
+ADD COLUMN release_year INTEGER;
