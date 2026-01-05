@@ -2,7 +2,6 @@
 
 import { StudentDashboardData } from '@/app/actions/student/dashboard';
 import { RecentActivity } from '@/components/dashboard/student/RecentActivity';
-// import { ProgressChart } from '@/components/dashboard/student/ProgressChart';
 import { SongLibrary } from '@/components/songs/student/SongLibrary';
 import { AssignmentList } from '@/components/assignments/student/AssignmentList';
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';

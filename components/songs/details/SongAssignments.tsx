@@ -43,7 +43,7 @@ export default function SongAssignments({ songId }: Props) {
   useEffect(() => {
     async function fetchSongAssignments() {
       try {
-        const response = await fetch(`/api/songs/${songId}/assignments`);
+        const response = await fetch(`/api/song/${songId}/assignments`);
         const data = await response.json();
 
         if (!response.ok) {
