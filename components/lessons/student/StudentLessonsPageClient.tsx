@@ -151,7 +151,8 @@ export function StudentLessonsPageClient() {
                         <div className="flex items-center text-xs sm:text-sm text-muted-foreground mt-1 gap-2">
                           <User className="w-3 h-3 sm:w-4 sm:h-4" />
                           <span className="truncate">
-                            Teacher: {lesson.teacher?.[0]?.first_name} {lesson.teacher?.[0]?.last_name}
+                            Teacher: {lesson.teacher?.[0]?.first_name}{' '}
+                            {lesson.teacher?.[0]?.last_name}
                           </span>
                         </div>
                       </div>

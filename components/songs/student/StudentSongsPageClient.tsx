@@ -115,7 +115,9 @@ export function StudentSongsPageClient() {
       if (error) throw error;
 
       // Update local state
-      setSongs(songs.map((song) => (song.id === songId ? { ...song, status: newStatus as any } : song)));
+      setSongs(
+        songs.map((song) => (song.id === songId ? { ...song, status: newStatus as any } : song))
+      );
 
       toast.success(`Song status updated to ${statusLabels[newStatus] || newStatus}!`);
     } catch (error) {

@@ -66,13 +66,15 @@ export default async function StudentStatsPage() {
       .order('scheduled_at', { ascending: false })
       .limit(10),
 
-    // Song progress by status  
+    // Song progress by status
     supabase
       .from('student_songs')
-      .select(`
+      .select(
+        `
         status,
         songs!inner (title, artist, level)
-      `)
+      `
+      )
       .eq('student_id', user.id),
   ]);
 
