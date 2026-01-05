@@ -198,13 +198,21 @@ describe('Admin Song CRUD', () => {
         .first()
         .click({ force: true });
 
+      // Wait for delete confirmation dialog to appear
+      cy.get('[data-testid="delete-confirmation-dialog"]', { timeout: 10000 })
+        .should('be.visible');
+
       // Handle delete confirmation dialog
       cy.get('[data-testid="delete-confirm-button"]', { timeout: 10000 })
-        .should('exist')
+        .should('be.visible')
         .click({ force: true });
 
-      // Wait for deletion to process
-      cy.wait(2000);
+      // Wait for deletion to process and dialog to close
+      cy.get('[data-testid="delete-confirmation-dialog"]', { timeout: 15000 })
+        .should('not.exist');
+      
+      // Additional wait for backend processing
+      cy.wait(3000);
 
       // Verify song is removed from list
       cy.visit('/dashboard/songs');

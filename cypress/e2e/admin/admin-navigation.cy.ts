@@ -21,6 +21,17 @@ describe('Admin Dashboard Navigation', () => {
   beforeEach(() => {
     cy.viewport(1440, 900);
     cy.login(ADMIN_EMAIL, ADMIN_PASSWORD);
+    
+    // Handle performance API errors that can occur during navigation
+    cy.on('uncaught:exception', (err) => {
+      // Ignore Performance API timing errors
+      if (err.message.includes('cannot have a negative time stamp') || 
+          err.message.includes('Performance')) {
+        return false;
+      }
+      // Allow other errors to fail the test
+      return true;
+    });
   });
 
   describe('Main Dashboard', () => {
