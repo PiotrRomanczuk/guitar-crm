@@ -1,9 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { ButtonProps } from '@/components/ui/button';
-import { forwardRef } from 'react';
+import { forwardRef, ReactNode } from 'react';
 
-interface QuickActionButtonProps extends ButtonProps {
-  emoji: string;
+interface QuickActionButtonProps extends Omit<ButtonProps, 'emoji'> {
+  emoji: ReactNode;
   title: string;
   description: string;
 }
@@ -14,10 +14,10 @@ export const QuickActionButton = forwardRef<HTMLButtonElement, QuickActionButton
       <Button
         ref={ref}
         variant="outline"
-        className={`h-auto flex-col items-start p-3 sm:p-4 w-full text-left whitespace-normal hover:border-blue-500 ${className}`}
+        className={`h-auto flex-col items-start p-3 sm:p-4 w-full text-left whitespace-normal hover:border-primary hover:bg-primary/5 transition-all ${className}`}
         {...props}
       >
-        <div className="font-semibold mb-1 text-sm sm:text-base">
+        <div className="font-semibold mb-1 text-sm sm:text-base flex items-center">
           {emoji} {title}
         </div>
         <div className="text-xs sm:text-sm text-muted-foreground font-normal">{description}</div>
