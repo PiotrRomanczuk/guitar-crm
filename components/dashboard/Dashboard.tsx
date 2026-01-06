@@ -6,11 +6,13 @@ import { AIAssistantCard } from './admin/AIAssistantCard';
 
 export function DashboardPageContent({
   email,
+  fullName,
   isAdmin,
   isTeacher,
   isStudent,
 }: {
   email: string | undefined;
+  fullName?: string | null;
   isAdmin: boolean;
   isTeacher: boolean;
   isStudent: boolean;
@@ -24,7 +26,7 @@ export function DashboardPageContent({
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 font-sans">
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-6xl">
-        <DashboardHeader email={email} roleText={roleText} />
+        <DashboardHeader email={email} fullName={fullName} roleText={roleText} />
         <DashboardStatsGrid />
         {isAdmin && (
           <div className="mt-8 grid gap-8 md:grid-cols-2">
