@@ -1,5 +1,8 @@
 # Guitar CRM - AI Agent Specification
 
+> **⚠️ UPDATED:** This spec now reflects the new AI Provider Abstraction Layer.  
+> See `AI_PROVIDER_ABSTRACTION.md` for full documentation.
+
 ## 1. Agent Identity
 
 *   **Name:** Guitar CRM Admin Assistant
@@ -18,26 +21,56 @@ The primary goal of the AI Agent is to reduce the administrative burden on music
 
 ## 3. Architecture
 
-The agent is built using a lightweight, privacy-focused architecture leveraging open-source models via OpenRouter.
+**UPDATED:** The agent now uses a provider abstraction layer supporting multiple LLM backends.
 
 ### 3.1 Components
 *   **Frontend:** `AIAssistantCard.tsx`
     *   Embedded in the Admin Dashboard.
-    *   Supports model selection (Llama 3.3, DeepSeek R1, etc.).
+    *   Dynamic model selection based on active provider.
+    *   Shows provider badge (OpenRouter/Ollama).
     *   Real-time loading states and error handling.
+    
 *   **Backend:** `app/actions/ai.ts`
-    *   Server Action for secure API key handling.
-    *   Stateless request processing.
-*   **Model Provider:** OpenRouter API
-    *   Access to free tier models (Llama 3.3 70B, Mistral 7B, etc.).
-    *   Configurable via `lib/ai-models.ts`.
+    *   Server Actions: `generateAIResponse()`, `getAvailableModels()`.
+    *   Uses provider abstraction layer.
+    *   Secure API key and configuration handling.
+    
+*   **Provider Layer:** `lib/ai/`
+    *   **Provider Factory** (`provider-factory.ts`) - Auto-selects provider
+    *   **OpenRouter Provider** (`providers/openrouter.ts`) - Cloud API
+    *   **Ollama Provider** (`providers/ollama.ts`) - Local LLM
+    *   **Types** (`types.ts`) - Shared interfaces
+    
+*   **Configuration:**
+    *   Environment variables control provider selection
+    *   Three modes: `auto`, `openrouter`, `ollama`
+    *   See `.env.example` for details
 
-### 3.2 Data Flow
+### 3.2 Supported Providers
+
+#### OpenRouter (Cloud)
+*   Access to 7+ free tier models
+*   Models: Llama 3.3 70B, DeepSeek R1, Gemini 2.0 Flash, etc.
+*   Requires `OPENROUTER_API_KEY`
+*   Best for: Production, reliability, no local setup
+
+#### Ollama (Local)
+*   Run models on your own hardware
+*   Popular models: llama3.2, mistral, deepseek-r1, qwen2.5
+*   Requires Ollama running locally
+*   Best for: Development, privacy, no API costs, offline
+
+### 3.3 Data Flow
 1.  User inputs prompt in Dashboard UI.
-2.  Request sent to Next.js Server Action.
-3.  Server Action appends System Prompt ("You are a helpful assistant for the Guitar CRM...").
-4.  Request forwarded to OpenRouter API.
-5.  Response streamed/returned to UI.
+2.  Request sent to Next.js Server Action (`generateAIResponse`).
+3.  Provider Factory selects best available provider (auto mode).
+4.  Server Action appends System Prompt via provider.
+5.  Provider forwards to appropriate backend (OpenRouter API or Ollama).
+6.  Response returned through provider abstraction to UI.
+
+```
+UI → Server Action → Provider Factory → [OpenRouter | Ollama] → Response
+```
 
 ## 4. Capabilities
 

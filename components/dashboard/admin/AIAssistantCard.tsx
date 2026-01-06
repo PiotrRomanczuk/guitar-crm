@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -19,9 +19,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { generateAIResponse } from '@/app/actions/ai';
-import { FREE_OPENROUTER_MODELS, DEFAULT_AI_MODEL } from '@/lib/ai-models';
+import { generateAIResponse, getAvailableModels } from '@/app/actions/ai';
+import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
 import { Loader2, Send, Minimize2, Maximize2, Sparkles, Trash2 } from 'lucide-react';
+import type { AIModelInfo } from '@/lib/ai';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -55,6 +56,25 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
   const [error, setError] = useState('');
   const [selectedModel, setSelectedModel] = useState(DEFAULT_AI_MODEL);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [availableModels, setAvailableModels] = useState<AIModelInfo[]>([]);
+  const [providerName, setProviderName] = useState<string>('');
+
+  // Fetch available models on component mount
+  useEffect(() => {
+    const fetchModels = async () => {
+      const result = await getAvailableModels();
+      if (result.models) {
+        setAvailableModels(result.models);
+        setProviderName(result.providerName || '');
+        
+        // If current selected model is not in the list, use the first available
+        if (result.models.length > 0 && !result.models.find(m => m.id === selectedModel)) {
+          setSelectedModel(result.models[0].id);
+        }
+      }
+    };
+    fetchModels();
+  }, []);
 
   const handleSubmit = async (customPrompt?: string) => {
     const textToSend = customPrompt || prompt;
@@ -121,13 +141,21 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
                 <SelectValue placeholder="Select Model" />
               </SelectTrigger>
               <SelectContent>
-                {FREE_OPENROUTER_MODELS.map((model) => (
+                {availableModels.map((model) => (
                   <SelectItem key={model.id} value={model.id} className="text-xs">
-                    {model.name}
+                    <div className="flex items-center gap-2">
+                      {model.name}
+                      {model.isLocal && <Badge variant="secondary" className="text-xs">Local</Badge>}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {providerName && (
+              <Badge variant="outline" className="text-xs">
+                {providerName}
+              </Badge>
+            )}
             <Button
               variant="ghost"
               size="icon"

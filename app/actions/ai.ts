@@ -1,51 +1,91 @@
 'use server';
 
+import { getAIProvider, isAIError, type AIMessage, type AIModelInfo } from '@/lib/ai';
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
 
-export async function generateAIResponse(prompt: string, model: string = DEFAULT_AI_MODEL) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  const siteUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
-  const siteName = 'Guitar CRM';
-
-  if (!apiKey) {
-    return { error: 'OpenRouter API key is not configured.' };
-  }
-
+/**
+ * Generate AI response using the configured provider
+ * 
+ * This action automatically selects between OpenRouter and local LLM
+ * based on the AI_PROVIDER environment variable:
+ * - 'openrouter': Use OpenRouter API
+ * - 'ollama': Use local Ollama
+ * - 'auto' (default): Try Ollama first, fallback to OpenRouter
+ */
+export async function generateAIResponse(
+  prompt: string,
+  model: string = DEFAULT_AI_MODEL
+): Promise<{ content?: string; error?: string }> {
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': siteUrl,
-        'X-Title': siteName,
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          {
-            role: 'system',
-            content:
-              'You are a helpful assistant for the Guitar CRM admin dashboard. Keep your answers concise and relevant to managing a music school.',
-          },
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-      }),
-    });
+    // Get the configured provider
+    const provider = await getAIProvider();
+    
+    console.log(`[AI] Using provider: ${provider.name}, model: ${model}`);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('OpenRouter API Error:', errorData);
-      return { error: `API Error: ${response.statusText}` };
+    // Check if provider is available
+    const available = await provider.isAvailable();
+    if (!available) {
+      return {
+        error: `${provider.name} is not available. Please check your configuration.`,
+      };
     }
 
-    const data = await response.json();
-    return { content: data.choices[0].message.content };
+    // Prepare messages
+    const messages: AIMessage[] = [
+      {
+        role: 'system',
+        content:
+          'You are a helpful assistant for the Guitar CRM admin dashboard. Keep your answers concise and relevant to managing a music school.',
+      },
+      {
+        role: 'user',
+        content: prompt,
+      },
+    ];
+
+    // Generate completion
+    const result = await provider.complete({
+      model,
+      messages,
+      temperature: 0.7,
+    });
+
+    // Handle error response
+    if (isAIError(result)) {
+      console.error(`[AI] ${provider.name} error:`, result.error);
+      return { error: result.error };
+    }
+
+    // Return success response
+    return { content: result.content };
   } catch (error) {
-    console.error('Failed to fetch AI response:', error);
-    return { error: 'Failed to connect to AI service.' };
+    console.error('[AI] Unexpected error:', error);
+    return {
+      error: error instanceof Error ? error.message : 'Failed to generate AI response.',
+    };
+  }
+}
+
+/**
+ * Get available AI models from the current provider
+ */
+export async function getAvailableModels(): Promise<{
+  models?: AIModelInfo[];
+  providerName?: string;
+  error?: string;
+}> {
+  try {
+    const provider = await getAIProvider();
+    const models = await provider.listModels();
+    
+    return {
+      models,
+      providerName: provider.name,
+    };
+  } catch (error) {
+    console.error('[AI] Failed to fetch models:', error);
+    return {
+      error: error instanceof Error ? error.message : 'Failed to fetch available models.',
+    };
   }
 }
