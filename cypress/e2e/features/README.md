@@ -7,16 +7,19 @@
 ## Feature Categories
 
 ### Admin Features
+
 - `admin-student-management.cy.ts` - Complete student lifecycle
 - `admin-lesson-scheduling.cy.ts` - Lesson planning and management  
 - `admin-reporting.cy.ts` - Analytics and report generation
 
-### Student Features  
+### Student Features
+
 - `student-dashboard.cy.ts` - Student portal experience
 - `student-practice-logging.cy.ts` - Practice tracking workflow
 - `student-progress-review.cy.ts` - Progress viewing and feedback
 
 ### Teacher Features
+
 - `teacher-lesson-preparation.cy.ts` - Lesson planning workflow
 - `teacher-student-communication.cy.ts` - Communication tools
 - `teacher-progress-tracking.cy.ts` - Student progress monitoring
@@ -39,6 +42,7 @@ describe('Admin Student Management Feature', () => {
 ## Test Data Management
 
 Feature tests use realistic test data and scenarios:
+
 - Pre-seeded database state
 - Realistic user personas
 - Common business scenarios
