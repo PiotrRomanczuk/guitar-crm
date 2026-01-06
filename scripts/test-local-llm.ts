@@ -16,7 +16,7 @@
 
 import { OllamaProvider } from '../lib/ai/providers/ollama';
 import { OpenRouterProvider } from '../lib/ai/providers/openrouter';
-import { getAIProvider, AIProviderFactory } from '../lib/ai/provider-factory';
+import { AIProviderFactory } from '../lib/ai/provider-factory';
 
 const COLORS = {
   reset: '\x1b[0m',

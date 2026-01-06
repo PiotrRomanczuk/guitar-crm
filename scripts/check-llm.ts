@@ -32,7 +32,7 @@ async function quickCheck() {
       process.exit(1);
     }
     
-    models.forEach((model: any, index: number) => {
+    models.forEach((model: { name: string; size: number }, index: number) => {
       const size = (model.size / 1024 / 1024 / 1024).toFixed(1);
       console.log(`   ${index + 1}. ${model.name} (${size} GB)`);
     });
@@ -42,7 +42,7 @@ async function quickCheck() {
     console.log('  AI_PROVIDER=auto');
     console.log('  AI_PREFER_LOCAL=true\n');
     
-  } catch (error) {
+  } catch {
     console.log('❌ Cannot connect to Ollama');
     console.log('\nMake sure Ollama is running:');
     console.log('   ollama serve\n');

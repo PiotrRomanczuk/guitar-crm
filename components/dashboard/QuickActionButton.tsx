@@ -1,8 +1,7 @@
 import { Button } from '@/components/ui/button';
-import { ButtonProps } from '@/components/ui/button';
-import { forwardRef, ReactNode } from 'react';
+import { forwardRef, ReactNode, ComponentPropsWithoutRef } from 'react';
 
-interface QuickActionButtonProps extends Omit<ButtonProps, 'emoji'> {
+interface QuickActionButtonProps extends Omit<ComponentPropsWithoutRef<typeof Button>, 'emoji'> {
   emoji: ReactNode;
   title: string;
   description: string;
