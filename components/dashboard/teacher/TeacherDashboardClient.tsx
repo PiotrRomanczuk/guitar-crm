@@ -13,7 +13,6 @@ import { BearerTokenCard } from '@/components/dashboard/BearerTokenCard';
 import { TodaysAgenda } from '@/components/dashboard/TodaysAgenda';
 import { NotificationsAlertsSection } from '@/components/dashboard/NotificationsAlertsSection';
 import { WelcomeTour } from '@/components/dashboard/WelcomeTour';
-import { QuickStartChecklist } from '@/components/dashboard/QuickStartChecklist';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
 import { Users, BookOpen, Music, Shield, FileText } from 'lucide-react';
 import Link from 'next/link';

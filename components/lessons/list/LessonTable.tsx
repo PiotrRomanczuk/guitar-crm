@@ -21,7 +21,7 @@ export default function LessonTable({
   lessons,
   role,
   baseUrl = '/dashboard/lessons',
-  onDeleteSuccess,
+  onDeleteSuccess: _onDeleteSuccess,
 }: Props) {
   // Show actions column for admin and teacher only
   const showActions = role === 'admin' || role === 'teacher';

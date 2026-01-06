@@ -40,7 +40,7 @@ export class OllamaProvider implements AIProvider {
       const data = await response.json();
       
       // Transform Ollama model format to our AIModelInfo format
-      return (data.models || []).map((model: any) => ({
+      return (data.models || []).map((model: { name: string }) => ({
         id: model.name,
         name: model.name,
         provider: 'Ollama',

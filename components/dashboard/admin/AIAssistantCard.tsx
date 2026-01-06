@@ -74,7 +74,7 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
       }
     };
     fetchModels();
-  }, []);
+  }, [selectedModel]);
 
   const handleSubmit = async (customPrompt?: string) => {
     const textToSend = customPrompt || prompt;
