@@ -1,7 +1,8 @@
 export { default as LessonTable } from './list/LessonTable';
 export { default as LessonTableRow } from './list/LessonTable.Row';
 export { default as LessonTableEmpty } from './list/LessonTable.Empty';
-export { default as LessonList } from './list';
+// Note: LessonList (server component) is exported from ./list/index.tsx directly
+// Use: import { LessonList } from '@/components/lessons/list';
 export { LessonListClient } from './list/Client';
 export { default as LessonListHeader } from './list/LessonList.Header';
 export { default as LessonListFilter } from './list/LessonList.Filter';
