@@ -17,6 +17,9 @@ import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/us
 import { Users, BookOpen, Music, Shield, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { StudentProgressInsights } from '@/components/dashboard/admin/StudentProgressInsights';
+import { AdminDashboardInsights } from '@/components/dashboard/admin/AdminDashboardInsights';
+import { EmailDraftGenerator } from '@/components/dashboard/admin/EmailDraftGenerator';
 
 interface RecentUser {
   id: string;
@@ -42,7 +45,13 @@ interface TeacherDashboardClientProps {
   token?: string;
 }
 
-export function TeacherDashboardClient({ data, email, fullName, adminStats, token }: TeacherDashboardClientProps) {
+export function TeacherDashboardClient({
+  data,
+  email,
+  fullName,
+  adminStats,
+  token,
+}: TeacherDashboardClientProps) {
   const { data: dashboardData } = useDashboardStats();
   const apiAdminStats =
     dashboardData?.role === 'admin' ? (dashboardData.stats as DashboardAdminStats) : null;
@@ -56,7 +65,9 @@ export function TeacherDashboardClient({ data, email, fullName, adminStats, toke
         <div className="flex flex-col gap-2 opacity-0 animate-fade-in">
           <h1 className="text-3xl font-bold tracking-tight">
             Welcome back,{' '}
-            <span className="text-primary">{fullName || email || (displayAdminStats ? 'Admin' : 'Coach')}</span>
+            <span className="text-primary">
+              {fullName || email || (displayAdminStats ? 'Admin' : 'Coach')}
+            </span>
           </h1>
           <p className="text-muted-foreground">
             Here&apos;s what&apos;s happening with your guitar students today.
@@ -106,7 +117,7 @@ export function TeacherDashboardClient({ data, email, fullName, adminStats, toke
                 Administrative statistics and platform metrics.
               </p>
             </div>
-            
+
             <div className="flex justify-end">
               <Link href="/dashboard/admin/documentation">
                 <Button variant="outline" className="gap-2">
@@ -176,6 +187,40 @@ export function TeacherDashboardClient({ data, email, fullName, adminStats, toke
 
             <div className="pt-4">
               <AnalyticsCharts />
+            </div>
+
+            {/* AI-Powered Admin Tools */}
+            <div className="space-y-6 pt-8 border-t">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                  <Shield className="h-6 w-6 text-primary" />
+                  AI-Powered Insights
+                </h2>
+                <p className="text-muted-foreground">
+                  Advanced analytics and business intelligence powered by AI.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <StudentProgressInsights
+                  students={data.students.map((s) => ({
+                    id: s.id,
+                    full_name: s.name,
+                    email: '', // Email not available in this data structure
+                  }))}
+                />
+                {adminStats && <AdminDashboardInsights adminStats={adminStats} />}
+              </div>
+
+              <div className="grid grid-cols-1 gap-6">
+                <EmailDraftGenerator
+                  students={data.students.map((s) => ({
+                    id: s.id,
+                    full_name: s.name,
+                    email: '', // Email not available in this data structure
+                  }))}
+                />
+              </div>
             </div>
           </div>
         )}

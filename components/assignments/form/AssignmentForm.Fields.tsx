@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { AssignmentAI } from './AssignmentAI';
 
 interface FormData {
   title: string;
@@ -27,13 +28,34 @@ interface AssignmentFormFieldsProps {
   formData: FormData;
   onChange: (name: string, value: string) => void;
   students?: Student[];
+  // AI assistance props
+  selectedStudent?: Student;
+  recentSongs?: string[];
+  lessonTopic?: string;
 }
 
 export function AssignmentFormFields({
   formData,
   onChange,
   students = [],
+  selectedStudent,
+  recentSongs = [],
+  lessonTopic,
 }: AssignmentFormFieldsProps) {
+  const handleAssignmentGenerated = (assignment: string) => {
+    onChange('description', assignment);
+  };
+
+  // Calculate days until due date for AI duration context
+  const getDuration = () => {
+    if (!formData.due_date) return '1 week';
+    const dueDate = new Date(formData.due_date);
+    const today = new Date();
+    const diffTime = dueDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? `${diffDays} days` : '1 week';
+  };
+
   return (
     <>
       <div className="space-y-2">
@@ -52,7 +74,21 @@ export function AssignmentFormFields({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <div className="flex justify-between items-center">
+          <Label htmlFor="description">Description</Label>
+          {selectedStudent && formData.title && (
+            <AssignmentAI
+              studentName={selectedStudent.full_name || selectedStudent.email || ''}
+              studentLevel="intermediate" // Default, could be enhanced with actual level data
+              recentSongs={recentSongs}
+              focusArea={formData.title}
+              duration={getDuration()}
+              lessonTopic={lessonTopic}
+              onAssignmentGenerated={handleAssignmentGenerated}
+              disabled={!formData.title}
+            />
+          )}
+        </div>
         <Textarea
           id="description"
           name="description"
@@ -60,6 +96,7 @@ export function AssignmentFormFields({
           onChange={(e) => onChange('description', e.target.value)}
           placeholder="Assignment description"
           data-testid="field-description"
+          rows={6}
         />
       </div>
 

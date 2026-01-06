@@ -3,6 +3,8 @@ const inputClass =
 
 const labelClass = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2';
 
+import { LessonNotesAI } from './LessonNotesAI';
+
 interface Props {
   formData: {
     title?: string;
@@ -14,9 +16,31 @@ interface Props {
   handleChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
+  studentName?: string;
+  selectedSongs?: Array<{ title: string }>;
+  previousNotes?: string;
 }
 
-export function LessonFormFields({ formData, validationErrors, handleChange }: Props) {
+export function LessonFormFields({
+  formData,
+  validationErrors,
+  handleChange,
+  studentName,
+  selectedSongs = [],
+  previousNotes,
+}: Props) {
+  const handleNotesGenerated = (generatedNotes: string) => {
+    // Create a synthetic event to update the notes field
+    const syntheticEvent = {
+      target: {
+        name: 'notes',
+        value: generatedNotes,
+      },
+    } as React.ChangeEvent<HTMLTextAreaElement>;
+
+    handleChange(syntheticEvent);
+  };
+
   return (
     <>
       <div>
@@ -76,9 +100,20 @@ export function LessonFormFields({ formData, validationErrors, handleChange }: P
       </div>
 
       <div>
-        <label htmlFor="notes" className={labelClass}>
-          Notes
-        </label>
+        <div className="flex justify-between items-center">
+          <label htmlFor="notes" className={labelClass}>
+            Notes
+          </label>
+          {studentName && selectedSongs.length > 0 && (
+            <LessonNotesAI
+              studentName={studentName}
+              songsCovered={selectedSongs.map((song) => song.title)}
+              lessonTopic={formData.title || 'Guitar Lesson'}
+              onNotesGenerated={handleNotesGenerated}
+              disabled={!formData.title}
+            />
+          )}
+        </div>
         <textarea
           id="notes"
           name="notes"

@@ -83,6 +83,9 @@ export default function AssignmentForm({
             formData={formData}
             onChange={handleFieldChange}
             students={students}
+            selectedStudent={students.find((s) => s.id === formData.student_id)}
+            recentSongs={['Wonderwall', 'Hotel California']} // TODO: Fetch actual recent songs
+            lessonTopic="Practice assignment"
           />
           <AssignmentFormActions mode={mode} loading={loading} />
         </form>
