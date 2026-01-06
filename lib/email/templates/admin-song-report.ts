@@ -18,7 +18,7 @@ export function generateAdminSongReportHtml(stats: SongDatabaseStats): string {
   `;
 
   // Helper for missing items list
-  const renderMissingList = (title: string, items: { id: string; title: string; author: string }[]) => {
+  const renderMissingList = (title: string, items: { id: string; title: string; author: string | null }[]) => {
     if (items.length === 0) return '';
     
     const listItems = items.slice(0, 10).map(song => `
@@ -26,7 +26,7 @@ export function generateAdminSongReportHtml(stats: SongDatabaseStats): string {
         <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/songs/${song.id}" style="color: #4f46e5; text-decoration: none; hover: underline;">
           ${song.title}
         </a> 
-        <span style="color: #6b7280;">by ${song.author}</span>
+        <span style="color: #6b7280;">by ${song.author || 'Unknown'}</span>
       </li>
     `).join('');
 

@@ -151,6 +151,8 @@ export function StudentLessonDetailPageClient() {
 
           <LessonAssignmentsList
             lessonId={lesson.id!}
+            studentId={lesson.student_id}
+            teacherId={lesson.teacher_id}
             assignments={lesson.assignments}
             canEdit={false}
           />
