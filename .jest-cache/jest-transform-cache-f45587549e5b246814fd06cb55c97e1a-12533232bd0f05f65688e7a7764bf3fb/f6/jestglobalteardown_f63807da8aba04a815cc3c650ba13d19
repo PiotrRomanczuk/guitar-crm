@@ -1,0 +1,19 @@
+42c0499befba81e8a8f6b1e93f80d923
+// Jest global teardown for test environment
+// This runs once after all tests complete
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return globalTeardown;
+    }
+});
+async function globalTeardown() {
+    // Cleanup any global resources
+    console.log('🧪 Jest Global Teardown: Test environment cleaned up');
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL3Bpb3RyL0Rlc2t0b3AvZ3VpdGFyLWNybS9saWIvdGVzdGluZy9qZXN0Lmdsb2JhbC10ZWFyZG93bi50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyBKZXN0IGdsb2JhbCB0ZWFyZG93biBmb3IgdGVzdCBlbnZpcm9ubWVudFxuLy8gVGhpcyBydW5zIG9uY2UgYWZ0ZXIgYWxsIHRlc3RzIGNvbXBsZXRlXG5cbmV4cG9ydCBkZWZhdWx0IGFzeW5jIGZ1bmN0aW9uIGdsb2JhbFRlYXJkb3duKCkge1xuICAvLyBDbGVhbnVwIGFueSBnbG9iYWwgcmVzb3VyY2VzXG4gIGNvbnNvbGUubG9nKCfwn6eqIEplc3QgR2xvYmFsIFRlYXJkb3duOiBUZXN0IGVudmlyb25tZW50IGNsZWFuZWQgdXAnKTtcbn1cbiJdLCJuYW1lcyI6WyJnbG9iYWxUZWFyZG93biIsImNvbnNvbGUiLCJsb2ciXSwibWFwcGluZ3MiOiJBQUFBLDRDQUE0QztBQUM1QywwQ0FBMEM7Ozs7OytCQUUxQzs7O2VBQThCQTs7O0FBQWYsZUFBZUE7SUFDNUIsK0JBQStCO0lBQy9CQyxRQUFRQyxHQUFHLENBQUM7QUFDZCJ9

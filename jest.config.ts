@@ -94,18 +94,13 @@ const config: Config = {
 
   // Ignore patterns - Exclude integration tests
   testPathIgnorePatterns: [
-    '<rootDir>/.next/',
-    '<rootDir>/node_modules/',
-    '<rootDir>/cypress/',
-
-    // Integration tests (handled by Cypress)
-    '<rootDir>/**/*.integration.test.{js,jsx,ts,tsx}',
-    '<rootDir>/**/*.e2e.test.{js,jsx,ts,tsx}',
-    '<rootDir>/components/**/*.integration.test.{js,jsx,ts,tsx}',
-
-    // Specific integration test files
-    '<rootDir>/__tests__/auth/credentials.test.ts', // Integration tests - require live database
-    '<rootDir>/scripts/database/shadow-user-linking.test.ts', // Integration test - requires network
+    '/node_modules/',
+    '/.next/',
+    '/cypress/',
+    '.integration.test.',
+    '.e2e.test.',
+    '__tests__/auth/credentials.test.ts',
+    'scripts/database/shadow-user-linking.test.ts',
   ],
 
   // Transform files
