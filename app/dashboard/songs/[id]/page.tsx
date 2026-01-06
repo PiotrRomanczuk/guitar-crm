@@ -4,6 +4,7 @@ import { Breadcrumbs } from '@/components/shared';
 import { redirect } from 'next/navigation';
 import { getSongStudents } from './actions';
 import { StudentSongDetailPageClient } from '@/components/songs/student/StudentSongDetailPageClient';
+import { SongStatusHistory } from '@/components/shared/SongStatusHistory';
 
 interface SearchParams {
   [key: string]: string | string[] | undefined;
@@ -45,18 +46,28 @@ export default async function SongPage({ params, searchParams }: SongPageProps) 
         ]}
       />
 
-      <SongDetail songId={id} isAdmin={isAdmin} isTeacher={isTeacher} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <SongDetail songId={id} isAdmin={isAdmin} isTeacher={isTeacher} />
 
-      <SongLessons songId={id} />
+          <SongLessons songId={id} />
 
-      <SongAssignments songId={id} />
+          <SongAssignments songId={id} />
 
-      {canViewStudents && (
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Active Students</h2>
-          <SongStudents students={students} />
+          {canViewStudents && (
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                Active Students
+              </h2>
+              <SongStudents students={students} />
+            </div>
+          )}
         </div>
-      )}
+
+        <div className="lg:col-span-1">
+          <SongStatusHistory songId={id} title="Learning Progress" />
+        </div>
+      </div>
     </div>
   );
 }

@@ -12,6 +12,7 @@ import {
   Menu,
   LucideIcon,
   BarChart,
+  FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -68,7 +69,8 @@ export function Sidebar({ user, isAdmin, isTeacher, isStudent }: SidebarProps) {
           label: 'Lesson Stats',
           icon: BarChart,
           path: '/dashboard/admin/stats/lessons',
-        }
+        },
+        { id: 'logs', label: 'Activity Logs', icon: FileText, path: '/dashboard/logs' }
       );
     } else if (isStudent) {
       items.push(
