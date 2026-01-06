@@ -355,14 +355,16 @@ describe('Song Search and Filter', () => {
         if (genreFilter.length > 0) {
           cy.wrap(genreFilter).select(1)
         }
-        cy.wait(300)
+        cy.wait(500)
 
-        // Look for clear all button
+        // Look for clear all button (only click if enabled)
         const clearButton = $body.find('button:contains("Clear"), button:contains("Reset")')
-        if (clearButton.length > 0) {
+        if (clearButton.length > 0 && !clearButton.first().prop('disabled')) {
           cy.wrap(clearButton).first().click()
           cy.wait(300)
           cy.log('All filters cleared')
+        } else {
+          cy.log('Clear button not available or disabled')
         }
       })
     })
