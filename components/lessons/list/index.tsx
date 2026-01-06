@@ -58,8 +58,8 @@ export default async function LessonList({ searchParams }: LessonListProps) {
     lessonQuery = lessonQuery.eq('status', status.toUpperCase());
   }
 
-  // Order by date descending
-  lessonQuery = lessonQuery.order('date', { ascending: false, nullsFirst: false });
+  // Order by scheduled_at descending
+  lessonQuery = lessonQuery.order('scheduled_at', { ascending: false });
   lessonQuery = lessonQuery.order('created_at', { ascending: false });
 
   const { data: rawLessons, error } = await lessonQuery;
