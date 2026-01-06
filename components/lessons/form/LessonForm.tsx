@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import useLessonForm, { UseLessonFormProps } from '../hooks/useLessonForm';
+import { useSongs } from '../hooks/useSongs';
 import { ProfileSelect } from './LessonForm.ProfileSelect';
 import { SongSelect } from './LessonForm.SongSelect';
 import { LessonFormFields } from './LessonForm.Fields';
@@ -21,6 +22,8 @@ export default function LessonForm(props: UseLessonFormProps) {
     handleSongChange,
     handleSubmit,
   } = useLessonForm(props);
+
+  const { songs } = useSongs();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,6 +50,11 @@ export default function LessonForm(props: UseLessonFormProps) {
   if (loading) {
     return <div className="text-center py-8 text-gray-600 dark:text-gray-400">Loading form...</div>;
   }
+
+  // Get selected song titles for AI assistant
+  const selectedSongs = songs
+    .filter((song) => formData.song_ids?.includes(song.id))
+    .map((song) => ({ title: song.title }));
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
@@ -78,6 +86,8 @@ export default function LessonForm(props: UseLessonFormProps) {
         formData={formData}
         validationErrors={validationErrors}
         handleChange={handleChange}
+        studentName={students.find((s) => s.id === formData.student_id)?.full_name || ''}
+        selectedSongs={selectedSongs}
       />
 
       <SongSelect
