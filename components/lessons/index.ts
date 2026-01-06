@@ -1,7 +1,8 @@
 export { default as LessonTable } from './list/LessonTable';
 export { default as LessonTableRow } from './list/LessonTable.Row';
 export { default as LessonTableEmpty } from './list/LessonTable.Empty';
-export { default as LessonList } from './list/LessonList';
+export { default as LessonList } from './list';
+export { LessonListClient } from './list/Client';
 export { default as LessonListHeader } from './list/LessonList.Header';
 export { default as LessonListFilter } from './list/LessonList.Filter';
 export { default as LessonForm } from './form/LessonForm';
