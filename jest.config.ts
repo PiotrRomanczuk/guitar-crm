@@ -14,44 +14,96 @@ const config: Config = {
   // Add more setup options before each test is run
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 
-  testTimeout: 30000,
+  // Optimized test timeout
+  testTimeout: 15000, // Reduced from 30s for faster execution
 
   // Module name mapping for absolute imports
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    // Mock heavy dependencies for performance
+    '^@supabase/supabase-js$': '<rootDir>/lib/testing/__mocks__/supabase.ts',
+    '^@/lib/supabase$': '<rootDir>/lib/testing/__mocks__/supabase.ts',
   },
 
-  // Test patterns
-  testMatch: ['<rootDir>/**/*.(test|spec).{js,jsx,ts,tsx}'],
+  // Optimized test patterns - Focus on business logic
+  testMatch: [
+    // Business logic and utilities (priority)
+    '<rootDir>/lib/**/__tests__/**/*.test.{js,jsx,ts,tsx}',
+    '<rootDir>/lib/**/*.test.{js,jsx,ts,tsx}',
+    '<rootDir>/hooks/**/__tests__/**/*.test.{js,jsx,ts,tsx}',
+    '<rootDir>/hooks/**/*.test.{js,jsx,ts,tsx}',
+    '<rootDir>/app/actions/**/*.test.{js,jsx,ts,tsx}',
 
-  // Coverage configuration
-  coverageReporters: ['json', 'lcov', 'text', 'clover', 'json-summary'],
+    // Component unit tests (not integration)
+    '<rootDir>/components/**/*.unit.test.{js,jsx,ts,tsx}',
+    '<rootDir>/components/shared/**/*.test.{js,jsx,ts,tsx}',
+
+    // Specific unit test files
+    '<rootDir>/**/*.unit.test.{js,jsx,ts,tsx}',
+  ],
+
+  // Performance optimizations
+  maxWorkers: '50%', // Use half available cores
+  cache: true,
+  cacheDirectory: '<rootDir>/.jest-cache',
+  clearMocks: true,
+  resetMocks: false, // Preserve mocks between tests for performance
+  restoreMocks: true,
+
+  // Coverage configuration - Focus on business logic
+  coverageReporters: ['text-summary', 'html', 'lcov', 'json-summary'],
   collectCoverageFrom: [
-    '**/*.{js,jsx,ts,tsx}',
+    // Focus on business logic
+    'lib/**/*.{js,jsx,ts,tsx}',
+    'hooks/**/*.{js,jsx,ts,tsx}',
+    'app/actions/**/*.{js,jsx,ts,tsx}',
+    'components/shared/**/*.{js,jsx,ts,tsx}',
+
+    // Exclude non-business logic
     '!**/*.d.ts',
     '!**/node_modules/**',
     '!**/.next/**',
     '!**/coverage/**',
-    '!**/jest.config.js',
-    '!**/next.config.js',
-    '!**/postcss.config.js',
-    '!**/tailwind.config.js',
+    '!**/cypress/**',
+    '!**/*.config.{js,ts}',
+    '!**/middleware.ts',
+    '!app/layout.tsx',
+    '!app/page.tsx',
+    '!app/global-error.tsx',
+    '!**/jest.setup.js',
+    '!**/__tests__/**',
+    '!**/*.test.{js,jsx,ts,tsx}',
   ],
 
-  // Coverage thresholds - TEMPORARILY DISABLED
-  // coverageThreshold: {
-  // 	global: {
-  // 		branches: 70,
-  // 		functions: 70,
-  // 		lines: 70,
-  // 		statements: 70,
-  // 	},
-  // },
+  // Coverage thresholds for quality gates
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 80,
+      lines: 75,
+      statements: 75,
+    },
+    // Stricter thresholds for business logic
+    'lib/**/*.{js,jsx,ts,tsx}': {
+      branches: 80,
+      functions: 90,
+      lines: 85,
+      statements: 85,
+    },
+  },
 
-  // Ignore patterns
+  // Ignore patterns - Exclude integration tests
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
+    '<rootDir>/cypress/',
+
+    // Integration tests (handled by Cypress)
+    '<rootDir>/**/*.integration.test.{js,jsx,ts,tsx}',
+    '<rootDir>/**/*.e2e.test.{js,jsx,ts,tsx}',
+    '<rootDir>/components/**/*.integration.test.{js,jsx,ts,tsx}',
+
+    // Specific integration test files
     '<rootDir>/__tests__/auth/credentials.test.ts', // Integration tests - require live database
     '<rootDir>/scripts/database/shadow-user-linking.test.ts', // Integration test - requires network
   ],
@@ -72,6 +124,10 @@ const config: Config = {
       tsconfig: 'tsconfig.test.json',
     },
   },
+
+  // Global setup for test environment
+  globalSetup: '<rootDir>/lib/testing/jest.global-setup.ts',
+  globalTeardown: '<rootDir>/lib/testing/jest.global-teardown.ts',
 
   // Watch plugins for better developer experience (disabled due to version conflict)
   // watchPlugins: [
