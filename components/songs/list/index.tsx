@@ -25,13 +25,17 @@ export default async function SongList({ searchParams }: SongListProps) {
 
   let songQuery;
 
+  // TODO: Re-enable soft delete filtering after fixing delete implementation
+  // Currently causing issues with song deletion not being reflected immediately
   if (studentId) {
     songQuery = supabase
       .from('songs')
       .select('*, lesson_songs!inner(id, status, lessons!inner(student_id))')
       .eq('lesson_songs.lessons.student_id', studentId);
+      // .is('deleted_at', null);  // TODO: Uncomment after fixing
   } else {
     songQuery = supabase.from('songs').select('*');
+    // .is('deleted_at', null);  // TODO: Uncomment after fixing
   }
 
   if (search) {
@@ -68,6 +72,7 @@ export default async function SongList({ searchParams }: SongListProps) {
     .from('songs')
     .select('category')
     .not('category', 'is', null)
+    // .is('deleted_at', null)  // TODO: Re-enable after fixing delete implementation
     .order('category');
 
   const categories = Array.from(
@@ -79,6 +84,7 @@ export default async function SongList({ searchParams }: SongListProps) {
     .from('songs')
     .select('author')
     .not('author', 'is', null)
+    // .is('deleted_at', null)  // TODO: Re-enable after fixing delete implementation
     .order('author');
 
   const authors = Array.from(
