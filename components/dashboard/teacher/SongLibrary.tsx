@@ -1,6 +1,8 @@
 import { Badge } from '@/components/ui/badge';
-import { Clock, Music2, Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, Music2, Star, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface Song {
   id: string;
@@ -32,8 +34,27 @@ export function SongLibrary({ songs }: SongLibraryProps) {
         <p className="text-sm text-muted-foreground mt-1">Popular songs being taught</p>
       </div>
 
-      <div className="divide-y divide-border">
-        {songs.map((song) => (
+      {songs.length === 0 ? (
+        <div className="p-12 text-center">
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+              <Music2 className="w-8 h-8 text-muted-foreground" />
+            </div>
+          </div>
+          <h3 className="text-lg font-semibold mb-2">No Songs in Library</h3>
+          <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
+            Add songs to your library to assign them to students and track their learning progress.
+          </p>
+          <Link href="/dashboard/songs">
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Song
+            </Button>
+          </Link>
+        </div>
+      ) : (
+        <div className="divide-y divide-border">
+          {songs.map((song) => (
           <div key={song.id} className="p-4 hover:bg-muted/50 transition-colors">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -64,7 +85,8 @@ export function SongLibrary({ songs }: SongLibraryProps) {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
