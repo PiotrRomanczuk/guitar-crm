@@ -1,4 +1,4 @@
-import { LessonList } from '@/components/lessons';
+import LessonList from '@/components/lessons/list';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { redirect } from 'next/navigation';
 import { StudentLessonsPageClient } from '@/components/lessons/student/StudentLessonsPageClient';
