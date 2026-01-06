@@ -4,6 +4,43 @@
 
 This document provides a comprehensive implementation roadmap for the Guitar CRM testing strategy transformation. It outlines the step-by-step process to migrate from the current mixed testing approach to the optimized strategic hybrid model.
 
+## 🚨 Critical Test Development Rule
+
+**MANDATORY: Test Verification After Creation**
+
+Every test must be executed immediately after creation to verify it passes:
+
+```bash
+# For Jest unit tests
+npm run test:unit -- path/to/new-test.test.ts
+
+# For Cypress E2E tests
+npm run cypress:run -- --spec "cypress/e2e/path/to/new-test.cy.ts"
+
+# For specific test suites
+npm run test:smoke     # After creating smoke tests
+npm run test:integration # After creating integration tests
+npm run test:admin     # After creating admin tests
+npm run test:features  # After creating feature tests
+```
+
+**Why This is Critical:**
+- ✅ Ensures tests actually work before committing
+- ✅ Catches syntax errors and test configuration issues early
+- ✅ Verifies test assertions are valid and meaningful
+- ✅ Confirms test data and fixtures are properly set up
+- ✅ Prevents broken tests from entering the codebase
+- ✅ Saves debugging time during CI/CD pipeline runs
+
+**Workflow:**
+1. Create test file
+2. **Run the test immediately** ⚠️
+3. Fix any failures or errors
+4. Re-run until passing ✅
+5. Commit only after verification
+
+**Never skip this step!** A test that doesn't run is worse than no test at all.
+
 ## Timeline Overview
 
 ```
@@ -168,6 +205,14 @@ find . -name "*.test.ts*" | wc -l
 - All removed functionality covered in Cypress
 - Jest suite runs in ~20 seconds
 - No critical coverage lost
+- **Remaining Jest tests verified passing** ✅
+
+**Verification Step**:
+```bash
+# Run all unit tests after removal to ensure nothing broke
+npm run test:unit
+# Should complete in <20 seconds with all tests passing
+```
 
 #### Day 5-7: Refactor Component Logic
 **Objectives**: Extract testable business logic from components
@@ -206,11 +251,19 @@ const SongForm = () => {
 - Component complexity reduced
 - Unit test coverage >85% for logic
 - Components focus on UI concerns only
+- **All new unit tests verified passing** ✅
 
 ### Phase 3: Cypress Implementation (Week 3)
 
 #### Day 1-2: Smoke Tests
 **Objectives**: Implement critical path verification tests
+
+**⚠️ VERIFY EACH TEST**: After creating each smoke test, run it immediately:
+```bash
+npm run test:smoke
+# or for specific file:
+npx cypress run --spec "cypress/e2e/smoke/critical-path.cy.ts"
+```
 
 **Tasks**:
 - [ ] Create app health smoke tests
@@ -241,9 +294,23 @@ const SongForm = () => {
 - <30 second execution time
 - 99%+ reliability
 - CI/CD integration working
+- **All smoke tests verified passing** ✅
+
+**Final Verification**:
+```bash
+npm run test:smoke
+# All tests should pass in <30 seconds
+```
 
 #### Day 3-4: Integration Tests
 **Objectives**: Implement cross-feature workflow tests
+
+**⚠️ VERIFY EACH TEST**: After creating each integration test, run it immediately:
+```bash
+npm run test:integration
+# or for specific file:
+npx cypress run --spec "cypress/e2e/integration/admin-workflow.cy.ts"
+```
 
 **Tasks**:
 - [ ] Create admin workflow integration tests
@@ -273,9 +340,23 @@ const SongForm = () => {
 - 2-3 minute execution time
 - Real user workflow coverage
 - Data consistency verification
+- **All integration tests verified passing** ✅
+
+**Final Verification**:
+```bash
+npm run test:integration
+# All tests should pass in 2-4 minutes
+```
 
 #### Day 5-7: Feature Tests
 **Objectives**: Implement comprehensive feature testing
+
+**⚠️ VERIFY EACH TEST**: After creating each feature test, run it immediately:
+```bash
+npm run test:features
+# or for specific file:
+npx cypress run --spec "cypress/e2e/features/songs-crud.cy.ts"
+```
 
 **Tasks**:
 - [ ] Create songs management feature tests
@@ -307,10 +388,25 @@ const SongForm = () => {
 - 6-8 minute execution time
 - Comprehensive feature coverage
 - Edge case handling verified
+- **All feature tests verified passing** ✅
+
+**Final Verification**:
+```bash
+npm run test:features
+# All tests should pass in 6-8 minutes
+```
 
 ### Phase 4: Enhancement & Optimization (Week 4)
 
 #### Day 1-3: Missing Critical Tests
+**Objectives**: Fill testing gaps and cover edge cases
+
+**⚠️ VERIFY EACH TEST**: Every new test must be verified immediately:
+```bash
+# Run specific test type based on what was created
+npm run test:unit -- path/to/test.test.ts
+npx cypress run --spec "cypress/e2e/path/to/test.cy.ts"
+```
 **Objectives**: Add Jest tests for uncovered critical business logic
 
 **Tasks**:
@@ -343,6 +439,15 @@ const SongForm = () => {
 - All services layer functions tested
 - Complex algorithms thoroughly tested
 - Zero-coverage critical files eliminated
+- **All new critical tests verified passing** ✅
+
+**Final Verification**:
+```bash
+# Run full test suite to verify coverage improvements
+npm run test:unit
+npm run test:coverage
+# Check coverage reports to ensure 90%+ on business logic
+```
 
 #### Day 4-5: Performance Optimization
 **Objectives**: Optimize test suite performance and reliability
@@ -379,6 +484,19 @@ beforeEach(() => {
 - Smoke tests: <30 seconds
 - Full Cypress suite: <10 minutes
 - <2% test flakiness rate
+- **Performance targets verified with full test run** ✅
+
+**Final Verification**:
+```bash
+# Verify all performance targets
+time npm run test:unit        # Should be <15s
+time npm run test:smoke       # Should be <30s
+time npm run test:e2e:all     # Should be <10min
+
+# Run full suite to verify stability
+npm run test:full
+# Should complete with <2% flakiness
+```
 
 #### Day 6-7: Documentation & Training
 **Objectives**: Complete documentation and train team
