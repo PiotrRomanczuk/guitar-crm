@@ -1,0 +1,71 @@
+416d240f6bef3f25686002de8b1fef20
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get getSupabaseAdminConfig () {
+        return getSupabaseAdminConfig;
+    },
+    get getSupabaseConfig () {
+        return getSupabaseConfig;
+    }
+});
+const getSupabaseConfig = (options = {})=>{
+    const localUrl = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL;
+    const localAnonKey = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY;
+    const remoteUrl = process.env.NEXT_PUBLIC_SUPABASE_REMOTE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const remoteAnonKey = process.env.NEXT_PUBLIC_SUPABASE_REMOTE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    // console.log('[SupabaseConfig] Checking config:', { options, hasLocalUrl: !!localUrl, hasLocalKey: !!localAnonKey, hasRemoteUrl: !!remoteUrl });
+    // Prioritize local if both URL and Key are present, unless forced remote
+    if (!options.forceRemote && localUrl && localAnonKey) {
+        // console.log('[SupabaseConfig] Using Local Config');
+        return {
+            url: localUrl,
+            anonKey: localAnonKey,
+            isLocal: true
+        };
+    }
+    // Fallback to remote
+    if (remoteUrl && remoteAnonKey) {
+        // console.log('[SupabaseConfig] Using Remote Config');
+        return {
+            url: remoteUrl,
+            anonKey: remoteAnonKey,
+            isLocal: false
+        };
+    }
+    console.error('[SupabaseConfig] Missing configuration', {
+        localUrl,
+        remoteUrl
+    });
+    throw new Error('Supabase configuration missing. Please check your .env file.');
+};
+const getSupabaseAdminConfig = ()=>{
+    const config = getSupabaseConfig();
+    // For admin, we need the service role key.
+    // We assume if we are using local URL, we should use local service role key if available.
+    const localServiceRoleKey = process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY;
+    const remoteServiceRoleKey = process.env.SUPABASE_REMOTE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY; // Fallback for some setups
+    if (config.isLocal && localServiceRoleKey) {
+        return {
+            ...config,
+            serviceRoleKey: localServiceRoleKey
+        };
+    }
+    if (remoteServiceRoleKey) {
+        return {
+            ...config,
+            serviceRoleKey: remoteServiceRoleKey
+        };
+    }
+    throw new Error('Supabase Admin configuration missing (Service Role Key).');
+};
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL3Bpb3RyL0Rlc2t0b3AvZ3VpdGFyLWNybS9saWIvc3VwYWJhc2UvY29uZmlnLnRzIl0sInNvdXJjZXNDb250ZW50IjpbImV4cG9ydCBjb25zdCBnZXRTdXBhYmFzZUNvbmZpZyA9IChvcHRpb25zOiB7IGZvcmNlUmVtb3RlPzogYm9vbGVhbiB9ID0ge30pID0+IHtcbiAgY29uc3QgbG9jYWxVcmwgPSBwcm9jZXNzLmVudi5ORVhUX1BVQkxJQ19TVVBBQkFTRV9MT0NBTF9VUkw7XG4gIGNvbnN0IGxvY2FsQW5vbktleSA9IHByb2Nlc3MuZW52Lk5FWFRfUFVCTElDX1NVUEFCQVNFX0xPQ0FMX0FOT05fS0VZO1xuICBcbiAgY29uc3QgcmVtb3RlVXJsID0gcHJvY2Vzcy5lbnYuTkVYVF9QVUJMSUNfU1VQQUJBU0VfUkVNT1RFX1VSTCB8fCBwcm9jZXNzLmVudi5ORVhUX1BVQkxJQ19TVVBBQkFTRV9VUkw7XG4gIGNvbnN0IHJlbW90ZUFub25LZXkgPSBwcm9jZXNzLmVudi5ORVhUX1BVQkxJQ19TVVBBQkFTRV9SRU1PVEVfQU5PTl9LRVkgfHwgcHJvY2Vzcy5lbnYuTkVYVF9QVUJMSUNfU1VQQUJBU0VfQU5PTl9LRVk7XG5cbiAgLy8gY29uc29sZS5sb2coJ1tTdXBhYmFzZUNvbmZpZ10gQ2hlY2tpbmcgY29uZmlnOicsIHsgb3B0aW9ucywgaGFzTG9jYWxVcmw6ICEhbG9jYWxVcmwsIGhhc0xvY2FsS2V5OiAhIWxvY2FsQW5vbktleSwgaGFzUmVtb3RlVXJsOiAhIXJlbW90ZVVybCB9KTtcblxuICAvLyBQcmlvcml0aXplIGxvY2FsIGlmIGJvdGggVVJMIGFuZCBLZXkgYXJlIHByZXNlbnQsIHVubGVzcyBmb3JjZWQgcmVtb3RlXG4gIGlmICghb3B0aW9ucy5mb3JjZVJlbW90ZSAmJiBsb2NhbFVybCAmJiBsb2NhbEFub25LZXkpIHtcbiAgICAvLyBjb25zb2xlLmxvZygnW1N1cGFiYXNlQ29uZmlnXSBVc2luZyBMb2NhbCBDb25maWcnKTtcbiAgICByZXR1cm4ge1xuICAgICAgdXJsOiBsb2NhbFVybCxcbiAgICAgIGFub25LZXk6IGxvY2FsQW5vbktleSxcbiAgICAgIGlzTG9jYWw6IHRydWUsXG4gICAgfTtcbiAgfVxuXG4gIC8vIEZhbGxiYWNrIHRvIHJlbW90ZVxuICBpZiAocmVtb3RlVXJsICYmIHJlbW90ZUFub25LZXkpIHtcbiAgICAvLyBjb25zb2xlLmxvZygnW1N1cGFiYXNlQ29uZmlnXSBVc2luZyBSZW1vdGUgQ29uZmlnJyk7XG4gICAgcmV0dXJuIHtcbiAgICAgIHVybDogcmVtb3RlVXJsLFxuICAgICAgYW5vbktleTogcmVtb3RlQW5vbktleSxcbiAgICAgIGlzTG9jYWw6IGZhbHNlLFxuICAgIH07XG4gIH1cblxuICBjb25zb2xlLmVycm9yKCdbU3VwYWJhc2VDb25maWddIE1pc3NpbmcgY29uZmlndXJhdGlvbicsIHsgbG9jYWxVcmwsIHJlbW90ZVVybCB9KTtcbiAgdGhyb3cgbmV3IEVycm9yKCdTdXBhYmFzZSBjb25maWd1cmF0aW9uIG1pc3NpbmcuIFBsZWFzZSBjaGVjayB5b3VyIC5lbnYgZmlsZS4nKTtcbn07XG5cbmV4cG9ydCBjb25zdCBnZXRTdXBhYmFzZUFkbWluQ29uZmlnID0gKCkgPT4ge1xuICBjb25zdCBjb25maWcgPSBnZXRTdXBhYmFzZUNvbmZpZygpO1xuXG4gIC8vIEZvciBhZG1pbiwgd2UgbmVlZCB0aGUgc2VydmljZSByb2xlIGtleS5cbiAgLy8gV2UgYXNzdW1lIGlmIHdlIGFyZSB1c2luZyBsb2NhbCBVUkwsIHdlIHNob3VsZCB1c2UgbG9jYWwgc2VydmljZSByb2xlIGtleSBpZiBhdmFpbGFibGUuXG5cbiAgY29uc3QgbG9jYWxTZXJ2aWNlUm9sZUtleSA9IHByb2Nlc3MuZW52LlNVUEFCQVNFX0xPQ0FMX1NFUlZJQ0VfUk9MRV9LRVk7XG4gIGNvbnN0IHJlbW90ZVNlcnZpY2VSb2xlS2V5ID1cbiAgICBwcm9jZXNzLmVudi5TVVBBQkFTRV9SRU1PVEVfU0VSVklDRV9ST0xFX0tFWSB8fCBcbiAgICBwcm9jZXNzLmVudi5TVVBBQkFTRV9TRVJWSUNFX1JPTEVfS0VZIHx8IFxuICAgIHByb2Nlc3MuZW52Lk5FWFRfUFVCTElDX1NVUEFCQVNFX1NFUlZJQ0VfUk9MRV9LRVk7IC8vIEZhbGxiYWNrIGZvciBzb21lIHNldHVwc1xuXG4gIGlmIChjb25maWcuaXNMb2NhbCAmJiBsb2NhbFNlcnZpY2VSb2xlS2V5KSB7XG4gICAgcmV0dXJuIHtcbiAgICAgIC4uLmNvbmZpZyxcbiAgICAgIHNlcnZpY2VSb2xlS2V5OiBsb2NhbFNlcnZpY2VSb2xlS2V5LFxuICAgIH07XG4gIH1cblxuICBpZiAocmVtb3RlU2VydmljZVJvbGVLZXkpIHtcbiAgICByZXR1cm4ge1xuICAgICAgLi4uY29uZmlnLFxuICAgICAgc2VydmljZVJvbGVLZXk6IHJlbW90ZVNlcnZpY2VSb2xlS2V5LFxuICAgIH07XG4gIH1cblxuICB0aHJvdyBuZXcgRXJyb3IoJ1N1cGFiYXNlIEFkbWluIGNvbmZpZ3VyYXRpb24gbWlzc2luZyAoU2VydmljZSBSb2xlIEtleSkuJyk7XG59O1xuIl0sIm5hbWVzIjpbImdldFN1cGFiYXNlQWRtaW5Db25maWciLCJnZXRTdXBhYmFzZUNvbmZpZyIsIm9wdGlvbnMiLCJsb2NhbFVybCIsInByb2Nlc3MiLCJlbnYiLCJORVhUX1BVQkxJQ19TVVBBQkFTRV9MT0NBTF9VUkwiLCJsb2NhbEFub25LZXkiLCJORVhUX1BVQkxJQ19TVVBBQkFTRV9MT0NBTF9BTk9OX0tFWSIsInJlbW90ZVVybCIsIk5FWFRfUFVCTElDX1NVUEFCQVNFX1JFTU9URV9VUkwiLCJORVhUX1BVQkxJQ19TVVBBQkFTRV9VUkwiLCJyZW1vdGVBbm9uS2V5IiwiTkVYVF9QVUJMSUNfU1VQQUJBU0VfUkVNT1RFX0FOT05fS0VZIiwiTkVYVF9QVUJMSUNfU1VQQUJBU0VfQU5PTl9LRVkiLCJmb3JjZVJlbW90ZSIsInVybCIsImFub25LZXkiLCJpc0xvY2FsIiwiY29uc29sZSIsImVycm9yIiwiRXJyb3IiLCJjb25maWciLCJsb2NhbFNlcnZpY2VSb2xlS2V5IiwiU1VQQUJBU0VfTE9DQUxfU0VSVklDRV9ST0xFX0tFWSIsInJlbW90ZVNlcnZpY2VSb2xlS2V5IiwiU1VQQUJBU0VfUkVNT1RFX1NFUlZJQ0VfUk9MRV9LRVkiLCJTVVBBQkFTRV9TRVJWSUNFX1JPTEVfS0VZIiwiTkVYVF9QVUJMSUNfU1VQQUJBU0VfU0VSVklDRV9ST0xFX0tFWSIsInNlcnZpY2VSb2xlS2V5Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7OztRQWlDYUE7ZUFBQUE7O1FBakNBQztlQUFBQTs7O0FBQU4sTUFBTUEsb0JBQW9CLENBQUNDLFVBQXFDLENBQUMsQ0FBQztJQUN2RSxNQUFNQyxXQUFXQyxRQUFRQyxHQUFHLENBQUNDLDhCQUE4QjtJQUMzRCxNQUFNQyxlQUFlSCxRQUFRQyxHQUFHLENBQUNHLG1DQUFtQztJQUVwRSxNQUFNQyxZQUFZTCxRQUFRQyxHQUFHLENBQUNLLCtCQUErQixJQUFJTixRQUFRQyxHQUFHLENBQUNNLHdCQUF3QjtJQUNyRyxNQUFNQyxnQkFBZ0JSLFFBQVFDLEdBQUcsQ0FBQ1Esb0NBQW9DLElBQUlULFFBQVFDLEdBQUcsQ0FBQ1MsNkJBQTZCO0lBRW5ILGtKQUFrSjtJQUVsSix5RUFBeUU7SUFDekUsSUFBSSxDQUFDWixRQUFRYSxXQUFXLElBQUlaLFlBQVlJLGNBQWM7UUFDcEQsc0RBQXNEO1FBQ3RELE9BQU87WUFDTFMsS0FBS2I7WUFDTGMsU0FBU1Y7WUFDVFcsU0FBUztRQUNYO0lBQ0Y7SUFFQSxxQkFBcUI7SUFDckIsSUFBSVQsYUFBYUcsZUFBZTtRQUM5Qix1REFBdUQ7UUFDdkQsT0FBTztZQUNMSSxLQUFLUDtZQUNMUSxTQUFTTDtZQUNUTSxTQUFTO1FBQ1g7SUFDRjtJQUVBQyxRQUFRQyxLQUFLLENBQUMsMENBQTBDO1FBQUVqQjtRQUFVTTtJQUFVO0lBQzlFLE1BQU0sSUFBSVksTUFBTTtBQUNsQjtBQUVPLE1BQU1yQix5QkFBeUI7SUFDcEMsTUFBTXNCLFNBQVNyQjtJQUVmLDJDQUEyQztJQUMzQywwRkFBMEY7SUFFMUYsTUFBTXNCLHNCQUFzQm5CLFFBQVFDLEdBQUcsQ0FBQ21CLCtCQUErQjtJQUN2RSxNQUFNQyx1QkFDSnJCLFFBQVFDLEdBQUcsQ0FBQ3FCLGdDQUFnQyxJQUM1Q3RCLFFBQVFDLEdBQUcsQ0FBQ3NCLHlCQUF5QixJQUNyQ3ZCLFFBQVFDLEdBQUcsQ0FBQ3VCLHFDQUFxQyxFQUFFLDJCQUEyQjtJQUVoRixJQUFJTixPQUFPSixPQUFPLElBQUlLLHFCQUFxQjtRQUN6QyxPQUFPO1lBQ0wsR0FBR0QsTUFBTTtZQUNUTyxnQkFBZ0JOO1FBQ2xCO0lBQ0Y7SUFFQSxJQUFJRSxzQkFBc0I7UUFDeEIsT0FBTztZQUNMLEdBQUdILE1BQU07WUFDVE8sZ0JBQWdCSjtRQUNsQjtJQUNGO0lBRUEsTUFBTSxJQUFJSixNQUFNO0FBQ2xCIn0=
