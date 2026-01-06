@@ -24,7 +24,7 @@ import { FREE_OPENROUTER_MODELS, DEFAULT_AI_MODEL } from '@/lib/ai-models';
 import { Loader2, Send, Minimize2, Maximize2, Sparkles, Trash2 } from 'lucide-react';
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: Date;
 }
@@ -36,9 +36,21 @@ const SUGGESTED_PROMPTS = [
   'Tips for teaching guitar to beginners',
 ];
 
-export function AIAssistantCard() {
+interface AIAssistantCardProps {
+  firstName?: string;
+}
+
+export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
   const [prompt, setPrompt] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // Initialize with welcome message
+    const welcomeMessage: Message = {
+      role: 'system',
+      content: `Hi${firstName ? ` ${firstName}` : ''}! 👋 I'm your Guitar CRM AI assistant. I can help you with:\n\n• Practice tips and techniques\n• Song recommendations\n• Lesson planning advice\n• Student management strategies\n• Music theory questions\n\nTry asking me something or click one of the suggested prompts below!`,
+      timestamp: new Date(),
+    };
+    return [welcomeMessage];
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedModel, setSelectedModel] = useState(DEFAULT_AI_MODEL);
@@ -79,7 +91,13 @@ export function AIAssistantCard() {
   };
 
   const clearConversation = () => {
-    setMessages([]);
+    // Reset to just the welcome message
+    const welcomeMessage: Message = {
+      role: 'system',
+      content: `Hi${firstName ? ` ${firstName}` : ''}! 👋 I'm your Guitar CRM AI assistant. I can help you with:\n\n• Practice tips and techniques\n• Song recommendations\n• Lesson planning advice\n• Student management strategies\n• Music theory questions\n\nTry asking me something or click one of the suggested prompts below!`,
+      timestamp: new Date(),
+    };
+    setMessages([welcomeMessage]);
     setError('');
     setPrompt('');
   };
@@ -99,7 +117,7 @@ export function AIAssistantCard() {
           </div>
           <div className="flex items-center gap-2">
             <Select value={selectedModel} onValueChange={setSelectedModel}>
-              <SelectTrigger className="w-[180px] h-8 text-xs">
+              <SelectTrigger className="w-45 h-8 text-xs">
                 <SelectValue placeholder="Select Model" />
               </SelectTrigger>
               <SelectContent>
@@ -138,7 +156,7 @@ export function AIAssistantCard() {
       </CardHeader>
       {!isMinimized && (
         <>
-          <CardContent className="flex-1 flex flex-col gap-4 min-h-[300px] max-h-[500px]">
+          <CardContent className="flex-1 flex flex-col gap-4 min-h-75 max-h-125">
             {/* Conversation History */}
             {messages.length > 0 ? (
               <div className="flex-1 overflow-y-auto space-y-4 pr-2">
@@ -148,12 +166,14 @@ export function AIAssistantCard() {
                     className={`p-3 rounded-lg ${
                       message.role === 'user'
                         ? 'bg-primary/10 ml-8'
+                        : message.role === 'system'
+                        ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
                         : 'bg-muted mr-8'
                     }`}
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs font-semibold">
-                        {message.role === 'user' ? 'You' : 'AI Assistant'}
+                        {message.role === 'user' ? 'You' : message.role === 'system' ? '🤖 Welcome' : 'AI Assistant'}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {message.timestamp.toLocaleTimeString([], {
@@ -186,7 +206,7 @@ export function AIAssistantCard() {
                       onClick={() => handleSubmit(suggestedPrompt)}
                       className="justify-start text-left h-auto py-2 px-3"
                     >
-                      <Sparkles className="h-3 w-3 mr-2 flex-shrink-0" />
+                      <Sparkles className="h-3 w-3 mr-2 shrink-0" />
                       <span className="text-xs">{suggestedPrompt}</span>
                     </Button>
                   ))}
@@ -204,7 +224,7 @@ export function AIAssistantCard() {
               placeholder="Ask me anything..."
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              className="min-h-[60px] resize-none"
+              className="min-h-15 resize-none"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();

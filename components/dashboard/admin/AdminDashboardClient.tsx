@@ -219,7 +219,7 @@ function QuickStats({
   const statsConfig = getStats();
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8" data-tour="stats">
       {statsConfig.map((stat) => (
         <AdminStatCard key={stat.label} icon={stat.icon} value={stat.value} label={stat.label} />
       ))}
@@ -280,7 +280,7 @@ function AdminActions() {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8" data-tour="quick-actions">
       {actions.map((action) => (
         <AdminActionCard key={action.href} {...action} />
       ))}

@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Bell, AlertCircle, Info, CheckCircle2, X, UserPlus, Calendar } from 'lucide-react';
+import { Bell, AlertCircle, Info, CheckCircle2, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState } from 'react';
 
@@ -155,7 +155,7 @@ export function NotificationsAlertsSection({
                 <X className="h-3 w-3" />
               </Button>
               <div className="flex gap-3">
-                <div className={`flex-shrink-0 ${config.color}`}>
+                <div className={`shrink-0 ${config.color}`}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="flex-1 space-y-1 pr-8">
