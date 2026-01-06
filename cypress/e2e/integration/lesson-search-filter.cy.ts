@@ -147,13 +147,9 @@ describe('Lesson Search and Filter', () => {
 
     it('should update lesson count when filtered', () => {
       cy.get('body').then(($body) => {
-        const initialText = $body.text();
-
         // Try to apply filter
         const filterSelect = $body.find('select[name*="student"]').first();
         if (filterSelect.length > 0) {
-          const initialCount = $body.find('[data-testid*="lesson"]').length;
-
           cy.wrap(filterSelect).select(1);
           cy.wait(500);
 
