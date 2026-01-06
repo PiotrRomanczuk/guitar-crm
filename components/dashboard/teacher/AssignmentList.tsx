@@ -1,6 +1,8 @@
 import { Badge } from '@/components/ui/badge';
-import { Calendar, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar, User, FileText, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface Assignment {
   id: string;
@@ -36,8 +38,27 @@ export function AssignmentList({ assignments }: AssignmentListProps) {
         <p className="text-sm text-muted-foreground mt-1">Track student assignments</p>
       </div>
 
-      <div className="divide-y divide-border">
-        {assignments.map((assignment) => {
+      {assignments.length === 0 ? (
+        <div className="p-12 text-center">
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+              <FileText className="w-8 h-8 text-muted-foreground" />
+            </div>
+          </div>
+          <h3 className="text-lg font-semibold mb-2">No Assignments</h3>
+          <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
+            Create assignments for your students to practice specific songs or techniques.
+          </p>
+          <Link href="/dashboard/assignments">
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Assignment
+            </Button>
+          </Link>
+        </div>
+      ) : (
+        <div className="divide-y divide-border">
+          {assignments.map((assignment) => {
           const { label, color } = statusConfig[assignment.status];
           return (
             <div key={assignment.id} className="p-4 hover:bg-muted/50 transition-colors">
@@ -67,7 +88,8 @@ export function AssignmentList({ assignments }: AssignmentListProps) {
             </div>
           );
         })}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

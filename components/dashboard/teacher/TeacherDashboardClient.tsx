@@ -2,7 +2,7 @@
 
 import { TeacherDashboardData } from '@/app/actions/teacher/dashboard';
 import { StudentList } from '@/components/dashboard/teacher/StudentList';
-import { StatCard } from '@/components/dashboard/student/StatCard';
+import { StatsCard } from '@/components/dashboard/StatsCard';
 import { RecentActivity } from '@/components/dashboard/student/RecentActivity'; // Reusing generic one
 import { ProgressChart } from '@/components/dashboard/student/ProgressChart'; // Reusing generic one
 import { SongLibrary } from '@/components/dashboard/teacher/SongLibrary';
@@ -10,6 +10,10 @@ import { AssignmentList } from '@/components/dashboard/teacher/AssignmentList';
 import { LessonStatsOverview } from '@/components/dashboard/LessonStatsOverview';
 import { AnalyticsCharts } from '@/components/dashboard/analytics-charts';
 import { BearerTokenCard } from '@/components/dashboard/BearerTokenCard';
+import { TodaysAgenda } from '@/components/dashboard/TodaysAgenda';
+import { NotificationsAlertsSection } from '@/components/dashboard/NotificationsAlertsSection';
+import { WelcomeTour } from '@/components/dashboard/WelcomeTour';
+import { QuickStartChecklist } from '@/components/dashboard/QuickStartChecklist';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
 import { Users, BookOpen, Music, Shield, FileText } from 'lucide-react';
 import Link from 'next/link';
@@ -34,11 +38,12 @@ interface AdminStats {
 interface TeacherDashboardClientProps {
   data: TeacherDashboardData;
   email?: string;
+  fullName?: string | null;
   adminStats?: AdminStats;
   token?: string;
 }
 
-export function TeacherDashboardClient({ data, adminStats, token }: TeacherDashboardClientProps) {
+export function TeacherDashboardClient({ data, email, fullName, adminStats, token }: TeacherDashboardClientProps) {
   const { data: dashboardData } = useDashboardStats();
   const apiAdminStats =
     dashboardData?.role === 'admin' ? (dashboardData.stats as DashboardAdminStats) : null;
@@ -52,18 +57,31 @@ export function TeacherDashboardClient({ data, adminStats, token }: TeacherDashb
         <div className="flex flex-col gap-2 opacity-0 animate-fade-in">
           <h1 className="text-3xl font-bold tracking-tight">
             Welcome back,{' '}
-            <span className="text-primary">{displayAdminStats ? 'Admin' : 'Coach'}</span>
+            <span className="text-primary">{fullName || email || (displayAdminStats ? 'Admin' : 'Coach')}</span>
           </h1>
           <p className="text-muted-foreground">
             Here&apos;s what&apos;s happening with your guitar students today.
           </p>
         </div>
 
-        {/* Lesson Statistics */}
-        <LessonStatsOverview />
+        {/* Notifications & Alerts */}
+        <NotificationsAlertsSection />
+
+        {/* Quick Start Checklist - Commented out until activity tracking is implemented */}
+        {/* <QuickStartChecklist /> */}
+
+        {/* Stats Grid - Lesson Statistics and Today's Agenda */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <LessonStatsOverview />
+          </div>
+          <div data-tour="todays-agenda">
+            <TodaysAgenda items={[]} />
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-8" data-tour="student-list">
             <StudentList students={data.students} />
             <ProgressChart data={data.chartData} />
             <SongLibrary songs={data.songs} />
@@ -100,35 +118,55 @@ export function TeacherDashboardClient({ data, adminStats, token }: TeacherDashb
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-              <StatCard
+              <StatsCard
                 title="Total Users"
                 value={displayAdminStats.totalUsers.toString()}
                 icon={Users}
                 delay={350}
+                variant="gradient"
+                href="/dashboard/users"
+                iconColor="text-blue-600"
+                iconBgColor="bg-blue-500/10 group-hover:bg-blue-500/20"
               />
-              <StatCard
+              <StatsCard
                 title="Teachers"
                 value={displayAdminStats.totalTeachers.toString()}
                 icon={Users}
                 delay={400}
+                variant="gradient"
+                href="/dashboard/users?filter=teacher"
+                iconColor="text-purple-600"
+                iconBgColor="bg-purple-500/10 group-hover:bg-purple-500/20"
               />
-              <StatCard
+              <StatsCard
                 title="Students"
                 value={displayAdminStats.totalStudents.toString()}
                 icon={Users}
                 delay={450}
+                variant="gradient"
+                href="/dashboard/users?filter=student"
+                iconColor="text-green-600"
+                iconBgColor="bg-green-500/10 group-hover:bg-green-500/20"
               />
-              <StatCard
+              <StatsCard
                 title="Total Songs"
                 value={displayAdminStats.totalSongs.toString()}
                 icon={Music}
                 delay={500}
+                variant="gradient"
+                href="/dashboard/songs"
+                iconColor="text-orange-600"
+                iconBgColor="bg-orange-500/10 group-hover:bg-orange-500/20"
               />
-              <StatCard
+              <StatsCard
                 title="Total Lessons"
                 value={(displayAdminStats.totalLessons || 0).toString()}
                 icon={BookOpen}
                 delay={550}
+                variant="gradient"
+                href="/dashboard/lessons"
+                iconColor="text-pink-600"
+                iconBgColor="bg-pink-500/10 group-hover:bg-pink-500/20"
               />
             </div>
             {token && (
@@ -142,6 +180,9 @@ export function TeacherDashboardClient({ data, adminStats, token }: TeacherDashb
             </div>
           </div>
         )}
+
+        {/* Welcome Tour */}
+        <WelcomeTour firstName={fullName?.split(' ')[0]} />
       </main>
     </div>
   );
