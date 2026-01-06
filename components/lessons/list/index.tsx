@@ -22,9 +22,7 @@ export default async function LessonList({ searchParams }: LessonListProps) {
   const status = typeof searchParams?.status === 'string' ? searchParams.status : undefined;
 
   // Base query with profile joins
-  let lessonQuery = supabase
-    .from('lessons')
-    .select(`
+  let lessonQuery = supabase.from('lessons').select(`
       *,
       profile:profiles!lessons_student_id_fkey(id, full_name, email),
       teacher_profile:profiles!lessons_teacher_id_fkey(id, full_name, email),

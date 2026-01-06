@@ -255,7 +255,8 @@ export default function SongListTable({
                   <TableRow
                     key={song.id}
                     data-testid="song-row"
-                    className="hover:bg-secondary/50 border-border transition-colors"
+                    className="hover:bg-secondary/50 border-border transition-colors cursor-pointer"
+                    onClick={() => router.push(`/dashboard/songs/${song.id}`)}
                   >
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
@@ -271,16 +272,11 @@ export default function SongListTable({
                             <Music className="w-6 h-6 text-muted-foreground" />
                           )}
                         </div>
-                        <Link
-                          href={`/dashboard/songs/${song.id}`}
-                          className="text-foreground hover:text-primary transition-colors"
-                        >
-                          {song.title ?? 'Untitled'}
-                        </Link>
+                        <span className="text-foreground">{song.title ?? 'Untitled'}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{song.author}</TableCell>
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       {selectedStudentId && (song as SongWithStatus).lesson_song_id ? (
                         <StatusSelect
                           lessonSongId={(song as SongWithStatus).lesson_song_id!}
@@ -301,7 +297,7 @@ export default function SongListTable({
                     </TableCell>
                     <TableCell className="text-muted-foreground">{song.key}</TableCell>
                     {canDelete && (
-                      <TableCell className="text-right">
+                      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                         <Button
                           variant="ghost"
                           size="icon"

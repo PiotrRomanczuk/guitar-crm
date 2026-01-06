@@ -126,7 +126,7 @@ export default function useLessonForm({
 
       const schema = partial ? LessonInputSchema.partial() : LessonInputSchema;
       const validatedData = schema.parse(dataToValidate);
-      
+
       console.log('[useLessonForm] Validation passed', validatedData);
 
       const url = lessonId ? `/api/lessons/${lessonId}` : '/api/lessons';
@@ -140,7 +140,10 @@ export default function useLessonForm({
         body: JSON.stringify(validatedData),
       });
 
-      console.log('[useLessonForm] Response received', { status: response.status, ok: response.ok });
+      console.log('[useLessonForm] Response received', {
+        status: response.status,
+        ok: response.ok,
+      });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Failed to save lesson' }));
@@ -151,11 +154,11 @@ export default function useLessonForm({
 
       const responseData = await response.json();
       console.log('[useLessonForm] Success response:', responseData);
-      
+
       return { success: true, data: responseData };
     } catch (err) {
       console.error('[useLessonForm] Submit error:', err);
-      
+
       if (err instanceof z.ZodError) {
         const errors: ValidationErrors = {};
         err.issues.forEach((e) => {
@@ -167,7 +170,7 @@ export default function useLessonForm({
         const errorMessage = err instanceof Error ? err.message : 'Failed to save lesson';
         setError(errorMessage);
       }
-      
+
       return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
     }
   };

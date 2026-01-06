@@ -10,7 +10,7 @@ type Props = {
 export default async function LessonsPage(props: Props) {
   const searchParams = await props.searchParams;
   const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
-  
+
   if (!user) redirect('/sign-in');
 
   // If user is a student and NOT an admin/teacher, show the student view
@@ -24,4 +24,3 @@ export default async function LessonsPage(props: Props) {
     </div>
   );
 }
-

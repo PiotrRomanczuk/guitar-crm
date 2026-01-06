@@ -10,8 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { AddAssignmentDialog } from './AddAssignmentDialog';
 
 interface Assignment {
   id: string;
@@ -22,12 +21,16 @@ interface Assignment {
 
 interface LessonAssignmentsListProps {
   lessonId: string;
+  studentId: string;
+  teacherId: string;
   assignments: Assignment[];
   canEdit: boolean;
 }
 
 export function LessonAssignmentsList({
   lessonId,
+  studentId,
+  teacherId,
   assignments,
   canEdit,
 }: LessonAssignmentsListProps) {
@@ -36,12 +39,7 @@ export function LessonAssignmentsList({
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-bold">Assignments</CardTitle>
         {canEdit && (
-          <Button asChild size="sm">
-            <Link href={`/dashboard/assignments/new?lessonId=${lessonId}`}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Assignment
-            </Link>
-          </Button>
+          <AddAssignmentDialog lessonId={lessonId} studentId={studentId} teacherId={teacherId} />
         )}
       </CardHeader>
       <CardContent>

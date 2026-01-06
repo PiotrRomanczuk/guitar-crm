@@ -51,9 +51,9 @@ export function LessonListClient({
         showTeacherFilter={role === 'admin'}
       />
 
-      <LessonTable 
-        lessons={initialLessons} 
-        role={role} 
+      <LessonTable
+        lessons={initialLessons}
+        role={role}
         baseUrl="/dashboard/lessons"
         onDeleteSuccess={handleDeleteSuccess}
       />
