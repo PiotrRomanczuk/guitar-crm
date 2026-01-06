@@ -12,8 +12,6 @@ import {
   PaginationContent,
   PaginationEllipsis,
   PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
 } from '@/components/ui/pagination';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
