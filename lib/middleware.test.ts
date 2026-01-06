@@ -1,5 +1,4 @@
-import { verifyRouteProtection } from '@/lib/middleware';
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server'
 
 /**
  * Middleware Protection Unit Tests
@@ -33,8 +32,6 @@ describe('Middleware Route Protection', () => {
 
   describe('Public Routes', () => {
     it('should allow access to root path without auth', () => {
-      const request = new NextRequest('http://localhost:3000/');
-
       // Public route - should not redirect
       const publicPaths = ['/', '/auth/login', '/auth/register', '/auth/forgot-password'];
 
@@ -331,7 +328,6 @@ describe('Route Pattern Matching', () => {
   });
 
   it('should match route patterns with wildcards', () => {
-    const pattern = '/dashboard/*';
     const paths = ['/dashboard/lessons', '/dashboard/assignments'];
 
     paths.forEach((path) => {
@@ -340,7 +336,6 @@ describe('Route Pattern Matching', () => {
   });
 
   it('should match dynamic route segments', () => {
-    const pattern = '/dashboard/lessons/[id]';
     const path = '/dashboard/lessons/123';
 
     expect(path).toMatch(/\/dashboard\/lessons\/\d+/);
@@ -348,7 +343,6 @@ describe('Route Pattern Matching', () => {
 
   it('should prioritize specific routes over patterns', () => {
     const specificRoute = '/dashboard/settings';
-    const pattern = '/dashboard/*';
 
     // Specific route should take precedence
     expect(specificRoute).toBe('/dashboard/settings');
