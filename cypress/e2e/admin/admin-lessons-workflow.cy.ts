@@ -3,9 +3,17 @@
 /**
  * Admin Lessons CRUD Workflow
  *
- * TODO: Lesson form submission is not completing - needs investigation
- * Issue: Form doesn't redirect after submission (stays on /new page)
- * This causes all subsequent tests to fail as the lesson isn't created
+ * TODO: Lesson form submission not working - form stays on /new page after submit
+ * Issue: Form validation may be failing or submit handler not redirecting
+ * Symptoms:
+ * - Submit button clicks but no redirect occurs
+ * - URL stays at /dashboard/lessons/new
+ * - No visible error messages in UI
+ * Need to debug:
+ * 1. Check browser console for JS errors
+ * 2. Verify all required fields are filled correctly
+ * 3. Check if handleSubmit in useLessonForm is being called
+ * 4. Verify API endpoint is working
  * 
  * Tests complete CRUD cycle for lessons:
  * 1. Create - Fill form and submit
@@ -40,11 +48,24 @@ describe.skip('Admin Lessons CRUD Workflow', () => {
   it('1. CREATE: should create a new lesson', () => {
     cy.visit('/dashboard/lessons/new');
 
-    // Select required student
-    cy.get('[data-testid="lesson-student_id"]').select(1);
+    // Wait for form to load
+    cy.get('[data-testid="lesson-student_id"]', { timeout: 10000 }).should('be.visible');
 
-    // Select required teacher
-    cy.get('[data-testid="lesson-teacher_id"]').select(1);
+    // Select first available student (get first option that's not the placeholder)
+    cy.get('[data-testid="lesson-student_id"] option')
+      .eq(1)
+      .then(($option) => {
+        const studentId = $option.val() as string;
+        cy.get('[data-testid="lesson-student_id"]').select(studentId);
+      });
+
+    // Select first available teacher
+    cy.get('[data-testid="lesson-teacher_id"] option')
+      .eq(1)
+      .then(($option) => {
+        const teacherId = $option.val() as string;
+        cy.get('[data-testid="lesson-teacher_id"]').select(teacherId);
+      });
 
     // Fill in lesson form
     cy.get('[data-testid="lesson-title"]').clear().type(testData.title);
@@ -56,13 +77,36 @@ describe.skip('Admin Lessons CRUD Workflow', () => {
     cy.get('[data-testid="lesson-scheduled-at"]').clear().type(dateStr);
 
     // Add notes
-    cy.get('[data-testid="lesson-notes"]').type(testData.notes);
+    cy.get('[data-testid="lesson-notes"]').clear().type(testData.notes);
+
+    // Log form state before submission
+    cy.get('[data-testid="lesson-student_id"]').then(($select) => {
+      cy.log('Student selected:', $select.val());
+    });
+    cy.get('[data-testid="lesson-teacher_id"]').then(($select) => {
+      cy.log('Teacher selected:', $select.val());
+    });
 
     // Submit the form
-    cy.get('[data-testid="lesson-submit"], button[type="submit"]').first().click({ force: true });
+    cy.get('[data-testid="lesson-submit"]').should('be.visible').should('not.be.disabled').click();
 
-    // Should redirect
-    cy.url({ timeout: 15000 }).should('not.include', '/new');
+    // Wait a bit and check for errors
+    cy.wait(2000);
+    
+    // Check if there's an error message
+    cy.get('body').then(($body) => {
+      const hasError = $body.find('.bg-red-50, .text-red-').length > 0;
+      if (hasError) {
+        cy.log('ERROR: Form has validation errors');
+        cy.get('.bg-red-50, .text-red-').each(($el) => {
+          cy.log('Error:', $el.text());
+        });
+      }
+    });
+
+    // Should redirect to lessons list with success message
+    cy.url({ timeout: 15000 }).should('include', '/dashboard/lessons');
+    cy.url().should('not.include', '/new');
   });
 
   it('2. VERIFY CREATE: should find created lesson in list', () => {
