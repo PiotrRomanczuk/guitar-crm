@@ -39,20 +39,18 @@ describe('SignUpPage', () => {
     expect(screen.getByTestId('sign-up-form')).toBeInTheDocument();
   });
 
-  it('handles successful sign up with redirect delay', async () => {
+  it('handles successful sign up and shows manual redirect button', async () => {
     render(<SignUpPage />);
 
     const successButton = screen.getByText('Simulate Success');
     fireEvent.click(successButton);
 
-    // Should not redirect immediately
-    expect(mockRouter.push).not.toHaveBeenCalled();
-
-    // Fast-forward time
+    // Should not redirect automatically anymore
     act(() => {
-      jest.advanceTimersByTime(3000);
+      jest.advanceTimersByTime(5000);
     });
 
-    expect(mockRouter.push).toHaveBeenCalledWith('/sign-in');
+    // User must click manual button to redirect
+    expect(mockRouter.push).not.toHaveBeenCalled();
   });
 });

@@ -22,6 +22,8 @@ export default async function SongList({ searchParams }: SongListProps) {
   const key = typeof searchParams?.key === 'string' ? searchParams.key : undefined;
   const category = typeof searchParams?.category === 'string' ? searchParams.category : undefined;
   const author = typeof searchParams?.author === 'string' ? searchParams.author : undefined;
+  const page = typeof searchParams?.page === 'string' ? parseInt(searchParams.page, 10) : 1;
+  const pageSize = 20;
 
   let songQuery;
 
@@ -32,7 +34,7 @@ export default async function SongList({ searchParams }: SongListProps) {
       .from('songs')
       .select('*, lesson_songs!inner(id, status, lessons!inner(student_id))')
       .eq('lesson_songs.lessons.student_id', studentId);
-      // .is('deleted_at', null);  // TODO: Uncomment after fixing
+    // .is('deleted_at', null);  // TODO: Uncomment after fixing
   } else {
     songQuery = supabase.from('songs').select('*');
     // .is('deleted_at', null);  // TODO: Uncomment after fixing
@@ -59,6 +61,22 @@ export default async function SongList({ searchParams }: SongListProps) {
   }
 
   songQuery = songQuery.order('created_at', { ascending: false });
+
+  // Get total count for pagination
+  const countQuery = studentId
+    ? supabase
+        .from('songs')
+        .select('id', { count: 'exact', head: true })
+        .eq('lesson_songs.lessons.student_id', studentId)
+    : supabase.from('songs').select('id', { count: 'exact', head: true });
+
+  const { count } = await countQuery;
+  const totalPages = count ? Math.ceil(count / pageSize) : 0;
+
+  // Apply pagination
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  songQuery = songQuery.range(from, to);
 
   const { data: rawSongs, error } = await songQuery;
 
@@ -138,6 +156,8 @@ export default async function SongList({ searchParams }: SongListProps) {
       selectedStudentId={studentId}
       categories={categories}
       authors={authors}
+      currentPage={page}
+      totalPages={totalPages}
     />
   );
 }

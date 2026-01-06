@@ -5,12 +5,9 @@ import { createClient } from '@/lib/supabase/server';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import { Database } from '@/database.types';
 
-import {
-  LessonSongsList,
-  LessonDetailsCard,
-  LessonAssignmentsList,
-} from '@/components/lessons';
+import { LessonSongsList, LessonDetailsCard, LessonAssignmentsList } from '@/components/lessons';
 import { StudentLessonDetailPageClient } from '@/components/lessons/student/StudentLessonDetailPageClient';
+import { HistoryTimeline } from '@/components/shared/HistoryTimeline';
 
 interface LessonDetailPageProps {
   params: Promise<{ id: string }>;
@@ -125,20 +122,34 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
         </Link>
       </div>
 
-      <LessonDetailsCard
-        lesson={lesson}
-        canEdit={canEdit}
-        canDelete={canDelete}
-        onDelete={handleDeleteLesson.bind(null, id)}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <LessonDetailsCard
+            lesson={lesson}
+            canEdit={canEdit}
+            canDelete={canDelete}
+            onDelete={handleDeleteLesson.bind(null, id)}
+          />
 
-      <LessonSongsList lessonId={lesson.id!} lessonSongs={lesson.lesson_songs} canEdit={canEdit} />
+          <LessonSongsList
+            lessonId={lesson.id!}
+            lessonSongs={lesson.lesson_songs}
+            canEdit={canEdit}
+          />
 
-      <LessonAssignmentsList
-        lessonId={lesson.id!}
-        assignments={lesson.assignments}
-        canEdit={canEdit}
-      />
+          <LessonAssignmentsList
+            lessonId={lesson.id!}
+            studentId={lesson.student_id}
+            teacherId={lesson.teacher_id}
+            assignments={lesson.assignments}
+            canEdit={canEdit}
+          />
+        </div>
+
+        <div className="lg:col-span-1">
+          <HistoryTimeline recordId={lesson.id!} recordType="lesson" title="Lesson History" />
+        </div>
+      </div>
     </div>
   );
 }
