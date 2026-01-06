@@ -28,10 +28,6 @@ export default function LessonList({
     lessons,
     loading,
     error,
-    filterStatus,
-    setFilterStatus,
-    filterStudentId,
-    setFilterStudentId,
   } = useLessonList(initialLessons, initialError);
 
   const { students } = useProfiles();
@@ -78,10 +74,6 @@ export default function LessonList({
       <LessonListHeader role={role} />
 
       <LessonListFilter
-        filterStatus={filterStatus}
-        onFilterChange={setFilterStatus}
-        filterStudentId={filterStudentId}
-        onStudentFilterChange={setFilterStudentId}
         students={students}
         showStudentFilter={role === 'admin' || role === 'teacher'}
       />

@@ -208,14 +208,14 @@ export const testPatterns = {
 
 // Performance testing utilities
 export const performance = {
-  measureExecutionTime: async (fn: Function) => {
-    const start = performance.now();
+  measureExecutionTime: async (fn: Function): Promise<number> => {
+    const start = globalThis.performance.now();
     await fn();
-    const end = performance.now();
+    const end = globalThis.performance.now();
     return end - start;
   },
 
-  expectFastExecution: async (fn: Function, maxTimeMs = 100) => {
+  expectFastExecution: async (fn: Function, maxTimeMs = 100): Promise<void> => {
     const executionTime = await performance.measureExecutionTime(fn);
     expect(executionTime).toBeLessThan(maxTimeMs);
   },

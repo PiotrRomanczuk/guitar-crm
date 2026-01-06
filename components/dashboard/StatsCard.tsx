@@ -57,9 +57,6 @@ export function StatsCard({
     );
   }
 
-  const CardWrapper = href ? Link : 'div';
-  const cardProps = href ? { href } : {};
-
   const cardContent = (
     <>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -111,57 +108,57 @@ export function StatsCard({
   );
 
   if (variant === 'gradient') {
-    return (
-      <CardWrapper {...cardProps}>
-        <div
-          className={cn(
-            "group relative bg-card rounded-xl p-6 border border-border hover:border-primary/30 transition-all duration-300 opacity-0 animate-fade-in cursor-pointer",
-            href && "hover:shadow-lg"
-          )}
-          style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}
-        >
-          <div className="absolute inset-0 rounded-xl bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="relative flex items-start justify-between">
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">{title}</p>
-              <p className="text-3xl font-semibold tracking-tight">{value}</p>
-              {(change || description) && (
-                <p
-                  className={cn(
-                    'text-sm font-medium',
-                    change && changeType === 'positive' && 'text-green-600 dark:text-green-400',
-                    change && changeType === 'negative' && 'text-red-600 dark:text-red-400',
-                    change && changeType === 'neutral' && 'text-muted-foreground',
-                    !change && 'text-muted-foreground'
-                  )}
-                >
-                  {change || description}
-                </p>
-              )}
-            </div>
-            {Icon && (
-              <div className={cn(
-                "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
-                iconBgColor || "bg-primary/10 group-hover:bg-primary/20"
-              )}>
-                <Icon className={cn("w-6 h-6", iconColor || "text-primary")} />
-              </div>
+    const content = (
+      <div
+        className={cn(
+          "group relative bg-card rounded-xl p-6 border border-border hover:border-primary/30 transition-all duration-300 opacity-0 animate-fade-in cursor-pointer",
+          href && "hover:shadow-lg"
+        )}
+        style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}
+      >
+        <div className="absolute inset-0 rounded-xl bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="relative flex items-start justify-between">
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">{title}</p>
+            <p className="text-3xl font-semibold tracking-tight">{value}</p>
+            {(change || description) && (
+              <p
+                className={cn(
+                  'text-sm font-medium',
+                  change && changeType === 'positive' && 'text-green-600 dark:text-green-400',
+                  change && changeType === 'negative' && 'text-red-600 dark:text-red-400',
+                  change && changeType === 'neutral' && 'text-muted-foreground',
+                  !change && 'text-muted-foreground'
+                )}
+              >
+                {change || description}
+              </p>
             )}
           </div>
+          {Icon && (
+            <div className={cn(
+              "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
+              iconBgColor || "bg-primary/10 group-hover:bg-primary/20"
+            )}>
+              <Icon className={cn("w-6 h-6", iconColor || "text-primary")} />
+            </div>
+          )}
         </div>
-      </CardWrapper>
+      </div>
     );
+
+    return href ? <Link href={href}>{content}</Link> : <div>{content}</div>;
   }
 
-  return (
-    <CardWrapper {...cardProps}>
-      <Card className={cn(
-        "transition-all duration-200 opacity-0 animate-fade-in",
-        href && "cursor-pointer hover:border-primary/50 hover:shadow-md"
-      )}
-      style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}>
-        {cardContent}
-      </Card>
-    </CardWrapper>
+  const wrapperContent = (
+    <Card className={cn(
+      "transition-all duration-200 opacity-0 animate-fade-in",
+      href && "cursor-pointer hover:border-primary/50 hover:shadow-md"
+    )}
+    style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}>
+      {cardContent}
+    </Card>
   );
+
+  return href ? <Link href={href}>{wrapperContent}</Link> : wrapperContent;
 }
