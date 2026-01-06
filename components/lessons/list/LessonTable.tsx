@@ -14,9 +14,15 @@ interface Props {
   lessons: LessonWithProfiles[];
   role: 'admin' | 'teacher' | 'student';
   baseUrl?: string; // e.g., '/dashboard/lessons', '/teacher/lessons', '/student/lessons'
+  onDeleteSuccess?: () => void;
 }
 
-export default function LessonTable({ lessons, role, baseUrl = '/dashboard/lessons' }: Props) {
+export default function LessonTable({
+  lessons,
+  role,
+  baseUrl = '/dashboard/lessons',
+  onDeleteSuccess,
+}: Props) {
   // Show actions column for admin and teacher only
   const showActions = role === 'admin' || role === 'teacher';
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useSignUpLogic } from './useSignUpLogic';
+import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
 
 interface SignUpFormProps {
   onSuccess?: () => void;
@@ -99,10 +100,12 @@ function PasswordInput({
   value,
   onChange,
   onBlur,
+  showStrength = false,
 }: {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur: () => void;
+  showStrength?: boolean;
 }) {
   return (
     <div className="space-y-1 sm:space-y-2">
@@ -123,7 +126,60 @@ function PasswordInput({
         minLength={6}
         className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500"
       />
-      <p className="text-xs text-gray-600 dark:text-gray-400">Minimum 6 characters</p>
+      {showStrength && <PasswordStrengthIndicator password={value} />}
+    </div>
+  );
+}
+
+function ConfirmPasswordInput({
+  value,
+  onChange,
+  onBlur,
+  passwordMatch,
+}: {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur: () => void;
+  passwordMatch: boolean;
+}) {
+  return (
+    <div className="space-y-1 sm:space-y-2">
+      <label
+        htmlFor="confirmPassword"
+        className="block text-xs sm:text-sm font-medium text-gray-900 dark:text-white"
+      >
+        Confirm Password
+      </label>
+      <input
+        id="confirmPassword"
+        name="confirmPassword"
+        type="password"
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        required
+        minLength={6}
+        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500"
+      />
+      {value && (
+        <div className="flex items-center gap-2 text-xs">
+          {passwordMatch ? (
+            <>
+              <svg className="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="text-green-600 dark:text-green-400">Passwords match</span>
+            </>
+          ) : (
+            <>
+              <svg className="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span className="text-red-600 dark:text-red-400">Passwords do not match</span>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -188,11 +244,67 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
         value={state.password}
         onChange={(e) => state.setPassword(e.target.value)}
         onBlur={() => state.setTouched({ ...state.touched, password: true })}
+        showStrength={true}
+      />
+
+      <ConfirmPasswordInput
+        value={state.confirmPassword}
+        onChange={(e) => state.setConfirmPassword(e.target.value)}
+        onBlur={() => state.setTouched({ ...state.touched, confirmPassword: true })}
+        passwordMatch={state.password === state.confirmPassword}
       />
 
       {state.validationError && <AlertMessage message={state.validationError} />}
       {state.error && <AlertMessage message={state.error} />}
-      {state.success && <AlertMessage message="Check your email for confirmation" type="success" />}
+      {state.success && (
+        <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4 space-y-3">
+          <div className="flex items-start gap-2">
+            <svg
+              className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <div className="flex-1">
+              <h4 className="text-sm font-semibold text-green-800 dark:text-green-200 mb-1">
+                📧 Verification Email Sent!
+              </h4>
+              <p className="text-xs text-green-700 dark:text-green-300 mb-2">
+                We&apos;ve sent a confirmation email to: <strong>{state.email}</strong>
+              </p>
+              <div className="text-xs text-green-700 dark:text-green-300 space-y-1">
+                <p className="font-medium">What to do next:</p>
+                <ol className="list-decimal list-inside space-y-0.5 ml-2">
+                  <li>Check your inbox (and spam folder)</li>
+                  <li>Click the verification link</li>
+                  <li>You&apos;ll be redirected back to sign in</li>
+                </ol>
+              </div>
+              {state.canResendEmail && (
+                <button
+                  type="button"
+                  onClick={state.handleResendEmail}
+                  disabled={state.resendLoading || state.resendCountdown > 0}
+                  className="mt-3 text-xs text-green-700 dark:text-green-300 underline hover:text-green-800 dark:hover:text-green-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {state.resendCountdown > 0
+                    ? `Resend available in ${state.resendCountdown}s`
+                    : state.resendLoading
+                    ? 'Sending...'
+                    : "Didn't receive the email? Resend Verification Email"}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <button
         type="submit"

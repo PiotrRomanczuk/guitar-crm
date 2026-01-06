@@ -3,15 +3,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLessonStats, LessonStatsFilters } from '@/hooks/useLessonStats';
-import { BarChart, Calendar, CheckCircle2, Clock } from 'lucide-react';
+import { BarChart, CalendarDays, CheckCircle2, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface LessonStatsOverviewProps {
   filters?: LessonStatsFilters;
 }
 
-export function LessonStatsOverview({ filters }: LessonStatsOverviewProps) {
-  const { data, isLoading, error } = useLessonStats(filters);
+export function LessonStatsOverview({ filters: initialFilters }: LessonStatsOverviewProps) {
+  const { data, isLoading, error } = useLessonStats(initialFilters);
 
   if (error) {
     return (
@@ -49,26 +49,22 @@ export function LessonStatsOverview({ filters }: LessonStatsOverviewProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BarChart className="h-5 w-5" />
-          Lesson Statistics
-        </CardTitle>
-        <CardDescription>
-          Overview of lesson activity and progress
-          {filters?.dateFrom && filters?.dateTo && (
-            <span className="ml-2">
-              from {new Date(filters.dateFrom).toLocaleDateString()} to{' '}
-              {new Date(filters.dateTo).toLocaleDateString()}
-            </span>
-          )}
-        </CardDescription>
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart className="h-5 w-5" />
+            Lesson Statistics
+          </CardTitle>
+          <CardDescription>
+            Overview of lesson activity and progress
+          </CardDescription>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Overview metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1">
             <div className="flex items-center text-sm text-muted-foreground">
-              <Calendar className="h-4 w-4 mr-1" />
+              <CalendarDays className="h-4 w-4 mr-1" />
               Total Lessons
             </div>
             <div className="text-2xl font-bold">{data.total}</div>

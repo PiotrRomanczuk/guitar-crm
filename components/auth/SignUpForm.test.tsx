@@ -23,7 +23,8 @@ describe('SignUpForm', () => {
 			render(<SignUpForm />);
 
 			expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-			expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+			expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
+			expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
 			expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
 			expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
 			expect(
@@ -38,10 +39,15 @@ describe('SignUpForm', () => {
 			expect(signInLink).toBeInTheDocument();
 		});
 
-		it('should render password requirements', () => {
+		it('should render password strength indicator when focused', async () => {
 			render(<SignUpForm />);
 
-			expect(screen.getByText(/minimum 6 characters/i)).toBeInTheDocument();
+			const passwordInput = screen.getByLabelText(/^password$/i);
+			fireEvent.focus(passwordInput);
+			
+			await waitFor(() => {
+				expect(screen.getByText(/at least 8 characters/i)).toBeInTheDocument();
+			});
 		});
 	});
 
@@ -61,7 +67,7 @@ describe('SignUpForm', () => {
 		it('should show error for password shorter than 6 characters', async () => {
 			render(<SignUpForm />);
 
-			const passwordInput = screen.getByLabelText(/password/i);
+			const passwordInput = screen.getByLabelText(/^password$/i);
 			fireEvent.change(passwordInput, { target: { value: '12345' } });
 			fireEvent.blur(passwordInput);
 
@@ -126,7 +132,10 @@ describe('SignUpForm', () => {
 			fireEvent.change(screen.getByLabelText(/email/i), {
 				target: { value: 'student@example.com' },
 			});
-			fireEvent.change(screen.getByLabelText(/password/i), {
+			fireEvent.change(screen.getByLabelText(/^password$/i), {
+				target: { value: 'test123_student' },
+			});
+			fireEvent.change(screen.getByLabelText(/confirm password/i), {
 				target: { value: 'test123_student' },
 			});
 			fireEvent.change(screen.getByLabelText(/first name/i), {
@@ -170,7 +179,10 @@ describe('SignUpForm', () => {
 			fireEvent.change(screen.getByLabelText(/email/i), {
 				target: { value: 'student@example.com' },
 			});
-			fireEvent.change(screen.getByLabelText(/password/i), {
+			fireEvent.change(screen.getByLabelText(/^password$/i), {
+				target: { value: 'test123_student' },
+			});
+			fireEvent.change(screen.getByLabelText(/confirm password/i), {
 				target: { value: 'test123_student' },
 			});
 			fireEvent.change(screen.getByLabelText(/first name/i), {
@@ -200,7 +212,10 @@ describe('SignUpForm', () => {
 			fireEvent.change(screen.getByLabelText(/email/i), {
 				target: { value: 'student@example.com' },
 			});
-			fireEvent.change(screen.getByLabelText(/password/i), {
+			fireEvent.change(screen.getByLabelText(/^password$/i), {
+				target: { value: 'test123_student' },
+			});
+			fireEvent.change(screen.getByLabelText(/confirm password/i), {
 				target: { value: 'test123_student' },
 			});
 			fireEvent.change(screen.getByLabelText(/first name/i), {
@@ -236,7 +251,10 @@ describe('SignUpForm', () => {
 			fireEvent.change(screen.getByLabelText(/email/i), {
 				target: { value: 'student@example.com' },
 			});
-			fireEvent.change(screen.getByLabelText(/password/i), {
+			fireEvent.change(screen.getByLabelText(/^password$/i), {
+				target: { value: 'test123_student' },
+			});
+			fireEvent.change(screen.getByLabelText(/confirm password/i), {
 				target: { value: 'test123_student' },
 			});
 			fireEvent.change(screen.getByLabelText(/first name/i), {
@@ -283,7 +301,10 @@ describe('SignUpForm', () => {
 			fireEvent.change(screen.getByLabelText(/email/i), {
 				target: { value: 'student@example.com' },
 			});
-			fireEvent.change(screen.getByLabelText(/password/i), {
+			fireEvent.change(screen.getByLabelText(/^password$/i), {
+				target: { value: 'test123_student' },
+			});
+			fireEvent.change(screen.getByLabelText(/confirm password/i), {
 				target: { value: 'test123_student' },
 			});
 			fireEvent.change(screen.getByLabelText(/first name/i), {
@@ -327,7 +348,10 @@ describe('SignUpForm', () => {
 			fireEvent.change(screen.getByLabelText(/email/i), {
 				target: { value: 'student@example.com' },
 			});
-			fireEvent.change(screen.getByLabelText(/password/i), {
+			fireEvent.change(screen.getByLabelText(/^password$/i), {
+				target: { value: 'test123_student' },
+			});
+			fireEvent.change(screen.getByLabelText(/confirm password/i), {
 				target: { value: 'test123_student' },
 			});
 			fireEvent.change(screen.getByLabelText(/first name/i), {

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import StatusBadge, { getStatusVariant, formatStatus } from '@/components/shared/StatusBadge';
 import { Assignment } from '@/components/assignments/hooks/useAssignment';
+import { HistoryTimeline } from '@/components/shared/HistoryTimeline';
 
 /**
  * Format date for display
@@ -294,12 +295,24 @@ export default async function AssignmentDetailPage({ params, searchParams }: Pag
         </Link>
       </div>
 
-      <div
-        className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border 
                       border-gray-200 dark:border-gray-700 p-4 sm:p-6"
-      >
-        <AssignmentHeader title={assignment.title} status={assignment.status} />
-        <AssignmentInfo assignment={assignment as unknown as ExtendedAssignment} />
+          >
+            <AssignmentHeader title={assignment.title} status={assignment.status} />
+            <AssignmentInfo assignment={assignment as unknown as ExtendedAssignment} />
+          </div>
+        </div>
+
+        <div className="lg:col-span-1">
+          <HistoryTimeline
+            recordId={assignment.id}
+            recordType="assignment"
+            title="Assignment History"
+          />
+        </div>
       </div>
     </div>
   );
