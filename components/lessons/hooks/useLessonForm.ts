@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { LessonInputSchema } from '@/schemas/LessonSchema';
 import { z } from 'zod';
-import { useProfiles } from './useProfiles';
+import { createClient } from '@/lib/supabase/client';
 
 export interface LessonFormData {
   student_id: string;
@@ -20,25 +19,10 @@ interface ValidationErrors {
   [key: string]: string;
 }
 
-interface CreateLessonPayload {
-  validatedData: Partial<z.infer<typeof LessonInputSchema>>;
-  lessonId?: string;
-}
-
-async function submitLessonToApi(payload: CreateLessonPayload): Promise<void> {
-  const url = payload.lessonId ? `/api/lessons/${payload.lessonId}` : '/api/lessons';
-  const method = payload.lessonId ? 'PUT' : 'POST';
-
-  const response = await fetch(url, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload.validatedData),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to save lesson');
-  }
+interface Profile {
+  id: string;
+  full_name: string | null;
+  email: string;
 }
 
 export interface UseLessonFormProps {
@@ -54,7 +38,6 @@ export default function useLessonForm({
   partial = false,
   fieldsToSubmit,
 }: UseLessonFormProps = {}) {
-  const queryClient = useQueryClient();
   const [formData, setFormData] = useState<LessonFormData>({
     student_id: initialData?.student_id || '',
     teacher_id: initialData?.teacher_id || '',
@@ -66,26 +49,45 @@ export default function useLessonForm({
   });
 
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [students, setStudents] = useState<Profile[]>([]);
+  const [teachers, setTeachers] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Use extracted profiles hook
-  const { students, teachers, loading, error: profilesError } = useProfiles();
+  // Fetch students and teachers
+  useEffect(() => {
+    async function fetchProfiles() {
+      try {
+        const supabase = createClient();
 
-  const {
-    mutateAsync: submitForm,
-    isPending,
-    error: mutationError,
-  } = useMutation({
-    mutationFn: async (payload: CreateLessonPayload) => {
-      return submitLessonToApi(payload);
-    },
-    onSuccess: () => {
-      // Invalidate lessons list so it refetches with new lesson
-      queryClient.invalidateQueries({ queryKey: ['lessons'] });
-      if (lessonId) {
-        queryClient.invalidateQueries({ queryKey: ['lesson', lessonId] });
+        const [studentsRes, teachersRes] = await Promise.all([
+          supabase
+            .from('profiles')
+            .select('id, full_name, email')
+            .eq('is_student', true)
+            .order('full_name'),
+          supabase
+            .from('profiles')
+            .select('id, full_name, email')
+            .eq('is_teacher', true)
+            .order('full_name'),
+        ]);
+
+        if (studentsRes.error) throw studentsRes.error;
+        if (teachersRes.error) throw teachersRes.error;
+
+        setStudents(studentsRes.data || []);
+        setTeachers(teachersRes.data || []);
+      } catch (err) {
+        console.error('Error fetching profiles:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load profiles');
+      } finally {
+        setLoading(false);
       }
-    },
-  });
+    }
+
+    fetchProfiles();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -109,7 +111,9 @@ export default function useLessonForm({
 
   const handleSubmit = async () => {
     try {
+      console.log('[useLessonForm] handleSubmit called', { formData, lessonId });
       setValidationErrors({});
+      setError(null);
 
       let dataToValidate: Partial<LessonFormData> = formData;
       if (fieldsToSubmit) {
@@ -122,31 +126,57 @@ export default function useLessonForm({
 
       const schema = partial ? LessonInputSchema.partial() : LessonInputSchema;
       const validatedData = schema.parse(dataToValidate);
-      await submitForm({ validatedData, lessonId });
-      return { success: true };
+      
+      console.log('[useLessonForm] Validation passed', validatedData);
+
+      const url = lessonId ? `/api/lessons/${lessonId}` : '/api/lessons';
+      const method = lessonId ? 'PUT' : 'POST';
+
+      console.log('[useLessonForm] Sending request', { url, method });
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validatedData),
+      });
+
+      console.log('[useLessonForm] Response received', { status: response.status, ok: response.ok });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to save lesson' }));
+        console.error('[useLessonForm] Error response:', errorData);
+        setError(errorData.error || 'Failed to save lesson');
+        return { success: false, error: errorData.error };
+      }
+
+      const responseData = await response.json();
+      console.log('[useLessonForm] Success response:', responseData);
+      
+      return { success: true, data: responseData };
     } catch (err) {
+      console.error('[useLessonForm] Submit error:', err);
+      
       if (err instanceof z.ZodError) {
         const errors: ValidationErrors = {};
         err.issues.forEach((e) => {
           errors[e.path[0] as string] = e.message;
         });
         setValidationErrors(errors);
+        setError('Please fix the validation errors');
+      } else {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to save lesson';
+        setError(errorMessage);
       }
-      return { success: false };
+      
+      return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
     }
   };
-
-  const error = mutationError
-    ? mutationError instanceof Error
-      ? mutationError.message
-      : 'Failed to create lesson'
-    : profilesError;
 
   return {
     formData,
     students,
     teachers,
-    loading: loading || isPending,
+    loading,
     error,
     validationErrors,
     handleChange,
