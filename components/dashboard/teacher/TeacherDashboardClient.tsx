@@ -12,6 +12,8 @@ import { AnalyticsCharts } from '@/components/dashboard/analytics-charts';
 import { BearerTokenCard } from '@/components/dashboard/BearerTokenCard';
 import { TodaysAgenda } from '@/components/dashboard/TodaysAgenda';
 import { NotificationsAlertsSection } from '@/components/dashboard/NotificationsAlertsSection';
+import { WelcomeTour } from '@/components/dashboard/WelcomeTour';
+import { QuickStartChecklist } from '@/components/dashboard/QuickStartChecklist';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
 import { Users, BookOpen, Music, Shield, FileText } from 'lucide-react';
 import Link from 'next/link';
@@ -65,18 +67,21 @@ export function TeacherDashboardClient({ data, email, fullName, adminStats, toke
         {/* Notifications & Alerts */}
         <NotificationsAlertsSection />
 
+        {/* Quick Start Checklist - Commented out until activity tracking is implemented */}
+        {/* <QuickStartChecklist /> */}
+
         {/* Stats Grid - Lesson Statistics and Today's Agenda */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <LessonStatsOverview />
           </div>
-          <div>
+          <div data-tour="todays-agenda">
             <TodaysAgenda items={[]} />
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-8" data-tour="student-list">
             <StudentList students={data.students} />
             <ProgressChart data={data.chartData} />
             <SongLibrary songs={data.songs} />
@@ -175,6 +180,9 @@ export function TeacherDashboardClient({ data, email, fullName, adminStats, toke
             </div>
           </div>
         )}
+
+        {/* Welcome Tour */}
+        <WelcomeTour firstName={fullName?.split(' ')[0]} />
       </main>
     </div>
   );

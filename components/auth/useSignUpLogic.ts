@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 interface TouchedFields {
   email: boolean;
   password: boolean;
+  confirmPassword: boolean;
   firstName: boolean;
   lastName: boolean;
 }
@@ -19,6 +20,7 @@ function getValidationError(
   touched: TouchedFields,
   email: string,
   password: string,
+  confirmPassword: string,
   firstName: string,
   lastName: string
 ): string | null {
@@ -27,6 +29,8 @@ function getValidationError(
   if (touched.email && email && !isValidEmail(email)) return 'Invalid email';
   if (touched.password && password && password.length < 6)
     return 'Password must be at least 6 characters';
+  if (touched.confirmPassword && password && confirmPassword && password !== confirmPassword)
+    return 'Passwords do not match';
   return null;
 }
 
@@ -57,9 +61,10 @@ function validateAndProcessSignUp(
   firstName: string,
   lastName: string,
   email: string,
-  password: string
+  password: string,
+  confirmPassword: string
 ): boolean {
-  if (!firstName || !lastName || !email || password.length < 6) {
+  if (!firstName || !lastName || !email || password.length < 6 || password !== confirmPassword) {
     return false;
   }
   return true;
@@ -72,6 +77,7 @@ function checkIfEmailExists(user: { identities?: unknown[] } | null): boolean {
 export function useSignUpLogic(onSuccess?: () => void) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -80,9 +86,33 @@ export function useSignUpLogic(onSuccess?: () => void) {
   const [touched, setTouched] = useState<TouchedFields>({
     email: false,
     password: false,
+    confirmPassword: false,
     firstName: false,
     lastName: false,
   });
+  const [canResendEmail, setCanResendEmail] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
+
+  // Start countdown timer after successful registration
+  useEffect(() => {
+    if (success && !canResendEmail) {
+      const timer = setTimeout(() => {
+        setCanResendEmail(true);
+      }, 5000); // Allow resend after 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [success, canResendEmail]);
+
+  // Countdown timer for resend button
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(resendCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -90,12 +120,13 @@ export function useSignUpLogic(onSuccess?: () => void) {
     const newTouched = {
       email: true,
       password: true,
+      confirmPassword: true,
       firstName: true,
       lastName: true,
     };
     setTouched(newTouched);
 
-    if (!validateAndProcessSignUp(firstName, lastName, email, password)) {
+    if (!validateAndProcessSignUp(firstName, lastName, email, password, confirmPassword)) {
       return;
     }
 
@@ -107,23 +138,55 @@ export function useSignUpLogic(onSuccess?: () => void) {
 
     setLoading(false);
     if (response.error) {
-      setError(response.error.message);
+      // Improve error messaging
+      const errorMessage = response.error.message;
+      if (errorMessage.includes('already registered') || errorMessage.includes('already been registered')) {
+        setError(
+          'This email is already registered. Please sign in or use the "Forgot Password" link to reset your password.'
+        );
+      } else {
+        setError(errorMessage);
+      }
       return;
     }
 
     if (response.data.user && checkIfEmailExists(response.data.user)) {
-      // If user exists but has no identities, it might be a shadow user.
-      // However, Supabase returns identities: [] if the user already exists when trying to sign up.
-      // BUT, if it's a shadow user (created by admin), they exist in Auth but have no password.
-      // We should probably allow them to "claim" the account or reset password.
-      // For now, let's guide them to sign in (where they can use "Forgot Password" to set a password).
-      setError('This email is already registered. Please sign in instead.');
+      // Shadow user - admin-created account without password
+      setError(
+        'This email is associated with an invitation. Please check your email for the invitation link, or use "Forgot Password" to claim your account.'
+      );
       return;
     }
 
     if (response.data.user) {
       setSuccess(true);
+      setCanResendEmail(false); // Will be enabled after 5 seconds
       if (onSuccess) onSuccess();
+    }
+  };
+
+  const handleResendEmail = async () => {
+    setResendLoading(true);
+    const supabase = getSupabaseBrowserClient();
+    
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email,
+    });
+
+    setResendLoading(false);
+    
+    if (error) {
+      setError(error.message);
+    } else {
+      // Start 60-second countdown
+      setResendCountdown(60);
+      setCanResendEmail(false);
+      
+      // Re-enable after countdown
+      setTimeout(() => {
+        setCanResendEmail(true);
+      }, 60000);
     }
   };
 
@@ -149,6 +212,8 @@ export function useSignUpLogic(onSuccess?: () => void) {
     setEmail,
     password,
     setPassword,
+    confirmPassword,
+    setConfirmPassword,
     firstName,
     setFirstName,
     lastName,
@@ -158,8 +223,12 @@ export function useSignUpLogic(onSuccess?: () => void) {
     success,
     touched,
     setTouched,
-    validationError: getValidationError(touched, email, password, firstName, lastName),
+    validationError: getValidationError(touched, email, password, confirmPassword, firstName, lastName),
     handleSubmit,
     handleGoogleSignIn,
+    handleResendEmail,
+    canResendEmail,
+    resendLoading,
+    resendCountdown,
   };
 }
