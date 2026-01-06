@@ -31,7 +31,9 @@ export function DashboardPageContent({
         {isAdmin && (
           <div className="mt-8 grid gap-8 md:grid-cols-2">
             <CalendarEventsList limit={5} />
-            <AIAssistantCard />
+            <div data-tour="ai-assistant">
+              <AIAssistantCard firstName={fullName?.split(' ')[0]} />
+            </div>
           </div>
         )}
         <QuickActionsSection isAdmin={isAdmin} isTeacher={isTeacher} />

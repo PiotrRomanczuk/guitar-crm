@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
-import { LessonListClient } from './Client';
+import { LessonListClient } from '@/components/lessons/list/Client';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 
 interface LessonListProps {

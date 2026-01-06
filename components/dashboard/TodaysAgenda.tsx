@@ -56,7 +56,7 @@ export function TodaysAgenda({ items = [] }: TodaysAgendaProps) {
           <div className="space-y-1">
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              Today's Agenda
+              Today&apos;s Agenda
             </CardTitle>
             <CardDescription className="text-xs">
               {format(new Date(), 'EEEE, MMM d')}
@@ -87,7 +87,7 @@ export function TodaysAgenda({ items = [] }: TodaysAgendaProps) {
         </div>
 
         {/* Compact Items List */}
-        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+        <div className="space-y-2 max-h-100 overflow-y-auto">
           {todayItems.length === 0 ? (
             <div className="text-center py-8">
               <div className="w-12 h-12 rounded-full bg-muted mx-auto mb-2 flex items-center justify-center">
@@ -108,7 +108,7 @@ export function TodaysAgenda({ items = [] }: TodaysAgendaProps) {
                 >
                   <div className="flex items-start gap-2">
                     <div
-                      className={`w-8 h-8 rounded-md ${statusConfig[item.status].bgColor} flex items-center justify-center flex-shrink-0`}
+                      className={`w-8 h-8 rounded-md ${statusConfig[item.status].bgColor} flex items-center justify-center shrink-0`}
                     >
                       <StatusIcon className={`h-4 w-4 ${statusConfig[item.status].color}`} />
                     </div>
