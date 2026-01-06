@@ -81,7 +81,6 @@ export default async function DashboardPage() {
       <StudentDashboardClient 
         data={studentData} 
         email={user.email} 
-        fullName={profile?.full_name}
         token={session?.access_token} 
       />
     );
