@@ -54,38 +54,38 @@ export function LessonStatsOverview({ filters: initialFilters }: LessonStatsOver
             <BarChart className="h-5 w-5" />
             Lesson Statistics
           </CardTitle>
-          <CardDescription>
-            Overview of lesson activity and progress
-          </CardDescription>
+          <CardDescription>Overview of lesson activity and progress</CardDescription>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 sm:space-y-6">
         {/* Overview metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 ultrawide:grid-cols-8 gap-3 sm:gap-4">
           <div className="space-y-1">
-            <div className="flex items-center text-sm text-muted-foreground">
-              <CalendarDays className="h-4 w-4 mr-1" />
+            <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+              <CalendarDays className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
               Total Lessons
             </div>
-            <div className="text-2xl font-bold">{data.total}</div>
+            <div className="text-xl sm:text-2xl font-bold">{data.total}</div>
           </div>
           <div className="space-y-1">
-            <div className="flex items-center text-sm text-muted-foreground">
-              <CheckCircle2 className="h-4 w-4 mr-1" />
+            <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+              <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
               This Month
             </div>
-            <div className="text-2xl font-bold">{data.completedThisMonth}</div>
+            <div className="text-xl sm:text-2xl font-bold">{data.completedThisMonth}</div>
           </div>
           <div className="space-y-1">
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Clock className="h-4 w-4 mr-1" />
+            <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
               Upcoming
             </div>
-            <div className="text-2xl font-bold">{data.upcoming}</div>
+            <div className="text-xl sm:text-2xl font-bold">{data.upcoming}</div>
           </div>
           <div className="space-y-1">
-            <div className="flex items-center text-sm text-muted-foreground">With Songs</div>
-            <div className="text-2xl font-bold">{data.lessonsWithSongs}</div>
+            <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+              With Songs
+            </div>
+            <div className="text-xl sm:text-2xl font-bold">{data.lessonsWithSongs}</div>
           </div>
         </div>
 

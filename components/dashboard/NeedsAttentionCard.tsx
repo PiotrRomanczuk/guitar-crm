@@ -73,31 +73,33 @@ export function NeedsAttentionCard() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="pb-3 sm:pb-6">
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-orange-500" />
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
               Needs Attention
               {totalCount > 0 && (
-                <Badge variant="destructive" className="ml-2">
+                <Badge variant="destructive" className="ml-1 sm:ml-2 text-[10px] sm:text-xs">
                   {totalCount}
                 </Badge>
               )}
             </CardTitle>
-            <CardDescription>Students requiring follow-up</CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
+              Students requiring follow-up
+            </CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="space-y-3">
-            <Skeleton className="h-16" />
-            <Skeleton className="h-16" />
-            <Skeleton className="h-16" />
+          <div className="space-y-2 sm:space-y-3">
+            <Skeleton className="h-14 sm:h-16" />
+            <Skeleton className="h-14 sm:h-16" />
+            <Skeleton className="h-14 sm:h-16" />
           </div>
         ) : itemsToShow.length === 0 ? (
-          <div className="text-center py-8">
+          <div className="text-center py-6 sm:py-8">
             <div className="w-12 h-12 rounded-full bg-green-500/10 mx-auto mb-3 flex items-center justify-center">
               <AlertCircle className="h-6 w-6 text-green-500" />
             </div>

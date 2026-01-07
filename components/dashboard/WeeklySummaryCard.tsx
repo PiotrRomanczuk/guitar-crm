@@ -51,53 +51,59 @@ export function WeeklySummaryCard() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
+      <CardHeader className="pb-3 sm:pb-6">
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
           This Week&apos;s Activity
         </CardTitle>
-        <CardDescription>{weekLabel}</CardDescription>
+        <CardDescription className="text-xs sm:text-sm">{weekLabel}</CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="grid grid-cols-3 gap-4">
-            <Skeleton className="h-20" />
-            <Skeleton className="h-20" />
-            <Skeleton className="h-20" />
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
+            <Skeleton className="h-16 sm:h-20" />
+            <Skeleton className="h-16 sm:h-20" />
+            <Skeleton className="h-16 sm:h-20" />
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
             {/* Lessons Completed */}
-            <div className="text-center p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
-              <div className="flex items-center justify-center mb-2">
-                <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div className="text-center p-2 sm:p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
+              <div className="flex items-center justify-center mb-1 sm:mb-2">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
               </div>
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              <div className="text-lg sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {data?.lessonsCompleted ?? 0}
               </div>
-              <div className="text-xs text-muted-foreground mt-1">Lessons</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
+                Lessons
+              </div>
             </div>
 
             {/* New Students */}
-            <div className="text-center p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800">
-              <div className="flex items-center justify-center mb-2">
-                <Users className="h-5 w-5 text-green-600 dark:text-green-400" />
+            <div className="text-center p-2 sm:p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800">
+              <div className="flex items-center justify-center mb-1 sm:mb-2">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
               </div>
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+              <div className="text-lg sm:text-2xl font-bold text-green-600 dark:text-green-400">
                 {data?.newStudents ?? 0}
               </div>
-              <div className="text-xs text-muted-foreground mt-1">New Students</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
+                New Students
+              </div>
             </div>
 
             {/* Songs Assigned */}
-            <div className="text-center p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800">
-              <div className="flex items-center justify-center mb-2">
-                <Music className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            <div className="text-center p-2 sm:p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800">
+              <div className="flex items-center justify-center mb-1 sm:mb-2">
+                <Music className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400" />
               </div>
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+              <div className="text-lg sm:text-2xl font-bold text-purple-600 dark:text-purple-400">
                 {data?.songsAssigned ?? 0}
               </div>
-              <div className="text-xs text-muted-foreground mt-1">Songs Added</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
+                Songs Added
+              </div>
             </div>
           </div>
         )}

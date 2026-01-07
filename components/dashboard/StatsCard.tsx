@@ -59,21 +59,23 @@ export function StatsCard({
 
   const cardContent = (
     <>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 sm:pb-2">
+        <CardTitle className="text-xs sm:text-sm font-medium leading-tight">{title}</CardTitle>
         {Icon && (
           <div
             className={cn(
-              'w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
+              'w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0',
               iconBgColor || 'bg-primary/10 group-hover:bg-primary/20'
             )}
           >
-            <Icon className={cn('h-4 w-4', iconColor || 'text-muted-foreground')} />
+            <Icon
+              className={cn('h-3.5 w-3.5 sm:h-4 sm:w-4', iconColor || 'text-muted-foreground')}
+            />
           </div>
         )}
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+      <CardContent className="pb-3 sm:pb-4">
+        <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{value}</div>
         {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
         {change && (
           <p
