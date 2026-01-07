@@ -50,44 +50,50 @@ export function TodaysAgenda({ items = [] }: TodaysAgendaProps) {
 
   return (
     <Card className="h-full relative">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
         <div className="flex items-start justify-between gap-2">
-          <div className="space-y-1">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
+          <div className="space-y-0.5 sm:space-y-1">
+            <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+              <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               Today&apos;s Agenda
             </CardTitle>
-            <CardDescription className="text-xs">
+            <CardDescription className="text-[10px] sm:text-xs">
               {format(new Date(), 'EEEE, MMM d')}
             </CardDescription>
           </div>
           <Link href="/dashboard/lessons">
-            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-              <Plus className="h-4 w-4" />
+            <Button size="sm" variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8 p-0">
+              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
           </Link>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6 pb-3 sm:pb-6">
         {/* Compact Summary */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="text-center p-2 rounded-md bg-blue-500/10">
-            <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+          <div className="text-center p-1.5 sm:p-2 rounded-md bg-blue-500/10">
+            <div className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400">
               {upcomingCount}
             </div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
+            <div className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wide">
               Upcoming
             </div>
           </div>
-          <div className="text-center p-2 rounded-md bg-green-500/10">
-            <div className="text-lg font-bold text-green-600 dark:text-green-400">
+          <div className="text-center p-1.5 sm:p-2 rounded-md bg-green-500/10">
+            <div className="text-base sm:text-lg font-bold text-green-600 dark:text-green-400">
               {completedCount}
             </div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Done</div>
+            <div className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wide">
+              Done
+            </div>
           </div>
-          <div className="text-center p-2 rounded-md bg-red-500/10">
-            <div className="text-lg font-bold text-red-600 dark:text-red-400">{overdueCount}</div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Overdue</div>
+          <div className="text-center p-1.5 sm:p-2 rounded-md bg-red-500/10">
+            <div className="text-base sm:text-lg font-bold text-red-600 dark:text-red-400">
+              {overdueCount}
+            </div>
+            <div className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wide">
+              Overdue
+            </div>
           </div>
         </div>
 

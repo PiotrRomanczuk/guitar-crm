@@ -82,14 +82,14 @@ export function StudentList({ students }: StudentListProps) {
       className="bg-card rounded-xl border border-border overflow-hidden opacity-0 animate-fade-in"
       style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}
     >
-      <div className="p-6 border-b border-border space-y-4">
+      <div className="p-3 sm:p-4 lg:p-6 border-b border-border space-y-3 sm:space-y-4">
         <div>
-          <h3 className="font-semibold">Students Overview</h3>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h3 className="text-base sm:text-lg font-semibold">Students Overview</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Your active students {filteredStudents.length > 0 && `(${filteredStudents.length})`}
           </p>
         </div>
-        
+
         {students.length > 0 && (
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="relative flex-1">
@@ -101,7 +101,10 @@ export function StudentList({ students }: StudentListProps) {
                 className="pl-9"
               />
             </div>
-            <Select value={levelFilter} onValueChange={(v) => handleFilterChange(() => setLevelFilter(v))}>
+            <Select
+              value={levelFilter}
+              onValueChange={(v) => handleFilterChange(() => setLevelFilter(v))}
+            >
               <SelectTrigger className="w-full sm:w-[150px]">
                 <SelectValue placeholder="Filter by level" />
               </SelectTrigger>
@@ -112,7 +115,10 @@ export function StudentList({ students }: StudentListProps) {
                 <SelectItem value="Advanced">Advanced</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={sortBy} onValueChange={(v) => handleFilterChange(() => setSortBy(v as 'name' | 'lessons'))}>
+            <Select
+              value={sortBy}
+              onValueChange={(v) => handleFilterChange(() => setSortBy(v as 'name' | 'lessons'))}
+            >
               <SelectTrigger className="w-full sm:w-[150px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -134,7 +140,8 @@ export function StudentList({ students }: StudentListProps) {
           </div>
           <h3 className="text-lg font-semibold mb-2">No Students Yet</h3>
           <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-            Get started by adding your first student to begin tracking their progress and scheduling lessons.
+            Get started by adding your first student to begin tracking their progress and scheduling
+            lessons.
           </p>
           <Link href="/dashboard/users">
             <Button>
@@ -178,7 +185,10 @@ export function StudentList({ students }: StudentListProps) {
                 </div>
 
                 <div className="text-right">
-                  <Badge variant="outline" className={cn('font-medium', levelColors[student.level])}>
+                  <Badge
+                    variant="outline"
+                    className={cn('font-medium', levelColors[student.level])}
+                  >
                     {student.level}
                   </Badge>
                   <p className="text-xs text-muted-foreground mt-1">
