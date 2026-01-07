@@ -201,10 +201,14 @@ function SidebarContent({
           <span className="text-sm font-medium text-muted-foreground">Theme</span>
           <ModeToggle />
         </div>
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+        <Link
+          href="/dashboard/settings"
+          onClick={() => setIsOpen(false)}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+        >
           <Settings className="w-5 h-5" />
           Settings
-        </button>
+        </Link>
         <button
           onClick={handleSignOut}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"

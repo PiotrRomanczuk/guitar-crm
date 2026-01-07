@@ -15,8 +15,10 @@ export default function SignInPage() {
   useEffect(() => {
     const checkUser = async () => {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (user) {
         // User is already logged in, redirect to dashboard
         router.push('/dashboard');

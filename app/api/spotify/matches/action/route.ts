@@ -72,7 +72,7 @@ export async function POST(request: Request) {
             album: trackData.album?.name,
             image: trackData.album?.images?.[0]?.url,
           });
-          
+
           spotifyData = {
             spotify_url: trackData.external_urls.spotify,
             duration_ms: trackData.duration_ms,
@@ -96,7 +96,7 @@ export async function POST(request: Request) {
           release: match.spotify_release_date,
           image: match.spotify_cover_image_url,
         });
-        
+
         spotifyData = {
           spotify_url: match.spotify_url,
           duration_ms: match.spotify_duration_ms,
@@ -175,7 +175,11 @@ export async function POST(request: Request) {
       console.log('✅ Match marked as approved:', approvedMatch);
 
       console.log(
-        `✅ Match approved: "${match.songs.title}" → ${overrideSpotifyId ? `Alternative track (${overrideSpotifyId})` : `"${match.spotify_track_name}"`}`
+        `✅ Match approved: "${match.songs.title}" → ${
+          overrideSpotifyId
+            ? `Alternative track (${overrideSpotifyId})`
+            : `"${match.spotify_track_name}"`
+        }`
       );
 
       return NextResponse.json({

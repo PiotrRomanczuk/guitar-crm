@@ -8,18 +8,16 @@ import { ProgressChart } from '@/components/dashboard/student/ProgressChart'; //
 import { SongLibrary } from '@/components/dashboard/teacher/SongLibrary';
 import { AssignmentList } from '@/components/dashboard/teacher/AssignmentList';
 import { LessonStatsOverview } from '@/components/dashboard/LessonStatsOverview';
-import { AnalyticsCharts } from '@/components/dashboard/analytics-charts';
-import { BearerTokenCard } from '@/components/dashboard/BearerTokenCard';
 import { TodaysAgenda } from '@/components/dashboard/TodaysAgenda';
 import { NotificationsAlertsSection } from '@/components/dashboard/NotificationsAlertsSection';
 import { WelcomeTour } from '@/components/dashboard/WelcomeTour';
+import { WeeklySummaryCard } from '@/components/dashboard/WeeklySummaryCard';
+import { NeedsAttentionCard } from '@/components/dashboard/NeedsAttentionCard';
+import { StudentPipeline } from '@/components/dashboard/pipeline/StudentPipeline';
+import { HealthAlertsBanner } from '@/components/dashboard/health/HealthAlertsBanner';
+import { HealthSummaryWidget } from '@/components/dashboard/health/HealthSummaryWidget';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
-import { Users, BookOpen, Music, Shield, FileText } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { StudentProgressInsights } from '@/components/dashboard/admin/StudentProgressInsights';
-import { AdminDashboardInsights } from '@/components/dashboard/admin/AdminDashboardInsights';
-import { EmailDraftGenerator } from '@/components/dashboard/admin/EmailDraftGenerator';
+import { Users, BookOpen, Music, Shield } from 'lucide-react';
 
 interface RecentUser {
   id: string;
@@ -42,7 +40,6 @@ interface TeacherDashboardClientProps {
   email?: string;
   fullName?: string | null;
   adminStats?: AdminStats;
-  token?: string;
 }
 
 export function TeacherDashboardClient({
@@ -50,7 +47,6 @@ export function TeacherDashboardClient({
   email,
   fullName,
   adminStats,
-  token,
 }: TeacherDashboardClientProps) {
   const { data: dashboardData } = useDashboardStats();
   const apiAdminStats =
@@ -77,8 +73,8 @@ export function TeacherDashboardClient({
         {/* Notifications & Alerts */}
         <NotificationsAlertsSection />
 
-        {/* Quick Start Checklist - Commented out until activity tracking is implemented */}
-        {/* <QuickStartChecklist /> */}
+        {/* Health Alerts Banner */}
+        <HealthAlertsBanner />
 
         {/* Stats Grid - Lesson Statistics and Today's Agenda */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -90,10 +86,20 @@ export function TeacherDashboardClient({
           </div>
         </div>
 
+        {/* Needs Attention, Weekly Summary, and Health */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <NeedsAttentionCard />
+          <WeeklySummaryCard />
+          <HealthSummaryWidget />
+        </div>
+
+        {/* Student Pipeline */}
+        <StudentPipeline />
+
+        {/* Student Management */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8" data-tour="student-list">
             <StudentList students={data.students} />
-            <ProgressChart data={data.chartData} />
             <SongLibrary songs={data.songs} />
           </div>
           <div className="space-y-8">
@@ -101,6 +107,9 @@ export function TeacherDashboardClient({
             <AssignmentList assignments={data.assignments} />
           </div>
         </div>
+
+        {/* Progress Chart - Full Width */}
+        <ProgressChart data={data.chartData} />
 
         {/* Admin Section */}
         {displayAdminStats && (
@@ -116,15 +125,6 @@ export function TeacherDashboardClient({
               <p className="text-muted-foreground">
                 Administrative statistics and platform metrics.
               </p>
-            </div>
-
-            <div className="flex justify-end">
-              <Link href="/dashboard/admin/documentation">
-                <Button variant="outline" className="gap-2">
-                  <FileText className="h-4 w-4" />
-                  Developer Documentation
-                </Button>
-              </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -178,49 +178,6 @@ export function TeacherDashboardClient({
                 iconColor="text-pink-600"
                 iconBgColor="bg-pink-500/10 group-hover:bg-pink-500/20"
               />
-            </div>
-            {token && (
-              <div className="pt-4">
-                <BearerTokenCard token={token} />
-              </div>
-            )}
-
-            <div className="pt-4">
-              <AnalyticsCharts />
-            </div>
-
-            {/* AI-Powered Admin Tools */}
-            <div className="space-y-6 pt-8 border-t">
-              <div className="flex flex-col gap-2">
-                <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                  <Shield className="h-6 w-6 text-primary" />
-                  AI-Powered Insights
-                </h2>
-                <p className="text-muted-foreground">
-                  Advanced analytics and business intelligence powered by AI.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <StudentProgressInsights
-                  students={data.students.map((s) => ({
-                    id: String(s.id || ''),
-                    full_name: String(s.name || 'Unknown Student'),
-                    email: String(''), // Email not available in this data structure
-                  }))}
-                />
-                {adminStats && <AdminDashboardInsights adminStats={adminStats} />}
-              </div>
-
-              <div className="grid grid-cols-1 gap-6">
-                <EmailDraftGenerator
-                  students={data.students.map((s) => ({
-                    id: String(s.id || ''),
-                    full_name: String(s.name || 'Unknown Student'),
-                    email: String(''), // Email not available in this data structure
-                  }))}
-                />
-              </div>
             </div>
           </div>
         )}

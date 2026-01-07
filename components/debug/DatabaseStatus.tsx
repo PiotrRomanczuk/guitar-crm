@@ -68,7 +68,7 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
           },
         });
         console.log('[DatabaseStatus] HTTP test response status:', testResponse.status);
-        
+
         // Try a direct REST call to profiles table
         console.log('[DatabaseStatus] 🔍 Testing direct REST API call...');
         const restResponse = await fetch(`${clientUrl}/rest/v1/profiles?select=count&limit=0`, {
@@ -79,8 +79,11 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
           },
         });
         console.log('[DatabaseStatus] REST API response status:', restResponse.status);
-        console.log('[DatabaseStatus] REST API response headers:', Object.fromEntries(restResponse.headers.entries()));
-        
+        console.log(
+          '[DatabaseStatus] REST API response headers:',
+          Object.fromEntries(restResponse.headers.entries())
+        );
+
         if (restResponse.ok) {
           console.log('[DatabaseStatus] ✅ Direct REST API works - setting connected');
           setConnectionStatus('connected');
@@ -103,13 +106,15 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
 
       // Use a simpler health check that doesn't require data
       console.log('[DatabaseStatus] 🔍 Executing health check query...');
-      
+
       // Try a simple query with explicit timeout handling
       const checkPromise = (async () => {
         try {
           console.log('[DatabaseStatus] 📡 Sending query to Supabase...');
           const startTime = Date.now();
-          const result = await supabase.from('profiles').select('count', { count: 'exact', head: true });
+          const result = await supabase
+            .from('profiles')
+            .select('count', { count: 'exact', head: true });
           const duration = Date.now() - startTime;
           console.log('[DatabaseStatus] 📬 Query completed in', duration, 'ms');
           console.log('[DatabaseStatus] 📦 Query result:', result);
@@ -132,7 +137,7 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
         console.error('[DatabaseStatus] Error code:', error.code);
         console.error('[DatabaseStatus] Error message:', error.message);
         console.error('[DatabaseStatus] Error details:', error.details);
-        
+
         if (error.message?.includes('Invalid API key')) {
           console.log('[DatabaseStatus] Invalid API key detected');
           setConnectionStatus('error');
