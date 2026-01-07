@@ -47,7 +47,9 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
     // Initialize with welcome message
     const welcomeMessage: Message = {
       role: 'system',
-      content: `Hi${firstName ? ` ${firstName}` : ''}! 👋 I'm your Guitar CRM AI assistant. I can help you with:\n\n• Practice tips and techniques\n• Song recommendations\n• Lesson planning advice\n• Student management strategies\n• Music theory questions\n\nTry asking me something or click one of the suggested prompts below!`,
+      content: `Hi${
+        firstName ? ` ${firstName}` : ''
+      }! 👋 I'm your Guitar CRM AI assistant. I can help you with:\n\n• Practice tips and techniques\n• Song recommendations\n• Lesson planning advice\n• Student management strategies\n• Music theory questions\n\nTry asking me something or click one of the suggested prompts below!`,
       timestamp: new Date(),
     };
     return [welcomeMessage];
@@ -66,9 +68,9 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
       if (result.models) {
         setAvailableModels(result.models);
         setProviderName(result.providerName || '');
-        
+
         // If current selected model is not in the list, use the first available
-        if (result.models.length > 0 && !result.models.find(m => m.id === selectedModel)) {
+        if (result.models.length > 0 && !result.models.find((m) => m.id === selectedModel)) {
           setSelectedModel(result.models[0].id);
         }
       }
@@ -114,7 +116,9 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
     // Reset to just the welcome message
     const welcomeMessage: Message = {
       role: 'system',
-      content: `Hi${firstName ? ` ${firstName}` : ''}! 👋 I'm your Guitar CRM AI assistant. I can help you with:\n\n• Practice tips and techniques\n• Song recommendations\n• Lesson planning advice\n• Student management strategies\n• Music theory questions\n\nTry asking me something or click one of the suggested prompts below!`,
+      content: `Hi${
+        firstName ? ` ${firstName}` : ''
+      }! 👋 I'm your Guitar CRM AI assistant. I can help you with:\n\n• Practice tips and techniques\n• Song recommendations\n• Lesson planning advice\n• Student management strategies\n• Music theory questions\n\nTry asking me something or click one of the suggested prompts below!`,
       timestamp: new Date(),
     };
     setMessages([welcomeMessage]);
@@ -145,7 +149,11 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
                   <SelectItem key={model.id} value={model.id} className="text-xs">
                     <div className="flex items-center gap-2">
                       {model.name}
-                      {model.isLocal && <Badge variant="secondary" className="text-xs">Local</Badge>}
+                      {model.isLocal && (
+                        <Badge variant="secondary" className="text-xs">
+                          Local
+                        </Badge>
+                      )}
                     </div>
                   </SelectItem>
                 ))}
@@ -165,12 +173,7 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
               {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
             </Button>
             {messages.length > 0 && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={clearConversation}
-                className="h-8 w-8"
-              >
+              <Button variant="ghost" size="icon" onClick={clearConversation} className="h-8 w-8">
                 <Trash2 className="h-4 w-4" />
               </Button>
             )}
@@ -201,7 +204,11 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs font-semibold">
-                        {message.role === 'user' ? 'You' : message.role === 'system' ? '🤖 Welcome' : 'AI Assistant'}
+                        {message.role === 'user'
+                          ? 'You'
+                          : message.role === 'system'
+                          ? '🤖 Welcome'
+                          : 'AI Assistant'}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {message.timestamp.toLocaleTimeString([], {

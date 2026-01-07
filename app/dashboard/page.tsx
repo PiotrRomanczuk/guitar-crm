@@ -78,11 +78,7 @@ export default async function DashboardPage() {
     } = await supabase.auth.getSession();
     const studentData = await getStudentDashboardData();
     return (
-      <StudentDashboardClient 
-        data={studentData} 
-        email={user.email} 
-        token={session?.access_token} 
-      />
+      <StudentDashboardClient data={studentData} email={user.email} token={session?.access_token} />
     );
   }
 

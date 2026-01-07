@@ -23,7 +23,7 @@ import {
   XCircle,
   RefreshCw,
 } from 'lucide-react';
-import { agentRegistry } from '@/lib/ai/agent-registry';
+import { agentRegistry, getAnalytics } from '@/lib/ai/agent-registry';
 
 interface AgentStats {
   agentId: string;
@@ -53,7 +53,7 @@ export function AgentMonitoringDashboard() {
 
       // Get analytics for each agent
       const stats: AgentStats[] = registeredAgents.map((agent) => {
-        const analytics = agentRegistry.getAnalytics(agent.id);
+        const analytics = getAnalytics(agent.id);
 
         return {
           agentId: agent.id,

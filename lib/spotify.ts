@@ -1,6 +1,3 @@
-const client_id = process.env.SPOTIFY_CLIENT_ID;
-const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-const basic = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
 const TOKEN_ENDPOINT = `https://accounts.spotify.com/api/token`;
 const SEARCH_ENDPOINT = 'https://api.spotify.com/v1/search';
 const AUDIO_FEATURES_ENDPOINT = 'https://api.spotify.com/v1/audio-features';
@@ -8,11 +5,24 @@ const AUDIO_FEATURES_ENDPOINT = 'https://api.spotify.com/v1/audio-features';
 let cachedToken: string | null = null;
 let tokenExpiration: number | null = null;
 
+const getClientCredentials = () => {
+  const client_id = process.env.SPOTIFY_CLIENT_ID;
+  const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
+  
+  if (!client_id || !client_secret) {
+    throw new Error('Spotify credentials are not configured');
+  }
+  
+  return Buffer.from(`${client_id}:${client_secret}`).toString('base64');
+};
+
 const getAccessToken = async () => {
   const now = Date.now();
   if (cachedToken && tokenExpiration && now < tokenExpiration) {
     return { access_token: cachedToken };
   }
+
+  const basic = getClientCredentials();
 
   const response = await fetch(TOKEN_ENDPOINT, {
     method: 'POST',

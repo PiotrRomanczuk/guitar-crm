@@ -11,7 +11,27 @@ export * from './providers';
 // Agent Registry System
 export * from './agent-registry';
 export * from './agent-specifications';
-export * from './agent-execution';
+
+// Agent Execution System - exclude getAvailableAgents to avoid conflict
+export {
+  buildAgentContext,
+  validateAgentContext,
+  type AgentExecutionContext,
+  generateEmailDraftAgent,
+  generateLessonNotesAgent,
+  generateAssignmentAgent,
+  generatePostLessonSummaryAgent,
+  analyzeStudentProgressAgent,
+  generateAdminInsightsAgent,
+  isAgentSuccess,
+  extractAgentResult,
+  formatAgentError,
+  extractAgentMetadata,
+  createErrorResponse,
+  checkAgentAvailability,
+  executeBatchAgents,
+  executeCustomAgent,
+} from './agent-execution';
 
 // Initialize agent registry on module load
 import { registerAllAgents } from './agent-specifications';

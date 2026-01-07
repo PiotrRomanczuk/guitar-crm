@@ -4,6 +4,43 @@ import { getAIProvider, isAIError, type AIMessage, type AIModelInfo } from '@/li
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
 import { createClient } from '@/lib/supabase/server';
 
+/**
+ * Map OpenRouter model IDs to appropriate local models for Ollama
+ */
+async function getProviderAppropriateModel(provider: any, requestedModel: string): Promise<string> {
+  // If using Ollama, map OpenRouter models to local equivalents
+  if (provider.name === 'Ollama') {
+    // Map OpenRouter model IDs to Ollama model names
+    const modelMappings: Record<string, string> = {
+      'meta-llama/llama-3.3-70b-instruct:free': 'llama3.2:3b',
+      'google/gemini-2.0-flash-exp:free': 'mistral:7b',
+    };
+
+    const mapped = modelMappings[requestedModel];
+    if (mapped) {
+      console.log(`[AI] Mapped ${requestedModel} to ${mapped} for Ollama`);
+      return mapped;
+    }
+
+    // If no mapping, use the first available local model
+    try {
+      const models = await provider.listModels();
+      if (models.length > 0) {
+        console.log(`[AI] Using first available local model: ${models[0].id}`);
+        return models[0].id;
+      }
+    } catch (error) {
+      console.warn('[AI] Failed to list local models, using fallback');
+    }
+
+    // Ultimate fallback for Ollama
+    return 'llama3.2:3b';
+  }
+
+  // For other providers (OpenRouter), use the requested model as-is
+  return requestedModel;
+}
+
 // NEW: Import standardized agent execution functions
 import {
   generateEmailDraftAgent,
@@ -14,12 +51,12 @@ import {
   generateAdminInsightsAgent,
   extractAgentResult,
   formatAgentError,
-  isAgentSuccess
+  isAgentSuccess,
 } from '@/lib/ai/agent-execution';
 
 /**
  * LEGACY: Generate AI response using the configured provider
- * 
+ *
  * @deprecated Use specific agent functions instead for new implementations
  *
  * This action automatically selects between OpenRouter and local LLM
@@ -36,7 +73,10 @@ export async function generateAIResponse(
     // Get the configured provider
     const provider = await getAIProvider();
 
-    console.log(`[AI] Using provider: ${provider.name}, model: ${model}`);
+    // Map the model to the appropriate provider model
+    const providerModel = await getProviderAppropriateModel(provider, model);
+
+    console.log(`[AI] Using provider: ${provider.name}, model: ${providerModel}`);
 
     // Check if provider is available
     const available = await provider.isAvailable();
@@ -61,7 +101,7 @@ export async function generateAIResponse(
 
     // Generate completion
     const result = await provider.complete({
-      model,
+      model: providerModel,
       messages,
       temperature: 0.7,
     });
@@ -134,27 +174,26 @@ export async function generateLessonNotes(params: {
     });
 
     if (!isAgentSuccess(response)) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         notes: '',
-        error: formatAgentError(response)
+        error: formatAgentError(response),
       };
     }
 
     const result = extractAgentResult(response);
     const notes = result.content || result;
-    
+
     return {
       success: true,
       notes,
     };
-    
   } catch (error) {
     console.error('[AI] generateLessonNotes error:', error);
     return {
       success: false,
       notes: '',
-      error: error instanceof Error ? error.message : 'Failed to generate lesson notes'
+      error: error instanceof Error ? error.message : 'Failed to generate lesson notes',
     };
   }
 }
@@ -183,30 +222,26 @@ export async function generateAssignment(params: {
     });
 
     if (!isAgentSuccess(response)) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         assignment: '',
-        error: formatAgentError(response)
+        error: formatAgentError(response),
       };
     }
 
     const result = extractAgentResult(response);
     const assignment = result.content || result;
-    
+
     return {
       success: true,
       assignment,
     };
-    
   } catch (error) {
     console.error('[AI] generateAssignment error:', error);
     return {
       success: false,
       assignment: '',
-      error: error instanceof Error ? error.message : 'Failed to generate assignment'
-    };
-  }
-} 
+      error: error instanceof Error ? error.message : 'Failed to generate assignment',
     };
   }
 }
@@ -215,7 +250,11 @@ export async function generateAssignment(params: {
  * Generate email draft using the standardized Email Draft Agent
  */
 export async function generateEmailDraft(params: {
-  templateType: 'lesson_reminder' | 'progress_report' | 'payment_reminder' | 'milestone_celebration';
+  templateType:
+    | 'lesson_reminder'
+    | 'progress_report'
+    | 'payment_reminder'
+    | 'milestone_celebration';
   studentName: string;
   context: Record<string, unknown>;
 }): Promise<{ success: boolean; subject: string; body: string; error?: string }> {
@@ -234,16 +273,16 @@ export async function generateEmailDraft(params: {
     });
 
     if (!isAgentSuccess(response)) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         subject: '',
         body: '',
-        error: formatAgentError(response)
+        error: formatAgentError(response),
       };
     }
 
     const result = extractAgentResult(response);
-    
+
     // Parse the AI response to extract subject and body
     const content = result.content || result;
     let subject = 'Generated Email';
@@ -255,23 +294,19 @@ export async function generateEmailDraft(params: {
       subject = subjectMatch[1].trim();
       body = content.replace(/Subject:\s*.+?(?:\n|$)/i, '').trim();
     }
-    
+
     return {
       success: true,
       subject,
       body,
     };
-    
   } catch (error) {
     console.error('[AI] generateEmailDraft error:', error);
     return {
       success: false,
       subject: '',
       body: '',
-      error: error instanceof Error ? error.message : 'Failed to generate email draft'
-    };
-  }
-} 
+      error: error instanceof Error ? error.message : 'Failed to generate email draft',
     };
   }
 }
@@ -305,27 +340,26 @@ export async function generatePostLessonSummary(params: {
     });
 
     if (!isAgentSuccess(response)) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         summary: '',
-        error: formatAgentError(response)
+        error: formatAgentError(response),
       };
     }
 
     const result = extractAgentResult(response);
     const summary = result.content || result;
-    
+
     return {
       success: true,
       summary,
     };
-    
   } catch (error) {
     console.error('[AI] generatePostLessonSummary error:', error);
     return {
       success: false,
       summary: '',
-      error: error instanceof Error ? error.message : 'Failed to generate post-lesson summary'
+      error: error instanceof Error ? error.message : 'Failed to generate post-lesson summary',
     };
   }
 }
@@ -352,27 +386,26 @@ export async function analyzeStudentProgress(params: {
     });
 
     if (!isAgentSuccess(response)) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         insights: '',
-        error: formatAgentError(response)
+        error: formatAgentError(response),
       };
     }
 
     const result = extractAgentResult(response);
     const insights = result.content || result;
-    
+
     return {
       success: true,
       insights,
     };
-    
   } catch (error) {
     console.error('[AI] analyzeStudentProgress error:', error);
     return {
       success: false,
       insights: '',
-      error: error instanceof Error ? error.message : 'Failed to analyze student progress'
+      error: error instanceof Error ? error.message : 'Failed to analyze student progress',
     };
   }
 }
@@ -399,27 +432,26 @@ export async function generateAdminInsights(params: {
     });
 
     if (!isAgentSuccess(response)) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         insights: '',
-        error: formatAgentError(response)
+        error: formatAgentError(response),
       };
     }
 
     const result = extractAgentResult(response);
     const insights = result.content || result;
-    
+
     return {
       success: true,
       insights,
     };
-    
   } catch (error) {
     console.error('[AI] generateAdminInsights error:', error);
     return {
       success: false,
       insights: '',
-      error: error instanceof Error ? error.message : 'Failed to generate admin insights'
+      error: error instanceof Error ? error.message : 'Failed to generate admin insights',
     };
   }
 }

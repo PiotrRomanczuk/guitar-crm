@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { searchTracks } from '@/lib/spotify';
-import { SpotifyApiTrack } from '@/types/spotify';
+import { searchSongsWithAI } from '@/lib/services/enhanced-spotify-search';
+import type { Database } from '@/database.types';
+
+type DatabaseSong = Database['public']['Tables']['songs']['Row'];
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -28,8 +30,15 @@ export async function POST(request: Request) {
 
   // Parse query parameters
   const url = new URL(request.url);
-  const limit = parseInt(url.searchParams.get('limit') || '20');
+  const limit = parseInt(url.searchParams.get('limit') || '25');
   const force = url.searchParams.get('force') === 'true';
+  const enableAI = url.searchParams.get('ai') !== 'false'; // AI enabled by default
+  const minConfidence = parseInt(url.searchParams.get('minConfidence') || '20');
+  const generateReport = url.searchParams.get('report') === 'true';
+
+  console.log(
+    `🎵 Starting AI-enhanced Spotify sync (limit: ${limit}, AI: ${enableAI}, min: ${minConfidence}%, auto-apply: >=85%)`
+  );
 
   // 1. Fetch songs
   let queryBuilder = supabase.from('songs').select('*').is('deleted_at', null); // Only active songs
@@ -45,75 +54,216 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  if (!songs || songs.length === 0) {
+    return NextResponse.json({
+      total: 0,
+      updated: 0,
+      failed: 0,
+      skipped: 0,
+      errors: [],
+      message: 'No songs found to process',
+    });
+  }
+
+  console.log(`📀 Found ${songs.length} songs to process`);
+
   const results = {
     total: songs.length,
     updated: 0,
     failed: 0,
     skipped: 0,
+    pending: 0,
     errors: [] as string[],
+    aiMatches: 0,
+    totalQueries: 0,
+    averageConfidence: 0,
+    processingTimeMs: 0,
   };
 
-  // 2. Iterate and sync
-  for (const song of songs) {
-    try {
-      // Search query: track name and artist
-      const query = `track:${song.title} artist:${song.author}`;
-      let searchData = await searchTracks(query);
+  const startTime = Date.now();
 
-      // Fallback search if strict search fails
-      if (!searchData?.tracks?.items?.length) {
-        const fallbackQuery = `${song.title} ${song.author}`;
-        searchData = await searchTracks(fallbackQuery);
+  try {
+    // 2. Use AI-enhanced search
+    const searchResults = await searchSongsWithAI(
+      songs as DatabaseSong[],
+      {
+        maxQueries: 8,
+        minConfidenceScore: minConfidence,
+        includePartialMatches: true,
+        enableAIAnalysis: enableAI,
+      },
+      // Progress callback
+      (progress) => {
+        console.log(`📊 Progress: ${progress.completed}/${progress.total} songs processed`);
       }
+    );
 
-      if (searchData?.tracks?.items?.length > 0) {
-        const track: SpotifyApiTrack = searchData.tracks.items[0];
+    // 3. Process results and update database
+    for (const searchResult of searchResults) {
+      const { song, match } = searchResult;
+      results.totalQueries += searchResult.queriesUsed;
 
-        // Prepare update data
-        const updateData: {
-          spotify_link_url: string;
-          duration_ms: number;
-          release_year: number | null;
-          cover_image_url?: string;
-        } = {
-          spotify_link_url: track.external_urls.spotify,
-          duration_ms: track.duration_ms,
-          release_year: track.album.release_date
-            ? parseInt(track.album.release_date.split('-')[0])
-            : null,
-        };
+      try {
+        if (match.confidence >= 85 && match.spotifyTrack) {
+          // High confidence match (85%+) - update the song directly
+          const track = match.spotifyTrack;
 
-        // Set cover image
-        const imageUrl = track.album.images[0]?.url;
-        if (imageUrl) {
-          updateData.cover_image_url = imageUrl;
-        }
+          const updateData: {
+            spotify_link_url: string;
+            duration_ms: number;
+            release_year: number | null;
+            cover_image_url?: string;
+            updated_at: string;
+          } = {
+            spotify_link_url: track.external_urls.spotify,
+            duration_ms: track.duration_ms,
+            release_year: track.album.release_date
+              ? parseInt(track.album.release_date.split('-')[0])
+              : null,
+            updated_at: new Date().toISOString(),
+          };
 
-        // Only update if there are changes (simple check)
-        // For now, just update to ensure latest data
-        const { error: updateError } = await supabase
-          .from('songs')
-          .update(updateData)
-          .eq('id', song.id);
+          // Set cover image
+          const imageUrl = track.album.images[0]?.url;
+          if (imageUrl) {
+            updateData.cover_image_url = imageUrl;
+          }
 
-        if (updateError) {
-          results.failed++;
-          results.errors.push(`Failed to update ${song.title}: ${updateError.message}`);
+          const { error: updateError } = await supabase
+            .from('songs')
+            .update(updateData)
+            .eq('id', song.id);
+
+          if (updateError) {
+            results.failed++;
+            results.errors.push(`Failed to update ${song.title}: ${updateError.message}`);
+            console.error(`❌ Update failed for "${song.title}":`, updateError.message);
+          } else {
+            results.updated++;
+            results.aiMatches++;
+            console.log(
+              `✅ Updated "${song.title}" → "${track.name}" (${match.confidence}% confidence)`
+            );
+          }
+        } else if (match.confidence >= 20 && match.spotifyTrack) {
+          // Any reasonable match (20%+) - store for manual review
+          const track = match.spotifyTrack;
+
+          // First, check if we already have a pending match for this song
+          const { data: existingMatch } = await supabase
+            .from('spotify_matches')
+            .select('id')
+            .eq('song_id', song.id)
+            .eq('status', 'pending')
+            .single();
+
+          if (!existingMatch) {
+            // Store the match for manual review
+            const { error: insertError } = await supabase.from('spotify_matches').insert({
+              song_id: song.id,
+              spotify_track_id: track.id,
+              confidence_score: match.confidence,
+              search_query: match.searchQuery || `${song.title} ${song.artist}`,
+              match_reason: match.reason || 'AI-powered fuzzy match',
+              spotify_data: {
+                name: track.name,
+                artist: track.artists[0]?.name,
+                album: track.album.name,
+                external_urls: track.external_urls,
+                duration_ms: track.duration_ms,
+                release_date: track.album.release_date,
+                images: track.album.images,
+                popularity: track.popularity,
+                preview_url: track.preview_url,
+              },
+              status: 'pending',
+            });
+
+            if (insertError) {
+              results.failed++;
+              results.errors.push(
+                `Failed to store pending match for ${song.title}: ${insertError.message}`
+              );
+              console.error(
+                `❌ Failed to store pending match for "${song.title}":`,
+                insertError.message
+              );
+            } else {
+              results.pending++;
+              console.log(
+                `📋 Stored pending match for "${song.title}" → "${track.name}" (${match.confidence}% confidence)`
+              );
+            }
+          } else {
+            results.pending++;
+            console.log(
+              `⏭️  Pending match already exists for "${song.title}" (${match.confidence}% confidence)`
+            );
+          }
         } else {
-          results.updated++;
+          // Very low confidence or no match
+          results.skipped++;
+          console.log(
+            `⏭️  Skipped "${song.title}" (${match.confidence}% confidence): ${match.reason}`
+          );
+
+          if (match.confidence > 0) {
+            results.errors.push(`Very low confidence match for "${song.title}": ${match.reason}`);
+          }
         }
-      } else {
-        results.skipped++; // No match found
+      } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+        results.failed++;
+        results.errors.push(`Error updating ${song.title}: ${errorMessage}`);
+        console.error(`❌ Processing error for "${song.title}":`, errorMessage);
       }
-    } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : 'Unknown error';
-      results.failed++;
-      results.errors.push(`Error processing ${song.title}: ${errorMessage}`);
     }
 
-    // Simple delay to be nice to API
-    await new Promise((resolve) => setTimeout(resolve, 200));
-  }
+    // 4. Calculate final statistics
+    results.processingTimeMs = Date.now() - startTime;
+    const confidenceScores = searchResults.map((r) => r.match.confidence).filter((c) => c > 0);
 
-  return NextResponse.json(results);
+    results.averageConfidence =
+      confidenceScores.length > 0
+        ? Math.round(confidenceScores.reduce((sum, c) => sum + c, 0) / confidenceScores.length)
+        : 0;
+
+    console.log(`\n🎯 AI-Enhanced Spotify Sync Complete!`);
+    console.log(`   Total: ${results.total} songs`);
+    console.log(`   Updated: ${results.updated} songs`);
+    console.log(`   Pending Review: ${results.pending} songs`);
+    console.log(`   Skipped: ${results.skipped} songs`);
+    console.log(`   Failed: ${results.failed} songs`);
+    console.log(`   AI matches: ${results.aiMatches} songs`);
+    console.log(`   Average confidence: ${results.averageConfidence}%`);
+    console.log(`   Total queries: ${results.totalQueries}`);
+    console.log(`   Processing time: ${Math.round(results.processingTimeMs / 1000)}s`);
+
+    // 5. Generate detailed report if requested
+    if (generateReport) {
+      const { generateMatchReport } = await import('@/lib/services/enhanced-spotify-search');
+      const report = generateMatchReport(searchResults);
+
+      // You could save this report to a file or return it in the response
+      console.log('\n📊 Detailed Match Report Generated');
+      // For now, just include summary in response
+      (results as any).report = report.split('\n').slice(0, 20).join('\n') + '\n... (truncated)';
+    }
+
+    return NextResponse.json(results);
+  } catch (error) {
+    console.error('❌ AI-enhanced sync failed:', error);
+
+    return NextResponse.json(
+      {
+        error: 'AI-enhanced sync failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        results: {
+          ...results,
+          processingTimeMs: Date.now() - startTime,
+        },
+      },
+      { status: 500 }
+    );
+  }
 }

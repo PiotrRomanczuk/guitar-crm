@@ -24,11 +24,7 @@ export default function LessonList({
   role = 'admin',
 }: LessonListProps) {
   const searchParams = useSearchParams();
-  const {
-    lessons,
-    loading,
-    error,
-  } = useLessonList(initialLessons, initialError);
+  const { lessons, loading, error } = useLessonList(initialLessons, initialError);
 
   const { students } = useProfiles();
 

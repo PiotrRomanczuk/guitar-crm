@@ -72,11 +72,17 @@ export function TodaysAgenda({ items = [] }: TodaysAgendaProps) {
         {/* Compact Summary */}
         <div className="grid grid-cols-3 gap-2">
           <div className="text-center p-2 rounded-md bg-blue-500/10">
-            <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{upcomingCount}</div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Upcoming</div>
+            <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+              {upcomingCount}
+            </div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
+              Upcoming
+            </div>
           </div>
           <div className="text-center p-2 rounded-md bg-green-500/10">
-            <div className="text-lg font-bold text-green-600 dark:text-green-400">{completedCount}</div>
+            <div className="text-lg font-bold text-green-600 dark:text-green-400">
+              {completedCount}
+            </div>
             <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Done</div>
           </div>
           <div className="text-center p-2 rounded-md bg-red-500/10">
@@ -92,9 +98,7 @@ export function TodaysAgenda({ items = [] }: TodaysAgendaProps) {
               <div className="w-12 h-12 rounded-full bg-muted mx-auto mb-2 flex items-center justify-center">
                 <Calendar className="h-6 w-6 text-muted-foreground" />
               </div>
-              <p className="text-xs text-muted-foreground">
-                No items for today
-              </p>
+              <p className="text-xs text-muted-foreground">No items for today</p>
             </div>
           ) : (
             todayItems.map((item) => {
@@ -107,7 +111,9 @@ export function TodaysAgenda({ items = [] }: TodaysAgendaProps) {
                 >
                   <div className="flex items-start gap-2">
                     <div
-                      className={`w-8 h-8 rounded-md ${statusConfig[item.status].bgColor} flex items-center justify-center shrink-0`}
+                      className={`w-8 h-8 rounded-md ${
+                        statusConfig[item.status].bgColor
+                      } flex items-center justify-center shrink-0`}
                     >
                       <StatusIcon className={`h-4 w-4 ${statusConfig[item.status].color}`} />
                     </div>
@@ -138,4 +144,3 @@ export function TodaysAgenda({ items = [] }: TodaysAgendaProps) {
     </Card>
   );
 }
-

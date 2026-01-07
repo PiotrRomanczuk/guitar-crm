@@ -1,6 +1,6 @@
 /**
  * AI Provider Types and Interfaces
- * 
+ *
  * This file defines the core types and interfaces for the AI abstraction layer,
  * allowing easy switching between different LLM providers (OpenRouter, local models, etc.)
  */

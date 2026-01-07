@@ -1,13 +1,13 @@
 /**
  * AI Provider Factory
- * 
+ *
  * Central factory for creating and managing AI providers.
  * Supports easy switching between OpenRouter, local models, and future providers.
  */
 
 import type { AIProvider } from './types';
-import { OpenRouterProvider } from './providers/openrouter';
-import { OllamaProvider } from './providers/ollama';
+import { createOpenRouterProvider } from './providers/openrouter';
+import { createOllamaProvider } from './providers/ollama';
 
 export type ProviderType = 'openrouter' | 'ollama' | 'auto';
 
@@ -30,25 +30,158 @@ export interface ProviderFactoryConfig {
   preferLocal?: boolean;
 }
 
+// Functional implementation
+
 /**
- * Factory class for creating AI providers
+ * Creates the default factory configuration
  */
+const createDefaultFactoryConfig = (): ProviderFactoryConfig => {
+  const providerType = (process.env.AI_PROVIDER?.toLowerCase() || 'auto') as ProviderType;
+  const preferLocal = process.env.AI_PREFER_LOCAL === 'true';
+
+  return {
+    provider: providerType,
+    preferLocal,
+  };
+};
+
+// Module-level state for singleton pattern in functional approach
+let factoryConfig: ProviderFactoryConfig = createDefaultFactoryConfig();
+let cachedProvider: AIProvider | null = null;
+
+/**
+ * Updates factory configuration
+ */
+const updateFactoryConfig = (config: Partial<ProviderFactoryConfig>): void => {
+  factoryConfig = { ...factoryConfig, ...config };
+  cachedProvider = null; // Clear cache when config changes
+  console.log('[AIProviderFactory] Config updated:', factoryConfig);
+};
+
+/**
+ * Automatically selects the best available provider
+ */
+const autoSelectProvider = async (): Promise<AIProvider> => {
+  const ollama = createOllamaProvider();
+  const openrouter = createOpenRouterProvider();
+
+  // If prefer local, try Ollama first
+  if (factoryConfig.preferLocal !== false) {
+    const ollamaAvailable = await ollama.isAvailable();
+    if (ollamaAvailable) {
+      console.log('[AIProviderFactory] Auto-selected Ollama (local available)');
+      return ollama;
+    }
+  }
+
+  // Try OpenRouter
+  const openrouterAvailable = await openrouter.isAvailable();
+  if (openrouterAvailable) {
+    console.log('[AIProviderFactory] Auto-selected OpenRouter');
+    return openrouter;
+  }
+
+  // If prefer local is false, try Ollama as fallback
+  if (factoryConfig.preferLocal === false) {
+    const ollamaAvailable = await ollama.isAvailable();
+    if (ollamaAvailable) {
+      console.log('[AIProviderFactory] Auto-selected Ollama (fallback)');
+      return ollama;
+    }
+  }
+
+  // Default to OpenRouter even if not configured (will show error to user)
+  console.warn('[AIProviderFactory] No providers available, defaulting to OpenRouter');
+  return openrouter;
+};
+
+/**
+ * Gets the current provider based on configuration
+ */
+const getProvider = async (): Promise<AIProvider> => {
+  // Return cached provider if available
+  if (cachedProvider) {
+    return cachedProvider;
+  }
+
+  let provider: AIProvider;
+
+  switch (factoryConfig.provider) {
+    case 'ollama':
+      provider = createOllamaProvider();
+      console.log('[AIProviderFactory] Using Ollama provider');
+      break;
+
+    case 'openrouter':
+      provider = createOpenRouterProvider();
+      console.log('[AIProviderFactory] Using OpenRouter provider');
+      break;
+
+    case 'auto':
+    default:
+      provider = await autoSelectProvider();
+      break;
+  }
+
+  // Cache the provider
+  cachedProvider = provider;
+  return provider;
+};
+
+/**
+ * Gets list of all available providers
+ */
+const getAvailableProviders = async (): Promise<Array<{ name: string; available: boolean }>> => {
+  const ollama = createOllamaProvider();
+  const openrouter = createOpenRouterProvider();
+
+  const [ollamaAvailable, openrouterAvailable] = await Promise.all([
+    ollama.isAvailable(),
+    openrouter.isAvailable(),
+  ]);
+
+  return [
+    { name: 'Ollama (Local)', available: ollamaAvailable },
+    { name: 'OpenRouter (Cloud)', available: openrouterAvailable },
+  ];
+};
+
+/**
+ * Clears cached provider (forces re-selection on next getProvider call)
+ */
+const clearProviderCache = (): void => {
+  cachedProvider = null;
+};
+
+/**
+ * Gets the current factory configuration
+ */
+const getFactoryConfig = (): ProviderFactoryConfig => {
+  return { ...factoryConfig };
+};
+
+/**
+ * Factory object with all provider factory functions
+ */
+export const createProviderFactory = () => {
+  console.log('[AIProviderFactory] Initialized with config:', factoryConfig);
+
+  return {
+    updateConfig: updateFactoryConfig,
+    getProvider,
+    getAvailableProviders,
+    clearCache: clearProviderCache,
+    getConfig: getFactoryConfig,
+  };
+};
+
+// Backward compatibility - Class wrapper around functional implementation
 export class AIProviderFactory {
   private static instance: AIProviderFactory;
-  private config: ProviderFactoryConfig;
-  private cachedProvider: AIProvider | null = null;
+  private factory = createProviderFactory();
 
   private constructor() {
-    // Read config from environment variables
-    const providerType = (process.env.AI_PROVIDER?.toLowerCase() || 'auto') as ProviderType;
-    const preferLocal = process.env.AI_PREFER_LOCAL === 'true';
-
-    this.config = {
-      provider: providerType,
-      preferLocal,
-    };
-
-    console.log('[AIProviderFactory] Initialized with config:', this.config);
+    // Initialization is handled by the functional implementation
   }
 
   /**
@@ -65,104 +198,28 @@ export class AIProviderFactory {
    * Update factory configuration
    */
   updateConfig(config: Partial<ProviderFactoryConfig>): void {
-    this.config = { ...this.config, ...config };
-    this.cachedProvider = null; // Clear cache when config changes
-    console.log('[AIProviderFactory] Config updated:', this.config);
+    this.factory.updateConfig(config);
   }
 
   /**
    * Get the current provider based on configuration
    */
   async getProvider(): Promise<AIProvider> {
-    // Return cached provider if available
-    if (this.cachedProvider) {
-      return this.cachedProvider;
-    }
-
-    let provider: AIProvider;
-
-    switch (this.config.provider) {
-      case 'ollama':
-        provider = new OllamaProvider();
-        console.log('[AIProviderFactory] Using Ollama provider');
-        break;
-
-      case 'openrouter':
-        provider = new OpenRouterProvider();
-        console.log('[AIProviderFactory] Using OpenRouter provider');
-        break;
-
-      case 'auto':
-      default:
-        provider = await this.autoSelectProvider();
-        break;
-    }
-
-    // Cache the provider
-    this.cachedProvider = provider;
-    return provider;
-  }
-
-  /**
-   * Automatically select the best available provider
-   */
-  private async autoSelectProvider(): Promise<AIProvider> {
-    const ollama = new OllamaProvider();
-    const openrouter = new OpenRouterProvider();
-
-    // If prefer local, try Ollama first
-    if (this.config.preferLocal !== false) {
-      const ollamaAvailable = await ollama.isAvailable();
-      if (ollamaAvailable) {
-        console.log('[AIProviderFactory] Auto-selected Ollama (local available)');
-        return ollama;
-      }
-    }
-
-    // Try OpenRouter
-    const openrouterAvailable = await openrouter.isAvailable();
-    if (openrouterAvailable) {
-      console.log('[AIProviderFactory] Auto-selected OpenRouter');
-      return openrouter;
-    }
-
-    // If prefer local is false, try Ollama as fallback
-    if (this.config.preferLocal === false) {
-      const ollamaAvailable = await ollama.isAvailable();
-      if (ollamaAvailable) {
-        console.log('[AIProviderFactory] Auto-selected Ollama (fallback)');
-        return ollama;
-      }
-    }
-
-    // Default to OpenRouter even if not configured (will show error to user)
-    console.warn('[AIProviderFactory] No providers available, defaulting to OpenRouter');
-    return openrouter;
+    return this.factory.getProvider();
   }
 
   /**
    * Get list of all available providers
    */
   async getAvailableProviders(): Promise<Array<{ name: string; available: boolean }>> {
-    const ollama = new OllamaProvider();
-    const openrouter = new OpenRouterProvider();
-
-    const [ollamaAvailable, openrouterAvailable] = await Promise.all([
-      ollama.isAvailable(),
-      openrouter.isAvailable(),
-    ]);
-
-    return [
-      { name: 'Ollama (Local)', available: ollamaAvailable },
-      { name: 'OpenRouter (Cloud)', available: openrouterAvailable },
-    ];
+    return this.factory.getAvailableProviders();
   }
 
   /**
    * Clear cached provider (forces re-selection on next getProvider call)
    */
   clearCache(): void {
-    this.cachedProvider = null;
+    this.factory.clearCache();
   }
 }
 
@@ -170,5 +227,5 @@ export class AIProviderFactory {
  * Convenience function to get the current AI provider
  */
 export async function getAIProvider(): Promise<AIProvider> {
-  return AIProviderFactory.getInstance().getProvider();
+  return getProvider();
 }
