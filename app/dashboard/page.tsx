@@ -66,7 +66,6 @@ export default async function DashboardPage() {
         email={user.email}
         fullName={profile?.full_name}
         adminStats={adminStats}
-        token={session?.access_token}
       />
     );
   }

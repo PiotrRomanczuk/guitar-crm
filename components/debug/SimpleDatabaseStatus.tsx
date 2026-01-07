@@ -19,9 +19,16 @@ export function SimpleDatabaseStatus({ className, variant = 'fixed' }: SimpleDat
     const match = document.cookie.match(new RegExp('(^| )sb-provider-preference=([^;]+)'));
     const currentPref = match && match[2] === 'remote' ? 'remote' : 'local';
 
-    // Check if local env vars exist
-    const localUrl = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL;
+    // Check if local env vars exist - must use window check for client-side
+    // These are embedded at build time by Next.js
+    const localUrl =
+      typeof window !== 'undefined'
+        ? (window as any).NEXT_PUBLIC_SUPABASE_LOCAL_URL ||
+          process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL
+        : process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL;
     const hasLocal = !!localUrl;
+
+    console.log('[SimpleDatabaseStatus] Local URL:', localUrl, 'Has local:', hasLocal);
     setHasLocalEnv(hasLocal);
 
     // Determine what we are actually connected to
@@ -37,7 +44,7 @@ export function SimpleDatabaseStatus({ className, variant = 'fixed' }: SimpleDat
     const newPref = isLocal ? 'remote' : 'local';
     document.cookie = `sb-provider-preference=${newPref}; path=/; max-age=31536000`;
     setIsLocal(!isLocal);
-    
+
     // Reload to apply changes
     window.location.reload();
   };
@@ -69,7 +76,7 @@ export function SimpleDatabaseStatus({ className, variant = 'fixed' }: SimpleDat
           </Badge>
         </>
       )}
-      
+
       {hasLocalEnv && (
         <button
           onClick={toggleProvider}

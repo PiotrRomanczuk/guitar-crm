@@ -272,7 +272,10 @@ export function SpotifyMatchesClient() {
   const getConfidenceBadge = (score: number) => {
     if (score >= 70) {
       return (
-        <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20">
+        <Badge
+          variant="outline"
+          className="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20"
+        >
           High: {score}%
         </Badge>
       );
@@ -284,7 +287,10 @@ export function SpotifyMatchesClient() {
       );
     } else {
       return (
-        <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">
+        <Badge
+          variant="outline"
+          className="bg-destructive/10 text-destructive border-destructive/20"
+        >
           Low: {score}%
         </Badge>
       );
@@ -305,8 +311,12 @@ export function SpotifyMatchesClient() {
             <TabsTrigger value="pending" className="flex-1 sm:flex-none">
               Pending {pagination.total > 0 && activeTab === 'pending' && `(${pagination.total})`}
             </TabsTrigger>
-            <TabsTrigger value="approved" className="flex-1 sm:flex-none">Approved</TabsTrigger>
-            <TabsTrigger value="rejected" className="flex-1 sm:flex-none">Rejected</TabsTrigger>
+            <TabsTrigger value="approved" className="flex-1 sm:flex-none">
+              Approved
+            </TabsTrigger>
+            <TabsTrigger value="rejected" className="flex-1 sm:flex-none">
+              Rejected
+            </TabsTrigger>
           </TabsList>
           <Button
             variant="outline"
@@ -384,22 +394,34 @@ export function SpotifyMatchesClient() {
                         {/* Original Song */}
                         <TableCell className="align-top">
                           <div className="space-y-0.5">
-                            <div className="font-medium text-sm line-clamp-1">{match.songs.title}</div>
-                            <div className="text-xs text-muted-foreground line-clamp-1">{match.songs.author}</div>
+                            <div className="font-medium text-sm line-clamp-1">
+                              {match.songs.title}
+                            </div>
+                            <div className="text-xs text-muted-foreground line-clamp-1">
+                              {match.songs.author}
+                            </div>
                           </div>
                         </TableCell>
 
                         {/* Spotify Match */}
                         <TableCell className="align-top">
                           <div className="space-y-0.5">
-                            <div className="font-medium text-sm line-clamp-1">{match.spotify_track_name}</div>
-                            <div className="text-xs text-muted-foreground line-clamp-1">{match.spotify_artist_name}</div>
+                            <div className="font-medium text-sm line-clamp-1">
+                              {match.spotify_track_name}
+                            </div>
+                            <div className="text-xs text-muted-foreground line-clamp-1">
+                              {match.spotify_artist_name}
+                            </div>
                             <div className="text-xs text-muted-foreground/70 flex items-center gap-2">
                               <span>{formatDuration(match.spotify_duration_ms)}</span>
                               <span>•</span>
                               <span>{match.spotify_release_date?.split('-')[0]}</span>
                               <Button size="sm" variant="ghost" className="h-5 px-1 -ml-1" asChild>
-                                <a href={match.spotify_url} target="_blank" rel="noopener noreferrer">
+                                <a
+                                  href={match.spotify_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
                                   <ExternalLink className="w-3 h-3" />
                                 </a>
                               </Button>
@@ -555,7 +577,10 @@ export function SpotifyMatchesClient() {
                         Confidence: {match.confidence_score}%
                       </p>
                     </div>
-                    <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20 shrink-0">
+                    <Badge
+                      variant="outline"
+                      className="bg-destructive/10 text-destructive border-destructive/20 shrink-0"
+                    >
                       <XCircle className="w-3 h-3 mr-1" />
                       Rejected
                     </Badge>
@@ -573,7 +598,8 @@ export function SpotifyMatchesClient() {
           <DialogHeader>
             <DialogTitle>Search for Alternative Spotify Match</DialogTitle>
             <DialogDescription>
-              Original song: <strong>{currentMatch?.songs.title}</strong> by <strong>{currentMatch?.songs.author}</strong>
+              Original song: <strong>{currentMatch?.songs.title}</strong> by{' '}
+              <strong>{currentMatch?.songs.author}</strong>
             </DialogDescription>
           </DialogHeader>
 
@@ -646,11 +672,7 @@ export function SpotifyMatchesClient() {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex gap-2 justify-end">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                asChild
-                              >
+                              <Button size="sm" variant="ghost" asChild>
                                 <a href={result.url} target="_blank" rel="noopener noreferrer">
                                   <ExternalLink className="w-3 h-3" />
                                 </a>

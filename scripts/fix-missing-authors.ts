@@ -1,6 +1,6 @@
 /**
  * Script to populate missing author fields from Spotify metadata
- * 
+ *
  * This script:
  * 1. Finds songs with spotify_link_url but missing author
  * 2. Extracts Spotify track ID from the URL
@@ -16,7 +16,8 @@ import type { Database } from '../types/database.types';
 config({ path: '.env.local' });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL || 'http://127.0.0.1:54321';
-const supabaseKey = process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY || 
+const supabaseKey =
+  process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
 
@@ -78,10 +79,20 @@ async function fixMissingAuthors() {
   }
 
   console.log(`📋 Total songs with Spotify links: ${songs?.length || 0}`);
-  console.log(`📋 Sample author values:`, songs?.slice(0, 5).map(s => ({ title: s.title, author: `"${s.author}"`, type: typeof s.author, isEmpty: !s.author || s.author.trim() === '' })));
-  
+  console.log(
+    `📋 Sample author values:`,
+    songs
+      ?.slice(0, 5)
+      .map((s) => ({
+        title: s.title,
+        author: `"${s.author}"`,
+        type: typeof s.author,
+        isEmpty: !s.author || s.author.trim() === '',
+      }))
+  );
+
   // Filter out songs that already have authors
-  const songsNeedingAuthors = songs?.filter(s => !s.author || s.author.trim() === '') || [];
+  const songsNeedingAuthors = songs?.filter((s) => !s.author || s.author.trim() === '') || [];
 
   if (songsNeedingAuthors.length === 0) {
     console.log('✅ No songs found with missing authors!');
@@ -127,7 +138,7 @@ async function fixMissingAuthors() {
       }
 
       // Rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     } catch (err) {
       console.error(`❌ Error processing ${song.title}:`, err);
       failed++;

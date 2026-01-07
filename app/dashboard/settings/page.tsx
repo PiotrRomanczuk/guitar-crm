@@ -8,9 +8,12 @@ import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 export default async function SettingsPage() {
   const { user } = await getUserWithRolesSSR();
   let isGoogleConnected = false;
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   if (user) {
-    const supabase = await createClient();
     const { data } = await supabase
       .from('user_integrations')
       .select('id')
@@ -23,7 +26,12 @@ export default async function SettingsPage() {
     }
   }
 
-  return <SettingsPageClient isGoogleConnected={isGoogleConnected} />;
+  return (
+    <SettingsPageClient
+      isGoogleConnected={isGoogleConnected}
+      bearerToken={session?.access_token}
+    />
+  );
 }
 
 // TODO: When settings persistence moves to the database, hydrate initial settings here
