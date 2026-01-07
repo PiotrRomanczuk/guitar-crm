@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Loader2 } from 'lucide-react';
-import { generateLessonNotes } from '@/app/actions/ai';
+import { generateLessonNotesStream } from '@/app/actions/ai';
 
 interface Props {
   studentName: string;
@@ -32,23 +32,25 @@ export function LessonNotesAI({
     if (!studentName || loading) return;
 
     setLoading(true);
+    onNotesGenerated(''); // Clear previous notes
+
     try {
-      const result = await generateLessonNotes({
+      const streamGenerator = generateLessonNotesStream({
         studentName,
-        songsCovered,
-        lessonTopic,
-        duration,
-        teacherNotes,
-        previousNotes,
+        songTitle: songsCovered.join(', '),
+        lessonFocus: lessonTopic,
+        skillsWorked: teacherNotes,
+        nextSteps: '',
       });
 
-      if (result.success && result.notes) {
-        onNotesGenerated(String(result.notes)); // Ensure it's a string
-      } else {
-        console.error('Failed to generate lesson notes:', result.error);
+      let currentNotes = '';
+      for await (const chunk of streamGenerator) {
+        currentNotes = String(chunk);
+        onNotesGenerated(currentNotes);
       }
     } catch (error) {
       console.error('Error generating lesson notes:', error);
+      onNotesGenerated('Error generating notes. Please try again.');
     } finally {
       setLoading(false);
     }

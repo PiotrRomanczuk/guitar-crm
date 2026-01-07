@@ -8,6 +8,21 @@ import { getAIProvider, type AIMessage } from '@/lib/ai';
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
 import type { AgentSpecification, AgentRequest, AgentResponse, AgentContext } from './types';
 import { fetchContextData } from './context-fetcher';
+import { mapToOllamaModel } from '../model-mappings';
+
+/**
+ * Escape potentially dangerous characters in context data to prevent prompt injection
+ */
+function escapePromptInjection(text: string): string {
+  // Remove or escape common prompt injection patterns
+  return text
+    .replace(/\\n\\n(SYSTEM|USER|ASSISTANT):/gi, ' [REMOVED]: ') // Remove role markers
+    .replace(/```/g, '`‵`') // Escape code blocks
+    .replace(/<\\|endoftext\\|>/g, '[END]') // Remove end tokens
+    .replace(/###/g, '##') // Reduce header levels
+    .replace(/---$/gm, '--') // Reduce horizontal rules
+    .trim();
+}
 
 /**
  * Execute an AI agent with given request and specification
@@ -25,20 +40,8 @@ export async function executeAgent(
 
   // If using Ollama, map OpenRouter models to local equivalents
   if (provider.name === 'Ollama') {
-    const modelMappings: Record<string, string> = {
-      'meta-llama/llama-3.3-70b-instruct:free': 'llama3.2:3b',
-      'meta-llama/llama-3.2-3b-instruct:free': 'llama3.2:3b',
-      'meta-llama/llama-3.2-1b-instruct:free': 'llama3.2:1b',
-    };
-
-    if (modelMappings[requestedModel]) {
-      appropriateModel = modelMappings[requestedModel];
-      console.log(`[AgentExecution] Mapped ${requestedModel} to ${appropriateModel} for Ollama`);
-    } else {
-      // Fallback to a common model name for Ollama
-      appropriateModel = 'llama3.2:3b';
-      console.log(`[AgentExecution] Using fallback model ${appropriateModel} for Ollama`);
-    }
+    appropriateModel = mapToOllamaModel(requestedModel);
+    console.log(`[AgentExecution] Mapped ${requestedModel} to ${appropriateModel} for Ollama`);
   }
 
   // Build system prompt with context
@@ -105,11 +108,12 @@ export async function prepareContext(
 function buildSystemPrompt(agent: AgentSpecification, context: Record<string, any>): string {
   let prompt = agent.systemPrompt;
 
-  // Inject context variables
+  // Inject context variables with proper escaping
   for (const [key, value] of Object.entries(context)) {
     if (value !== null && value !== undefined) {
-      const contextValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-      prompt += `\n\n${key.toUpperCase()}: ${contextValue}`;
+      const rawValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+      const escapedValue = escapePromptInjection(rawValue);
+      prompt += `\\n\\n${key.toUpperCase()}: ${escapedValue}`;
     }
   }
 

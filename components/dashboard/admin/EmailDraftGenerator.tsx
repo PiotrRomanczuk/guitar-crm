@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Mail, Loader2, Copy, Check, Send } from 'lucide-react';
-import { generateEmailDraft } from '@/app/actions/ai';
+import { generateEmailDraftStream } from '@/app/actions/ai';
 
 interface Student {
   id: string;
@@ -91,17 +91,29 @@ export function EmailDraftGenerator({ students }: Props) {
           break;
       }
 
-      const result = await generateEmailDraft({
-        templateType,
-        studentName: selectedStudentData.full_name || selectedStudentData.email,
-        context,
+      const streamGenerator = generateEmailDraftStream({
+        template_type: templateType,
+        student_name: selectedStudentData.full_name || selectedStudentData.email,
+        context: JSON.stringify(context),
       });
 
-      if (result.success) {
-        setSubject(String(result.subject || '')); // Ensure it's a string
-        setBody(String(result.body || '')); // Ensure it's a string
-      } else {
-        console.error('Failed to generate email draft:', result.error);
+      let fullContent = '';
+      for await (const chunk of streamGenerator) {
+        fullContent = String(chunk);
+        // Try to parse if it looks like JSON with subject and body
+        try {
+          if (fullContent.includes('"subject"') && fullContent.includes('"body"')) {
+            const parsed = JSON.parse(fullContent);
+            setSubject(String(parsed.subject || ''));
+            setBody(String(parsed.body || ''));
+          } else {
+            // If not structured, put everything in body
+            setBody(fullContent);
+          }
+        } catch {
+          // If not valid JSON, just use as body content
+          setBody(fullContent);
+        }
       }
     } catch (error) {
       console.error('Error generating email draft:', error);

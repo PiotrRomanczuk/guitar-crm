@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Loader2 } from 'lucide-react';
-import { generateAssignment } from '@/app/actions/ai';
+import { generateAssignmentStream } from '@/app/actions/ai';
 
 interface Props {
   studentName: string;
@@ -32,23 +32,25 @@ export function AssignmentAI({
     if (!studentName || loading) return;
 
     setLoading(true);
+    onAssignmentGenerated(''); // Clear previous assignment
+
     try {
-      const result = await generateAssignment({
+      const streamGenerator = generateAssignmentStream({
         studentName,
-        studentLevel,
-        recentSongs,
+        skillLevel: studentLevel,
         focusArea,
-        duration,
-        lessonTopic,
+        timeAvailable: duration,
+        additionalNotes: `Recent songs: ${recentSongs.join(', ')}. Lesson topic: ${lessonTopic}`,
       });
 
-      if (result.success && result.assignment) {
-        onAssignmentGenerated(String(result.assignment)); // Ensure it's a string
-      } else {
-        console.error('Failed to generate assignment:', result.error);
+      let currentAssignment = '';
+      for await (const chunk of streamGenerator) {
+        currentAssignment = String(chunk);
+        onAssignmentGenerated(currentAssignment);
       }
     } catch (error) {
       console.error('Error generating assignment:', error);
+      onAssignmentGenerated('Error generating assignment. Please try again.');
     } finally {
       setLoading(false);
     }

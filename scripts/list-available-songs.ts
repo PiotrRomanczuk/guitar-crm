@@ -19,7 +19,7 @@ async function listAvailableSongs() {
     .limit(20);
 
   console.log('Songs without Spotify data:');
-  songs?.forEach(s => console.log(`${s.title} by ${s.artist || 'Unknown'}`));
+  songs?.forEach((s) => console.log(`${s.title} by ${s.artist || 'Unknown'}`));
 }
 
 listAvailableSongs().catch(console.error);

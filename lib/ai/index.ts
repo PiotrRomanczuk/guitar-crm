@@ -36,12 +36,40 @@ export {
 // Initialize agent registry on module load
 import { registerAllAgents } from './agent-specifications';
 
+// Registration guard to prevent duplicate registration
+let agentsRegistered = false;
+
 // Register all agents when module is imported
 try {
-  registerAllAgents();
+  if (!agentsRegistered) {
+    registerAllAgents();
+    agentsRegistered = true;
+    console.log('[AI] Agents registered successfully');
+  }
 } catch (error) {
   console.error('[AI] Failed to register agents:', error);
 }
 
 // Re-export commonly used functions
 export { getAIProvider } from './provider-factory';
+
+// Export rate limiter utilities
+export {
+  checkRateLimit,
+  resetRateLimit,
+  clearAllRateLimits,
+  DEFAULT_RATE_LIMITS,
+} from './rate-limiter';
+
+// Export retry utilities
+export { withRetry, AI_PROVIDER_RETRY_CONFIG, DATABASE_RETRY_CONFIG } from './retry';
+
+// Export model mapping utilities
+export {
+  mapToOllamaModel,
+  mapToOpenRouterModel,
+  getAllModelMappings,
+  addModelMapping,
+  MODEL_MAPPINGS,
+  FALLBACK_MODELS,
+} from './model-mappings';

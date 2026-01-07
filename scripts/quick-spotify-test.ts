@@ -19,9 +19,14 @@ async function quickTest() {
   try {
     console.log('\n🔍 Testing Spotify search for "Africa Toto"...');
     const result = await searchTracks('Africa Toto');
-    
+
     if (result?.tracks?.items?.length > 0) {
-      console.log('✅ SUCCESS! Found:', result.tracks.items[0].name, 'by', result.tracks.items[0].artists[0].name);
+      console.log(
+        '✅ SUCCESS! Found:',
+        result.tracks.items[0].name,
+        'by',
+        result.tracks.items[0].artists[0].name
+      );
     } else {
       console.log('❌ No results found');
       console.log('Full response:', JSON.stringify(result, null, 2));

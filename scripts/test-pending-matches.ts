@@ -42,7 +42,7 @@ async function testPendingMatches() {
   console.log(`\n📊 Search Result:`);
   console.log(`   Confidence: ${result.confidence}%`);
   console.log(`   Found: ${result.found ? 'Yes' : 'No'}`);
-  
+
   if (result.track) {
     console.log(`   Match: "${result.track.name}" by "${result.track.artists[0]?.name}"`);
   }
@@ -52,7 +52,7 @@ async function testPendingMatches() {
     console.log(`\n✅ This would be AUTO-UPDATED (≥85% confidence)`);
   } else if (result.confidence >= 20 && result.track) {
     console.log(`\n📋 This would be saved for MANUAL REVIEW (20-84% confidence)`);
-    
+
     // Test saving to pending matches
     const track = result.track;
     const { error: insertError } = await supabase.from('spotify_matches').insert({

@@ -3,38 +3,78 @@
 import { getAIProvider, isAIError, type AIMessage, type AIModelInfo } from '@/lib/ai';
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
 import { createClient } from '@/lib/supabase/server';
+import { executeAgentRequest } from '@/lib/ai/registry';
+import { mapToOllamaModel } from '@/lib/ai/model-mappings';
+
+/**
+ * Unified streaming abstraction for all AI functions
+ */
+async function* createAIStream(
+  content: string,
+  options: {
+    delayMs?: number;
+    chunkSize?: number;
+  } = {}
+) {
+  const { delayMs = 50, chunkSize = 1 } = options;
+
+  if (!content || typeof content !== 'string') {
+    yield 'No content generated.';
+    return;
+  }
+
+  const words = content.split(' ');
+
+  for (let i = 0; i < words.length; i += chunkSize) {
+    const chunk = words.slice(0, i + chunkSize).join(' ');
+    yield chunk;
+    if (delayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+}
+
+/**
+ * Execute an agent request and return streaming content
+ */
+async function* executeAgentStream(
+  agentId: string,
+  input: Record<string, any>,
+  context: Record<string, any> = {},
+  options?: { delayMs?: number; chunkSize?: number }
+) {
+  try {
+    const result = await executeAgentRequest({
+      agentId,
+      input,
+      context,
+    });
+
+    if (result.error) {
+      yield `Error: ${result.error}`;
+      return;
+    }
+
+    const content = String(result.content || 'No content generated.');
+    yield* createAIStream(content, options);
+  } catch (error) {
+    console.error(`[${agentId}] Stream error:`, error);
+    yield `Error: ${error instanceof Error ? error.message : 'Failed to generate content.'}`;
+  }
+}
 
 /**
  * Map OpenRouter model IDs to appropriate local models for Ollama
  */
-export async function getProviderAppropriateModel(provider: any, requestedModel: string): Promise<string> {
+export async function getProviderAppropriateModel(
+  provider: any,
+  requestedModel: string
+): Promise<string> {
   // If using Ollama, map OpenRouter models to local equivalents
   if (provider.name === 'Ollama') {
-    // Map OpenRouter model IDs to Ollama model names
-    const modelMappings: Record<string, string> = {
-      'meta-llama/llama-3.3-70b-instruct:free': 'llama3.2:3b',
-      'google/gemini-2.0-flash-exp:free': 'mistral:7b',
-    };
-
-    const mapped = modelMappings[requestedModel];
-    if (mapped) {
-      console.log(`[AI] Mapped ${requestedModel} to ${mapped} for Ollama`);
-      return mapped;
-    }
-
-    // If no mapping, use the first available local model
-    try {
-      const models = await provider.listModels();
-      if (models.length > 0) {
-        console.log(`[AI] Using first available local model: ${models[0].id}`);
-        return models[0].id;
-      }
-    } catch (error) {
-      console.warn('[AI] Failed to list local models, using fallback');
-    }
-
-    // Ultimate fallback for Ollama
-    return 'llama3.2:3b';
+    const mapped = mapToOllamaModel(requestedModel);
+    console.log(`[AI] Mapped ${requestedModel} to ${mapped} for Ollama`);
+    return mapped;
   }
 
   // For other providers (OpenRouter), use the requested model as-is
@@ -65,6 +105,59 @@ import {
  * - 'ollama': Use local Ollama
  * - 'auto' (default): Try Ollama first, fallback to OpenRouter
  */
+/**
+ * Generate AI response with streaming support
+ */
+export async function* generateAIResponseStream(prompt: string, model: string = DEFAULT_AI_MODEL) {
+  try {
+    const provider = await getAIProvider();
+    const providerModel = await getProviderAppropriateModel(provider, model);
+
+    const available = await provider.isAvailable();
+    if (!available) {
+      yield `Error: ${provider.name} is not available. Please check your configuration.`;
+      return;
+    }
+
+    const messages: AIMessage[] = [
+      {
+        role: 'system',
+        content:
+          'You are a helpful assistant for the Guitar CRM admin dashboard. Keep your answers concise and relevant to managing a music school.',
+      },
+      {
+        role: 'user',
+        content: prompt,
+      },
+    ];
+
+    const result = await provider.complete({
+      model: providerModel,
+      messages,
+      temperature: 0.7,
+    });
+
+    if (isAIError(result)) {
+      yield `Error: ${result.error}`;
+      return;
+    }
+
+    // Simulate streaming by yielding words progressively
+    const content = result.content || 'No response generated.';
+    const words = content.split(' ');
+
+    for (let i = 0; i < words.length; i++) {
+      const partial = words.slice(0, i + 1).join(' ');
+      yield partial;
+      // Small delay for streaming effect
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  } catch (error) {
+    console.error('[AI Stream] Error:', error);
+    yield `Error: ${error instanceof Error ? error.message : 'Failed to generate AI response.'}`;
+  }
+}
+
 export async function generateAIResponse(
   prompt: string,
   model: string = DEFAULT_AI_MODEL
@@ -153,6 +246,19 @@ export async function getAvailableModels(): Promise<{
 /**
  * Generate lesson notes using the standardized Lesson Notes Agent
  */
+/**
+ * Generate lesson notes with streaming
+ */
+export async function* generateLessonNotesStream(params: {
+  studentName: string;
+  songTitle?: string;
+  lessonFocus?: string;
+  skillsWorked?: string;
+  nextSteps?: string;
+}) {
+  yield* executeAgentStream('lesson-notes-assistant', params);
+}
+
 export async function generateLessonNotes(params: {
   studentName: string;
   songsCovered: string[];
@@ -201,6 +307,19 @@ export async function generateLessonNotes(params: {
 /**
  * Generate assignment description using the standardized Assignment Generator Agent
  */
+/**
+ * Generate assignment with streaming
+ */
+export async function* generateAssignmentStream(params: {
+  studentName: string;
+  skillLevel: string;
+  focusArea: string;
+  timeAvailable?: string;
+  additionalNotes?: string;
+}) {
+  yield* executeAgentStream('assignment-generator', params);
+}
+
 export async function generateAssignment(params: {
   studentName: string;
   studentLevel: 'beginner' | 'intermediate' | 'advanced';
@@ -249,6 +368,19 @@ export async function generateAssignment(params: {
 /**
  * Generate email draft using the standardized Email Draft Agent
  */
+/**
+ * Generate email draft with streaming
+ */
+export async function* generateEmailDraftStream(params: {
+  template_type: string;
+  student_name: string;
+  context?: string;
+  tone?: string;
+  additional_info?: string;
+}) {
+  yield* executeAgentStream('email-draft-generator', params);
+}
+
 export async function generateEmailDraft(params: {
   templateType:
     | 'lesson_reminder'
@@ -318,6 +450,20 @@ export async function generateEmailDraft(params: {
 /**
  * Generate post-lesson summary using the standardized Post-Lesson Summary Agent
  */
+/**
+ * Generate post-lesson summary with streaming
+ */
+export async function* generatePostLessonSummaryStream(params: {
+  studentName: string;
+  songTitle?: string;
+  lessonDuration?: string;
+  skillsWorked?: string;
+  challengesNoted?: string;
+  nextSteps?: string;
+}) {
+  yield* executeAgentStream('post-lesson-summary', params);
+}
+
 export async function generatePostLessonSummary(params: {
   studentName: string;
   duration: number;
@@ -374,6 +520,17 @@ export async function generatePostLessonSummary(params: {
 /**
  * Analyze student progress using the standardized Student Progress Insights Agent
  */
+/**
+ * Analyze student progress with streaming
+ */
+export async function* analyzeStudentProgressStream(params: {
+  studentData: any;
+  lessonHistory?: any;
+  skillAssessments?: any;
+}) {
+  yield* executeAgentStream('student-progress-insights', params);
+}
+
 export async function analyzeStudentProgress(params: {
   studentId: string;
   timePeriod: string;
@@ -413,6 +570,17 @@ export async function analyzeStudentProgress(params: {
 /**
  * Generate admin dashboard insights using the standardized Admin Dashboard Insights Agent
  */
+/**
+ * Generate admin insights with streaming
+ */
+export async function* generateAdminInsightsStream(params: {
+  dashboardData: any;
+  timeframe?: string;
+  focusAreas?: string[];
+}) {
+  yield* executeAgentStream('admin-dashboard-insights', params);
+}
+
 export async function generateAdminInsights(params: {
   totalStudents: number;
   newStudents: number;

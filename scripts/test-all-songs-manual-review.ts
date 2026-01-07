@@ -20,7 +20,7 @@ async function testAllSongsSync() {
 
   // Find all songs without Spotify data
   console.log('🔍 Finding songs without Spotify data...');
-  
+
   const { data: songs, error: songsError } = await supabase
     .from('songs')
     .select('*')
@@ -102,9 +102,7 @@ async function testAllSongsSync() {
           console.error(`❌ Update failed for "${song.title}":`, updateError.message);
         } else {
           results.autoUpdated++;
-          console.log(
-            `✅ AUTO-UPDATED: "${song.title}" → "${track.name}" (${match.confidence}%)`
-          );
+          console.log(`✅ AUTO-UPDATED: "${song.title}" → "${track.name}" (${match.confidence}%)`);
         }
       } else if (match.confidence >= 20 && match.spotifyTrack) {
         // Any reasonable match (20%+) - store for manual review
@@ -154,9 +152,7 @@ async function testAllSongsSync() {
           }
         } else {
           results.pendingReview++;
-          console.log(
-            `📋 Already pending: "${song.title}" (${match.confidence}%)`
-          );
+          console.log(`📋 Already pending: "${song.title}" (${match.confidence}%)`);
         }
       } else {
         // Very low confidence or no match
@@ -178,10 +174,17 @@ async function testAllSongsSync() {
   console.log(`🟡 Pending Manual Review (20-84%): ${results.pendingReview}`);
   console.log(`🔴 Skipped (<20%): ${results.skipped}`);
   console.log(`❌ Errors: ${results.errors}`);
-  console.log(`📈 Success Rate: ${((results.autoUpdated + results.pendingReview) / songs.length * 100).toFixed(1)}%`);
-  
+  console.log(
+    `📈 Success Rate: ${(
+      ((results.autoUpdated + results.pendingReview) / songs.length) *
+      100
+    ).toFixed(1)}%`
+  );
+
   if (results.pendingReview > 0) {
-    console.log(`\n📋 You now have ${results.pendingReview} matches waiting for manual review in the dashboard!`);
+    console.log(
+      `\n📋 You now have ${results.pendingReview} matches waiting for manual review in the dashboard!`
+    );
   }
 }
 

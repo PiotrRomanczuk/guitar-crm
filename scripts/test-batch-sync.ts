@@ -16,7 +16,8 @@ import type { Database } from '../database.types';
 import { searchSongWithAI } from '@/lib/services/enhanced-spotify-search';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL || 'http://127.0.0.1:54321';
-const supabaseServiceKey = process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY || 
+const supabaseServiceKey =
+  process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
 
 const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey);
@@ -28,7 +29,7 @@ async function syncBatchSongs() {
   try {
     // Get first 10 songs that don't have Spotify data
     console.log('🔍 Finding first 10 songs without Spotify data...');
-    
+
     const { data: songs, error } = await supabase
       .from('songs')
       .select('*')
@@ -54,7 +55,11 @@ async function syncBatchSongs() {
     let errors = 0;
 
     for (const [index, song] of songs.entries()) {
-      console.log(`[${index + 1}/${songs.length}] Processing: "${song.title}" by "${song.author || 'Unknown'}"`);
+      console.log(
+        `[${index + 1}/${songs.length}] Processing: "${song.title}" by "${
+          song.author || 'Unknown'
+        }"`
+      );
 
       try {
         if (!song.title) {
@@ -66,13 +71,13 @@ async function syncBatchSongs() {
         const result = await searchSongWithAI(song, {
           minConfidenceScore: 60,
           enableAIAnalysis: true,
-          maxQueries: 4 // Reduced for faster testing
+          maxQueries: 4, // Reduced for faster testing
         });
 
         const confidence = result.match.confidence;
         const matchName = result.match.found ? result.match.track?.name : 'None';
         const matchArtist = result.match.found ? result.match.track?.artists[0]?.name : '';
-        
+
         console.log(`   ✨ Confidence: ${confidence}% | Match: "${matchName}" by "${matchArtist}"`);
 
         if (confidence >= 85 && result.match.found && result.match.track) {
@@ -87,8 +92,7 @@ async function syncBatchSongs() {
         }
 
         // Small delay between requests
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       } catch (error) {
         console.log('   ❌ Error processing song:', error.message);
         errors++;
@@ -101,10 +105,9 @@ async function syncBatchSongs() {
     console.log(`🟡 Pending Review (60-84%): ${pendingReview}`);
     console.log(`🔴 Skipped (<60%): ${skipped}`);
     console.log(`❌ Errors: ${errors}`);
-    
-    const successRate = ((autoUpdated + pendingReview) / songs.length * 100).toFixed(1);
-    console.log(`📈 Success Rate: ${successRate}%`);
 
+    const successRate = (((autoUpdated + pendingReview) / songs.length) * 100).toFixed(1);
+    console.log(`📈 Success Rate: ${successRate}%`);
   } catch (error) {
     console.error('❌ Fatal error:', error);
   }

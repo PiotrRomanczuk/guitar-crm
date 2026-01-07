@@ -18,10 +18,12 @@ async function checkPendingMatches() {
     .order('confidence_score', { ascending: false });
 
   console.log(`📋 Found ${count || 0} pending matches for manual review:`);
-  pending?.forEach(match => {
+  pending?.forEach((match) => {
     const song = match.songs as any;
     const spotify = match.spotify_data as any;
-    console.log(`  ${match.confidence_score}% - "${song.title}" → "${spotify.name}" by ${spotify.artist}`);
+    console.log(
+      `  ${match.confidence_score}% - "${song.title}" → "${spotify.name}" by ${spotify.artist}`
+    );
   });
 
   // Also check total songs with Spotify data
@@ -39,7 +41,11 @@ async function checkPendingMatches() {
   console.log(`\n📊 Overall Progress:`);
   console.log(`   Total songs: ${totalSongs || 0}`);
   console.log(`   With Spotify data: ${totalWithSpotify || 0}`);
-  console.log(`   Success rate: ${totalSongs ? ((totalWithSpotify || 0) / totalSongs * 100).toFixed(1) : 0}%`);
+  console.log(
+    `   Success rate: ${
+      totalSongs ? (((totalWithSpotify || 0) / totalSongs) * 100).toFixed(1) : 0
+    }%`
+  );
 }
 
 checkPendingMatches().catch(console.error);

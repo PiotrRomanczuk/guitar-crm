@@ -12,6 +12,7 @@ import type {
   AIResult,
   AIModelInfo,
 } from '../types';
+import { withRetry, AI_PROVIDER_RETRY_CONFIG } from '../retry';
 
 // Default Ollama configuration
 const createDefaultConfig = (config?: Partial<AIProviderConfig>): AIProviderConfig => ({
@@ -57,65 +58,68 @@ const complete = async (
   request: AICompletionRequest,
   config: AIProviderConfig
 ): Promise<AIResult> => {
-  try {
-    const response = await fetch(`${config.baseUrl}/api/chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: request.model,
-        messages: request.messages,
-        stream: false,
-        options: {
-          temperature: request.temperature || 0.7,
-          num_predict: request.maxTokens,
+  // Wrap in retry logic
+  return withRetry(async () => {
+    try {
+      const response = await fetch(`${config.baseUrl}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      }),
-      signal: AbortSignal.timeout(config.timeout || 120000), // Increased to 2 minutes for model loading
-    });
+        body: JSON.stringify({
+          model: request.model,
+          messages: request.messages,
+          stream: false,
+          options: {
+            temperature: request.temperature || 0.7,
+            num_predict: request.maxTokens,
+          },
+        }),
+        signal: AbortSignal.timeout(config.timeout || 120000),
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => 'Unknown error');
-      console.error('[Ollama] API Error:', errorText);
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error('[Ollama] API Error:', errorText);
+        
+        // Create error with status for retry logic
+        const error: any = new Error(`Ollama API Error: ${response.statusText}`);
+        error.status = response.status;
+        throw error;
+      }
+
+      const data = await response.json();
+
       return {
-        error: `Ollama API Error: ${response.statusText}`,
-        code: String(response.status),
-        details: errorText,
+        content: data.message?.content || '',
+        finishReason: data.done ? 'stop' : 'length',
+        usage: {
+          promptTokens: data.prompt_eval_count || 0,
+          completionTokens: data.eval_count || 0,
+          totalTokens: (data.prompt_eval_count || 0) + (data.eval_count || 0),
+        },
       };
-    }
+    } catch (error) {
+      console.error('[Ollama] Request failed:', error);
 
-    const data = await response.json();
-
-    return {
-      content: data.message?.content || '',
-      finishReason: data.done ? 'stop' : 'length',
-      usage: {
-        promptTokens: data.prompt_eval_count || 0,
-        completionTokens: data.eval_count || 0,
-        totalTokens: (data.prompt_eval_count || 0) + (data.eval_count || 0),
-      },
-    };
-  } catch (error) {
-    console.error('[Ollama] Request failed:', error);
-
-    if (error instanceof Error) {
-      if (error.name === 'AbortError') {
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          return {
+            error: 'Request timeout - the model took too long to respond',
+            details: error,
+          };
+        }
         return {
-          error: 'Request timeout - the model took too long to respond',
+          error: `Failed to connect to Ollama: ${error.message}`,
           details: error,
         };
       }
+
       return {
-        error: `Failed to connect to Ollama: ${error.message}`,
-        details: error,
+        error: 'Failed to connect to Ollama. Make sure Ollama is running locally.',
       };
     }
-
-    return {
-      error: 'Failed to connect to Ollama. Make sure Ollama is running locally.',
-    };
-  }
+  }, AI_PROVIDER_RETRY_CONFIG);
 };
 
 // Check if Ollama is available

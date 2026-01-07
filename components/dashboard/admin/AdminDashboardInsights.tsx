@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BarChart3, TrendingUp, Loader2, Users, DollarSign, Calendar, Music } from 'lucide-react';
-import { generateAdminInsights } from '@/app/actions/ai';
+import { generateAdminInsightsStream } from '@/app/actions/ai';
 
 interface AdminStats {
   totalUsers: number;
@@ -32,6 +32,8 @@ export function AdminDashboardInsights({ adminStats }: Props) {
 
   const handleGenerate = async () => {
     setLoading(true);
+    setInsights(''); // Clear previous insights
+
     try {
       // Calculate some derived metrics
       const avgLessonsPerStudent =
@@ -52,23 +54,23 @@ export function AdminDashboardInsights({ adminStats }: Props) {
       // Popular songs (mock data - in real app, fetch from lessons)
       const popularSongs = ['Wonderwall', 'Hotel California', 'Stairway to Heaven', 'Blackbird'];
 
-      const result = await generateAdminInsights({
-        totalStudents: adminStats.totalStudents,
-        newStudents: newStudentsThisMonth,
-        retentionRate,
-        avgLessons: parseFloat(avgLessonsPerStudent),
-        popularSongs,
-        revenueData: 'Revenue tracking in development',
-        teacherStats: `${adminStats.totalTeachers} active teachers`,
+      const streamGenerator = generateAdminInsightsStream({
+        dashboardData: {
+          totalStudents: adminStats.totalStudents,
+          newStudents: newStudentsThisMonth,
+          retentionRate,
+          avgLessons: parseFloat(avgLessonsPerStudent),
+          popularSongs,
+          revenueData: 'Revenue tracking in development',
+          teacherStats: `${adminStats.totalTeachers} active teachers`,
+        },
       });
 
-      if (result.success && result.insights) {
-        setInsights(String(result.insights)); // Ensure it's a string
-        setLastUpdated(new Date());
-      } else {
-        console.error('Failed to generate admin insights:', result.error);
-        setInsights('Failed to generate insights. Please try again.');
+      for await (const chunk of streamGenerator) {
+        setInsights(String(chunk));
       }
+
+      setLastUpdated(new Date());
     } catch (error) {
       console.error('Error generating admin insights:', error);
       setInsights('An error occurred while generating insights.');
