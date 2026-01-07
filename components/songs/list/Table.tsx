@@ -229,8 +229,7 @@ export default function SongListTable({
           <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow className="hover:bg-transparent border-border">
-                <TableHead className="text-muted-foreground">Title</TableHead>
-                <TableHead className="text-muted-foreground">Author</TableHead>
+                <TableHead className="text-muted-foreground">Song</TableHead>
                 <TableHead className="text-muted-foreground">
                   {selectedStudentId ? 'Status' : 'Level'}
                 </TableHead>
@@ -244,7 +243,7 @@ export default function SongListTable({
               {songs.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={canDelete ? 5 : 4}
+                    colSpan={canDelete ? 4 : 3}
                     className="h-24 text-center text-muted-foreground"
                   >
                     No songs found.
@@ -272,10 +271,12 @@ export default function SongListTable({
                             <Music className="w-6 h-6 text-muted-foreground" />
                           )}
                         </div>
-                        <span className="text-foreground">{song.title ?? 'Untitled'}</span>
+                        <div className="flex flex-col">
+                          <span className="text-foreground">{song.title ?? 'Untitled'}</span>
+                          <span className="text-xs text-muted-foreground">{song.author}</span>
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{song.author}</TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       {selectedStudentId && (song as SongWithStatus).lesson_song_id ? (
                         <StatusSelect

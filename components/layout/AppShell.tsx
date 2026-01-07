@@ -7,7 +7,7 @@ import { AppSidebar } from '@/components/navigation/AppSidebar';
 import { Toaster } from 'sonner';
 import { getSupabaseConfig } from '@/lib/supabase/config';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsWidescreen } from '@/hooks/use-is-widescreen';
 import { Separator } from '@/components/ui/separator';
 
 interface AppShellProps {
@@ -20,7 +20,7 @@ interface AppShellProps {
 
 export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppShellProps) {
   const pathname = usePathname();
-  const isMobile = useIsMobile();
+  const isWidescreen = useIsWidescreen();
 
   // Hide sidebar on auth pages even if user data is present (e.g. stale state during logout)
   const isAuthPage = ['/sign-in', '/sign-up', '/auth/login', '/auth/register'].includes(
@@ -28,9 +28,9 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
   );
   const showNavigation = !!user && !isAuthPage;
 
-  // Use sidebar on desktop (lg and above), horizontal nav on mobile/tablet
-  const useSidebar = showNavigation && !isMobile;
-  const useHorizontalNav = showNavigation && isMobile;
+  // Use sidebar on widescreen displays, horizontal nav on vertical/narrow displays
+  const useSidebar = showNavigation && isWidescreen;
+  const useHorizontalNav = showNavigation && !isWidescreen;
 
   const { isLocal } = getSupabaseConfig();
   console.log('AppShell:', {
@@ -38,7 +38,7 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
     hasUser: !!user,
     isAuthPage,
     showNavigation,
-    isMobile,
+    isWidescreen,
     useSidebar,
     useHorizontalNav,
     db: isLocal ? 'local' : 'remote',
@@ -55,7 +55,7 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
     );
   }
 
-  // Desktop with sidebar
+  // Widescreen displays with sidebar
   if (useSidebar) {
     return (
       <SidebarProvider>
@@ -85,7 +85,7 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
     );
   }
 
-  // Mobile/Tablet with horizontal nav
+  // Vertical/narrow displays with top horizontal nav
   return (
     <>
       <HorizontalNav user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
