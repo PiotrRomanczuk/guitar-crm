@@ -81,7 +81,7 @@ const complete = async (
       if (!response.ok) {
         const errorText = await response.text().catch(() => 'Unknown error');
         console.error('[Ollama] API Error:', errorText);
-        
+
         // Create error with status for retry logic
         const error: any = new Error(`Ollama API Error: ${response.statusText}`);
         error.status = response.status;

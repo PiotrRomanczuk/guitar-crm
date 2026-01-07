@@ -4,7 +4,8 @@
  * Core execution logic for AI agents
  */
 
-import { getAIProvider, type AIMessage } from '@/lib/ai';
+import { getAIProvider } from '../provider-factory';
+import type { AIMessage } from '../types';
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
 import type { AgentSpecification, AgentRequest, AgentResponse, AgentContext } from './types';
 import { fetchContextData } from './context-fetcher';

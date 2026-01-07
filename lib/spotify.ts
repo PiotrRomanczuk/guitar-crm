@@ -1,5 +1,6 @@
 const TOKEN_ENDPOINT = `https://accounts.spotify.com/api/token`;
 const SEARCH_ENDPOINT = 'https://api.spotify.com/v1/search';
+const TRACK_ENDPOINT = 'https://api.spotify.com/v1/tracks';
 const AUDIO_FEATURES_ENDPOINT = 'https://api.spotify.com/v1/audio-features';
 
 let cachedToken: string | null = null;
@@ -57,6 +58,24 @@ export const searchTracks = async (query: string) => {
       },
     }
   );
+
+  return response.json();
+};
+
+export const getTrack = async (trackId: string) => {
+  const { access_token } = await getAccessToken();
+
+  const response = await fetch(`${TRACK_ENDPOINT}/${trackId}`, {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error(`Spotify Track Error (${response.status}):`, errorBody);
+    throw new Error(`Spotify API Error: ${response.status} ${response.statusText}`);
+  }
 
   return response.json();
 };

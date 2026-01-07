@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Header from '@/components/navigation/Header';
-import { Sidebar } from '@/components/navigation/Sidebar';
+import { HorizontalNav } from '@/components/navigation/HorizontalNav';
 import { Toaster } from 'sonner';
 import { getSupabaseConfig } from '@/lib/supabase/config';
 
@@ -20,27 +20,31 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
   const isAuthPage = ['/sign-in', '/sign-up', '/auth/login', '/auth/register'].includes(
     pathname || ''
   );
-  const showSidebar = !!user && !isAuthPage;
+  const showNavigation = !!user && !isAuthPage;
+
+  // Always use horizontal navigation on top for all logged-in users
+  const useHorizontalNav = showNavigation;
 
   const { isLocal } = getSupabaseConfig();
   console.log('AppShell:', {
     pathname,
     hasUser: !!user,
     isAuthPage,
-    showSidebar,
+    showNavigation,
+    useHorizontalNav,
     db: isLocal ? 'local' : 'remote',
   });
 
   return (
     <>
-      {showSidebar ? (
-        <Sidebar user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
+      {showNavigation ? (
+        <HorizontalNav user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
       ) : (
         <Header user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
       )}
       <main
         className={
-          showSidebar ? 'md:ml-64 min-h-screen bg-background' : 'min-h-screen bg-background'
+          showNavigation ? 'pt-16 min-h-screen bg-background' : 'min-h-screen bg-background'
         }
       >
         {children}

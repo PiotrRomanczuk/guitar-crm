@@ -73,7 +73,7 @@ const complete = async (
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('[OpenRouter] API Error:', errorData);
-        
+
         // Create error with status code for retry logic
         const error: any = new Error(`OpenRouter API Error: ${response.statusText}`);
         error.status = response.status;

@@ -17,16 +17,18 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: data.error.message }, { status: data.error.status });
     }
 
-    const tracks = data.tracks.items.map((track: SpotifyApiTrack) => ({
+    const results = data.tracks.items.map((track: SpotifyApiTrack) => ({
       id: track.id,
       name: track.name,
       artist: track.artists[0].name,
       album: track.album.name,
-      image: track.album.images[0]?.url,
+      url: track.external_urls.spotify,
+      coverUrl: track.album.images[0]?.url,
+      duration_ms: track.duration_ms,
       release_date: track.album.release_date,
     }));
 
-    return NextResponse.json({ tracks });
+    return NextResponse.json({ results });
   } catch (error) {
     console.error('Spotify Search Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
