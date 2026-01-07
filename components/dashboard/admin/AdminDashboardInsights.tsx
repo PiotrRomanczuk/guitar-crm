@@ -63,7 +63,7 @@ export function AdminDashboardInsights({ adminStats }: Props) {
       });
 
       if (result.success && result.insights) {
-        setInsights(result.insights);
+        setInsights(String(result.insights)); // Ensure it's a string
         setLastUpdated(new Date());
       } else {
         console.error('Failed to generate admin insights:', result.error);

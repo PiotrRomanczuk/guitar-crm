@@ -10,6 +10,7 @@ import { registerAgent } from '../registry';
 import { emailDraftAgent } from './communication';
 import { lessonNotesAgent, assignmentGeneratorAgent, postLessonSummaryAgent } from './content';
 import { progressInsightsAgent, adminInsightsAgent } from './analytics';
+import { songNormalizationAgent } from './song-normalization';
 
 // Register all agents
 export function registerAllAgents(): void {
@@ -24,6 +25,9 @@ export function registerAllAgents(): void {
   // Analytics agents
   registerAgent(progressInsightsAgent);
   registerAgent(adminInsightsAgent);
+
+  // System agents
+  registerAgent(songNormalizationAgent);
 
   console.log('[AgentRegistry] All agents registered successfully');
 }
@@ -41,6 +45,9 @@ export {
   // Analytics
   progressInsightsAgent,
   adminInsightsAgent,
+
+  // System
+  songNormalizationAgent,
 };
 
 // Export agent categories for organized access
@@ -57,4 +64,9 @@ export const contentAgents = {
 export const analyticsAgents = {
   progressInsightsAgent,
   adminInsightsAgent,
+};
+
+// Export system agents for data processing
+export const systemAgents = {
+  songNormalizationAgent,
 };

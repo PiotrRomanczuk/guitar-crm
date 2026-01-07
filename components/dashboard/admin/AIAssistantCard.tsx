@@ -96,11 +96,11 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
     try {
       const result = await generateAIResponse(textToSend, selectedModel);
       if (result.error) {
-        setError(result.error);
+        setError(String(result.error)); // Ensure it's a string
       } else {
         const assistantMessage: Message = {
           role: 'assistant',
-          content: result.content || 'No response received.',
+          content: String(result.content || 'No response received.'), // Ensure it's a string
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, assistantMessage]);

@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/server';
 /**
  * Map OpenRouter model IDs to appropriate local models for Ollama
  */
-async function getProviderAppropriateModel(provider: any, requestedModel: string): Promise<string> {
+export async function getProviderAppropriateModel(provider: any, requestedModel: string): Promise<string> {
   // If using Ollama, map OpenRouter models to local equivalents
   if (provider.name === 'Ollama') {
     // Map OpenRouter model IDs to Ollama model names

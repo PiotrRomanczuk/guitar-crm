@@ -43,7 +43,7 @@ export function AssignmentAI({
       });
 
       if (result.success && result.assignment) {
-        onAssignmentGenerated(result.assignment);
+        onAssignmentGenerated(String(result.assignment)); // Ensure it's a string
       } else {
         console.error('Failed to generate assignment:', result.error);
       }

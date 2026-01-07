@@ -98,8 +98,8 @@ export function EmailDraftGenerator({ students }: Props) {
       });
 
       if (result.success) {
-        setSubject(result.subject);
-        setBody(result.body);
+        setSubject(String(result.subject || '')); // Ensure it's a string
+        setBody(String(result.body || '')); // Ensure it's a string
       } else {
         console.error('Failed to generate email draft:', result.error);
       }

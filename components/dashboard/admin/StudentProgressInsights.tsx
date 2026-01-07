@@ -46,7 +46,7 @@ export function StudentProgressInsights({ students }: Props) {
       });
 
       if (result.success && result.insights) {
-        setInsights(result.insights);
+        setInsights(String(result.insights)); // Ensure it's a string
       } else {
         console.error('Failed to analyze student progress:', result.error);
         setInsights('Failed to generate insights. Please try again.');
