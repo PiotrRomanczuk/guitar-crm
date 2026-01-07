@@ -13,6 +13,7 @@ import {
   LucideIcon,
   BarChart,
   FileText,
+  Music2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -69,6 +70,12 @@ export function Sidebar({ user, isAdmin, isTeacher, isStudent }: SidebarProps) {
           label: 'Lesson Stats',
           icon: BarChart,
           path: '/dashboard/admin/stats/lessons',
+        },
+        {
+          id: 'spotify-matches',
+          label: 'Spotify Matches',
+          icon: Music2,
+          path: '/dashboard/admin/spotify-matches',
         },
         { id: 'logs', label: 'Activity Logs', icon: FileText, path: '/dashboard/logs' }
       );
