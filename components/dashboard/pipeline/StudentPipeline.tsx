@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserPlus, UserCheck, Users, AlertTriangle, TrendingUp, LucideIcon } from 'lucide-react';
+import { TrendingUp, LucideIcon } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';

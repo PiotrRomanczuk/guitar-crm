@@ -45,7 +45,7 @@ async function updatePasswords() {
 
   for (const user of testUsers) {
     try {
-      const { data, error } = await supabase.auth.admin.updateUserById(
+      const { error } = await supabase.auth.admin.updateUserById(
         user.id,
         { password: user.password }
       );
