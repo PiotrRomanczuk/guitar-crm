@@ -19,6 +19,28 @@ export async function executeAgent(
 ): Promise<any> {
   const provider = await getAIProvider();
 
+  // Get the appropriate model for this provider
+  const requestedModel = request.overrides?.model || agent.model || DEFAULT_AI_MODEL;
+  let appropriateModel = requestedModel;
+
+  // If using Ollama, map OpenRouter models to local equivalents
+  if (provider.name === 'Ollama') {
+    const modelMappings: Record<string, string> = {
+      'meta-llama/llama-3.3-70b-instruct:free': 'llama3.2:3b',
+      'meta-llama/llama-3.2-3b-instruct:free': 'llama3.2:3b',
+      'meta-llama/llama-3.2-1b-instruct:free': 'llama3.2:1b',
+    };
+
+    if (modelMappings[requestedModel]) {
+      appropriateModel = modelMappings[requestedModel];
+      console.log(`[AgentExecution] Mapped ${requestedModel} to ${appropriateModel} for Ollama`);
+    } else {
+      // Fallback to a common model name for Ollama
+      appropriateModel = 'llama3.2:3b';
+      console.log(`[AgentExecution] Using fallback model ${appropriateModel} for Ollama`);
+    }
+  }
+
   // Build system prompt with context
   const systemPrompt = buildSystemPrompt(agent, executionContext);
 
@@ -32,7 +54,7 @@ export async function executeAgent(
 
   // Execute AI request
   const result = await provider.complete({
-    model: request.overrides?.model || agent.model || DEFAULT_AI_MODEL,
+    model: appropriateModel,
     messages,
     temperature: request.overrides?.temperature || agent.temperature,
     maxTokens: agent.maxTokens,

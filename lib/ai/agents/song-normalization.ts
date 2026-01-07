@@ -5,7 +5,8 @@
  * Spotify API matching, even with poor quality database entries.
  */
 
-import { generateAIResponse } from '@/app/actions/ai';
+import type { AgentSpecification } from '../agent-registry';
+import { executeAgent } from '../agent-registry';
 
 export interface SongNormalizationInput {
   title: string;
@@ -33,97 +34,108 @@ export interface SongNormalizationResult {
 }
 
 /**
+ * Song Normalization Agent Specification
+ */
+export const songNormalizationAgent: AgentSpecification = {
+  id: 'song-normalization',
+  name: 'Song Data Normalization Agent',
+  description: 'Cleans and normalizes song data for better Spotify API matching',
+  version: '1.0.0',
+  
+  purpose: 'Clean and normalize messy song database entries to improve matching accuracy with music services like Spotify',
+  
+  targetUsers: ['system'],
+  
+  useCases: [
+    'Clean typos in song titles and artist names',
+    'Handle featuring artists and collaborations',
+    'Normalize special characters and punctuation',
+    'Generate alternative search queries',
+    'Identify songs that need manual review'
+  ],
+  
+  limitations: [
+    'Cannot identify songs with completely wrong metadata',
+    'May suggest corrections that change artistic intent',
+    'Requires sufficient context to make accurate suggestions'
+  ],
+  
+  systemPrompt: `You are a music database expert specializing in cleaning and normalizing song data to improve matching accuracy with music services like Spotify. Your task is to analyze and enhance the provided song information.
+
+Your expertise should address:
+- Correcting common typos and spelling errors
+- Handling featuring artists properly (feat., ft., with, etc.)
+- Normalizing punctuation and special characters
+- Identifying missing words or incomplete titles
+- Generating alternative search variations
+- Providing confidence scores for suggested changes
+
+Always respond with valid JSON matching the specified schema.`,
+
+  temperature: 0.3,
+  maxTokens: 800,
+  
+  requiredContext: [],
+  optionalContext: [],
+  
+  inputValidation: {
+    maxLength: 1000,
+    allowedFields: [
+      'title',
+      'artist',
+      'album',
+      'year',
+      'genre'
+    ],
+    sensitiveDataHandling: 'sanitize'
+  },
+  
+  enableLogging: true,
+  enableAnalytics: false
+};
+
+/**
  * Execute song normalization agent
  */
 export async function generateSongNormalizationAgent(
   input: SongNormalizationInput
 ): Promise<{ success: boolean; data?: SongNormalizationResult; content?: string; error?: string }> {
-  const prompt = `You are a music database expert specializing in cleaning and normalizing song data to improve matching accuracy with music services like Spotify. Your task is to analyze and enhance the provided song information.
-
-### Input Song Data:
-- **Title**: "${input.title}"
-- **Artist**: "${input.artist}"
-${input.album ? `- **Album**: "${input.album}"` : ''}
-${input.year ? `- **Year**: ${input.year}` : ''}
-${input.genre ? `- **Genre**: "${input.genre}"` : ''}
-
-### Your Expertise Should Address:
-
-1. **Common Data Issues**:
-   - Typos and misspellings (e.g., "Coldpaly" → "Coldplay")
-   - Inconsistent formatting (e.g., "Guns N Roses" vs "Guns N' Roses")
-   - Missing/extra words (feat., featuring, vs, etc.)
-   - Special characters (e.g., "Motörhead" vs "Motorhead")
-   - Alternative artist names (solo vs band names)
-
-2. **Music Industry Knowledge**:
-   - Standard featuring/collaboration formats
-   - Band name variations and evolution
-   - Regional spelling differences
-   - Common abbreviations and expansions
-
-3. **Search Optimization**:
-   - Generate multiple search query variations
-   - Account for different platforms' naming conventions
-   - Consider partial matches and fallback strategies
-
-### Required Output:
-
-Provide a detailed JSON response with the following structure:
-
-\`\`\`json
-{
-  "normalizedTitle": "Clean, standardized song title",
-  "normalizedArtist": "Clean, standardized artist name", 
-  "alternativeTitles": [
-    "Alternative title variation 1",
-    "Alternative title variation 2"
-  ],
-  "alternativeArtists": [
-    "Alternative artist name 1", 
-    "Alternative artist name 2"
-  ],
-  "confidence": 85,
-  "reasoning": "Detailed explanation of changes made and why",
-  "searchQueries": [
-    "track:\\"normalized title\\" artist:\\"normalized artist\\"",
-    "normalized title normalized artist",
-    "alternative search queries..."
-  ],
-  "flags": {
-    "hasFeaturing": false,
-    "hasTypos": true,
-    "hasMissingWords": false,
-    "hasSpecialCharacters": false,
-    "needsManualReview": false
-  }
-}
-\`\`\`
-
-Focus on creating the most searchable and accurate representation of this song data.`;
 
   try {
-    const response = await generateAIResponse(prompt);
+    const userInput = `
+Input Song Data:
+- Title: "${input.title}"
+- Artist: "${input.artist}"
+${input.album ? `- Album: "${input.album}"` : ''}
+${input.year ? `- Year: ${input.year}` : ''}
+${input.genre ? `- Genre: "${input.genre}"` : ''}
 
-    if (response.error || !response.content) {
+Please analyze and normalize this song data, providing a JSON response with cleaned titles, artists, alternatives, confidence score, reasoning, search queries, and flags for data issues.
+`;
+
+    const response = await executeAgent('song-normalization', userInput);
+
+    if (!response || response.error) {
       return {
         success: false,
-        error: response.error || 'No response content',
+        error: response?.error || 'No response from agent',
       };
     }
 
+    const content = response.content || response.result || response;
+
     // Try to parse as JSON
     try {
-      const data = JSON.parse(response.content) as SongNormalizationResult;
+      const data = JSON.parse(String(content)) as SongNormalizationResult;
       return {
         success: true,
         data,
-        content: response.content,
+        content: String(content),
       };
     } catch {
       return {
         success: false,
-        content: response.content,
+        content: String(content),
         error: 'Failed to parse JSON response',
       };
     }

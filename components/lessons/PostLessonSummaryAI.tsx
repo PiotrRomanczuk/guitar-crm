@@ -46,8 +46,8 @@ export function PostLessonSummaryAI({
       });
 
       if (result.success && result.summary) {
-        setSummary(result.summary);
-        onSummaryGenerated?.(result.summary);
+        setSummary(String(result.summary)); // Ensure it's a string
+        onSummaryGenerated?.(String(result.summary));
       } else {
         console.error('Failed to generate post-lesson summary:', result.error);
       }

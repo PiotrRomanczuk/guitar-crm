@@ -43,7 +43,7 @@ export function LessonNotesAI({
       });
 
       if (result.success && result.notes) {
-        onNotesGenerated(result.notes);
+        onNotesGenerated(String(result.notes)); // Ensure it's a string
       } else {
         console.error('Failed to generate lesson notes:', result.error);
       }

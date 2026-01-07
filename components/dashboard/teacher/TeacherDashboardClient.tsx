@@ -204,9 +204,9 @@ export function TeacherDashboardClient({
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <StudentProgressInsights
                   students={data.students.map((s) => ({
-                    id: s.id,
-                    full_name: s.name,
-                    email: '', // Email not available in this data structure
+                    id: String(s.id || ''),
+                    full_name: String(s.name || 'Unknown Student'),
+                    email: String(''), // Email not available in this data structure
                   }))}
                 />
                 {adminStats && <AdminDashboardInsights adminStats={adminStats} />}
@@ -215,9 +215,9 @@ export function TeacherDashboardClient({
               <div className="grid grid-cols-1 gap-6">
                 <EmailDraftGenerator
                   students={data.students.map((s) => ({
-                    id: s.id,
-                    full_name: s.name,
-                    email: '', // Email not available in this data structure
+                    id: String(s.id || ''),
+                    full_name: String(s.name || 'Unknown Student'),
+                    email: String(''), // Email not available in this data structure
                   }))}
                 />
               </div>
