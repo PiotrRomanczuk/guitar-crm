@@ -41,25 +41,26 @@ export const songNormalizationAgent: AgentSpecification = {
   name: 'Song Data Normalization Agent',
   description: 'Cleans and normalizes song data for better Spotify API matching',
   version: '1.0.0',
-  
-  purpose: 'Clean and normalize messy song database entries to improve matching accuracy with music services like Spotify',
-  
+
+  purpose:
+    'Clean and normalize messy song database entries to improve matching accuracy with music services like Spotify',
+
   targetUsers: ['system'],
-  
+
   useCases: [
     'Clean typos in song titles and artist names',
     'Handle featuring artists and collaborations',
     'Normalize special characters and punctuation',
     'Generate alternative search queries',
-    'Identify songs that need manual review'
+    'Identify songs that need manual review',
   ],
-  
+
   limitations: [
     'Cannot identify songs with completely wrong metadata',
     'May suggest corrections that change artistic intent',
-    'Requires sufficient context to make accurate suggestions'
+    'Requires sufficient context to make accurate suggestions',
   ],
-  
+
   systemPrompt: `You are a music database expert specializing in cleaning and normalizing song data to improve matching accuracy with music services like Spotify. Your task is to analyze and enhance the provided song information.
 
 Your expertise should address:
@@ -74,24 +75,18 @@ Always respond with valid JSON matching the specified schema.`,
 
   temperature: 0.3,
   maxTokens: 800,
-  
+
   requiredContext: [],
   optionalContext: [],
-  
+
   inputValidation: {
     maxLength: 1000,
-    allowedFields: [
-      'title',
-      'artist',
-      'album',
-      'year',
-      'genre'
-    ],
-    sensitiveDataHandling: 'sanitize'
+    allowedFields: ['title', 'artist', 'album', 'year', 'genre'],
+    sensitiveDataHandling: 'sanitize',
   },
-  
+
   enableLogging: true,
-  enableAnalytics: false
+  enableAnalytics: false,
 };
 
 /**
@@ -100,7 +95,6 @@ Always respond with valid JSON matching the specified schema.`,
 export async function generateSongNormalizationAgent(
   input: SongNormalizationInput
 ): Promise<{ success: boolean; data?: SongNormalizationResult; content?: string; error?: string }> {
-
   try {
     const userInput = `
 Input Song Data:

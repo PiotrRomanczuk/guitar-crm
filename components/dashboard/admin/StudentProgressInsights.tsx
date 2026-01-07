@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Brain, Loader2, User, Calendar } from 'lucide-react';
-import { analyzeStudentProgress } from '@/app/actions/ai';
+import { analyzeStudentProgressStream } from '@/app/actions/ai';
 
 interface Student {
   id: string;
@@ -34,9 +34,11 @@ export function StudentProgressInsights({ students }: Props) {
     if (!selectedStudent) return;
 
     setLoading(true);
+    setInsights(''); // Clear previous insights
+
     try {
-      const result = await analyzeStudentProgress({
-        studentId: selectedStudent,
+      const streamGenerator = analyzeStudentProgressStream({
+        studentData: { studentId: selectedStudent },
         timePeriod:
           timePeriod === 'last_30_days'
             ? 'Last 30 days'
@@ -45,11 +47,8 @@ export function StudentProgressInsights({ students }: Props) {
             : 'All time',
       });
 
-      if (result.success && result.insights) {
-        setInsights(String(result.insights)); // Ensure it's a string
-      } else {
-        console.error('Failed to analyze student progress:', result.error);
-        setInsights('Failed to generate insights. Please try again.');
+      for await (const chunk of streamGenerator) {
+        setInsights(String(chunk));
       }
     } catch (error) {
       console.error('Error analyzing student progress:', error);

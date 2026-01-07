@@ -67,6 +67,11 @@ export async function validateRequest(
   if (agent.inputValidation.sensitiveDataHandling === 'block') {
     await validateSensitiveData(request.input);
   }
+
+  // Sanitize sensitive data if sanitization is enabled
+  if (agent.inputValidation.sensitiveDataHandling === 'sanitize') {
+    request.input = await sanitizeSensitiveData(request.input);
+  }
 }
 
 /**
@@ -91,6 +96,43 @@ export async function validateSensitiveData(input: Record<string, any>): Promise
       }
     }
   }
+}
+
+/**
+ * Sanitize sensitive data in input by redacting or masking it
+ */
+export async function sanitizeSensitiveData(
+  input: Record<string, any>
+): Promise<Record<string, any>> {
+  const sanitized = { ...input };
+
+  // Define patterns for sensitive data with their redaction strategies
+  const sanitizationRules = [
+    {
+      pattern: /\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?(\d{4})\b/g,
+      replacement: '****-****-****-$1', // Keep last 4 digits of credit cards
+    },
+    {
+      pattern: /\b\d{3}-\d{2}-(\d{4})\b/g,
+      replacement: '***-**-$1', // Keep last 4 digits of SSN
+    },
+    {
+      pattern: /\b([A-Za-z0-9._%+-])[A-Za-z0-9._%+-]*@([A-Za-z0-9.-]+\.[A-Z|a-z]{2,})\b/g,
+      replacement: '$1***@$2', // Mask email username
+    },
+  ];
+
+  for (const [key, value] of Object.entries(sanitized)) {
+    if (typeof value === 'string') {
+      let sanitizedValue = value;
+      for (const rule of sanitizationRules) {
+        sanitizedValue = sanitizedValue.replace(rule.pattern, rule.replacement);
+      }
+      sanitized[key] = sanitizedValue;
+    }
+  }
+
+  return sanitized;
 }
 
 /**

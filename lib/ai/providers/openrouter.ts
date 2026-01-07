@@ -11,6 +11,7 @@ import type {
   AIResult,
   AIModelInfo,
 } from '../types';
+import { withRetry, AI_PROVIDER_RETRY_CONFIG } from '../retry';
 
 // Functional implementation
 
@@ -49,59 +50,62 @@ const complete = async (
     return { error: 'OpenRouter API key is not configured.' };
   }
 
-  try {
-    const response = await fetch(`${config.baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${config.apiKey}`,
-        'Content-Type': 'application/json',
-        ...config.headers,
-      },
-      body: JSON.stringify({
-        model: request.model,
-        messages: request.messages,
-        temperature: request.temperature,
-        max_tokens: request.maxTokens,
-        stream: request.stream || false,
-      }),
-      signal: AbortSignal.timeout(config.timeout || 30000),
-    });
+  // Wrap the actual request in retry logic
+  return withRetry(async () => {
+    try {
+      const response = await fetch(`${config.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${config.apiKey}`,
+          'Content-Type': 'application/json',
+          ...config.headers,
+        },
+        body: JSON.stringify({
+          model: request.model,
+          messages: request.messages,
+          temperature: request.temperature,
+          max_tokens: request.maxTokens,
+          stream: request.stream || false,
+        }),
+        signal: AbortSignal.timeout(config.timeout || 30000),
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('[OpenRouter] API Error:', errorData);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('[OpenRouter] API Error:', errorData);
+        
+        // Create error with status code for retry logic
+        const error: any = new Error(`OpenRouter API Error: ${response.statusText}`);
+        error.status = response.status;
+        throw error;
+      }
+
+      const data = await response.json();
+
       return {
-        error: `OpenRouter API Error: ${response.statusText}`,
-        code: String(response.status),
-        details: errorData,
+        content: data.choices?.[0]?.message?.content || '',
+        finishReason: data.choices?.[0]?.finish_reason,
+        usage: data.usage
+          ? {
+              promptTokens: data.usage.prompt_tokens || 0,
+              completionTokens: data.usage.completion_tokens || 0,
+              totalTokens: data.usage.total_tokens || 0,
+            }
+          : undefined,
       };
+    } catch (error) {
+      console.error('[OpenRouter] Request failed:', error);
+
+      if (error instanceof Error) {
+        return {
+          error: `Failed to connect to OpenRouter: ${error.message}`,
+          details: error,
+        };
+      }
+
+      return { error: 'Failed to connect to OpenRouter service.' };
     }
-
-    const data = await response.json();
-
-    return {
-      content: data.choices?.[0]?.message?.content || '',
-      finishReason: data.choices?.[0]?.finish_reason,
-      usage: data.usage
-        ? {
-            promptTokens: data.usage.prompt_tokens || 0,
-            completionTokens: data.usage.completion_tokens || 0,
-            totalTokens: data.usage.total_tokens || 0,
-          }
-        : undefined,
-    };
-  } catch (error) {
-    console.error('[OpenRouter] Request failed:', error);
-
-    if (error instanceof Error) {
-      return {
-        error: `Failed to connect to OpenRouter: ${error.message}`,
-        details: error,
-      };
-    }
-
-    return { error: 'Failed to connect to OpenRouter service.' };
-  }
+  }, AI_PROVIDER_RETRY_CONFIG);
 };
 
 /**

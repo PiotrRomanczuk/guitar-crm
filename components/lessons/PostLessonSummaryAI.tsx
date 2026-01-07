@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, Loader2, Copy, Check } from 'lucide-react';
-import { generatePostLessonSummary } from '@/app/actions/ai';
+import { generatePostLessonSummaryStream } from '@/app/actions/ai';
 
 interface Props {
   studentName: string;
@@ -34,25 +34,29 @@ export function PostLessonSummaryAI({
 
   const handleGenerate = async () => {
     setLoading(true);
+    setSummary(''); // Clear previous summary
+
     try {
-      const result = await generatePostLessonSummary({
+      const streamGenerator = generatePostLessonSummaryStream({
         studentName,
-        duration,
-        songsPracticed,
-        newTechniques,
-        struggles,
-        successes,
-        teacherNotes,
+        songTitle: songsPracticed.join(', '),
+        lessonDuration: duration,
+        skillsWorked: newTechniques.join(', '),
+        challengesNoted: struggles.join(', '),
+        nextSteps: successes.join(', '),
       });
 
-      if (result.success && result.summary) {
-        setSummary(String(result.summary)); // Ensure it's a string
-        onSummaryGenerated?.(String(result.summary));
-      } else {
-        console.error('Failed to generate post-lesson summary:', result.error);
+      let currentSummary = '';
+      for await (const chunk of streamGenerator) {
+        currentSummary = String(chunk);
+        setSummary(currentSummary);
+        onSummaryGenerated?.(currentSummary);
       }
     } catch (error) {
       console.error('Error generating post-lesson summary:', error);
+      const errorMsg = 'Error generating summary. Please try again.';
+      setSummary(errorMsg);
+      onSummaryGenerated?.(errorMsg);
     } finally {
       setLoading(false);
     }

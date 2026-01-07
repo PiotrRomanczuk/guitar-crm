@@ -8,11 +8,11 @@ let tokenExpiration: number | null = null;
 const getClientCredentials = () => {
   const client_id = process.env.SPOTIFY_CLIENT_ID;
   const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-  
+
   if (!client_id || !client_secret) {
     throw new Error('Spotify credentials are not configured');
   }
-  
+
   return Buffer.from(`${client_id}:${client_secret}`).toString('base64');
 };
 
@@ -40,7 +40,7 @@ const getAccessToken = async () => {
   if (data.access_token) {
     cachedToken = data.access_token;
     // expires_in is usually 3600 seconds. Subtract a small buffer (e.g. 60s)
-    tokenExpiration = now + (data.expires_in * 1000) - 60000;
+    tokenExpiration = now + data.expires_in * 1000 - 60000;
   }
 
   return data;

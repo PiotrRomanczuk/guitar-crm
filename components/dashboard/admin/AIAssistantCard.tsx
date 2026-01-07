@@ -19,7 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { generateAIResponse, getAvailableModels } from '@/app/actions/ai';
+import { generateAIResponseStream, getAvailableModels } from '@/app/actions/ai';
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
 import { Loader2, Send, Minimize2, Maximize2, Sparkles, Trash2 } from 'lucide-react';
 import type { AIModelInfo } from '@/lib/ai';
@@ -93,20 +93,31 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
     setIsLoading(true);
     setError('');
 
+    // Create placeholder message for streaming
+    const assistantMessageId = Date.now();
+    const assistantMessage: Message = {
+      role: 'assistant',
+      content: '',
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, assistantMessage]);
+
     try {
-      const result = await generateAIResponse(textToSend, selectedModel);
-      if (result.error) {
-        setError(String(result.error)); // Ensure it's a string
-      } else {
-        const assistantMessage: Message = {
-          role: 'assistant',
-          content: String(result.content || 'No response received.'), // Ensure it's a string
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
+      const streamGenerator = generateAIResponseStream(textToSend, selectedModel);
+
+      for await (const chunk of streamGenerator) {
+        setMessages((prev) =>
+          prev.map((msg, index) =>
+            index === prev.length - 1 && msg.role === 'assistant'
+              ? { ...msg, content: String(chunk) }
+              : msg
+          )
+        );
       }
-    } catch {
+    } catch (error) {
       setError('An unexpected error occurred.');
+      // Remove the placeholder message on error
+      setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsLoading(false);
     }

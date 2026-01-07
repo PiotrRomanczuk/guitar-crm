@@ -8,6 +8,7 @@ import type { AgentSpecification, AgentRequest, AgentResponse } from './types';
 import { validateSpecification, validateRequest, checkPermissions } from './validation';
 import { prepareContext, executeAgent, generateRequestId } from './execution';
 import { logExecution } from './analytics';
+import { checkRateLimit } from '../rate-limiter';
 
 // Registry state - using Map for efficient lookups
 const agents = new Map<string, AgentSpecification>();
@@ -58,6 +59,19 @@ export async function executeAgentRequest(request: AgentRequest): Promise<AgentR
     const agent = agents.get(request.agentId);
     if (!agent) {
       throw new Error(`Agent not found: ${request.agentId}`);
+    }
+
+    // Check rate limits
+    const rateLimitResult = await checkRateLimit(
+      request.context.userId,
+      request.context.userRole,
+      request.agentId
+    );
+
+    if (!rateLimitResult.allowed) {
+      throw new Error(
+        `Rate limit exceeded. Please try again in ${rateLimitResult.retryAfter} seconds.`
+      );
     }
 
     // Validate request

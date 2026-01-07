@@ -41,7 +41,7 @@ async function createSummaryReport() {
     .eq('status', 'pending');
 
   // Calculate success rate
-  const successRate = totalSongs ? ((songsWithSpotify || 0) / totalSongs * 100).toFixed(1) : 0;
+  const successRate = totalSongs ? (((songsWithSpotify || 0) / totalSongs) * 100).toFixed(1) : 0;
 
   console.log(`\n📊 Results:`);
   console.log(`   Total Songs: ${totalSongs || 0}`);
@@ -69,7 +69,9 @@ async function createSummaryReport() {
     console.log(`\n📋 Next Steps:`);
     console.log(`   1. Review ${pendingMatches} pending matches in your admin dashboard`);
     console.log(`   2. Accept or reject matches based on your judgment`);
-    console.log(`   3. Consider lowering confidence threshold if too many good matches are pending`);
+    console.log(
+      `   3. Consider lowering confidence threshold if too many good matches are pending`
+    );
   } else if (songsWithoutSpotify && songsWithoutSpotify > 0) {
     console.log(`\n🔄 Remaining Work:`);
     console.log(`   ${songsWithoutSpotify} songs still need Spotify data`);
