@@ -30,7 +30,10 @@ export function WeeklySummaryCard() {
   });
 
   const weekLabel = data
-    ? `${format(new Date(data.weekStart), 'MMM d')} - ${format(new Date(data.weekEnd), 'MMM d, yyyy')}`
+    ? `${format(new Date(data.weekStart), 'MMM d')} - ${format(
+        new Date(data.weekEnd),
+        'MMM d, yyyy'
+      )}`
     : format(startOfWeek(new Date()), 'MMM d') +
       ' - ' +
       format(endOfWeek(new Date()), 'MMM d, yyyy');

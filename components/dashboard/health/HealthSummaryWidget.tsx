@@ -35,7 +35,8 @@ export function HealthSummaryWidget() {
   };
 
   const totalHealthy = healthyCounts.excellent + healthyCounts.good;
-  const totalConcern = healthyCounts.needs_attention + healthyCounts.at_risk + healthyCounts.critical;
+  const totalConcern =
+    healthyCounts.needs_attention + healthyCounts.at_risk + healthyCounts.critical;
 
   return (
     <Card>
@@ -67,7 +68,8 @@ export function HealthSummaryWidget() {
 
             {healthyCounts.critical > 0 && (
               <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm font-medium">
-                ⚠️ {healthyCounts.critical} student{healthyCounts.critical > 1 ? 's' : ''} in critical status
+                ⚠️ {healthyCounts.critical} student{healthyCounts.critical > 1 ? 's' : ''} in
+                critical status
               </div>
             )}
 

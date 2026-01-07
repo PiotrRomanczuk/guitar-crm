@@ -100,7 +100,9 @@ export async function GET() {
 
       if (overdueAssignments && overdueAssignments.length > 0) {
         const dueDate = new Date(overdueAssignments[0].due_date);
-        const daysAgo = Math.floor((new Date().getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
+        const daysAgo = Math.floor(
+          (new Date().getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
         attentionItems.push({
           id: `overdue-${profile.id}`,
           studentId: profile.id,

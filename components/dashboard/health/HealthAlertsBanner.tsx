@@ -24,7 +24,7 @@ async function fetchStudentHealth(): Promise<StudentHealth[]> {
 
 export function HealthAlertsBanner() {
   const [dismissed, setDismissed] = useState(false);
-  
+
   const { data } = useQuery({
     queryKey: ['student-health'],
     queryFn: fetchStudentHealth,
@@ -46,7 +46,9 @@ export function HealthAlertsBanner() {
       <AlertTriangle className="h-4 w-4" />
       <AlertTitle className="flex items-center justify-between pr-8">
         {showCriticalAlert
-          ? `${criticalStudents.length} Student${criticalStudents.length > 1 ? 's' : ''} Need Immediate Attention`
+          ? `${criticalStudents.length} Student${
+              criticalStudents.length > 1 ? 's' : ''
+            } Need Immediate Attention`
           : `${atRiskStudents.length} Student${atRiskStudents.length > 1 ? 's' : ''} At Risk`}
       </AlertTitle>
       <AlertDescription className="flex items-center gap-4">

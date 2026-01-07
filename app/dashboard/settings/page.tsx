@@ -27,10 +27,7 @@ export default async function SettingsPage() {
   }
 
   return (
-    <SettingsPageClient
-      isGoogleConnected={isGoogleConnected}
-      bearerToken={session?.access_token}
-    />
+    <SettingsPageClient isGoogleConnected={isGoogleConnected} bearerToken={session?.access_token} />
   );
 }
 

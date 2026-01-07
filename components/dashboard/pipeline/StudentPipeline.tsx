@@ -124,9 +124,7 @@ export function StudentPipeline({ onStageClick }: StudentPipelineProps) {
                         </div>
                       )}
                     </div>
-                    <div className={cn('text-3xl font-bold mb-1', stage.color)}>
-                      {stage.count}
-                    </div>
+                    <div className={cn('text-3xl font-bold mb-1', stage.color)}>{stage.count}</div>
                     <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       {stage.label}
                     </div>
