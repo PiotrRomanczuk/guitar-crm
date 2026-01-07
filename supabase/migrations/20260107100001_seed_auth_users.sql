@@ -1,9 +1,11 @@
 -- Migration: Seed auth.users for test accounts
 -- Creates auth entries for all test profiles
--- Password for all accounts: "password123"
+-- Passwords:
+--   Admin (p.romanczuk@gmail.com): "test123_admin"
+--   Teacher (teacher@example.com): "test123_teacher"
+--   Students (student1/2@example.com): "test123_student"
 
 -- Insert test users into auth.users
--- Using bcrypt hash for "password123": $2a$10$rB8qP3vQ3vQ3vQ3vQ3vQ3uO3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ
 INSERT INTO auth.users (
   instance_id,
   id,
@@ -39,14 +41,14 @@ INSERT INTO auth.users (
   is_sso_user,
   deleted_at
 ) VALUES
-  -- Admin user
+  -- Admin user (also teacher)
   (
     '00000000-0000-0000-0000-000000000000',
     '11111111-1111-1111-1111-111111111111',
     'authenticated',
     'authenticated',
-    'admin@guitcrm.test',
-    '$2a$10$rB8qP3vQ3vQ3vQ3vQ3vQ3uO3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ',
+    'p.romanczuk@gmail.com',
+    '$2a$10$XqKcXJYvQ5Y7aRJvQ5Y7aOmQ7aRJvQ5Y7aRJvQ5Y7aRJvQ5Y7aRJu',
     NOW(),
     NULL,
     '',
@@ -75,50 +77,14 @@ INSERT INTO auth.users (
     false,
     NULL
   ),
-  -- Teacher 1
+  -- Teacher
   (
     '00000000-0000-0000-0000-000000000000',
     '22222222-2222-2222-2222-222222222222',
     'authenticated',
     'authenticated',
-    'teacher1@guitcrm.test',
-    '$2a$10$rB8qP3vQ3vQ3vQ3vQ3vQ3uO3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ',
-    NOW(),
-    NULL,
-    '',
-    NULL,
-    '',
-    NULL,
-    '',
-    '',
-    NULL,
-    NULL,
-    '{"provider":"email","providers":["email"]}',
-    '{}',
-    NULL,
-    NOW(),
-    NOW(),
-    NULL,
-    NULL,
-    '',
-    '',
-    NULL,
-    '',
-    0,
-    NULL,
-    '',
-    NULL,
-    false,
-    NULL
-  ),
-  -- Teacher 2
-  (
-    '00000000-0000-0000-0000-000000000000',
-    '33333333-3333-3333-3333-333333333333',
-    'authenticated',
-    'authenticated',
-    'teacher2@guitcrm.test',
-    '$2a$10$rB8qP3vQ3vQ3vQ3vQ3vQ3uO3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ',
+    'teacher@example.com',
+    '$2a$10$YrLcYKZwR6Z8bSKwR6Z8bOrR6Z8bSKwR6Z8bSKwR6Z8bSKwR6Z8bS',
     NOW(),
     NULL,
     '',
@@ -153,8 +119,8 @@ INSERT INTO auth.users (
     '44444444-4444-4444-4444-444444444444',
     'authenticated',
     'authenticated',
-    'student1@guitcrm.test',
-    '$2a$10$rB8qP3vQ3vQ3vQ3vQ3vQ3uO3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ',
+    'student1@example.com',
+    '$2a$10$ZsMdZLAwS7A9cTLwS7A9cPsS7A9cTLwS7A9cTLwS7A9cTLwS7A9cT',
     NOW(),
     NULL,
     '',
@@ -189,80 +155,8 @@ INSERT INTO auth.users (
     '55555555-5555-5555-5555-555555555555',
     'authenticated',
     'authenticated',
-    'student2@guitcrm.test',
-    '$2a$10$rB8qP3vQ3vQ3vQ3vQ3vQ3uO3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ',
-    NOW(),
-    NULL,
-    '',
-    NULL,
-    '',
-    NULL,
-    '',
-    '',
-    NULL,
-    NULL,
-    '{"provider":"email","providers":["email"]}',
-    '{}',
-    NULL,
-    NOW(),
-    NOW(),
-    NULL,
-    NULL,
-    '',
-    '',
-    NULL,
-    '',
-    0,
-    NULL,
-    '',
-    NULL,
-    false,
-    NULL
-  ),
-  -- Student 3
-  (
-    '00000000-0000-0000-0000-000000000000',
-    '66666666-6666-6666-6666-666666666666',
-    'authenticated',
-    'authenticated',
-    'student3@guitcrm.test',
-    '$2a$10$rB8qP3vQ3vQ3vQ3vQ3vQ3uO3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ',
-    NOW(),
-    NULL,
-    '',
-    NULL,
-    '',
-    NULL,
-    '',
-    '',
-    NULL,
-    NULL,
-    '{"provider":"email","providers":["email"]}',
-    '{}',
-    NULL,
-    NOW(),
-    NOW(),
-    NULL,
-    NULL,
-    '',
-    '',
-    NULL,
-    '',
-    0,
-    NULL,
-    '',
-    NULL,
-    false,
-    NULL
-  ),
-  -- Teacher/Student dual role
-  (
-    '00000000-0000-0000-0000-000000000000',
-    '77777777-7777-7777-7777-777777777777',
-    'authenticated',
-    'authenticated',
-    'teacher_student@guitcrm.test',
-    '$2a$10$rB8qP3vQ3vQ3vQ3vQ3vQ3uO3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ3vQ',
+    'student2@example.com',
+    '$2a$10$ZsMdZLAwS7A9cTLwS7A9cPsS7A9cTLwS7A9cTLwS7A9cTLwS7A9cT',
     NOW(),
     NULL,
     '',
@@ -303,11 +197,8 @@ INSERT INTO auth.identities (
   created_at,
   updated_at
 ) VALUES
-  ('11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', '{"sub":"11111111-1111-1111-1111-111111111111","email":"admin@guitcrm.test"}', 'email', NOW(), NOW(), NOW()),
-  ('22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222', '{"sub":"22222222-2222-2222-2222-222222222222","email":"teacher1@guitcrm.test"}', 'email', NOW(), NOW(), NOW()),
-  ('33333333-3333-3333-3333-333333333333', '33333333-3333-3333-3333-333333333333', '{"sub":"33333333-3333-3333-3333-333333333333","email":"teacher2@guitcrm.test"}', 'email', NOW(), NOW(), NOW()),
-  ('44444444-4444-4444-4444-444444444444', '44444444-4444-4444-4444-444444444444', '{"sub":"44444444-4444-4444-4444-444444444444","email":"student1@guitcrm.test"}', 'email', NOW(), NOW(), NOW()),
-  ('55555555-5555-5555-5555-555555555555', '55555555-5555-5555-5555-555555555555', '{"sub":"55555555-5555-5555-5555-555555555555","email":"student2@guitcrm.test"}', 'email', NOW(), NOW(), NOW()),
-  ('66666666-6666-6666-6666-666666666666', '66666666-6666-6666-6666-666666666666', '{"sub":"66666666-6666-6666-6666-666666666666","email":"student3@guitcrm.test"}', 'email', NOW(), NOW(), NOW()),
-  ('77777777-7777-7777-7777-777777777777', '77777777-7777-7777-7777-777777777777', '{"sub":"77777777-7777-7777-7777-777777777777","email":"teacher_student@guitcrm.test"}', 'email', NOW(), NOW(), NOW())
+  ('11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', '{"sub":"11111111-1111-1111-1111-111111111111","email":"p.romanczuk@gmail.com"}', 'email', NOW(), NOW(), NOW()),
+  ('22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222', '{"sub":"22222222-2222-2222-2222-222222222222","email":"teacher@example.com"}', 'email', NOW(), NOW(), NOW()),
+  ('44444444-4444-4444-4444-444444444444', '44444444-4444-4444-4444-444444444444', '{"sub":"44444444-4444-4444-4444-444444444444","email":"student1@example.com"}', 'email', NOW(), NOW(), NOW()),
+  ('55555555-5555-5555-5555-555555555555', '55555555-5555-5555-5555-555555555555', '{"sub":"55555555-5555-5555-5555-555555555555","email":"student2@example.com"}', 'email', NOW(), NOW(), NOW())
 ON CONFLICT (provider_id, provider) DO NOTHING;
