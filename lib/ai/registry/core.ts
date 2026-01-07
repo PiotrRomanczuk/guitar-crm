@@ -1,0 +1,220 @@
+/**
+ * Agent Registry Core
+ *
+ * Functional registry for managing AI agents
+ */
+
+import type { AgentSpecification, AgentRequest, AgentResponse } from './types';
+import { validateSpecification, validateRequest, checkPermissions } from './validation';
+import { prepareContext, executeAgent, generateRequestId } from './execution';
+import { logExecution } from './analytics';
+
+// Registry state - using Map for efficient lookups
+const agents = new Map<string, AgentSpecification>();
+
+// Utility functions
+function hashInput(input: Record<string, any>): string {
+  try {
+    return Buffer.from(JSON.stringify(input)).toString('base64').substr(0, 16);
+  } catch (error) {
+    return 'hash_error';
+  }
+}
+
+function getErrorCode(error: any): string {
+  if (error instanceof Error) {
+    if (error.message.includes('not found')) return 'AGENT_NOT_FOUND';
+    if (error.message.includes('permission')) return 'PERMISSION_DENIED';
+    if (error.message.includes('validation') || error.message.includes('Invalid'))
+      return 'VALIDATION_ERROR';
+    if (error.message.includes('context')) return 'CONTEXT_ERROR';
+    if (error.message.includes('rate limit')) return 'RATE_LIMITED';
+  }
+  return 'EXECUTION_FAILED';
+}
+
+/**
+ * Register a new AI agent with its specification
+ */
+export function registerAgent(spec: AgentSpecification): void {
+  // Validate specification
+  validateSpecification(spec);
+
+  // Register agent
+  agents.set(spec.id, spec);
+
+  console.log(`[AgentRegistry] Registered agent: ${spec.id} (${spec.name})`);
+}
+
+/**
+ * Execute an agent with proper validation and monitoring
+ */
+export async function executeAgentRequest(request: AgentRequest): Promise<AgentResponse> {
+  const startTime = Date.now();
+  const requestId = generateRequestId();
+
+  try {
+    // Get agent specification
+    const agent = agents.get(request.agentId);
+    if (!agent) {
+      throw new Error(`Agent not found: ${request.agentId}`);
+    }
+
+    // Validate request
+    await validateRequest(request, agent);
+
+    // Check permissions
+    await checkPermissions(request, agent);
+
+    // Prepare execution context
+    const executionContext = await prepareContext(request, agent);
+
+    // Execute agent
+    const result = await executeAgent(request, agent, executionContext);
+
+    // Create success response
+    const response: AgentResponse = {
+      success: true,
+      result,
+      metadata: {
+        agentId: request.agentId,
+        executionTime: Date.now() - startTime,
+        model: request.overrides?.model || agent.model || 'default',
+        provider: 'auto',
+        tokensUsed: result?.usage?.total_tokens,
+      },
+      analytics: {
+        requestId,
+        timestamp: new Date(),
+        inputHash: hashInput(request.input),
+        successful: true,
+      },
+    };
+
+    // Log execution
+    if (agent.enableLogging) {
+      await logExecution(response, request, agent);
+    }
+
+    return response;
+  } catch (error) {
+    const response: AgentResponse = {
+      success: false,
+      error: {
+        code: getErrorCode(error),
+        message: error instanceof Error ? error.message : 'Unknown error',
+        details: error,
+      },
+      metadata: {
+        agentId: request.agentId,
+        executionTime: Date.now() - startTime,
+        model: request.overrides?.model || 'unknown',
+        provider: 'auto',
+      },
+      analytics: {
+        requestId,
+        timestamp: new Date(),
+        inputHash: hashInput(request.input),
+        successful: false,
+      },
+    };
+
+    // Log error
+    console.error(`[AgentRegistry] Execution failed for ${request.agentId}:`, error);
+    await logExecution(response, request);
+
+    return response;
+  }
+}
+
+/**
+ * Get all registered agents
+ */
+export function getAllAgents(): AgentSpecification[] {
+  return Array.from(agents.values());
+}
+
+/**
+ * Get specific agent by ID
+ */
+export function getAgent(agentId: string): AgentSpecification | undefined {
+  return agents.get(agentId);
+}
+
+/**
+ * Get agents filtered by user role and context
+ */
+export function getAvailableAgents(userRole: string, context?: string): AgentSpecification[] {
+  return getAllAgents().filter((agent) => {
+    // Check if user has permission
+    if (!agent.targetUsers.includes(userRole as any)) {
+      return false;
+    }
+
+    // Additional context-based filtering can be added here
+    return true;
+  });
+}
+
+/**
+ * Check if an agent exists
+ */
+export function hasAgent(agentId: string): boolean {
+  return agents.has(agentId);
+}
+
+/**
+ * Unregister an agent
+ */
+export function unregisterAgent(agentId: string): boolean {
+  const existed = agents.has(agentId);
+  agents.delete(agentId);
+
+  if (existed) {
+    console.log(`[AgentRegistry] Unregistered agent: ${agentId}`);
+  }
+
+  return existed;
+}
+
+/**
+ * Get registry statistics
+ */
+export function getRegistryStats(): {
+  totalAgents: number;
+  agentsByCategory: Record<string, number>;
+  agentsByTargetUser: Record<string, number>;
+} {
+  const allAgents = getAllAgents();
+  const agentsByCategory: Record<string, number> = {};
+  const agentsByTargetUser: Record<string, number> = {};
+
+  allAgents.forEach((agent) => {
+    // Count by category
+    const category = agent.uiConfig.category;
+    agentsByCategory[category] = (agentsByCategory[category] || 0) + 1;
+
+    // Count by target user
+    agent.targetUsers.forEach((user) => {
+      agentsByTargetUser[user] = (agentsByTargetUser[user] || 0) + 1;
+    });
+  });
+
+  return {
+    totalAgents: allAgents.length,
+    agentsByCategory,
+    agentsByTargetUser,
+  };
+}
+
+// Legacy compatibility object (maintains the same interface)
+export const agentRegistry = {
+  register: registerAgent,
+  execute: executeAgentRequest,
+  getAgents: getAllAgents,
+  getAgent,
+  getAvailableAgents,
+  hasAgent,
+  unregister: unregisterAgent,
+  getRegistryStats,
+};

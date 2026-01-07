@@ -34,6 +34,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_execution_logs: {
+        Row: {
+          agent_id: string
+          created_at: string | null
+          error_code: string | null
+          execution_time: number
+          id: string
+          input_hash: string
+          request_id: string
+          successful: boolean
+          timestamp: string | null
+          user_id: string | null
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string | null
+          error_code?: string | null
+          execution_time: number
+          id?: string
+          input_hash: string
+          request_id: string
+          successful: boolean
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string | null
+          error_code?: string | null
+          execution_time?: number
+          id?: string
+          input_hash?: string
+          request_id?: string
+          successful?: boolean
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_execution_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_execution_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_overview"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       ai_conversations: {
         Row: {
           context_id: string | null
@@ -273,6 +327,50 @@ export type Database = {
         }
         Relationships: []
       }
+      assignment_history: {
+        Row: {
+          assignment_id: string
+          change_type: string
+          changed_at: string | null
+          changed_by: string
+          created_at: string | null
+          id: string
+          new_data: Json
+          notes: string | null
+          previous_data: Json | null
+        }
+        Insert: {
+          assignment_id: string
+          change_type: string
+          changed_at?: string | null
+          changed_by: string
+          created_at?: string | null
+          id?: string
+          new_data: Json
+          notes?: string | null
+          previous_data?: Json | null
+        }
+        Update: {
+          assignment_id?: string
+          change_type?: string
+          changed_at?: string | null
+          changed_by?: string
+          created_at?: string | null
+          id?: string
+          new_data?: Json
+          notes?: string | null
+          previous_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignment_history_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assignment_templates: {
         Row: {
           created_at: string | null
@@ -390,6 +488,50 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "user_overview"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      lesson_history: {
+        Row: {
+          change_type: string
+          changed_at: string | null
+          changed_by: string
+          created_at: string | null
+          id: string
+          lesson_id: string
+          new_data: Json
+          notes: string | null
+          previous_data: Json | null
+        }
+        Insert: {
+          change_type: string
+          changed_at?: string | null
+          changed_by: string
+          created_at?: string | null
+          id?: string
+          lesson_id: string
+          new_data: Json
+          notes?: string | null
+          previous_data?: Json | null
+        }
+        Update: {
+          change_type?: string
+          changed_at?: string | null
+          changed_by?: string
+          created_at?: string | null
+          id?: string
+          lesson_id?: string
+          new_data?: Json
+          notes?: string | null
+          previous_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_history_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -761,6 +903,96 @@ export type Database = {
         }
         Relationships: []
       }
+      spotify_matches: {
+        Row: {
+          ai_reasoning: string | null
+          confidence_score: number
+          created_at: string | null
+          id: string
+          match_reason: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          search_query: string
+          song_id: string
+          spotify_album_name: string | null
+          spotify_artist_name: string
+          spotify_cover_image_url: string | null
+          spotify_duration_ms: number | null
+          spotify_popularity: number | null
+          spotify_preview_url: string | null
+          spotify_release_date: string | null
+          spotify_track_id: string
+          spotify_track_name: string
+          spotify_url: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          ai_reasoning?: string | null
+          confidence_score: number
+          created_at?: string | null
+          id?: string
+          match_reason?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          search_query: string
+          song_id: string
+          spotify_album_name?: string | null
+          spotify_artist_name: string
+          spotify_cover_image_url?: string | null
+          spotify_duration_ms?: number | null
+          spotify_popularity?: number | null
+          spotify_preview_url?: string | null
+          spotify_release_date?: string | null
+          spotify_track_id: string
+          spotify_track_name: string
+          spotify_url: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          ai_reasoning?: string | null
+          confidence_score?: number
+          created_at?: string | null
+          id?: string
+          match_reason?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          search_query?: string
+          song_id?: string
+          spotify_album_name?: string | null
+          spotify_artist_name?: string
+          spotify_cover_image_url?: string | null
+          spotify_duration_ms?: number | null
+          spotify_popularity?: number | null
+          spotify_preview_url?: string | null
+          spotify_release_date?: string | null
+          spotify_track_id?: string
+          spotify_track_name?: string
+          spotify_url?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spotify_matches_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "song_usage_stats"
+            referencedColumns: ["song_id"]
+          },
+          {
+            foreignKeyName: "spotify_matches_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "songs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_song_progress: {
         Row: {
           created_at: string
@@ -835,6 +1067,68 @@ export type Database = {
           {
             foreignKeyName: "student_song_progress_student_id_fkey"
             columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "user_overview"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      user_history: {
+        Row: {
+          change_type: string
+          changed_at: string
+          changed_by: string | null
+          id: string
+          new_data: Json | null
+          notes: string | null
+          previous_data: Json | null
+          user_id: string
+        }
+        Insert: {
+          change_type: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_data?: Json | null
+          notes?: string | null
+          previous_data?: Json | null
+          user_id: string
+        }
+        Update: {
+          change_type?: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_data?: Json | null
+          notes?: string | null
+          previous_data?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "user_overview"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "user_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_history_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user_overview"
             referencedColumns: ["user_id"]

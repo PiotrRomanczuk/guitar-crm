@@ -6,11 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import {
-  LessonDetailsCard,
-  LessonSongsList,
-  LessonAssignmentsList,
-} from '@/components/lessons';
+import { LessonDetailsCard, LessonSongsList, LessonAssignmentsList } from '@/components/lessons';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import { Database } from '@/database.types';
 

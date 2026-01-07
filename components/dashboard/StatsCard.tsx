@@ -62,13 +62,13 @@ export function StatsCard({
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         {Icon && (
-          <div 
+          <div
             className={cn(
-              "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-              iconBgColor || "bg-primary/10 group-hover:bg-primary/20"
+              'w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
+              iconBgColor || 'bg-primary/10 group-hover:bg-primary/20'
             )}
           >
-            <Icon className={cn("h-4 w-4", iconColor || "text-muted-foreground")} />
+            <Icon className={cn('h-4 w-4', iconColor || 'text-muted-foreground')} />
           </div>
         )}
       </CardHeader>
@@ -111,8 +111,8 @@ export function StatsCard({
     const content = (
       <div
         className={cn(
-          "group relative bg-card rounded-xl p-6 border border-border hover:border-primary/30 transition-all duration-300 opacity-0 animate-fade-in cursor-pointer",
-          href && "hover:shadow-lg"
+          'group relative bg-card rounded-xl p-6 border border-border hover:border-primary/30 transition-all duration-300 opacity-0 animate-fade-in cursor-pointer',
+          href && 'hover:shadow-lg'
         )}
         style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}
       >
@@ -136,11 +136,13 @@ export function StatsCard({
             )}
           </div>
           {Icon && (
-            <div className={cn(
-              "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
-              iconBgColor || "bg-primary/10 group-hover:bg-primary/20"
-            )}>
-              <Icon className={cn("w-6 h-6", iconColor || "text-primary")} />
+            <div
+              className={cn(
+                'w-12 h-12 rounded-xl flex items-center justify-center transition-colors',
+                iconBgColor || 'bg-primary/10 group-hover:bg-primary/20'
+              )}
+            >
+              <Icon className={cn('w-6 h-6', iconColor || 'text-primary')} />
             </div>
           )}
         </div>
@@ -151,11 +153,13 @@ export function StatsCard({
   }
 
   const wrapperContent = (
-    <Card className={cn(
-      "transition-all duration-200 opacity-0 animate-fade-in",
-      href && "cursor-pointer hover:border-primary/50 hover:shadow-md"
-    )}
-    style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}>
+    <Card
+      className={cn(
+        'transition-all duration-200 opacity-0 animate-fade-in',
+        href && 'cursor-pointer hover:border-primary/50 hover:shadow-md'
+      )}
+      style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}
+    >
       {cardContent}
     </Card>
   );
