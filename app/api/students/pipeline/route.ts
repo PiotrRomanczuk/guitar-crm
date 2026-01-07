@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-import { UserPlus, UserCheck, Users, AlertTriangle } from 'lucide-react';
 
 export async function GET() {
   try {

@@ -29,16 +29,10 @@ export interface StudentHealth {
 
 interface StudentHealthTableProps {
   students: StudentHealth[];
-  onScheduleLesson?: (studentId: string) => void;
-  onSendMessage?: (studentId: string) => void;
-  onViewProfile?: (studentId: string) => void;
 }
 
 export function StudentHealthTable({
   students,
-  onScheduleLesson,
-  onSendMessage,
-  onViewProfile,
 }: StudentHealthTableProps) {
   if (students.length === 0) {
     return (
