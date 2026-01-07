@@ -4,53 +4,38 @@ This document lists the test accounts available for local development and testin
 
 ## Authentication
 
-All test accounts use the same password for simplicity:
-
-**Password:** `password123`
+Passwords vary by role:
+- **Admin:** `test123_admin`
+- **Teacher:** `test123_teacher`
+- **Students:** `test123_student`
 
 ## Available Accounts
 
-### Admin
-- **Email:** `admin@guitcrm.test`
-- **Role:** Admin
-- **Access:** Full administrative access to all features
+### Admin (Owner)
+- **Email:** `p.romanczuk@gmail.com`
+- **Password:** `test123_admin`
+- **Roles:** Admin + Teacher
+- **Access:** Full administrative access + teaching capabilities
 
-### Teachers
-
-#### Teacher 1
-- **Email:** `teacher1@guitcrm.test`
-- **Role:** Teacher
-- **Access:** Create/manage lessons, assignments, and student progress
-
-#### Teacher 2
-- **Email:** `teacher2@guitcrm.test`
+### Teacher
+- **Email:** `teacher@example.com`
+- **Password:** `test123_teacher`
 - **Role:** Teacher
 - **Access:** Create/manage lessons, assignments, and student progress
 
 ### Students
 
 #### Student 1
-- **Email:** `student1@guitcrm.test`
+- **Email:** `student1@example.com`
+- **Password:** `test123_student`
 - **Role:** Student
 - **Access:** View assigned lessons and track progress
 
 #### Student 2
-- **Email:** `student2@guitcrm.test`
+- **Email:** `student2@example.com`
+- **Password:** `test123_student`
 - **Role:** Student
 - **Access:** View assigned lessons and track progress
-
-#### Student 3
-- **Email:** `student3@guitcrm.test`
-- **Role:** Student
-- **Access:** View assigned lessons and track progress
-
-### Dual Role
-
-#### Teacher Student
-- **Email:** `teacher_student@guitcrm.test`
-- **Roles:** Teacher + Student
-- **Access:** Both teacher and student functionalities
-- **Purpose:** Testing dual-role scenarios and permission edge cases
 
 ## Database Reset
 
@@ -69,12 +54,14 @@ This will:
 ## Migration Details
 
 Test accounts are seeded via migrations:
-- **Profiles & Roles:** `20260105100030_seed_initial_data.sql`
+- **Profiles:** `20260105100030_seed_initial_data.sql`
 - **Auth Users:** `20260107100001_seed_auth_users.sql`
+- **User Roles:** Auto-generated via `sync_profile_roles()` trigger
 
 ## Notes
 
 - ⚠️ These accounts are for **development and testing only**
-- The `.test` domain ensures they cannot be used in production
+- The admin account uses the real owner's email for production compatibility
 - All passwords are intentionally simple for testing convenience
 - User IDs are sequential UUIDs (11111111..., 22222222..., etc.) for easy identification in logs
+- The admin has both admin and teacher roles to access all dashboard features
