@@ -47,7 +47,7 @@ export async function GET(request: Request) {
         songs!inner(
           id,
           title,
-          artist,
+          author,
           spotify_link_url,
           cover_image_url
         )

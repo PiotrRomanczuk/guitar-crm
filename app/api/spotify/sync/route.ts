@@ -30,7 +30,8 @@ export async function POST(request: Request) {
 
   // Parse query parameters
   const url = new URL(request.url);
-  const limit = parseInt(url.searchParams.get('limit') || '25');
+  const limitParam = url.searchParams.get('limit');
+  const limit = limitParam ? parseInt(limitParam) : 1000; // Default to 1000 (process all)
   const force = url.searchParams.get('force') === 'true';
   const enableAI = url.searchParams.get('ai') !== 'false'; // AI enabled by default
   const minConfidence = parseInt(url.searchParams.get('minConfidence') || '20');
@@ -104,9 +105,10 @@ export async function POST(request: Request) {
       results.totalQueries += searchResult.queriesUsed;
 
       try {
-        if (match.confidence >= 85 && match.spotifyTrack) {
+        const track = match.track || match.spotifyTrack; // Support both property names
+
+        if (match.confidence >= 85 && track) {
           // High confidence match (85%+) - update the song directly
-          const track = match.spotifyTrack;
 
           const updateData: {
             spotify_link_url: string;
@@ -145,9 +147,8 @@ export async function POST(request: Request) {
               `✅ Updated "${song.title}" → "${track.name}" (${match.confidence}% confidence)`
             );
           }
-        } else if (match.confidence >= 20 && match.spotifyTrack) {
+        } else if (match.confidence >= 20 && track) {
           // Any reasonable match (20%+) - store for manual review
-          const track = match.spotifyTrack;
 
           // First, check if we already have a pending match for this song
           const { data: existingMatch } = await supabase
@@ -162,20 +163,18 @@ export async function POST(request: Request) {
             const { error: insertError } = await supabase.from('spotify_matches').insert({
               song_id: song.id,
               spotify_track_id: track.id,
+              spotify_track_name: track.name,
+              spotify_artist_name: track.artists[0]?.name || 'Unknown',
+              spotify_album_name: track.album.name,
+              spotify_url: track.external_urls.spotify,
+              spotify_preview_url: track.preview_url || null,
+              spotify_cover_image_url: track.album.images?.[0]?.url || null,
+              spotify_duration_ms: track.duration_ms,
+              spotify_release_date: track.album.release_date,
+              spotify_popularity: track.popularity,
               confidence_score: match.confidence,
               search_query: match.searchQuery || `${song.title} ${song.artist}`,
               match_reason: match.reason || 'AI-powered fuzzy match',
-              spotify_data: {
-                name: track.name,
-                artist: track.artists[0]?.name,
-                album: track.album.name,
-                external_urls: track.external_urls,
-                duration_ms: track.duration_ms,
-                release_date: track.album.release_date,
-                images: track.album.images,
-                popularity: track.popularity,
-                preview_url: track.preview_url,
-              },
               status: 'pending',
             });
 

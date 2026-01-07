@@ -1,22 +1,50 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SignInForm } from '@/components/auth';
 import { AnimatedText } from '@/components/auth/AnimatedText';
 import { ArrowUp } from 'lucide-react';
-import { DatabaseStatus } from '@/components/debug/DatabaseStatus';
+import { SimpleDatabaseStatus } from '@/components/debug/SimpleDatabaseStatus';
+import { createClient } from '@/lib/supabase/client';
 
 export default function SignInPage() {
   const router = useRouter();
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // User is already logged in, redirect to dashboard
+        router.push('/dashboard');
+      } else {
+        setIsChecking(false);
+      }
+    };
+
+    checkUser();
+  }, [router]);
 
   const handleSuccess = () => {
     router.refresh();
     router.push('/');
   };
 
+  // Show loading state while checking authentication
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex w-full bg-black">
-      <DatabaseStatus />
+      <SimpleDatabaseStatus />
       {/* Left Side - Login Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 bg-[#1C1C1C]">
         <div className="w-full max-w-md space-y-8">
