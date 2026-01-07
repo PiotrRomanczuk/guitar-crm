@@ -1,7 +1,10 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { StudentHealthTable, StudentHealth } from '@/components/dashboard/health/StudentHealthTable';
+import {
+  StudentHealthTable,
+  StudentHealth,
+} from '@/components/dashboard/health/StudentHealthTable';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -26,7 +29,7 @@ async function fetchStudentHealth(): Promise<StudentHealth[]> {
 
 export default function HealthDashboardPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  
+
   const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ['student-health'],
     queryFn: fetchStudentHealth,
@@ -50,7 +53,16 @@ export default function HealthDashboardPage() {
     if (!data) return;
 
     const csv = [
-      ['Student', 'Email', 'Health Score', 'Status', 'Last Lesson', 'Lessons/Month', 'Overdue Assignments', 'Recommended Action'],
+      [
+        'Student',
+        'Email',
+        'Health Score',
+        'Status',
+        'Last Lesson',
+        'Lessons/Month',
+        'Overdue Assignments',
+        'Recommended Action',
+      ],
       ...data.map((student) => [
         student.name,
         student.email,
@@ -87,11 +99,7 @@ export default function HealthDashboardPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => refetch()}
-              disabled={isRefetching}
-            >
+            <Button variant="outline" onClick={() => refetch()} disabled={isRefetching}>
               <RefreshCw className={`h-4 w-4 mr-2 ${isRefetching ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
@@ -125,7 +133,9 @@ export default function HealthDashboardPage() {
               <CardDescription>Needs Attention</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{healthyCounts.needs_attention}</div>
+              <div className="text-2xl font-bold text-yellow-600">
+                {healthyCounts.needs_attention}
+              </div>
             </CardContent>
           </Card>
           <Card>
@@ -174,7 +184,8 @@ export default function HealthDashboardPage() {
           <CardHeader>
             <CardTitle>Student Health Details</CardTitle>
             <CardDescription>
-              Sorted by health score (lowest first). Click actions to schedule lessons or contact students.
+              Sorted by health score (lowest first). Click actions to schedule lessons or contact
+              students.
             </CardDescription>
           </CardHeader>
           <CardContent>

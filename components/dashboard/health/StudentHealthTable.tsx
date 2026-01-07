@@ -31,9 +31,7 @@ interface StudentHealthTableProps {
   students: StudentHealth[];
 }
 
-export function StudentHealthTable({
-  students,
-}: StudentHealthTableProps) {
+export function StudentHealthTable({ students }: StudentHealthTableProps) {
   if (students.length === 0) {
     return (
       <div className="text-center py-12 border rounded-lg">
@@ -117,12 +115,7 @@ export function StudentHealthTable({
                       <Mail className="h-4 w-4" />
                     </Button>
                     <Link href={`/dashboard/users?id=${student.id}`}>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        title="View Profile"
-                      >
+                      <Button variant="ghost" size="icon" className="h-8 w-8" title="View Profile">
                         <User className="h-4 w-4" />
                       </Button>
                     </Link>

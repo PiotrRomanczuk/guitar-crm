@@ -1,10 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-import {
-  calculateHealthScore,
-  HealthFactors,
-  HealthStatus,
-} from '@/lib/utils/studentHealth';
+import { calculateHealthScore, HealthFactors, HealthStatus } from '@/lib/utils/studentHealth';
 
 export interface StudentHealth {
   id: string;
@@ -94,9 +90,8 @@ export async function GET() {
         totalAssignments > 0 ? (completedAssignments / totalAssignments) * 100 : 50; // Default to 50 if no assignments
 
       const overdueAssignments =
-        allAssignments?.filter(
-          (a) => a.status === 'pending' && new Date(a.due_date) < now
-        ).length || 0;
+        allAssignments?.filter((a) => a.status === 'pending' && new Date(a.due_date) < now)
+          .length || 0;
 
       // For now, use daysSinceLastLesson as proxy for last contact
       // In future, track actual communications

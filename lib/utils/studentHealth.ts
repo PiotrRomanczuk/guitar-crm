@@ -17,14 +17,14 @@ export interface StudentHealthScore {
 
 /**
  * Calculate a student's health score based on multiple factors
- * 
+ *
  * Weights:
  * - Days since last lesson: 30%
  * - Lessons per month: 25%
  * - Assignment completion rate: 20%
  * - Days since last contact: 15%
  * - Total lessons completed: 10%
- * 
+ *
  * Score ranges:
  * - 80-100: Excellent (green)
  * - 60-79: Good (light green)
