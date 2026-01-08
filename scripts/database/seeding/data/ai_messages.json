@@ -1,0 +1,68 @@
+[
+  {
+    "id": "e0c0b05f-64d6-473b-a56c-82c7343ed390",
+    "conversation_id": "dca53ec8-e262-40db-8167-add7404933c6",
+    "role": "user",
+    "content": "Can you analyze Student One's progress over the last month?",
+    "model_id": null,
+    "tokens_used": null,
+    "latency_ms": null,
+    "is_helpful": null,
+    "created_at": "2025-12-10T14:00:00+00:00"
+  },
+  {
+    "id": "c81abced-4f33-4686-b1ff-eccdc13c13c3",
+    "conversation_id": "dca53ec8-e262-40db-8167-add7404933c6",
+    "role": "assistant",
+    "content": "Based on the lesson notes and practice sessions, Student One has shown excellent progress. They've completed 4 lessons and have been practicing regularly. The student has successfully learned House of the Rising Sun and is now working on chord transitions. Key achievements:\n\n1. Consistent practice (8 sessions, 120 minutes total)\n2. Mastered basic chord progressions\n3. Good timing improvement with metronome practice\n4. Currently at 'remembered' status for House of the Rising Sun\n\nRecommendations:\n- Continue metronome practice to improve timing\n- Introduce more complex strumming patterns\n- Consider adding a new challenging song",
+    "model_id": "gpt-4",
+    "tokens_used": 152,
+    "latency_ms": 1250,
+    "is_helpful": true,
+    "created_at": "2025-12-10T14:00:15+00:00"
+  },
+  {
+    "id": "80b9d200-5f62-4745-a5dd-e27004f78890",
+    "conversation_id": "bbab569f-c6f2-4a2f-a664-c200ea881332",
+    "role": "user",
+    "content": "Help me plan a lesson for teaching House of the Rising Sun to a beginner student.",
+    "model_id": null,
+    "tokens_used": null,
+    "latency_ms": null,
+    "is_helpful": null,
+    "created_at": "2025-12-14T16:00:00+00:00"
+  },
+  {
+    "id": "308d09e4-08b7-419f-b83a-02fd7bf0bc64",
+    "conversation_id": "bbab569f-c6f2-4a2f-a664-c200ea881332",
+    "role": "assistant",
+    "content": "Here's a structured lesson plan for teaching House of the Rising Sun:\n\n**Warm-up (5 min)**\n- Review open chords: Am, C, D, F\n- Finger stretching exercises\n\n**Introduction (10 min)**\n- Play the song for the student\n- Discuss the chord progression\n- Break down the strumming pattern\n\n**Practice (30 min)**\n- Practice each chord transition slowly\n- Introduce the verse progression: Am-C-D-F\n- Work on timing with metronome at 60 BPM\n- Gradually increase speed as student gains confidence\n\n**Assignment**\n- Practice chord transitions 15 min daily\n- Focus on clean chord changes\n- Record next week's progress\n\n**Tips**\n- Encourage slow, deliberate practice\n- Emphasize finger placement accuracy over speed\n- Provide positive feedback on small improvements",
+    "model_id": "gpt-4",
+    "tokens_used": 187,
+    "latency_ms": 1420,
+    "is_helpful": true,
+    "created_at": "2025-12-14T16:00:10+00:00"
+  },
+  {
+    "id": "2e4e513c-b894-45f4-b2e0-5d77faea7ae2",
+    "conversation_id": "67377d24-9681-44d9-b777-e3772ec47e9d",
+    "role": "user",
+    "content": "I'm struggling with the chord changes in House of the Rising Sun. Any tips?",
+    "model_id": null,
+    "tokens_used": null,
+    "latency_ms": null,
+    "is_helpful": null,
+    "created_at": "2026-01-03T17:00:00+00:00"
+  },
+  {
+    "id": "92bec7e5-f084-4052-9742-763b9e929132",
+    "conversation_id": "67377d24-9681-44d9-b777-e3772ec47e9d",
+    "role": "assistant",
+    "content": "Great question! Here are some specific tips for smoother chord changes in House of the Rising Sun:\n\n1. **Practice the transitions in isolation**\n   - Focus on Am → C transition first\n   - Then C → D, and D → F\n   - Practice each change 10 times slowly\n\n2. **Find the common fingers**\n   - Notice which fingers stay on the same strings\n   - Keep those fingers down while moving others\n\n3. **Use the metronome method**\n   - Start at 40 BPM, play each chord for 4 beats\n   - Gradually increase by 5 BPM when comfortable\n   - Your goal is 80-100 BPM\n\n4. **Visualize the next chord**\n   - Look ahead to where your fingers need to go\n   - Prepare the shape in your mind before moving\n\n5. **Practice routine**\n   - 5 min: Slow transitions without rhythm\n   - 10 min: With metronome\n   - 5 min: Play along with the song\n\nYou're making great progress with 8 practice sessions! Keep it up!",
+    "model_id": "gpt-4",
+    "tokens_used": 243,
+    "latency_ms": 1680,
+    "is_helpful": true,
+    "created_at": "2026-01-03T17:00:08+00:00"
+  }
+]

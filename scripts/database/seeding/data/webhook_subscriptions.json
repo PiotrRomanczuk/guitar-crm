@@ -1,0 +1,22 @@
+[
+  {
+    "id": "8586ef0a-ce61-430b-bd6f-d36aa04044ac",
+    "user_id": "11111111-1111-1111-1111-111111111111",
+    "provider": "google_calendar",
+    "channel_id": "channel-uuid-001",
+    "resource_id": "resource-uuid-001",
+    "expiration": 1736294400000,
+    "created_at": "2026-01-01T00:00:00+00:00",
+    "updated_at": "2026-01-01T00:00:00+00:00"
+  },
+  {
+    "id": "2997c307-9125-48d1-991f-088a74fd4bff",
+    "user_id": "22222222-2222-2222-2222-222222222222",
+    "provider": "google_calendar",
+    "channel_id": "channel-uuid-002",
+    "resource_id": "resource-uuid-002",
+    "expiration": 1736380800000,
+    "created_at": "2026-01-02T00:00:00+00:00",
+    "updated_at": "2026-01-02T00:00:00+00:00"
+  }
+]
