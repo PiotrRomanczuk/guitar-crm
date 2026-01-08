@@ -1,0 +1,77 @@
+[
+  {
+    "id": "5f5cd300-91a3-4811-be4f-160ef97ff317",
+    "assignment_id": "e199d6e6-2448-4110-8f75-57a67fe72a5c",
+    "change_type": "created",
+    "changed_by": "11111111-1111-1111-1111-111111111111",
+    "previous_data": null,
+    "new_data": {
+      "title": "Practice Basic Strumming",
+      "status": "not_started",
+      "due_date": "2025-12-08T00:00:00+00:00"
+    },
+    "notes": "Assignment created after lesson",
+    "changed_at": "2025-12-01T12:00:00+00:00",
+    "created_at": "2025-12-01T12:00:00+00:00"
+  },
+  {
+    "id": "abaa7d7c-b073-4e92-9a0d-f200e98d7042",
+    "assignment_id": "e199d6e6-2448-4110-8f75-57a67fe72a5c",
+    "change_type": "updated",
+    "changed_by": "44444444-4444-4444-4444-444444444444",
+    "previous_data": {
+      "status": "not_started"
+    },
+    "new_data": {
+      "status": "in_progress"
+    },
+    "notes": "Student started practicing",
+    "changed_at": "2025-12-03T18:00:00+00:00",
+    "created_at": "2025-12-03T18:00:00+00:00"
+  },
+  {
+    "id": "502154fd-1531-42ea-bb7f-31c4cfab7499",
+    "assignment_id": "e199d6e6-2448-4110-8f75-57a67fe72a5c",
+    "change_type": "updated",
+    "changed_by": "44444444-4444-4444-4444-444444444444",
+    "previous_data": {
+      "status": "in_progress"
+    },
+    "new_data": {
+      "status": "completed"
+    },
+    "notes": "Student completed assignment successfully",
+    "changed_at": "2025-12-07T18:00:00+00:00",
+    "created_at": "2025-12-07T18:00:00+00:00"
+  },
+  {
+    "id": "7d8dc626-dffb-4a9f-b03d-8218096927af",
+    "assignment_id": "6f08303d-33a7-4a3c-a903-e12fa805008e",
+    "change_type": "created",
+    "changed_by": "11111111-1111-1111-1111-111111111111",
+    "previous_data": null,
+    "new_data": {
+      "title": "Chord Transition Exercise",
+      "status": "not_started",
+      "due_date": "2026-01-05T00:00:00+00:00"
+    },
+    "notes": "Focus on smooth transitions",
+    "changed_at": "2025-12-22T11:00:00+00:00",
+    "created_at": "2025-12-22T11:00:00+00:00"
+  },
+  {
+    "id": "1996795c-d541-4556-b9e3-947fe8605d61",
+    "assignment_id": "6f08303d-33a7-4a3c-a903-e12fa805008e",
+    "change_type": "updated",
+    "changed_by": "44444444-4444-4444-4444-444444444444",
+    "previous_data": {
+      "status": "not_started"
+    },
+    "new_data": {
+      "status": "in_progress"
+    },
+    "notes": "Started practicing with metronome",
+    "changed_at": "2025-12-30T14:00:00+00:00",
+    "created_at": "2025-12-30T14:00:00+00:00"
+  }
+]
