@@ -2,6 +2,8 @@ export function formatDate(dateString: string | null | undefined): string {
   if (!dateString) return 'Not scheduled';
   try {
     const date = new Date(dateString);
+    // Check if date is valid
+    if (isNaN(date.getTime())) return 'Invalid date';
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',

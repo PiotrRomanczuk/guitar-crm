@@ -15,6 +15,7 @@ export const SongSchema = z.object({
   gallery_images: z.array(z.string()).optional(),
   cover_image_url: URLField.optional().or(z.literal('')).nullable(),
   spotify_link_url: URLField.optional().or(z.literal('')),
+  tiktok_short_url: URLField.optional().or(z.literal('')).nullable(),
   capo_fret: z.number().int().min(0).max(20).optional().nullable(),
   strumming_pattern: z.string().max(100).optional().nullable(),
   category: z.string().max(50).optional().nullable(),
@@ -40,6 +41,7 @@ export const SongInputSchema = z.object({
   cover_image_url: URLField.optional().or(z.literal('')).nullable(),
   audio_files: z.record(z.string(), z.string()).optional(), // key: audio type, value: URL
   spotify_link_url: URLField.optional().or(z.literal('')),
+  tiktok_short_url: URLField.optional().or(z.literal('')).nullable(),
   capo_fret: z.number().int().min(0).max(20).optional().nullable(),
   strumming_pattern: z.string().max(100).optional().nullable(),
   category: z.string().max(50).optional().nullable(),

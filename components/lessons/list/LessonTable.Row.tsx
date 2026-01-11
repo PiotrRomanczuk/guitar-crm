@@ -18,6 +18,12 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
   const assignments = lesson.assignments?.map((a) => a.title) || [];
   const hasContent = songs.length > 0 || assignments.length > 0;
 
+  // Use date if available, otherwise fall back to scheduled_at
+  // @ts-expect-error - scheduled_at might not be in the schema yet but is in DB
+  const displayDate = lesson.date || lesson.scheduled_at;
+  // @ts-expect-error - scheduled_at might not be in the schema yet but is in DB
+  const displayTime = lesson.start_time || lesson.scheduled_at;
+
   return (
     <TableRow
       className="group hover:bg-secondary/50 border-border transition-colors"
@@ -81,8 +87,8 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
             : 'Unknown Teacher'}
         </TableCell>
       )}
-      <TableCell>{formatDate(lesson.date)}</TableCell>
-      <TableCell>{formatTime(lesson.start_time)}</TableCell>
+      <TableCell>{formatDate(displayDate)}</TableCell>
+      <TableCell>{formatTime(displayTime)}</TableCell>
       <TableCell>
         <Badge variant="outline" className={`font-medium ${getStatusColor(lesson.status)}`}>
           {lesson.status || 'SCHEDULED'}

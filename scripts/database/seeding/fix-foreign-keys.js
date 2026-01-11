@@ -13,7 +13,7 @@ console.log('🔧 Fixing remaining foreign key and context_id issues...\n');
 const conversationsPath = path.join(dataDir, 'ai_conversations.json');
 const conversations = JSON.parse(fs.readFileSync(conversationsPath, 'utf8'));
 
-conversations.forEach(conv => {
+conversations.forEach((conv) => {
   if (conv.context_type === 'lesson' && conv.context_id.startsWith('lesson-')) {
     const oldId = conv.context_id;
     const newId = mappings.lessons[oldId];
@@ -50,7 +50,7 @@ const seedData = JSON.parse(fs.readFileSync(seedFilePath, 'utf8'));
 // Skip spotify_matches that already exist
 const tablesToSkip = ['public.spotify_matches'];
 
-tablesToSkip.forEach(table => {
+tablesToSkip.forEach((table) => {
   if (seedData.tables[table]) {
     console.log(`⏭️  Skipping ${table.padEnd(35)} (data already exists)`);
     seedData.tables[table].data = [];

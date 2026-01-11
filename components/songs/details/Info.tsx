@@ -47,36 +47,40 @@ export default function SongDetailInfo({ song }: Props) {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-card border-border/50 shadow-sm">
-          <CardContent className="p-6 flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <Signal className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Difficulty</p>
-              <Badge
-                variant="secondary"
-                className={`mt-1 capitalize ${
-                  difficultyColors[song.level as keyof typeof difficultyColors] || ''
-                }`}
-              >
-                {song.level}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
+        {song.level && (
+          <Card className="bg-card border-border/50 shadow-sm">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Signal className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Difficulty</p>
+                <Badge
+                  variant="secondary"
+                  className={`mt-1 capitalize ${
+                    difficultyColors[song.level as keyof typeof difficultyColors] || ''
+                  }`}
+                >
+                  {song.level}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-        <Card className="bg-card border-border/50 shadow-sm">
-          <CardContent className="p-6 flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <Music2 className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Key</p>
-              <p className="text-lg font-semibold mt-0.5">{song.key}</p>
-            </div>
-          </CardContent>
-        </Card>
+        {song.key && (
+          <Card className="bg-card border-border/50 shadow-sm">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Music2 className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Key</p>
+                <p className="text-lg font-semibold mt-0.5">{song.key}</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {song.tempo && (
           <Card className="bg-card border-border/50 shadow-sm">
@@ -202,6 +206,29 @@ export default function SongDetailInfo({ song }: Props) {
         </Card>
       )}
 
+      {song.tiktok_short_url && (
+        <Card className="bg-card border-border/50 shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Music2 className="w-5 h-5 text-primary" />
+              <p className="font-medium text-muted-foreground">Practice Short</p>
+            </div>
+            <div className="aspect-[9/16] max-w-[315px] mx-auto rounded-lg overflow-hidden bg-black">
+              <iframe
+                src={song.tiktok_short_url.replace('/video/', '/embed/')}
+                className="w-full h-full"
+                allowFullScreen
+                allow="autoplay; encrypted-media; picture-in-picture"
+                title="TikTok Practice Short"
+              />
+            </div>
+            <p className="text-sm text-muted-foreground mt-3 text-center">
+              Loop this short for practice
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex flex-wrap gap-4">
         {song.ultimate_guitar_link && (
           <Button variant="outline" asChild className="w-full sm:w-auto">
@@ -227,6 +254,20 @@ export default function SongDetailInfo({ song }: Props) {
             >
               <ExternalLink className="w-4 h-4" />
               Listen on Spotify
+            </a>
+          </Button>
+        )}
+
+        {song.tiktok_short_url && (
+          <Button variant="outline" asChild className="w-full sm:w-auto">
+            <a
+              href={song.tiktok_short_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Open in TikTok
             </a>
           </Button>
         )}

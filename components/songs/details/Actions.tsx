@@ -4,14 +4,23 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
+import { SyncSpotifyButton } from './SyncSpotifyButton';
 
 interface Props {
   songId: string;
+  songTitle?: string;
+  hasSpotifyData?: boolean;
   isAdmin?: boolean;
   isTeacher?: boolean;
 }
 
-export default function SongDetailActions({ songId, isAdmin = false, isTeacher = false }: Props) {
+export default function SongDetailActions({
+  songId,
+  songTitle = '',
+  hasSpotifyData = false,
+  isAdmin = false,
+  isTeacher = false,
+}: Props) {
   const [deleting, setDeleting] = useState(false);
   const canManageSongs = isTeacher || isAdmin;
 
@@ -44,13 +53,16 @@ export default function SongDetailActions({ songId, isAdmin = false, isTeacher =
   }
 
   return (
-    <div className="flex gap-3">
+    <div className="flex flex-wrap gap-3">
+      <SyncSpotifyButton songId={songId} songTitle={songTitle} hasSpotifyData={hasSpotifyData} />
+
       <Button asChild variant="outline">
         <Link href={`/dashboard/songs/${songId}/edit`}>
           <Pencil className="w-4 h-4 mr-2" />
           Edit Song
         </Link>
       </Button>
+
       <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
         <Trash2 className="w-4 h-4 mr-2" />
         {deleting ? 'Deleting...' : 'Delete Song'}

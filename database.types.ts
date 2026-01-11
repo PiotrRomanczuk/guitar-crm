@@ -843,6 +843,7 @@ export type Database = {
           spotify_link_url: string | null
           strumming_pattern: string | null
           tempo: number | null
+          tiktok_short_url: string | null
           time_signature: number | null
           title: string
           ultimate_guitar_link: string | null
@@ -869,6 +870,7 @@ export type Database = {
           spotify_link_url?: string | null
           strumming_pattern?: string | null
           tempo?: number | null
+          tiktok_short_url?: string | null
           time_signature?: number | null
           title: string
           ultimate_guitar_link?: string | null
@@ -895,6 +897,7 @@ export type Database = {
           spotify_link_url?: string | null
           strumming_pattern?: string | null
           tempo?: number | null
+          tiktok_short_url?: string | null
           time_signature?: number | null
           title?: string
           ultimate_guitar_link?: string | null

@@ -1,3 +1,6 @@
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
+
 interface Props {
   isSubmitting: boolean;
   onCancel: () => void;
@@ -5,23 +8,25 @@ interface Props {
 
 export function LessonFormActions({ isSubmitting, onCancel }: Props) {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 pt-4">
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        data-testid="lesson-submit"
-        className="flex-1 px-4 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm sm:text-base font-medium"
-      >
-        {isSubmitting ? 'Creating...' : 'Create Lesson'}
-      </button>
-      <button
+    <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-2 sm:pt-4">
+      <Button
         type="button"
         onClick={onCancel}
         disabled={isSubmitting}
-        className="px-4 py-2 sm:py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 text-sm sm:text-base font-medium"
+        variant="outline"
+        className="w-full sm:w-auto"
       >
         Cancel
-      </button>
+      </Button>
+      <Button
+        type="submit"
+        disabled={isSubmitting}
+        data-testid="lesson-submit"
+        className="w-full sm:flex-1"
+      >
+        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {isSubmitting ? 'Creating...' : 'Create Lesson'}
+      </Button>
     </div>
   );
 }

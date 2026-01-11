@@ -88,6 +88,16 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         placeholder="https://open.spotify.com/track/..."
       />
 
+      <SongFormFieldText
+        label="TikTok Short URL (Practice)"
+        id="tiktok_short_url"
+        type="url"
+        value={formData.tiktok_short_url}
+        error={errors.tiktok_short_url}
+        onChange={(value) => onChange('tiktok_short_url', value)}
+        placeholder="https://www.tiktok.com/@user/video/..."
+      />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <SongFormFieldText
           label="Capo Fret"
