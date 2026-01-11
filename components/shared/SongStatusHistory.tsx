@@ -73,10 +73,19 @@ export function SongStatusHistory({ songId, studentId, title }: SongStatusHistor
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('Song status history query error:', error);
+        throw error;
+      }
+      
       setHistory(data || []);
     } catch (err) {
-      console.error('Error loading song status history:', err);
+      console.error('Error loading song status history:', {
+        error: err,
+        message: err instanceof Error ? err.message : 'Unknown error',
+        songId,
+        studentId,
+      });
     } finally {
       setLoading(false);
     }

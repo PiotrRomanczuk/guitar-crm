@@ -8,7 +8,9 @@ const dataDir = path.join(__dirname, 'data');
 console.log('🔧 Fixing ai_messages conversation_id references...\n');
 
 // Read the conversations to get the actual IDs
-const conversations = JSON.parse(fs.readFileSync(path.join(dataDir, 'ai_conversations.json'), 'utf8'));
+const conversations = JSON.parse(
+  fs.readFileSync(path.join(dataDir, 'ai_conversations.json'), 'utf8')
+);
 const messages = JSON.parse(fs.readFileSync(path.join(dataDir, 'ai_messages.json'), 'utf8'));
 
 // Map conversations by their title/context for matching
@@ -18,10 +20,17 @@ const messages = JSON.parse(fs.readFileSync(path.join(dataDir, 'ai_messages.json
 // conv-004: Practice Tips -> 67377d24...
 
 const conversationMap = {
-  'Student Progress Analysis': conversations.find(c => c.title === 'Student Progress Analysis')?.id,
-  'Lesson Planning - House of the Rising Sun': conversations.find(c => c.title === 'Lesson Planning - House of the Rising Sun')?.id,
-  'Assignment Feedback Generation': conversations.find(c => c.title === 'Assignment Feedback Generation')?.id,
-  'Practice Tips for House of the Rising Sun': conversations.find(c => c.title === 'Practice Tips for House of the Rising Sun')?.id,
+  'Student Progress Analysis': conversations.find((c) => c.title === 'Student Progress Analysis')
+    ?.id,
+  'Lesson Planning - House of the Rising Sun': conversations.find(
+    (c) => c.title === 'Lesson Planning - House of the Rising Sun'
+  )?.id,
+  'Assignment Feedback Generation': conversations.find(
+    (c) => c.title === 'Assignment Feedback Generation'
+  )?.id,
+  'Practice Tips for House of the Rising Sun': conversations.find(
+    (c) => c.title === 'Practice Tips for House of the Rising Sun'
+  )?.id,
 };
 
 console.log('Conversation mapping:');
@@ -38,7 +47,7 @@ let updated = 0;
 messages.forEach((msg, index) => {
   let oldId = msg.conversation_id;
   let newId;
-  
+
   if (index === 0 || index === 1) {
     // Student Progress Analysis
     newId = conversationMap['Student Progress Analysis'];
@@ -49,10 +58,12 @@ messages.forEach((msg, index) => {
     // Practice Tips
     newId = conversationMap['Practice Tips for House of the Rising Sun'];
   }
-  
+
   if (newId && newId !== oldId) {
     msg.conversation_id = newId;
-    console.log(`✓ Message ${index + 1}: ${oldId.substring(0, 8)}... → ${newId.substring(0, 8)}...`);
+    console.log(
+      `✓ Message ${index + 1}: ${oldId.substring(0, 8)}... → ${newId.substring(0, 8)}...`
+    );
     updated++;
   }
 });

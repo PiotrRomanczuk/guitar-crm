@@ -66,7 +66,13 @@ export default async function SongDetail({ songId, isAdmin = false, isTeacher = 
     <div className="space-y-8 animate-fade-in">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <SongDetailHeader title={song.title || 'Untitled'} author={song.author || 'Unknown'} />
-        <SongDetailActions songId={song.id} isAdmin={isAdmin} isTeacher={isTeacher} />
+        <SongDetailActions
+          songId={song.id}
+          songTitle={song.title || 'Untitled'}
+          hasSpotifyData={!!song.spotify_link_url}
+          isAdmin={isAdmin}
+          isTeacher={isTeacher}
+        />
       </div>
 
       <div className="space-y-8">

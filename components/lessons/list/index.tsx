@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { LessonListClient } from '@/components/lessons/list/Client';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
+import { transformLessonData } from '@/app/api/lessons/utils';
 
 interface LessonListProps {
   searchParams?: { [key: string]: string | string[] | undefined };
@@ -67,7 +68,10 @@ export default async function LessonList({ searchParams }: LessonListProps) {
     return <div data-testid="lesson-list-error">Error loading lessons: {error.message}</div>;
   }
 
-  const lessons = (rawLessons || []) as LessonWithProfiles[];
+  // Transform lessons to include date and start_time from scheduled_at
+  const lessons = (rawLessons || []).map((lesson) =>
+    transformLessonData(lesson as LessonWithProfiles & { scheduled_at?: string })
+  ) as LessonWithProfiles[];
 
   // Fetch students for filter (only if admin or teacher)
   let students: { id: string; full_name: string | null; email: string }[] = [];

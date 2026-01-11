@@ -1,8 +1,13 @@
-const inputClass =
-  'w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500';
-
-const labelClass = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2';
-
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { LessonNotesAI } from './LessonNotesAI';
 
 interface Props {
@@ -41,29 +46,33 @@ export function LessonFormFields({
     handleChange(syntheticEvent);
   };
 
+  const handleStatusChange = (newValue: string) => {
+    const syntheticEvent = {
+      target: { name: 'status', value: newValue },
+    } as React.ChangeEvent<HTMLSelectElement>;
+    handleChange(syntheticEvent);
+  };
+
   return (
-    <>
-      <div>
-        <label htmlFor="title" className={labelClass}>
-          Title
-        </label>
-        <input
+    <div className="space-y-4 sm:space-y-5">
+      <div className="space-y-2">
+        <Label htmlFor="title">Lesson Title (Optional)</Label>
+        <Input
           type="text"
           id="title"
           name="title"
           value={formData.title || ''}
           onChange={handleChange}
-          placeholder="Lesson Title"
+          placeholder="e.g., Introduction to Strumming Patterns"
           data-testid="lesson-title"
-          className={inputClass}
         />
       </div>
 
-      <div>
-        <label htmlFor="scheduled_at" className={labelClass}>
-          Scheduled Date & Time *
-        </label>
-        <input
+      <div className="space-y-2">
+        <Label htmlFor="scheduled_at">
+          Scheduled Date & Time <span className="text-destructive">*</span>
+        </Label>
+        <Input
           type="datetime-local"
           id="scheduled_at"
           name="scheduled_at"
@@ -71,39 +80,30 @@ export function LessonFormFields({
           onChange={handleChange}
           required
           data-testid="lesson-scheduled-at"
-          className={inputClass}
         />
         {validationErrors.scheduled_at && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-            {validationErrors.scheduled_at}
-          </p>
+          <p className="text-sm text-destructive">{validationErrors.scheduled_at}</p>
         )}
       </div>
 
-      <div>
-        <label htmlFor="status" className={labelClass}>
-          Status
-        </label>
-        <select
-          id="status"
-          name="status"
-          value={formData.status || 'SCHEDULED'}
-          onChange={handleChange}
-          className={inputClass}
-          data-testid="lesson-status"
-        >
-          <option value="SCHEDULED">Scheduled</option>
-          <option value="IN_PROGRESS">In Progress</option>
-          <option value="COMPLETED">Completed</option>
-          <option value="CANCELLED">Cancelled</option>
-        </select>
+      <div className="space-y-2">
+        <Label htmlFor="status">Status</Label>
+        <Select value={formData.status || 'SCHEDULED'} onValueChange={handleStatusChange}>
+          <SelectTrigger id="status" data-testid="lesson-status">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+            <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+            <SelectItem value="COMPLETED">Completed</SelectItem>
+            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      <div>
-        <div className="flex justify-between items-center">
-          <label htmlFor="notes" className={labelClass}>
-            Notes
-          </label>
+      <div className="space-y-2">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+          <Label htmlFor="notes">Lesson Notes (Optional)</Label>
           {studentName && selectedSongs.length > 0 && (
             <LessonNotesAI
               studentName={studentName}
@@ -114,17 +114,17 @@ export function LessonFormFields({
             />
           )}
         </div>
-        <textarea
+        <Textarea
           id="notes"
           name="notes"
           value={formData.notes || ''}
           onChange={handleChange}
-          rows={4}
-          placeholder="Add any notes about this lesson..."
+          rows={5}
+          placeholder="Add notes about what was covered, homework assigned, student progress, etc."
           data-testid="lesson-notes"
-          className={inputClass}
+          className="resize-none"
         />
       </div>
-    </>
+    </div>
   );
 }

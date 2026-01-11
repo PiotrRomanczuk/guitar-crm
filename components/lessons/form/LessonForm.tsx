@@ -8,6 +8,9 @@ import { ProfileSelect } from './LessonForm.ProfileSelect';
 import { SongSelect } from './LessonForm.SongSelect';
 import { LessonFormFields } from './LessonForm.Fields';
 import { LessonFormActions } from './LessonForm.Actions';
+import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
 export default function LessonForm(props: UseLessonFormProps) {
   const router = useRouter();
@@ -48,7 +51,16 @@ export default function LessonForm(props: UseLessonFormProps) {
   };
 
   if (loading) {
-    return <div className="text-center py-8 text-gray-600 dark:text-gray-400">Loading form...</div>;
+    return (
+      <Card>
+        <CardContent className="p-8 sm:p-12">
+          <div className="flex flex-col items-center justify-center text-center space-y-3">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Loading form...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   // Get selected song titles for AI assistant
@@ -57,49 +69,54 @@ export default function LessonForm(props: UseLessonFormProps) {
     .map((song) => ({ title: song.title }));
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
-          {error}
-        </div>
-      )}
+    <Card>
+      <CardContent className="p-4 sm:p-6 lg:p-8">
+        <form onSubmit={onSubmit} className="space-y-4 sm:space-y-6">
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-      <ProfileSelect
-        name="student_id"
-        label="Student"
-        value={formData.student_id}
-        onChange={handleChange}
-        options={students}
-        error={validationErrors.student_id}
-      />
+          <ProfileSelect
+            name="student_id"
+            label="Student"
+            value={formData.student_id}
+            onChange={handleChange}
+            options={students}
+            error={validationErrors.student_id}
+          />
 
-      <ProfileSelect
-        name="teacher_id"
-        label="Teacher"
-        value={formData.teacher_id}
-        onChange={handleChange}
-        options={teachers}
-        error={validationErrors.teacher_id}
-      />
+          <ProfileSelect
+            name="teacher_id"
+            label="Teacher"
+            value={formData.teacher_id}
+            onChange={handleChange}
+            options={teachers}
+            error={validationErrors.teacher_id}
+          />
 
-      <LessonFormFields
-        formData={formData}
-        validationErrors={validationErrors}
-        handleChange={handleChange}
-        studentName={students.find((s) => s.id === formData.student_id)?.full_name || ''}
-        selectedSongs={selectedSongs}
-      />
+          <LessonFormFields
+            formData={formData}
+            validationErrors={validationErrors}
+            handleChange={handleChange}
+            studentName={students.find((s) => s.id === formData.student_id)?.full_name || ''}
+            selectedSongs={selectedSongs}
+          />
 
-      <SongSelect
-        selectedSongIds={formData.song_ids || []}
-        onChange={handleSongChange}
-        error={validationErrors.song_ids}
-      />
+          <SongSelect
+            selectedSongIds={formData.song_ids || []}
+            onChange={handleSongChange}
+            error={validationErrors.song_ids}
+          />
 
-      <LessonFormActions
-        isSubmitting={isSubmitting}
-        onCancel={() => router.push('/dashboard/lessons')}
-      />
-    </form>
+          <LessonFormActions
+            isSubmitting={isSubmitting}
+            onCancel={() => router.push('/dashboard/lessons')}
+          />
+        </form>
+      </CardContent>
+    </Card>
   );
 }

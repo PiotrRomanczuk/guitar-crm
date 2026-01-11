@@ -30,7 +30,7 @@ const files = [
   'ai_usage_stats.json',
   'agent_execution_logs.json',
   'api_keys.json',
-  'webhook_subscriptions.json'
+  'webhook_subscriptions.json',
 ];
 
 console.log('🔄 Converting IDs to proper UUIDs...\n');
@@ -38,20 +38,20 @@ console.log('🔄 Converting IDs to proper UUIDs...\n');
 // Keep a map of old IDs to new UUIDs for foreign key references
 const idMappings = {};
 
-files.forEach(fileName => {
+files.forEach((fileName) => {
   const filePath = path.join(dataDir, fileName);
-  
+
   if (!fs.existsSync(filePath)) {
     console.log(`⏭️  Skipping ${fileName} (not found)`);
     return;
   }
-  
+
   const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
   const tableName = fileName.replace('.json', '');
   idMappings[tableName] = {};
-  
+
   // First pass: Generate new UUIDs for all IDs
-  data.forEach(record => {
+  data.forEach((record) => {
     if (record.id) {
       const oldId = record.id;
       const newId = generateUUID();
@@ -59,10 +59,10 @@ files.forEach(fileName => {
       record.id = newId;
     }
   });
-  
+
   // Save immediately after updating IDs
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-  
+
   console.log(`✓ ${fileName.padEnd(35)} ${data.length} records`);
 });
 
@@ -77,46 +77,48 @@ const foreignKeyMappings = {
   'song_status_history.json': { song_id: null },
   'lesson_history.json': { lesson_id: 'lessons' },
   'assignment_history.json': { assignment_id: 'assignments' },
-  'ai_messages.json': { conversation_id: 'ai_conversations' }
+  'ai_messages.json': { conversation_id: 'ai_conversations' },
 };
 
 Object.entries(foreignKeyMappings).forEach(([fileName, fkFields]) => {
   const filePath = path.join(dataDir, fileName);
-  
+
   if (!fs.existsSync(filePath)) return;
-  
+
   const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  
-  data.forEach(record => {
+
+  data.forEach((record) => {
     Object.entries(fkFields).forEach(([field, sourceTable]) => {
-      if (record[field] && sourceTable && idMappings[sourceTable] && idMappings[sourceTable][record[field]]) {
+      if (
+        record[field] &&
+        sourceTable &&
+        idMappings[sourceTable] &&
+        idMappings[sourceTable][record[field]]
+      ) {
         record[field] = idMappings[sourceTable][record[field]];
       }
     });
   });
-  
+
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
   console.log(`✓ ${fileName.padEnd(35)} foreign keys updated`);
 });
 
 // Write all updated files
-files.forEach(fileName => {
+files.forEach((fileName) => {
   const filePath = path.join(dataDir, fileName);
-  
+
   if (!fs.existsSync(filePath)) return;
-  
+
   const tableName = fileName.replace('.json', '');
   const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  
+
   // Update file with new UUIDs
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 });
 
 // Save ID mappings for reference
-fs.writeFileSync(
-  path.join(dataDir, '_id_mappings.json'),
-  JSON.stringify(idMappings, null, 2)
-);
+fs.writeFileSync(path.join(dataDir, '_id_mappings.json'), JSON.stringify(idMappings, null, 2));
 
 console.log('\n✅ All IDs converted to UUIDs');
 console.log('📁 ID mappings saved to: data/_id_mappings.json\n');

@@ -16,7 +16,7 @@ const lessonMapping = {
   'Learning First Song - Whisky': 'ce3bbbc4-7737-433a-8b0d-e85c4e3797b0',
   'Post-Holiday Review': '520397d5-db4c-468e-9866-42b3dc526873',
   'Holiday Break Cancellation': 'a6b00e3c-aa76-4d29-8ea0-1ec3fae08dff',
-  'Chord Practice Session': '57eac036-51df-404e-a643-a5b3161b677b'
+  'Chord Practice Session': '57eac036-51df-404e-a643-a5b3161b677b',
 };
 
 const dataDir = path.join(__dirname, 'data');
@@ -36,11 +36,11 @@ const assignmentLessonMap = {
   'Metronome Practice - Hit the Road Jack': 'Rhythm and Timing',
   'Open Chord Practice': 'Guitar Basics',
   'Whisky Finger Picking Pattern': 'Learning First Song - Whisky',
-  'Music Theory - Note Reading': 'Theory Basics'
+  'Music Theory - Note Reading': 'Theory Basics',
 };
 
 let assignmentUpdates = 0;
-assignments.forEach(assignment => {
+assignments.forEach((assignment) => {
   const lessonTitle = assignmentLessonMap[assignment.title];
   if (lessonTitle && lessonMapping[lessonTitle]) {
     const newLessonId = lessonMapping[lessonTitle];
@@ -69,7 +69,7 @@ const lessonSongMap = [
   { orderRange: [1], lessonTitle: 'First Song - House of the Rising Sun' },
   { orderRange: [1], lessonTitle: 'Chord Transitions' },
   { orderRange: [1], lessonTitle: 'Learning First Song - Whisky' },
-  { orderRange: [1], lessonTitle: 'Guitar Basics' }
+  { orderRange: [1], lessonTitle: 'Guitar Basics' },
 ];
 
 let lessonSongUpdates = 0;
@@ -79,7 +79,9 @@ lessonSongs.forEach((lessonSong, index) => {
     if (lessonMapping[lessonTitle]) {
       const newLessonId = lessonMapping[lessonTitle];
       if (lessonSong.lesson_id !== newLessonId) {
-        console.log(`  ✓ Record ${index + 1}: ${lessonSong.lesson_id} → ${newLessonId} (${lessonTitle})`);
+        console.log(
+          `  ✓ Record ${index + 1}: ${lessonSong.lesson_id} → ${newLessonId} (${lessonTitle})`
+        );
         lessonSong.lesson_id = newLessonId;
         lessonSongUpdates++;
       }
@@ -100,7 +102,7 @@ const lessonHistoryMap = [
   { changeType: 'lesson_created', lessonTitle: 'Introduction to Guitar' },
   { changeType: 'lesson_updated', lessonTitle: 'Basic Strumming Patterns' },
   { changeType: 'lesson_cancelled', lessonTitle: 'Holiday Break Cancellation' },
-  { changeType: 'lesson_rescheduled', lessonTitle: 'Post-Holiday Review' }
+  { changeType: 'lesson_rescheduled', lessonTitle: 'Post-Holiday Review' },
 ];
 
 let historyUpdates = 0;
@@ -110,7 +112,9 @@ lessonHistory.forEach((history, index) => {
     if (lessonMapping[lessonTitle]) {
       const newLessonId = lessonMapping[lessonTitle];
       if (history.lesson_id !== newLessonId) {
-        console.log(`  ✓ ${history.change_type}: ${history.lesson_id} → ${newLessonId} (${lessonTitle})`);
+        console.log(
+          `  ✓ ${history.change_type}: ${history.lesson_id} → ${newLessonId} (${lessonTitle})`
+        );
         history.lesson_id = newLessonId;
         historyUpdates++;
       }

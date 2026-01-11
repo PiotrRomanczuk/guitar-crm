@@ -31,7 +31,7 @@ const tableMapping = {
   'agent_execution_logs.json': 'public.agent_execution_logs',
   'api_keys.json': 'public.api_keys',
   'user_integrations.json': 'public.user_integrations',
-  'webhook_subscriptions.json': 'public.webhook_subscriptions'
+  'webhook_subscriptions.json': 'public.webhook_subscriptions',
 };
 
 console.log('🔄 Merging seed data files...\n');
@@ -41,14 +41,14 @@ let totalRecords = 0;
 // Process each file
 Object.entries(tableMapping).forEach(([fileName, tableName]) => {
   const filePath = path.join(dataDir, fileName);
-  
+
   if (fs.existsSync(filePath)) {
     const tableData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    
+
     if (seedData.tables[tableName]) {
       seedData.tables[tableName].data = tableData;
       seedData.tables[tableName].count = tableData.length;
-      
+
       console.log(`✓ ${tableName.padEnd(35)} ${tableData.length} records`);
       totalRecords += tableData.length;
     } else {

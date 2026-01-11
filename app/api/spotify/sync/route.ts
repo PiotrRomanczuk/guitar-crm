@@ -114,6 +114,7 @@ export async function POST(request: Request) {
             spotify_link_url: string;
             duration_ms: number;
             release_year: number | null;
+            author?: string;
             cover_image_url?: string;
             updated_at: string;
           } = {
@@ -124,6 +125,12 @@ export async function POST(request: Request) {
               : null,
             updated_at: new Date().toISOString(),
           };
+
+          // Set author from Spotify artist
+          const artistName = track.artists?.[0]?.name;
+          if (artistName) {
+            updateData.author = artistName;
+          }
 
           // Set cover image
           const imageUrl = track.album.images[0]?.url;

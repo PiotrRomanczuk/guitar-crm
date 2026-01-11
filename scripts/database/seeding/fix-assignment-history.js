@@ -13,7 +13,7 @@ const assignments = JSON.parse(fs.readFileSync(assignmentsPath, 'utf8'));
 
 // Create title to ID mapping
 const assignmentTitleToId = {};
-assignments.forEach(assignment => {
+assignments.forEach((assignment) => {
   assignmentTitleToId[assignment.title] = assignment.id;
 });
 
@@ -31,11 +31,11 @@ const history = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
 const titleFromHistory = {
   '8e664126-f035-4379-a5e6-daa752be3d30': 'Practice Basic Strumming',
   '564b4dea-74de-4b05-b508-8454c68bae41': 'Learn House of the Rising Sun Verse',
-  'a1b2c3d4-e5f6-7890-1234-567890abcdef': 'Whisky Finger Picking Pattern'
+  'a1b2c3d4-e5f6-7890-1234-567890abcdef': 'Whisky Finger Picking Pattern',
 };
 
 let updates = 0;
-history.forEach(record => {
+history.forEach((record) => {
   const title = titleFromHistory[record.assignment_id];
   if (title && assignmentTitleToId[title]) {
     const newId = assignmentTitleToId[title];
