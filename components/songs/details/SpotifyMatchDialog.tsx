@@ -241,7 +241,7 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
             <div className="flex gap-4">
               {/* Album Cover */}
               <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-muted border border-border">
-                {(selectedTrack?.album?.images?.[0]?.url || matchData.spotifyTrack.coverImage) ? (
+                {selectedTrack?.album?.images?.[0]?.url || matchData.spotifyTrack.coverImage ? (
                   <Image
                     src={
                       selectedTrack?.album?.images?.[0]?.url || matchData.spotifyTrack.coverImage
@@ -279,7 +279,9 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
                   <div>
                     <span className="text-muted-foreground">Duration:</span>
                     <div>
-                      {formatDuration(selectedTrack?.duration_ms || matchData.spotifyTrack.duration)}
+                      {formatDuration(
+                        selectedTrack?.duration_ms || matchData.spotifyTrack.duration
+                      )}
                     </div>
                   </div>
                   <div>
@@ -290,9 +292,7 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
                   </div>
                   <div>
                     <span className="text-muted-foreground">Popularity:</span>
-                    <div>
-                      {selectedTrack?.popularity || matchData.spotifyTrack.popularity}/100
-                    </div>
+                    <div>{selectedTrack?.popularity || matchData.spotifyTrack.popularity}/100</div>
                   </div>
                 </div>
 
@@ -300,9 +300,7 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
                 <div className="flex gap-2 pt-2">
                   <Button variant="outline" size="sm" asChild className="gap-1">
                     <a
-                      href={
-                        selectedTrack?.external_urls?.spotify || matchData.spotifyTrack.url
-                      }
+                      href={selectedTrack?.external_urls?.spotify || matchData.spotifyTrack.url}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

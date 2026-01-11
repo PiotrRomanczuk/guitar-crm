@@ -18,7 +18,9 @@ try {
   passwords.forEach(({ label, password }) => {
     try {
       // Try using htpasswd
-      const hash = execSync(`htpasswd -bnBC 10 "" ${password} | tr -d ':\n'`, { encoding: 'utf8' }).trim();
+      const hash = execSync(`htpasswd -bnBC 10 "" ${password} | tr -d ':\n'`, {
+        encoding: 'utf8',
+      }).trim();
       console.log(`${label} (${password}):\n${hash}\n`);
     } catch (err) {
       console.log(`Could not generate hash for ${label}: htpasswd not available`);
