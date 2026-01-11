@@ -77,7 +77,7 @@ export function SongStatusHistory({ songId, studentId, title }: SongStatusHistor
         console.error('Song status history query error:', error);
         throw error;
       }
-      
+
       setHistory(data || []);
     } catch (err) {
       console.error('Error loading song status history:', {

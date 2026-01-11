@@ -202,10 +202,10 @@ describe('Enhanced Spotify Search Service', () => {
       };
 
       const promise = searchSongWithAI(mockSong, options);
-      
+
       // Run all timers (150ms delays for each query)
       await jest.runAllTimersAsync();
-      
+
       const result = await promise;
 
       expect(result.queriesUsed).toBeLessThanOrEqual(3);
@@ -432,7 +432,7 @@ describe('Enhanced Spotify Search Service', () => {
       };
 
       const promise = searchSongsWithAI(mockSongs, options);
-      
+
       // Verify that setTimeout is called for rate limiting (300ms between songs)
       await jest.runAllTimersAsync();
       await promise;
