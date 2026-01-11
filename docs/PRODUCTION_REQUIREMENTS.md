@@ -606,14 +606,14 @@ This table shows the implementation status and test coverage for each major feat
 | Orphan Cleanup | ✅ | ✅ `orphan-profile-cleanup.test.ts` | ❌ | Data cleanup |
 | Drive Backup | ✅ | ✅ `upload-to-drive.test.ts` | ❌ | Backup system |
 | **AI Features** |
-| AI Providers | ✅ | ❌ | ❌ | OpenRouter/Ollama |
-| AI Agents | ✅ | ❌ | ❌ | Email, Lessons, Assignments |
-| Rate Limiting | ✅ | ❌ | ❌ | Usage control |
+| AI Providers | ✅ | ✅ `provider-factory.test.ts`, `openrouter.test.ts` | ❌ | OpenRouter/Ollama |
+| AI Agents | ✅ | ✅ `agents.test.ts` | ❌ | Email, Lessons, Assignments |
+| Rate Limiting | ✅ | ✅ `rate-limiter.test.ts` | ❌ | Usage control |
 | **Email** |
-| Email Sending | ✅ | ❌ | ❌ | Gmail SMTP |
-| Email Templates | ✅ | ❌ | ❌ | Lesson/Report templates |
+| Email Sending | ✅ | ✅ `email.test.ts` | ❌ | Gmail SMTP |
+| Email Templates | ✅ | ✅ `email.test.ts` | ❌ | Lesson/Report templates |
 | **Cron Jobs** |
-| Daily Report | ✅ | ❌ | ❌ | Admin email report |
+| Daily Report | ✅ | ✅ `daily-report.test.ts` | ❌ | Admin email report |
 
 ### E2E Test Suites Summary
 
@@ -632,18 +632,18 @@ This table shows the implementation status and test coverage for each major feat
 |----------|------------|---------------|
 | **Components** | 34 `.test.tsx` files | UI components, forms, lists |
 | **API Routes** | 12 `.test.ts` files | API handlers, integration |
-| **Lib/Services** | 8 `.test.ts` files | Core utilities, auth, integrations |
+| **Lib/Services** | 14 `.test.ts` files | Core utilities, auth, integrations, AI, email |
 | **History** | 4 `.unit.test.ts` files | Change tracking |
 | **Database Scripts** | 5 `.test.ts` files | Data migration, sync |
+| **AI System** | 4 `.test.ts` files | Providers, agents, rate limiting |
+| **Email System** | 1 `.test.ts` file | SMTP, templates |
+| **Cron Jobs** | 1 `.test.ts` file | Daily reports |
 
 ### Coverage Gaps (Needs Testing)
 
 | Area | Type Needed | Priority |
 |------|-------------|----------|
-| AI Providers | Unit tests | Medium |
-| AI Agents | Unit + Integration | Medium |
-| Email Templates | Unit tests | Low |
-| Cron Jobs | Integration tests | Low |
+| Ollama Provider | Unit tests | Low |
 | Google Calendar webhook | E2E tests | Low |
 | Spotify sync E2E | E2E tests | Low |
 | Settings page | E2E tests | Low |
