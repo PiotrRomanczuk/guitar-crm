@@ -3,18 +3,6 @@
 /**
  * Admin Lessons CRUD Workflow
  *
- * TODO: Lesson form submission not working - form stays on /new page after submit
- * Issue: Form validation may be failing or submit handler not redirecting
- * Symptoms:
- * - Submit button clicks but no redirect occurs
- * - URL stays at /dashboard/lessons/new
- * - No visible error messages in UI
- * Need to debug:
- * 1. Check browser console for JS errors
- * 2. Verify all required fields are filled correctly
- * 3. Check if handleSubmit in useLessonForm is being called
- * 4. Verify API endpoint is working
- * 
  * Tests complete CRUD cycle for lessons:
  * 1. Create - Fill form and submit
  * 2. Verify - Check item appears in list
@@ -27,7 +15,7 @@
  * - TEST_ADMIN_EMAIL and TEST_ADMIN_PASSWORD in cypress.env.json
  */
 
-describe.skip('Admin Lessons CRUD Workflow', () => {
+describe('Admin Lessons CRUD Workflow', () => {
   const ADMIN_EMAIL = Cypress.env('TEST_ADMIN_EMAIL');
   const ADMIN_PASSWORD = Cypress.env('TEST_ADMIN_PASSWORD');
 
@@ -47,62 +35,39 @@ describe.skip('Admin Lessons CRUD Workflow', () => {
 
   it('1. CREATE: should create a new lesson', () => {
     cy.visit('/dashboard/lessons/new');
+    cy.wait(2000);
 
-    // Wait for form to load
+    // Wait for form to load - the SelectTrigger has the data-testid
     cy.get('[data-testid="lesson-student_id"]', { timeout: 10000 }).should('be.visible');
 
-    // Select first available student (get first option that's not the placeholder)
-    cy.get('[data-testid="lesson-student_id"] option')
-      .eq(1)
-      .then(($option) => {
-        const studentId = $option.val() as string;
-        cy.get('[data-testid="lesson-student_id"]').select(studentId);
-      });
+    // Select first available student using shadcn Select
+    // Click the trigger to open the dropdown
+    cy.get('[data-testid="lesson-student_id"]').click({ force: true });
+    cy.wait(500);
+    // Click the first option in the dropdown
+    cy.get('[role="option"]').first().click({ force: true });
+    cy.wait(500);
 
-    // Select first available teacher
-    cy.get('[data-testid="lesson-teacher_id"] option')
-      .eq(1)
-      .then(($option) => {
-        const teacherId = $option.val() as string;
-        cy.get('[data-testid="lesson-teacher_id"]').select(teacherId);
-      });
+    // Select first available teacher using shadcn Select
+    cy.get('[data-testid="lesson-teacher_id"]').click({ force: true });
+    cy.wait(500);
+    cy.get('[role="option"]').first().click({ force: true });
+    cy.wait(500);
 
     // Fill in lesson form
-    cy.get('[data-testid="lesson-title"]').clear().type(testData.title);
+    cy.get('[data-testid="lesson-title"]').clear({ force: true }).type(testData.title, { force: true });
 
     // Set scheduled date (tomorrow)
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const dateStr = tomorrow.toISOString().slice(0, 16);
-    cy.get('[data-testid="lesson-scheduled-at"]').clear().type(dateStr);
+    cy.get('[data-testid="lesson-scheduled-at"]').clear({ force: true }).type(dateStr, { force: true });
 
     // Add notes
-    cy.get('[data-testid="lesson-notes"]').clear().type(testData.notes);
-
-    // Log form state before submission
-    cy.get('[data-testid="lesson-student_id"]').then(($select) => {
-      cy.log('Student selected:', $select.val());
-    });
-    cy.get('[data-testid="lesson-teacher_id"]').then(($select) => {
-      cy.log('Teacher selected:', $select.val());
-    });
+    cy.get('[data-testid="lesson-notes"]').clear({ force: true }).type(testData.notes, { force: true });
 
     // Submit the form
-    cy.get('[data-testid="lesson-submit"]').should('be.visible').should('not.be.disabled').click();
-
-    // Wait a bit and check for errors
-    cy.wait(2000);
-    
-    // Check if there's an error message
-    cy.get('body').then(($body) => {
-      const hasError = $body.find('.bg-red-50, .text-red-').length > 0;
-      if (hasError) {
-        cy.log('ERROR: Form has validation errors');
-        cy.get('.bg-red-50, .text-red-').each(($el) => {
-          cy.log('Error:', $el.text());
-        });
-      }
-    });
+    cy.get('[data-testid="lesson-submit"]').should('be.visible').should('not.be.disabled').click({ force: true });
 
     // Should redirect to lessons list with success message
     cy.url({ timeout: 15000 }).should('include', '/dashboard/lessons');
@@ -119,6 +84,7 @@ describe.skip('Admin Lessons CRUD Workflow', () => {
 
   it('3. EDIT: should update the lesson', () => {
     cy.visit('/dashboard/lessons');
+    cy.wait(2000);
 
     // Click on the lesson to go to detail page
     cy.contains(testData.title).click({ force: true });
@@ -129,9 +95,10 @@ describe.skip('Admin Lessons CRUD Workflow', () => {
       .first()
       .click({ force: true });
     cy.location('pathname').should('include', '/edit');
+    cy.wait(2000);
 
     // Update the title
-    cy.get('[data-testid="lesson-title"]').clear().type(testData.titleEdited);
+    cy.get('[data-testid="lesson-title"]').clear({ force: true }).type(testData.titleEdited, { force: true });
 
     // Save
     cy.get('[data-testid="lesson-submit"], button[type="submit"]').first().click({ force: true });
