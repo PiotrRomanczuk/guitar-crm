@@ -1,5 +1,9 @@
 -- Create enum type for student status
-CREATE TYPE student_status AS ENUM ('lead', 'trial', 'active', 'inactive', 'churned');
+DO $$ BEGIN
+    CREATE TYPE student_status AS ENUM ('lead', 'trial', 'active', 'inactive', 'churned');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- Add columns to profiles table
 ALTER TABLE profiles 
