@@ -87,6 +87,19 @@ Always respond with valid JSON matching the specified schema.`,
 
   enableLogging: true,
   enableAnalytics: false,
+
+  dataAccess: {
+    tables: ['songs'],
+    permissions: ['read', 'write'],
+  },
+
+  successMetrics: ['normalization_confidence', 'data_quality_improvement'],
+
+  uiConfig: {
+    category: 'automation',
+    icon: 'music',
+    placement: ['dashboard'], // Admin dashboard
+  },
 };
 
 /**
