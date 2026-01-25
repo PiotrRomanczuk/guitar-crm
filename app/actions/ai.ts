@@ -1,8 +1,7 @@
 'use server';
 
-import { getAIProvider, isAIError, type AIMessage, type AIModelInfo } from '@/lib/ai';
+import { getAIProvider, isAIError, type AIMessage, type AIModelInfo, type AIProvider } from '@/lib/ai';
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
-import { createClient } from '@/lib/supabase/server';
 import { executeAgent } from '@/lib/ai/registry';
 import { mapToOllamaModel } from '@/lib/ai/model-mappings';
 
@@ -39,8 +38,8 @@ async function* createAIStream(
  */
 async function* executeAgentStream(
   agentId: string,
-  input: Record<string, any>,
-  context: Record<string, any> = {},
+  input: Record<string, unknown>,
+  context: Record<string, unknown> = {},
   options?: { delayMs?: number; chunkSize?: number }
 ) {
   try {
@@ -67,7 +66,7 @@ async function* executeAgentStream(
  * Map OpenRouter model IDs to appropriate local models for Ollama
  */
 export async function getProviderAppropriateModel(
-  provider: any,
+  provider: AIProvider,
   requestedModel: string
 ): Promise<string> {
   // If using Ollama, map OpenRouter models to local equivalents
@@ -524,10 +523,10 @@ export async function generatePostLessonSummary(params: {
  * Analyze student progress with streaming
  */
 export async function* analyzeStudentProgressStream(params: {
-  studentData: any;
+  studentData: Record<string, unknown>;
   timePeriod?: string;
-  lessonHistory?: any;
-  skillAssessments?: any;
+  lessonHistory?: Record<string, unknown>;
+  skillAssessments?: Record<string, unknown>;
 }) {
   yield* executeAgentStream('student-progress-insights', params);
 }
@@ -575,7 +574,7 @@ export async function analyzeStudentProgress(params: {
  * Generate admin insights with streaming
  */
 export async function* generateAdminInsightsStream(params: {
-  dashboardData: any;
+  dashboardData: Record<string, unknown>;
   timeframe?: string;
   focusAreas?: string[];
 }) {
