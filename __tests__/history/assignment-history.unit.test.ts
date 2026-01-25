@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 jest.mock('@/lib/supabase/client');
 
 describe('Assignment History Tracking', () => {
-  let mockSupabase: any;
+  let mockSupabase: ReturnType<typeof createClient>;
   const testUserId = 'test-user-id';
   const testAssignmentId = 'test-assignment-id';
 

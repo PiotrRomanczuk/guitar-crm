@@ -82,20 +82,20 @@ describe('SystemLogs Component', () => {
 
   // Create proper Promise-returning mock chain
   const createMockSupabase = (assignmentData = mockAssignmentLogs, lessonData = mockLessonLogs, songData = mockSongLogs, userData = mockUserLogs, usersData = mockUsers) => {
-    const createThenable = (data: any) => {
+    const createThenable = (data: unknown) => {
       const result = { data, error: null };
-      const thenable: any = {
+      const thenable: Record<string, unknown> = {
         select: jest.fn(() => thenable),
         order: jest.fn(() => thenable),
         limit: jest.fn(() => thenable),
         eq: jest.fn(() => thenable),
-        then: (resolve: any) => Promise.resolve(result).then(resolve),
-        catch: (reject: any) => Promise.resolve(result).catch(reject),
+        then: (resolve: (value: unknown) => unknown) => Promise.resolve(result).then(resolve),
+        catch: (reject: (reason: unknown) => unknown) => Promise.resolve(result).catch(reject),
       };
       return thenable;
     };
 
-    const dataMap: Record<string, any> = {
+    const dataMap: Record<string, unknown> = {
       profiles: usersData,
       assignment_history: assignmentData,
       lesson_history: lessonData,
