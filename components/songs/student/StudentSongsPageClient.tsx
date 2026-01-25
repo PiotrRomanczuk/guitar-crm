@@ -68,9 +68,13 @@ const statusLabels: Record<string, string> = {
   with_author: 'With Author',
 };
 
-export function StudentSongsPageClient() {
-  const [songs, setSongs] = useState<Song[]>([]);
-  const [loading, setLoading] = useState(true);
+interface StudentSongsPageClientProps {
+  initialSongs?: Song[];
+}
+
+export function StudentSongsPageClient({ initialSongs = [] }: StudentSongsPageClientProps) {
+  const [songs, setSongs] = useState<Song[]>(initialSongs);
+  const [loading, setLoading] = useState(initialSongs.length === 0);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
   // Filter and sort states
@@ -186,12 +190,20 @@ export function StudentSongsPageClient() {
   }, [songs, searchQuery, difficultyFilter, statusFilter, sortBy]);
 
   useEffect(() => {
+    if (initialSongs.length > 0) {
+      setLoading(false);
+      return;
+    }
+
     async function fetchSongs() {
       try {
         const {
           data: { user },
         } = await supabase.auth.getUser();
-        if (!user) return;
+        
+        if (!user) {
+            return;
+        }
 
         const { data, error } = await supabase
           .from('lesson_songs')
@@ -214,7 +226,9 @@ export function StudentSongsPageClient() {
           )
           .eq('lessons.student_id', user.id);
 
-        if (error) throw error;
+        if (error) {
+            throw error;
+        }
 
         const processedSongsMap = new Map<string, Song>();
 
@@ -250,8 +264,7 @@ export function StudentSongsPageClient() {
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8">
       <div
-        className="mb-6 sm:mb-8 opacity-0 animate-fade-in"
-        style={{ animationFillMode: 'forwards' }}
+        className="mb-6 sm:mb-8"
       >
         <h1 className="text-2xl sm:text-3xl font-semibold">My Songs</h1>
         <p className="text-muted-foreground mt-1 text-sm sm:text-base">
@@ -261,8 +274,7 @@ export function StudentSongsPageClient() {
 
       {songs.length > 0 && (
         <div
-          className="mb-6 sm:mb-8 space-y-4 opacity-0 animate-fade-in"
-          style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
+          className="mb-6 sm:mb-8 space-y-4"
         >
           {/* Search Bar */}
           <div className="relative">
@@ -380,8 +392,7 @@ export function StudentSongsPageClient() {
           {filteredSongs.map((song, index) => (
             <div
               key={song.id}
-              className="group bg-card rounded-xl border border-border overflow-hidden hover:border-primary/30 transition-all duration-300 opacity-0 animate-fade-in"
-              style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
+              className="group bg-card rounded-xl border border-border overflow-hidden hover:border-primary/30 transition-all duration-300"
             >
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
