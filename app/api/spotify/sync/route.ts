@@ -180,7 +180,7 @@ export async function POST(request: Request) {
               spotify_release_date: track.album.release_date,
               spotify_popularity: track.popularity,
               confidence_score: match.confidence,
-              search_query: match.searchQuery || `${song.title} ${song.artist}`,
+              search_query: match.searchQuery || `${song.title} ${song.author}`,
               match_reason: match.reason || 'AI-powered fuzzy match',
               status: 'pending',
             });

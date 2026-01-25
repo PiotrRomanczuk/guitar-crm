@@ -40,7 +40,7 @@ export function PostLessonSummaryAI({
       const streamGenerator = generatePostLessonSummaryStream({
         studentName,
         songTitle: songsPracticed.join(', '),
-        lessonDuration: duration,
+        lessonDuration: `${duration} minutes`,
         skillsWorked: newTechniques.join(', '),
         challengesNoted: struggles.join(', '),
         nextSteps: successes.join(', '),

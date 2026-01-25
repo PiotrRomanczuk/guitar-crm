@@ -216,9 +216,22 @@ function DrawerDescription({ className, ...props }: React.HTMLAttributes<HTMLPar
 function DrawerClose({
   className,
   children,
+  asChild,
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }) {
   const { onOpenChange } = useDrawer();
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children, {
+      ...props,
+      onClick: (e: React.MouseEvent) => {
+        onOpenChange(false);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (children as any).props.onClick?.(e);
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
+  }
 
   return (
     <button className={cn(className)} onClick={() => onOpenChange(false)} {...props}>
