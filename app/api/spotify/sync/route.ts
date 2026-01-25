@@ -253,7 +253,7 @@ export async function POST(request: Request) {
       // You could save this report to a file or return it in the response
       console.log('\n📊 Detailed Match Report Generated');
       // For now, just include summary in response
-      (results as any).report = report.split('\n').slice(0, 20).join('\n') + '\n... (truncated)';
+      (results as Record<string, unknown>).report = report.split('\n').slice(0, 20).join('\n') + '\n... (truncated)';
     }
 
     return NextResponse.json(results);
