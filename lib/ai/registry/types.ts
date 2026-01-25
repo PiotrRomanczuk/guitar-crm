@@ -14,7 +14,7 @@ export interface AgentSpecification {
 
   // Purpose & Scope
   purpose: string;
-  targetUsers: ('admin' | 'teacher' | 'student')[];
+  targetUsers: ('admin' | 'teacher' | 'student' | 'system')[];
   useCases: string[];
   limitations: string[];
 

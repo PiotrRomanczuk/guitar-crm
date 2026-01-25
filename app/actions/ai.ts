@@ -3,7 +3,7 @@
 import { getAIProvider, isAIError, type AIMessage, type AIModelInfo } from '@/lib/ai';
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
 import { createClient } from '@/lib/supabase/server';
-import { executeAgentRequest } from '@/lib/ai/registry';
+import { executeAgent } from '@/lib/ai/registry';
 import { mapToOllamaModel } from '@/lib/ai/model-mappings';
 
 /**
@@ -44,18 +44,18 @@ async function* executeAgentStream(
   options?: { delayMs?: number; chunkSize?: number }
 ) {
   try {
-    const result = await executeAgentRequest({
+    const result = await executeAgent(
       agentId,
       input,
       context,
-    });
+    );
 
     if (result.error) {
       yield `Error: ${result.error}`;
       return;
     }
 
-    const content = String(result.content || 'No content generated.');
+    const content = String(result.result?.content || result.result || 'No content generated.');
     yield* createAIStream(content, options);
   } catch (error) {
     console.error(`[${agentId}] Stream error:`, error);
@@ -525,6 +525,7 @@ export async function generatePostLessonSummary(params: {
  */
 export async function* analyzeStudentProgressStream(params: {
   studentData: any;
+  timePeriod?: string;
   lessonHistory?: any;
   skillAssessments?: any;
 }) {
