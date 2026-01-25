@@ -22,15 +22,15 @@ jest.mock('date-fns', () => ({
 describe('SongStatusHistory Component', () => {
   // Create a proper chainable mock that returns promises
   // The query chain is: from().select().order().eq() - each returns a thenable
-  const createMockQuery = (data: any[] = [], error: any = null) => {
+  const createMockQuery = (data: unknown[] = [], error: unknown = null) => {
     const mockResult = { data, error };
-    const createThenable = () => {
-      const thenable: any = {
+    const createThenable = (): Record<string, unknown> => {
+      const thenable: Record<string, unknown> = {
         select: jest.fn(() => createThenable()),
         order: jest.fn(() => createThenable()),
         eq: jest.fn(() => createThenable()),
-        then: (resolve: any) => Promise.resolve(mockResult).then(resolve),
-        catch: (reject: any) => Promise.resolve(mockResult).catch(reject),
+        then: (resolve: (value: unknown) => unknown) => Promise.resolve(mockResult).then(resolve),
+        catch: (reject: (reason: unknown) => unknown) => Promise.resolve(mockResult).catch(reject),
       };
       return thenable;
     };
@@ -56,7 +56,7 @@ describe('SongStatusHistory Component', () => {
     },
   ];
 
-  const createMockSupabase = (data: any[] = mockHistoryData) => {
+  const createMockSupabase = (data: unknown[] = mockHistoryData) => {
     const mockQuery = createMockQuery(data);
     return {
       from: jest.fn(() => mockQuery),

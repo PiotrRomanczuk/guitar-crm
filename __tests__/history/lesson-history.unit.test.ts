@@ -155,8 +155,8 @@ describeWithDb('Lesson History Tracking (Integration)', () => {
 
     expect(history).toBeDefined();
     expect(history?.change_type).toBe('status_changed');
-    expect((history?.previous_data as any).status).toBe('scheduled');
-    expect((history?.new_data as any).status).toBe('completed');
+    expect((history?.previous_data as Record<string, unknown>).status).toBe('scheduled');
+    expect((history?.new_data as Record<string, unknown>).status).toBe('completed');
   });
 
   it('should create history record when lesson is cancelled', async () => {
