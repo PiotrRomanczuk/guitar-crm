@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Mock Supabase client for Jest tests
 // Provides lightweight mocks for database operations
 

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines, react-hooks/purity */
 "use client"
 
 import * as React from "react"

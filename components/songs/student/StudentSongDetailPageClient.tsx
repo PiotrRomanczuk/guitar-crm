@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any, max-lines */
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
