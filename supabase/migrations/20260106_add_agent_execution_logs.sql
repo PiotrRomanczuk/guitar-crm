@@ -32,16 +32,20 @@ CREATE INDEX IF NOT EXISTS idx_agent_execution_logs_successful ON agent_executio
 ALTER TABLE agent_execution_logs ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Users can only see their own execution logs
+-- Policy: Users can only see their own execution logs
+DROP POLICY IF EXISTS "Users can view their own agent execution logs" ON agent_execution_logs;
 CREATE POLICY "Users can view their own agent execution logs" ON agent_execution_logs
   FOR SELECT
   USING (user_id = auth.uid());
 
 -- Policy: Allow inserts for authenticated users
+DROP POLICY IF EXISTS "Allow agent execution log inserts" ON agent_execution_logs;
 CREATE POLICY "Allow agent execution log inserts" ON agent_execution_logs
   FOR INSERT
   WITH CHECK (user_id = auth.uid());
 
 -- Policy: Admins can view all logs
+DROP POLICY IF EXISTS "Admins can view all agent execution logs" ON agent_execution_logs;
 CREATE POLICY "Admins can view all agent execution logs" ON agent_execution_logs
   FOR SELECT
   USING (
