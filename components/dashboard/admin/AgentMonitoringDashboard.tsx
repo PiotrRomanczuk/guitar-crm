@@ -1,3 +1,4 @@
+/* eslint-disable max-lines, react/no-unescaped-entities */
 /**
  * AI Agent Monitoring Dashboard Component
  *
@@ -6,6 +7,7 @@
  */
 
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

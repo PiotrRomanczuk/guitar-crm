@@ -164,7 +164,7 @@ export function EmailDraftGenerator({ students }: Props) {
 
           <div className="space-y-2">
             <Label>Email Type</Label>
-            <Select value={templateType} onValueChange={(value: any) => setTemplateType(value)}>
+            <Select value={templateType} onValueChange={(value: 'lesson_reminder' | 'progress_report' | 'payment_reminder' | 'milestone_celebration') => setTemplateType(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

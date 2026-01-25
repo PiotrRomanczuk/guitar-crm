@@ -1,4 +1,5 @@
 #!/usr/bin/env tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
  * Export local database to seed file
@@ -92,7 +93,7 @@ interface ExportedData {
 
 async function exportTable(schema: string, tableName: string): Promise<any[]> {
   try {
-    let query = supabase.from(tableName).select('*');
+    const query = supabase.from(tableName).select('*');
 
     // For auth.users, we need to use a different approach
     if (schema === 'auth' && tableName === 'users') {
