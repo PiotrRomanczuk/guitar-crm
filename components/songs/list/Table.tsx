@@ -21,6 +21,7 @@ import StatusSelect from './StatusSelect';
 
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { getStatusBadgeClasses } from '@/lib/utils/status-colors';
 
 interface Props {
   songs: (Song | SongWithStatus)[];
@@ -29,18 +30,10 @@ interface Props {
   selectedStudentId?: string;
 }
 
-const levelColors = {
-  Beginner: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  Intermediate: 'bg-primary/10 text-primary border-primary/20',
-  Advanced: 'bg-destructive/10 text-destructive border-destructive/20',
-  Unknown: 'bg-muted text-muted-foreground border-border',
-};
-
 function getLevelBadgeClass(level: string | null | undefined): string {
-  if (!level) return levelColors.Unknown;
+  if (!level) return getStatusBadgeClasses('songLevel', '');
   const normalizedLevel = level.charAt(0).toUpperCase() + level.slice(1).toLowerCase();
-  // @ts-expect-error - indexing with string
-  return levelColors[normalizedLevel] || levelColors.Unknown;
+  return getStatusBadgeClasses('songLevel', normalizedLevel);
 }
 
 export default function SongListTable({
@@ -57,27 +50,27 @@ export default function SongListTable({
   const [checkingId, setCheckingId] = useState<string | null>(null);
 
   const handleDeleteClick = async (song: Song) => {
-    console.log('🎸 [FRONTEND] handleDeleteClick called for song:', song.id);
+    console.log('[Songs] handleDeleteClick called for song:', song.id);
     setCheckingId(song.id);
 
     try {
       const supabase = getSupabaseBrowserClient();
-      console.log('🎸 [FRONTEND] Checking assignments for song:', song.id);
+      console.log('[Songs] Checking assignments for song:', song.id);
       const { count, error } = await supabase
         .from('lesson_songs')
         .select('*', { count: 'exact', head: true })
         .eq('song_id', song.id);
 
       if (error) {
-        console.error('🎸 [FRONTEND] Error checking assignments:', error);
+        console.error('[Songs] Error checking assignments:', error);
       } else {
-        console.log('🎸 [FRONTEND] Assignment count:', count);
+        console.log('[Songs] Assignment count:', count);
       }
 
       setAssignmentCount(count || 0);
       setSongToDelete(song);
     } catch (err) {
-      console.error('🎸 [FRONTEND] Unexpected error in handleDeleteClick:', err);
+      console.error('[Songs] Unexpected error in handleDeleteClick:', err);
     } finally {
       setCheckingId(null);
       setDeleteError(null);
@@ -121,7 +114,7 @@ export default function SongListTable({
       onDeleteSuccess?.();
       router.refresh();
     } catch (error) {
-      console.error('🎸 [FRONTEND] Delete failed:', error);
+      console.error('[Songs] Delete failed:', error);
       setDeleteError(error instanceof Error ? error.message : 'Failed to delete song');
       setDeletingSongId(null);
     }

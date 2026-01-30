@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/database.types.generated';
 import { getSupabaseConfig } from '@/lib/supabase/config';
 import {
@@ -16,12 +17,13 @@ import {
   deleteSongHandler,
 } from './handlers';
 
+type SupabaseServerClient = SupabaseClient<Database>;
+
 /**
  * Helper to get or create user profile
  */
 async function getOrCreateProfile(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any,
+  supabase: SupabaseServerClient,
   userId: string,
   email: string
 ) {
@@ -155,18 +157,18 @@ export async function GET(request: NextRequest) {
  * Create a new song (requires teacher or admin role)
  */
 export async function POST(request: NextRequest) {
-  console.log('🎵 [BACKEND] POST /api/song - Request received');
+  console.log('[API/Songs] POST /api/song - Request received');
 
   try {
     const cookieStore = await cookies();
-    console.log('🎵 [BACKEND] Cookies retrieved, count:', cookieStore.getAll().length);
+    console.log('[API/Songs] Cookies retrieved, count:', cookieStore.getAll().length);
 
     let config;
     try {
       config = getSupabaseConfig();
-      console.log('🎵 [BACKEND] Using database:', config.isLocal ? 'LOCAL' : 'REMOTE');
+      console.log('[API/Songs] Using database:', config.isLocal ? 'LOCAL' : 'REMOTE');
     } catch (configError) {
-      console.error('🎵 [BACKEND] Supabase config error:', configError);
+      console.error('[API/Songs] Supabase config error:', configError);
       return NextResponse.json({ error: 'Database configuration error' }, { status: 500 });
     }
 
@@ -184,48 +186,48 @@ export async function POST(request: NextRequest) {
         },
       },
     });
-    console.log('🎵 [BACKEND] Supabase client created');
+    console.log('[API/Songs] Supabase client created');
 
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    console.log('🎵 [BACKEND] User retrieved:', user ? { id: user.id, email: user.email } : 'null');
+    console.log('[API/Songs] User retrieved:', user ? { id: user.id, email: user.email } : 'null');
 
     if (!user) {
-      console.error('🎵 [BACKEND] No user - returning 401');
+      console.error('[API/Songs] No user - returning 401');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const profile = await getOrCreateProfile(supabase, user.id, user.email || '');
-    console.log('🎵 [BACKEND] Profile retrieved:', profile);
+    console.log('[API/Songs] Profile retrieved:', profile);
 
     if (!profile) {
-      console.error('🎵 [BACKEND] Failed to get/create profile');
+      console.error('[API/Songs] Failed to get/create profile');
       return NextResponse.json({ error: 'Error creating user profile' }, { status: 500 });
     }
 
     const body = await request.json();
-    console.log('🎵 [BACKEND] Request body:', body);
+    console.log('[API/Songs] Request body:', body);
 
     const result = await createSongHandler(supabase, user, profile, body);
-    console.log('🎵 [BACKEND] Handler result:', {
+    console.log('[API/Songs] Handler result:', {
       status: result.status,
       hasError: !!result.error,
       hasSong: !!result.song,
     });
 
     if (result.error) {
-      console.error('🎵 [BACKEND] createSongHandler returned error:', result.error);
+      console.error('[API/Songs] createSongHandler returned error:', result.error);
       return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
-    console.log('🎵 [BACKEND] Success! Returning song');
+    console.log('[API/Songs] Success! Returning song');
     return NextResponse.json(result.song, { status: result.status });
   } catch (error) {
-    console.error('🎵 [BACKEND] POST /api/song error:', error);
+    console.error('[API/Songs] POST /api/song error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     const errorStack = error instanceof Error ? error.stack : '';
-    console.error('🎵 [BACKEND] Error details:', { message: errorMessage, stack: errorStack });
+    console.error('[API/Songs] Error details:', { message: errorMessage, stack: errorStack });
     return NextResponse.json(
       {
         error: 'Internal server error',

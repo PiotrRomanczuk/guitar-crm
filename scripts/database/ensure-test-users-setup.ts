@@ -56,6 +56,14 @@ const TEST_USERS = [
     is_student: true,
     is_teacher: false,
     is_admin: false
+  },
+  {
+    email: 'p.romanczuk@gmail.com',
+    role: 'admin',
+    full_name: 'Admin User',
+    is_student: false,
+    is_teacher: false,
+    is_admin: true
   }
 ];
 

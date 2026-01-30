@@ -1,125 +1,100 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { Loader2 } from 'lucide-react';
 import { resetPassword } from '@/app/auth/actions';
+import { Button } from '@/components/ui/button';
+import {
+  AuthInput,
+  AuthAlert,
+  AuthFooter,
+  AuthLink,
+} from './AuthFormComponents';
+
+/**
+ * Forgot Password Form
+ * Migrated to shadcn/ui components per CLAUDE.md Form Standards
+ */
 
 interface ForgotPasswordFormProps {
-	onSuccess?: () => void;
+  onSuccess?: () => void;
 }
 
-export default function ForgotPasswordForm({
-	onSuccess,
-}: ForgotPasswordFormProps) {
-	const [email, setEmail] = useState('');
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const [success, setSuccess] = useState(false);
-	const [touched, setTouched] = useState(false);
+export default function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [touched, setTouched] = useState(false);
 
-	const validate = () => {
-		if (touched && !email) return 'Email is required';
-		if (touched && email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-			return 'Invalid email';
-		return null;
-	};
+  const getEmailError = (): string | null => {
+    if (!touched) return null;
+    if (!email) return 'Email is required';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Invalid email address';
+    return null;
+  };
 
-	const validationError = validate();
+  const emailError = getEmailError();
 
-	const handleSubmit = async (e: FormEvent) => {
-		e.preventDefault();
-		setTouched(true);
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setTouched(true);
 
-		// Validate before submission
-		if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-			return;
-		}
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return;
+    }
 
-		setLoading(true);
-		setError(null);
-		setSuccess(false);
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
 
-		const result = await resetPassword(email);
+    const result = await resetPassword(email);
 
-		setLoading(false);
+    setLoading(false);
 
-		if (result.error) {
-			setError(result.error);
-			return;
-		}
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
 
-		setSuccess(true);
-		if (onSuccess) {
-			onSuccess();
-		}
-	};
+    setSuccess(true);
+    onSuccess?.();
+  };
 
-	return (
-		<form onSubmit={handleSubmit} className='space-y-4 sm:space-y-6'>
-			<p className='text-xs sm:text-sm text-gray-700 dark:text-gray-300 text-center'>
-				Enter your email and we&apos;ll send you a reset link
-			</p>
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <p className="text-sm text-muted-foreground text-center">
+        Enter your email and we&apos;ll send you a reset link
+      </p>
 
-			<div className='space-y-1 sm:space-y-2'>
-				<label
-					htmlFor='email'
-					className='block text-xs sm:text-sm font-medium text-gray-900 dark:text-white'
-				>
-					Email
-				</label>
-				<input
-					id='email'
-					name='email'
-					type='email'
-					value={email}
-					onChange={(e) => setEmail(e.target.value)}
-					onBlur={() => setTouched(true)}
-					required
-					className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500'
-				/>
-			</div>
+      <AuthInput
+        id="email"
+        label="Email"
+        type="email"
+        value={email}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          if (error) setError(null);
+        }}
+        onBlur={() => setTouched(true)}
+        error={emailError}
+        required
+        autoComplete="email"
+      />
 
-			{validationError && (
-				<div
-					role='alert'
-					className='p-2 sm:p-3 text-xs sm:text-sm bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-200 rounded-lg border border-red-200 dark:border-red-800'
-				>
-					{validationError}
-				</div>
-			)}
-			{error && (
-				<div
-					role='alert'
-					className='p-2 sm:p-3 text-xs sm:text-sm bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-200 rounded-lg border border-red-200 dark:border-red-800'
-				>
-					{error}
-				</div>
-			)}
+      {error && <AuthAlert message={error} />}
+      {success && (
+        <AuthAlert message="Check your email for the reset link" variant="success" />
+      )}
 
-			{success && (
-				<div
-					role='status'
-					className='p-2 sm:p-3 text-xs sm:text-sm bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-200 rounded-lg border border-green-200 dark:border-green-800'
-				>
-					Check your email for the reset link
-				</div>
-			)}
+      <Button type="submit" disabled={loading || !!emailError} className="w-full">
+        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {loading ? 'Sending...' : 'Send Reset Link'}
+      </Button>
 
-			<button
-				type='submit'
-				disabled={loading}
-				className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors'
-			>
-				{loading ? 'Sending...' : 'Send Reset Link'}
-			</button>
-
-			<p className='text-center text-xs sm:text-sm'>
-				<a
-					href='/sign-in'
-					className='text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300'
-				>
-					Back to sign in
-				</a>
-			</p>
-		</form>
-	);
+      <AuthFooter>
+        <AuthLink href="/sign-in">Back to sign in</AuthLink>
+      </AuthFooter>
+    </form>
+  );
 }

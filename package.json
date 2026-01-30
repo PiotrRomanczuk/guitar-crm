@@ -1,6 +1,6 @@
 {
   "name": "guitar-crm",
-  "version": "0.65.0",
+  "version": "0.85.0",
   "private": true,
   "scripts": {
     "dev": "NODE_OPTIONS='--max-http-header-size=65536' nodemon --exec next dev",

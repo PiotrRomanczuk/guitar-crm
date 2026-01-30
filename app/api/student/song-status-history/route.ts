@@ -90,7 +90,7 @@ export async function GET(req: Request) {
     }
 
     // Group by song for summary view
-    const songSummaries = (data as StatusChange[]).reduce(
+    const songSummaries = (data as unknown as StatusChange[]).reduce(
       (acc: Record<string, SongSummary>, change: StatusChange) => {
         // Note: Supabase joins return single objects, not arrays for single relationships
         const song = change.song;

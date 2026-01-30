@@ -51,7 +51,22 @@ export default async function SongsPage(props: Props) {
     }
 
     const processedSongsMap = new Map<string, Song>();
-    lessonSongs?.forEach((lessonSong: any) => {
+    type LessonSongResult = {
+      id: string;
+      status: string;
+      lessons: { student_id: string };
+      songs: {
+        id: string;
+        title: string;
+        author: string | null;
+        level: string | null;
+        key: string | null;
+        chords: string[] | null;
+        ultimate_guitar_link: string | null;
+        cover_image_url: string | null;
+      };
+    };
+    (lessonSongs as LessonSongResult[] | null)?.forEach((lessonSong) => {
         const song = Array.isArray(lessonSong.songs) ? lessonSong.songs[0] : lessonSong.songs;
         if (!song || processedSongsMap.has(song.id)) return;
 

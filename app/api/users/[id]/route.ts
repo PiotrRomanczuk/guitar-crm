@@ -72,6 +72,24 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       return Response.json({ error: error.message }, { status: 500 });
     }
 
+    // Update user_roles table to maintain consistency
+    // First, remove existing roles for this user
+    await supabase.from('user_roles').delete().eq('user_id', id);
+
+    // Then add the new roles
+    const rolesToInsert = [];
+    if (body.isAdmin) rolesToInsert.push({ user_id: id, role: 'admin' });
+    if (body.isTeacher) rolesToInsert.push({ user_id: id, role: 'teacher' });
+    if (body.isStudent) rolesToInsert.push({ user_id: id, role: 'student' });
+
+    if (rolesToInsert.length > 0) {
+      const { error: rolesError } = await supabase.from('user_roles').insert(rolesToInsert);
+      if (rolesError) {
+        console.error('Error updating user roles:', rolesError);
+        // Don't fail the request, just log the error
+      }
+    }
+
     return Response.json(data, { status: 200 });
   } catch (error) {
     console.error('Error updating user:', error);

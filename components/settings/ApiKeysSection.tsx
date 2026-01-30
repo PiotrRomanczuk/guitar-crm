@@ -14,6 +14,17 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
   Table,
   TableBody,
   TableCell,
@@ -76,10 +87,6 @@ export function ApiKeysSection() {
   }
 
   async function handleRevokeKey(id: string) {
-    if (!confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) {
-      return;
-    }
-
     try {
       const result = await revokeApiKey(id);
       if (result.success) {
@@ -213,15 +220,35 @@ export function ApiKeysSection() {
                     {key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : 'Never'}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRevokeKey(key.id)}
-                      className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Revoke</span>
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Revoke</span>
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Revoke API Key</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to revoke this API key? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleRevokeKey(key.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Revoke
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </TableCell>
                 </TableRow>
               ))}

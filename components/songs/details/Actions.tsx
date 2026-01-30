@@ -3,8 +3,20 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Pencil, Trash2 } from 'lucide-react';
 import { SyncSpotifyButton } from './SyncSpotifyButton';
+import { toast } from 'sonner';
 
 interface Props {
   songId: string;
@@ -22,13 +34,10 @@ export default function SongDetailActions({
   isTeacher = false,
 }: Props) {
   const [deleting, setDeleting] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const canManageSongs = isTeacher || isAdmin;
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this song?')) {
-      return;
-    }
-
     setDeleting(true);
     try {
       const response = await fetch(`/api/song?id=${songId}`, {
@@ -39,12 +48,12 @@ export default function SongDetailActions({
         throw new Error('Failed to delete song');
       }
 
-      // Optionally reload or redirect
       window.location.href = '/dashboard/songs';
     } catch (error) {
       console.error('Delete error:', error);
-      alert('Failed to delete song');
+      toast.error('Failed to delete song');
       setDeleting(false);
+      setDialogOpen(false);
     }
   };
 
@@ -63,10 +72,28 @@ export default function SongDetailActions({
         </Link>
       </Button>
 
-      <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
-        <Trash2 className="w-4 h-4 mr-2" />
-        {deleting ? 'Deleting...' : 'Delete Song'}
-      </Button>
+      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <AlertDialogTrigger asChild>
+          <Button variant="destructive" disabled={deleting}>
+            <Trash2 className="w-4 h-4 mr-2" />
+            {deleting ? 'Deleting...' : 'Delete Song'}
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Song</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this song? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

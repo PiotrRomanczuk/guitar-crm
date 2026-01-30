@@ -10,14 +10,15 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl =
 	process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321';
+// Prefer server-side env var (SUPABASE_SERVICE_ROLE_KEY should never have NEXT_PUBLIC_ prefix)
 const supabaseServiceKey =
-	process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ||
 	process.env.SUPABASE_SERVICE_ROLE_KEY ||
+	process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ||
 	'';
 
 if (!supabaseServiceKey) {
 	console.error(
-		'❌ NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY not set in .env.local'
+		'❌ SUPABASE_SERVICE_ROLE_KEY not set in .env.local'
 	);
 	process.exit(1);
 }

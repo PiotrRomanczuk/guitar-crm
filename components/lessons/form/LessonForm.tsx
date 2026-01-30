@@ -39,12 +39,19 @@ export default function LessonForm(props: UseLessonFormProps) {
       const result = await handleSubmit();
       console.log('[LessonForm] Submit result:', result);
       if (result.success) {
+        console.log('[LessonForm] Submission successful, redirecting...');
         if (props.lessonId) {
+          console.log('[LessonForm] Redirecting to lesson:', props.lessonId);
           router.push(`/dashboard/lessons/${props.lessonId}`);
         } else {
+          console.log('[LessonForm] Redirecting to lessons list');
           router.push('/dashboard/lessons?created=true');
         }
+      } else {
+        console.error('[LessonForm] Submission failed:', result.error);
       }
+    } catch (err) {
+      console.error('[LessonForm] Exception during submission:', err);
     } finally {
       setIsSubmitting(false);
     }
