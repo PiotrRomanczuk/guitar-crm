@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -35,6 +36,7 @@ import {
   SpotifyMatchCard,
   SpotifySearchDialog,
 } from './spotify';
+import { staggerContainer, listItem, cardEntrance } from '@/lib/animations';
 
 export function SpotifyMatchesClient() {
   const [matches, setMatches] = useState<SpotifyMatch[]>([]);
@@ -193,13 +195,22 @@ export function SpotifyMatchesClient() {
   };
 
   const renderEmptyState = (icon: React.ReactNode, title: string, message: string) => (
-    <div className="flex flex-col items-center justify-center py-12 sm:py-16 text-center space-y-4 border-2 border-dashed border-border rounded-xl bg-muted/10">
-      {icon}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="flex flex-col items-center justify-center py-12 sm:py-16 text-center space-y-4 border-2 border-dashed border-border rounded-xl bg-muted/10"
+    >
+      <motion.div
+        animate={{ y: [0, -8, 0] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        {icon}
+      </motion.div>
       <div className="space-y-1">
         <h3 className="font-semibold text-lg">{title}</h3>
         <p className="text-sm text-muted-foreground max-w-sm">{message}</p>
       </div>
-    </div>
+    </motion.div>
   );
 
   const renderPendingTable = () => (
@@ -280,54 +291,116 @@ export function SpotifyMatchesClient() {
   );
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      variants={cardEntrance}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'pending' | 'approved' | 'rejected')}>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="pending" className="flex-1 sm:flex-none">
+            <TabsTrigger value="pending" className="flex-1 sm:flex-none min-h-[44px]">
               Pending {pagination.total > 0 && activeTab === 'pending' && `(${pagination.total})`}
             </TabsTrigger>
-            <TabsTrigger value="approved" className="flex-1 sm:flex-none">Approved</TabsTrigger>
-            <TabsTrigger value="rejected" className="flex-1 sm:flex-none">Rejected</TabsTrigger>
+            <TabsTrigger value="approved" className="flex-1 sm:flex-none min-h-[44px]">Approved</TabsTrigger>
+            <TabsTrigger value="rejected" className="flex-1 sm:flex-none min-h-[44px]">Rejected</TabsTrigger>
           </TabsList>
-          <Button variant="outline" size="sm" onClick={() => fetchMatches(activeTab, pagination.page)} disabled={loading} className="w-full sm:w-auto">
-            <RefreshCcw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button variant="outline" size="sm" onClick={() => fetchMatches(activeTab, pagination.page)} disabled={loading} className="w-full sm:w-auto min-h-[44px]">
+              <RefreshCcw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </motion.div>
         </div>
 
         <TabsContent value="pending" className="space-y-4 mt-6">
-          {loading ? (
-            <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div>
-          ) : matches.length === 0 ? (
-            renderEmptyState(<CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" />, 'All caught up!', 'No pending Spotify matches to review.')
-          ) : (
-            renderPendingTable()
-          )}
+          <AnimatePresence mode="wait">
+            {loading ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex items-center justify-center py-12"
+              >
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </motion.div>
+            ) : matches.length === 0 ? (
+              renderEmptyState(<CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" />, 'All caught up!', 'No pending Spotify matches to review.')
+            ) : (
+              <motion.div
+                key="table"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                {renderPendingTable()}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </TabsContent>
 
         <TabsContent value="approved" className="space-y-4 mt-6">
-          {loading ? (
-            <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div>
-          ) : matches.length === 0 ? (
-            renderEmptyState(<CheckCircle2 className="w-12 h-12 text-muted-foreground/50" />, 'No approved matches', 'Approved matches will appear here.')
-          ) : (
-            <div className="grid gap-3">
-              {matches.map((match) => <SpotifyMatchCard key={match.id} match={match} status="approved" />)}
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {loading ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex items-center justify-center py-12"
+              >
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </motion.div>
+            ) : matches.length === 0 ? (
+              renderEmptyState(<CheckCircle2 className="w-12 h-12 text-muted-foreground/50" />, 'No approved matches', 'Approved matches will appear here.')
+            ) : (
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="grid gap-3"
+              >
+                {matches.map((match) => (
+                  <motion.div key={match.id} variants={listItem}>
+                    <SpotifyMatchCard match={match} status="approved" />
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </TabsContent>
 
         <TabsContent value="rejected" className="space-y-4 mt-6">
-          {loading ? (
-            <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div>
-          ) : matches.length === 0 ? (
-            renderEmptyState(<XCircle className="w-12 h-12 text-muted-foreground/50" />, 'No rejected matches', 'Rejected matches will appear here.')
-          ) : (
-            <div className="grid gap-3">
-              {matches.map((match) => <SpotifyMatchCard key={match.id} match={match} status="rejected" />)}
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {loading ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex items-center justify-center py-12"
+              >
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </motion.div>
+            ) : matches.length === 0 ? (
+              renderEmptyState(<XCircle className="w-12 h-12 text-muted-foreground/50" />, 'No rejected matches', 'Rejected matches will appear here.')
+            ) : (
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="grid gap-3"
+              >
+                {matches.map((match) => (
+                  <motion.div key={match.id} variants={listItem}>
+                    <SpotifyMatchCard match={match} status="rejected" />
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </TabsContent>
       </Tabs>
 
@@ -343,6 +416,6 @@ export function SpotifyMatchesClient() {
         onSelectAlternative={handleSelectAlternative}
         actionLoading={actionLoading}
       />
-    </div>
+    </motion.div>
   );
 }
