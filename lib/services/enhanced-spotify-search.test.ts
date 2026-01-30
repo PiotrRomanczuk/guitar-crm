@@ -36,14 +36,12 @@ describe('Enhanced Spotify Search Service', () => {
     ultimate_guitar_link: 'https://www.ultimate-guitar.com/tab/kansas/dust-in-the-wind-tabs-123',
     spotify_link_url: null,
     cover_image_url: null,
-    spotify_release_year: null,
-    spotify_duration_ms: null,
+    release_year: null,
+    duration_ms: null,
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
     deleted_at: null,
-    spotify_track_id: null,
-    custom_notes: null,
-  };
+  } as any;
 
   // Mock Spotify track response
   const mockSpotifyTrack = {
@@ -148,7 +146,7 @@ describe('Enhanced Spotify Search Service', () => {
 
       expect(result.match.found).toBe(false);
       expect(result.match.confidence).toBe(0);
-      expect(result.match.track).toBeNull();
+      expect(result.match.track).toBeUndefined();
       expect(result.match.reasoning).toContain('No matches found');
     });
 

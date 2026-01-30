@@ -12,7 +12,7 @@ export interface Song {
   created_at: Date;
   updated_at: Date;
   is_favorite?: boolean;
-  status?: 'to learn' | 'started' | 'remembered' | 'with author' | 'mastered';
+  status?: 'to_learn' | 'learning' | 'practicing' | 'improving' | 'started' | 'remembered' | 'with_author' | 'mastered' | string;
   youtube_url?: string | null;
   gallery_images?: string[] | null;
   spotify_link_url?: string | null;

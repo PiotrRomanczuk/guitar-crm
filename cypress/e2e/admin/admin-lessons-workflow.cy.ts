@@ -42,6 +42,7 @@ describe('Admin Lessons CRUD Workflow', () => {
 
     // Select first available student using shadcn Select
     // Click the trigger to open the dropdown
+    cy.wait(2000); // Wait for fetchProfiles to complete in useLessonForm
     cy.get('[data-testid="lesson-student_id"]').click({ force: true });
     cy.wait(500);
     // Click the first option in the dropdown

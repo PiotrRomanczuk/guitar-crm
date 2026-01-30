@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Eye, Pencil } from 'lucide-react';
+import { getStatusBadgeClasses } from '@/lib/utils/status-colors';
 
 interface UserProfile {
   id: string;
@@ -72,21 +73,13 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
               <div className="flex flex-col gap-1 items-end flex-shrink-0">
                 <Badge
                   variant="secondary"
-                  className={
-                    user.isActive
-                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/25 border-0 w-fit text-[10px] px-1.5 py-0.5'
-                      : 'bg-destructive/10 text-destructive hover:bg-destructive/20 border-0 w-fit text-[10px] px-1.5 py-0.5'
-                  }
+                  className={`${getStatusBadgeClasses('user', user.isActive ? 'active' : 'inactive')} w-fit text-[10px] px-1.5 py-0.5`}
                 >
                   {user.isActive ? 'Active' : 'Inactive'}
                 </Badge>
                 <Badge
                   variant="secondary"
-                  className={
-                    user.isRegistered
-                      ? 'bg-primary/10 text-primary hover:bg-primary/20 border-0 w-fit text-[10px] px-1.5 py-0.5'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80 border-0 w-fit text-[10px] px-1.5 py-0.5'
-                  }
+                  className={`${getStatusBadgeClasses('user', user.isRegistered ? 'registered' : 'shadow')} w-fit text-[10px] px-1.5 py-0.5`}
                 >
                   {user.isRegistered ? 'Registered' : 'Shadow'}
                 </Badge>
@@ -174,21 +167,13 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                     <div className="flex flex-col gap-1">
                       <Badge
                         variant="secondary"
-                        className={
-                          user.isActive
-                            ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/25 border-0 w-fit'
-                            : 'bg-destructive/10 text-destructive hover:bg-destructive/20 border-0 w-fit'
-                        }
+                        className={`${getStatusBadgeClasses('user', user.isActive ? 'active' : 'inactive')} w-fit`}
                       >
                         {user.isActive ? 'Active' : 'Inactive'}
                       </Badge>
                       <Badge
                         variant="secondary"
-                        className={
-                          user.isRegistered
-                            ? 'bg-primary/10 text-primary hover:bg-primary/20 border-0 w-fit'
-                            : 'bg-muted text-muted-foreground hover:bg-muted/80 border-0 w-fit'
-                        }
+                        className={`${getStatusBadgeClasses('user', user.isRegistered ? 'registered' : 'shadow')} w-fit`}
                       >
                         {user.isRegistered ? 'Registered' : 'Shadow'}
                       </Badge>

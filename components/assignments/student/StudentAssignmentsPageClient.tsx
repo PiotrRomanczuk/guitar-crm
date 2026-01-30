@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Select,
   SelectContent,
@@ -14,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, ClipboardList, Calendar, CheckCircle2, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { getStatusBadgeClasses } from '@/lib/utils/status-colors';
 
 interface Assignment {
   id: string;
@@ -36,13 +38,9 @@ interface FilterState {
   status: string;
 }
 
-const statusColors: Record<string, string> = {
-  not_started: 'bg-slate-500/10 text-slate-500 border-slate-500/20',
-  in_progress: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-  completed: 'bg-green-500/10 text-green-500 border-green-500/20',
-  overdue: 'bg-destructive/10 text-destructive border-destructive/20',
-  cancelled: 'bg-muted text-muted-foreground border-border',
-};
+function getAssignmentStatusClasses(status: string): string {
+  return getStatusBadgeClasses('assignment', status);
+}
 
 const statusLabels: Record<string, string> = {
   not_started: 'Not Started',
@@ -128,10 +126,11 @@ export function StudentAssignmentsPageClient() {
       {assignments.length === 0 ? (
         <div className="text-center py-12">
           <div className="relative w-64 h-48 mx-auto mb-6">
-            <img
+            <Image
               src="/illustrations/no-upcoming-lessons--future-focused---a-forward-lo.png"
               alt="No assignments"
-              className="w-full h-full object-contain"
+              fill
+              className="object-contain"
             />
           </div>
           <h3 className="text-lg font-medium mb-2">No assignments yet</h3>
@@ -157,7 +156,7 @@ export function StudentAssignmentsPageClient() {
                 </div>
                 <Badge
                   variant="outline"
-                  className={cn('capitalize', statusColors[assignment.status])}
+                  className={cn('capitalize', getAssignmentStatusClasses(assignment.status))}
                 >
                   {statusLabels[assignment.status]}
                 </Badge>

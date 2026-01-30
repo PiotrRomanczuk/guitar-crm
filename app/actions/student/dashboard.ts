@@ -142,15 +142,18 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
     lastLesson: lastLessonData,
     assignments: assignmentsData || [],
     recentSongs:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       recentLessonSongs
-        ?.filter((ls: any) => ls.songs)
-        .map((ls: any) => ({
-          id: ls.songs.id,
-          title: ls.songs.title,
-          artist: ls.songs.author,
-          last_played: ls.updated_at,
-        })) || [],
+        ?.filter((ls) => ls.songs !== null)
+        .map((ls) => {
+          const song = Array.isArray(ls.songs) ? ls.songs[0] : ls.songs;
+          return {
+            id: song?.id ?? '',
+            title: song?.title ?? '',
+            artist: song?.author ?? '',
+            last_played: ls.updated_at,
+          };
+        })
+        .filter((s) => s.id !== '') || [],
     allSongs:
       allStudentSongs?.map((song) => ({
         id: song.id,

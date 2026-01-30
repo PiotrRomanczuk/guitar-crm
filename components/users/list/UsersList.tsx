@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { TableSkeleton } from '@/components/ui/data-table';
 
 export default function UsersList() {
   const [search, setSearch] = useState('');
@@ -84,7 +85,9 @@ export default function UsersList() {
       )}
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading users...</div>
+        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+          <TableSkeleton columns={5} rows={5} />
+        </div>
       ) : (
         <UsersListTable users={users} onDelete={handleDeleteClick} />
       )}

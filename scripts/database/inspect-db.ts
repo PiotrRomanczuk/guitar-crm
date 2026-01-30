@@ -92,6 +92,7 @@ async function listProfiles(supabase: SupabaseClient) {
     console.log(`${index + 1}. ${profile.full_name || profile.email || 'Unknown'}`);
     console.log(`   ID: ${profile.id}`);
     console.log(`   Email: ${profile.email || 'N/A'}`);
+    console.log(`   Roles: Student=${profile.is_student}, Teacher=${profile.is_teacher}, Admin=${profile.is_admin}`);
     console.log(`   Created: ${profile.created_at}`);
     console.log('');
   });

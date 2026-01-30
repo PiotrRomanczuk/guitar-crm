@@ -38,10 +38,10 @@ export const getSupabaseAdminConfig = () => {
   // We assume if we are using local URL, we should use local service role key if available.
 
   const localServiceRoleKey = process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY;
+  // SECURITY: Never use NEXT_PUBLIC_ prefix for service role keys - they would be exposed to the client
   const remoteServiceRoleKey =
-    process.env.SUPABASE_REMOTE_SERVICE_ROLE_KEY || 
-    process.env.SUPABASE_SERVICE_ROLE_KEY || 
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY; // Fallback for some setups
+    process.env.SUPABASE_REMOTE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (config.isLocal && localServiceRoleKey) {
     return {

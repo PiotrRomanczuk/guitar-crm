@@ -1,12 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/api/unified-db';
+import { extractBearerToken, authenticateWithBearerToken } from '@/lib/bearer-auth';
 
 /**
  * External Song by ID API Handler
+ *
+ * Requires bearer token authentication via API key.
  */
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Authenticate request
+    const token = extractBearerToken(request.headers.get('Authorization') ?? undefined);
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Bearer token required' },
+        { status: 401 }
+      );
+    }
+    const auth = await authenticateWithBearerToken(token);
+    if (!auth) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Invalid or inactive API key' },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
 
     if (!id) {
@@ -45,6 +64,22 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Authenticate request
+    const token = extractBearerToken(request.headers.get('Authorization') ?? undefined);
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Bearer token required' },
+        { status: 401 }
+      );
+    }
+    const auth = await authenticateWithBearerToken(token);
+    if (!auth) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Invalid or inactive API key' },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const body = await request.json();
 
@@ -96,6 +131,22 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Authenticate request
+    const token = extractBearerToken(request.headers.get('Authorization') ?? undefined);
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Bearer token required' },
+        { status: 401 }
+      );
+    }
+    const auth = await authenticateWithBearerToken(token);
+    if (!auth) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Invalid or inactive API key' },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
 
     if (!id) {
