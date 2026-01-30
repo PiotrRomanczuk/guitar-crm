@@ -1,3 +1,2 @@
-[2025-12-05 20:34:08] ✅ ./scripts/ci/quality-check.sh | Duration: 43s
-[2025-12-05 20:38:54] ✅ ./scripts/ci/quality-check.sh | Duration: 43s
-[2026-01-30 18:39:44] ❌ ./scripts/ci/quality-check.sh | Duration: 68s
+[2026-01-30 19:29:44] ❌ ./scripts/ci/quality-check.sh | Duration: 59s
+[2026-01-30 19:36:14] ❌ ./scripts/ci/quality-check.sh | Duration: 62s
