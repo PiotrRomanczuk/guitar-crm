@@ -2,6 +2,11 @@
 
 import { useSignUpLogic } from './useSignUpLogic';
 import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle, CheckCircle2, Mail } from 'lucide-react';
 
 interface SignUpFormProps {
   onSuccess?: () => void;
@@ -23,15 +28,10 @@ function NameInputs({
   onLastNameBlur: () => void;
 }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-      <div className="space-y-1 sm:space-y-2">
-        <label
-          htmlFor="firstName"
-          className="block text-xs sm:text-sm font-medium text-gray-900 dark:text-white"
-        >
-          First Name
-        </label>
-        <input
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="space-y-2">
+        <Label htmlFor="firstName">First Name</Label>
+        <Input
           id="firstName"
           name="firstName"
           type="text"
@@ -39,18 +39,12 @@ function NameInputs({
           onChange={onFirstNameChange}
           onBlur={onFirstNameBlur}
           required
-          className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500"
         />
       </div>
 
-      <div className="space-y-1 sm:space-y-2">
-        <label
-          htmlFor="lastName"
-          className="block text-xs sm:text-sm font-medium text-gray-900 dark:text-white"
-        >
-          Last Name
-        </label>
-        <input
+      <div className="space-y-2">
+        <Label htmlFor="lastName">Last Name</Label>
+        <Input
           id="lastName"
           name="lastName"
           type="text"
@@ -58,7 +52,6 @@ function NameInputs({
           onChange={onLastNameChange}
           onBlur={onLastNameBlur}
           required
-          className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500"
         />
       </div>
     </div>
@@ -75,14 +68,9 @@ function EmailInput({
   onBlur: () => void;
 }) {
   return (
-    <div className="space-y-1 sm:space-y-2">
-      <label
-        htmlFor="email"
-        className="block text-xs sm:text-sm font-medium text-gray-900 dark:text-white"
-      >
-        Email Address
-      </label>
-      <input
+    <div className="space-y-2">
+      <Label htmlFor="email">Email Address</Label>
+      <Input
         id="email"
         name="email"
         type="email"
@@ -90,7 +78,7 @@ function EmailInput({
         onChange={onChange}
         onBlur={onBlur}
         required
-        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500"
+        placeholder="you@example.com"
       />
     </div>
   );
@@ -108,14 +96,9 @@ function PasswordInput({
   showStrength?: boolean;
 }) {
   return (
-    <div className="space-y-1 sm:space-y-2">
-      <label
-        htmlFor="password"
-        className="block text-xs sm:text-sm font-medium text-gray-900 dark:text-white"
-      >
-        Password
-      </label>
-      <input
+    <div className="space-y-2">
+      <Label htmlFor="password">Password</Label>
+      <Input
         id="password"
         name="password"
         type="password"
@@ -124,7 +107,6 @@ function PasswordInput({
         onBlur={onBlur}
         required
         minLength={6}
-        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500"
       />
       {showStrength && <PasswordStrengthIndicator password={value} />}
     </div>
@@ -143,14 +125,9 @@ function ConfirmPasswordInput({
   passwordMatch: boolean;
 }) {
   return (
-    <div className="space-y-1 sm:space-y-2">
-      <label
-        htmlFor="confirmPassword"
-        className="block text-xs sm:text-sm font-medium text-gray-900 dark:text-white"
-      >
-        Confirm Password
-      </label>
-      <input
+    <div className="space-y-2">
+      <Label htmlFor="confirmPassword">Confirm Password</Label>
+      <Input
         id="confirmPassword"
         name="confirmPassword"
         type="password"
@@ -159,23 +136,18 @@ function ConfirmPasswordInput({
         onBlur={onBlur}
         required
         minLength={6}
-        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500"
       />
       {value && (
         <div className="flex items-center gap-2 text-xs">
           {passwordMatch ? (
             <>
-              <svg className="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-green-600 dark:text-green-400">Passwords match</span>
+              <CheckCircle2 className="h-4 w-4 text-success" />
+              <span className="text-success">Passwords match</span>
             </>
           ) : (
             <>
-              <svg className="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              <span className="text-red-600 dark:text-red-400">Passwords do not match</span>
+              <AlertCircle className="h-4 w-4 text-destructive" />
+              <span className="text-destructive">Passwords do not match</span>
             </>
           )}
         </div>
@@ -191,29 +163,19 @@ function AlertMessage({
   message: string;
   type?: 'error' | 'success';
 }) {
-  const roleAttr = type === 'error' ? 'alert' : 'status';
   return (
-    <div
-      role={roleAttr}
-      className={`p-2 sm:p-3 text-xs sm:text-sm rounded-lg border ${
-        type === 'error'
-          ? 'bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-200 border-red-200 dark:border-red-800'
-          : 'bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-200 border-green-200 dark:border-green-800'
-      }`}
-    >
-      {message}
-    </div>
+    <Alert variant={type === 'error' ? 'destructive' : 'default'} className={type === 'success' ? 'border-success/50' : ''}>
+      {type === 'error' ? <AlertCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4 text-success" />}
+      <AlertDescription className={type === 'success' ? 'text-success' : ''}>{message}</AlertDescription>
+    </Alert>
   );
 }
 
 function SignUpFooter() {
   return (
-    <p className="text-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+    <p className="text-center text-sm text-muted-foreground">
       Already have an account?{' '}
-      <a
-        href="/sign-in"
-        className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-      >
+      <a href="/sign-in" className="text-primary hover:underline">
         Sign in
       </a>
     </p>
@@ -224,7 +186,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
   const state = useSignUpLogic(onSuccess);
 
   return (
-    <form onSubmit={state.handleSubmit} className="space-y-4 sm:space-y-6">
+    <form onSubmit={state.handleSubmit} className="space-y-6">
       <NameInputs
         firstName={state.firstName}
         lastName={state.lastName}
@@ -257,29 +219,15 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
       {state.validationError && <AlertMessage message={state.validationError} />}
       {state.error && <AlertMessage message={state.error} />}
       {state.success && (
-        <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4 space-y-3">
-          <div className="flex items-start gap-2">
-            <svg
-              className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <div className="flex-1">
-              <h4 className="text-sm font-semibold text-green-800 dark:text-green-200 mb-1">
-                📧 Verification Email Sent!
-              </h4>
-              <p className="text-xs text-green-700 dark:text-green-300 mb-2">
+        <Alert className="border-success/50 bg-success/10">
+          <Mail className="h-4 w-4 text-success" />
+          <AlertDescription className="text-success">
+            <div className="space-y-2">
+              <p className="font-semibold">Verification Email Sent!</p>
+              <p className="text-sm">
                 We&apos;ve sent a confirmation email to: <strong>{state.email}</strong>
               </p>
-              <div className="text-xs text-green-700 dark:text-green-300 space-y-1">
+              <div className="text-sm space-y-1">
                 <p className="font-medium">What to do next:</p>
                 <ol className="list-decimal list-inside space-y-0.5 ml-2">
                   <li>Check your inbox (and spam folder)</li>
@@ -292,7 +240,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
                   type="button"
                   onClick={state.handleResendEmail}
                   disabled={state.resendLoading || state.resendCountdown > 0}
-                  className="mt-3 text-xs text-green-700 dark:text-green-300 underline hover:text-green-800 dark:hover:text-green-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="mt-2 text-sm text-success underline hover:text-success/80 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {state.resendCountdown > 0
                     ? `Resend available in ${state.resendCountdown}s`
@@ -302,32 +250,29 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
                 </button>
               )}
             </div>
-          </div>
-        </div>
+          </AlertDescription>
+        </Alert>
       )}
 
-      <button
-        type="submit"
-        disabled={state.loading}
-        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-      >
+      <Button type="submit" disabled={state.loading} className="w-full">
         {state.loading ? 'Signing up...' : 'Sign Up'}
-      </button>
+      </Button>
 
       <div className="relative my-4">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+          <div className="w-full border-t border-border"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">Or continue with</span>
+          <span className="px-2 bg-background text-muted-foreground">Or continue with</span>
         </div>
       </div>
 
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={state.handleGoogleSignIn}
         disabled={state.loading}
-        className="w-full flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+        className="w-full"
       >
         <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
           <path
@@ -348,7 +293,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
           />
         </svg>
         Sign up with Google
-      </button>
+      </Button>
 
       <SignUpFooter />
     </form>
