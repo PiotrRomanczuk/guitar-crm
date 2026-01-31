@@ -419,8 +419,8 @@ export function StudentSongDetailPageClient() {
             <Card className="bg-card border-border/50 shadow-sm">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-red-500/10 rounded-full">
-                    <Youtube className="w-5 h-5 text-red-500" />
+                  <div className="p-2 bg-destructive/10 rounded-full">
+                    <Youtube className="w-5 h-5 text-destructive" />
                   </div>
                   <h3 className="text-lg font-semibold">Video Tutorial</h3>
                 </div>

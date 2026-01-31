@@ -37,9 +37,9 @@ interface FilterState {
 }
 
 const statusColors: Record<string, string> = {
-  not_started: 'bg-slate-500/10 text-slate-500 border-slate-500/20',
-  in_progress: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-  completed: 'bg-green-500/10 text-green-500 border-green-500/20',
+  not_started: 'bg-muted text-muted-foreground border-border',
+  in_progress: 'bg-primary/10 text-primary border-primary/20',
+  completed: 'bg-success/10 text-success border-success/20',
   overdue: 'bg-destructive/10 text-destructive border-destructive/20',
   cancelled: 'bg-muted text-muted-foreground border-border',
 };

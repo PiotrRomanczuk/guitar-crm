@@ -35,8 +35,8 @@ export function LessonListClient({
   return (
     <div className="space-y-6">
       {showSuccess && (
-        <Alert className="border-green-200 bg-green-50 text-green-800 dark:border-green-900 dark:bg-green-900/20 dark:text-green-300">
-          <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+        <Alert className="border-success/20 bg-success/10 text-success">
+          <CheckCircle2 className="h-4 w-4 text-success" />
           <AlertTitle>Success</AlertTitle>
           <AlertDescription>Lesson created successfully!</AlertDescription>
         </Alert>

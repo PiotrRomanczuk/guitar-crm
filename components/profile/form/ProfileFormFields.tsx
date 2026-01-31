@@ -59,7 +59,7 @@ function BioField({
 				id='bio'
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
-				className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg dark:hover:border-gray-500 min-h-24'
+				className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-border bg-background rounded-lg shadow-sm transition-all duration-200 text-foreground hover:border-muted-foreground hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:shadow-lg min-h-24'
 				placeholder='Tell us about yourself (optional)'
 				maxLength={500}
 			/>
@@ -81,7 +81,7 @@ function EmailField({ email }: { email?: string }) {
 				type='email'
 				value={email || ''}
 				disabled
-				className='text-xs sm:text-sm bg-gray-100 dark:bg-gray-800'
+				className='text-xs sm:text-sm bg-muted'
 			/>
 			<p className='text-xs text-muted-foreground'>
 				Email cannot be changed here. Contact support to update your email.

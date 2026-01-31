@@ -12,7 +12,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Eye, Pencil } from 'lucide-react';
+import { Trash2, Eye, Pencil, Users } from 'lucide-react';
+import EmptyState from '@/components/shared/EmptyState';
+import StatusBadge from '@/components/shared/StatusBadge';
 
 interface UserProfile {
   id: string;
@@ -47,6 +49,18 @@ function getInitials(firstName: string | null, lastName: string | null): string 
 }
 
 export default function UsersListTable({ users, onDelete }: UsersListTableProps) {
+  if (users.length === 0) {
+    return (
+      <EmptyState
+        variant="card"
+        icon={Users}
+        title="No users found"
+        description="Create a user to get started"
+        action={{ label: "Add User", href: "/dashboard/users/new" }}
+      />
+    );
+  }
+
   return (
     <>
       {/* Mobile View (Cards) */}
@@ -70,26 +84,12 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                 </div>
               </div>
               <div className="flex flex-col gap-1 items-end flex-shrink-0">
-                <Badge
-                  variant="secondary"
-                  className={
-                    user.isActive
-                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/25 border-0 w-fit text-[10px] px-1.5 py-0.5'
-                      : 'bg-destructive/10 text-destructive hover:bg-destructive/20 border-0 w-fit text-[10px] px-1.5 py-0.5'
-                  }
-                >
+                <StatusBadge variant={user.isActive ? 'active' : 'inactive'} size="sm">
                   {user.isActive ? 'Active' : 'Inactive'}
-                </Badge>
-                <Badge
-                  variant="secondary"
-                  className={
-                    user.isRegistered
-                      ? 'bg-primary/10 text-primary hover:bg-primary/20 border-0 w-fit text-[10px] px-1.5 py-0.5'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80 border-0 w-fit text-[10px] px-1.5 py-0.5'
-                  }
-                >
+                </StatusBadge>
+                <StatusBadge variant={user.isRegistered ? 'registered' : 'shadow'} size="sm">
                   {user.isRegistered ? 'Registered' : 'Shadow'}
-                </Badge>
+                </StatusBadge>
               </div>
             </div>
 
@@ -172,26 +172,12 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1">
-                      <Badge
-                        variant="secondary"
-                        className={
-                          user.isActive
-                            ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/25 border-0 w-fit'
-                            : 'bg-destructive/10 text-destructive hover:bg-destructive/20 border-0 w-fit'
-                        }
-                      >
+                      <StatusBadge variant={user.isActive ? 'active' : 'inactive'} size="sm">
                         {user.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
-                      <Badge
-                        variant="secondary"
-                        className={
-                          user.isRegistered
-                            ? 'bg-primary/10 text-primary hover:bg-primary/20 border-0 w-fit'
-                            : 'bg-muted text-muted-foreground hover:bg-muted/80 border-0 w-fit'
-                        }
-                      >
+                      </StatusBadge>
+                      <StatusBadge variant={user.isRegistered ? 'registered' : 'shadow'} size="sm">
                         {user.isRegistered ? 'Registered' : 'Shadow'}
-                      </Badge>
+                      </StatusBadge>
                     </div>
                   </TableCell>
                   <TableCell>

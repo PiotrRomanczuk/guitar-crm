@@ -2,7 +2,7 @@ export interface OnboardingData {
   goals: string[];
   skillLevel: 'beginner' | 'intermediate' | 'advanced';
   learningStyle: string[];
-  instrumentPreference: string;
+  instrumentPreference: string[];
 }
 
 export interface OnboardingStep {

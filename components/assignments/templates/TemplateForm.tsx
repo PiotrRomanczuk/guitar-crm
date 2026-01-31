@@ -57,10 +57,10 @@ export default function TemplateForm({ initialData, mode, userId }: TemplateForm
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-      {error && <div className="bg-red-50 text-red-500 p-4 rounded-md">{error}</div>}
+      {error && <div className="bg-destructive/10 text-destructive p-4 rounded-md">{error}</div>}
 
       <div className="space-y-2">
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="title" className="block text-sm font-medium text-foreground">
           Title
         </label>
         <input
@@ -69,12 +69,12 @@ export default function TemplateForm({ initialData, mode, userId }: TemplateForm
           required
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+          className="block w-full rounded-md border-input shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border bg-background text-foreground"
         />
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="description" className="block text-sm font-medium text-foreground">
           Description
         </label>
         <textarea
@@ -82,7 +82,7 @@ export default function TemplateForm({ initialData, mode, userId }: TemplateForm
           rows={4}
           value={formData.description || ''}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+          className="block w-full rounded-md border-input shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border bg-background text-foreground"
         />
       </div>
 
@@ -90,14 +90,14 @@ export default function TemplateForm({ initialData, mode, userId }: TemplateForm
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          className="px-4 py-2 text-sm font-medium text-muted-foreground bg-card border border-border rounded-md hover:bg-muted"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+          className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 disabled:opacity-50"
         >
           {loading ? 'Saving...' : mode === 'create' ? 'Create Template' : 'Update Template'}
         </button>

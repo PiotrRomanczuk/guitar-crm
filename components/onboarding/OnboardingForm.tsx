@@ -36,7 +36,7 @@ const INSTRUMENT_PREFERENCES = [
   { value: 'acoustic', label: 'Acoustic', icon: '🎸' },
   { value: 'electric', label: 'Electric', icon: '⚡' },
   { value: 'classical', label: 'Classical', icon: '🎻' },
-  { value: 'all', label: 'All types', icon: '🎵' },
+  { value: 'bass', label: 'Bass Guitar', icon: '🎸' },
 ];
 
 export function OnboardingForm({ user }: OnboardingFormProps) {
@@ -46,7 +46,7 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
     goals: [],
     skillLevel: 'beginner',
     learningStyle: [],
-    instrumentPreference: 'all',
+    instrumentPreference: [],
   });
 
   const firstName = user.user_metadata?.first_name || user.user_metadata?.full_name?.split(' ')[0] || '';
@@ -66,6 +66,15 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
       learningStyle: prev.learningStyle.includes(styleId)
         ? prev.learningStyle.filter((s) => s !== styleId)
         : [...prev.learningStyle, styleId],
+    }));
+  };
+
+  const toggleInstrumentPreference = (instrumentId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      instrumentPreference: prev.instrumentPreference.includes(instrumentId)
+        ? prev.instrumentPreference.filter((i) => i !== instrumentId)
+        : [...prev.instrumentPreference, instrumentId],
     }));
   };
 
@@ -106,13 +115,13 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
     <div className="mt-8 space-y-6">
       {/* Progress Bar */}
       <div className="space-y-2">
-        <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+        <div className="flex justify-between text-sm text-muted-foreground">
           <span>Step {currentStep} of 3</span>
           <span>{Math.round((currentStep / 3) * 100)}%</span>
         </div>
-        <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-2 bg-muted rounded-full overflow-hidden">
           <div
-            className="h-full bg-blue-600 transition-all duration-300"
+            className="h-full bg-primary transition-all duration-300"
             style={{ width: `${(currentStep / 3) * 100}%` }}
           />
         </div>
@@ -122,10 +131,10 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
       {currentStep === 1 && (
         <div className="space-y-4">
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-xl font-semibold text-foreground">
               Welcome{firstName ? `, ${firstName}` : ''}! 🎸
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               What are your guitar learning goals?
             </p>
           </div>
@@ -138,16 +147,16 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
                 onClick={() => toggleGoal(goal.id)}
                 className={`p-4 rounded-lg border-2 transition-all text-left ${
                   formData.goals.includes(goal.id)
-                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-muted-foreground'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{goal.icon}</span>
-                  <span className="font-medium text-gray-900 dark:text-white">{goal.label}</span>
+                  <span className="font-medium text-foreground">{goal.label}</span>
                   {formData.goals.includes(goal.id) && (
                     <svg
-                      className="ml-auto h-5 w-5 text-blue-600"
+                      className="ml-auto h-5 w-5 text-primary"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -169,10 +178,10 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
       {currentStep === 2 && (
         <div className="space-y-4">
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-xl font-semibold text-foreground">
               What&apos;s your current skill level?
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               This helps us personalize your learning experience
             </p>
           </div>
@@ -190,18 +199,18 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
                 }
                 className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
                   formData.skillLevel === level.value
-                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-muted-foreground'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white">{level.label}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{level.description}</div>
+                    <div className="font-medium text-foreground">{level.label}</div>
+                    <div className="text-sm text-muted-foreground">{level.description}</div>
                   </div>
                   {formData.skillLevel === level.value && (
                     <svg
-                      className="h-6 w-6 text-blue-600"
+                      className="h-6 w-6 text-primary"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -223,10 +232,10 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
       {currentStep === 3 && (
         <div className="space-y-6">
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-xl font-semibold text-foreground">
               Learning preferences
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               How do you prefer to learn?
             </p>
           </div>
@@ -240,13 +249,13 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
                   onClick={() => toggleLearningStyle(style.id)}
                   className={`p-3 rounded-lg border-2 transition-all ${
                     formData.learningStyle.includes(style.id)
-                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border hover:border-muted-foreground'
                   }`}
                 >
                   <div className="text-center space-y-1">
                     <div className="text-2xl">{style.icon}</div>
-                    <div className="text-xs font-medium text-gray-900 dark:text-white">
+                    <div className="text-xs font-medium text-foreground">
                       {style.label}
                     </div>
                   </div>
@@ -255,28 +264,39 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                Instrument preference
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Instrument preference (select all that apply)
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {INSTRUMENT_PREFERENCES.map((instrument) => (
                   <button
                     key={instrument.value}
                     type="button"
-                    onClick={() =>
-                      setFormData((prev) => ({ ...prev, instrumentPreference: instrument.value }))
-                    }
+                    onClick={() => toggleInstrumentPreference(instrument.value)}
                     className={`p-3 rounded-lg border-2 transition-all ${
-                      formData.instrumentPreference === instrument.value
-                        ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                      formData.instrumentPreference.includes(instrument.value)
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-muted-foreground'
                     }`}
                   >
                     <div className="text-center space-y-1">
                       <div className="text-2xl">{instrument.icon}</div>
-                      <div className="text-xs font-medium text-gray-900 dark:text-white">
+                      <div className="text-xs font-medium text-foreground">
                         {instrument.label}
                       </div>
+                      {formData.instrumentPreference.includes(instrument.value) && (
+                        <svg
+                          className="mx-auto h-4 w-4 text-primary"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      )}
                     </div>
                   </button>
                 ))}
@@ -308,7 +328,7 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
         <button
           type="button"
           onClick={() => setCurrentStep(3)}
-          className="w-full text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+          className="w-full text-sm text-muted-foreground hover:text-foreground"
         >
           Skip to preferences →
         </button>

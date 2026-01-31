@@ -62,18 +62,18 @@ export default function AssignmentForm({
     <div className="container mx-auto px-4 py-8">
       <Link
         href="/dashboard/assignments"
-        className="text-blue-600 hover:underline mb-6 inline-block"
+        className="text-primary hover:underline mb-6 inline-block"
       >
         ← Back to assignments
       </Link>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 max-w-2xl">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+      <div className="bg-card rounded-lg shadow-md p-8 max-w-2xl">
+        <h1 className="text-2xl font-bold text-foreground mb-6">
           {mode === 'create' ? 'Create Assignment' : 'Edit Assignment'}
         </h1>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
+          <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive">
             {error}
           </div>
         )}

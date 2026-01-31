@@ -18,8 +18,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Music } from 'lucide-react';
 import StatusSelect from './StatusSelect';
-
-import { cn } from '@/lib/utils';
+import EmptyState from '@/components/shared/EmptyState';
+import StatusBadge, { getStatusVariant } from '@/components/shared/StatusBadge';
 import Image from 'next/image';
 
 interface Props {
@@ -27,20 +27,6 @@ interface Props {
   canDelete?: boolean;
   onDeleteSuccess?: () => void;
   selectedStudentId?: string;
-}
-
-const levelColors = {
-  Beginner: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  Intermediate: 'bg-primary/10 text-primary border-primary/20',
-  Advanced: 'bg-destructive/10 text-destructive border-destructive/20',
-  Unknown: 'bg-muted text-muted-foreground border-border',
-};
-
-function getLevelBadgeClass(level: string | null | undefined): string {
-  if (!level) return levelColors.Unknown;
-  const normalizedLevel = level.charAt(0).toUpperCase() + level.slice(1).toLowerCase();
-  // @ts-expect-error - indexing with string
-  return levelColors[normalizedLevel] || levelColors.Unknown;
 }
 
 export default function SongListTable({
@@ -138,8 +124,14 @@ export default function SongListTable({
       {/* Mobile View (Cards) */}
       <div className="md:hidden space-y-4">
         {songs.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground bg-card rounded-xl border border-border">
-            No songs found.
+          <div className="bg-card rounded-xl border border-border">
+            <EmptyState
+              variant="table-cell"
+              icon={Music}
+              title="No songs found"
+              description="Add a song to get started"
+              action={{ label: "Add Song", href: "/dashboard/songs/new" }}
+            />
           </div>
         ) : (
           songs.map((song) => (
@@ -209,9 +201,9 @@ export default function SongListTable({
                       Not Assigned
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className={cn(getLevelBadgeClass(song.level))}>
+                    <StatusBadge variant={getStatusVariant(song.level)}>
                       {song.level || 'Unknown'}
-                    </Badge>
+                    </StatusBadge>
                   )}
                 </div>
               </div>
@@ -242,11 +234,14 @@ export default function SongListTable({
             <TableBody>
               {songs.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={canDelete ? 4 : 3}
-                    className="h-24 text-center text-muted-foreground"
-                  >
-                    No songs found.
+                  <TableCell colSpan={canDelete ? 4 : 3}>
+                    <EmptyState
+                      variant="table-cell"
+                      icon={Music}
+                      title="No songs found"
+                      description="Add a song to get started"
+                      action={{ label: "Add Song", href: "/dashboard/songs/new" }}
+                    />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -291,9 +286,9 @@ export default function SongListTable({
                           Not Assigned
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className={cn(getLevelBadgeClass(song.level))}>
+                        <StatusBadge variant={getStatusVariant(song.level)}>
                           {song.level || 'Unknown'}
-                        </Badge>
+                        </StatusBadge>
                       )}
                     </TableCell>
                     <TableCell className="text-muted-foreground">{song.key}</TableCell>

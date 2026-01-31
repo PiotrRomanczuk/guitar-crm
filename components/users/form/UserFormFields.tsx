@@ -79,7 +79,7 @@ export default function UserFormFields({ formData, onChange }: UserFormFieldsPro
       {/* Roles */}
       <div className="space-y-3">
         <Label>Roles & Status</Label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-900/50">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 border rounded-lg bg-muted">
           <div className="flex items-center space-x-2">
             <Checkbox
               id="isShadow"

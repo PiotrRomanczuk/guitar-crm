@@ -5,8 +5,9 @@ import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import FormAlert from '@/components/shared/FormAlert';
+import { Eye, EyeOff } from 'lucide-react';
+import { SignInSchema } from '@/schemas/AuthSchema';
 
 interface SignInFormProps {
   onSuccess?: () => void;
@@ -79,21 +80,6 @@ function PasswordInput({
   );
 }
 
-function AlertMessage({
-  message,
-  type = 'error',
-}: {
-  message: string;
-  type?: 'error' | 'success';
-}) {
-  return (
-    <Alert variant={type === 'error' ? 'destructive' : 'default'} className={type === 'success' ? 'border-success/50 text-success' : ''}>
-      {type === 'error' ? <AlertCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
-      <AlertDescription>{message}</AlertDescription>
-    </Alert>
-  );
-}
-
 function SignInFooter() {
   return (
     <div className="space-y-2 text-sm">
@@ -125,9 +111,16 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
   }, []);
 
   const validate = () => {
-    if (touched.email && !email) return 'Email is required';
-    if (touched.email && email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Invalid email';
-    if (touched.password && !password) return 'Password is required';
+    if (!touched.email && !touched.password) return null;
+
+    const result = SignInSchema.safeParse({ email, password });
+    if (result.success) return null;
+
+    // Return only the first relevant error based on touched fields
+    for (const issue of result.error.issues) {
+      if (issue.path[0] === 'email' && touched.email) return issue.message;
+      if (issue.path[0] === 'password' && touched.password) return issue.message;
+    }
     return null;
   };
 
@@ -141,7 +134,8 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
       password: true,
     });
 
-    if (!email || !password) {
+    const result = SignInSchema.safeParse({ email, password });
+    if (!result.success) {
       return;
     }
 
@@ -235,7 +229,7 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4" method="post">
+      <form onSubmit={handleSubmit} className="space-y-6" method="post">
         <EmailInput
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -248,8 +242,8 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
           showPassword={showPassword}
           onToggleShow={() => setShowPassword((v) => !v)}
         />
-        {validationError && <AlertMessage message={validationError} />}
-        {error && <AlertMessage message={error} />}
+        {validationError && <FormAlert type="error" message={validationError} />}
+        {error && <FormAlert type="error" message={error} />}
         <Button
           type="submit"
           disabled={loading || !isHydrated}

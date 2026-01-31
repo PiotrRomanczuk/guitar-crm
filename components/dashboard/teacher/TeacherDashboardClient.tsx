@@ -145,8 +145,8 @@ export function TeacherDashboardClient({
                   delay={350}
                   variant="gradient"
                   href="/dashboard/users"
-                  iconColor="text-blue-600"
-                  iconBgColor="bg-blue-500/10 group-hover:bg-blue-500/20"
+                  iconColor="text-primary"
+                  iconBgColor="bg-primary/10 group-hover:bg-primary/20"
                 />
               </div>
               <div className="ultrawide:col-span-2 min-w-0">
@@ -157,8 +157,8 @@ export function TeacherDashboardClient({
                   delay={400}
                   variant="gradient"
                   href="/dashboard/users?filter=teacher"
-                  iconColor="text-purple-600"
-                  iconBgColor="bg-purple-500/10 group-hover:bg-purple-500/20"
+                  iconColor="text-primary"
+                  iconBgColor="bg-primary/10 group-hover:bg-primary/20"
                 />
               </div>
               <div className="ultrawide:col-span-2 min-w-0">
@@ -169,8 +169,8 @@ export function TeacherDashboardClient({
                   delay={450}
                   variant="gradient"
                   href="/dashboard/users?filter=student"
-                  iconColor="text-green-600"
-                  iconBgColor="bg-green-500/10 group-hover:bg-green-500/20"
+                  iconColor="text-success"
+                  iconBgColor="bg-success/10 group-hover:bg-success/20"
                 />
               </div>
               <div className="ultrawide:col-span-2 min-w-0">
@@ -181,8 +181,8 @@ export function TeacherDashboardClient({
                   delay={500}
                   variant="gradient"
                   href="/dashboard/songs"
-                  iconColor="text-orange-600"
-                  iconBgColor="bg-orange-500/10 group-hover:bg-orange-500/20"
+                  iconColor="text-warning"
+                  iconBgColor="bg-warning/10 group-hover:bg-warning/20"
                 />
               </div>
               <div className="ultrawide:col-span-2 min-w-0">
@@ -193,8 +193,8 @@ export function TeacherDashboardClient({
                   delay={550}
                   variant="gradient"
                   href="/dashboard/lessons"
-                  iconColor="text-pink-600"
-                  iconBgColor="bg-pink-500/10 group-hover:bg-pink-500/20"
+                  iconColor="text-primary"
+                  iconBgColor="bg-primary/10 group-hover:bg-primary/20"
                 />
               </div>
             </div>

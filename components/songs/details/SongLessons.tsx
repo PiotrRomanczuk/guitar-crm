@@ -71,11 +71,11 @@ export default function SongLessons({ songId }: Props) {
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+      <div className="bg-card rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-xl font-bold mb-4 text-foreground">
           Lessons Using This Song
         </h2>
-        <p className="text-red-600 dark:text-red-400">Error: {error}</p>
+        <p className="text-destructive">Error: {error}</p>
       </div>
     );
   }
