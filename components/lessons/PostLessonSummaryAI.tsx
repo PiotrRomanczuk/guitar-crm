@@ -78,7 +78,7 @@ export function PostLessonSummaryAI({
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-blue-500" />
+          <Sparkles className="w-5 h-5 text-primary" />
           AI Post-Lesson Summary
         </CardTitle>
         <CardDescription>Generate a comprehensive lesson summary for {studentName}</CardDescription>
@@ -110,7 +110,7 @@ export function PostLessonSummaryAI({
                 className="flex items-center gap-2"
               >
                 {copied ? (
-                  <Check className="w-4 h-4 text-green-500" />
+                  <Check className="w-4 h-4 text-success" />
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}
@@ -121,13 +121,13 @@ export function PostLessonSummaryAI({
               value={summary}
               readOnly
               rows={8}
-              className="resize-none bg-gray-50 dark:bg-gray-900"
+              className="resize-none bg-muted"
             />
           </div>
         )}
 
         {!canGenerate && (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-muted-foreground">
             Please ensure student name and songs practiced are provided to generate a summary.
           </p>
         )}
