@@ -20,7 +20,7 @@ interface Props {
 }
 
 const difficultyColors = {
-  beginner: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-0',
+  beginner: 'bg-success/15 text-success border-0',
   intermediate: 'bg-primary/10 text-primary border-0',
   advanced: 'bg-destructive/10 text-destructive border-0',
 };

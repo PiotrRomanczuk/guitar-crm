@@ -38,7 +38,7 @@ import { SongStatusHistory } from './SongStatusHistory';
 import { toast } from 'sonner';
 
 const difficultyColors = {
-  beginner: 'bg-green-500/10 text-green-500 border-green-500/20',
+  beginner: 'bg-success/10 text-success border-success/20',
   intermediate: 'bg-primary/10 text-primary border-primary/20',
   advanced: 'bg-destructive/10 text-destructive border-destructive/20',
 };
