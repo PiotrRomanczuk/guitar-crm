@@ -36,7 +36,15 @@ async function fetchSongStats() {
   return res.json();
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+// Chart colors using CSS custom properties for theme compatibility
+const COLORS = [
+  'hsl(var(--primary))',
+  'hsl(var(--success))',
+  'hsl(var(--warning))',
+  'hsl(var(--destructive))',
+  'hsl(260 60% 60%)', // purple accent
+  'hsl(var(--primary) / 0.6)',
+];
 
 export function SongStatsCharts() {
   const { data: songStats, isLoading } = useQuery<SongStats>({

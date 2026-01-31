@@ -57,11 +57,11 @@ export function HealthSummaryWidget() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-green-600">{totalHealthy}</div>
+                <div className="text-2xl font-bold text-success">{totalHealthy}</div>
                 <div className="text-sm text-muted-foreground">Healthy Students</div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-orange-600">{totalConcern}</div>
+                <div className="text-2xl font-bold text-warning">{totalConcern}</div>
                 <div className="text-sm text-muted-foreground">Need Attention</div>
               </div>
             </div>
