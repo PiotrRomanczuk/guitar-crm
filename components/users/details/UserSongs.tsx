@@ -16,14 +16,14 @@ interface UserSongsProps {
 
 export default function UserSongs({ songs }: UserSongsProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+    <div className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-            🎵 Recent Songs
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+            Recent Songs
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             {songs?.length || 0} song{songs?.length !== 1 ? 's' : ''} in the library
           </p>
         </div>
@@ -36,21 +36,21 @@ export default function UserSongs({ songs }: UserSongsProps) {
             <Link
               key={song.id}
               href={`/dashboard/songs/${song.id}`}
-              className="group p-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-purple-500 dark:hover:border-purple-500 hover:shadow-lg transition-all duration-200 bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/10"
+              className="group p-4 border-2 border-border rounded-xl hover:border-primary hover:shadow-lg transition-all duration-200 bg-card"
             >
               <div className="flex flex-col gap-3">
                 {/* Song Title */}
                 <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-gray-900 dark:text-white text-base line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                  <p className="font-semibold text-foreground text-base line-clamp-2 group-hover:text-primary transition-colors">
                     {song.title}
                   </p>
                   <span
                     className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap ${
                       song.level === 'beginner'
-                        ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                        ? 'bg-success/10 text-success'
                         : song.level === 'intermediate'
-                        ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300'
-                        : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+                        ? 'bg-warning/10 text-warning'
+                        : 'bg-destructive/10 text-destructive'
                     }`}
                   >
                     {song.level || 'unknown'}
@@ -59,11 +59,11 @@ export default function UserSongs({ songs }: UserSongsProps) {
 
                 {/* Song Details */}
                 <div className="space-y-1.5">
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <span className="text-base">🎤</span>
                     <span className="truncate">{song.author}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <span className="text-base">🎹</span>
                     <span className="font-mono font-semibold">{song.key || 'Unknown key'}</span>
                   </div>
@@ -74,8 +74,8 @@ export default function UserSongs({ songs }: UserSongsProps) {
         </div>
       ) : (
         <div className="text-center py-16">
-          <p className="text-gray-500 dark:text-gray-400 text-lg">🎵 No songs found</p>
-          <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
+          <p className="text-muted-foreground text-lg">No songs found</p>
+          <p className="text-muted-foreground/70 text-sm mt-2">
             Songs will appear here once added to the library
           </p>
         </div>

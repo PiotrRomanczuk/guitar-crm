@@ -94,11 +94,11 @@ export function WeeklySummaryCard() {
             </div>
 
             {/* Songs Assigned */}
-            <div className="text-center p-2 sm:p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+            <div className="text-center p-2 sm:p-3 rounded-lg bg-primary/10 border border-primary/20">
               <div className="flex items-center justify-center mb-1 sm:mb-2">
-                <Music className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400" />
+                <Music className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
-              <div className="text-lg sm:text-2xl font-bold text-purple-600 dark:text-purple-400">
+              <div className="text-lg sm:text-2xl font-bold text-primary">
                 {data?.songsAssigned ?? 0}
               </div>
               <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">

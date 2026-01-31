@@ -132,10 +132,10 @@ export function StudentProgressInsights({ students }: Props) {
         </Button>
 
         {selectedStudentData && (
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div className="p-4 bg-primary/10 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
-              <User className="w-4 h-4 text-blue-600" />
-              <span className="font-medium text-blue-900 dark:text-blue-100">
+              <User className="w-4 h-4 text-primary" />
+              <span className="font-medium text-foreground">
                 {selectedStudentData.full_name || selectedStudentData.email}
               </span>
             </div>
@@ -148,14 +148,14 @@ export function StudentProgressInsights({ students }: Props) {
         {insights && (
           <div className="space-y-2">
             <label className="text-sm font-medium">AI Insights:</label>
-            <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border">
+            <div className="p-4 bg-muted rounded-lg border">
               <div className="whitespace-pre-wrap text-sm">{insights}</div>
             </div>
           </div>
         )}
 
         {!selectedStudent && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+          <p className="text-sm text-muted-foreground text-center">
             Select a student to analyze their learning progress with AI
           </p>
         )}

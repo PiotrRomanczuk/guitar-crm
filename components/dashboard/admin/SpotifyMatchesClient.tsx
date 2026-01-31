@@ -274,7 +274,7 @@ export function SpotifyMatchesClient() {
       return (
         <Badge
           variant="outline"
-          className="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20"
+          className="bg-warning/10 text-warning border-warning/20"
         >
           High: {score}%
         </Badge>
@@ -337,7 +337,7 @@ export function SpotifyMatchesClient() {
             </div>
           ) : matches.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 sm:py-16 text-center space-y-4 border-2 border-dashed border-border rounded-xl bg-muted/10">
-              <CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" />
+              <CheckCircle2 className="w-12 h-12 text-success" />
               <div className="space-y-1">
                 <h3 className="font-semibold text-lg">All caught up!</h3>
                 <p className="text-sm text-muted-foreground max-w-sm">
@@ -536,7 +536,7 @@ export function SpotifyMatchesClient() {
                     </div>
                     <Badge
                       variant="outline"
-                      className="bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20 shrink-0"
+                      className="bg-success/10 text-success border-success/20 shrink-0"
                     >
                       <CheckCircle2 className="w-3 h-3 mr-1" />
                       Approved

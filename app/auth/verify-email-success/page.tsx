@@ -21,14 +21,14 @@ export default function VerifyEmailSuccessPage() {
   }, [countdown, autoRedirect, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-muted px-4">
       <div className="max-w-md w-full">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center space-y-6">
+        <div className="bg-background rounded-lg shadow-lg p-8 text-center space-y-6">
           {/* Success Icon */}
           <div className="flex justify-center">
-            <div className="rounded-full bg-green-100 dark:bg-green-900/30 p-3">
+            <div className="rounded-full bg-success/10 p-3">
               <svg
-                className="h-16 w-16 text-green-600 dark:text-green-400"
+                className="h-16 w-16 text-success"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -45,17 +45,17 @@ export default function VerifyEmailSuccessPage() {
 
           {/* Success Message */}
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Email Verified Successfully! 🎉
+            <h1 className="text-2xl font-bold text-foreground">
+              Email Verified Successfully!
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-muted-foreground">
               Your email has been confirmed. You can now sign in to your account.
             </p>
           </div>
 
           {/* Countdown */}
           {autoRedirect && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground">
               Redirecting to sign in page in {countdown} second{countdown !== 1 ? 's' : ''}...
             </p>
           )}
@@ -64,13 +64,13 @@ export default function VerifyEmailSuccessPage() {
           <div className="space-y-3">
             <Link
               href="/sign-in"
-              className="block w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="block w-full px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
             >
               Continue to Sign In
             </Link>
             <button
               onClick={() => setAutoRedirect(false)}
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              className="text-sm text-muted-foreground hover:text-foreground"
             >
               Cancel auto-redirect
             </button>

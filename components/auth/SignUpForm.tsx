@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import FormAlert from '@/components/shared/FormAlert';
 import { AlertCircle, CheckCircle2, Mail } from 'lucide-react';
 
 interface SignUpFormProps {
@@ -156,21 +157,6 @@ function ConfirmPasswordInput({
   );
 }
 
-function AlertMessage({
-  message,
-  type = 'error',
-}: {
-  message: string;
-  type?: 'error' | 'success';
-}) {
-  return (
-    <Alert variant={type === 'error' ? 'destructive' : 'default'} className={type === 'success' ? 'border-success/50' : ''}>
-      {type === 'error' ? <AlertCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4 text-success" />}
-      <AlertDescription className={type === 'success' ? 'text-success' : ''}>{message}</AlertDescription>
-    </Alert>
-  );
-}
-
 function SignUpFooter() {
   return (
     <p className="text-center text-sm text-muted-foreground">
@@ -216,8 +202,8 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
         passwordMatch={state.password === state.confirmPassword}
       />
 
-      {state.validationError && <AlertMessage message={state.validationError} />}
-      {state.error && <AlertMessage message={state.error} />}
+      {state.validationError && <FormAlert type="error" message={state.validationError} />}
+      {state.error && <FormAlert type="error" message={state.error} />}
       {state.success && (
         <Alert className="border-success/50 bg-success/10">
           <Mail className="h-4 w-4 text-success" />

@@ -52,7 +52,7 @@ const statusColors: Record<string, string> = {
   // Legacy statuses
   started: 'bg-primary/10 text-primary border-primary/20',
   remembered: 'bg-warning/10 text-warning border-warning/20',
-  with_author: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
+  with_author: 'bg-primary/10 text-primary border-primary/20',
 };
 
 const statusLabels: Record<string, string> = {
@@ -408,7 +408,7 @@ export function StudentSongsPageClient() {
                         variant="outline"
                         className={cn(
                           'capitalize',
-                          statusColors[song.status] || 'bg-gray-100 text-gray-800'
+                          statusColors[song.status] || 'bg-muted text-muted-foreground'
                         )}
                       >
                         {statusLabels[song.status] || song.status.replace('_', ' ')}
@@ -480,7 +480,7 @@ export function StudentSongsPageClient() {
                           href={song.youtube_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                          className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
                         >
                           <Youtube className="w-4 h-4" />
                           YouTube
@@ -492,7 +492,7 @@ export function StudentSongsPageClient() {
                           href={song.ultimate_guitar_link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors"
+                          className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-warning text-warning-foreground rounded-md hover:bg-warning/90 transition-colors"
                         >
                           <FileText className="w-4 h-4" />
                           Tabs
@@ -504,7 +504,7 @@ export function StudentSongsPageClient() {
                           href={song.spotify_link_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                          className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-success text-success-foreground rounded-md hover:bg-success/90 transition-colors"
                         >
                           <Play className="w-4 h-4" />
                           Spotify
@@ -516,7 +516,7 @@ export function StudentSongsPageClient() {
                           href={song.audio_files}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                          className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
                         >
                           <Music2 className="w-4 h-4" />
                           Audio

@@ -25,13 +25,13 @@ function formatDate(dateString: string | null): string {
 function AssignmentHeader({ title, status }: { title: string; status: string }) {
   return (
     <div
-      className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-start 
+      className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-start
                     sm:justify-between gap-3"
     >
       <div>
         <h1
-          className="text-xl sm:text-2xl md:text-3xl font-bold 
-                       text-gray-900 dark:text-white mb-2"
+          className="text-xl sm:text-2xl md:text-3xl font-bold
+                       text-foreground mb-2"
         >
           {title}
         </h1>
@@ -65,50 +65,47 @@ function UserFields({ assignment }: { assignment: ExtendedAssignment }) {
     <>
       <div>
         <h3
-          className="text-xs sm:text-sm font-semibold text-gray-900 
-                       dark:text-white mb-1"
+          className="text-xs sm:text-sm font-semibold text-foreground mb-1"
         >
           Student
         </h3>
         {assignment.student_profile ? (
           <Link
             href={`/dashboard/users/${assignment.student_profile.id}`}
-            className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            className="text-xs sm:text-sm text-primary hover:underline"
           >
             {assignment.student_profile.full_name || assignment.student_profile.email}
           </Link>
         ) : (
-          <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Unknown</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">Unknown</p>
         )}
       </div>
 
       <div>
         <h3
-          className="text-xs sm:text-sm font-semibold text-gray-900 
-                       dark:text-white mb-1"
+          className="text-xs sm:text-sm font-semibold text-foreground mb-1"
         >
           Teacher
         </h3>
         {assignment.teacher_profile ? (
           <Link
             href={`/dashboard/users/${assignment.teacher_profile.id}`}
-            className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            className="text-xs sm:text-sm text-primary hover:underline"
           >
             {assignment.teacher_profile.full_name || assignment.teacher_profile.email}
           </Link>
         ) : (
-          <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Unknown</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">Unknown</p>
         )}
       </div>
 
       <div>
         <h3
-          className="text-xs sm:text-sm font-semibold text-gray-900 
-                       dark:text-white mb-1"
+          className="text-xs sm:text-sm font-semibold text-foreground mb-1"
         >
           Due Date
         </h3>
-        <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           {formatDate(assignment.due_date)}
         </p>
       </div>
@@ -116,15 +113,13 @@ function UserFields({ assignment }: { assignment: ExtendedAssignment }) {
       {assignment.lesson && (
         <div>
           <h3
-            className="text-xs sm:text-sm font-semibold text-gray-900 
-                         dark:text-white mb-1"
+            className="text-xs sm:text-sm font-semibold text-foreground mb-1"
           >
             Related Lesson
           </h3>
           <Link
             href={`/dashboard/lessons/${assignment.lesson.id}`}
-            className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 
-                       hover:underline"
+            className="text-xs sm:text-sm text-primary hover:underline"
           >
             Lesson #{assignment.lesson.lesson_teacher_number}
           </Link>
@@ -143,8 +138,8 @@ function RelatedSongs({ lesson }: { lesson: ExtendedAssignment['lesson'] }) {
   }
 
   return (
-    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-      <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-3">
+    <div className="mt-6 pt-6 border-t border-border">
+      <h3 className="text-sm sm:text-base font-semibold text-foreground mb-3">
         Related Songs
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -154,13 +149,13 @@ function RelatedSongs({ lesson }: { lesson: ExtendedAssignment['lesson'] }) {
             <Link
               key={`${ls.song.id}-${index}`}
               href={`/dashboard/songs/${ls.song.id}`}
-              className="block p-3 rounded-md border border-gray-200 dark:border-gray-700 
-                         hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+              className="block p-3 rounded-md border border-border
+                         hover:bg-muted/50 transition-colors"
             >
-              <div className="font-medium text-sm text-gray-900 dark:text-white">
+              <div className="font-medium text-sm text-foreground">
                 {ls.song.title}
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">{ls.song.author}</div>
+              <div className="text-xs text-muted-foreground">{ls.song.author}</div>
             </Link>
           );
         })}
@@ -177,12 +172,11 @@ function AssignmentInfo({ assignment }: { assignment: ExtendedAssignment }) {
     <div className="space-y-4 sm:space-y-6">
       <div>
         <h2
-          className="text-sm sm:text-base font-semibold text-gray-900 
-                       dark:text-white mb-2"
+          className="text-sm sm:text-base font-semibold text-foreground mb-2"
         >
           Description
         </h2>
-        <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+        <p className="text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap">
           {assignment.description || 'No description provided'}
         </p>
       </div>
@@ -253,10 +247,9 @@ export default async function AssignmentDetailPage({ params, searchParams }: Pag
     return (
       <div className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
         <div
-          className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 
-                        dark:border-red-800 rounded-lg"
+          className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg"
         >
-          <p className="text-xs sm:text-sm text-red-800 dark:text-red-200">Assignment not found</p>
+          <p className="text-xs sm:text-sm text-destructive">Assignment not found</p>
         </div>
       </div>
     );
@@ -272,10 +265,9 @@ export default async function AssignmentDetailPage({ params, searchParams }: Pag
     return (
       <div className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
         <div
-          className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 
-                        dark:border-red-800 rounded-lg"
+          className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg"
         >
-          <p className="text-xs sm:text-sm text-red-800 dark:text-red-200">
+          <p className="text-xs sm:text-sm text-destructive">
             You are not authorized to view this assignment.
           </p>
         </div>
@@ -288,8 +280,7 @@ export default async function AssignmentDetailPage({ params, searchParams }: Pag
       <div className="mb-4 sm:mb-6">
         <Link
           href="/dashboard/assignments"
-          className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 
-                     hover:underline"
+          className="text-xs sm:text-sm text-primary hover:underline"
         >
           ← Back to Assignments
         </Link>
@@ -298,8 +289,7 @@ export default async function AssignmentDetailPage({ params, searchParams }: Pag
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border 
-                      border-gray-200 dark:border-gray-700 p-4 sm:p-6"
+            className="bg-card rounded-lg shadow-sm border border-border p-4 sm:p-6"
           >
             <AssignmentHeader title={assignment.title} status={assignment.status} />
             <AssignmentInfo assignment={assignment as unknown as ExtendedAssignment} />

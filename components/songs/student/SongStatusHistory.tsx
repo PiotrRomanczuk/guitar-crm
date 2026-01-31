@@ -41,7 +41,7 @@ const statusColors: Record<string, string> = {
   // Legacy statuses
   started: 'bg-primary/10 text-primary border-primary/20',
   remembered: 'bg-warning/10 text-warning border-warning/20',
-  with_author: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
+  with_author: 'bg-primary/10 text-primary border-primary/20',
 };
 
 export function SongStatusHistory({ songId, className }: SongStatusHistoryProps) {

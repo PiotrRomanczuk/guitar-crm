@@ -60,20 +60,20 @@ export function QuickStartChecklist() {
   if (isDismissed) return null;
 
   return (
-    <div className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800 p-6 space-y-4">
+    <div className="bg-linear-to-br from-primary/5 to-primary/10 rounded-lg border border-primary/20 p-6 space-y-4">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            🚀 Getting Started
+          <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+            Getting Started
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Complete these steps to get the most out of Guitar CRM
           </p>
         </div>
         <button
           onClick={handleDismiss}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          className="text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Dismiss checklist"
         >
           <X className="h-5 w-5" />
@@ -83,12 +83,12 @@ export function QuickStartChecklist() {
       {/* Progress Bar */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600 dark:text-gray-400">Progress</span>
-          <span className="font-semibold text-blue-600 dark:text-blue-400">{percentage}%</span>
+          <span className="text-muted-foreground">Progress</span>
+          <span className="font-semibold text-primary">{percentage}%</span>
         </div>
-        <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-2 bg-muted rounded-full overflow-hidden">
           <div
-            className="h-full bg-blue-600 transition-all duration-500 ease-out"
+            className="h-full bg-primary transition-all duration-500 ease-out"
             style={{ width: `${percentage}%` }}
           />
         </div>
@@ -109,11 +109,11 @@ export function QuickStartChecklist() {
                 {...wrapperProps}
                 className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
                   item.completed
-                    ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
+                    ? 'bg-success/10 border border-success/20'
                     : 'border border-transparent'
                     // TODO: Re-enable hover styles when links are active
                     // : item.href
-                    // ? 'hover:bg-white dark:hover:bg-gray-800 cursor-pointer border border-transparent hover:border-blue-200 dark:hover:border-blue-800'
+                    // ? 'hover:bg-background cursor-pointer border border-transparent hover:border-primary/20'
                     // : 'border border-transparent'
                 }`}
               >
@@ -127,16 +127,16 @@ export function QuickStartChecklist() {
                   disabled={item.id === 'account' || item.id === 'profile'}
                 >
                   {item.completed ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    <CheckCircle2 className="h-5 w-5 text-success" />
                   ) : (
-                    <Circle className="h-5 w-5 text-gray-400" />
+                    <Circle className="h-5 w-5 text-muted-foreground" />
                   )}
                 </button>
                 <span
                   className={`text-sm ${
                     item.completed
-                      ? 'text-green-700 dark:text-green-300 line-through'
-                      : 'text-gray-700 dark:text-gray-300'
+                      ? 'text-success line-through'
+                      : 'text-foreground'
                   }`}
                 >
                   {item.label}
@@ -165,21 +165,20 @@ export function QuickStartChecklist() {
 
       {/* Completion Message */}
       {percentage === 100 && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center space-y-2">
-          <div className="text-4xl">🎉</div>
-          <p className="text-sm font-semibold text-gray-900 dark:text-white">
+        <div className="bg-background rounded-lg p-4 text-center space-y-2">
+          <p className="text-sm font-semibold text-foreground">
             You&apos;re all set!
           </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
-            You&apos;ve completed all the getting started tasks. Keep rocking! 🎸
+          <p className="text-xs text-muted-foreground">
+            You&apos;ve completed all the getting started tasks. Keep rocking!
           </p>
         </div>
       )}
 
       {/* Tip */}
-      <div className="bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3">
-        <p className="text-xs text-blue-800 dark:text-blue-200">
-          💡 <strong>Tip:</strong> Consistent practice 3-4 times per week yields the best results!
+      <div className="bg-primary/10 rounded-lg p-3">
+        <p className="text-xs text-primary">
+          <strong>Tip:</strong> Consistent practice 3-4 times per week yields the best results!
         </p>
       </div>
     </div>

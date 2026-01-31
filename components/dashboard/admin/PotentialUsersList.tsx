@@ -97,7 +97,7 @@ export function PotentialUsersList() {
                       {user.name === 'Unknown' && (
                         <Badge
                           variant="secondary"
-                          className="w-fit text-xs bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+                          className="w-fit text-xs bg-warning/10 text-warning hover:bg-warning/10"
                         >
                           Check Details
                         </Badge>

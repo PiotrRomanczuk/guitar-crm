@@ -27,22 +27,22 @@ export function LessonSongsList({ lessonId, lessonSongs, canEdit }: LessonSongsL
     .map((ls) => ls.song!.id);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div className="bg-card rounded-lg shadow-md p-6 mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Lesson Songs</h2>
+        <h2 className="text-xl font-bold text-foreground">Lesson Songs</h2>
         {canEdit && (
           <LessonSongSelector lessonId={lessonId} initialSelectedSongIds={initialSelectedSongIds} />
         )}
       </div>
 
       {lessonSongs && lessonSongs.length > 0 ? (
-        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+        <ul className="divide-y divide-border">
           {lessonSongs.map((ls, index) =>
             ls.song ? (
               <li key={`${ls.song.id}-${index}`} className="py-3 flex justify-between items-center">
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{ls.song.title}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{ls.song.author}</p>
+                  <p className="font-medium text-foreground">{ls.song.title}</p>
+                  <p className="text-sm text-muted-foreground">{ls.song.author}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   {canEdit && (
@@ -54,7 +54,7 @@ export function LessonSongsList({ lessonId, lessonSongs, canEdit }: LessonSongsL
                   )}
                   <Link
                     href={`/dashboard/songs/${ls.song.id}`}
-                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm"
+                    className="text-primary hover:text-primary/80 text-sm"
                   >
                     View
                   </Link>
@@ -64,7 +64,7 @@ export function LessonSongsList({ lessonId, lessonSongs, canEdit }: LessonSongsL
           )}
         </ul>
       ) : (
-        <p className="text-gray-500 dark:text-gray-400 italic">No songs assigned to this lesson.</p>
+        <p className="text-muted-foreground italic">No songs assigned to this lesson.</p>
       )}
     </div>
   );

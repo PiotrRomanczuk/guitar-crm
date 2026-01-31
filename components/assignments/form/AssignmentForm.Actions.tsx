@@ -1,5 +1,4 @@
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import FormActions from '@/components/shared/FormActions';
 
 interface AssignmentFormActionsProps {
   mode: 'create' | 'edit';
@@ -7,14 +6,18 @@ interface AssignmentFormActionsProps {
 }
 
 export function AssignmentFormActions({ mode, loading }: AssignmentFormActionsProps) {
+  const submitText = mode === 'create' ? 'Create' : 'Update';
+
   return (
-    <div className="flex gap-4 pt-4">
-      <Button type="submit" disabled={loading} data-testid="submit-button">
-        {loading ? 'Saving...' : mode === 'create' ? 'Create' : 'Update'}
-      </Button>
-      <Button variant="outline" asChild>
-        <Link href="/dashboard/assignments">Cancel</Link>
-      </Button>
+    <div className="pt-4" data-testid="assignment-form-actions">
+      <FormActions
+        isSubmitting={loading}
+        submitText={submitText}
+        submittingText="Saving..."
+        cancelHref="/dashboard/assignments"
+        showCancel
+        layout="horizontal"
+      />
     </div>
   );
 }

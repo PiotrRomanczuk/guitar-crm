@@ -29,12 +29,12 @@ interface HistoryTimelineProps {
 }
 
 const changeTypeColors: Record<string, string> = {
-  created: 'bg-green-500/10 text-green-500 border-green-500/20',
-  updated: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-  status_changed: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-  deleted: 'bg-red-500/10 text-red-500 border-red-500/20',
-  cancelled: 'bg-red-500/10 text-red-500 border-red-500/20',
-  completed: 'bg-green-500/10 text-green-500 border-green-500/20',
+  created: 'bg-success/10 text-success border-success/20',
+  updated: 'bg-primary/10 text-primary border-primary/20',
+  status_changed: 'bg-warning/10 text-warning border-warning/20',
+  deleted: 'bg-destructive/10 text-destructive border-destructive/20',
+  cancelled: 'bg-destructive/10 text-destructive border-destructive/20',
+  completed: 'bg-success/10 text-success border-success/20',
   rescheduled: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
 };
 

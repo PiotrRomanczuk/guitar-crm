@@ -147,13 +147,13 @@ export function ApiKeysSection() {
                 <div className="py-4 space-y-4">
                   <Alert
                     variant="default"
-                    className="bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800"
+                    className="bg-warning/10 border-warning"
                   >
-                    <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-500" />
-                    <AlertTitle className="text-yellow-800 dark:text-yellow-500">
+                    <AlertCircle className="h-4 w-4 text-warning" />
+                    <AlertTitle className="text-warning">
                       Save this key
                     </AlertTitle>
-                    <AlertDescription className="text-yellow-700 dark:text-yellow-400">
+                    <AlertDescription className="text-warning/80">
                       This is the only time we will show you the key. Make sure to copy it now.
                     </AlertDescription>
                   </Alert>

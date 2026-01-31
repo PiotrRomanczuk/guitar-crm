@@ -26,10 +26,10 @@ export default function SongFormFieldSelect({
     <div>
       <label
         htmlFor={id}
-        className="block font-medium mb-1 text-xs sm:text-sm text-gray-800 dark:text-gray-200"
+        className="block font-medium mb-1 text-xs sm:text-sm text-foreground"
       >
         {label}
-        {required && <span className="text-red-500"> *</span>}
+        {required && <span className="text-destructive"> *</span>}
       </label>
       <select
         id={id}
@@ -37,10 +37,10 @@ export default function SongFormFieldSelect({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         data-testid={`song-${id}`}
-        className={`w-full rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3 bg-white dark:bg-gray-700 border ${
+        className={`w-full rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3 bg-background border ${
           error
-            ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-            : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+            ? 'border-destructive focus:ring-destructive focus:border-destructive'
+            : 'border-border hover:border-muted-foreground'
         }`}
       >
         {options.map((option) => (
@@ -49,7 +49,7 @@ export default function SongFormFieldSelect({
           </option>
         ))}
       </select>
-      {error && <p className="text-red-600 dark:text-red-400 text-xs sm:text-sm mt-1">{error}</p>}
+      {error && <p className="text-destructive text-xs sm:text-sm mt-1">{error}</p>}
     </div>
   );
 }

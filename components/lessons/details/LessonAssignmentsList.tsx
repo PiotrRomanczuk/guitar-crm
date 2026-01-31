@@ -59,7 +59,7 @@ export function LessonAssignmentsList({
                     <TableCell>
                       <Link
                         href={`/dashboard/assignments/${assignment.id}`}
-                        className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+                        className="font-medium text-primary hover:underline"
                       >
                         {assignment.title}
                       </Link>
@@ -80,9 +80,9 @@ export function LessonAssignmentsList({
                         }
                         className={
                           assignment.status === 'completed'
-                            ? 'bg-green-100 text-green-800 hover:bg-green-100/80 dark:bg-green-900 dark:text-green-300'
+                            ? 'bg-success/10 text-success hover:bg-success/20'
                             : assignment.status === 'in_progress'
-                            ? 'bg-blue-100 text-blue-800 hover:bg-blue-100/80 dark:bg-blue-900 dark:text-blue-300'
+                            ? 'bg-primary/10 text-primary hover:bg-primary/20'
                             : ''
                         }
                       >

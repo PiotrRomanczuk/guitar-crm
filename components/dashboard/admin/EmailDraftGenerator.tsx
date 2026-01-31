@@ -139,7 +139,7 @@ export function EmailDraftGenerator({ students }: Props) {
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Mail className="w-5 h-5 text-blue-500" />
+          <Mail className="w-5 h-5 text-primary" />
           AI Email Draft Generator
         </CardTitle>
         <CardDescription>Generate personalized emails for students using AI</CardDescription>
@@ -236,11 +236,11 @@ export function EmailDraftGenerator({ students }: Props) {
         </Button>
 
         {selectedStudentData && (
-          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div className="p-3 bg-primary/10 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">{selectedStudentData.full_name}</p>
-                <p className="text-sm text-gray-600">{selectedStudentData.email}</p>
+                <p className="text-sm text-muted-foreground">{selectedStudentData.email}</p>
               </div>
               <Badge variant="secondary">{templateType.replace('_', ' ')}</Badge>
             </div>
@@ -248,7 +248,7 @@ export function EmailDraftGenerator({ students }: Props) {
         )}
 
         {subject && body && (
-          <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border">
+          <div className="space-y-4 p-4 bg-muted rounded-lg border">
             <div className="flex justify-between items-center">
               <h3 className="font-medium">Generated Email:</h3>
               <div className="flex gap-2">
@@ -259,7 +259,7 @@ export function EmailDraftGenerator({ students }: Props) {
                   className="flex items-center gap-2"
                 >
                   {copied ? (
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 text-success" />
                   ) : (
                     <Copy className="w-4 h-4" />
                   )}
@@ -286,16 +286,16 @@ export function EmailDraftGenerator({ students }: Props) {
 
             <div className="space-y-2">
               <div>
-                <Label className="text-xs text-gray-500">Subject:</Label>
+                <Label className="text-xs text-muted-foreground">Subject:</Label>
                 <p className="font-medium">{subject}</p>
               </div>
               <div>
-                <Label className="text-xs text-gray-500">Body:</Label>
+                <Label className="text-xs text-muted-foreground">Body:</Label>
                 <Textarea
                   value={body}
                   readOnly
                   rows={8}
-                  className="resize-none bg-white dark:bg-gray-800"
+                  className="resize-none bg-background"
                 />
               </div>
             </div>

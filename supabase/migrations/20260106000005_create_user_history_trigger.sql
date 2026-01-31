@@ -26,11 +26,13 @@ BEGIN
 
   -- UPDATE: User profile modified
   IF (TG_OP = 'UPDATE') THEN
-    -- Determine specific change type
     DECLARE
       v_change_type TEXT := 'updated';
     BEGIN
-      IF (OLD.role IS DISTINCT FROM NEW.role) THEN
+      -- Check for role flag changes instead of non-existent 'role' column
+      IF (OLD.is_admin IS DISTINCT FROM NEW.is_admin) OR
+         (OLD.is_teacher IS DISTINCT FROM NEW.is_teacher) OR
+         (OLD.is_student IS DISTINCT FROM NEW.is_student) THEN
         v_change_type := 'role_changed';
       ELSIF (OLD.is_active IS DISTINCT FROM NEW.is_active) THEN
         v_change_type := 'status_changed';
