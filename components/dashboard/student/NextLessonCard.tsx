@@ -38,34 +38,31 @@ export function NextLessonCard({ lesson }: NextLessonCardProps) {
   }
 
   return (
-    <Card className="col-span-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-blue-200 dark:border-blue-800">
+    <Card className="col-span-full bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 border-primary/20">
       <CardHeader>
-        <CardTitle className="text-blue-900 dark:text-blue-100">Next Lesson</CardTitle>
+        <CardTitle className="text-foreground">Next Lesson</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-4 w-full md:w-auto">
             <div>
-              <h3 className="text-2xl font-bold text-blue-900 dark:text-blue-100 mb-2">
+              <h3 className="text-2xl font-bold text-foreground mb-2">
                 {lesson.title || 'Guitar Lesson'}
               </h3>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-blue-700 dark:text-blue-300">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
+                  <Calendar className="h-5 w-5 text-primary" />
                   <span>{format(new Date(lesson.scheduled_at), 'EEEE, MMMM d, yyyy')}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
+                  <Clock className="h-5 w-5 text-primary" />
                   <span>{format(new Date(lesson.scheduled_at), 'h:mm a')}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <Button
-            asChild
-            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-md"
-          >
+          <Button asChild className="w-full md:w-auto shadow-md">
             <Link href={`/dashboard/lessons/${lesson.id}`}>
               View Details <ArrowRight className="ml-2 h-4 w-4" />
             </Link>

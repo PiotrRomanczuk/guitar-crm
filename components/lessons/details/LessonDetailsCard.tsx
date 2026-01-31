@@ -1,6 +1,10 @@
 import Link from 'next/link';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import SendEmailButton from '../actions/SendEmailButton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Pencil, Trash2, ArrowLeft } from 'lucide-react';
 
 type LessonDetail = LessonWithProfiles & {
   lesson_songs: {
@@ -31,11 +35,9 @@ function formatDate(dateStr: string | null | undefined): string {
 function formatTime(timeStr: string | null | undefined): string {
   if (!timeStr) return 'N/A';
   try {
-    // If it's a full ISO string (from scheduled_at), extract time
     if (timeStr.includes('T')) {
       return new Date(timeStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
-    // If it's just a time string (HH:mm:ss)
     const date = new Date(`2000-01-01T${timeStr}`);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   } catch {
@@ -45,22 +47,26 @@ function formatTime(timeStr: string | null | undefined): string {
 
 function StatusBadge({ status }: { status: string | null | undefined }) {
   const isCompleted = status === 'COMPLETED';
-  const className = isCompleted
-    ? 'bg-green-100 dark:bg-green-900/30 text-green-800'
-    : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800';
 
   return (
-    <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${className}`}>
+    <Badge
+      variant="secondary"
+      className={
+        isCompleted
+          ? 'bg-success/15 text-success dark:bg-success/20'
+          : 'bg-primary/15 text-primary dark:bg-primary/20'
+      }
+    >
       {status || 'SCHEDULED'}
-    </span>
+    </Badge>
   );
 }
 
 function InfoItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <h2 className="text-sm font-semibold text-gray-700 uppercase mb-2">{label}</h2>
-      <p className="text-lg text-gray-900 dark:text-white">{value}</p>
+      <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2">{label}</h2>
+      <p className="text-lg text-foreground">{value}</p>
     </div>
   );
 }
@@ -79,35 +85,31 @@ function ActionButtons({
   return (
     <div className="flex gap-3 mt-8 flex-wrap">
       {canEdit && (
-        <Link
-          href={`/dashboard/lessons/${lessonId}/edit`}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
-          data-testid="lesson-edit-button"
-        >
-          Edit
-        </Link>
+        <Button asChild data-testid="lesson-edit-button">
+          <Link href={`/dashboard/lessons/${lessonId}/edit`}>
+            <Pencil className="h-4 w-4 mr-2" />
+            Edit
+          </Link>
+        </Button>
       )}
 
       {canEdit && <SendEmailButton lessonId={lessonId} />}
 
       {canDelete && (
         <form action={onDelete} className="inline">
-          <button
-            type="submit"
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center"
-            data-testid="lesson-delete-button"
-          >
+          <Button type="submit" variant="destructive" data-testid="lesson-delete-button">
+            <Trash2 className="h-4 w-4 mr-2" />
             Delete
-          </button>
+          </Button>
         </form>
       )}
 
-      <Link
-        href="/dashboard/lessons"
-        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-      >
-        Back
-      </Link>
+      <Button variant="outline" asChild>
+        <Link href="/dashboard/lessons">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Link>
+      </Button>
     </div>
   );
 }
@@ -116,11 +118,9 @@ function LessonHeader({ title, id, status }: { title?: string; id?: string; stat
   return (
     <div className="flex items-start justify-between mb-4">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          {title || 'Untitled'}
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          ID: <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{id}</code>
+        <h1 className="text-3xl font-bold text-foreground mb-2">{title || 'Untitled'}</h1>
+        <p className="text-muted-foreground">
+          ID: <code className="bg-muted px-2 py-1 rounded text-sm">{id}</code>
         </p>
       </div>
 
@@ -132,7 +132,6 @@ function LessonHeader({ title, id, status }: { title?: string; id?: string; stat
 }
 
 function LessonInfoGrid({ lesson }: { lesson: LessonDetailsCardProps['lesson'] }) {
-  // Fallback to scheduled_at if date/start_time are missing (for imported lessons)
   // @ts-expect-error - scheduled_at might not be in the schema yet but is in DB
   const displayDate = lesson.date || lesson.scheduled_at;
   // @ts-expect-error - scheduled_at might not be in the schema yet but is in DB
@@ -165,31 +164,32 @@ export function LessonDetailsCard({
   onDelete,
 }: LessonDetailsCardProps) {
   return (
-    <div
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6"
-      data-testid="lesson-detail"
-    >
-      <LessonHeader
-        title={lesson.title || undefined}
-        id={lesson.id}
-        status={lesson.status || undefined}
-      />
+    <Card data-testid="lesson-detail" className="mb-6">
+      <CardHeader className="pb-4">
+        <LessonHeader
+          title={lesson.title || undefined}
+          id={lesson.id}
+          status={lesson.status || undefined}
+        />
+      </CardHeader>
 
-      <LessonInfoGrid lesson={lesson} />
+      <CardContent>
+        <LessonInfoGrid lesson={lesson} />
 
-      {lesson.notes && (
-        <div className="mt-6">
-          <h2 className="text-sm font-semibold text-gray-700 uppercase mb-2">Notes</h2>
-          <p className="text-gray-900 dark:text-white whitespace-pre-wrap">{lesson.notes}</p>
-        </div>
-      )}
+        {lesson.notes && (
+          <div className="mt-6">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2">Notes</h2>
+            <p className="text-foreground whitespace-pre-wrap">{lesson.notes}</p>
+          </div>
+        )}
 
-      <ActionButtons
-        lessonId={lesson.id || ''}
-        canEdit={canEdit}
-        canDelete={canDelete}
-        onDelete={onDelete}
-      />
-    </div>
+        <ActionButtons
+          lessonId={lesson.id || ''}
+          canEdit={canEdit}
+          canDelete={canDelete}
+          onDelete={onDelete}
+        />
+      </CardContent>
+    </Card>
   );
 }

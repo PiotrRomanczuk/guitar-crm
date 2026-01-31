@@ -2,6 +2,11 @@
 
 import { useState, useEffect, FormEvent } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 interface SignInFormProps {
   onSuccess?: () => void;
@@ -17,11 +22,9 @@ function EmailInput({
   onBlur: () => void;
 }) {
   return (
-    <div className="space-y-1 sm:space-y-2">
-      <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-gray-400">
-        Email
-      </label>
-      <input
+    <div className="space-y-2">
+      <Label htmlFor="email">Email</Label>
+      <Input
         id="email"
         name="email"
         type="email"
@@ -30,7 +33,7 @@ function EmailInput({
         onBlur={onBlur}
         required
         data-testid="email"
-        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-700 bg-gray-800 rounded-lg shadow-sm transition-all duration-200 text-white hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        placeholder="you@example.com"
       />
     </div>
   );
@@ -50,12 +53,10 @@ function PasswordInput({
   onToggleShow: () => void;
 }) {
   return (
-    <div className="space-y-1 sm:space-y-2">
-      <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-gray-400">
-        Password
-      </label>
+    <div className="space-y-2">
+      <Label htmlFor="password">Password</Label>
       <div className="relative">
-        <input
+        <Input
           id="password"
           name="password"
           type={showPassword ? 'text' : 'password'}
@@ -64,14 +65,14 @@ function PasswordInput({
           onBlur={onBlur}
           required
           data-testid="password"
-          className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-700 bg-gray-800 rounded-lg shadow-sm transition-all duration-200 text-white hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="pr-10"
         />
         <button
           type="button"
           onClick={onToggleShow}
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs sm:text-sm text-gray-400 hover:text-white"
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
         >
-          {showPassword ? 'Hide' : 'Show'}
+          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </button>
       </div>
     </div>
@@ -86,25 +87,19 @@ function AlertMessage({
   type?: 'error' | 'success';
 }) {
   return (
-    <div
-      role="alert"
-      className={`p-2 sm:p-3 text-xs sm:text-sm rounded-lg border ${
-        type === 'error'
-          ? 'bg-red-900/20 text-red-400 border-red-800'
-          : 'bg-green-900/20 text-green-400 border-green-800'
-      }`}
-    >
-      {message}
-    </div>
+    <Alert variant={type === 'error' ? 'destructive' : 'default'} className={type === 'success' ? 'border-success/50 text-success' : ''}>
+      {type === 'error' ? <AlertCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+      <AlertDescription>{message}</AlertDescription>
+    </Alert>
   );
 }
 
 function SignInFooter() {
   return (
-    <div className="space-y-2 text-xs sm:text-sm">
-      <p className="text-center text-gray-400">
+    <div className="space-y-2 text-sm">
+      <p className="text-center text-muted-foreground">
         Don&apos;t have an account?{' '}
-        <a href="/sign-up" className="text-white hover:underline">
+        <a href="/sign-up" className="text-primary hover:underline">
           Create your account
         </a>
       </p>
@@ -162,11 +157,7 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
     setLoading(false);
 
     if (signInError) {
-      // Handle specific error for shadow users who haven't set a password yet
       if (signInError.message === 'Invalid login credentials') {
-        // This is a generic error, but for shadow users it might mean they have no password.
-        // We can't distinguish easily on client side without exposing user existence.
-        // But we can suggest checking if they need to reset password.
         setError(
           'Invalid email or password. If you haven\'t set a password yet, please use "Forgot password?" to create one.'
         );
@@ -204,13 +195,14 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-6">
       <div className="space-y-3">
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full flex items-center justify-center px-4 py-2.5 border border-gray-700 rounded-lg text-sm font-medium text-gray-200 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+          className="w-full"
         >
           <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
             <path
@@ -231,15 +223,15 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
             />
           </svg>
           Continue with Google
-        </button>
+        </Button>
       </div>
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-700"></div>
+          <div className="w-full border-t border-border"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-[#1C1C1C] text-gray-500">OR</span>
+          <span className="px-2 bg-card text-muted-foreground">OR</span>
         </div>
       </div>
 
@@ -258,14 +250,14 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
         />
         {validationError && <AlertMessage message={validationError} />}
         {error && <AlertMessage message={error} />}
-        <button
+        <Button
           type="submit"
           disabled={loading || !isHydrated}
           data-testid="signin-button"
-          className="w-full px-3 sm:px-4 py-2.5 text-sm font-medium bg-white text-black rounded-lg hover:bg-gray-200 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          className="w-full"
         >
           {loading ? 'Signing in...' : 'Continue'}
-        </button>
+        </Button>
 
         <SignInFooter />
       </form>
