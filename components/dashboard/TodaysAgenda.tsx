@@ -23,20 +23,20 @@ interface TodaysAgendaProps {
 const statusConfig = {
   upcoming: {
     icon: Clock,
-    color: 'text-blue-600 dark:text-blue-400',
-    bgColor: 'bg-blue-500/10',
+    color: 'text-primary',
+    bgColor: 'bg-primary/10',
     label: 'Upcoming',
   },
   completed: {
     icon: CheckCircle2,
-    color: 'text-green-600 dark:text-green-400',
-    bgColor: 'bg-green-500/10',
+    color: 'text-success',
+    bgColor: 'bg-success/10',
     label: 'Done',
   },
   overdue: {
     icon: AlertCircle,
-    color: 'text-red-600 dark:text-red-400',
-    bgColor: 'bg-red-500/10',
+    color: 'text-destructive',
+    bgColor: 'bg-destructive/10',
     label: 'Overdue',
   },
 };
@@ -71,24 +71,24 @@ export function TodaysAgenda({ items = [] }: TodaysAgendaProps) {
       <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6 pb-3 sm:pb-6">
         {/* Compact Summary */}
         <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-          <div className="text-center p-1.5 sm:p-2 rounded-md bg-blue-500/10">
-            <div className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400">
+          <div className="text-center p-1.5 sm:p-2 rounded-md bg-primary/10">
+            <div className="text-base sm:text-lg font-bold text-primary">
               {upcomingCount}
             </div>
             <div className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wide">
               Upcoming
             </div>
           </div>
-          <div className="text-center p-1.5 sm:p-2 rounded-md bg-green-500/10">
-            <div className="text-base sm:text-lg font-bold text-green-600 dark:text-green-400">
+          <div className="text-center p-1.5 sm:p-2 rounded-md bg-success/10">
+            <div className="text-base sm:text-lg font-bold text-success">
               {completedCount}
             </div>
             <div className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wide">
               Done
             </div>
           </div>
-          <div className="text-center p-1.5 sm:p-2 rounded-md bg-red-500/10">
-            <div className="text-base sm:text-lg font-bold text-red-600 dark:text-red-400">
+          <div className="text-center p-1.5 sm:p-2 rounded-md bg-destructive/10">
+            <div className="text-base sm:text-lg font-bold text-destructive">
               {overdueCount}
             </div>
             <div className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wide">

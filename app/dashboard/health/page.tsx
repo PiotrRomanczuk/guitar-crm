@@ -117,7 +117,7 @@ export default function HealthDashboardPage() {
               <CardDescription>Excellent</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{healthyCounts.excellent}</div>
+              <div className="text-2xl font-bold text-success">{healthyCounts.excellent}</div>
             </CardContent>
           </Card>
           <Card>
@@ -125,7 +125,7 @@ export default function HealthDashboardPage() {
               <CardDescription>Good</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-emerald-600">{healthyCounts.good}</div>
+              <div className="text-2xl font-bold text-success/80">{healthyCounts.good}</div>
             </CardContent>
           </Card>
           <Card>
@@ -133,7 +133,7 @@ export default function HealthDashboardPage() {
               <CardDescription>Needs Attention</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">
+              <div className="text-2xl font-bold text-warning">
                 {healthyCounts.needs_attention}
               </div>
             </CardContent>
@@ -143,7 +143,7 @@ export default function HealthDashboardPage() {
               <CardDescription>At Risk</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{healthyCounts.at_risk}</div>
+              <div className="text-2xl font-bold text-warning/80">{healthyCounts.at_risk}</div>
             </CardContent>
           </Card>
           <Card>
@@ -151,7 +151,7 @@ export default function HealthDashboardPage() {
               <CardDescription>Critical</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{healthyCounts.critical}</div>
+              <div className="text-2xl font-bold text-destructive">{healthyCounts.critical}</div>
             </CardContent>
           </Card>
         </div>

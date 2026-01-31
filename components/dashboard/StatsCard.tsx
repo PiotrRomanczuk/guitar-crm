@@ -81,8 +81,8 @@ export function StatsCard({
           <p
             className={cn(
               'text-sm font-medium mt-2',
-              changeType === 'positive' && 'text-green-600 dark:text-green-400',
-              changeType === 'negative' && 'text-red-600 dark:text-red-400',
+              changeType === 'positive' && 'text-success',
+              changeType === 'negative' && 'text-destructive',
               changeType === 'neutral' && 'text-muted-foreground'
             )}
           >
@@ -94,9 +94,7 @@ export function StatsCard({
             <span
               className={cn(
                 'text-xs font-medium',
-                trend.isPositive
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-red-600 dark:text-red-400'
+                trend.isPositive ? 'text-success' : 'text-destructive'
               )}
             >
               {trend.isPositive ? '+' : ''}
@@ -127,8 +125,8 @@ export function StatsCard({
               <p
                 className={cn(
                   'text-sm font-medium',
-                  change && changeType === 'positive' && 'text-green-600 dark:text-green-400',
-                  change && changeType === 'negative' && 'text-red-600 dark:text-red-400',
+                  change && changeType === 'positive' && 'text-success',
+                  change && changeType === 'negative' && 'text-destructive',
                   change && changeType === 'neutral' && 'text-muted-foreground',
                   !change && 'text-muted-foreground'
                 )}
