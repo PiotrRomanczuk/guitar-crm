@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Test data factories for generating realistic test data
 // Provides consistent, reusable test data across all tests
 

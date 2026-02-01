@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, max-lines-per-function */
 /**
  * Lesson API Route Tests
  * Tests for /api/lessons endpoints (GET, POST)

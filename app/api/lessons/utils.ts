@@ -52,6 +52,7 @@ export async function addSongsToLesson(
   const lessonSongs = songIds.map((songId) => ({
     lesson_id: lessonId,
     song_id: songId,
+    status: 'to_learn', // Default status matching schema default
   }));
 
   const { error: songsError } = await supabase.from('lesson_songs').insert(lessonSongs);
@@ -130,18 +131,27 @@ export function transformLessonData(lesson: Lesson & { scheduled_at?: string }) 
 
 /**
  * Prepares frontend lesson input for DB insertion
- * Maps date + start_time -> scheduled_at
+ * Maps date + start_time -> scheduled_at, or converts datetime-local -> ISO
  */
 export function prepareLessonForDb(lessonData: Partial<LessonInput>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dbData: any = { ...lessonData };
 
-  // Combine date and start_time into scheduled_at
-  if (lessonData.date) {
+  // Handle scheduled_at from datetime-local input (format: "2025-01-25T15:30")
+  if (lessonData.scheduled_at && !lessonData.date) {
+    try {
+      // Parse datetime-local string and convert to ISO
+      const dateObj = new Date(`${lessonData.scheduled_at}:00`);
+      if (!isNaN(dateObj.getTime())) {
+        dbData.scheduled_at = dateObj.toISOString();
+      }
+    } catch (err) {
+      console.error('Error parsing scheduled_at:', err);
+    }
+  }
+  // Handle date + start_time combination
+  else if (lessonData.date) {
     const timeStr = lessonData.start_time || '00:00';
-    // Create date object from date and time strings
-    // We use a simple string concatenation and let Date parse it
-    // This assumes the input date/time are "local" to the user/server context
     const dateTimeStr = `${lessonData.date}T${timeStr}:00`;
     dbData.scheduled_at = new Date(dateTimeStr).toISOString();
   }

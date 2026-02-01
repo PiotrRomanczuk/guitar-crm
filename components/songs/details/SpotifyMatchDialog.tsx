@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/rules-of-hooks, react/no-unescaped-entities */
 
 import { useState, useEffect, useCallback } from 'react';
 import {

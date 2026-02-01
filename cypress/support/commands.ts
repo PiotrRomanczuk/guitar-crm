@@ -22,7 +22,7 @@ declare global {
 
       // Enhanced testing commands
       // Authentication commands
-      login(role?: 'admin' | 'teacher' | 'student'): Chainable<void>;
+      login(emailOrRole?: string, password?: string): Chainable<void>;
       logout(): Chainable<void>;
 
       // Navigation commands
@@ -30,14 +30,14 @@ declare global {
       waitForPageLoad(): Chainable<void>;
 
       // Form interaction commands
-      fillForm(data: Record<string, any>): Chainable<void>;
+      fillForm(data: Record<string, unknown>): Chainable<void>;
       submitForm(): Chainable<void>;
       clearForm(): Chainable<void>;
 
       // Data management commands
-      createTestStudent(data?: Partial<any>): Chainable<void>;
-      createTestLesson(data?: Partial<any>): Chainable<void>;
-      createTestSong(data?: Partial<any>): Chainable<void>;
+      createTestStudent(data?: Record<string, unknown>): Chainable<void>;
+      createTestLesson(data?: Record<string, unknown>): Chainable<void>;
+      createTestSong(data?: Record<string, unknown>): Chainable<void>;
 
       // Verification commands
       verifyToast(message: string, type?: 'success' | 'error' | 'warning'): Chainable<void>;
@@ -69,8 +69,8 @@ Cypress.Commands.add('selectShadcnOption', { prevSubject: 'element' }, (subject,
 });
 
 // Enhanced Authentication commands
-Cypress.Commands.add('login', (role: 'admin' | 'teacher' | 'student' = 'admin') => {
-  const credentials = {
+Cypress.Commands.add('login', (emailOrRole?: string, password?: string) => {
+  const credentials: Record<string, { email: string; password: string }> = {
     admin: { email: Cypress.env('TEST_ADMIN_EMAIL'), password: Cypress.env('TEST_ADMIN_PASSWORD') },
     teacher: {
       email: Cypress.env('TEST_TEACHER_EMAIL'),
@@ -82,23 +82,39 @@ Cypress.Commands.add('login', (role: 'admin' | 'teacher' | 'student' = 'admin') 
     },
   };
 
-  const user = credentials[role];
+  let user: { email: string; password: string };
+  let sessionKey: string;
 
-  cy.session(`${role}-session`, () => {
-    cy.visit('/auth/signin');
+  // Check if emailOrRole is a role name or an email address
+  if (emailOrRole && credentials[emailOrRole]) {
+    // It's a role
+    user = credentials[emailOrRole];
+    sessionKey = `${emailOrRole}-session`;
+  } else if (emailOrRole && password) {
+    // It's email/password pair
+    user = { email: emailOrRole, password };
+    sessionKey = `${emailOrRole.replace(/[^a-zA-Z0-9]/g, '_')}-session`;
+  } else {
+    // Default to admin
+    user = credentials['admin'];
+    sessionKey = 'admin-session';
+  }
+
+  cy.session(sessionKey, () => {
+    cy.visit('/sign-in');
     cy.get('input[name="email"]').type(user.email);
     cy.get('input[name="password"]').type(user.password);
     cy.get('button[type="submit"]').click();
 
     // Wait for successful login redirect
-    cy.url().should('not.include', '/auth/signin');
+    cy.url().should('not.include', '/sign-in');
     cy.url().should('include', '/dashboard');
   });
 });
 
 Cypress.Commands.add('logout', () => {
-  cy.get('[data-testid="user-menu"]').click();
-  cy.get('[data-testid="logout-button"]').click();
+  // Click the Sign Out button (may be in header or mobile menu)
+  cy.contains('button', 'Sign Out').click();
   cy.url().should('not.include', '/dashboard');
 });
 
@@ -125,7 +141,7 @@ Cypress.Commands.add('waitForPageLoad', () => {
 });
 
 // Form interaction commands
-Cypress.Commands.add('fillForm', (data: Record<string, any>) => {
+Cypress.Commands.add('fillForm', (data: Record<string, unknown>) => {
   Object.entries(data).forEach(([field, value]) => {
     if (value !== null && value !== undefined) {
       cy.get(`[name="${field}"], [data-testid="${field}"]`).then(($el) => {

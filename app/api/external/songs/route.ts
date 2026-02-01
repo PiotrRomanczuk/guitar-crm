@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/api/unified-db';
+import { extractBearerToken, authenticateWithBearerToken } from '@/lib/bearer-auth';
 
 /**
  * External Songs API Handler
@@ -7,10 +8,28 @@ import { db } from '@/lib/api/unified-db';
  * Demonstrates the unified database API routing to local/remote based on environment.
  * This endpoint can be used by external applications and automatically adapts
  * to your database configuration.
+ *
+ * Requires bearer token authentication via API key.
  */
 
 export async function GET(request: NextRequest) {
   try {
+    // Authenticate request
+    const token = extractBearerToken(request.headers.get('Authorization') ?? undefined);
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Bearer token required' },
+        { status: 401 }
+      );
+    }
+    const auth = await authenticateWithBearerToken(token);
+    if (!auth) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Invalid or inactive API key' },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
 
     // Parse query parameters
@@ -73,6 +92,22 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Authenticate request
+    const token = extractBearerToken(request.headers.get('Authorization') ?? undefined);
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Bearer token required' },
+        { status: 401 }
+      );
+    }
+    const auth = await authenticateWithBearerToken(token);
+    if (!auth) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Invalid or inactive API key' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
 
     // Validate required fields

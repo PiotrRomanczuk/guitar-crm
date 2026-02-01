@@ -7,6 +7,7 @@ import { Table } from './Table';
 import { Empty } from './Empty';
 import { Filters } from './Filters';
 import { useAssignmentList } from '../hooks';
+import { TableSkeleton } from '@/components/ui/data-table';
 
 interface AssignmentListProps {
   canCreate?: boolean;
@@ -87,11 +88,8 @@ export default function AssignmentList({ canCreate = false }: AssignmentListProp
       />
 
       {isLoading ? (
-        <div className="flex justify-center items-center py-8 sm:py-12">
-          <div
-            className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 
-                          border-b-2 border-blue-600 dark:border-blue-400"
-          />
+        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+          <TableSkeleton columns={4} rows={5} />
         </div>
       ) : assignments.length === 0 ? (
         <Empty />

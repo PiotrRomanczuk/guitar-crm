@@ -1,7 +1,20 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Trash2, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface Props {
   lessonId: string;
@@ -10,12 +23,9 @@ interface Props {
 export default function LessonDeleteButton({ lessonId }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [open, setOpen] = useState(false);
 
-  const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this lesson?')) {
-      return;
-    }
-
+  const handleDelete = () => {
     startTransition(async () => {
       try {
         const response = await fetch(`/api/lessons/${lessonId}`, {
@@ -26,24 +36,46 @@ export default function LessonDeleteButton({ lessonId }: Props) {
           throw new Error('Failed to delete lesson');
         }
 
+        setOpen(false);
         router.push('/dashboard/lessons');
         router.refresh();
       } catch (error) {
-        console.error('Error deleting lesson:', error);
-        alert('Failed to delete lesson');
+        console.error('[Lessons] Error deleting lesson:', error);
       }
     });
   };
 
   return (
-    <button
-      type="button"
-      onClick={handleDelete}
-      disabled={isPending}
-      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-      data-testid="lesson-delete-button"
-    >
-      {isPending ? 'Deleting...' : 'Delete'}
-    </button>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button
+          variant="destructive"
+          data-testid="lesson-delete-button"
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Delete
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete lesson?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete the lesson
+            and all associated data.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
+            disabled={isPending}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            {isPending ? 'Deleting...' : 'Delete'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

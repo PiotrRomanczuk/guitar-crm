@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * AI-Powered Song Matching Service
  *
@@ -24,13 +25,17 @@ export interface SpotifyTrack {
   };
   duration_ms: number;
   popularity: number;
+  preview_url: string | null;
 }
 
 export interface SongMatchResult {
   confidence: number; // 0-100
-  spotifyTrack?: SpotifyTrack;
+  found: boolean;
+  track?: SpotifyTrack;
+  spotifyTrack?: SpotifyTrack; // Keep for backward compatibility
   searchQuery: string;
-  reason: string;
+  reason?: string;
+  reasoning: string;
   suggestions?: string[];
 }
 

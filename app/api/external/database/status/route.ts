@@ -1,16 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbRouter } from '@/lib/api/database-router';
 import { db, unifiedDB } from '@/lib/api/unified-db';
+import { extractBearerToken, authenticateWithBearerToken } from '@/lib/bearer-auth';
 
 /**
  * Database Status API
  *
  * Provides information about the current database connection
  * and tests connectivity to both local and remote endpoints.
+ *
+ * Requires bearer token authentication via API key.
  */
 
 export async function GET(request: NextRequest) {
   try {
+    // Authenticate request
+    const token = extractBearerToken(request.headers.get('Authorization') ?? undefined);
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Bearer token required' },
+        { status: 401 }
+      );
+    }
+    const auth = await authenticateWithBearerToken(token);
+    if (!auth) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Invalid or inactive API key' },
+        { status: 401 }
+      );
+    }
     const dbInfo = unifiedDB.getDatabaseInfo();
 
     // Test current database connectivity
@@ -67,6 +85,22 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Authenticate request
+    const token = extractBearerToken(request.headers.get('Authorization') ?? undefined);
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Bearer token required' },
+        { status: 401 }
+      );
+    }
+    const auth = await authenticateWithBearerToken(token);
+    if (!auth) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Invalid or inactive API key' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
 
     if (body.action === 'refresh') {

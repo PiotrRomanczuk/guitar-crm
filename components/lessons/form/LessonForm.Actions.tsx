@@ -8,7 +8,7 @@ interface Props {
 
 export function LessonFormActions({ isSubmitting, onCancel }: Props) {
   return (
-    <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-2 sm:pt-4">
+    <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t border-border">
       <Button
         type="button"
         onClick={onCancel}

@@ -52,6 +52,7 @@ describe('SongList Components', () => {
         duration_ms: null,
         release_year: null,
         cover_image_url: null,
+        tiktok_short_url: null,
       },
     ];
 

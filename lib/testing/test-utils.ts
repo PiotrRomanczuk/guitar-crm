@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-function-type */
 // Jest testing utilities for unit tests
 // Provides mock factories, test helpers, and common test patterns
 

@@ -1,6 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface ApiKey {
   id: string;
@@ -23,6 +33,8 @@ export function ApiKeyManager() {
   const [showNewKey, setShowNewKey] = useState<NewKeyResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [keyToDelete, setKeyToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     fetchApiKeys();
@@ -84,13 +96,16 @@ export function ApiKeyManager() {
     }
   }
 
-  async function deleteApiKey(id: string) {
-    if (!confirm('Are you sure you want to delete this API key? This action cannot be undone.')) {
-      return;
-    }
+  function handleDeleteClick(id: string) {
+    setKeyToDelete(id);
+    setDeleteDialogOpen(true);
+  }
+
+  async function confirmDeleteApiKey() {
+    if (!keyToDelete) return;
 
     try {
-      const response = await fetch(`/api/api-keys/${id}`, {
+      const response = await fetch(`/api/api-keys/${keyToDelete}`, {
         method: 'DELETE',
       });
 
@@ -104,6 +119,9 @@ export function ApiKeyManager() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       console.error('Error deleting API key:', err);
+    } finally {
+      setDeleteDialogOpen(false);
+      setKeyToDelete(null);
     }
   }
 
@@ -278,7 +296,7 @@ export function ApiKeyManager() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
-                        onClick={() => deleteApiKey(key.id)}
+                        onClick={() => handleDeleteClick(key.id)}
                         className="text-red-600 hover:text-red-900"
                       >
                         Delete
@@ -291,6 +309,26 @@ export function ApiKeyManager() {
           </div>
         )}
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete API Key</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this API key? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteApiKey}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

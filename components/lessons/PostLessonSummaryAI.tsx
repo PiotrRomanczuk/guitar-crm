@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -40,7 +41,7 @@ export function PostLessonSummaryAI({
       const streamGenerator = generatePostLessonSummaryStream({
         studentName,
         songTitle: songsPracticed.join(', '),
-        lessonDuration: duration,
+        lessonDuration: `${duration} minutes`,
         skillsWorked: newTechniques.join(', '),
         challengesNoted: struggles.join(', '),
         nextSteps: successes.join(', '),

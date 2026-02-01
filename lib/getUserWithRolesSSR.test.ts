@@ -173,9 +173,11 @@ describe('getUserWithRolesSSR', () => {
 
       mockSupabaseClient.from.mockReturnValue({
         select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            data: [], // No roles found
-            error: null,
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: null, // No roles found
+              error: null,
+            }),
           }),
         }),
       });
@@ -207,9 +209,11 @@ describe('getUserWithRolesSSR', () => {
 
       mockSupabaseClient.from.mockReturnValue({
         select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            data: null,
-            error: { message: 'Database error' },
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: null,
+              error: { message: 'Database error' },
+            }),
           }),
         }),
       });

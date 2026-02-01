@@ -89,9 +89,10 @@ async function listProfiles(supabase: SupabaseClient) {
   console.log(`Found ${profiles?.length || 0} profiles:\n`);
 
   profiles?.forEach((profile, index) => {
-    console.log(`${index + 1}. ${profile.display_name || profile.email || 'Unknown'}`);
+    console.log(`${index + 1}. ${profile.full_name || profile.email || 'Unknown'}`);
     console.log(`   ID: ${profile.id}`);
     console.log(`   Email: ${profile.email || 'N/A'}`);
+    console.log(`   Roles: Student=${profile.is_student}, Teacher=${profile.is_teacher}, Admin=${profile.is_admin}`);
     console.log(`   Created: ${profile.created_at}`);
     console.log('');
   });
@@ -106,10 +107,9 @@ async function checkRoles(supabase: SupabaseClient) {
     .select(
       `
       *,
-      profiles:user_id (display_name, email)
+      profiles:user_id (full_name, email)
     `
-    )
-    .order('created_at', { ascending: false });
+    );
 
   if (error) {
     console.error('Error fetching roles:', error.message);
@@ -119,8 +119,8 @@ async function checkRoles(supabase: SupabaseClient) {
   console.log(`Found ${roles?.length || 0} role assignments:\n`);
 
   roles?.forEach((role, index) => {
-    const profile = role.profiles as { display_name?: string; email?: string } | null;
-    console.log(`${index + 1}. ${profile?.display_name || profile?.email || 'Unknown'}`);
+    const profile = role.profiles as { full_name?: string; email?: string } | null;
+    console.log(`${index + 1}. ${profile?.full_name || profile?.email || 'Unknown'}`);
     console.log(`   Role: ${role.role}`);
     console.log(`   User ID: ${role.user_id}`);
     console.log('');

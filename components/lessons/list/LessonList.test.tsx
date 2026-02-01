@@ -1,6 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { LessonList } from '@/components/lessons';
+
+const defaultProps = {
+  initialLessons: [],
+  role: 'admin' as const,
+};
 import useLessonList from '../hooks/useLessonList';
 import { useProfiles } from '../hooks/useProfiles';
 import { useSearchParams } from 'next/navigation';
@@ -72,7 +78,7 @@ describe('LessonList', () => {
       loading: true,
     });
 
-    render(<LessonList />);
+    render(<LessonList {...defaultProps} />);
     // Check for skeleton elements (we can check for class names or structure)
     // Since we used Skeleton component, we can check if it renders something appropriate
     // But simpler is to check that the main content is NOT there
@@ -84,7 +90,7 @@ describe('LessonList', () => {
       error: 'Failed to fetch',
     });
 
-    render(<LessonList />);
+    render(<LessonList {...defaultProps} />);
     expect(screen.getByText('Error')).toBeInTheDocument();
     expect(screen.getByText('Failed to fetch')).toBeInTheDocument();
   });
@@ -94,20 +100,20 @@ describe('LessonList', () => {
       get: jest.fn().mockReturnValue('true'),
     });
 
-    render(<LessonList />);
+    render(<LessonList {...defaultProps} />);
     expect(screen.getByText('Success')).toBeInTheDocument();
     expect(screen.getByText('Lesson created successfully!')).toBeInTheDocument();
   });
 
   it('renders list content', () => {
-    render(<LessonList />);
+    render(<LessonList {...defaultProps} />);
     expect(screen.getByTestId('lesson-list-header')).toBeInTheDocument();
     expect(screen.getByTestId('lesson-list-filter')).toBeInTheDocument();
     expect(screen.getByTestId('lesson-table')).toBeInTheDocument();
   });
 
   it('passes role to LessonTable', () => {
-    render(<LessonList role="teacher" />);
+    render(<LessonList {...defaultProps} role="teacher" />);
     expect(screen.getByText('Table (teacher)')).toBeInTheDocument();
   });
 });

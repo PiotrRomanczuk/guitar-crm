@@ -87,6 +87,19 @@ Always respond with valid JSON matching the specified schema.`,
 
   enableLogging: true,
   enableAnalytics: false,
+
+  dataAccess: {
+    tables: ['songs'],
+    permissions: ['read', 'write'],
+  },
+
+  successMetrics: ['normalization_confidence', 'data_quality_improvement'],
+
+  uiConfig: {
+    category: 'automation',
+    icon: 'music',
+    placement: ['dashboard'], // Admin dashboard
+  },
 };
 
 /**
@@ -107,16 +120,16 @@ ${input.genre ? `- Genre: "${input.genre}"` : ''}
 Please analyze and normalize this song data, providing a JSON response with cleaned titles, artists, alternatives, confidence score, reasoning, search queries, and flags for data issues.
 `;
 
-    const response = await executeAgent('song-normalization', userInput);
+    const response = await executeAgent('song-normalization', { userInput }, {});
 
-    if (!response || response.error) {
+    if (!response || !response.success) {
       return {
         success: false,
-        error: response?.error || 'No response from agent',
+        error: response?.error?.message || 'No response from agent',
       };
     }
 
-    const content = response.content || response.result || response;
+    const content = response.result?.content || response.result || '';
 
     // Try to parse as JSON
     try {
