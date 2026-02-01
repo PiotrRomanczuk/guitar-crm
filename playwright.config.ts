@@ -42,6 +42,9 @@ export default defineConfig({
   testDir: './tests',
   testMatch: /.*\.spec\.ts/,
 
+  // Global teardown - cleanup test data after all tests
+  globalTeardown: './tests/global-teardown.ts',
+
   // Timeout configuration - increased for auth flows
   timeout: 30 * 1000,
   expect: {
