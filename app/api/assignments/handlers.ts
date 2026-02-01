@@ -42,7 +42,7 @@ function buildAssignmentQuery(supabase: SupabaseClient, userId: string, profile:
       *,
       teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
       student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
-      lesson:lessons(id, lesson_teacher_number, scheduled_at)
+      lesson:lessons(id, lesson_number, scheduled_at)
     `);
 
   // Apply role-based filters
@@ -230,7 +230,7 @@ export async function createAssignmentHandler(
         *,
         teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
         student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
-        lesson:lessons(id, lesson_teacher_number, scheduled_at)
+        lesson:lessons(id, lesson_number, scheduled_at)
       `
       )
       .single();
@@ -266,7 +266,7 @@ export async function getAssignmentHandler(
         *,
         teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
         student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
-        lesson:lessons(id, lesson_teacher_number, scheduled_at)
+        lesson:lessons(id, lesson_number, scheduled_at)
       `
       )
       .eq('id', assignmentId)
@@ -355,7 +355,7 @@ export async function updateAssignmentHandler(
         *,
         teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
         student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
-        lesson:lessons(id, lesson_teacher_number, scheduled_at)
+        lesson:lessons(id, lesson_number, scheduled_at)
       `
       )
       .single();

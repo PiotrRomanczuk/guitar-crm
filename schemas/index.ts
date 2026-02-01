@@ -8,3 +8,6 @@ export * from './AssignmentTemplateSchema';
 export * from './UserSchema';
 export * from './UserFavoriteSchema';
 export * from './SettingsSchema';
+export * from './OnboardingSchema';
+export * from './InviteUserSchema';
+export * from './AuthSchema';

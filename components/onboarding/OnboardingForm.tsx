@@ -1,14 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { completeOnboarding } from '@/app/actions/onboarding';
 import type { OnboardingData } from '@/types/onboarding';
+import { OnboardingSchema } from '@/schemas/OnboardingSchema';
+import FormAlert from '@/components/shared/FormAlert';
 
 interface OnboardingFormProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: any;
+}
+
+interface FieldErrors {
+  goals?: string;
+  skillLevel?: string;
 }
 
 const GOAL_OPTIONS = [
@@ -48,8 +55,38 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
     learningStyle: [],
     instrumentPreference: [],
   });
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [touched, setTouched] = useState({
+    goals: false,
+    skillLevel: false,
+  });
 
   const firstName = user.user_metadata?.first_name || user.user_metadata?.full_name?.split(' ')[0] || '';
+
+  const validate = (): FieldErrors => {
+    const errors: FieldErrors = {};
+    const result = OnboardingSchema.safeParse(formData);
+
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as 'goals' | 'skillLevel';
+        if (touched[field] && !errors[field]) {
+          errors[field] = issue.message;
+        }
+      }
+    }
+
+    return errors;
+  };
+
+  // Update field errors when touched fields or values change
+  useEffect(() => {
+    if (touched.goals || touched.skillLevel) {
+      setFieldErrors(validate());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.goals, formData.skillLevel, touched.goals, touched.skillLevel]);
 
   const toggleGoal = (goalId: string) => {
     setFormData((prev) => ({
@@ -58,6 +95,10 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
         ? prev.goals.filter((g) => g !== goalId)
         : [...prev.goals, goalId],
     }));
+    setError(null);
+    if (touched.goals) {
+      setFieldErrors((prev) => ({ ...prev, goals: undefined }));
+    }
   };
 
   const toggleLearningStyle = (styleId: string) => {
@@ -79,9 +120,11 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
   };
 
   const handleNext = () => {
-    if (currentStep === 1 && formData.goals.length === 0) {
-      toast.error('Please select at least one goal');
-      return;
+    if (currentStep === 1) {
+      setTouched({ ...touched, goals: true });
+      if (formData.goals.length === 0) {
+        return;
+      }
     }
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
@@ -95,17 +138,25 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
   };
 
   const handleSubmit = async () => {
+    // Final validation
+    const result = OnboardingSchema.safeParse(formData);
+    if (!result.success) {
+      setError('Please complete all required fields');
+      return;
+    }
+
     setLoading(true);
+    setError(null);
     try {
       const result = await completeOnboarding(formData);
       if (result?.error) {
-        toast.error(result.error);
+        setError(result.error);
       } else {
-        toast.success('Profile set up successfully! 🎉');
+        toast.success('Profile set up successfully!');
       }
-    } catch (error) {
-      console.error('Onboarding error:', error);
-      toast.error('Something went wrong. Please try again.');
+    } catch (err) {
+      console.error('Onboarding error:', err);
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -131,15 +182,20 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
       {currentStep === 1 && (
         <div className="space-y-4">
           <div>
-            <h3 className="text-xl font-semibold text-foreground">
-              Welcome{firstName ? `, ${firstName}` : ''}! 🎸
-            </h3>
+            <h2 className="text-xl font-semibold text-foreground">
+              Welcome{firstName ? `, ${firstName}` : ''}!
+            </h2>
             <p className="text-sm text-muted-foreground mt-1">
               What are your guitar learning goals?
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-3">
+          <fieldset
+            className="grid grid-cols-1 gap-3"
+            aria-invalid={!!fieldErrors.goals}
+            aria-describedby={fieldErrors.goals ? 'goals-error' : undefined}
+          >
+            <legend className="sr-only">Learning goals</legend>
             {GOAL_OPTIONS.map((goal) => (
               <button
                 key={goal.id}
@@ -148,17 +204,21 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
                 className={`p-4 rounded-lg border-2 transition-all text-left ${
                   formData.goals.includes(goal.id)
                     ? 'border-primary bg-primary/10'
-                    : 'border-border hover:border-muted-foreground'
+                    : fieldErrors.goals
+                      ? 'border-destructive'
+                      : 'border-border hover:border-muted-foreground'
                 }`}
+                aria-pressed={formData.goals.includes(goal.id)}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{goal.icon}</span>
+                  <span className="text-2xl" aria-hidden="true">{goal.icon}</span>
                   <span className="font-medium text-foreground">{goal.label}</span>
                   {formData.goals.includes(goal.id) && (
                     <svg
                       className="ml-auto h-5 w-5 text-primary"
                       fill="currentColor"
                       viewBox="0 0 20 20"
+                      aria-hidden="true"
                     >
                       <path
                         fillRule="evenodd"
@@ -170,7 +230,12 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
                 </div>
               </button>
             ))}
-          </div>
+          </fieldset>
+          {fieldErrors.goals && (
+            <p id="goals-error" className="text-sm text-destructive" role="alert">
+              {fieldErrors.goals}
+            </p>
+          )}
         </div>
       )}
 
@@ -178,30 +243,33 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
       {currentStep === 2 && (
         <div className="space-y-4">
           <div>
-            <h3 className="text-xl font-semibold text-foreground">
+            <h2 className="text-xl font-semibold text-foreground">
               What&apos;s your current skill level?
-            </h3>
+            </h2>
             <p className="text-sm text-muted-foreground mt-1">
               This helps us personalize your learning experience
             </p>
           </div>
 
-          <div className="space-y-3">
+          <fieldset className="space-y-3">
+            <legend className="sr-only">Skill level</legend>
             {SKILL_LEVELS.map((level) => (
               <button
                 key={level.value}
                 type="button"
-                onClick={() =>
+                onClick={() => {
                   setFormData((prev) => ({
                     ...prev,
                     skillLevel: level.value as OnboardingData['skillLevel'],
-                  }))
-                }
+                  }));
+                  setError(null);
+                }}
                 className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
                   formData.skillLevel === level.value
                     ? 'border-primary bg-primary/10'
                     : 'border-border hover:border-muted-foreground'
                 }`}
+                aria-pressed={formData.skillLevel === level.value}
               >
                 <div className="flex items-center justify-between">
                   <div>
@@ -213,6 +281,7 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
                       className="h-6 w-6 text-primary"
                       fill="currentColor"
                       viewBox="0 0 20 20"
+                      aria-hidden="true"
                     >
                       <path
                         fillRule="evenodd"
@@ -224,7 +293,7 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
                 </div>
               </button>
             ))}
-          </div>
+          </fieldset>
         </div>
       )}
 
@@ -232,41 +301,47 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
       {currentStep === 3 && (
         <div className="space-y-6">
           <div>
-            <h3 className="text-xl font-semibold text-foreground">
+            <h2 className="text-xl font-semibold text-foreground">
               Learning preferences
-            </h3>
+            </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              How do you prefer to learn?
+              How do you prefer to learn? (Optional)
             </p>
           </div>
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              {LEARNING_STYLES.map((style) => (
-                <button
-                  key={style.id}
-                  type="button"
-                  onClick={() => toggleLearningStyle(style.id)}
-                  className={`p-3 rounded-lg border-2 transition-all ${
-                    formData.learningStyle.includes(style.id)
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border hover:border-muted-foreground'
-                  }`}
-                >
-                  <div className="text-center space-y-1">
-                    <div className="text-2xl">{style.icon}</div>
-                    <div className="text-xs font-medium text-foreground">
-                      {style.label}
+          <div className="space-y-6">
+            <fieldset>
+              <legend className="text-sm font-medium text-foreground mb-2">
+                Learning style
+              </legend>
+              <div className="grid grid-cols-2 gap-3">
+                {LEARNING_STYLES.map((style) => (
+                  <button
+                    key={style.id}
+                    type="button"
+                    onClick={() => toggleLearningStyle(style.id)}
+                    className={`p-3 rounded-lg border-2 transition-all ${
+                      formData.learningStyle.includes(style.id)
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-muted-foreground'
+                    }`}
+                    aria-pressed={formData.learningStyle.includes(style.id)}
+                  >
+                    <div className="text-center space-y-1">
+                      <div className="text-2xl" aria-hidden="true">{style.icon}</div>
+                      <div className="text-xs font-medium text-foreground">
+                        {style.label}
+                      </div>
                     </div>
-                  </div>
-                </button>
-              ))}
-            </div>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
 
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
+            <fieldset>
+              <legend className="text-sm font-medium text-foreground mb-2">
                 Instrument preference (select all that apply)
-              </label>
+              </legend>
               <div className="grid grid-cols-2 gap-3">
                 {INSTRUMENT_PREFERENCES.map((instrument) => (
                   <button
@@ -278,9 +353,10 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
                         ? 'border-primary bg-primary/10'
                         : 'border-border hover:border-muted-foreground'
                     }`}
+                    aria-pressed={formData.instrumentPreference.includes(instrument.value)}
                   >
                     <div className="text-center space-y-1">
-                      <div className="text-2xl">{instrument.icon}</div>
+                      <div className="text-2xl" aria-hidden="true">{instrument.icon}</div>
                       <div className="text-xs font-medium text-foreground">
                         {instrument.label}
                       </div>
@@ -289,6 +365,7 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
                           className="mx-auto h-4 w-4 text-primary"
                           fill="currentColor"
                           viewBox="0 0 20 20"
+                          aria-hidden="true"
                         >
                           <path
                             fillRule="evenodd"
@@ -301,15 +378,23 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
                   </button>
                 ))}
               </div>
-            </div>
+            </fieldset>
           </div>
         </div>
       )}
 
+      {error && <FormAlert type="error" message={error} />}
+
       {/* Navigation Buttons */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 pt-2">
         {currentStep > 1 && (
-          <Button type="button" variant="outline" onClick={handleBack} className="flex-1">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleBack}
+            disabled={loading}
+            className="flex-1"
+          >
             Back
           </Button>
         )}
@@ -319,7 +404,7 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
           </Button>
         ) : (
           <Button type="button" onClick={handleSubmit} disabled={loading} className="flex-1">
-            {loading ? 'Setting up...' : 'Complete Setup 🎸'}
+            {loading ? 'Setting up...' : 'Complete Setup'}
           </Button>
         )}
       </div>
@@ -328,9 +413,10 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
         <button
           type="button"
           onClick={() => setCurrentStep(3)}
-          className="w-full text-sm text-muted-foreground hover:text-foreground"
+          className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+          disabled={loading}
         >
-          Skip to preferences →
+          Skip to preferences
         </button>
       )}
     </div>

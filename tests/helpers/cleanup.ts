@@ -17,19 +17,26 @@ const TEST_PATTERNS = {
     titles: [
       /^E2E Song \d+/,
       /^E2E Edit Test \d+/,
+      /^E2E API Test Song \d+/,
       /^Teacher Song \d+/,
       /EDITED$/,
+      /UPDATED$/,
     ],
     artists: [
       'E2E Test Artist',
       'Teacher Test Artist',
+      /^E2E Test Artist/,
     ],
   },
   lessons: {
     titles: [
       /^E2E Lesson \d+/,
+      /^E2E Teacher Lesson \d+/,
       /^Teacher Lesson \d+/,
       /^Test Lesson \d+/,
+    ],
+    notes: [
+      'E2E Test lesson notes',
     ],
   },
   assignments: {
@@ -37,6 +44,44 @@ const TEST_PATTERNS = {
       /^E2E Assignment \d+/,
       /^Teacher Assignment \d+/,
       /^Test Assignment \d+/,
+    ],
+    descriptions: [
+      /^E2E Test assignment description/,
+    ],
+  },
+  assignmentTemplates: {
+    titles: [
+      /^E2E Template \d+/,
+      /^Teacher Template \d+/,
+      /^Test Template \d+/,
+    ],
+    descriptions: [
+      /^E2E Test template description/,
+    ],
+  },
+  users: {
+    emails: [
+      /^e2e\.student\.\d+@example\.com$/,
+      /^e2e\.teacher\.\d+@example\.com$/,
+      /^e2e\.admin\.\d+@example\.com$/,
+      /^test\.\d+@example\.com$/,
+    ],
+    firstNames: [
+      'E2ETest',
+      'E2EEdited',
+      /^E2E/,
+    ],
+  },
+  pendingStudents: {
+    emails: [
+      /^e2e\.pending\.\d+@example\.com$/,
+      /^test\.pending\.\d+@example\.com$/,
+    ],
+  },
+  aiConversations: {
+    titles: [
+      /^E2E Test Conversation/,
+      /^Test AI Conversation/,
     ],
   },
 };
@@ -63,8 +108,26 @@ function getSupabaseClient() {
     throw new Error('Missing Supabase credentials for cleanup. Ensure .env.local is configured.');
   }
 
+  // Check if using service role by decoding JWT payload
+  let authType = 'ANON (subject to RLS)';
+  try {
+    const payload = supabaseKey.split('.')[1];
+    if (payload) {
+      const decoded = Buffer.from(payload, 'base64').toString('utf-8');
+      if (decoded.includes('service_role')) {
+        authType = 'SERVICE_ROLE (bypasses RLS)';
+      }
+    }
+  } catch {
+    // If JWT decode fails, check env var name as fallback
+    if (process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY === supabaseKey ||
+        process.env.SUPABASE_SERVICE_ROLE_KEY === supabaseKey) {
+      authType = 'SERVICE_ROLE (bypasses RLS)';
+    }
+  }
+
   console.log(`Using Supabase at: ${supabaseUrl}`);
-  console.log(`Auth: ${supabaseKey.includes('service_role') ? 'SERVICE_ROLE (bypasses RLS)' : 'ANON (subject to RLS)'}`);
+  console.log(`Auth: ${authType}`);
   return createClient(supabaseUrl, supabaseKey);
 }
 
@@ -247,25 +310,362 @@ export async function cleanupTestAssignments(): Promise<{ deleted: number; error
 }
 
 /**
+ * Delete test assignment templates from the database
+ */
+export async function cleanupTestAssignmentTemplates(): Promise<{ deleted: number; errors: any[] }> {
+  const supabase = getSupabaseClient();
+  let deleted = 0;
+  const errors: any[] = [];
+
+  try {
+    const { data: templates, error: fetchError } = await supabase
+      .from('assignment_templates')
+      .select('id, title, description');
+
+    if (fetchError) {
+      console.error('Error fetching assignment templates for cleanup:', fetchError);
+      errors.push(fetchError);
+      return { deleted, errors };
+    }
+
+    if (!templates || templates.length === 0) {
+      console.log('No assignment templates found for cleanup');
+      return { deleted, errors };
+    }
+
+    const testTemplates = templates.filter(template => {
+      const titleMatches = matchesPattern(template.title, TEST_PATTERNS.assignmentTemplates.titles);
+      const descMatches = matchesPattern(template.description, TEST_PATTERNS.assignmentTemplates.descriptions);
+      return titleMatches || descMatches;
+    });
+
+    console.log(`Found ${testTemplates.length} test assignment templates to delete`);
+
+    for (const template of testTemplates) {
+      const { error: deleteError } = await supabase
+        .from('assignment_templates')
+        .delete()
+        .eq('id', template.id);
+
+      if (deleteError) {
+        console.error(`Error deleting assignment template ${template.id}:`, deleteError);
+        errors.push({ template, error: deleteError });
+      } else {
+        deleted++;
+        console.log(`Deleted test assignment template: ${template.title}`);
+      }
+    }
+
+    return { deleted, errors };
+  } catch (error) {
+    console.error('Unexpected error during assignment template cleanup:', error);
+    errors.push(error);
+    return { deleted, errors };
+  }
+}
+
+/**
+ * Delete test users (profiles) from the database
+ * IMPORTANT: This also cascades to delete all related data (lessons, assignments, etc.)
+ */
+export async function cleanupTestUsers(): Promise<{ deleted: number; errors: any[] }> {
+  const supabase = getSupabaseClient();
+  let deleted = 0;
+  const errors: any[] = [];
+
+  try {
+    const { data: profiles, error: fetchError } = await supabase
+      .from('profiles')
+      .select('id, email, full_name');
+
+    if (fetchError) {
+      console.error('Error fetching profiles for cleanup:', fetchError);
+      errors.push(fetchError);
+      return { deleted, errors };
+    }
+
+    if (!profiles || profiles.length === 0) {
+      console.log('No profiles found for cleanup');
+      return { deleted, errors };
+    }
+
+    const testProfiles = profiles.filter(profile => {
+      const emailMatches = matchesPattern(profile.email, TEST_PATTERNS.users.emails);
+      const fullNameMatches = matchesPattern(profile.full_name, TEST_PATTERNS.users.firstNames);
+      return emailMatches || fullNameMatches;
+    });
+
+    console.log(`Found ${testProfiles.length} test users to delete`);
+
+    for (const profile of testProfiles) {
+      const { error: deleteError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', profile.id);
+
+      if (deleteError) {
+        console.error(`Error deleting profile ${profile.id}:`, deleteError);
+        errors.push({ profile, error: deleteError });
+      } else {
+        deleted++;
+        console.log(`Deleted test user: ${profile.email}`);
+      }
+    }
+
+    return { deleted, errors };
+  } catch (error) {
+    console.error('Unexpected error during user cleanup:', error);
+    errors.push(error);
+    return { deleted, errors };
+  }
+}
+
+/**
+ * Delete test pending students from the database
+ */
+export async function cleanupTestPendingStudents(): Promise<{ deleted: number; errors: any[] }> {
+  const supabase = getSupabaseClient();
+  let deleted = 0;
+  const errors: any[] = [];
+
+  try {
+    const { data: pendingStudents, error: fetchError } = await supabase
+      .from('pending_students')
+      .select('id, email');
+
+    if (fetchError) {
+      console.error('Error fetching pending students for cleanup:', fetchError);
+      errors.push(fetchError);
+      return { deleted, errors };
+    }
+
+    if (!pendingStudents || pendingStudents.length === 0) {
+      console.log('No pending students found for cleanup');
+      return { deleted, errors };
+    }
+
+    const testPendingStudents = pendingStudents.filter(student =>
+      matchesPattern(student.email, TEST_PATTERNS.pendingStudents.emails)
+    );
+
+    console.log(`Found ${testPendingStudents.length} test pending students to delete`);
+
+    for (const student of testPendingStudents) {
+      const { error: deleteError } = await supabase
+        .from('pending_students')
+        .delete()
+        .eq('id', student.id);
+
+      if (deleteError) {
+        console.error(`Error deleting pending student ${student.id}:`, deleteError);
+        errors.push({ student, error: deleteError });
+      } else {
+        deleted++;
+        console.log(`Deleted test pending student: ${student.email}`);
+      }
+    }
+
+    return { deleted, errors };
+  } catch (error) {
+    console.error('Unexpected error during pending student cleanup:', error);
+    errors.push(error);
+    return { deleted, errors };
+  }
+}
+
+/**
+ * Delete orphaned practice sessions (sessions without valid student/song references)
+ * Note: Practice sessions are typically cleaned up via CASCADE when users are deleted
+ */
+export async function cleanupOrphanedPracticeSessions(): Promise<{ deleted: number; errors: any[] }> {
+  const supabase = getSupabaseClient();
+  let deleted = 0;
+  const errors: any[] = [];
+
+  try {
+    // Find practice sessions where the student_id or song_id no longer exists
+    const { data: orphanedSessions, error: fetchError } = await supabase.rpc(
+      'find_orphaned_practice_sessions'
+    );
+
+    if (fetchError) {
+      // If the RPC doesn't exist, skip this cleanup
+      console.log('Skipping orphaned practice sessions cleanup (RPC not available)');
+      return { deleted, errors };
+    }
+
+    if (!orphanedSessions || orphanedSessions.length === 0) {
+      console.log('No orphaned practice sessions found');
+      return { deleted, errors };
+    }
+
+    console.log(`Found ${orphanedSessions.length} orphaned practice sessions to delete`);
+
+    for (const session of orphanedSessions) {
+      const { error: deleteError } = await supabase
+        .from('practice_sessions')
+        .delete()
+        .eq('id', session.id);
+
+      if (deleteError) {
+        console.error(`Error deleting practice session ${session.id}:`, deleteError);
+        errors.push({ session, error: deleteError });
+      } else {
+        deleted++;
+      }
+    }
+
+    return { deleted, errors };
+  } catch (error) {
+    console.log('Skipping orphaned practice sessions cleanup');
+    return { deleted, errors };
+  }
+}
+
+/**
+ * Delete orphaned student song progress (progress without valid student/song references)
+ * Note: Progress records are typically cleaned up via CASCADE when users are deleted
+ */
+export async function cleanupOrphanedSongProgress(): Promise<{ deleted: number; errors: any[] }> {
+  const supabase = getSupabaseClient();
+  let deleted = 0;
+  const errors: any[] = [];
+
+  try {
+    // Find progress records where the student_id or song_id no longer exists
+    const { data: orphanedProgress, error: fetchError } = await supabase.rpc(
+      'find_orphaned_song_progress'
+    );
+
+    if (fetchError) {
+      // If the RPC doesn't exist, skip this cleanup
+      console.log('Skipping orphaned song progress cleanup (RPC not available)');
+      return { deleted, errors };
+    }
+
+    if (!orphanedProgress || orphanedProgress.length === 0) {
+      console.log('No orphaned song progress found');
+      return { deleted, errors };
+    }
+
+    console.log(`Found ${orphanedProgress.length} orphaned song progress records to delete`);
+
+    for (const progress of orphanedProgress) {
+      const { error: deleteError } = await supabase
+        .from('student_song_progress')
+        .delete()
+        .eq('id', progress.id);
+
+      if (deleteError) {
+        console.error(`Error deleting song progress ${progress.id}:`, deleteError);
+        errors.push({ progress, error: deleteError });
+      } else {
+        deleted++;
+      }
+    }
+
+    return { deleted, errors };
+  } catch (error) {
+    console.log('Skipping orphaned song progress cleanup');
+    return { deleted, errors };
+  }
+}
+
+/**
+ * Delete test AI conversations from the database
+ */
+export async function cleanupTestAIConversations(): Promise<{ deleted: number; errors: any[] }> {
+  const supabase = getSupabaseClient();
+  let deleted = 0;
+  const errors: any[] = [];
+
+  try {
+    const { data: conversations, error: fetchError } = await supabase
+      .from('ai_conversations')
+      .select('id, title');
+
+    if (fetchError) {
+      console.error('Error fetching AI conversations for cleanup:', fetchError);
+      errors.push(fetchError);
+      return { deleted, errors };
+    }
+
+    if (!conversations || conversations.length === 0) {
+      console.log('No AI conversations found for cleanup');
+      return { deleted, errors };
+    }
+
+    const testConversations = conversations.filter(conv =>
+      matchesPattern(conv.title, TEST_PATTERNS.aiConversations.titles)
+    );
+
+    console.log(`Found ${testConversations.length} test AI conversations to delete`);
+
+    for (const conversation of testConversations) {
+      const { error: deleteError } = await supabase
+        .from('ai_conversations')
+        .delete()
+        .eq('id', conversation.id);
+
+      if (deleteError) {
+        console.error(`Error deleting AI conversation ${conversation.id}:`, deleteError);
+        errors.push({ conversation, error: deleteError });
+      } else {
+        deleted++;
+        console.log(`Deleted test AI conversation: ${conversation.title}`);
+      }
+    }
+
+    return { deleted, errors };
+  } catch (error) {
+    console.error('Unexpected error during AI conversation cleanup:', error);
+    errors.push(error);
+    return { deleted, errors };
+  }
+}
+
+/**
  * Clean up all test data
+ * Order matters: Delete dependent data first, then parent data
  */
 export async function cleanupAllTestData(): Promise<void> {
   console.log('\n🧹 Starting test data cleanup...\n');
 
+  // Clean up in order: dependent data first, then parent data
   const results = {
+    assignmentTemplates: await cleanupTestAssignmentTemplates(),
+    assignments: await cleanupTestAssignments(),
+    aiConversations: await cleanupTestAIConversations(),
     songs: await cleanupTestSongs(),
     lessons: await cleanupTestLessons(),
-    assignments: await cleanupTestAssignments(),
+    pendingStudents: await cleanupTestPendingStudents(),
+    // Clean up users last as they cascade delete related data
+    users: await cleanupTestUsers(),
+    // Clean up any orphaned records that weren't caught by cascades
+    orphanedPracticeSessions: await cleanupOrphanedPracticeSessions(),
+    orphanedSongProgress: await cleanupOrphanedSongProgress(),
   };
 
   console.log('\n📊 Cleanup Summary:');
+  console.log(`  Assignment Templates deleted: ${results.assignmentTemplates.deleted}`);
+  console.log(`  Assignments deleted: ${results.assignments.deleted}`);
+  console.log(`  AI Conversations deleted: ${results.aiConversations.deleted}`);
   console.log(`  Songs deleted: ${results.songs.deleted}`);
   console.log(`  Lessons deleted: ${results.lessons.deleted}`);
-  console.log(`  Assignments deleted: ${results.assignments.deleted}`);
+  console.log(`  Pending Students deleted: ${results.pendingStudents.deleted}`);
+  console.log(`  Users deleted: ${results.users.deleted}`);
+  console.log(`  Orphaned Practice Sessions deleted: ${results.orphanedPracticeSessions.deleted}`);
+  console.log(`  Orphaned Song Progress deleted: ${results.orphanedSongProgress.deleted}`);
 
-  const totalErrors = results.songs.errors.length +
+  const totalErrors = results.assignmentTemplates.errors.length +
+                     results.assignments.errors.length +
+                     results.aiConversations.errors.length +
+                     results.songs.errors.length +
                      results.lessons.errors.length +
-                     results.assignments.errors.length;
+                     results.pendingStudents.errors.length +
+                     results.users.errors.length +
+                     results.orphanedPracticeSessions.errors.length +
+                     results.orphanedSongProgress.errors.length;
 
   if (totalErrors > 0) {
     console.log(`  ⚠️  Errors encountered: ${totalErrors}`);

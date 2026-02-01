@@ -12,41 +12,46 @@ interface TouchedFields {
   lastName: boolean;
 }
 
+interface FieldErrors {
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 interface SignUpResponse {
   data: { user: { identities?: unknown[] } | null };
   error: { message: string } | null;
 }
 
-function getValidationError(
+function getFieldErrors(
   touched: TouchedFields,
   firstName: string,
   lastName: string,
   email: string,
   password: string,
   confirmPassword: string
-): string | null {
-  // Only validate fields that have been touched
-  const dataToValidate = {
+): FieldErrors {
+  const errors: FieldErrors = {};
+  const result = SignUpSchema.safeParse({
     firstName,
     lastName,
     email,
     password,
     confirmPassword,
-  };
+  });
 
-  const result = SignUpSchema.safeParse(dataToValidate);
-
-  if (result.success) return null;
-
-  // Return only the first relevant error based on touched fields
-  for (const issue of result.error.issues) {
-    const field = issue.path[0] as keyof TouchedFields;
-    if (touched[field]) {
-      return issue.message;
+  if (!result.success) {
+    for (const issue of result.error.issues) {
+      const field = issue.path[0] as keyof FieldErrors;
+      if (touched[field] && !errors[field]) {
+        errors[field] = issue.message;
+      }
     }
   }
 
-  return null;
+  return errors;
 }
 
 async function signUpUser(
@@ -238,7 +243,7 @@ export function useSignUpLogic(onSuccess?: () => void) {
     success,
     touched,
     setTouched,
-    validationError: getValidationError(touched, firstName, lastName, email, password, confirmPassword),
+    fieldErrors: getFieldErrors(touched, firstName, lastName, email, password, confirmPassword),
     handleSubmit,
     handleGoogleSignIn,
     handleResendEmail,

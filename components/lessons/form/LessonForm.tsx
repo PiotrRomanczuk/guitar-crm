@@ -22,6 +22,7 @@ export default function LessonForm(props: UseLessonFormProps) {
     error,
     validationErrors,
     handleChange,
+    handleBlur,
     handleSongChange,
     handleSubmit,
   } = useLessonForm(props);
@@ -108,6 +109,7 @@ export default function LessonForm(props: UseLessonFormProps) {
             formData={formData}
             validationErrors={validationErrors}
             handleChange={handleChange}
+            handleBlur={handleBlur}
             studentName={students.find((s) => s.id === formData.student_id)?.full_name || ''}
             selectedSongs={selectedSongs}
           />

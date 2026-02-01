@@ -9,9 +9,10 @@ To prevent test data pollution in the database, we have automatic cleanup mechan
 ### Automatic Cleanup
 
 **Global Teardown** runs automatically after all Playwright tests complete:
-- Deletes all test songs, lessons, and assignments
-- Identifies test data by specific patterns (e.g., "E2E Song", "Teacher Song", "E2E Test Artist")
+- Deletes all test data across tables: songs, lessons, assignments, assignment templates, users, pending students, AI conversations, orphaned data
+- Identifies test data by specific patterns (e.g., "E2E Song", "e2e.student.*@example.com", "E2E Test Artist")
 - Runs via `tests/global-teardown.ts`
+- Smart deletion order ensures referential integrity (dependent data deleted first)
 
 ### Manual Cleanup
 
@@ -31,14 +32,34 @@ This is useful for:
 The cleanup system identifies test data using these patterns:
 
 **Songs:**
-- Titles: `E2E Song {timestamp}`, `Teacher Song {timestamp}`, `E2E Edit Test {timestamp}`, titles ending with `EDITED`
-- Artists: `E2E Test Artist`, `Teacher Test Artist`
+- Titles: `E2E Song {timestamp}`, `E2E API Test Song {timestamp}`, `Teacher Song {timestamp}`, `E2E Edit Test {timestamp}`, titles ending with `EDITED` or `UPDATED`
+- Artists: `E2E Test Artist`, `Teacher Test Artist`, any starting with `E2E Test Artist`
 
 **Lessons:**
-- Titles: `E2E Lesson {timestamp}`, `Teacher Lesson {timestamp}`, `Test Lesson {timestamp}`
+- Titles: `E2E Lesson {timestamp}`, `E2E Teacher Lesson {timestamp}`, `Teacher Lesson {timestamp}`, `Test Lesson {timestamp}`
+- Notes: `E2E Test lesson notes`
 
 **Assignments:**
 - Titles: `E2E Assignment {timestamp}`, `Teacher Assignment {timestamp}`, `Test Assignment {timestamp}`
+- Descriptions: Starting with `E2E Test assignment description`
+
+**Assignment Templates:**
+- Titles: `E2E Template {timestamp}`, `Teacher Template {timestamp}`, `Test Template {timestamp}`
+- Descriptions: Starting with `E2E Test template description`
+
+**Users (Profiles):**
+- Emails: `e2e.student.{timestamp}@example.com`, `e2e.teacher.{timestamp}@example.com`, `e2e.admin.{timestamp}@example.com`
+- First Names: `E2ETest`, `E2EEdited`, any starting with `E2E`
+- **Note**: Deleting users cascades to practice sessions, song progress, and related data
+
+**Pending Students:**
+- Emails: `e2e.pending.{timestamp}@example.com`, `test.pending.{timestamp}@example.com`
+
+**AI Conversations:**
+- Titles: Starting with `E2E Test Conversation` or `Test AI Conversation`
+- **Note**: Deleting conversations cascades to AI messages
+
+For complete pattern documentation, see `TESTING-CLEANUP.md`
 
 ### Adding New Test Patterns
 

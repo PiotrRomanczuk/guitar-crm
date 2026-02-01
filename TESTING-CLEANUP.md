@@ -7,10 +7,19 @@ Automated cleanup system to prevent test data pollution in the database from E2E
 ## What Was Added
 
 ### 1. Cleanup Helper (`tests/helpers/cleanup.ts`)
-- Identifies test data by pattern matching (titles, artists, names)
-- Deletes test songs, lessons, and assignments
+- Identifies test data by pattern matching (titles, artists, names, emails)
+- Deletes test data across all tables:
+  - Assignment templates
+  - Assignments
+  - AI conversations (and messages via cascade)
+  - Songs
+  - Lessons
+  - Pending students
+  - Users (profiles) - cascades to practice sessions and song progress
+  - Orphaned practice sessions and song progress
 - Provides detailed logging and error reporting
 - Safe deletion with individual error handling
+- Deletion order ensures referential integrity
 
 ### 2. Global Teardown (`tests/global-teardown.ts`)
 - Runs automatically after all Playwright tests complete
@@ -45,15 +54,25 @@ After tests complete, you'll see:
 ```
 🧹 Starting test data cleanup...
 
+Found 2 test assignment templates to delete
+Deleted test assignment template: E2E Template 1769983443220
 Found 15 test songs to delete
 Deleted test song: E2E Song 1769983443220
 Deleted test song: Teacher Song 1769946438355
+Found 3 test users to delete
+Deleted test user: e2e.student.1769983443220@example.com
 ...
 
 📊 Cleanup Summary:
+  Assignment Templates deleted: 2
+  Assignments deleted: 0
+  AI Conversations deleted: 1
   Songs deleted: 15
   Lessons deleted: 3
-  Assignments deleted: 0
+  Pending Students deleted: 0
+  Users deleted: 3
+  Orphaned Practice Sessions deleted: 0
+  Orphaned Song Progress deleted: 0
   ✅ Cleanup completed successfully
 ```
 
@@ -78,24 +97,73 @@ The system identifies and deletes data matching these patterns:
 ### Songs
 - **Titles**:
   - `E2E Song {timestamp}`
-  - `Teacher Song {timestamp}`
   - `E2E Edit Test {timestamp}`
-  - Any title ending with `EDITED`
+  - `E2E API Test Song {timestamp}`
+  - `Teacher Song {timestamp}`
+  - Any title ending with `EDITED` or `UPDATED`
 - **Artists**:
   - `E2E Test Artist`
   - `Teacher Test Artist`
+  - Any artist starting with `E2E Test Artist`
 
 ### Lessons
 - **Titles**:
   - `E2E Lesson {timestamp}`
+  - `E2E Teacher Lesson {timestamp}`
   - `Teacher Lesson {timestamp}`
   - `Test Lesson {timestamp}`
+- **Notes**:
+  - `E2E Test lesson notes`
 
 ### Assignments
 - **Titles**:
   - `E2E Assignment {timestamp}`
   - `Teacher Assignment {timestamp}`
   - `Test Assignment {timestamp}`
+- **Descriptions**:
+  - Any description starting with `E2E Test assignment description`
+
+### Assignment Templates
+- **Titles**:
+  - `E2E Template {timestamp}`
+  - `Teacher Template {timestamp}`
+  - `Test Template {timestamp}`
+- **Descriptions**:
+  - Any description starting with `E2E Test template description`
+
+### Users (Profiles)
+- **Emails**:
+  - `e2e.student.{timestamp}@example.com`
+  - `e2e.teacher.{timestamp}@example.com`
+  - `e2e.admin.{timestamp}@example.com`
+  - `test.{timestamp}@example.com`
+- **First Names**:
+  - `E2ETest`
+  - `E2EEdited`
+  - Any name starting with `E2E`
+
+**Note**: Deleting users automatically cascades to delete their:
+- Practice sessions
+- Student song progress
+- Lessons (where they are teacher or student)
+- Assignments
+
+### Pending Students
+- **Emails**:
+  - `e2e.pending.{timestamp}@example.com`
+  - `test.pending.{timestamp}@example.com`
+
+### AI Conversations
+- **Titles**:
+  - Any title starting with `E2E Test Conversation`
+  - Any title starting with `Test AI Conversation`
+
+**Note**: Deleting conversations automatically cascades to delete related AI messages
+
+### Orphaned Data
+The system also cleans up orphaned records (if RPC functions exist):
+- Practice sessions without valid student or song references
+- Student song progress without valid student or song references
 
 ## Customization
 
@@ -120,20 +188,89 @@ const TEST_PATTERNS = {
 
 ### Adding New Data Types
 
-Add cleanup functions for new entities:
+When adding cleanup for new entities, follow this pattern:
 
 ```typescript
-export async function cleanupTestStudents(): Promise<{ deleted: number; errors: any[] }> {
+// 1. Add test patterns
+const TEST_PATTERNS = {
+  // ... existing patterns
+  myNewEntity: {
+    titles: [
+      /^E2E MyEntity \d+/,
+      /^Test MyEntity \d+/,
+    ],
+  },
+};
+
+// 2. Create cleanup function
+export async function cleanupTestMyEntities(): Promise<{ deleted: number; errors: any[] }> {
   const supabase = getSupabaseClient();
-  // ... implementation
+  let deleted = 0;
+  const errors: any[] = [];
+
+  try {
+    const { data: entities, error: fetchError } = await supabase
+      .from('my_entities')
+      .select('id, title');
+
+    if (fetchError) {
+      console.error('Error fetching my entities for cleanup:', fetchError);
+      errors.push(fetchError);
+      return { deleted, errors };
+    }
+
+    if (!entities || entities.length === 0) {
+      console.log('No my entities found for cleanup');
+      return { deleted, errors };
+    }
+
+    const testEntities = entities.filter(entity =>
+      matchesPattern(entity.title, TEST_PATTERNS.myNewEntity.titles)
+    );
+
+    console.log(`Found ${testEntities.length} test my entities to delete`);
+
+    for (const entity of testEntities) {
+      const { error: deleteError } = await supabase
+        .from('my_entities')
+        .delete()
+        .eq('id', entity.id);
+
+      if (deleteError) {
+        console.error(`Error deleting my entity ${entity.id}:`, deleteError);
+        errors.push({ entity, error: deleteError });
+      } else {
+        deleted++;
+        console.log(`Deleted test my entity: ${entity.title}`);
+      }
+    }
+
+    return { deleted, errors };
+  } catch (error) {
+    console.error('Unexpected error during my entity cleanup:', error);
+    errors.push(error);
+    return { deleted, errors };
+  }
 }
 
+// 3. Add to cleanupAllTestData
 export async function cleanupAllTestData(): Promise<void> {
-  // ... existing cleanup
-  const students = await cleanupTestStudents();
-  // Add to summary
+  console.log('\n🧹 Starting test data cleanup...\n');
+
+  const results = {
+    // ... existing cleanups
+    myEntities: await cleanupTestMyEntities(),
+  };
+
+  console.log('\n📊 Cleanup Summary:');
+  // ... existing logging
+  console.log(`  My Entities deleted: ${results.myEntities.deleted}`);
+
+  // Update total errors calculation
 }
 ```
+
+**Important**: Consider deletion order based on foreign key constraints. Delete child records before parent records to avoid constraint violations.
 
 ## Configuration
 
@@ -240,11 +377,29 @@ If you need explicit cleanup in CI:
   run: npm run test:cleanup
 ```
 
+## Comprehensive Coverage
+
+The cleanup system now covers:
+- ✅ Songs and song metadata
+- ✅ Lessons
+- ✅ Assignments and assignment templates
+- ✅ Users (profiles) with cascade deletion
+- ✅ Pending students
+- ✅ Practice sessions (via cascade and orphan cleanup)
+- ✅ Student song progress (via cascade and orphan cleanup)
+- ✅ AI conversations and messages
+- ✅ Automatic execution after test runs
+- ✅ Manual cleanup script
+- ✅ Detailed logging and error reporting
+
 ## Future Improvements
 
 Consider adding:
 - [ ] Cleanup before tests (global setup)
 - [ ] Age-based cleanup (delete test data older than X days)
 - [ ] Cleanup for specific test patterns only
-- [ ] Cleanup statistics/reporting
+- [ ] Cleanup statistics/reporting dashboard
 - [ ] Integration with CI/CD reporting
+- [ ] Dry-run mode to preview what would be deleted
+- [ ] Backup test data before cleanup
+- [ ] Selective cleanup by entity type (e.g., only clean songs)
