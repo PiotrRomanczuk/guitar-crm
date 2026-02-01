@@ -43,21 +43,28 @@ const TEST_PATTERNS = {
 
 /**
  * Get Supabase admin client for cleanup operations
+ * Uses service role key to bypass RLS policies
  */
 function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL || 'http://127.0.0.1:54321';
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  // Prefer service role key to bypass RLS policies
+  const supabaseKey = process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY ||
+                      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+                      process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY;
 
   if (!supabaseKey) {
     console.error('Available env vars:', {
       hasLocalUrl: !!process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL,
-      hasLocalKey: !!process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY,
+      hasLocalServiceKey: !!process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY,
       hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      hasLocalKey: !!process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY,
     });
     throw new Error('Missing Supabase credentials for cleanup. Ensure .env.local is configured.');
   }
 
   console.log(`Using Supabase at: ${supabaseUrl}`);
+  console.log(`Auth: ${supabaseKey.includes('service_role') ? 'SERVICE_ROLE (bypasses RLS)' : 'ANON (subject to RLS)'}`);
   return createClient(supabaseUrl, supabaseKey);
 }
 
