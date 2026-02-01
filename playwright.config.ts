@@ -24,11 +24,19 @@ Object.entries(testCredentials).forEach(([key, value]) => {
 /**
  * Playwright Configuration
  * Matches Cypress settings for seamless migration
- * - Viewport: 1280x720
+ * - Viewport: 1280x720 (default), plus mobile/tablet devices
  * - BaseURL: http://localhost:3000
  * - Timeout: 30000ms (increased for auth flows)
  * - Retries: 2 in CI, 0 locally
  * - Screenshot on failure
+ *
+ * Run tests on specific devices:
+ * - npm run playwright:run -- --project="iPhone 12"
+ * - npm run playwright:run -- --project="iPad Pro"
+ * - npm run playwright:run -- --project="Desktop Chrome"
+ *
+ * Run on all devices:
+ * - npm run playwright:run
  */
 export default defineConfig({
   testDir: './tests',
@@ -86,21 +94,58 @@ export default defineConfig({
     navigationTimeout: 30 * 1000,
   },
 
-  // Configure projects for different browsers
+  // Configure projects for different browsers and devices
   projects: [
+    // Desktop browsers
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'Desktop Chrome',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
+      },
     },
-    // Uncomment to test in other browsers
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
+    {
+      name: 'Desktop Firefox',
+      use: {
+        ...devices['Desktop Firefox'],
+        viewport: { width: 1920, height: 1080 },
+      },
+    },
+    {
+      name: 'Desktop Safari',
+      use: {
+        ...devices['Desktop Safari'],
+        viewport: { width: 1920, height: 1080 },
+      },
+    },
+
+    // Mobile devices
+    {
+      name: 'iPhone 12',
+      use: {
+        ...devices['iPhone 12'],
+      },
+    },
+    {
+      name: 'iPhone 15 Pro Max',
+      use: {
+        ...devices['iPhone 15 Pro Max'],
+      },
+    },
+
+    // Tablet
+    {
+      name: 'iPad Pro',
+      use: {
+        ...devices['iPad Pro'],
+      },
+    },
+    {
+      name: 'iPad (gen 7)',
+      use: {
+        ...devices['iPad (gen 7)'],
+      },
+    },
   ],
 
   // Web server configuration

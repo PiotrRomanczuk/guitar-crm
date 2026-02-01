@@ -86,7 +86,12 @@ export default function FormActions({
   return (
     <div className={`flex gap-3 ${layoutClasses[layout]}`}>
       {renderCancelButton()}
-      <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
+      <Button
+        type="submit"
+        disabled={isSubmitting}
+        className="w-full sm:w-auto"
+        data-testid="lesson-submit"
+      >
         {isSubmitting && <Loader2 className="animate-spin" />}
         {isSubmitting ? resolvedSubmittingText : submitText}
       </Button>
