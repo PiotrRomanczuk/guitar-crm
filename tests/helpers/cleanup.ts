@@ -1,4 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
+import * as dotenv from 'dotenv';
+
+// Load environment variables from .env.local
+dotenv.config({ path: '.env.local' });
 
 /**
  * Test Data Cleanup Helper
@@ -45,9 +49,15 @@ function getSupabaseClient() {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseKey) {
-    throw new Error('Missing Supabase credentials for cleanup');
+    console.error('Available env vars:', {
+      hasLocalUrl: !!process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL,
+      hasLocalKey: !!process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY,
+      hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    });
+    throw new Error('Missing Supabase credentials for cleanup. Ensure .env.local is configured.');
   }
 
+  console.log(`Using Supabase at: ${supabaseUrl}`);
   return createClient(supabaseUrl, supabaseKey);
 }
 
