@@ -72,6 +72,11 @@ scripts/history/all_executions.md
 cypress/videos/
 cypress/screenshots/
 
+# Playwright test artifacts
+/test-results/
+/playwright-report/
+/tests/.auth/
+
 # Claude Code Agents
 CODE-AGENTS/
 
