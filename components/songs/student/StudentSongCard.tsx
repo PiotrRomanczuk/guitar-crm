@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +23,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Song } from '@/types/Song';
 import { getStatusBadgeClasses } from '@/lib/utils/status-colors';
+import { cardEntrance } from '@/lib/animations';
 
 const difficultyColors: Record<string, string> = {
   beginner: 'bg-green-500/10 text-green-500 border-green-500/20',
@@ -56,8 +58,15 @@ export function StudentSongCard({ song, onStatusChange, isUpdating }: StudentSon
   const hasResources = song.youtube_url || song.ultimate_guitar_link || song.spotify_link_url || song.audio_files;
 
   return (
-    <div className="group bg-card rounded-xl border border-border overflow-hidden hover:border-primary/30 transition-all duration-300">
-      <div className="p-6">
+    <motion.div
+      variants={cardEntrance}
+      initial="hidden"
+      animate="visible"
+      whileHover={{ y: -4, scale: 1.01 }}
+      whileTap={{ scale: 0.98 }}
+      className="group bg-card rounded-xl border border-border overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all duration-300"
+    >
+      <div className="p-4 sm:p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden relative">
@@ -208,6 +217,6 @@ export function StudentSongCard({ song, onStatusChange, isUpdating }: StudentSon
           </Link>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

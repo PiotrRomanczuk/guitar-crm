@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { ExportButton } from '@/components/users/actions/ExportButton';
 
 interface UserDetailProps {
   user: {
@@ -121,6 +122,10 @@ export default function UserDetail({ user }: UserDetailProps) {
         <Link href={`/dashboard/users/${user.id}/edit`}>
           <Button>Edit</Button>
         </Link>
+
+        {user.is_student && (
+          <ExportButton userId={user.id} userName={user.full_name || user.email} />
+        )}
 
         <AlertDialog>
           <AlertDialogTrigger asChild>

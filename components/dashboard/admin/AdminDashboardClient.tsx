@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { AdminStatCard } from '@/components/dashboard/admin/AdminStatCard';
@@ -9,6 +10,7 @@ import { RecentActivity } from '@/components/dashboard/admin/RecentActivity';
 import { CalendarEventsList } from '@/components/dashboard/calendar/CalendarEventsList';
 import { PotentialUsersList } from '@/components/dashboard/admin/PotentialUsersList';
 import { BearerTokenDisplay } from '@/components/dashboard/BearerTokenDisplay';
+import { staggerContainer, listItem, cardEntrance } from '@/lib/animations';
 
 type DebugView = 'admin' | 'teacher' | 'student';
 
@@ -36,11 +38,11 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
   const getBackgroundColor = () => {
     switch (debugView) {
       case 'teacher':
-        return 'from-primary/5 to-primary/10 dark:from-background dark:to-muted';
+        return 'from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800';
       case 'student':
-        return 'from-success/5 to-success/10 dark:from-background dark:to-muted';
+        return 'from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800';
       default:
-        return 'from-primary/5 to-primary/10 dark:from-background dark:to-muted';
+        return 'from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800';
     }
   };
 
@@ -71,44 +73,65 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
 
   return (
     <div className={`min-h-screen bg-linear-to-br ${getBackgroundColor()}`}>
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-7xl">
+      <motion.main
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-7xl"
+      >
         <DebugViewBanner debugView={debugView} onReset={() => setDebugView('admin')} />
 
         <BearerTokenDisplay />
 
-        <header className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
+        <motion.header variants={listItem} className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
             {header.icon} {header.title}
           </h1>
-          <p className="text-sm sm:text-base lg:text-lg text-muted-foreground">
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-300">
             {header.description}
           </p>
-        </header>
+        </motion.header>
 
-        <QuickStats
-          debugView={debugView}
-          totalUsers={stats.totalUsers}
-          totalTeachers={stats.totalTeachers}
-          totalStudents={stats.totalStudents}
-          totalSongs={stats.totalSongs}
-        />
-        {debugView === 'admin' && <AdminActions />}
+        <motion.div variants={listItem}>
+          <QuickStats
+            debugView={debugView}
+            totalUsers={stats.totalUsers}
+            totalTeachers={stats.totalTeachers}
+            totalStudents={stats.totalStudents}
+            totalSongs={stats.totalSongs}
+          />
+        </motion.div>
+
         {debugView === 'admin' && (
-          <div className="mb-6 sm:mb-8">
+          <motion.div variants={listItem}>
+            <AdminActions />
+          </motion.div>
+        )}
+
+        {debugView === 'admin' && (
+          <motion.div variants={listItem} className="mb-6 sm:mb-8">
             <CalendarEventsList limit={7} />
-          </div>
+          </motion.div>
         )}
-        {debugView === 'admin' && (
-          <div className="mb-6 sm:mb-8">
-            <PotentialUsersList />
-          </div>
-        )}
-        {debugView === 'admin' && <RecentActivity recentUsers={stats.recentUsers} />}
 
         {debugView === 'admin' && (
-          <DebugViewSelector currentView={debugView} onViewChange={setDebugView} />
+          <motion.div variants={listItem} className="mb-6 sm:mb-8">
+            <PotentialUsersList />
+          </motion.div>
         )}
-      </main>
+
+        {debugView === 'admin' && (
+          <motion.div variants={listItem}>
+            <RecentActivity recentUsers={stats.recentUsers} />
+          </motion.div>
+        )}
+
+        {debugView === 'admin' && (
+          <motion.div variants={listItem}>
+            <DebugViewSelector currentView={debugView} onViewChange={setDebugView} />
+          </motion.div>
+        )}
+      </motion.main>
     </div>
   );
 }
@@ -117,19 +140,24 @@ function DebugViewBanner({ debugView, onReset }: { debugView: DebugView; onReset
   if (debugView === 'admin') return null;
 
   return (
-    <div className="mb-4 p-4 bg-warning/10 border border-warning/20 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <p className="text-warning font-medium">
-        Debug Mode: Viewing as{' '}
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="mb-4 p-4 bg-amber-100 dark:bg-amber-900 border border-amber-300 dark:border-amber-700 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+    >
+      <p className="text-amber-800 dark:text-amber-200 font-medium">
+        🔧 Debug Mode: Viewing as{' '}
         <span className="font-bold">{debugView === 'teacher' ? 'Teacher' : 'Student'}</span>
       </p>
       <Button
         onClick={onReset}
         variant="default"
-        className="bg-warning hover:bg-warning/90 text-warning-foreground border-none"
+        className="bg-amber-600 hover:bg-amber-700 text-white border-none min-h-[44px]"
       >
         Back to Admin View
       </Button>
-    </div>
+    </motion.div>
   );
 }
 
@@ -141,39 +169,31 @@ function DebugViewSelector({
   onViewChange: (view: DebugView) => void;
 }) {
   return (
-    <Card className="mt-8 bg-muted/50">
-      <CardContent className="p-4 sm:p-6">
-        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <span>🔧</span> Debug: Preview Dashboards
-        </h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Switch between dashboard views to test different user role perspectives:
-        </p>
-        <div className="flex flex-wrap gap-3">
-          <Button
-            onClick={() => onViewChange('admin')}
-            variant={currentView === 'admin' ? 'default' : 'outline'}
-            className={currentView === 'admin' ? 'bg-primary hover:bg-primary/90' : ''}
-          >
-            Admin View
-          </Button>
-          <Button
-            onClick={() => onViewChange('teacher')}
-            variant={currentView === 'teacher' ? 'default' : 'outline'}
-            className={currentView === 'teacher' ? 'bg-primary hover:bg-primary/90' : ''}
-          >
-            Teacher View
-          </Button>
-          <Button
-            onClick={() => onViewChange('student')}
-            variant={currentView === 'student' ? 'default' : 'outline'}
-            className={currentView === 'student' ? 'bg-primary hover:bg-primary/90' : ''}
-          >
-            Student View
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <motion.div variants={cardEntrance}>
+      <Card className="mt-8 bg-muted/50">
+        <CardContent className="p-4 sm:p-6">
+          <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+            <span>🔧</span> Debug: Preview Dashboards
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Switch between dashboard views to test different user role perspectives:
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {(['admin', 'teacher', 'student'] as const).map((view) => (
+              <motion.div key={view} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  onClick={() => onViewChange(view)}
+                  variant={currentView === view ? 'default' : 'outline'}
+                  className={`min-h-[44px] ${currentView === view ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                >
+                  {view === 'admin' ? '⚙️ Admin' : view === 'teacher' ? '👨‍🏫 Teacher' : '👨‍🎓 Student'} View
+                </Button>
+              </motion.div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
 
@@ -219,11 +239,19 @@ function QuickStats({
   const statsConfig = getStats();
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8" data-tour="stats">
-      {statsConfig.map((stat) => (
-        <AdminStatCard key={stat.label} icon={stat.icon} value={stat.value} label={stat.label} />
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8"
+      data-tour="stats"
+    >
+      {statsConfig.map((stat, index) => (
+        <motion.div key={stat.label} variants={listItem} custom={index}>
+          <AdminStatCard icon={stat.icon} value={stat.value} label={stat.label} />
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }
 
@@ -280,12 +308,24 @@ function AdminActions() {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8" data-tour="quick-actions">
-      {actions.map((action) => (
-        <AdminActionCard key={action.href} {...action} />
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8"
+      data-tour="quick-actions"
+    >
+      {actions.map((action, index) => (
+        <motion.div
+          key={action.href}
+          variants={listItem}
+          custom={index}
+          whileHover={{ y: -4, scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <AdminActionCard {...action} />
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }
-
-// RecentActivity is intentionally extracted to reduce file size and improve readability.
