@@ -79,7 +79,7 @@ export default function LessonListFilter({
       <div className="space-y-2 mb-4">
         <Label htmlFor="search-filter">Search</Label>
         <div className="relative">
-          <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             id="search-filter"
             placeholder="Search by title or notes..."
@@ -90,7 +90,7 @@ export default function LessonListFilter({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 ultrawide:gap-8">
         <div className="space-y-2">
           <Label htmlFor="filter-status">Filter by Status</Label>
           <Select
