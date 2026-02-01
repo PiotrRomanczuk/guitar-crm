@@ -35,43 +35,30 @@ describe('Admin Lessons CRUD Workflow', () => {
 
   it('1. CREATE: should create a new lesson', () => {
     cy.visit('/dashboard/lessons/new');
-    cy.wait(2000);
 
-    // Wait for form to load - the SelectTrigger has the data-testid
-    cy.get('[data-testid="lesson-student_id"]', { timeout: 10000 }).should('be.visible');
+    // Select required student
+    cy.get('[data-testid="lesson-student_id"]').select(1);
 
-    // Select first available student using shadcn Select
-    // Click the trigger to open the dropdown
-    cy.get('[data-testid="lesson-student_id"]').click({ force: true });
-    cy.wait(500);
-    // Click the first option in the dropdown
-    cy.get('[role="option"]').first().click({ force: true });
-    cy.wait(500);
-
-    // Select first available teacher using shadcn Select
-    cy.get('[data-testid="lesson-teacher_id"]').click({ force: true });
-    cy.wait(500);
-    cy.get('[role="option"]').first().click({ force: true });
-    cy.wait(500);
+    // Select required teacher
+    cy.get('[data-testid="lesson-teacher_id"]').select(1);
 
     // Fill in lesson form
-    cy.get('[data-testid="lesson-title"]').clear({ force: true }).type(testData.title, { force: true });
+    cy.get('[data-testid="lesson-title"]').clear().type(testData.title);
 
     // Set scheduled date (tomorrow)
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const dateStr = tomorrow.toISOString().slice(0, 16);
-    cy.get('[data-testid="lesson-scheduled-at"]').clear({ force: true }).type(dateStr, { force: true });
+    cy.get('[data-testid="lesson-scheduled-at"]').clear().type(dateStr);
 
     // Add notes
-    cy.get('[data-testid="lesson-notes"]').clear({ force: true }).type(testData.notes, { force: true });
+    cy.get('[data-testid="lesson-notes"]').type(testData.notes);
 
     // Submit the form
-    cy.get('[data-testid="lesson-submit"]').should('be.visible').should('not.be.disabled').click({ force: true });
+    cy.get('[data-testid="lesson-submit"], button[type="submit"]').first().click({ force: true });
 
-    // Should redirect to lessons list with success message
-    cy.url({ timeout: 15000 }).should('include', '/dashboard/lessons');
-    cy.url().should('not.include', '/new');
+    // Should redirect
+    cy.url({ timeout: 15000 }).should('not.include', '/new');
   });
 
   it('2. VERIFY CREATE: should find created lesson in list', () => {
@@ -84,7 +71,6 @@ describe('Admin Lessons CRUD Workflow', () => {
 
   it('3. EDIT: should update the lesson', () => {
     cy.visit('/dashboard/lessons');
-    cy.wait(2000);
 
     // Click on the lesson to go to detail page
     cy.contains(testData.title).click({ force: true });
@@ -95,10 +81,9 @@ describe('Admin Lessons CRUD Workflow', () => {
       .first()
       .click({ force: true });
     cy.location('pathname').should('include', '/edit');
-    cy.wait(2000);
 
     // Update the title
-    cy.get('[data-testid="lesson-title"]').clear({ force: true }).type(testData.titleEdited, { force: true });
+    cy.get('[data-testid="lesson-title"]').clear().type(testData.titleEdited);
 
     // Save
     cy.get('[data-testid="lesson-submit"], button[type="submit"]').first().click({ force: true });

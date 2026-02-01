@@ -5,7 +5,6 @@ import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { notFound } from 'next/navigation';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createLogger } from '@/lib/logger';
-import { SongStatusHistory } from '@/components/shared/SongStatusHistory';
 
 const log = createLogger('UserDetailPage');
 
@@ -153,36 +152,26 @@ export default async function UserDetailPage({ params, searchParams }: UserDetai
         ]}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <UserDetail user={user as UserProfile} />
+      <UserDetail user={user as UserProfile} />
 
-          {/* Lessons Section */}
-          <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">📚 Lessons</h2>
-            <UserLessons lessons={lessons || []} />
-          </div>
+      {/* Lessons Section */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">📚 Lessons</h2>
+        <UserLessons lessons={lessons || []} />
+      </div>
 
-          {/* Assignments Section */}
-          <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-              📝 Assignments
-            </h2>
-            <UserAssignments assignments={assignments || []} />
-          </div>
+      {/* Assignments Section */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">📝 Assignments</h2>
+        <UserAssignments assignments={assignments || []} />
+      </div>
 
-          {/* Songs Section */}
-          <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-              🎵 Songs from Lessons
-            </h2>
-            <UserSongs songs={songs || []} />
-          </div>
-        </div>
-
-        <div className="lg:col-span-1">
-          <SongStatusHistory studentId={userId} title="Learning Progress" />
-        </div>
+      {/* Songs Section */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+          🎵 Songs from Lessons
+        </h2>
+        <UserSongs songs={songs || []} />
       </div>
     </div>
   );

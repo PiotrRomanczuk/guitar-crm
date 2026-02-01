@@ -5,9 +5,9 @@ import { db } from '@/lib/api/unified-db';
  * External Song by ID API Handler
  */
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params;
+    const { id } = params;
 
     if (!id) {
       return NextResponse.json({ error: 'Song ID is required' }, { status: 400 });
@@ -43,9 +43,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params;
+    const { id } = params;
     const body = await request.json();
 
     if (!id) {
@@ -91,12 +91,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params;
+    const { id } = params;
 
     if (!id) {
       return NextResponse.json({ error: 'Song ID is required' }, { status: 400 });
