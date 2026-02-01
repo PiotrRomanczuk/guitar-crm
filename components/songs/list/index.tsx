@@ -19,95 +19,45 @@ export default async function SongList({ searchParams }: SongListProps) {
     typeof searchParams?.studentId === 'string' ? searchParams.studentId : undefined;
   const search = typeof searchParams?.search === 'string' ? searchParams.search : undefined;
   const level = typeof searchParams?.level === 'string' ? searchParams.level : undefined;
-  const key = typeof searchParams?.key === 'string' ? searchParams.key : undefined;
-  const category = typeof searchParams?.category === 'string' ? searchParams.category : undefined;
-  const author = typeof searchParams?.author === 'string' ? searchParams.author : undefined;
-  const page = typeof searchParams?.page === 'string' ? parseInt(searchParams.page, 10) : 1;
-  const pageSize = 20;
+  const pageParam = typeof searchParams?.page === 'string' ? parseInt(searchParams.page) : 1;
+  const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+
+  const pageSizeParam =
+    typeof searchParams?.pageSize === 'string' ? parseInt(searchParams.pageSize) : 15;
+  const pageSize = isNaN(pageSizeParam) || pageSizeParam < 1 ? 15 : pageSizeParam;
+
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
 
   let songQuery;
 
-  // TODO: Re-enable soft delete filtering after fixing delete implementation
-  // Currently causing issues with song deletion not being reflected immediately
   if (studentId) {
     songQuery = supabase
       .from('songs')
-      .select('*, lesson_songs!inner(id, status, lessons!inner(student_id))')
+      .select('*, lesson_songs!inner(id, status, lessons!inner(student_id))', { count: 'exact' })
       .eq('lesson_songs.lessons.student_id', studentId);
-    // .is('deleted_at', null);  // TODO: Uncomment after fixing
   } else {
-    songQuery = supabase.from('songs').select('*');
-    // .is('deleted_at', null);  // TODO: Uncomment after fixing
+    songQuery = supabase.from('songs').select('*', { count: 'exact' });
   }
 
   if (search) {
-    songQuery = songQuery.or(`title.ilike.%${search}%,author.ilike.%${search}%`);
+    songQuery = songQuery.or(`title.ilike.%${search}%,artist.ilike.%${search}%`);
   }
 
   if (level && level !== 'all') {
     songQuery = songQuery.eq('level', level);
   }
 
-  if (key && key !== 'all') {
-    songQuery = songQuery.eq('key', key);
-  }
+  songQuery = songQuery.order('created_at', { ascending: false }).range(from, to);
 
-  if (category && category !== 'all') {
-    songQuery = songQuery.eq('category', category);
-  }
-
-  if (author && author !== 'all') {
-    songQuery = songQuery.eq('author', author);
-  }
-
-  songQuery = songQuery.order('created_at', { ascending: false });
-
-  // Get total count for pagination
-  const countQuery = studentId
-    ? supabase
-        .from('songs')
-        .select('id', { count: 'exact', head: true })
-        .eq('lesson_songs.lessons.student_id', studentId)
-    : supabase.from('songs').select('id', { count: 'exact', head: true });
-
-  const { count } = await countQuery;
-  const totalPages = count ? Math.ceil(count / pageSize) : 0;
-
-  // Apply pagination
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  songQuery = songQuery.range(from, to);
-
-  const { data: rawSongs, error } = await songQuery;
+  const { data: rawSongs, count, error } = await songQuery;
 
   if (error) {
     console.error('Error fetching songs:', error);
     return <div data-testid="song-list-error">Error loading songs: {error.message}</div>;
   }
 
-  // Fetch distinct categories for filter
-  const { data: categoriesData } = await supabase
-    .from('songs')
-    .select('category')
-    .not('category', 'is', null)
-    // .is('deleted_at', null)  // TODO: Re-enable after fixing delete implementation
-    .order('category');
-
-  const categories = Array.from(
-    new Set(categoriesData?.map((c) => c.category).filter(Boolean))
-  ) as string[];
-
-  // Fetch distinct authors for filter
-  const { data: authorsData } = await supabase
-    .from('songs')
-    .select('author')
-    .not('author', 'is', null)
-    // .is('deleted_at', null)  // TODO: Re-enable after fixing delete implementation
-    .order('author');
-
-  const authors = Array.from(
-    new Set(authorsData?.map((a) => a.author).filter(Boolean))
-  ) as string[];
+  const totalPages = count ? Math.ceil(count / pageSize) : 0;
 
   // Transform songs to include status if filtering by student
   const songs =
@@ -154,10 +104,9 @@ export default async function SongList({ searchParams }: SongListProps) {
       isAdmin={isAdmin || isTeacher}
       students={students}
       selectedStudentId={studentId}
-      categories={categories}
-      authors={authors}
-      currentPage={page}
       totalPages={totalPages}
+      currentPage={page}
+      pageSize={pageSize}
     />
   );
 }

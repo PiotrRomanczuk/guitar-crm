@@ -66,7 +66,7 @@ async function fetchUserData(supabase: SupabaseClient, userId: string) {
   const { data: assignments } = await supabase
     .from('assignments')
     .select('*')
-    .eq('user_id', userId)
+    .eq('student_id', userId)
     .order('created_at', { ascending: false });
 
   // First, get all lessons for this user
