@@ -29,9 +29,10 @@ export interface StudentHealth {
 
 interface StudentHealthTableProps {
   students: StudentHealth[];
+  onSendMessage?: (studentId: string) => void;
 }
 
-export function StudentHealthTable({ students }: StudentHealthTableProps) {
+export function StudentHealthTable({ students, onSendMessage }: StudentHealthTableProps) {
   if (students.length === 0) {
     return (
       <div className="text-center py-12 border rounded-lg">

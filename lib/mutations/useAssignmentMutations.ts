@@ -21,12 +21,12 @@ interface CreateAssignmentPayload {
 }
 
 interface UpdateAssignmentPayload {
-  id: number;
+  id: string;
   data: z.infer<typeof AssignmentUpdateSchema>;
 }
 
 interface DeleteAssignmentPayload {
-  id: number;
+  id: string | number;
 }
 
 async function createAssignment(payload: CreateAssignmentPayload): Promise<Assignment> {

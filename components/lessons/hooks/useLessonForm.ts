@@ -5,6 +5,29 @@ import { LessonInputSchema } from '@/schemas/LessonSchema';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/client';
 
+/**
+ * Convert ISO datetime string to datetime-local format (YYYY-MM-DDTHH:mm)
+ * For input elements of type="datetime-local"
+ */
+function formatScheduledAtForInput(iso?: string): string {
+  if (!iso) return '';
+  try {
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return '';
+
+    // Format as YYYY-MM-DDTHH:mm for datetime-local input
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  } catch {
+    return '';
+  }
+}
+
 export interface LessonFormData {
   student_id: string;
   teacher_id: string;
@@ -41,7 +64,7 @@ export default function useLessonForm({
   const [formData, setFormData] = useState<LessonFormData>({
     student_id: initialData?.student_id || '',
     teacher_id: initialData?.teacher_id || '',
-    scheduled_at: initialData?.scheduled_at || '',
+    scheduled_at: formatScheduledAtForInput(initialData?.scheduled_at),
     title: initialData?.title || '',
     notes: initialData?.notes || '',
     status: initialData?.status || 'SCHEDULED',
@@ -79,7 +102,6 @@ export default function useLessonForm({
         setStudents(studentsRes.data || []);
         setTeachers(teachersRes.data || []);
       } catch (err) {
-        console.error('Error fetching profiles:', err);
         setError(err instanceof Error ? err.message : 'Failed to load profiles');
       } finally {
         setLoading(false);
@@ -111,9 +133,20 @@ export default function useLessonForm({
 
   const handleSubmit = async () => {
     try {
-      console.log('[useLessonForm] handleSubmit called', { formData, lessonId });
       setValidationErrors({});
       setError(null);
+
+      // Frontend validation for required fields
+      const frontendErrors: ValidationErrors = {};
+      if (!formData.student_id) frontendErrors.student_id = 'Please select a student';
+      if (!formData.teacher_id) frontendErrors.teacher_id = 'Please select a teacher';
+      if (!formData.scheduled_at) frontendErrors.scheduled_at = 'Scheduled date & time is required';
+
+      if (Object.keys(frontendErrors).length > 0) {
+        setValidationErrors(frontendErrors);
+        setError('Please fill in all required fields');
+        return { success: false, error: 'Please fill in all required fields' };
+      }
 
       let dataToValidate: Partial<LessonFormData> = formData;
       if (fieldsToSubmit) {
@@ -127,12 +160,8 @@ export default function useLessonForm({
       const schema = partial ? LessonInputSchema.partial() : LessonInputSchema;
       const validatedData = schema.parse(dataToValidate);
 
-      console.log('[useLessonForm] Validation passed', validatedData);
-
       const url = lessonId ? `/api/lessons/${lessonId}` : '/api/lessons';
       const method = lessonId ? 'PUT' : 'POST';
-
-      console.log('[useLessonForm] Sending request', { url, method });
 
       const response = await fetch(url, {
         method,
@@ -140,25 +169,15 @@ export default function useLessonForm({
         body: JSON.stringify(validatedData),
       });
 
-      console.log('[useLessonForm] Response received', {
-        status: response.status,
-        ok: response.ok,
-      });
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Failed to save lesson' }));
-        console.error('[useLessonForm] Error response:', errorData);
         setError(errorData.error || 'Failed to save lesson');
         return { success: false, error: errorData.error };
       }
 
       const responseData = await response.json();
-      console.log('[useLessonForm] Success response:', responseData);
-
       return { success: true, data: responseData };
     } catch (err) {
-      console.error('[useLessonForm] Submit error:', err);
-
       if (err instanceof z.ZodError) {
         const errors: ValidationErrors = {};
         err.issues.forEach((e) => {
@@ -167,8 +186,7 @@ export default function useLessonForm({
         setValidationErrors(errors);
         setError('Please fix the validation errors');
       } else {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to save lesson';
-        setError(errorMessage);
+        setError(err instanceof Error ? err.message : 'Failed to save lesson');
       }
 
       return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };

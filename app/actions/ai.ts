@@ -1,9 +1,8 @@
 'use server';
 
-import { getAIProvider, isAIError, type AIMessage, type AIModelInfo } from '@/lib/ai';
+import { getAIProvider, isAIError, type AIMessage, type AIModelInfo, type AIProvider } from '@/lib/ai';
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
-import { createClient } from '@/lib/supabase/server';
-import { executeAgentRequest } from '@/lib/ai/registry';
+import { executeAgent } from '@/lib/ai/registry';
 import { mapToOllamaModel } from '@/lib/ai/model-mappings';
 
 /**
@@ -39,23 +38,23 @@ async function* createAIStream(
  */
 async function* executeAgentStream(
   agentId: string,
-  input: Record<string, any>,
-  context: Record<string, any> = {},
+  input: Record<string, unknown>,
+  context: Record<string, unknown> = {},
   options?: { delayMs?: number; chunkSize?: number }
 ) {
   try {
-    const result = await executeAgentRequest({
+    const result = await executeAgent(
       agentId,
       input,
       context,
-    });
+    );
 
     if (result.error) {
       yield `Error: ${result.error}`;
       return;
     }
 
-    const content = String(result.content || 'No content generated.');
+    const content = String(result.result?.content || result.result || 'No content generated.');
     yield* createAIStream(content, options);
   } catch (error) {
     console.error(`[${agentId}] Stream error:`, error);
@@ -67,7 +66,7 @@ async function* executeAgentStream(
  * Map OpenRouter model IDs to appropriate local models for Ollama
  */
 export async function getProviderAppropriateModel(
-  provider: any,
+  provider: AIProvider,
   requestedModel: string
 ): Promise<string> {
   // If using Ollama, map OpenRouter models to local equivalents
@@ -524,9 +523,10 @@ export async function generatePostLessonSummary(params: {
  * Analyze student progress with streaming
  */
 export async function* analyzeStudentProgressStream(params: {
-  studentData: any;
-  lessonHistory?: any;
-  skillAssessments?: any;
+  studentData: Record<string, unknown>;
+  timePeriod?: string;
+  lessonHistory?: Record<string, unknown>;
+  skillAssessments?: Record<string, unknown>;
 }) {
   yield* executeAgentStream('student-progress-insights', params);
 }
@@ -574,7 +574,7 @@ export async function analyzeStudentProgress(params: {
  * Generate admin insights with streaming
  */
 export async function* generateAdminInsightsStream(params: {
-  dashboardData: any;
+  dashboardData: Record<string, unknown>;
   timeframe?: string;
   focusAreas?: string[];
 }) {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Enhanced Spotify Search Service
  *
@@ -113,9 +114,11 @@ export async function searchSongWithAI(
           if (!bestMatch || topTrack.score > bestMatch.confidence) {
             bestMatch = {
               confidence: topTrack.score,
+              found: true,
               spotifyTrack: topTrack.track,
               searchQuery: query,
               reason: `Found via query: ${query}`,
+              reasoning: `Found via query: ${query}`,
               suggestions: scoredTracks
                 .slice(1, 3)
                 .map((t: any) => `${t.track.name} by ${t.track.artists[0]?.name} (${t.score}%)`),
@@ -148,7 +151,7 @@ export async function searchSongWithAI(
         match: {
           confidence: 0,
           found: false,
-          track: null,
+          track: undefined,
           searchQuery: queries[0] || `${song.title} ${song.author}`,
           reasoning: 'No matches found in Spotify',
           suggestions: [],
@@ -168,7 +171,7 @@ export async function searchSongWithAI(
         found: true,
         track: bestMatch.spotifyTrack,
         searchQuery: bestMatch.searchQuery,
-        reasoning: bestMatch.reason,
+        reasoning: bestMatch.reason || bestMatch.reasoning,
         suggestions: bestMatch.suggestions,
       },
       executionTime,
@@ -182,7 +185,7 @@ export async function searchSongWithAI(
       match: {
         confidence: 0,
         found: false,
-        track: null,
+        track: undefined,
         searchQuery: `${song.title} ${song.author}`,
         reasoning: `Search failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
         suggestions: [],

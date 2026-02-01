@@ -1,6 +1,33 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+interface Song {
+  id: string;
+  title: string;
+  author: string;
+  level?: string;
+  key?: string;
+  cover_image_url?: string;
+}
+
+interface StatusChange {
+  id: string;
+  previous_status: string;
+  new_status: string;
+  changed_at: string;
+  notes?: string;
+  song: Song;
+}
+
+interface SongSummary {
+  song: Song;
+  totalChanges: number;
+  currentStatus: string;
+  firstChange: string;
+  lastChange: string;
+  recentChanges: StatusChange[];
+}
+
 export async function GET(req: Request) {
   try {
     const supabase = await createClient();
@@ -63,38 +90,41 @@ export async function GET(req: Request) {
     }
 
     // Group by song for summary view
-    const songSummaries = data.reduce((acc: any, change: any) => {
-      // Note: Supabase joins return single objects, not arrays for single relationships
-      const song = change.song;
-      const songId = song?.id;
+    const songSummaries = (data as unknown as StatusChange[]).reduce(
+      (acc: Record<string, SongSummary>, change: StatusChange) => {
+        // Note: Supabase joins return single objects, not arrays for single relationships
+        const song = change.song;
+        const songId = song?.id;
 
-      if (!songId || !song) return acc;
+        if (!songId || !song) return acc;
 
-      if (!acc[songId]) {
-        acc[songId] = {
-          song: song,
-          totalChanges: 0,
-          currentStatus: change.new_status,
-          firstChange: change.changed_at,
-          lastChange: change.changed_at,
-          recentChanges: [],
-        };
-      }
+        if (!acc[songId]) {
+          acc[songId] = {
+            song: song,
+            totalChanges: 0,
+            currentStatus: change.new_status,
+            firstChange: change.changed_at,
+            lastChange: change.changed_at,
+            recentChanges: [],
+          };
+        }
 
-      acc[songId].totalChanges++;
-      acc[songId].recentChanges.push(change);
+        acc[songId].totalChanges++;
+        acc[songId].recentChanges.push(change);
 
-      // Update first/last change dates
-      if (change.changed_at > acc[songId].lastChange) {
-        acc[songId].currentStatus = change.new_status;
-        acc[songId].lastChange = change.changed_at;
-      }
-      if (change.changed_at < acc[songId].firstChange) {
-        acc[songId].firstChange = change.changed_at;
-      }
+        // Update first/last change dates
+        if (change.changed_at > acc[songId].lastChange) {
+          acc[songId].currentStatus = change.new_status;
+          acc[songId].lastChange = change.changed_at;
+        }
+        if (change.changed_at < acc[songId].firstChange) {
+          acc[songId].firstChange = change.changed_at;
+        }
 
-      return acc;
-    }, {} as Record<string, any>);
+        return acc;
+      },
+      {}
+    );
 
     return NextResponse.json({
       data,

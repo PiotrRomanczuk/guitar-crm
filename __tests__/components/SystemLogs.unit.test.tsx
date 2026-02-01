@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import { SystemLogs } from '@/components/logs/SystemLogs';
 import { createClient } from '@/lib/supabase/client';
 import '@testing-library/jest-dom';
@@ -82,20 +82,20 @@ describe('SystemLogs Component', () => {
 
   // Create proper Promise-returning mock chain
   const createMockSupabase = (assignmentData = mockAssignmentLogs, lessonData = mockLessonLogs, songData = mockSongLogs, userData = mockUserLogs, usersData = mockUsers) => {
-    const createThenable = (data: any) => {
+    const createThenable = (data: unknown) => {
       const result = { data, error: null };
-      const thenable: any = {
+      const thenable: Record<string, unknown> = {
         select: jest.fn(() => thenable),
         order: jest.fn(() => thenable),
         limit: jest.fn(() => thenable),
         eq: jest.fn(() => thenable),
-        then: (resolve: any) => Promise.resolve(result).then(resolve),
-        catch: (reject: any) => Promise.resolve(result).catch(reject),
+        then: (resolve: (value: unknown) => unknown) => Promise.resolve(result).then(resolve),
+        catch: (reject: (reason: unknown) => unknown) => Promise.resolve(result).catch(reject),
       };
       return thenable;
     };
 
-    const dataMap: Record<string, any> = {
+    const dataMap: Record<string, unknown> = {
       profiles: usersData,
       assignment_history: assignmentData,
       lesson_history: lessonData,
@@ -116,13 +116,17 @@ describe('SystemLogs Component', () => {
     jest.clearAllMocks();
   });
 
-  it('should render without crashing', () => {
-    render(<SystemLogs />);
+  it('should render without crashing', async () => {
+    await act(async () => {
+      render(<SystemLogs />);
+    });
     expect(screen.getByText('System Activity Logs')).toBeInTheDocument();
   });
 
-  it('should display all tabs', () => {
-    render(<SystemLogs />);
+  it('should display all tabs', async () => {
+    await act(async () => {
+      render(<SystemLogs />);
+    });
     
     expect(screen.getByRole('tab', { name: /all logs/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /assignments/i })).toBeInTheDocument();
@@ -132,7 +136,9 @@ describe('SystemLogs Component', () => {
   });
 
   it('should load and display logs', async () => {
-    render(<SystemLogs />);
+    await act(async () => {
+      render(<SystemLogs />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Test Assignment')).toBeInTheDocument();
@@ -140,7 +146,9 @@ describe('SystemLogs Component', () => {
   });
 
   it('should allow filtering by search term', async () => {
-    render(<SystemLogs />);
+    await act(async () => {
+      render(<SystemLogs />);
+    });
 
     const searchInput = screen.getByPlaceholderText(/search by name/i);
     fireEvent.change(searchInput, { target: { value: 'Test Assignment' } });
@@ -151,7 +159,9 @@ describe('SystemLogs Component', () => {
   });
 
   it('should have user filter select', async () => {
-    render(<SystemLogs />);
+    await act(async () => {
+      render(<SystemLogs />);
+    });
 
     await waitFor(() => {
       // Just verify the filter exists with default value
@@ -164,7 +174,9 @@ describe('SystemLogs Component', () => {
   });
 
   it('should switch between tabs', async () => {
-    render(<SystemLogs />);
+    await act(async () => {
+      render(<SystemLogs />);
+    });
 
     // Wait for initial load
     await waitFor(() => {
@@ -181,7 +193,9 @@ describe('SystemLogs Component', () => {
   });
 
   it('should display different log types with appropriate icons', async () => {
-    render(<SystemLogs />);
+    await act(async () => {
+      render(<SystemLogs />);
+    });
 
     await waitFor(() => {
       // Check that different types of logs are displayed
@@ -195,7 +209,9 @@ describe('SystemLogs Component', () => {
   it('should handle empty state', async () => {
     (createClient as jest.Mock).mockReturnValue(createMockSupabase([], [], [], [], mockUsers));
 
-    render(<SystemLogs />);
+    await act(async () => {
+      render(<SystemLogs />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText(/no logs found/i)).toBeInTheDocument();
@@ -203,7 +219,9 @@ describe('SystemLogs Component', () => {
   });
 
   it('should display timestamps', async () => {
-    render(<SystemLogs />);
+    await act(async () => {
+      render(<SystemLogs />);
+    });
 
     await waitFor(() => {
       // Check that at least one timestamp is displayed (format may vary)
@@ -213,7 +231,9 @@ describe('SystemLogs Component', () => {
   });
 
   it('should display change type badges', async () => {
-    render(<SystemLogs />);
+    await act(async () => {
+      render(<SystemLogs />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('created')).toBeInTheDocument();

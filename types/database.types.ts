@@ -135,6 +135,7 @@ export type Database = {
           release_year: number | null;
           cover_image_url: string | null;
           short_title: string | null;
+          tiktok_short_url: string | null;
           updated_at: string | null;
         };
         Insert: {
@@ -159,6 +160,7 @@ export type Database = {
           release_year?: number | null;
           cover_image_url?: string | null;
           short_title?: string | null;
+          tiktok_short_url?: string | null;
           updated_at?: string | null;
         };
         Update: {
@@ -183,6 +185,7 @@ export type Database = {
           release_year?: number | null;
           cover_image_url?: string | null;
           short_title?: string | null;
+          tiktok_short_url?: string | null;
           updated_at?: string | null;
         };
       };

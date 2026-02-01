@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Email System Tests
  *
@@ -267,7 +268,7 @@ describe('Email System', () => {
       const result = await sendLessonCompletedEmail(validEmailData);
 
       expect(result.error).toBeDefined();
-      expect(result.error?.message).toBe('SMTP credentials missing');
+      expect((result.error as { message: string })?.message).toBe('SMTP credentials missing');
       expect(mockSendMail).not.toHaveBeenCalled();
     });
 
@@ -277,7 +278,7 @@ describe('Email System', () => {
       const result = await sendLessonCompletedEmail(validEmailData);
 
       expect(result.error).toBeDefined();
-      expect(result.error?.message).toBe('SMTP credentials missing');
+      expect((result.error as { message: string })?.message).toBe('SMTP credentials missing');
       expect(mockSendMail).not.toHaveBeenCalled();
     });
 
@@ -353,7 +354,7 @@ describe('Email System', () => {
       const result = await sendLessonReminderEmail(validEmailData);
 
       expect(result.error).toBeDefined();
-      expect(result.error?.message).toBe('SMTP credentials missing');
+      expect((result.error as { message: string })?.message).toBe('SMTP credentials missing');
     });
 
     it('should send email with correct subject', async () => {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from '@/lib/supabase/client';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
@@ -15,30 +16,30 @@ describe('Assignment History Tracking', () => {
     // Create mock with chainable methods
     mockSupabase = {
       auth: {
-        getUser: jest.fn().mockResolvedValue({
+        getUser: () => Promise.resolve({
           data: { user: { id: testUserId } },
           error: null,
         }),
       },
-      from: jest.fn((table: string) => {
+      from: (table: string) => {
         const mockChain = {
-          insert: jest.fn().mockReturnValue({
-            select: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
+          insert: () => ({
+            select: () => ({
+              single: () => Promise.resolve({
                 data: { id: testAssignmentId, title: 'Test Assignment', status: 'pending' },
                 error: null,
               }),
             }),
           }),
-          update: jest.fn().mockReturnValue({
-            eq: jest.fn().mockResolvedValue({ data: null, error: null }),
+          update: () => ({
+            eq: () => Promise.resolve({ data: null, error: null }),
           }),
-          delete: jest.fn().mockReturnValue({
-            eq: jest.fn().mockResolvedValue({ data: null, error: null }),
+          delete: () => ({
+            eq: () => Promise.resolve({ data: null, error: null }),
           }),
-          select: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
+          select: () => ({
+            eq: () => ({
+              single: () => Promise.resolve({
                 data: {
                   id: '1',
                   assignment_id: testAssignmentId,
@@ -50,9 +51,9 @@ describe('Assignment History Tracking', () => {
                 },
                 error: null,
               }),
-              order: jest.fn().mockReturnValue({
-                limit: jest.fn().mockReturnValue({
-                  single: jest.fn().mockResolvedValue({
+              order: () => ({
+                limit: () => ({
+                  single: () => Promise.resolve({
                     data: {
                       id: '2',
                       assignment_id: testAssignmentId,
@@ -68,7 +69,7 @@ describe('Assignment History Tracking', () => {
           }),
         };
         return mockChain;
-      }),
+      },
     };
 
     (createClient as jest.Mock).mockReturnValue(mockSupabase);

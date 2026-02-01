@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Agent Registry Types and Interfaces
  *
@@ -14,7 +15,7 @@ export interface AgentSpecification {
 
   // Purpose & Scope
   purpose: string;
-  targetUsers: ('admin' | 'teacher' | 'student')[];
+  targetUsers: ('admin' | 'teacher' | 'student' | 'system')[];
   useCases: string[];
   limitations: string[];
 

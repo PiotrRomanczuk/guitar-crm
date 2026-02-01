@@ -89,7 +89,7 @@ export default async function StudentStatsPage() {
       ? Math.round(((completedAssignments || 0) / totalAssignments) * 100)
       : 0,
     recentLessons: recentLessons || [],
-    songProgress: (songProgress || []).map((item: any) => ({
+    songProgress: (songProgress || []).map((item: { status: string; songs: unknown }) => ({
       status: item.status,
       songs: Array.isArray(item.songs) ? item.songs[0] || null : item.songs,
     })),

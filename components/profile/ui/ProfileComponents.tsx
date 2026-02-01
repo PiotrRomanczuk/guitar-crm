@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 
@@ -64,23 +65,16 @@ export function ProfileFormActions({
 	onCancel,
 }: ProfileFormActionsProps) {
 	return (
-		<div className='flex flex-col sm:flex-row gap-3 pt-4'>
-			<Button type='submit' disabled={saving} className='w-full sm:w-auto'>
-				{saving ? (
-					<>
-						<Spinner size='sm' className='mr-2' />
-						Saving...
-					</>
-				) : (
-					'Save Changes'
-				)}
+		<div className='flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t border-border'>
+			<Button type='submit' disabled={saving}>
+				{saving && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+				{saving ? 'Saving...' : 'Save Changes'}
 			</Button>
 			<Button
 				type='button'
 				variant='outline'
 				onClick={onCancel}
 				disabled={saving}
-				className='w-full sm:w-auto'
 			>
 				Cancel
 			</Button>
