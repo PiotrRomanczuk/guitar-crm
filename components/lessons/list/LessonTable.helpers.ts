@@ -31,9 +31,19 @@ export function formatTime(timeString: string | null | undefined): string {
   }
 }
 
-import { getStatusBadgeClasses } from '@/lib/utils/status-colors';
-
 export function getStatusColor(status: string | null | undefined): string {
-  if (!status) return getStatusBadgeClasses('lesson', '');
-  return getStatusBadgeClasses('lesson', status);
+  switch (status) {
+    case 'COMPLETED':
+      return 'text-success bg-success/10 border-success/20';
+    case 'CANCELLED':
+      return 'text-destructive bg-destructive/10 border-destructive/20';
+    case 'IN_PROGRESS':
+      return 'text-primary bg-primary/10 border-primary/20';
+    case 'SCHEDULED':
+      return 'text-warning bg-warning/10 border-warning/20';
+    case 'RESCHEDULED':
+      return 'text-purple-500 bg-purple-500/10 border-purple-500/20';
+    default:
+      return 'text-muted-foreground bg-muted border-border';
+  }
 }

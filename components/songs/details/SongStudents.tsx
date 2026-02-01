@@ -16,11 +16,11 @@ const STATUS_GROUPS = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  mastered: 'bg-green-500 hover:bg-green-600',
-  started: 'bg-blue-500 hover:bg-blue-600',
-  remembered: 'bg-yellow-500 hover:bg-yellow-600',
-  with_author: 'bg-purple-500 hover:bg-purple-600',
-  to_learn: 'bg-gray-500 hover:bg-gray-600',
+  mastered: 'bg-success hover:bg-success/90',
+  started: 'bg-primary hover:bg-primary/90',
+  remembered: 'bg-warning hover:bg-warning/90',
+  with_author: 'bg-primary hover:bg-primary/90',
+  to_learn: 'bg-muted-foreground hover:bg-muted-foreground/90',
 };
 
 export function SongStudents({ students }: Props) {
@@ -56,7 +56,7 @@ export function SongStudents({ students }: Props) {
                         <h4 className="font-medium">{student.name}</h4>
                       </div>
                       <div className="mt-2 flex items-center justify-between">
-                        <Badge className={STATUS_COLORS[student.status] || 'bg-gray-500'}>
+                        <Badge className={STATUS_COLORS[student.status] || 'bg-muted-foreground'}>
                           {student.status.replace('_', ' ')}
                         </Badge>
                         <span className="text-xs text-muted-foreground">

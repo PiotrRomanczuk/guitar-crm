@@ -14,11 +14,16 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { getStatusBadgeClasses } from '@/lib/utils/status-colors';
 
 interface Props {
   song: Song;
 }
+
+const difficultyColors = {
+  beginner: 'bg-success/15 text-success border-0',
+  intermediate: 'bg-primary/10 text-primary border-0',
+  advanced: 'bg-destructive/10 text-destructive border-0',
+};
 
 function formatDuration(ms: number): string {
   const minutes = Math.floor(ms / 60000);
@@ -52,7 +57,9 @@ export default function SongDetailInfo({ song }: Props) {
                 <p className="text-sm font-medium text-muted-foreground">Difficulty</p>
                 <Badge
                   variant="secondary"
-                  className={`mt-1 capitalize ${getStatusBadgeClasses('songLevel', song.level)}`}
+                  className={`mt-1 capitalize ${
+                    difficultyColors[song.level as keyof typeof difficultyColors] || ''
+                  }`}
                 >
                   {song.level}
                 </Badge>

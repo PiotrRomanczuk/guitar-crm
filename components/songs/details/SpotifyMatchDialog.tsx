@@ -195,10 +195,10 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
   };
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 85) return 'text-green-500 bg-green-500/10 border-green-500/20';
-    if (confidence >= 70) return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
-    if (confidence >= 50) return 'text-orange-500 bg-orange-500/10 border-orange-500/20';
-    return 'text-red-500 bg-red-500/10 border-red-500/20';
+    if (confidence >= 85) return 'text-success bg-success/10 border-success/20';
+    if (confidence >= 70) return 'text-primary bg-primary/10 border-primary/20';
+    if (confidence >= 50) return 'text-warning bg-warning/10 border-warning/20';
+    return 'text-destructive bg-destructive/10 border-destructive/20';
   };
 
   return (
@@ -206,7 +206,7 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-orange-500" />
+            <Clock className="w-5 h-5 text-warning" />
             Review Spotify Match
           </DialogTitle>
           <DialogDescription>

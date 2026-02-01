@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   Select,
   SelectContent,
@@ -15,7 +14,6 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, ClipboardList, Calendar, CheckCircle2, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { getStatusBadgeClasses } from '@/lib/utils/status-colors';
 
 interface Assignment {
   id: string;
@@ -38,9 +36,13 @@ interface FilterState {
   status: string;
 }
 
-function getAssignmentStatusClasses(status: string): string {
-  return getStatusBadgeClasses('assignment', status);
-}
+const statusColors: Record<string, string> = {
+  not_started: 'bg-muted text-muted-foreground border-border',
+  in_progress: 'bg-primary/10 text-primary border-primary/20',
+  completed: 'bg-success/10 text-success border-success/20',
+  overdue: 'bg-destructive/10 text-destructive border-destructive/20',
+  cancelled: 'bg-muted text-muted-foreground border-border',
+};
 
 const statusLabels: Record<string, string> = {
   not_started: 'Not Started',
@@ -126,11 +128,10 @@ export function StudentAssignmentsPageClient() {
       {assignments.length === 0 ? (
         <div className="text-center py-12">
           <div className="relative w-64 h-48 mx-auto mb-6">
-            <Image
+            <img
               src="/illustrations/no-upcoming-lessons--future-focused---a-forward-lo.png"
               alt="No assignments"
-              fill
-              className="object-contain"
+              className="w-full h-full object-contain"
             />
           </div>
           <h3 className="text-lg font-medium mb-2">No assignments yet</h3>
@@ -156,7 +157,7 @@ export function StudentAssignmentsPageClient() {
                 </div>
                 <Badge
                   variant="outline"
-                  className={cn('capitalize', getAssignmentStatusClasses(assignment.status))}
+                  className={cn('capitalize', statusColors[assignment.status])}
                 >
                   {statusLabels[assignment.status]}
                 </Badge>

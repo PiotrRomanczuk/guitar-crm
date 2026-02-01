@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
-import { formatDate, formatTime, getStatusColor } from './LessonTable.helpers';
+import { formatDate, formatTime } from './LessonTable.helpers';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
+import StatusBadge, { getStatusVariant } from '@/components/shared/StatusBadge';
 
 interface Props {
   lesson: LessonWithProfiles;
@@ -39,37 +39,37 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
         </Link>
 
         {hasContent && (
-          <div className="absolute left-4 top-full mt-1 z-50 hidden group-hover:block w-64 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
+          <div className="absolute left-4 top-full mt-1 z-50 hidden group-hover:block w-64 p-4 bg-card rounded-lg shadow-xl border border-border">
             {songs.length > 0 && (
               <div className="mb-3">
-                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
                   Songs
                 </h4>
-                <ul className="list-disc list-inside text-xs text-gray-700 dark:text-gray-300">
+                <ul className="list-disc list-inside text-xs text-foreground">
                   {songs.slice(0, 3).map((song, i) => (
                     <li key={i} className="truncate">
                       {song}
                     </li>
                   ))}
                   {songs.length > 3 && (
-                    <li className="text-gray-500 italic">+{songs.length - 3} more</li>
+                    <li className="text-muted-foreground italic">+{songs.length - 3} more</li>
                   )}
                 </ul>
               </div>
             )}
             {assignments.length > 0 && (
               <div>
-                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
                   Assignments
                 </h4>
-                <ul className="list-disc list-inside text-xs text-gray-700 dark:text-gray-300">
+                <ul className="list-disc list-inside text-xs text-foreground">
                   {assignments.slice(0, 3).map((assignment, i) => (
                     <li key={i} className="truncate">
                       {assignment}
                     </li>
                   ))}
                   {assignments.length > 3 && (
-                    <li className="text-gray-500 italic">+{assignments.length - 3} more</li>
+                    <li className="text-muted-foreground italic">+{assignments.length - 3} more</li>
                   )}
                 </ul>
               </div>
@@ -90,9 +90,9 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
       <TableCell>{formatDate(displayDate)}</TableCell>
       <TableCell>{formatTime(displayTime)}</TableCell>
       <TableCell>
-        <Badge variant="outline" className={`font-medium ${getStatusColor(lesson.status)}`}>
+        <StatusBadge variant={getStatusVariant(lesson.status)}>
           {lesson.status || 'SCHEDULED'}
-        </Badge>
+        </StatusBadge>
       </TableCell>
       {showActions && (
         <TableCell>

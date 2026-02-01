@@ -210,7 +210,7 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
                       message.role === 'user'
                         ? 'bg-primary/10 ml-8'
                         : message.role === 'system'
-                        ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
+                        ? 'bg-primary/5 border border-primary/20'
                         : 'bg-muted mr-8'
                     }`}
                   >

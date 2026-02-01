@@ -1,46 +1,43 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { Loader2 } from 'lucide-react';
 import { resetPassword } from '@/app/auth/actions';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import {
-  AuthInput,
-  AuthAlert,
-  AuthFooter,
-  AuthLink,
-} from './AuthFormComponents';
-
-/**
- * Forgot Password Form
- * Migrated to shadcn/ui components per CLAUDE.md Form Standards
- */
+import FormAlert from '@/components/shared/FormAlert';
+import { ForgotPasswordSchema } from '@/schemas/AuthSchema';
 
 interface ForgotPasswordFormProps {
   onSuccess?: () => void;
 }
 
-export default function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
+export default function ForgotPasswordForm({
+  onSuccess,
+}: ForgotPasswordFormProps) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [touched, setTouched] = useState(false);
 
-  const getEmailError = (): string | null => {
+  const validate = () => {
     if (!touched) return null;
-    if (!email) return 'Email is required';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Invalid email address';
-    return null;
+
+    const result = ForgotPasswordSchema.safeParse({ email });
+    if (result.success) return null;
+
+    return result.error.issues[0]?.message || 'Invalid email';
   };
 
-  const emailError = getEmailError();
+  const validationError = validate();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setTouched(true);
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    const result = ForgotPasswordSchema.safeParse({ email });
+    if (!result.success) {
       return;
     }
 
@@ -48,17 +45,19 @@ export default function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProp
     setError(null);
     setSuccess(false);
 
-    const result = await resetPassword(email);
+    const resetResult = await resetPassword(email);
 
     setLoading(false);
 
-    if (result.error) {
-      setError(result.error);
+    if (resetResult.error) {
+      setError(resetResult.error);
       return;
     }
 
     setSuccess(true);
-    onSuccess?.();
+    if (onSuccess) {
+      onSuccess();
+    }
   };
 
   return (
@@ -67,34 +66,33 @@ export default function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProp
         Enter your email and we&apos;ll send you a reset link
       </p>
 
-      <AuthInput
-        id="email"
-        label="Email"
-        type="email"
-        value={email}
-        onChange={(e) => {
-          setEmail(e.target.value);
-          if (error) setError(null);
-        }}
-        onBlur={() => setTouched(true)}
-        error={emailError}
-        required
-        autoComplete="email"
-      />
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onBlur={() => setTouched(true)}
+          required
+          placeholder="you@example.com"
+        />
+      </div>
 
-      {error && <AuthAlert message={error} />}
-      {success && (
-        <AuthAlert message="Check your email for the reset link" variant="success" />
-      )}
+      {validationError && <FormAlert type="error" message={validationError} />}
+      {error && <FormAlert type="error" message={error} />}
+      {success && <FormAlert type="success" message="Check your email for the reset link" />}
 
-      <Button type="submit" disabled={loading || !!emailError} className="w-full">
-        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      <Button type="submit" disabled={loading} className="w-full">
         {loading ? 'Sending...' : 'Send Reset Link'}
       </Button>
 
-      <AuthFooter>
-        <AuthLink href="/sign-in">Back to sign in</AuthLink>
-      </AuthFooter>
+      <p className="text-center text-sm">
+        <a href="/sign-in" className="text-primary hover:underline">
+          Back to sign in
+        </a>
+      </p>
     </form>
   );
 }

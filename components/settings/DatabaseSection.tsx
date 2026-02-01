@@ -34,7 +34,7 @@ export function DatabaseSection() {
       description="Manage your database backups and maintenance."
     >
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50 dark:bg-gray-900/50">
+        <div className="flex items-center justify-between p-4 border rounded-lg bg-muted">
           <div>
             <h4 className="font-medium text-sm sm:text-base">Full Database Backup</h4>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1">
@@ -57,8 +57,8 @@ export function DatabaseSection() {
           <div
             className={`p-3 rounded-lg flex items-center gap-2 text-sm ${
               message.type === 'success'
-                ? 'bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900'
-                : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900'
+                ? 'bg-success/10 text-success border border-success'
+                : 'bg-destructive/10 text-destructive border border-destructive'
             }`}
           >
             {message.type === 'success' ? (

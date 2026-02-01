@@ -18,22 +18,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Music } from 'lucide-react';
 import StatusSelect from './StatusSelect';
-
-import { cn } from '@/lib/utils';
+import EmptyState from '@/components/shared/EmptyState';
+import StatusBadge, { getStatusVariant } from '@/components/shared/StatusBadge';
 import Image from 'next/image';
-import { getStatusBadgeClasses } from '@/lib/utils/status-colors';
 
 interface Props {
   songs: (Song | SongWithStatus)[];
   canDelete?: boolean;
   onDeleteSuccess?: () => void;
   selectedStudentId?: string;
-}
-
-function getLevelBadgeClass(level: string | null | undefined): string {
-  if (!level) return getStatusBadgeClasses('songLevel', '');
-  const normalizedLevel = level.charAt(0).toUpperCase() + level.slice(1).toLowerCase();
-  return getStatusBadgeClasses('songLevel', normalizedLevel);
 }
 
 export default function SongListTable({
@@ -50,27 +43,27 @@ export default function SongListTable({
   const [checkingId, setCheckingId] = useState<string | null>(null);
 
   const handleDeleteClick = async (song: Song) => {
-    console.log('[Songs] handleDeleteClick called for song:', song.id);
+    console.log('🎸 [FRONTEND] handleDeleteClick called for song:', song.id);
     setCheckingId(song.id);
 
     try {
       const supabase = getSupabaseBrowserClient();
-      console.log('[Songs] Checking assignments for song:', song.id);
+      console.log('🎸 [FRONTEND] Checking assignments for song:', song.id);
       const { count, error } = await supabase
         .from('lesson_songs')
         .select('*', { count: 'exact', head: true })
         .eq('song_id', song.id);
 
       if (error) {
-        console.error('[Songs] Error checking assignments:', error);
+        console.error('🎸 [FRONTEND] Error checking assignments:', error);
       } else {
-        console.log('[Songs] Assignment count:', count);
+        console.log('🎸 [FRONTEND] Assignment count:', count);
       }
 
       setAssignmentCount(count || 0);
       setSongToDelete(song);
     } catch (err) {
-      console.error('[Songs] Unexpected error in handleDeleteClick:', err);
+      console.error('🎸 [FRONTEND] Unexpected error in handleDeleteClick:', err);
     } finally {
       setCheckingId(null);
       setDeleteError(null);
@@ -114,7 +107,7 @@ export default function SongListTable({
       onDeleteSuccess?.();
       router.refresh();
     } catch (error) {
-      console.error('[Songs] Delete failed:', error);
+      console.error('🎸 [FRONTEND] Delete failed:', error);
       setDeleteError(error instanceof Error ? error.message : 'Failed to delete song');
       setDeletingSongId(null);
     }
@@ -131,8 +124,14 @@ export default function SongListTable({
       {/* Mobile View (Cards) */}
       <div className="md:hidden space-y-4">
         {songs.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground bg-card rounded-xl border border-border">
-            No songs found.
+          <div className="bg-card rounded-xl border border-border">
+            <EmptyState
+              variant="table-cell"
+              icon={Music}
+              title="No songs found"
+              description="Add a song to get started"
+              action={{ label: "Add Song", href: "/dashboard/songs/new" }}
+            />
           </div>
         ) : (
           songs.map((song) => (
@@ -202,9 +201,9 @@ export default function SongListTable({
                       Not Assigned
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className={cn(getLevelBadgeClass(song.level))}>
+                    <StatusBadge variant={getStatusVariant(song.level)}>
                       {song.level || 'Unknown'}
-                    </Badge>
+                    </StatusBadge>
                   )}
                 </div>
               </div>
@@ -235,11 +234,14 @@ export default function SongListTable({
             <TableBody>
               {songs.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={canDelete ? 4 : 3}
-                    className="h-24 text-center text-muted-foreground"
-                  >
-                    No songs found.
+                  <TableCell colSpan={canDelete ? 4 : 3}>
+                    <EmptyState
+                      variant="table-cell"
+                      icon={Music}
+                      title="No songs found"
+                      description="Add a song to get started"
+                      action={{ label: "Add Song", href: "/dashboard/songs/new" }}
+                    />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -284,9 +286,9 @@ export default function SongListTable({
                           Not Assigned
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className={cn(getLevelBadgeClass(song.level))}>
+                        <StatusBadge variant={getStatusVariant(song.level)}>
                           {song.level || 'Unknown'}
-                        </Badge>
+                        </StatusBadge>
                       )}
                     </TableCell>
                     <TableCell className="text-muted-foreground">{song.key}</TableCell>

@@ -36,11 +36,11 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
   const getBackgroundColor = () => {
     switch (debugView) {
       case 'teacher':
-        return 'from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800';
+        return 'from-primary/5 to-primary/10 dark:from-background dark:to-muted';
       case 'student':
-        return 'from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800';
+        return 'from-success/5 to-success/10 dark:from-background dark:to-muted';
       default:
-        return 'from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800';
+        return 'from-primary/5 to-primary/10 dark:from-background dark:to-muted';
     }
   };
 
@@ -77,10 +77,10 @@ export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
         <BearerTokenDisplay />
 
         <header className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
             {header.icon} {header.title}
           </h1>
-          <p className="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-300">
+          <p className="text-sm sm:text-base lg:text-lg text-muted-foreground">
             {header.description}
           </p>
         </header>
@@ -117,15 +117,15 @@ function DebugViewBanner({ debugView, onReset }: { debugView: DebugView; onReset
   if (debugView === 'admin') return null;
 
   return (
-    <div className="mb-4 p-4 bg-amber-100 dark:bg-amber-900 border border-amber-300 dark:border-amber-700 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <p className="text-amber-800 dark:text-amber-200 font-medium">
-        🔧 Debug Mode: Viewing as{' '}
+    <div className="mb-4 p-4 bg-warning/10 border border-warning/20 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <p className="text-warning font-medium">
+        Debug Mode: Viewing as{' '}
         <span className="font-bold">{debugView === 'teacher' ? 'Teacher' : 'Student'}</span>
       </p>
       <Button
         onClick={onReset}
         variant="default"
-        className="bg-amber-600 hover:bg-amber-700 text-white border-none"
+        className="bg-warning hover:bg-warning/90 text-warning-foreground border-none"
       >
         Back to Admin View
       </Button>
@@ -153,23 +153,23 @@ function DebugViewSelector({
           <Button
             onClick={() => onViewChange('admin')}
             variant={currentView === 'admin' ? 'default' : 'outline'}
-            className={currentView === 'admin' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+            className={currentView === 'admin' ? 'bg-primary hover:bg-primary/90' : ''}
           >
-            ⚙️ Admin View
+            Admin View
           </Button>
           <Button
             onClick={() => onViewChange('teacher')}
             variant={currentView === 'teacher' ? 'default' : 'outline'}
-            className={currentView === 'teacher' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+            className={currentView === 'teacher' ? 'bg-primary hover:bg-primary/90' : ''}
           >
-            👨‍🏫 Teacher View
+            Teacher View
           </Button>
           <Button
             onClick={() => onViewChange('student')}
             variant={currentView === 'student' ? 'default' : 'outline'}
-            className={currentView === 'student' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+            className={currentView === 'student' ? 'bg-primary hover:bg-primary/90' : ''}
           >
-            👨‍🎓 Student View
+            Student View
           </Button>
         </div>
       </CardContent>

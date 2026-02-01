@@ -9,7 +9,7 @@ import { Song } from '@/types/Song';
 import { createClient } from '@/lib/supabase/client';
 
 const difficultyColors = {
-  beginner: 'bg-green-500/10 text-green-500 border-green-500/20',
+  beginner: 'bg-success/10 text-success border-success/20',
   intermediate: 'bg-primary/10 text-primary border-primary/20',
   advanced: 'bg-destructive/10 text-destructive border-destructive/20',
 };
@@ -21,11 +21,11 @@ const difficultyLabels = {
 };
 
 const statusColors: Record<string, string> = {
-  to_learn: 'bg-slate-500/10 text-slate-500 border-slate-500/20',
-  started: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-  remembered: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-  with_author: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
-  mastered: 'bg-green-500/10 text-green-500 border-green-500/20',
+  to_learn: 'bg-muted text-muted-foreground border-border',
+  started: 'bg-primary/10 text-primary border-primary/20',
+  remembered: 'bg-warning/10 text-warning border-warning/20',
+  with_author: 'bg-primary/10 text-primary border-primary/20',
+  mastered: 'bg-success/10 text-success border-success/20',
 };
 
 const statusLabels: Record<string, string> = {
@@ -141,7 +141,7 @@ export function StudentSongsPageClient() {
                         variant="outline"
                         className={cn(
                           'capitalize',
-                          statusColors[song.status] || 'bg-gray-100 text-gray-800'
+                          statusColors[song.status] || 'bg-muted text-muted-foreground'
                         )}
                       >
                         {statusLabels[song.status] || song.status.replace('_', ' ')}

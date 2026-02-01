@@ -21,23 +21,23 @@ const reasonConfig = {
   no_recent_lesson: {
     icon: Calendar,
     label: 'No recent lesson',
-    color: 'text-yellow-600 dark:text-yellow-400',
-    bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
-    borderColor: 'border-yellow-200 dark:border-yellow-800',
+    color: 'text-warning',
+    bgColor: 'bg-warning/10',
+    borderColor: 'border-warning/30',
   },
   overdue_assignment: {
     icon: FileText,
     label: 'Overdue assignment',
-    color: 'text-red-600 dark:text-red-400',
-    bgColor: 'bg-red-50 dark:bg-red-900/20',
-    borderColor: 'border-red-200 dark:border-red-800',
+    color: 'text-destructive',
+    bgColor: 'bg-destructive/10',
+    borderColor: 'border-destructive/30',
   },
   inactive: {
     icon: Clock,
     label: 'Inactive student',
-    color: 'text-orange-600 dark:text-orange-400',
-    bgColor: 'bg-orange-50 dark:bg-orange-900/20',
-    borderColor: 'border-orange-200 dark:border-orange-800',
+    color: 'text-warning',
+    bgColor: 'bg-warning/10',
+    borderColor: 'border-warning/30',
   },
 };
 
@@ -77,7 +77,7 @@ export function NeedsAttentionCard() {
         <div className="flex items-start justify-between">
           <div>
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
+              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-warning" />
               Needs Attention
               {totalCount > 0 && (
                 <Badge variant="destructive" className="ml-1 sm:ml-2 text-[10px] sm:text-xs">
@@ -100,8 +100,8 @@ export function NeedsAttentionCard() {
           </div>
         ) : itemsToShow.length === 0 ? (
           <div className="text-center py-6 sm:py-8">
-            <div className="w-12 h-12 rounded-full bg-green-500/10 mx-auto mb-3 flex items-center justify-center">
-              <AlertCircle className="h-6 w-6 text-green-500" />
+            <div className="w-12 h-12 rounded-full bg-success/10 mx-auto mb-3 flex items-center justify-center">
+              <AlertCircle className="h-6 w-6 text-success" />
             </div>
             <p className="text-sm font-medium">All caught up!</p>
             <p className="text-xs text-muted-foreground mt-1">

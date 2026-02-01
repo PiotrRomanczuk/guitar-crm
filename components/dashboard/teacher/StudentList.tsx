@@ -38,9 +38,9 @@ interface StudentListProps {
 }
 
 const levelColors = {
-  Beginner: 'bg-blue-500/10 text-blue-500 border-0',
-  Intermediate: 'bg-primary/10 text-primary border-0',
-  Advanced: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-0',
+  Beginner: 'bg-primary/10 text-primary border-0',
+  Intermediate: 'bg-warning/10 text-warning border-0',
+  Advanced: 'bg-success/10 text-success border-0',
 };
 
 const ITEMS_PER_PAGE = 5;

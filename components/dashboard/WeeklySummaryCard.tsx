@@ -68,11 +68,11 @@ export function WeeklySummaryCard() {
         ) : (
           <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
             {/* Lessons Completed */}
-            <div className="text-center p-2 sm:p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
+            <div className="text-center p-2 sm:p-3 rounded-lg bg-primary/10 border border-primary/20">
               <div className="flex items-center justify-center mb-1 sm:mb-2">
-                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
-              <div className="text-lg sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
+              <div className="text-lg sm:text-2xl font-bold text-primary">
                 {data?.lessonsCompleted ?? 0}
               </div>
               <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
@@ -81,11 +81,11 @@ export function WeeklySummaryCard() {
             </div>
 
             {/* New Students */}
-            <div className="text-center p-2 sm:p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800">
+            <div className="text-center p-2 sm:p-3 rounded-lg bg-success/10 border border-success/20">
               <div className="flex items-center justify-center mb-1 sm:mb-2">
-                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-success" />
               </div>
-              <div className="text-lg sm:text-2xl font-bold text-green-600 dark:text-green-400">
+              <div className="text-lg sm:text-2xl font-bold text-success">
                 {data?.newStudents ?? 0}
               </div>
               <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
@@ -94,11 +94,11 @@ export function WeeklySummaryCard() {
             </div>
 
             {/* Songs Assigned */}
-            <div className="text-center p-2 sm:p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800">
+            <div className="text-center p-2 sm:p-3 rounded-lg bg-primary/10 border border-primary/20">
               <div className="flex items-center justify-center mb-1 sm:mb-2">
-                <Music className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400" />
+                <Music className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
-              <div className="text-lg sm:text-2xl font-bold text-purple-600 dark:text-purple-400">
+              <div className="text-lg sm:text-2xl font-bold text-primary">
                 {data?.songsAssigned ?? 0}
               </div>
               <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
@@ -110,7 +110,7 @@ export function WeeklySummaryCard() {
 
         {data && (data.lessonsCompleted > 0 || data.newStudents > 0 || data.songsAssigned > 0) && (
           <div className="mt-4 pt-4 border-t flex items-center justify-center gap-1 text-xs text-muted-foreground">
-            <TrendingUp className="h-3 w-3 text-green-500" />
+            <TrendingUp className="h-3 w-3 text-success" />
             <span>Great progress this week!</span>
           </div>
         )}

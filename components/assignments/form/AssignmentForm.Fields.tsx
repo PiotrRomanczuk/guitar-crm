@@ -60,7 +60,7 @@ export function AssignmentFormFields({
     <>
       <div className="space-y-2">
         <Label htmlFor="title">
-          Title <span className="text-red-600">*</span>
+          Title <span className="text-destructive">*</span>
         </Label>
         <Input
           id="title"

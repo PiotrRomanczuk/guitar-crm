@@ -45,7 +45,7 @@ export async function BackendDatabaseIndicator({
     return (
       <Badge
         variant="outline"
-        className={cn('bg-red-500/10 border-red-500/50 text-red-500 px-2 py-1', className)}
+        className={cn('bg-destructive/10 border-destructive/50 text-destructive px-2 py-1', className)}
       >
         <AlertCircle className="w-3 h-3 mr-1" />
         <span className="text-xs font-medium">DB Error</span>
@@ -61,7 +61,7 @@ export async function BackendDatabaseIndicator({
       <span
         className={cn(
           'inline-flex items-center gap-1 text-xs',
-          isLocal ? 'text-blue-500' : 'text-orange-500',
+          isLocal ? 'text-primary' : 'text-warning',
           className
         )}
         title={`Connected to ${isLocal ? 'local' : 'remote'} database`}
@@ -77,13 +77,13 @@ export async function BackendDatabaseIndicator({
       <div
         className={cn(
           'rounded-lg border p-3',
-          isLocal ? 'bg-blue-500/5 border-blue-500/20' : 'bg-orange-500/5 border-orange-500/20',
+          isLocal ? 'bg-primary/5 border-primary/20' : 'bg-warning/5 border-warning/20',
           className
         )}
       >
         <div className="flex items-center gap-2 mb-2">
-          <Icon className={cn('w-4 h-4', isLocal ? 'text-blue-500' : 'text-orange-500')} />
-          <span className={cn('font-medium', isLocal ? 'text-blue-500' : 'text-orange-500')}>
+          <Icon className={cn('w-4 h-4', isLocal ? 'text-primary' : 'text-warning')} />
+          <span className={cn('font-medium', isLocal ? 'text-primary' : 'text-warning')}>
             {isLocal ? 'Local Database' : 'Remote Database'}
           </span>
         </div>
@@ -110,8 +110,8 @@ export async function BackendDatabaseIndicator({
       className={cn(
         'px-2 py-1',
         isLocal
-          ? 'bg-blue-500/10 border-blue-500/50 text-blue-500'
-          : 'bg-orange-500/10 border-orange-500/50 text-orange-500',
+          ? 'bg-primary/10 border-primary/50 text-primary'
+          : 'bg-warning/10 border-warning/50 text-warning',
         className
       )}
     >

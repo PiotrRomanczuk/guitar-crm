@@ -364,9 +364,19 @@ export async function updateLessonHandler(
 
     const dbData = prepareLessonForDb(lessonData);
 
+    //  Build update object with only defined, allowed fields
+    // Filter to prevent Supabase JSONB operator errors
+    const allowedUpdateFields = ['student_id', 'teacher_id', 'title', 'notes', 'scheduled_at', 'status'];
+    const updateData = Object.keys(dbData)
+      .filter(key => allowedUpdateFields.includes(key) && dbData[key] !== undefined)
+      .reduce((obj, key) => {
+        obj[key] = dbData[key];
+        return obj;
+      }, {} as Record<string, unknown>);
+
     let data;
-    if (Object.keys(dbData).length > 0) {
-      const result = await supabase.from('lessons').update(dbData).eq('id', id).select().single();
+    if (Object.keys(updateData).length > 0) {
+      const result = await supabase.from('lessons').update(updateData).eq('id', id).select().single();
 
       if (result.error) {
         if (result.error.code === 'PGRST116') {

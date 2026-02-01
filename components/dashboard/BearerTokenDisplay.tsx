@@ -70,27 +70,27 @@ export function BearerTokenDisplay() {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 mb-8 border border-blue-200 dark:border-blue-900">
+    <div className="bg-card rounded-lg shadow-md p-4 sm:p-6 mb-8 border border-primary/20">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            🔑 Bearer Token
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+            Bearer Token
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Use this token for API authentication in your applications
           </p>
         </div>
       </div>
 
       {loading ? (
-        <div className="text-gray-500 dark:text-gray-400 text-sm">Loading...</div>
+        <div className="text-muted-foreground text-sm">Loading...</div>
       ) : token ? (
         <div className="space-y-3">
-          <div className="bg-gray-50 dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-700 p-3">
+          <div className="bg-muted rounded border border-border p-3">
             <div className="flex items-center justify-between gap-2">
               <div className="flex-1 min-w-0">
                 <code
-                  className="text-sm font-mono text-gray-900 dark:text-gray-100 block overflow-x-auto"
+                  className="text-sm font-mono text-foreground block overflow-x-auto"
                   style={{ wordBreak: 'break-all' }}
                 >
                   {showToken ? token : '••••••••' + token.slice(-8)}
@@ -98,7 +98,7 @@ export function BearerTokenDisplay() {
               </div>
               <button
                 onClick={() => setShowToken(!showToken)}
-                className="px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 whitespace-nowrap"
+                className="px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground whitespace-nowrap"
               >
                 {showToken ? 'Hide' : 'Show'}
               </button>
@@ -107,30 +107,30 @@ export function BearerTokenDisplay() {
 
           <button
             onClick={handleCopyToken}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 font-medium text-sm transition-colors"
+            className="w-full px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 font-medium text-sm transition-colors"
           >
-            {copied ? '✓ Copied!' : 'Copy Token'}
+            {copied ? 'Copied!' : 'Copy Token'}
           </button>
 
-          <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-2 rounded">
-            ⚠️ Keep this token secret! Never share it publicly. Use it in the Authorization header:{' '}
+          <p className="text-xs text-warning bg-warning/10 p-2 rounded">
+            Keep this token secret! Never share it publicly. Use it in the Authorization header:{' '}
             <code className="font-mono">Authorization: Bearer &lt;token&gt;</code>
           </p>
         </div>
       ) : (
         <div className="space-y-3">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-muted-foreground">
             No bearer token found. Create one to get started with API access.
           </p>
           <button
             onClick={handleCreateToken}
-            className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 font-medium text-sm transition-colors"
+            className="w-full px-4 py-2 bg-success text-success-foreground rounded hover:bg-success/90 font-medium text-sm transition-colors"
           >
             + Create Bearer Token
           </button>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-muted-foreground">
             You can manage multiple tokens in your{' '}
-            <a href="/settings" className="text-blue-600 dark:text-blue-400 hover:underline">
+            <a href="/settings" className="text-primary hover:underline">
               settings
             </a>
             .

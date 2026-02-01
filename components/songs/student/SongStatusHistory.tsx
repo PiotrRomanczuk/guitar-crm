@@ -34,15 +34,15 @@ const statusLabels: Record<string, string> = {
 };
 
 const statusColors: Record<string, string> = {
-  to_learn: 'bg-slate-500/10 text-slate-700 border-slate-500/20',
-  learning: 'bg-blue-500/10 text-blue-700 border-blue-500/20',
-  practicing: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20',
-  improving: 'bg-orange-500/10 text-orange-700 border-orange-500/20',
-  mastered: 'bg-green-500/10 text-green-700 border-green-500/20',
+  to_learn: 'bg-muted text-muted-foreground border-border',
+  learning: 'bg-primary/10 text-primary border-primary/20',
+  practicing: 'bg-warning/10 text-warning border-warning/20',
+  improving: 'bg-warning/10 text-warning border-warning/20',
+  mastered: 'bg-success/10 text-success border-success/20',
   // Legacy statuses
-  started: 'bg-blue-500/10 text-blue-700 border-blue-500/20',
-  remembered: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20',
-  with_author: 'bg-purple-500/10 text-purple-700 border-purple-500/20',
+  started: 'bg-primary/10 text-primary border-primary/20',
+  remembered: 'bg-warning/10 text-warning border-warning/20',
+  with_author: 'bg-primary/10 text-primary border-primary/20',
 };
 
 export function SongStatusHistory({ songId, className }: SongStatusHistoryProps) {

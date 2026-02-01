@@ -54,9 +54,9 @@ export default function LessonSongs({ lessonId }: Props) {
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Lesson Songs</h2>
-        <p className="text-red-600 dark:text-red-400">Error: {error}</p>
+      <div className="bg-card rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-xl font-bold mb-4 text-foreground">Lesson Songs</h2>
+        <p className="text-destructive">Error: {error}</p>
       </div>
     );
   }

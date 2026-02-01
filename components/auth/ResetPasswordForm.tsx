@@ -1,23 +1,22 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { Loader2, CheckCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { AuthPasswordInput, AuthAlert } from './AuthFormComponents';
-
-/**
- * Reset Password Form
- * Migrated to shadcn/ui components per CLAUDE.md Form Standards
- */
+import FormAlert from '@/components/shared/FormAlert';
+import { Eye, EyeOff } from 'lucide-react';
+import { ResetPasswordSchema } from '@/schemas/AuthSchema';
 
 interface ResetPasswordFormProps {
   onSuccess?: () => void;
 }
 
-export default function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps) {
+export default function ResetPasswordForm({
+  onSuccess,
+}: ResetPasswordFormProps) {
   const router = useRouter();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -31,48 +30,47 @@ export default function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps)
     confirmPassword: false,
   });
 
-  const getFieldError = (field: 'newPassword' | 'confirmPassword'): string | null => {
-    if (!touched[field]) return null;
+  const validate = () => {
+    if (!touched.newPassword && !touched.confirmPassword) return null;
 
-    if (field === 'newPassword') {
-      if (!newPassword) return 'Password is required';
-      if (newPassword.length < 6) return 'Password must be at least 6 characters';
+    const result = ResetPasswordSchema.safeParse({
+      password: newPassword,
+      confirmPassword,
+    });
+
+    if (result.success) return null;
+
+    // Return only the first relevant error based on touched fields
+    for (const issue of result.error.issues) {
+      if (issue.path[0] === 'password' && touched.newPassword) return issue.message;
+      if (issue.path[0] === 'confirmPassword' && touched.confirmPassword) return issue.message;
     }
-
-    if (field === 'confirmPassword') {
-      if (!confirmPassword) return 'Please confirm your password';
-      if (newPassword && confirmPassword && newPassword !== confirmPassword) {
-        return 'Passwords do not match';
-      }
-    }
-
     return null;
   };
 
-  const newPasswordError = getFieldError('newPassword');
-  const confirmPasswordError = getFieldError('confirmPassword');
+  const validationError = validate();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    setTouched({ newPassword: true, confirmPassword: true });
+    // Mark all fields as touched
+    setTouched({
+      newPassword: true,
+      confirmPassword: true,
+    });
 
-    if (!newPassword || !confirmPassword) {
-      return;
-    }
+    const result = ResetPasswordSchema.safeParse({
+      password: newPassword,
+      confirmPassword,
+    });
 
-    if (newPassword !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (!result.success) {
       return;
     }
 
     setLoading(true);
     setError(null);
+    setSuccess(false);
 
     const supabase = getSupabaseBrowserClient();
     const { error: updateError } = await supabase.auth.updateUser({
@@ -90,6 +88,7 @@ export default function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps)
     if (onSuccess) {
       onSuccess();
     } else {
+      // Default behavior: redirect to dashboard after a short delay
       setTimeout(() => {
         router.push('/dashboard');
       }, 2000);
@@ -98,67 +97,81 @@ export default function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps)
 
   if (success) {
     return (
-      <Card className="bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-3">
-            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-            <div>
-              <h3 className="text-sm font-medium text-green-800 dark:text-green-200">
-                Password reset successfully
-              </h3>
-              <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                Redirecting to dashboard...
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <FormAlert
+        type="success"
+        title="Password reset successfully"
+        message="Redirecting to dashboard..."
+      />
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <AuthPasswordInput
-        id="newPassword"
-        label="New Password"
-        value={newPassword}
-        onChange={(e) => {
-          setNewPassword(e.target.value);
-          if (error) setError(null);
-        }}
-        onBlur={() => setTouched({ ...touched, newPassword: true })}
-        error={newPasswordError}
-        showPassword={showNewPassword}
-        onToggleShow={() => setShowNewPassword(!showNewPassword)}
-        showHint="Minimum 6 characters"
-        required
-        autoComplete="new-password"
-      />
+      <div className="space-y-2">
+        <Label htmlFor="newPassword">New Password</Label>
+        <div className="relative">
+          <Input
+            id="newPassword"
+            name="newPassword"
+            type={showNewPassword ? 'text' : 'password'}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            onBlur={() => setTouched({ ...touched, newPassword: true })}
+            required
+            minLength={6}
+            className="pr-10"
+            placeholder="Enter new password"
+          />
+          <button
+            type="button"
+            onClick={() => setShowNewPassword(!showNewPassword)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+          >
+            {showNewPassword ? (
+              <EyeOff className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <Eye className="h-4 w-4" aria-hidden="true" />
+            )}
+          </button>
+        </div>
+        <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
+      </div>
 
-      <AuthPasswordInput
-        id="confirmPassword"
-        label="Confirm Password"
-        value={confirmPassword}
-        onChange={(e) => {
-          setConfirmPassword(e.target.value);
-          if (error) setError(null);
-        }}
-        onBlur={() => setTouched({ ...touched, confirmPassword: true })}
-        error={confirmPasswordError}
-        showPassword={showConfirmPassword}
-        onToggleShow={() => setShowConfirmPassword(!showConfirmPassword)}
-        required
-        autoComplete="new-password"
-      />
+      <div className="space-y-2">
+        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <div className="relative">
+          <Input
+            id="confirmPassword"
+            name="confirmPassword"
+            type={showConfirmPassword ? 'text' : 'password'}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            onBlur={() => setTouched({ ...touched, confirmPassword: true })}
+            required
+            minLength={6}
+            className="pr-10"
+            placeholder="Confirm new password"
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+          >
+            {showConfirmPassword ? (
+              <EyeOff className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <Eye className="h-4 w-4" aria-hidden="true" />
+            )}
+          </button>
+        </div>
+      </div>
 
-      {error && <AuthAlert message={error} />}
+      {validationError && <FormAlert type="error" message={validationError} />}
+      {error && <FormAlert type="error" message={error} />}
 
-      <Button
-        type="submit"
-        disabled={loading || !!newPasswordError || !!confirmPasswordError}
-        className="w-full"
-      >
-        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      <Button type="submit" disabled={loading} className="w-full">
         {loading ? 'Resetting...' : 'Reset Password'}
       </Button>
     </form>

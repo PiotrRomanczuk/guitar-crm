@@ -44,7 +44,7 @@ export default function SpotifySearch({ onSelect }: Props) {
   };
 
   return (
-    <div className="space-y-4 mb-6 p-4 border rounded-lg bg-slate-50 dark:bg-slate-900/50">
+    <div className="space-y-4 mb-6 p-4 border rounded-lg bg-muted/50">
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />

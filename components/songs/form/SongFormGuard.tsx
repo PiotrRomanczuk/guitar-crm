@@ -29,8 +29,8 @@ export default function SongFormGuard({ mode, songId, onSuccess }: Props) {
   if (mode === 'edit' && loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <div className="text-xl text-gray-600">Loading...</div>
-        <div className="p-4 bg-gray-100 rounded text-xs font-mono max-w-lg break-all border border-gray-300">
+        <div className="text-xl text-muted-foreground">Loading...</div>
+        <div className="p-4 bg-muted rounded text-xs font-mono max-w-lg break-all border border-border">
           <p className="font-bold mb-2">Debug Info:</p>
           <p>Song ID: {songId}</p>
           <p>Loading: {String(loading)}</p>
@@ -46,7 +46,7 @@ export default function SongFormGuard({ mode, songId, onSuccess }: Props) {
   if (mode === 'edit' && error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-red-600">Error: {error}</div>
+        <div className="text-xl text-destructive">Error: {error}</div>
       </div>
     );
   }

@@ -12,9 +12,9 @@ export default function SongListEmpty() {
           className="object-contain"
         />
       </div>
-      <p className="text-lg text-gray-600 mb-4">No songs found</p>
+      <p className="text-lg text-muted-foreground mb-4">No songs found</p>
       <Link href="/dashboard/songs/new">
-        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        <button className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90">
           Create your first song
         </button>
       </Link>

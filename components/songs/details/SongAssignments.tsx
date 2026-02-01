@@ -63,16 +63,16 @@ export default function SongAssignments({ songId }: Props) {
   }, [songId]);
 
   if (loading) {
-    return <div className="text-gray-500">Loading related assignments...</div>;
+    return <div className="text-muted-foreground">Loading related assignments...</div>;
   }
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+      <div className="bg-card rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-xl font-bold mb-4 text-foreground">
           Related Assignments
         </h2>
-        <p className="text-red-600 dark:text-red-400">Error: {error}</p>
+        <p className="text-destructive">Error: {error}</p>
       </div>
     );
   }
@@ -82,11 +82,11 @@ export default function SongAssignments({ songId }: Props) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Related Assignments</h2>
+    <div className="bg-card rounded-lg shadow-md p-6 mb-6">
+      <h2 className="text-xl font-bold mb-4 text-foreground">Related Assignments</h2>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table className="w-full text-sm text-left text-muted-foreground">
+          <thead className="text-xs text-foreground uppercase bg-muted">
             <tr>
               <th scope="col" className="px-4 py-3">
                 Title
@@ -109,12 +109,12 @@ export default function SongAssignments({ songId }: Props) {
             {assignments.map((assignment) => (
               <tr
                 key={assignment.id}
-                className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                className="border-b border-border hover:bg-muted/50"
               >
-                <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">
+                <td className="px-4 py-3 font-medium text-foreground">
                   <Link
                     href={`/dashboard/assignments/${assignment.id}`}
-                    className="text-blue-600 hover:underline"
+                    className="text-primary hover:underline"
                   >
                     {assignment.title}
                   </Link>
@@ -132,7 +132,7 @@ export default function SongAssignments({ songId }: Props) {
                   {assignment.lesson ? (
                     <Link
                       href={`/dashboard/lessons/${assignment.lesson.id}`}
-                      className="text-blue-600 hover:underline"
+                      className="text-primary hover:underline"
                     >
                       Lesson #{assignment.lesson.lesson_teacher_number}
                     </Link>
