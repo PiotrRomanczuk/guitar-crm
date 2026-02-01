@@ -17,32 +17,32 @@ export function SongStatsTable({ stats }: SongStatsTableProps) {
       percentage: coverage.chords,
       count: counts.withChords,
       missing: missing.chords,
-      color: coverage.chords < 50 ? 'text-red-600' : 'text-green-600',
-      bgColor: coverage.chords < 50 ? 'bg-red-100' : 'bg-green-100',
+      color: coverage.chords < 50 ? 'text-destructive' : 'text-success',
+      bgColor: coverage.chords < 50 ? 'bg-destructive/10' : 'bg-success/10',
     },
     {
       label: 'YouTube Links',
       percentage: coverage.youtube,
       count: counts.withYoutube,
       missing: missing.youtube,
-      color: coverage.youtube < 50 ? 'text-red-600' : 'text-green-600',
-      bgColor: coverage.youtube < 50 ? 'bg-red-100' : 'bg-green-100',
+      color: coverage.youtube < 50 ? 'text-destructive' : 'text-success',
+      bgColor: coverage.youtube < 50 ? 'bg-destructive/10' : 'bg-success/10',
     },
     {
       label: 'Ultimate Guitar Links',
       percentage: coverage.ultimateGuitar,
       count: counts.withUltimateGuitar,
       missing: missing.ultimateGuitar,
-      color: coverage.ultimateGuitar < 50 ? 'text-red-600' : 'text-green-600',
-      bgColor: coverage.ultimateGuitar < 50 ? 'bg-red-100' : 'bg-green-100',
+      color: coverage.ultimateGuitar < 50 ? 'text-destructive' : 'text-success',
+      bgColor: coverage.ultimateGuitar < 50 ? 'bg-destructive/10' : 'bg-success/10',
     },
     {
       label: 'Gallery Images',
       percentage: coverage.galleryImages,
       count: counts.withGalleryImages,
       missing: missing.galleryImages,
-      color: coverage.galleryImages < 50 ? 'text-red-600' : 'text-green-600',
-      bgColor: coverage.galleryImages < 50 ? 'bg-red-100' : 'bg-green-100',
+      color: coverage.galleryImages < 50 ? 'text-destructive' : 'text-success',
+      bgColor: coverage.galleryImages < 50 ? 'bg-destructive/10' : 'bg-success/10',
     },
   ];
 
@@ -102,7 +102,7 @@ export function SongStatsTable({ stats }: SongStatsTableProps) {
                   </ul>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 p-3 rounded-md">
+                <div className="flex items-center gap-2 text-sm text-success bg-success/10 p-3 rounded-md">
                   <CheckCircle2 className="w-4 h-4" />
                   All songs have {metric.label.toLowerCase()}!
                 </div>

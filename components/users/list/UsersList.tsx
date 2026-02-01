@@ -79,7 +79,7 @@ export default function UsersList() {
       />
 
       {error && (
-        <div className="p-4 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded-lg">
+        <div className="p-4 text-sm text-destructive bg-destructive/10 rounded-lg">
           {error}
         </div>
       )}

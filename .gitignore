@@ -72,11 +72,17 @@ scripts/history/all_executions.md
 cypress/videos/
 cypress/screenshots/
 
+# Playwright test artifacts
+/test-results/
+/playwright-report/
+/tests/.auth/
+
 # Claude Code Agents
 CODE-AGENTS/
 
 # Local dev files
 .vscode/mcp.json
+.mcp.json
 server.log
 *.log
 logs/

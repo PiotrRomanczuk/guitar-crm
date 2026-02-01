@@ -12,8 +12,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Eye, Pencil } from 'lucide-react';
-import { getStatusBadgeClasses } from '@/lib/utils/status-colors';
+import { Trash2, Eye, Pencil, Users } from 'lucide-react';
+import EmptyState from '@/components/shared/EmptyState';
+import StatusBadge from '@/components/shared/StatusBadge';
 
 interface UserProfile {
   id: string;
@@ -48,6 +49,18 @@ function getInitials(firstName: string | null, lastName: string | null): string 
 }
 
 export default function UsersListTable({ users, onDelete }: UsersListTableProps) {
+  if (users.length === 0) {
+    return (
+      <EmptyState
+        variant="card"
+        icon={Users}
+        title="No users found"
+        description="Create a user to get started"
+        action={{ label: "Add User", href: "/dashboard/users/new" }}
+      />
+    );
+  }
+
   return (
     <>
       {/* Mobile View (Cards) */}
@@ -71,18 +84,12 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                 </div>
               </div>
               <div className="flex flex-col gap-1 items-end flex-shrink-0">
-                <Badge
-                  variant="secondary"
-                  className={`${getStatusBadgeClasses('user', user.isActive ? 'active' : 'inactive')} w-fit text-[10px] px-1.5 py-0.5`}
-                >
+                <StatusBadge variant={user.isActive ? 'active' : 'inactive'} size="sm">
                   {user.isActive ? 'Active' : 'Inactive'}
-                </Badge>
-                <Badge
-                  variant="secondary"
-                  className={`${getStatusBadgeClasses('user', user.isRegistered ? 'registered' : 'shadow')} w-fit text-[10px] px-1.5 py-0.5`}
-                >
+                </StatusBadge>
+                <StatusBadge variant={user.isRegistered ? 'registered' : 'shadow'} size="sm">
                   {user.isRegistered ? 'Registered' : 'Shadow'}
-                </Badge>
+                </StatusBadge>
               </div>
             </div>
 
@@ -165,18 +172,12 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1">
-                      <Badge
-                        variant="secondary"
-                        className={`${getStatusBadgeClasses('user', user.isActive ? 'active' : 'inactive')} w-fit`}
-                      >
+                      <StatusBadge variant={user.isActive ? 'active' : 'inactive'} size="sm">
                         {user.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
-                      <Badge
-                        variant="secondary"
-                        className={`${getStatusBadgeClasses('user', user.isRegistered ? 'registered' : 'shadow')} w-fit`}
-                      >
+                      </StatusBadge>
+                      <StatusBadge variant={user.isRegistered ? 'registered' : 'shadow'} size="sm">
                         {user.isRegistered ? 'Registered' : 'Shadow'}
-                      </Badge>
+                      </StatusBadge>
                     </div>
                   </TableCell>
                   <TableCell>

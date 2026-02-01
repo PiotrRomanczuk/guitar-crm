@@ -26,27 +26,27 @@ interface NotificationsAlertsSectionProps {
 const typeConfig = {
   info: {
     icon: Info,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-500/10',
-    borderColor: 'border-blue-500/20',
+    color: 'text-primary',
+    bgColor: 'bg-primary/10',
+    borderColor: 'border-primary/20',
   },
   warning: {
     icon: AlertCircle,
-    color: 'text-yellow-600',
-    bgColor: 'bg-yellow-500/10',
-    borderColor: 'border-yellow-500/20',
+    color: 'text-warning',
+    bgColor: 'bg-warning/10',
+    borderColor: 'border-warning/20',
   },
   success: {
     icon: CheckCircle2,
-    color: 'text-green-600',
-    bgColor: 'bg-green-500/10',
-    borderColor: 'border-green-500/20',
+    color: 'text-success',
+    bgColor: 'bg-success/10',
+    borderColor: 'border-success/20',
   },
   alert: {
     icon: AlertCircle,
-    color: 'text-red-600',
-    bgColor: 'bg-red-500/10',
-    borderColor: 'border-red-500/20',
+    color: 'text-destructive',
+    bgColor: 'bg-destructive/10',
+    borderColor: 'border-destructive/20',
   },
 };
 
@@ -118,7 +118,7 @@ export function NotificationsAlertsSection({
                   </Badge>
                 )}
                 {warningCount > 0 && (
-                  <Badge variant="secondary" className="text-xs bg-yellow-500/10 text-yellow-600 border-0">
+                  <Badge variant="secondary" className="text-xs bg-warning/10 text-warning border-0">
                     {warningCount} warnings
                   </Badge>
                 )}

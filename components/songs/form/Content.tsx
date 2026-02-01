@@ -143,7 +143,7 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {submitError && (
-        <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded">
+        <div className="p-4 bg-destructive/10 border border-destructive/20 text-destructive rounded">
           {submitError}
         </div>
       )}
@@ -159,7 +159,7 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
         type="submit"
         disabled={isSubmitting}
         data-testid="song-save"
-        className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+        className="w-full px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground"
       >
         {isSubmitting ? 'Saving...' : 'Save song'}
       </button>

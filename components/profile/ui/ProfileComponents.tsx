@@ -1,6 +1,5 @@
-import { Loader2 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
-import { Button } from '@/components/ui/button';
+import FormActions from '@/components/shared/FormActions';
 
 interface ProfileLoadingStateProps {
 	loading: boolean;
@@ -20,7 +19,7 @@ export function ProfileHeader() {
 	return (
 		<header className='mb-6 sm:mb-8'>
 			<h1 className='text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2'>
-				👤 Edit Profile
+				Edit Profile
 			</h1>
 			<p className='text-xs sm:text-base lg:text-lg text-muted-foreground'>
 				Update your personal information
@@ -47,9 +46,9 @@ export function ProfileAlert({ type, message }: ProfileAlertProps) {
 	}
 
 	return (
-		<div className='mb-6 rounded-lg border border-green-600 bg-green-50 dark:bg-green-900/20 p-4'>
-			<p className='font-semibold text-green-600 dark:text-green-400 text-sm sm:text-base'>
-				✓ {message}
+		<div className='mb-6 rounded-lg border border-success bg-success/10 p-4'>
+			<p className='font-semibold text-success text-sm sm:text-base'>
+				{message}
 			</p>
 		</div>
 	);
@@ -65,19 +64,14 @@ export function ProfileFormActions({
 	onCancel,
 }: ProfileFormActionsProps) {
 	return (
-		<div className='flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t border-border'>
-			<Button type='submit' disabled={saving}>
-				{saving && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-				{saving ? 'Saving...' : 'Save Changes'}
-			</Button>
-			<Button
-				type='button'
-				variant='outline'
-				onClick={onCancel}
-				disabled={saving}
-			>
-				Cancel
-			</Button>
+		<div className='pt-4'>
+			<FormActions
+				isSubmitting={saving}
+				submitText='Save Changes'
+				submittingText='Saving...'
+				onCancel={onCancel}
+				showCancel
+			/>
 		</div>
 	);
 }

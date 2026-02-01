@@ -2,15 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Dispatch, SetStateAction } from 'react';
 import { AssignmentFormFields } from './AssignmentForm.Fields';
-import { FormWrapper, FormActions } from '@/components/ui/form-wrapper';
-import { Button } from '@/components/ui/button';
-
-/**
- * Assignment Form
- * Standardized per CLAUDE.md Form Standards (Section 10)
- */
+import { AssignmentFormActions } from './AssignmentForm.Actions';
 
 interface Student {
   id: string;
@@ -56,74 +51,80 @@ export default function AssignmentForm({
       ...prev,
       [name]: value,
     }));
-    if (error) setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      const url = mode === 'create' ? '/api/assignments' : `/api/assignments/${initialData?.id}`;
-      const method = mode === 'create' ? 'POST' : 'PUT';
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save assignment');
-      }
-
-      const data = await response.json();
-      router.push(`/dashboard/assignments/${data.id}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCancel = () => {
-    router.push('/dashboard/assignments');
+    await submitAssignment(formData, mode, initialData?.id, router, setLoading, setError);
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <FormWrapper
-        title={mode === 'create' ? 'Create Assignment' : 'Edit Assignment'}
-        error={error}
+    <div className="container mx-auto px-4 py-8">
+      <Link
+        href="/dashboard/assignments"
+        className="text-primary hover:underline mb-6 inline-block"
       >
+        ← Back to assignments
+      </Link>
+
+      <div className="bg-card rounded-lg shadow-md p-8 max-w-2xl">
+        <h1 className="text-2xl font-bold text-foreground mb-6">
+          {mode === 'create' ? 'Create Assignment' : 'Edit Assignment'}
+        </h1>
+
+        {error && (
+          <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <AssignmentFormFields
             formData={formData}
             onChange={handleFieldChange}
             students={students}
             selectedStudent={students.find((s) => s.id === formData.student_id)}
-            recentSongs={['Wonderwall', 'Hotel California']}
+            recentSongs={['Wonderwall', 'Hotel California']} // TODO: Fetch actual recent songs
             lessonTopic="Practice assignment"
           />
-
-          <FormActions>
-            <Button type="submit" disabled={loading} data-testid="submit-button">
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {loading ? 'Saving...' : mode === 'create' ? 'Create' : 'Update'}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-          </FormActions>
+          <AssignmentFormActions mode={mode} loading={loading} />
         </form>
-      </FormWrapper>
+      </div>
     </div>
   );
+}
+
+async function submitAssignment(
+  formData: Record<string, string>,
+  mode: string,
+  id: string | undefined,
+  router: ReturnType<typeof useRouter>,
+  setLoading: Dispatch<SetStateAction<boolean>>,
+  setError: Dispatch<SetStateAction<string | null>>
+) {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const url = mode === 'create' ? '/api/assignments' : `/api/assignments/${id}`;
+    const method = mode === 'create' ? 'POST' : 'PUT';
+
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to save assignment');
+    }
+
+    const data = await response.json();
+    router.push(`/dashboard/assignments/${data.id}`);
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'An error occurred');
+  } finally {
+    setLoading(false);
+  }
 }

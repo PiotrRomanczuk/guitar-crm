@@ -36,9 +36,9 @@ export function PasswordStrengthIndicator({ password }: PasswordStrengthIndicato
   const { strength, requirements, percentage } = calculatePasswordStrength(password);
 
   const strengthColors = {
-    weak: 'bg-red-500',
-    medium: 'bg-yellow-500',
-    strong: 'bg-green-500',
+    weak: 'bg-destructive',
+    medium: 'bg-warning',
+    strong: 'bg-success',
   };
 
   const strengthText = {
@@ -48,9 +48,9 @@ export function PasswordStrengthIndicator({ password }: PasswordStrengthIndicato
   };
 
   const strengthTextColors = {
-    weak: 'text-red-600 dark:text-red-400',
-    medium: 'text-yellow-600 dark:text-yellow-400',
-    strong: 'text-green-600 dark:text-green-400',
+    weak: 'text-destructive',
+    medium: 'text-warning',
+    strong: 'text-success',
   };
 
   return (
@@ -58,12 +58,12 @@ export function PasswordStrengthIndicator({ password }: PasswordStrengthIndicato
       {/* Strength Bar */}
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-600 dark:text-gray-400">Password strength:</span>
+          <span className="text-xs text-muted-foreground">Password strength:</span>
           <span className={`text-xs font-medium ${strengthTextColors[strength]}`}>
             {strengthText[strength]}
           </span>
         </div>
-        <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
           <div
             className={`h-full ${strengthColors[strength]} transition-all duration-300`}
             style={{ width: `${percentage}%` }}
@@ -77,7 +77,7 @@ export function PasswordStrengthIndicator({ password }: PasswordStrengthIndicato
           <li key={index} className="flex items-center gap-2 text-xs">
             {req.met ? (
               <svg
-                className="h-3.5 w-3.5 text-green-500"
+                className="h-3.5 w-3.5 text-success"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -91,7 +91,7 @@ export function PasswordStrengthIndicator({ password }: PasswordStrengthIndicato
               </svg>
             ) : (
               <svg
-                className="h-3.5 w-3.5 text-gray-400"
+                className="h-3.5 w-3.5 text-muted-foreground"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -99,7 +99,7 @@ export function PasswordStrengthIndicator({ password }: PasswordStrengthIndicato
                 <circle cx="12" cy="12" r="10" strokeWidth={2} />
               </svg>
             )}
-            <span className={req.met ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}>
+            <span className={req.met ? 'text-success' : 'text-muted-foreground'}>
               {req.label}
             </span>
           </li>

@@ -30,7 +30,7 @@ export function StudentAssignments({ assignments }: StudentAssignmentsProps) {
       {/* Overdue */}
       {grouped.overdue.length > 0 && (
         <section>
-          <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 uppercase tracking-wider mb-3">
+          <h3 className="text-sm font-semibold text-destructive uppercase tracking-wider mb-3">
             Overdue ({grouped.overdue.length})
           </h3>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -44,7 +44,7 @@ export function StudentAssignments({ assignments }: StudentAssignmentsProps) {
       {/* Active */}
       {grouped.active.length > 0 && (
         <section>
-          <h3 className="text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-3">
+          <h3 className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
             Active ({grouped.active.length})
           </h3>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -58,7 +58,7 @@ export function StudentAssignments({ assignments }: StudentAssignmentsProps) {
       {/* Completed */}
       {grouped.completed.length > 0 && (
         <section>
-          <h3 className="text-sm font-semibold text-green-600 dark:text-green-400 uppercase tracking-wider mb-3">
+          <h3 className="text-sm font-semibold text-success uppercase tracking-wider mb-3">
             Completed ({grouped.completed.length})
           </h3>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -94,10 +94,10 @@ function AssignmentCard({
   variant: 'overdue' | 'active' | 'completed' | 'cancelled';
 }) {
   const borderColors = {
-    overdue: 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10',
-    active: 'border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/10',
-    completed: 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10',
-    cancelled: 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/10',
+    overdue: 'border-destructive/20 bg-destructive/10',
+    active: 'border-primary/20 bg-primary/10',
+    completed: 'border-success/20 bg-success/10',
+    cancelled: 'border-border bg-muted',
   };
 
   return (

@@ -31,9 +31,9 @@ interface SongStatusHistoryProps {
 }
 
 const statusColors: Record<string, string> = {
-  to_learn: 'bg-gray-500/10 text-gray-500 border-gray-500/20',
-  learning: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-  learned: 'bg-green-500/10 text-green-500 border-green-500/20',
+  to_learn: 'bg-muted text-muted-foreground border-border',
+  learning: 'bg-primary/10 text-primary border-primary/20',
+  learned: 'bg-success/10 text-success border-success/20',
   mastered: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
 };
 

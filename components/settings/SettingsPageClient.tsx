@@ -26,8 +26,8 @@ function SettingsAlert({ type, message }: { type: 'error' | 'success'; message: 
   }
 
   return (
-    <div className="mb-6 rounded-lg border border-green-600 bg-green-50 dark:bg-green-900/20 p-4">
-      <p className="font-semibold text-green-600 dark:text-green-400 text-sm sm:text-base">
+    <div className="mb-6 rounded-lg border border-success bg-success/10 p-4">
+      <p className="font-semibold text-success text-sm sm:text-base">
         ✓ {message}
       </p>
     </div>
@@ -122,7 +122,7 @@ export default function SettingsPageClient({
         {error && <SettingsAlert type="error" message={error} />}
         {success && <SettingsAlert type="success" message="Settings saved successfully" />}
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 space-y-8">
+        <div className="bg-card rounded-lg shadow-sm border border-border p-4 sm:p-6 space-y-8">
           <IntegrationsSection isGoogleConnected={isGoogleConnected} />
           <div className="border-t pt-6">
             <NotificationsSection settings={settings} updateSetting={updateSetting} />

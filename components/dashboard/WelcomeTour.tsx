@@ -99,9 +99,9 @@ export function WelcomeTour({ firstName }: WelcomeTourProps) {
     return (
       <button
         onClick={startTour}
-        className="fixed bottom-4 right-4 z-50 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg shadow-lg hover:bg-blue-700 transition-colors"
+        className="fixed bottom-4 right-4 z-50 px-4 py-2 bg-primary text-primary-foreground text-sm rounded-lg shadow-lg hover:bg-primary/90 transition-colors"
       >
-        🎯 Take Tour
+        Take Tour
       </button>
     );
   }

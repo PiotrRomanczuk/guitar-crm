@@ -45,13 +45,13 @@ export default async function TemplatesPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-xl font-semibold text-gray-900">Assignment Templates</h1>
-          <p className="mt-2 text-sm text-gray-700">A list of reusable assignment templates.</p>
+          <h1 className="text-xl font-semibold text-foreground">Assignment Templates</h1>
+          <p className="mt-2 text-sm text-muted-foreground">A list of reusable assignment templates.</p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Link
             href="/dashboard/assignments/templates/new"
-            className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="block rounded-md bg-primary px-3 py-2 text-center text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             Create Template
           </Link>

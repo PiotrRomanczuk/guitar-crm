@@ -21,7 +21,7 @@ const statusConfig = {
   overdue: { label: 'Overdue', color: 'bg-destructive/10 text-destructive border-0' },
   completed: {
     label: 'Completed',
-    color: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-0',
+    color: 'bg-success/15 text-success border-0',
   },
 };
 

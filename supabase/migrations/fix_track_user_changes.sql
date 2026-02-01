@@ -1,6 +1,4 @@
--- Fix for track_user_changes function
--- Run this SQL in your Supabase SQL Editor to fix the "record 'old' has no field 'role'" error
-
+-- Function to track user profile changes
 CREATE OR REPLACE FUNCTION track_user_changes()
 RETURNS TRIGGER
 SECURITY DEFINER
@@ -28,11 +26,10 @@ BEGIN
 
   -- UPDATE: User profile modified
   IF (TG_OP = 'UPDATE') THEN
-    -- Determine specific change type
     DECLARE
       v_change_type TEXT := 'updated';
     BEGIN
-      -- Check if any role flags changed
+      -- Check for role flag changes instead of non-existent 'role' column
       IF (OLD.is_admin IS DISTINCT FROM NEW.is_admin) OR
          (OLD.is_teacher IS DISTINCT FROM NEW.is_teacher) OR
          (OLD.is_student IS DISTINCT FROM NEW.is_student) THEN
@@ -79,3 +76,13 @@ BEGIN
   RETURN NULL;
 END;
 $$;
+
+-- Create trigger for profiles table
+DROP TRIGGER IF EXISTS trigger_track_user_changes ON profiles;
+CREATE TRIGGER trigger_track_user_changes
+  AFTER INSERT OR UPDATE OR DELETE ON profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION track_user_changes();
+
+-- Add comment
+COMMENT ON FUNCTION track_user_changes() IS 'Automatically tracks all changes to user profiles';

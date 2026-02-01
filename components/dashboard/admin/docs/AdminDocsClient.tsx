@@ -16,7 +16,7 @@ export function AdminDocsClient() {
         <h1 className="text-3xl font-bold tracking-tight mb-2">Developer Documentation</h1>
         <p className="text-muted-foreground">
           Technical documentation and integration guides for Guitar CRM.
-          <span className="ml-2 inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
+          <span className="ml-2 inline-flex items-center rounded-md bg-warning/10 px-2 py-1 text-xs font-medium text-warning ring-1 ring-inset ring-warning/20">
             Admin Only
           </span>
         </p>
@@ -154,7 +154,7 @@ export function AdminDocsClient() {
                     <p className="text-sm text-muted-foreground">
                       Create a new script in Scriptable and use the following template:
                     </p>
-                    <pre className="bg-slate-950 text-slate-50 p-4 rounded-md overflow-x-auto text-xs">
+                    <pre className="bg-background border border-border text-foreground p-4 rounded-md overflow-x-auto text-xs">
                       {`const API_URL = "https://your-app-url.com/api";
 const API_KEY = "gcrm_YOUR_API_KEY_HERE";
 

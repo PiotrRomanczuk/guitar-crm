@@ -191,10 +191,10 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
       className={cn(
         'backdrop-blur-md shadow-lg cursor-pointer transition-all duration-300 hover:scale-105 px-3 py-1.5',
         connectionStatus === 'error'
-          ? 'bg-red-500/10 border-red-500/50 text-red-500 hover:bg-red-500/20'
+          ? 'bg-destructive/10 border-destructive/50 text-destructive hover:bg-destructive/20'
           : isLocal
-          ? 'bg-blue-500/10 border-blue-500/50 text-blue-500 hover:bg-blue-500/20'
-          : 'bg-orange-500/10 border-orange-500/50 text-orange-500 hover:bg-orange-500/20',
+          ? 'bg-primary/10 border-primary/50 text-primary hover:bg-primary/20'
+          : 'bg-warning/10 border-warning/50 text-warning hover:bg-warning/20',
         className
       )}
       onClick={togglePreference}

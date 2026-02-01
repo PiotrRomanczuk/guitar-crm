@@ -2,6 +2,7 @@
 
 import { useState, FormEvent, useEffect } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { SignUpSchema } from '@/schemas/AuthSchema';
 
 interface TouchedFields {
   email: boolean;
@@ -18,24 +19,34 @@ interface SignUpResponse {
 
 function getValidationError(
   touched: TouchedFields,
+  firstName: string,
+  lastName: string,
   email: string,
   password: string,
-  confirmPassword: string,
-  firstName: string,
-  lastName: string
+  confirmPassword: string
 ): string | null {
-  if (touched.firstName && !firstName) return 'First name is required';
-  if (touched.lastName && !lastName) return 'Last name is required';
-  if (touched.email && email && !isValidEmail(email)) return 'Invalid email';
-  if (touched.password && password && password.length < 6)
-    return 'Password must be at least 6 characters';
-  if (touched.confirmPassword && password && confirmPassword && password !== confirmPassword)
-    return 'Passwords do not match';
-  return null;
-}
+  // Only validate fields that have been touched
+  const dataToValidate = {
+    firstName,
+    lastName,
+    email,
+    password,
+    confirmPassword,
+  };
 
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const result = SignUpSchema.safeParse(dataToValidate);
+
+  if (result.success) return null;
+
+  // Return only the first relevant error based on touched fields
+  for (const issue of result.error.issues) {
+    const field = issue.path[0] as keyof TouchedFields;
+    if (touched[field]) {
+      return issue.message;
+    }
+  }
+
+  return null;
 }
 
 async function signUpUser(
@@ -57,17 +68,21 @@ async function signUpUser(
   });
 }
 
-function validateAndProcessSignUp(
+function validateFormData(
   firstName: string,
   lastName: string,
   email: string,
   password: string,
   confirmPassword: string
 ): boolean {
-  if (!firstName || !lastName || !email || password.length < 6 || password !== confirmPassword) {
-    return false;
-  }
-  return true;
+  const result = SignUpSchema.safeParse({
+    firstName,
+    lastName,
+    email,
+    password,
+    confirmPassword,
+  });
+  return result.success;
 }
 
 function checkIfEmailExists(user: { identities?: unknown[] } | null): boolean {
@@ -126,7 +141,7 @@ export function useSignUpLogic(onSuccess?: () => void) {
     };
     setTouched(newTouched);
 
-    if (!validateAndProcessSignUp(firstName, lastName, email, password, confirmPassword)) {
+    if (!validateFormData(firstName, lastName, email, password, confirmPassword)) {
       return;
     }
 
@@ -168,21 +183,21 @@ export function useSignUpLogic(onSuccess?: () => void) {
   const handleResendEmail = async () => {
     setResendLoading(true);
     const supabase = getSupabaseBrowserClient();
-    
+
     const { error } = await supabase.auth.resend({
       type: 'signup',
       email: email,
     });
 
     setResendLoading(false);
-    
+
     if (error) {
       setError(error.message);
     } else {
       // Start 60-second countdown
       setResendCountdown(60);
       setCanResendEmail(false);
-      
+
       // Re-enable after countdown
       setTimeout(() => {
         setCanResendEmail(true);
@@ -223,7 +238,7 @@ export function useSignUpLogic(onSuccess?: () => void) {
     success,
     touched,
     setTouched,
-    validationError: getValidationError(touched, email, password, confirmPassword, firstName, lastName),
+    validationError: getValidationError(touched, firstName, lastName, email, password, confirmPassword),
     handleSubmit,
     handleGoogleSignIn,
     handleResendEmail,

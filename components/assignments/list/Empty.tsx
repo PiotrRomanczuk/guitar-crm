@@ -1,16 +1,17 @@
 import { ClipboardList } from 'lucide-react';
-import { EmptyState } from '@/components/ui/empty-state';
+import EmptyState from '@/components/shared/EmptyState';
 
 /**
  * Empty state for assignment list
- * Uses standardized EmptyState component
  */
 export function Empty() {
   return (
     <EmptyState
+      variant="card"
       icon={ClipboardList}
       title="No assignments yet"
-      message="Assignments will appear here once they are created. Teachers can create new assignments for their students."
+      description="Assignments will appear here once they are created. Teachers can create new assignments for their students."
+      action={{ label: "Create Assignment", href: "/dashboard/assignments/new" }}
     />
   );
 }

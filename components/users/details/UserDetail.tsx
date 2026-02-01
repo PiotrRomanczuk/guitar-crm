@@ -81,8 +81,8 @@ export default function UserDetail({ user }: UserDetailProps) {
                 variant="outline"
                 className={
                   isRegistered
-                    ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-800'
-                    : 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
+                    ? 'bg-primary/10 text-primary border-primary/20'
+                    : 'bg-muted text-muted-foreground border-border'
                 }
               >
                 {isRegistered ? 'Registered' : 'Shadow'}
@@ -99,7 +99,7 @@ export default function UserDetail({ user }: UserDetailProps) {
               <Badge
                 key={role}
                 variant="secondary"
-                className="bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300"
+                className="bg-primary/10 text-primary hover:bg-primary/20"
                 data-testid={`role-badge-${role.toLowerCase()}`}
               >
                 {role}
@@ -111,7 +111,7 @@ export default function UserDetail({ user }: UserDetailProps) {
         {/* Notes */}
         <div>
           <Label className="text-muted-foreground block mb-2">Notes</Label>
-          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg text-sm text-gray-700 dark:text-gray-300 min-h-[60px] border">
+          <div className="bg-muted p-3 rounded-lg text-sm text-muted-foreground min-h-[60px] border">
             {user.notes || 'No notes available.'}
           </div>
         </div>
@@ -138,7 +138,7 @@ export default function UserDetail({ user }: UserDetailProps) {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
                 Delete
               </AlertDialogAction>
             </AlertDialogFooter>
