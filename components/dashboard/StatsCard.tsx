@@ -59,12 +59,12 @@ export function StatsCard({
 
   const cardContent = (
     <>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 sm:pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xs sm:text-sm font-medium leading-tight">{title}</CardTitle>
         {Icon && (
           <div
             className={cn(
-              'w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0',
+              'w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center transition-colors flex-shrink-0',
               iconBgColor || 'bg-primary/10 group-hover:bg-primary/20'
             )}
           >
@@ -74,7 +74,7 @@ export function StatsCard({
           </div>
         )}
       </CardHeader>
-      <CardContent className="pb-3 sm:pb-4">
+      <CardContent>
         <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{value}</div>
         {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
         {change && (
@@ -111,20 +111,20 @@ export function StatsCard({
     const content = (
       <div
         className={cn(
-          'group relative bg-card rounded-xl p-6 border border-border hover:border-primary/30 transition-all duration-300 opacity-0 animate-fade-in cursor-pointer',
-          href && 'hover:shadow-lg'
+          'group relative bg-card rounded-xl p-5 sm:p-6 border border-border/80 hover:border-primary/40 transition-all duration-300 opacity-0 animate-fade-in cursor-pointer h-full',
+          href && 'hover:shadow-lg hover:shadow-primary/5'
         )}
         style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}
       >
-        <div className="absolute inset-0 rounded-xl bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <div className="relative flex items-start justify-between">
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-3xl font-semibold tracking-tight">{value}</p>
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="relative flex items-start justify-between gap-3">
+          <div className="space-y-1.5 sm:space-y-2 min-w-0 flex-1">
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium">{title}</p>
+            <p className="text-2xl sm:text-3xl font-bold tracking-tight">{value}</p>
             {(change || description) && (
               <p
                 className={cn(
-                  'text-sm font-medium',
+                  'text-xs sm:text-sm font-medium truncate',
                   change && changeType === 'positive' && 'text-success',
                   change && changeType === 'negative' && 'text-destructive',
                   change && changeType === 'neutral' && 'text-muted-foreground',
@@ -138,11 +138,11 @@ export function StatsCard({
           {Icon && (
             <div
               className={cn(
-                'w-12 h-12 rounded-xl flex items-center justify-center transition-colors',
+                'w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-all duration-300 flex-shrink-0',
                 iconBgColor || 'bg-primary/10 group-hover:bg-primary/20'
               )}
             >
-              <Icon className={cn('w-6 h-6', iconColor || 'text-primary')} />
+              <Icon className={cn('w-5 h-5 sm:w-6 sm:h-6', iconColor || 'text-primary')} />
             </div>
           )}
         </div>

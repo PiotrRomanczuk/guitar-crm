@@ -42,7 +42,7 @@ export default function LessonTable({
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="md:hidden space-y-4"
+        className="md:hidden space-y-4 portrait:space-y-5"
       >
         <AnimatePresence mode="popLayout">
           {lessons.map((lesson) => {
@@ -59,7 +59,7 @@ export default function LessonTable({
                 layout
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-card rounded-xl border border-border p-4 space-y-3 min-h-[120px]"
+                className="bg-card rounded-xl border border-border p-6 space-y-3 min-h-[120px]"
               >
                 <div className="flex justify-between items-start gap-3">
                   <div className="min-w-0">
@@ -101,7 +101,7 @@ export default function LessonTable({
                 {showActions && (
                   <div className="pt-2 flex justify-end">
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button variant="ghost" size="sm" className="h-10 min-h-[44px]" asChild>
+                      <Button variant="ghost" size="sm" className="h-11" asChild>
                         <Link href={`${baseUrl}/${lesson.id}`}>
                           <Eye className="h-4 w-4 mr-1" />
                           View Details

@@ -63,7 +63,7 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
         <SidebarInset className="overflow-x-hidden">
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Separator orientation="vertical" className="mr-2 h-3.5" />
             <div className="flex items-center gap-2 flex-1">
               <h2 className="text-sm font-semibold">
                 {pathname === '/dashboard'
@@ -76,7 +76,7 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
               </h2>
             </div>
           </header>
-          <main className="flex-1 bg-background p-4 md:p-6 lg:p-8 overflow-x-hidden w-full max-w-full">
+          <main className="flex-1 bg-background p-3 sm:p-4 md:p-6 lg:p-8 ultrawide:p-10 overflow-x-hidden w-full max-w-full">
             {children}
           </main>
         </SidebarInset>
