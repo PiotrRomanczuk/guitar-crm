@@ -24,9 +24,19 @@ interface Student {
   email: string | null;
 }
 
+interface FieldErrors {
+  title?: string;
+  description?: string;
+  due_date?: string;
+  status?: string;
+  student_id?: string;
+}
+
 interface AssignmentFormFieldsProps {
   formData: FormData;
+  fieldErrors: FieldErrors;
   onChange: (name: string, value: string) => void;
+  onBlur: (field: keyof FormData) => void;
   students?: Student[];
   // AI assistance props
   selectedStudent?: Student;
@@ -36,7 +46,9 @@ interface AssignmentFormFieldsProps {
 
 export function AssignmentFormFields({
   formData,
+  fieldErrors,
   onChange,
+  onBlur,
   students = [],
   selectedStudent,
   recentSongs = [],
@@ -67,10 +79,17 @@ export function AssignmentFormFields({
           name="title"
           value={formData.title}
           onChange={(e) => onChange('title', e.target.value)}
+          onBlur={() => onBlur('title')}
           required
           placeholder="Assignment title"
           data-testid="field-title"
+          aria-invalid={!!fieldErrors.title}
         />
+        {fieldErrors.title && (
+          <p className="text-sm text-destructive" role="alert">
+            {fieldErrors.title}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -94,10 +113,17 @@ export function AssignmentFormFields({
           name="description"
           value={formData.description}
           onChange={(e) => onChange('description', e.target.value)}
+          onBlur={() => onBlur('description')}
           placeholder="Assignment description"
           data-testid="field-description"
           rows={6}
+          aria-invalid={!!fieldErrors.description}
         />
+        {fieldErrors.description && (
+          <p className="text-sm text-destructive" role="alert">
+            {fieldErrors.description}
+          </p>
+        )}
       </div>
 
       {students.length > 0 && (
@@ -105,9 +131,16 @@ export function AssignmentFormFields({
           <Label htmlFor="student">Student</Label>
           <Select
             value={formData.student_id}
-            onValueChange={(value) => onChange('student_id', value)}
+            onValueChange={(value) => {
+              onChange('student_id', value);
+              onBlur('student_id');
+            }}
           >
-            <SelectTrigger id="student" data-testid="student-select">
+            <SelectTrigger
+              id="student"
+              data-testid="student-select"
+              aria-invalid={!!fieldErrors.student_id}
+            >
               <SelectValue placeholder="Select a student" />
             </SelectTrigger>
             <SelectContent>
@@ -118,6 +151,11 @@ export function AssignmentFormFields({
               ))}
             </SelectContent>
           </Select>
+          {fieldErrors.student_id && (
+            <p className="text-sm text-destructive" role="alert">
+              {fieldErrors.student_id}
+            </p>
+          )}
         </div>
       )}
 
@@ -129,14 +167,31 @@ export function AssignmentFormFields({
           type="date"
           value={formData.due_date ? formData.due_date.split('T')[0] : ''}
           onChange={(e) => onChange('due_date', e.target.value)}
+          onBlur={() => onBlur('due_date')}
           data-testid="field-due-date"
+          aria-invalid={!!fieldErrors.due_date}
         />
+        {fieldErrors.due_date && (
+          <p className="text-sm text-destructive" role="alert">
+            {fieldErrors.due_date}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="status">Status</Label>
-        <Select value={formData.status} onValueChange={(value) => onChange('status', value)}>
-          <SelectTrigger id="status" data-testid="field-status">
+        <Select
+          value={formData.status}
+          onValueChange={(value) => {
+            onChange('status', value);
+            onBlur('status');
+          }}
+        >
+          <SelectTrigger
+            id="status"
+            data-testid="field-status"
+            aria-invalid={!!fieldErrors.status}
+          >
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
@@ -147,6 +202,11 @@ export function AssignmentFormFields({
             <SelectItem value="cancelled">Cancelled</SelectItem>
           </SelectContent>
         </Select>
+        {fieldErrors.status && (
+          <p className="text-sm text-destructive" role="alert">
+            {fieldErrors.status}
+          </p>
+        )}
       </div>
     </>
   );

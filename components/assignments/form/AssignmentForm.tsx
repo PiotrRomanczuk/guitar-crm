@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { Dispatch, SetStateAction } from 'react';
 import { AssignmentFormFields } from './AssignmentForm.Fields';
 import { AssignmentFormActions } from './AssignmentForm.Actions';
+import { useAssignmentForm } from './useAssignmentForm';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 interface Student {
   id: string;
@@ -38,23 +41,27 @@ export default function AssignmentForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState({
-    title: initialData?.title || '',
-    description: initialData?.description || '',
-    due_date: initialData?.due_date || '',
-    status: initialData?.status || 'not_started',
-    student_id: initialData?.student_id || userId || '',
-  });
-
-  const handleFieldChange = (name: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const {
+    formData,
+    fieldErrors,
+    handleFieldChange,
+    handleBlur,
+    validate,
+    setFieldErrors,
+  } = useAssignmentForm({ initialData, mode, userId });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    // Validate all fields
+    const errors = validate();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setError('Please fix the validation errors');
+      return;
+    }
+
     await submitAssignment(formData, mode, initialData?.id, router, setLoading, setError);
   };
 
@@ -72,16 +79,19 @@ export default function AssignmentForm({
           {mode === 'create' ? 'Create Assignment' : 'Edit Assignment'}
         </h1>
 
-        {error && (
-          <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive">
-            {error}
-          </div>
-        )}
-
         <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
           <AssignmentFormFields
             formData={formData}
+            fieldErrors={fieldErrors}
             onChange={handleFieldChange}
+            onBlur={handleBlur}
             students={students}
             selectedStudent={students.find((s) => s.id === formData.student_id)}
             recentSongs={['Wonderwall', 'Hotel California']} // TODO: Fetch actual recent songs

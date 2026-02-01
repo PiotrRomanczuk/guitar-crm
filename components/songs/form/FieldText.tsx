@@ -7,6 +7,7 @@ interface Props {
   placeholder?: string;
   required?: boolean;
   onChange: (value: string) => void;
+  onBlur?: () => void;
 }
 
 export default function SongFormFieldText({
@@ -18,12 +19,13 @@ export default function SongFormFieldText({
   placeholder,
   required,
   onChange,
+  onBlur,
 }: Props) {
   return (
-    <div>
+    <div className="space-y-2">
       <label
         htmlFor={id}
-        className="block font-medium mb-1 text-xs sm:text-sm text-foreground"
+        className="block text-sm font-medium leading-none text-foreground"
       >
         {label}
         {required && <span className="text-destructive"> *</span>}
@@ -34,15 +36,21 @@ export default function SongFormFieldText({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
         placeholder={placeholder}
         data-testid={`song-${id}`}
-        className={`w-full rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3 bg-background border ${
+        aria-invalid={!!error}
+        className={`w-full h-9 rounded-md shadow-xs transition-all duration-200 focus:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:border-ring text-sm px-3 py-1 bg-background dark:bg-input/30 border ${
           error
-            ? 'border-destructive focus:ring-destructive focus:border-destructive'
-            : 'border-border hover:border-muted-foreground'
+            ? 'border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40'
+            : 'border-input hover:border-muted-foreground'
         }`}
       />
-      {error && <p className="text-destructive text-xs sm:text-sm mt-1">{error}</p>}
+      {error && (
+        <p className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

@@ -11,10 +11,11 @@ interface Props {
   formData: SongFormData;
   errors: Record<string, string>;
   onChange: (field: keyof SongFormData, value: SongFormData[keyof SongFormData]) => void;
+  onBlur: (field: string) => void;
   onSpotifySelect: (track: SpotifyTrack) => void;
 }
 
-export default function SongFormFields({ formData, errors, onChange, onSpotifySelect }: Props) {
+export default function SongFormFields({ formData, errors, onChange, onBlur, onSpotifySelect }: Props) {
   return (
     <div className="space-y-4">
       <SpotifySearch onSelect={onSpotifySelect} />
@@ -25,6 +26,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         value={formData.title}
         error={errors.title}
         onChange={(value) => onChange('title', value)}
+        onBlur={() => onBlur('title')}
         required
       />
 
@@ -34,6 +36,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         value={formData.author}
         error={errors.author}
         onChange={(value) => onChange('author', value)}
+        onBlur={() => onBlur('author')}
         required
       />
 
@@ -44,6 +47,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
           value={formData.level}
           error={errors.level}
           onChange={(value) => onChange('level', value)}
+          onBlur={() => onBlur('level')}
           options={LEVEL_OPTIONS}
           required
         />
@@ -54,6 +58,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
           value={formData.key}
           error={errors.key}
           onChange={(value) => onChange('key', value)}
+          onBlur={() => onBlur('key')}
           options={MUSIC_KEY_OPTIONS}
           required
         />
@@ -66,6 +71,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         value={formData.ultimate_guitar_link}
         error={errors.ultimate_guitar_link}
         onChange={(value) => onChange('ultimate_guitar_link', value)}
+        onBlur={() => onBlur('ultimate_guitar_link')}
       />
 
       <SongFormFieldText
@@ -75,6 +81,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         value={formData.youtube_url}
         error={errors.youtube_url}
         onChange={(value) => onChange('youtube_url', value)}
+        onBlur={() => onBlur('youtube_url')}
         placeholder="https://youtube.com/watch?v=..."
       />
 
@@ -85,6 +92,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         value={formData.spotify_link_url}
         error={errors.spotify_link_url}
         onChange={(value) => onChange('spotify_link_url', value)}
+        onBlur={() => onBlur('spotify_link_url')}
         placeholder="https://open.spotify.com/track/..."
       />
 
@@ -95,6 +103,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         value={formData.tiktok_short_url}
         error={errors.tiktok_short_url}
         onChange={(value) => onChange('tiktok_short_url', value)}
+        onBlur={() => onBlur('tiktok_short_url')}
         placeholder="https://www.tiktok.com/@user/video/..."
       />
 
@@ -106,6 +115,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
           value={formData.capo_fret?.toString() || ''}
           error={errors.capo_fret}
           onChange={(value) => onChange('capo_fret', value ? parseInt(value) : null)}
+          onBlur={() => onBlur('capo_fret')}
           placeholder="0"
         />
 
@@ -115,6 +125,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
           value={formData.category}
           error={errors.category}
           onChange={(value) => onChange('category', value)}
+          onBlur={() => onBlur('category')}
           placeholder="e.g. Rock, Pop, Folk"
         />
       </div>
@@ -127,6 +138,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
           value={formData.tempo?.toString() || ''}
           error={errors.tempo}
           onChange={(value) => onChange('tempo', value ? parseInt(value) : null)}
+          onBlur={() => onBlur('tempo')}
           placeholder="120"
         />
 
@@ -137,6 +149,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
           value={formData.time_signature?.toString() || ''}
           error={errors.time_signature}
           onChange={(value) => onChange('time_signature', value ? parseInt(value) : null)}
+          onBlur={() => onBlur('time_signature')}
           placeholder="4"
         />
       </div>
@@ -149,6 +162,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
           value={formData.duration_ms?.toString() || ''}
           error={errors.duration_ms}
           onChange={(value) => onChange('duration_ms', value ? parseInt(value) : null)}
+          onBlur={() => onBlur('duration_ms')}
           placeholder="240000"
         />
 
@@ -159,6 +173,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
           value={formData.release_year?.toString() || ''}
           error={errors.release_year}
           onChange={(value) => onChange('release_year', value ? parseInt(value) : null)}
+          onBlur={() => onBlur('release_year')}
           placeholder="1995"
         />
       </div>
@@ -169,6 +184,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         value={formData.strumming_pattern}
         error={errors.strumming_pattern}
         onChange={(value) => onChange('strumming_pattern', value)}
+        onBlur={() => onBlur('strumming_pattern')}
         placeholder="D DU UDU"
       />
 
@@ -191,6 +207,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         value={formData.chords}
         error={errors.chords}
         onChange={(value) => onChange('chords', value)}
+        onBlur={() => onBlur('chords')}
         placeholder="Em7 G D C"
       />
 
@@ -200,6 +217,7 @@ export default function SongFormFields({ formData, errors, onChange, onSpotifySe
         value={formData.short_title}
         error={errors.short_title}
         onChange={(value) => onChange('short_title', value)}
+        onBlur={() => onBlur('short_title')}
         placeholder="Brief title"
       />
     </div>

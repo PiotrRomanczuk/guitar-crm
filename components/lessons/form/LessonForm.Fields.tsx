@@ -21,6 +21,7 @@ interface Props {
   handleChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
+  handleBlur: (field: string) => void;
   studentName?: string;
   selectedSongs?: Array<{ title: string }>;
   previousNotes?: string;
@@ -30,6 +31,7 @@ export function LessonFormFields({
   formData,
   validationErrors,
   handleChange,
+  handleBlur,
   studentName,
   selectedSongs = [],
   previousNotes,
@@ -63,9 +65,16 @@ export function LessonFormFields({
           name="title"
           value={formData.title || ''}
           onChange={handleChange}
+          onBlur={() => handleBlur('title')}
           placeholder="e.g., Introduction to Strumming Patterns"
           data-testid="lesson-title"
+          aria-invalid={!!validationErrors.title}
         />
+        {validationErrors.title && (
+          <p className="text-sm text-destructive" role="alert">
+            {validationErrors.title}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -78,18 +87,26 @@ export function LessonFormFields({
           name="scheduled_at"
           value={formData.scheduled_at}
           onChange={handleChange}
+          onBlur={() => handleBlur('scheduled_at')}
           required
           data-testid="lesson-scheduled-at"
+          aria-invalid={!!validationErrors.scheduled_at}
         />
         {validationErrors.scheduled_at && (
-          <p className="text-sm text-destructive">{validationErrors.scheduled_at}</p>
+          <p className="text-sm text-destructive" role="alert">
+            {validationErrors.scheduled_at}
+          </p>
         )}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="status">Status</Label>
         <Select value={formData.status || 'SCHEDULED'} onValueChange={handleStatusChange}>
-          <SelectTrigger id="status" data-testid="lesson-status">
+          <SelectTrigger
+            id="status"
+            data-testid="lesson-status"
+            aria-invalid={!!validationErrors.status}
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -99,6 +116,11 @@ export function LessonFormFields({
             <SelectItem value="CANCELLED">Cancelled</SelectItem>
           </SelectContent>
         </Select>
+        {validationErrors.status && (
+          <p className="text-sm text-destructive" role="alert">
+            {validationErrors.status}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -119,11 +141,18 @@ export function LessonFormFields({
           name="notes"
           value={formData.notes || ''}
           onChange={handleChange}
+          onBlur={() => handleBlur('notes')}
           rows={5}
           placeholder="Add notes about what was covered, homework assigned, student progress, etc."
           data-testid="lesson-notes"
           className="resize-none"
+          aria-invalid={!!validationErrors.notes}
         />
+        {validationErrors.notes && (
+          <p className="text-sm text-destructive" role="alert">
+            {validationErrors.notes}
+          </p>
+        )}
       </div>
     </div>
   );
