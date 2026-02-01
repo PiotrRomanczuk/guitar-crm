@@ -10,7 +10,7 @@ type TableUpdate<T extends TableName> = Tables[T]['Update'];
 
 export interface QueryOptions {
   select?: string;
-  filter?: Record<string, unknown>;
+  filter?: Record<string, any>;
   order?: string;
   limit?: number;
   offset?: number;
@@ -19,7 +19,7 @@ export interface QueryOptions {
 export interface FilterCondition {
   column: string;
   operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ilike' | 'in' | 'is' | 'not';
-  value: unknown;
+  value: any;
 }
 
 /**
@@ -82,7 +82,7 @@ export class UnifiedDatabaseAPI {
   async update<T extends TableName>(
     table: T,
     data: TableUpdate<T>,
-    filter: Record<string, unknown>
+    filter: Record<string, any>
   ): Promise<ApiResponse<TableRow<T>[]>> {
     // Build filter parameters
     const params: Record<string, string> = {};
@@ -102,7 +102,7 @@ export class UnifiedDatabaseAPI {
    */
   async delete<T extends TableName>(
     table: T,
-    filter: Record<string, unknown>
+    filter: Record<string, any>
   ): Promise<ApiResponse<void>> {
     // Build filter parameters
     const params: Record<string, string> = {};
@@ -138,7 +138,7 @@ export class UnifiedDatabaseAPI {
    */
   async count<T extends TableName>(
     table: T,
-    filter: Record<string, unknown> = {}
+    filter: Record<string, any> = {}
   ): Promise<ApiResponse<number>> {
     const params: Record<string, string> = {
       select: 'count',
@@ -151,7 +151,7 @@ export class UnifiedDatabaseAPI {
       }
     });
 
-    const response = await dbRouter.get<Array<{ count: string }>>(` /${table}`, params);
+    const response = await dbRouter.get<any>(`/${table}`, params);
 
     return {
       ...response,
@@ -162,9 +162,9 @@ export class UnifiedDatabaseAPI {
   /**
    * Execute RPC (Remote Procedure Call) function
    */
-  async rpc<TResult = unknown>(
+  async rpc<TResult = any>(
     functionName: string,
-    args: Record<string, unknown> = {}
+    args: Record<string, any> = {}
   ): Promise<ApiResponse<TResult>> {
     return dbRouter.post<TResult>(`/rpc/${functionName}`, args);
   }
@@ -172,10 +172,7 @@ export class UnifiedDatabaseAPI {
   /**
    * Raw SQL query execution (use with caution)
    */
-  async raw<TResult = unknown>(
-    query: string,
-    params: unknown[] = []
-  ): Promise<ApiResponse<TResult>> {
+  async raw<TResult = any>(query: string, params: any[] = []): Promise<ApiResponse<TResult>> {
     return dbRouter.post<TResult>('/rpc/sql', {
       query,
       params,
@@ -209,7 +206,7 @@ export const db = {
     create: (data: TableInsert<'songs'>) => unifiedDB.insert('songs', data),
     update: (id: string, data: TableUpdate<'songs'>) => unifiedDB.update('songs', data, { id }),
     delete: (id: string) => unifiedDB.delete('songs', { id }),
-    count: (filter?: Record<string, unknown>) => unifiedDB.count('songs', filter),
+    count: (filter?: Record<string, any>) => unifiedDB.count('songs', filter),
   },
 
   lessons: {
@@ -218,7 +215,7 @@ export const db = {
     create: (data: TableInsert<'lessons'>) => unifiedDB.insert('lessons', data),
     update: (id: string, data: TableUpdate<'lessons'>) => unifiedDB.update('lessons', data, { id }),
     delete: (id: string) => unifiedDB.delete('lessons', { id }),
-    count: (filter?: Record<string, unknown>) => unifiedDB.count('lessons', filter),
+    count: (filter?: Record<string, any>) => unifiedDB.count('lessons', filter),
   },
 
   profiles: {
@@ -228,7 +225,17 @@ export const db = {
     update: (id: string, data: TableUpdate<'profiles'>) =>
       unifiedDB.update('profiles', data, { id }),
     delete: (id: string) => unifiedDB.delete('profiles', { id }),
-    count: (filter?: Record<string, unknown>) => unifiedDB.count('profiles', filter),
+    count: (filter?: Record<string, any>) => unifiedDB.count('profiles', filter),
+  },
+
+  assignments: {
+    findAll: (options?: QueryOptions) => unifiedDB.query('assignments', options),
+    findById: (id: string) => unifiedDB.findById('assignments', id),
+    create: (data: TableInsert<'assignments'>) => unifiedDB.insert('assignments', data),
+    update: (id: string, data: TableUpdate<'assignments'>) =>
+      unifiedDB.update('assignments', data, { id }),
+    delete: (id: string) => unifiedDB.delete('assignments', { id }),
+    count: (filter?: Record<string, any>) => unifiedDB.count('assignments', filter),
   },
 
   // RPC functions

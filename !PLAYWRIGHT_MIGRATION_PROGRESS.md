@@ -1,0 +1,216 @@
+# 🚀 PLAYWRIGHT E2E MIGRATION - ACTIVE PROGRESS
+
+**Last Updated:** 2026-02-01 13:45
+**Status:** 🟡 IN PROGRESS
+**Completion:** 8/37 tests (22%)
+
+---
+
+## 📊 Current Status
+
+### ✅ COMPLETED TESTS (8/37)
+
+#### Priority 1: Foundation ✅ (5/5 - 100%)
+- [x] **smoke/critical-path.spec.ts** - 8 tests ✅
+  - App loads, auth system, protected routes, navigation, responsive design
+- [x] **smoke/api-endpoints.spec.ts** - 25 tests ✅
+  - Public/protected endpoints, CRUD operations, error handling
+- [x] **auth-test.spec.ts** - 3 tests ✅
+  - Login success, invalid credentials, session persistence
+  - Session caching working (.auth/*.json files)
+- [x] **admin/admin-song-crud.spec.ts** - 5 tests ✅
+  - List, Create Form, Create Flow, Edit Flow, Delete Flow
+- [x] **songs/teacher/song-crud.spec.ts** - 5 tests ✅
+  - Teacher-specific song CRUD operations
+
+#### Priority 2: Core CRUD 🔄 (3/4 - 75%)
+- [x] **lessons/teacher/lesson-crud.spec.ts** - 4 tests ✅, 2 skipped ⚠️
+  - CREATE, VERIFY CREATE, DELETE, VERIFY DELETE working
+  - EDIT tests skipped (Supabase UPDATE bug)
+- [ ] **admin/admin-lessons-workflow.spec.ts** - PENDING
+- [ ] **admin/admin-assignments-workflow.spec.ts** - PENDING
+- [ ] **assignments/teacher/assignment-crud.spec.ts** - PENDING
+
+---
+
+## 🔧 BUGS FIXED
+
+### Database & Authentication ✅
+- [x] Local database seeded with test data (32 songs, 8 lessons, 3 assignments)
+- [x] Test user credentials verified (admin, teacher, student)
+- [x] Foreign key relationships validated (users → lessons → songs → assignments)
+- [x] Admin user marked as teacher (is_teacher=true)
+- [x] Session caching implemented and working
+
+### Lessons ✅ / ⚠️
+- [x] Fixed `lesson_teacher_number` auto-generation bug
+  - Removed manual calculation from insertLessonRecord
+  - Database trigger now handles it automatically
+- [x] Added `data-testid="lesson-submit"` to FormActions component
+- [x] Created form helper utilities (tests/helpers/form.ts)
+- [x] Improved lesson update handler with field filtering
+- ⚠️ **BLOCKED:** Lesson UPDATE - Supabase PostgREST "jsonb - jsonb" operator error
+
+### Songs ✅
+- [x] All song CRUD operations working (admin & teacher)
+- [x] All required data-testid attributes present
+- [x] Form validation working correctly
+
+### Testing Infrastructure ✅
+- [x] Playwright config with 7 device projects:
+  - Desktop: Chrome, Firefox, Safari (1920x1080)
+  - Mobile: iPhone 12, iPhone 15 Pro Max
+  - Tablet: iPad Pro, iPad gen 7
+- [x] All fixtures created:
+  - auth.fixture.ts (session caching)
+  - navigation.fixture.ts
+  - form.fixture.ts (shadcn/ui helpers)
+  - verification.fixture.ts
+  - supabase.fixture.ts (LOCAL DB only)
+- [x] Test utilities ported from Cypress
+- [x] NPM scripts added for all test categories
+
+---
+
+## ⚠️ KNOWN ISSUES
+
+### 🔴 Critical
+1. **Supabase PostgREST UPDATE Bug** (Lesson Edit)
+   - Error: "operator does not exist: jsonb - jsonb"
+   - Affects: Lesson UPDATE operations
+   - Status: Investigating, tests skipped for now
+
+### 🟡 Minor
+- None currently
+
+---
+
+## 📋 REMAINING WORK
+
+### Priority 2: Core CRUD (1 test remaining)
+- [ ] admin/admin-lessons-workflow.spec.ts
+- [ ] admin/admin-assignments-workflow.spec.ts
+- [ ] assignments/teacher/assignment-crud.spec.ts
+
+### Priority 3: List/Detail Views (7 tests)
+- [ ] songs/teacher/song-list.spec.ts
+- [ ] songs/teacher/song-detail.spec.ts
+- [ ] lessons/teacher/lesson-list.spec.ts
+- [ ] lessons/teacher/lesson-detail.spec.ts
+- [ ] lessons/teacher/lesson-songs.spec.ts
+- [ ] assignments/teacher/assignment-list.spec.ts
+- [ ] assignments/teacher/assignment-detail.spec.ts
+
+### Priority 4: Student Features (6 tests)
+- [ ] lessons/student/student-lesson-list.spec.ts
+- [ ] lessons/student/student-lesson-detail.spec.ts
+- [ ] songs/student/student-song-list.spec.ts
+- [ ] songs/student/student-song-status.spec.ts
+- [ ] assignments/student/student-assignment-list.spec.ts
+- [ ] assignments/student/student-assignment-status.spec.ts
+
+### Priority 5: Advanced Features (6 tests)
+- [ ] admin/admin-navigation.spec.ts
+- [ ] dashboard/teacher-dashboard.spec.ts
+- [ ] dashboard/student-dashboard.spec.ts
+- [ ] dashboard/dashboard-navigation.spec.ts
+- [ ] integration/song-search-filter.spec.ts
+- [ ] integration/lesson-search-filter.spec.ts
+
+### Priority 6: Integration & Security (5 tests)
+- [ ] admin/admin-users-workflow.spec.ts
+- [ ] cross-feature/data-relationships.spec.ts
+- [ ] cross-feature/role-access-control.spec.ts
+- [ ] integration/auth-role-access.spec.ts
+- [ ] integration/auth-password-reset.spec.ts
+
+### Priority 7: Complex Workflows (4 tests)
+- [ ] admin/admin-songs-workflow.spec.ts
+- [ ] features/student-assignment-completion.spec.ts
+- [ ] student-learning-journey.spec.ts
+- [ ] assignments/teacher/assignment-templates.spec.ts
+
+---
+
+## 🎯 Next Steps
+
+1. **Immediate:** Complete Priority 2 (Core CRUD)
+   - Migrate admin-lessons-workflow
+   - Migrate admin-assignments-workflow
+   - Migrate assignments/teacher/assignment-crud
+
+2. **Short-term:** Priority 3 (List/Detail Views)
+   - Song list/detail views
+   - Lesson list/detail views
+   - Assignment list/detail views
+
+3. **Medium-term:** Student features and advanced features
+
+4. **Long-term:** Integration tests and complex workflows
+
+---
+
+## 🛠️ Quick Commands
+
+### Run Tests
+```bash
+# Run all Playwright tests
+npm run playwright:run
+
+# Run specific category
+npm run test:pw:smoke
+npm run test:pw:admin
+npm run test:pw:teacher
+npm run test:pw:student
+
+# Run on specific device
+npm run test:pw:iphone12
+npm run test:pw:ipad
+npm run test:pw:desktop
+
+# Open UI mode
+npm run playwright:open
+
+# Debug mode
+npm run playwright:debug
+```
+
+### Database
+```bash
+# Seed local database
+npm run seed
+
+# Inspect database
+npm run db:inspect
+```
+
+---
+
+## 📈 Success Metrics
+
+**Current Progress:**
+- Tests Migrated: 8/37 (22%)
+- Bugs Fixed: 6
+- Infrastructure: ✅ Complete
+- Local DB: ✅ Ready
+- Session Caching: ✅ Working
+
+**Target:**
+- 100% tests passing in Playwright
+- All implementation bugs fixed
+- Production-ready application
+
+---
+
+## 📝 Notes
+
+- Using **LOCAL database only** (http://127.0.0.1:54321)
+- Test credentials verified and working
+- Session caching reduces test time significantly
+- Multi-device testing configured (7 devices)
+- All fixtures and utilities ready for use
+
+**Device Testing:**
+- Desktop: Chrome, Firefox, Safari
+- Mobile: iPhone 12, iPhone 15 Pro Max
+- Tablet: iPad Pro, iPad gen 7

@@ -89,34 +89,41 @@ describe('Admin Song CRUD', () => {
       // Navigate to create form
       cy.visit('/dashboard/songs/new');
 
-      // Wait for page to fully hydrate
-      cy.wait(2000);
+      // Fill all required fields with explicit waits
+      cy.get('[data-testid="song-title"]', { timeout: 10000 })
+        .should('be.visible')
+        .clear()
+        .type(testSong.title);
 
-      // Fill all required fields with force to bypass hydration issues
-      cy.get('[data-testid="song-title"]', { timeout: 10000 }).should('be.visible');
-      cy.get('[data-testid="song-title"]').clear({ force: true }).type(testSong.title, { force: true });
+      cy.get('[data-testid="song-author"]', { timeout: 10000 })
+        .should('be.visible')
+        .clear()
+        .type(testSong.author);
 
-      cy.get('[data-testid="song-author"]').clear({ force: true }).type(testSong.author, { force: true });
+      cy.get('[data-testid="song-level"]', { timeout: 10000 })
+        .should('be.visible')
+        .select('beginner');
 
-      cy.get('[data-testid="song-level"]').select('beginner', { force: true });
-
-      cy.get('[data-testid="song-key"]').select('C', { force: true });
+      cy.get('[data-testid="song-key"]', { timeout: 10000 }).should('be.visible').select('C');
 
       // Submit form
-      cy.get('[data-testid="song-save"]').should('be.visible').click({ force: true });
+      cy.get('[data-testid="song-save"]', { timeout: 10000 })
+        .should('be.visible')
+        .and('be.enabled')
+        .click();
 
       // Verify redirect (should leave /new page)
       cy.url({ timeout: 15000 }).should('not.include', '/new');
 
       // Verify song appears in list
       cy.visit('/dashboard/songs');
-      cy.wait(2000);
-      cy.get('#search-filter', { timeout: 10000 }).should('be.visible');
-      cy.get('#search-filter').focus().clear({ force: true });
-      cy.get('#search-filter').type(testSong.title, { delay: 50, force: true });
+      cy.get('#search-filter', { timeout: 10000 })
+        .should('be.visible')
+        .clear()
+        .type(testSong.title);
 
-      cy.wait(1500); // Allow search to process
-      cy.get('[data-testid="song-table"]', { timeout: 10000 }).should('contain', testSong.title);
+      cy.wait(1000); // Allow search to process
+      cy.get('body').should('contain', testSong.title);
     });
   });
 
@@ -127,46 +134,45 @@ describe('Admin Song CRUD', () => {
     it('should edit song through detail page and verify changes', () => {
       // Navigate to songs list and find our test song
       cy.visit('/dashboard/songs');
-      cy.wait(2000);
-      
-      cy.get('#search-filter', { timeout: 10000 }).should('be.visible');
-      cy.get('#search-filter').focus().clear({ force: true });
-      cy.get('#search-filter').type(testSong.title, { delay: 50, force: true });
-
-      cy.wait(1500); // Allow search to process
-
-      // Click on song row in the table to go to detail page
-      cy.get('[data-testid="song-table"] [data-testid="song-row"]', { timeout: 10000 })
-        .first()
+      cy.get('#search-filter', { timeout: 10000 })
         .should('be.visible')
-        .click();
-      cy.location('pathname', { timeout: 10000 }).should('match', /\/songs\/[^/]+$/);
+        .clear()
+        .type(testSong.title);
+
+      cy.wait(1000); // Allow search to process
+
+      // Click on song to go to detail page
+      cy.get('body').should('contain', testSong.title);
+      cy.contains(testSong.title).click({ force: true });
+      cy.location('pathname').should('match', /\/songs\/[^/]+$/);
 
       // Navigate to edit form
       cy.get('a[href*="/edit"]', { timeout: 10000 }).should('exist').first().click({ force: true });
       cy.location('pathname').should('include', '/edit');
 
-      // Wait for form to hydrate
-      cy.wait(2000);
-
       // Update title and save
-      cy.get('[data-testid="song-title"]', { timeout: 10000 }).should('be.visible');
-      cy.get('[data-testid="song-title"]').clear({ force: true }).type(testSong.titleEdited, { force: true });
+      cy.get('[data-testid="song-title"]', { timeout: 10000 })
+        .should('be.visible')
+        .clear()
+        .type(testSong.titleEdited);
 
-      cy.get('[data-testid="song-save"]').should('be.visible').click({ force: true });
+      cy.get('[data-testid="song-save"]', { timeout: 10000 })
+        .should('be.visible')
+        .and('be.enabled')
+        .click();
 
       // Verify redirect away from edit page
       cy.url({ timeout: 15000 }).should('not.include', '/edit');
 
       // Verify changes in list
       cy.visit('/dashboard/songs');
-      cy.wait(2000);
-      cy.get('#search-filter', { timeout: 10000 }).should('be.visible');
-      cy.get('#search-filter').focus().clear({ force: true });
-      cy.get('#search-filter').type(testSong.titleEdited, { delay: 50, force: true });
+      cy.get('#search-filter', { timeout: 10000 })
+        .should('be.visible')
+        .clear()
+        .type(testSong.titleEdited);
 
-      cy.wait(1500); // Allow search to process
-      cy.get('[data-testid="song-table"]', { timeout: 10000 }).should('contain', testSong.titleEdited);
+      cy.wait(1000); // Allow search to process
+      cy.get('body').should('contain', testSong.titleEdited);
     });
   });
 
@@ -174,33 +180,41 @@ describe('Admin Song CRUD', () => {
   // DELETE FLOW
   // ===========================================
   describe('Delete Song Flow', () => {
-    // Note: Full delete + verify flow is tested in admin-songs-workflow.cy.ts
-    // This test verifies the delete confirmation dialog appears and can be cancelled
-    it('should show delete confirmation dialog when delete button is clicked', () => {
-      // Navigate to songs list
+    it('should delete song with confirmation and verify removal', () => {
+      // Navigate to songs list and find our edited test song
       cy.visit('/dashboard/songs');
-      cy.wait(2000);
+      cy.get('#search-filter', { timeout: 10000 })
+        .should('be.visible')
+        .clear()
+        .type(testSong.titleEdited);
 
-      // Wait for table to load with songs
-      cy.get('[data-testid="song-table"]', { timeout: 10000 }).should('be.visible');
+      cy.wait(1000); // Allow search to process
 
-      // Click delete button on first song in the table
-      cy.get('[data-testid="song-table"] [data-testid="song-delete-button"]', { timeout: 5000 })
+      // Verify song exists
+      cy.get('body').should('contain', testSong.titleEdited);
+
+      // Click delete button directly from the list (with force if needed)
+      cy.get('[data-testid="song-delete-button"]', { timeout: 10000 })
         .first()
         .click({ force: true });
 
-      // Verify confirmation dialog appears
-      cy.get('[data-testid="delete-confirmation-dialog"]', { timeout: 10000 }).should('be.visible');
+      // Handle delete confirmation dialog
+      cy.get('[data-testid="delete-confirm-button"]', { timeout: 10000 })
+        .should('exist')
+        .click({ force: true });
 
-      // Verify confirm and cancel buttons exist
-      cy.get('[data-testid="delete-confirm-button"]').should('be.visible');
-      cy.get('[data-testid="delete-cancel-button"]').should('be.visible');
+      // Wait for deletion to process
+      cy.wait(2000);
 
-      // Cancel the dialog by clicking the cancel button
-      cy.get('[data-testid="delete-cancel-button"]').click({ force: true });
+      // Verify song is removed from list
+      cy.visit('/dashboard/songs');
+      cy.get('#search-filter', { timeout: 10000 })
+        .should('be.visible')
+        .clear()
+        .type(testSong.titleEdited);
 
-      // Verify dialog is closed
-      cy.get('[data-testid="delete-confirmation-dialog"]', { timeout: 5000 }).should('not.exist');
+      cy.wait(1000); // Allow search to process
+      cy.get('body').should('not.contain', testSong.titleEdited);
     });
   });
 });

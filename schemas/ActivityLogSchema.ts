@@ -34,9 +34,7 @@ export const ActivityLogSchema = z.object({
   element_id: z.string().nullable().optional(),
   element_class: z.string().nullable().optional(),
   element_text: z.string().nullable().optional(),
-  additional_data: z
-    .record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]))
-    .optional(),
+  additional_data: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])).optional(),
   user_agent: z.string().nullable().optional(),
   ip_address: z.string().nullable().optional(),
   referer: z.string().nullable().optional(),
@@ -59,9 +57,7 @@ export const ActivityLogInputSchema = z.object({
   element_id: z.string().max(255).optional().nullable(),
   element_class: z.string().max(255).optional().nullable(),
   element_text: z.string().max(500).optional().nullable(),
-  additional_data: z
-    .record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]))
-    .optional(),
+  additional_data: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])).optional(),
   user_agent: z.string().optional().nullable(),
   ip_address: z.string().optional().nullable(),
   referer: z.string().optional().nullable(),
@@ -103,9 +99,7 @@ export const ClickEventSchema = z.object({
   elementClass: z.string().optional(),
   elementText: z.string().optional(),
   eventName: z.string().min(1, 'Event name required'),
-  additionalData: z
-    .record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]))
-    .optional(),
+  additionalData: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])).optional(),
 });
 
 export type ClickEvent = z.infer<typeof ClickEventSchema>;
@@ -116,9 +110,7 @@ export type ClickEvent = z.infer<typeof ClickEventSchema>;
 export const PageViewEventSchema = z.object({
   pageUrl: z.string().url(),
   eventName: z.string().default('page_view'),
-  additionalData: z
-    .record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]))
-    .optional(),
+  additionalData: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])).optional(),
 });
 
 export type PageViewEvent = z.infer<typeof PageViewEventSchema>;

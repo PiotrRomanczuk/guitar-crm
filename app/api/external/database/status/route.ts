@@ -9,7 +9,7 @@ import { db, unifiedDB } from '@/lib/api/unified-db';
  * and tests connectivity to both local and remote endpoints.
  */
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const dbInfo = unifiedDB.getDatabaseInfo();
 
