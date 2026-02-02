@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect, useMemo, FormEvent } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -130,18 +130,15 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
   const [touched, setTouched] = useState({
     email: false,
     password: false,
   });
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
+  // Validate fields using useMemo to avoid setState in effect
+  const fieldErrors = useMemo((): FieldErrors => {
+    if (!touched.email && !touched.password) return {};
 
-  const validate = (): FieldErrors => {
     const errors: FieldErrors = {};
     const result = SignInSchema.safeParse({ email, password });
 
@@ -155,29 +152,16 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
     }
 
     return errors;
-  };
-
-  // Update field errors when touched fields or values change
-  useEffect(() => {
-    if (touched.email || touched.password) {
-      setFieldErrors(validate());
-    }
-  }, [email, password, touched.email, touched.password]);
+  }, [email, password, touched]);
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
     setError(null); // Clear form-level error
-    if (touched.email) {
-      setFieldErrors((prev) => ({ ...prev, email: undefined }));
-    }
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
     setError(null); // Clear form-level error
-    if (touched.password) {
-      setFieldErrors((prev) => ({ ...prev, password: undefined }));
-    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -219,7 +203,6 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
       setEmail('');
       setPassword('');
       setTouched({ email: false, password: false });
-      setFieldErrors({});
       if (onSuccess) {
         onSuccess();
       }
@@ -306,7 +289,7 @@ export default function SignInForm({ onSuccess }: SignInFormProps) {
         {error && <FormAlert type="error" message={error} />}
         <Button
           type="submit"
-          disabled={loading || !isHydrated}
+          disabled={loading}
           data-testid="signin-button"
           className="w-full"
         >
