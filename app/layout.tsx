@@ -23,8 +23,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Guitar CRM - Student Management System',
-  description: 'Guitar teacher CRM for managing students, lessons, and progress tracking',
+  title: 'Strummy - Guitar Teaching Studio',
+  description: 'The premium platform for guitar teachers to manage students, lessons, and track progress',
   // viewport removed, now exported separately
 };
 

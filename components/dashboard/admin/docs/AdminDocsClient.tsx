@@ -15,7 +15,7 @@ export function AdminDocsClient() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-2">Developer Documentation</h1>
         <p className="text-muted-foreground">
-          Technical documentation and integration guides for Guitar CRM.
+          Technical documentation and integration guides for Strummy.
           <span className="ml-2 inline-flex items-center rounded-md bg-warning/10 px-2 py-1 text-xs font-medium text-warning ring-1 ring-inset ring-warning/20">
             Admin Only
           </span>
@@ -74,10 +74,10 @@ export function AdminDocsClient() {
             <TabsContent value="overview" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Welcome to Guitar CRM Developer Docs</CardTitle>
+                  <CardTitle>Welcome to Strummy Developer Docs</CardTitle>
                   <CardDescription>
                     This documentation is intended for administrators and developers working on
-                    extending the Guitar CRM platform.
+                    extending the Strummy platform.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -96,7 +96,7 @@ export function AdminDocsClient() {
                 <CardHeader>
                   <CardTitle>Authentication</CardTitle>
                   <CardDescription>
-                    How to authenticate your requests to the Guitar CRM API.
+                    How to authenticate your requests to the Strummy API.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -138,7 +138,7 @@ export function AdminDocsClient() {
                 <CardContent className="space-y-4">
                   <p>
                     You can use the <strong>Scriptable</strong> app on iOS to create custom widgets
-                    that display data from Guitar CRM.
+                    that display data from Strummy.
                   </p>
 
                   <div className="space-y-2">
@@ -176,7 +176,7 @@ async function createWidget() {
   let data = await req.loadJSON();
 
   // UI
-  let title = w.addText("Guitar CRM");
+  let title = w.addText("Strummy");
   title.textColor = Color.orange();
   title.font = Font.boldSystemFont(16);
   

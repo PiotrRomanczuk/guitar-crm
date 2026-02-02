@@ -24,7 +24,7 @@ export function WelcomeTour({ firstName }: WelcomeTourProps) {
           {
             element: 'body',
             popover: {
-              title: `Welcome to Guitar CRM${firstName ? `, ${firstName}` : ''}! 🎸`,
+              title: `Welcome to Strummy${firstName ? `, ${firstName}` : ''}! 🎸`,
               description:
                 "Let's take a quick tour of your dashboard. You can skip this anytime by pressing ESC or clicking outside.",
               side: 'bottom',

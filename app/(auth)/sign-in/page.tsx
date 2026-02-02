@@ -117,7 +117,7 @@ export default function SignInPage() {
       <SimpleDatabaseStatus />
 
       <AuthHeader
-        title="Sign in to Guitar CRM"
+        title="Sign in to Strummy"
         subtitle="Manage your studio with AI-powered tools."
       />
 
