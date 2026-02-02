@@ -289,7 +289,7 @@ export default function Header({
               style={{ minWidth: 0 }}
             >
               <span className="text-2xl sm:text-3xl">🎸</span>
-              <span className="hidden sm:inline">Guitar CRM</span>
+              <span className="hidden sm:inline">Strummy</span>
               <span className="sm:hidden">CRM</span>
             </button>
 

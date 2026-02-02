@@ -103,7 +103,7 @@ export default function SignUpPage() {
         <div className="relative z-10 flex-1 overflow-y-auto px-6 pt-2 pb-8">
           {/* Hero / Branding */}
           <AuthHeader
-            title="Join Guitar CRM"
+            title="Join Strummy"
             subtitle="Manage your students and lessons with AI-powered tools."
           />
 

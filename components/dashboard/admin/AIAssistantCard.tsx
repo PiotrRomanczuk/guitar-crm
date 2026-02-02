@@ -50,7 +50,7 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
       role: 'system',
       content: `Hi${
         firstName ? ` ${firstName}` : ''
-      }! 👋 I'm your Guitar CRM AI assistant. I can help you with:\n\n• Practice tips and techniques\n• Song recommendations\n• Lesson planning advice\n• Student management strategies\n• Music theory questions\n\nTry asking me something or click one of the suggested prompts below!`,
+      }! 👋 I'm your Strummy AI assistant. I can help you with:\n\n• Practice tips and techniques\n• Song recommendations\n• Lesson planning advice\n• Student management strategies\n• Music theory questions\n\nTry asking me something or click one of the suggested prompts below!`,
       timestamp: new Date(),
     };
     return [welcomeMessage];
@@ -130,7 +130,7 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
       role: 'system',
       content: `Hi${
         firstName ? ` ${firstName}` : ''
-      }! 👋 I'm your Guitar CRM AI assistant. I can help you with:\n\n• Practice tips and techniques\n• Song recommendations\n• Lesson planning advice\n• Student management strategies\n• Music theory questions\n\nTry asking me something or click one of the suggested prompts below!`,
+      }! 👋 I'm your Strummy AI assistant. I can help you with:\n\n• Practice tips and techniques\n• Song recommendations\n• Lesson planning advice\n• Student management strategies\n• Music theory questions\n\nTry asking me something or click one of the suggested prompts below!`,
       timestamp: new Date(),
     };
     setMessages([welcomeMessage]);

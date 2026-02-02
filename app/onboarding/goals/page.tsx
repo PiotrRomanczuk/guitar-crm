@@ -30,7 +30,7 @@ export default function OnboardingGoalsPage() {
       stepLabel="Learning Goals"
       title={
         <>
-          Welcome to Guitar CRM!
+          Welcome to Strummy!
         </>
       }
       subtitle="Select your primary learning goals so our AI can tailor your lesson plan."

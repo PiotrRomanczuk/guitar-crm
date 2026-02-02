@@ -14,7 +14,7 @@ export function LandingHeader() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
           <Music className="h-9 w-9 text-[#ec9c13]" />
-          <span className="text-gray-900 dark:text-white text-2xl font-bold tracking-tight">Guitar CRM</span>
+          <span className="text-gray-900 dark:text-white text-2xl font-bold tracking-tight">Strummy</span>
         </Link>
 
         {/* Desktop Navigation */}
