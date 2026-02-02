@@ -10,12 +10,20 @@ import { LandingChatButton } from './Landing.ChatButton';
 
 export function LandingPage() {
   return (
-    <div className="relative min-h-screen flex flex-col w-full mx-auto overflow-x-hidden bg-[#221b10]">
-      {/* Wood texture background */}
+    <div className="relative min-h-screen flex flex-col w-full mx-auto overflow-x-hidden bg-amber-50 dark:bg-[#221b10]">
+      {/* Wood texture background (dark mode only) */}
       <div
-        className="fixed inset-0 z-0 opacity-30 pointer-events-none"
+        className="fixed inset-0 z-0 opacity-0 dark:opacity-30 pointer-events-none"
         style={{
           backgroundImage: `url("https://www.transparenttextures.com/patterns/wood-pattern.png")`,
+        }}
+      />
+
+      {/* Light mode subtle pattern */}
+      <div
+        className="fixed inset-0 z-0 opacity-[0.03] dark:opacity-0 pointer-events-none"
+        style={{
+          backgroundImage: `url("https://www.transparenttextures.com/patterns/cream-paper.png")`,
         }}
       />
 
