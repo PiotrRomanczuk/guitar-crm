@@ -6,10 +6,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 interface UserFormFieldsProps {
   formData: FormData;
+  errors?: Record<string, string>;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (field: string) => void;
 }
 
-export default function UserFormFields({ formData, onChange }: UserFormFieldsProps) {
+export default function UserFormFields({ formData, errors = {}, onChange, onBlur }: UserFormFieldsProps) {
   const handleCheckboxChange = (name: string) => (checked: boolean) => {
     const event = {
       target: {
@@ -32,8 +34,15 @@ export default function UserFormFields({ formData, onChange }: UserFormFieldsPro
             name="firstName"
             value={formData.firstName}
             onChange={onChange}
+            onBlur={() => onBlur?.('firstName')}
             data-testid="firstName-input"
+            aria-invalid={!!errors.firstName}
           />
+          {errors.firstName && (
+            <p className="text-sm text-destructive" role="alert">
+              {errors.firstName}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="lastName">Last Name</Label>
@@ -42,8 +51,15 @@ export default function UserFormFields({ formData, onChange }: UserFormFieldsPro
             name="lastName"
             value={formData.lastName}
             onChange={onChange}
+            onBlur={() => onBlur?.('lastName')}
             data-testid="lastName-input"
+            aria-invalid={!!errors.lastName}
           />
+          {errors.lastName && (
+            <p className="text-sm text-destructive" role="alert">
+              {errors.lastName}
+            </p>
+          )}
         </div>
       </div>
 
@@ -57,12 +73,19 @@ export default function UserFormFields({ formData, onChange }: UserFormFieldsPro
             type="email"
             value={formData.email}
             onChange={onChange}
+            onBlur={() => onBlur?.('email')}
             required={!formData.isShadow}
             placeholder={
               formData.isShadow ? 'No email required for shadow user' : 'user@example.com'
             }
             data-testid="email-input"
+            aria-invalid={!!errors.email}
           />
+          {errors.email && (
+            <p className="text-sm text-destructive" role="alert">
+              {errors.email}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="username">Username</Label>
@@ -71,8 +94,15 @@ export default function UserFormFields({ formData, onChange }: UserFormFieldsPro
             name="username"
             value={formData.username}
             onChange={onChange}
+            onBlur={() => onBlur?.('username')}
             data-testid="username-input"
+            aria-invalid={!!errors.username}
           />
+          {errors.username && (
+            <p className="text-sm text-destructive" role="alert">
+              {errors.username}
+            </p>
+          )}
         </div>
       </div>
 

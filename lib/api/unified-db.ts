@@ -228,15 +228,15 @@ export const db = {
     count: (filter?: Record<string, any>) => unifiedDB.count('profiles', filter),
   },
 
-  assignments: {
-    findAll: (options?: QueryOptions) => unifiedDB.query('assignments', options),
-    findById: (id: string) => unifiedDB.findById('assignments', id),
-    create: (data: TableInsert<'assignments'>) => unifiedDB.insert('assignments', data),
-    update: (id: string, data: TableUpdate<'assignments'>) =>
-      unifiedDB.update('assignments', data, { id }),
-    delete: (id: string) => unifiedDB.delete('assignments', { id }),
-    count: (filter?: Record<string, any>) => unifiedDB.count('assignments', filter),
-  },
+  // assignments: {
+  //   findAll: (options?: QueryOptions) => unifiedDB.query('assignments', options),
+  //   findById: (id: string) => unifiedDB.findById('assignments', id),
+  //   create: (data: TableInsert<'assignments'>) => unifiedDB.insert('assignments', data),
+  //   update: (id: string, data: TableUpdate<'assignments'>) =>
+  //     unifiedDB.update('assignments', data, { id }),
+  //   delete: (id: string) => unifiedDB.delete('assignments', { id }),
+  //   count: (filter?: Record<string, any>) => unifiedDB.count('assignments', filter),
+  // },
 
   // RPC functions
   rpc: {

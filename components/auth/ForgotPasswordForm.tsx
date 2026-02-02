@@ -21,7 +21,7 @@ export default function ForgotPasswordForm({
   const [success, setSuccess] = useState(false);
   const [touched, setTouched] = useState(false);
 
-  const validate = () => {
+  const getFieldError = (): string | null => {
     if (!touched) return null;
 
     const result = ForgotPasswordSchema.safeParse({ email });
@@ -30,7 +30,12 @@ export default function ForgotPasswordForm({
     return result.error.issues[0]?.message || 'Invalid email';
   };
 
-  const validationError = validate();
+  const fieldError = getFieldError();
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    setError(null); // Clear form-level error
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -73,14 +78,20 @@ export default function ForgotPasswordForm({
           name="email"
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={handleEmailChange}
           onBlur={() => setTouched(true)}
           required
           placeholder="you@example.com"
+          aria-invalid={!!fieldError}
+          className={fieldError ? 'border-destructive' : ''}
         />
+        {fieldError && (
+          <p className="text-sm text-destructive" role="alert">
+            {fieldError}
+          </p>
+        )}
       </div>
 
-      {validationError && <FormAlert type="error" message={validationError} />}
       {error && <FormAlert type="error" message={error} />}
       {success && <FormAlert type="success" message="Check your email for the reset link" />}
 
@@ -88,8 +99,8 @@ export default function ForgotPasswordForm({
         {loading ? 'Sending...' : 'Send Reset Link'}
       </Button>
 
-      <p className="text-center text-sm">
-        <a href="/sign-in" className="text-primary hover:underline">
+      <p className="text-center text-sm text-muted-foreground">
+        <a href="/sign-in" className="text-primary hover:underline font-medium">
           Back to sign in
         </a>
       </p>

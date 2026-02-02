@@ -59,7 +59,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Transform songs data
     const songs =
       userSongs?.map((us) => ({
-        ...(us.songs as Record<string, unknown>),
+        ...(us.songs as object),
         status: us.status,
       })) || [];
 

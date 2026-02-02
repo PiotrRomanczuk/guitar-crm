@@ -15,7 +15,7 @@ interface ProfilePageClientProps {
 
 export default function ProfilePageClient({ userId }: ProfilePageClientProps) {
   // Create a pseudo-user object for existing hook signature
-  const { loading, saving, error, success, formData, setFormData, handleSubmit } = useProfileData({
+  const { loading, saving, error, success, formData, validationErrors, setFormData, handleBlur, handleSubmit } = useProfileData({
     id: userId,
   });
 
@@ -32,9 +32,11 @@ export default function ProfilePageClient({ userId }: ProfilePageClientProps) {
         <ProfileForm
           formData={formData}
           userEmail={undefined}
+          errors={validationErrors}
           saving={saving}
           onSubmit={handleSubmit}
           onChange={setFormData}
+          onBlur={handleBlur}
           onCancel={() => redirect('/dashboard')}
         />
       </div>

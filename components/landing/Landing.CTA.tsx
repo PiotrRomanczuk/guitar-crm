@@ -2,137 +2,35 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Music } from 'lucide-react';
 
 export function LandingCTA() {
   return (
-    <section className="relative py-24 sm:py-32 overflow-hidden">
-      {/* Background with organic shapes */}
-      <div className="absolute inset-0 bg-gradient-to-br from-card via-card to-muted/50">
-        {/* Flowing curves */}
-        <svg
-          className="absolute inset-0 w-full h-full opacity-[0.03] dark:opacity-[0.05]"
-          viewBox="0 0 1440 600"
-          preserveAspectRatio="xMidYMid slice"
-        >
-          <path
-            d="M-100,300 Q260,100 620,300 T1340,300 T2060,300"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            className="text-primary"
-          />
-          <path
-            d="M-100,350 Q260,500 620,350 T1340,350 T2060,350"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            className="text-primary"
-          />
-        </svg>
+    <section className="relative px-6 lg:px-8 py-24 bg-gradient-to-b from-amber-50 to-amber-100/50 dark:from-[#181511] dark:to-[#0f0d0a] text-center overflow-hidden">
+      {/* Top gradient line */}
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-amber-300 dark:via-[#3a2e22] to-transparent" />
 
-        {/* Glow orbs */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute top-1/4 right-1/4 w-64 h-64 rounded-full bg-primary/5 blur-2xl" />
-        <div className="absolute bottom-1/4 left-1/4 w-48 h-48 rounded-full bg-primary/5 blur-2xl" />
-      </div>
-
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {/* Icon */}
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-amber-500 shadow-xl shadow-primary/30 mb-8">
-          <Music className="w-8 h-8 text-primary-foreground" />
-        </div>
-
-        {/* Heading */}
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-          Ready to transform
-          <br />
-          <span className="bg-gradient-to-r from-primary via-amber-500 to-primary bg-clip-text text-transparent">
-            your teaching studio?
-          </span>
-        </h2>
-
-        {/* Description */}
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-          Join thousands of guitar teachers who&apos;ve streamlined their studio,
-          delighted their students, and rediscovered the joy of teaching.
+      <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
+        <h3 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          Ready to tune up your business?
+        </h3>
+        <p className="text-gray-600 dark:text-[#b9af9d] text-lg mb-10">
+          Join thousands of instructors elevating their teaching game today. Start your
+          14-day free trial.
         </p>
 
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-          <Link href="/sign-up" prefetch={false}>
-            <Button
-              size="lg"
-              className="group relative overflow-hidden px-8 py-6 text-base shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all duration-300"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Start your free trial
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-primary to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </Button>
-          </Link>
-          <Link href="/sign-in" prefetch={false}>
-            <Button
-              variant="outline"
-              size="lg"
-              className="px-8 py-6 text-base border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300"
-            >
-              Sign in to your account
-            </Button>
-          </Link>
-        </div>
-
-        {/* Trust badges */}
-        <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <svg
-              className="w-4 h-4 text-primary"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            <span>14-day free trial</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <svg
-              className="w-4 h-4 text-primary"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            <span>No credit card required</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <svg
-              className="w-4 h-4 text-primary"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            <span>Cancel anytime</span>
-          </div>
+        <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+          <Button
+            asChild
+            className="px-8 py-4 h-auto bg-[#ec9c13] hover:bg-amber-600 text-[#181511] font-bold rounded-lg shadow-lg shadow-amber-900/20 text-lg transition-transform hover:-translate-y-1"
+          >
+            <Link href="/sign-up">Get Started Now</Link>
+          </Button>
+          <Button
+            variant="outline"
+            className="px-8 py-4 h-auto bg-white dark:bg-[#2e261d] border border-[#ec9c13]/30 text-[#d4880f] dark:text-[#ec9c13] hover:bg-amber-50 dark:hover:bg-[#3a2e22] font-bold rounded-lg transition-all duration-300 text-lg"
+          >
+            View All Features
+          </Button>
         </div>
       </div>
     </section>

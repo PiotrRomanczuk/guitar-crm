@@ -97,4 +97,9 @@ temp/
 # Sentry Config File
 .env.sentry-build-plugin
 
-.jest-cache
+# Design reference files
+stitch/
+landing.html
+
+# Playwright MCP
+.playwright-mcp/

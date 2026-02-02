@@ -5,18 +5,22 @@ import { ProfileFormActions } from '../ui/ProfileComponents';
 interface ProfileFormProps {
 	formData: ProfileEdit;
 	userEmail?: string;
+	errors?: Record<string, string>;
 	saving: boolean;
 	onSubmit: (e: React.FormEvent) => void;
 	onChange: (data: ProfileEdit) => void;
+	onBlur?: (field: string) => void;
 	onCancel: () => void;
 }
 
 export function ProfileForm({
 	formData,
 	userEmail,
+	errors,
 	saving,
 	onSubmit,
 	onChange,
+	onBlur,
 	onCancel,
 }: ProfileFormProps) {
 	return (
@@ -24,7 +28,9 @@ export function ProfileForm({
 			<ProfileFormFields
 				formData={formData}
 				userEmail={userEmail}
+				errors={errors}
 				onChange={onChange}
+				onBlur={onBlur}
 			/>
 			<ProfileFormActions saving={saving} onCancel={onCancel} />
 		</form>

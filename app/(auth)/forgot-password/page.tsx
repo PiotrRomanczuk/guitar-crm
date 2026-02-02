@@ -8,7 +8,7 @@ export default function ForgotPasswordPage() {
 			<div className='max-w-md w-full bg-background rounded-lg shadow-xl p-4 sm:p-8'>
 				<div className='text-center mb-6 sm:mb-8'>
 					<h1 className='text-2xl sm:text-3xl font-bold text-foreground mb-2'>
-						Guitar CRM
+						Strummy
 					</h1>
 					<p className='text-xs sm:text-sm text-muted-foreground'>
 						Reset your password

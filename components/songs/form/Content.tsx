@@ -5,6 +5,8 @@ import { SongInputSchema, Song } from '@/schemas/SongSchema';
 import SongFormFields from './Fields';
 import { createFormData, clearFieldError, parseZodErrors, SongFormData } from './helpers';
 import { SpotifyTrack } from '@/types/spotify';
+import { useRouter } from 'next/navigation';
+import FormActions from '@/components/shared/FormActions';
 
 interface Props {
   mode: 'create' | 'edit';
@@ -42,6 +44,7 @@ async function saveSong(mode: 'create' | 'edit', data: unknown, songId?: string)
 }
 
 export default function SongFormContent({ mode, song, onSuccess }: Props) {
+  const router = useRouter();
   const [formData, setFormData] = useState(createFormData(song));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,6 +54,25 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => clearFieldError(prev, field));
+    }
+  };
+
+  const handleBlur = (field: string) => {
+    // Validate single field on blur
+    try {
+      const fieldSchema = SongInputSchema.shape[field as keyof typeof SongInputSchema.shape];
+      if (fieldSchema) {
+        fieldSchema.parse(formData[field as keyof SongFormData]);
+        // Clear error if validation passes
+        if (errors[field]) {
+          setErrors((prev) => clearFieldError(prev, field));
+        }
+      }
+    } catch (err) {
+      const fieldErrors = parseZodErrors(err);
+      if (fieldErrors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: fieldErrors[field] }));
+      }
     }
   };
 
@@ -152,17 +174,17 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
         formData={formData}
         errors={errors}
         onChange={handleChange}
+        onBlur={handleBlur}
         onSpotifySelect={handleSpotifySelect}
       />
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        data-testid="song-save"
-        className="w-full px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground"
-      >
-        {isSubmitting ? 'Saving...' : 'Save song'}
-      </button>
+      <FormActions
+        isSubmitting={isSubmitting}
+        submitText={mode === 'create' ? 'Create Song' : 'Update Song'}
+        submittingText="Saving..."
+        onCancel={() => router.back()}
+        showCancel
+      />
     </form>
   );
 }

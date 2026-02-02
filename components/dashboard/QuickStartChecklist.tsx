@@ -68,7 +68,7 @@ export function QuickStartChecklist() {
             Getting Started
           </h3>
           <p className="text-sm text-muted-foreground mt-1">
-            Complete these steps to get the most out of Guitar CRM
+            Complete these steps to get the most out of Strummy
           </p>
         </div>
         <button

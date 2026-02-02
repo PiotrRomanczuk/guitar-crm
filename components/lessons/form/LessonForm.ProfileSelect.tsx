@@ -37,7 +37,12 @@ export function ProfileSelect({ value, onChange, options, label, name, error }: 
         {label} <span className="text-destructive">*</span>
       </Label>
       <Select value={value} onValueChange={handleValueChange} required>
-        <SelectTrigger id={name} data-testid={`lesson-${name}`} className="w-full">
+        <SelectTrigger
+          id={name}
+          data-testid={`lesson-${name}`}
+          className="w-full"
+          aria-invalid={!!error}
+        >
           <SelectValue placeholder={`Select a ${label.toLowerCase()}`} />
         </SelectTrigger>
         <SelectContent>
@@ -53,7 +58,11 @@ export function ProfileSelect({ value, onChange, options, label, name, error }: 
           ))}
         </SelectContent>
       </Select>
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
