@@ -1,8 +1,9 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { Music } from 'lucide-react';
+import { Music, ArrowLeft } from 'lucide-react';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -21,6 +22,15 @@ function AuthLayout({ children, className }: AuthLayoutProps) {
         className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none"
         aria-hidden="true"
       />
+
+      {/* Back to home link */}
+      <Link
+        href="/"
+        className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span>Back to home</span>
+      </Link>
 
       {/* Main container */}
       <div className={cn('relative w-full max-w-[400px] flex flex-col gap-6', className)}>
