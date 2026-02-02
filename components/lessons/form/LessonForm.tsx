@@ -109,7 +109,7 @@ export default function LessonForm(props: UseLessonFormProps) {
             formData={formData}
             validationErrors={validationErrors}
             handleChange={handleChange}
-            handleBlur={handleBlur}
+            handleBlur={(field) => handleBlur(field as keyof typeof formData)}
             studentName={students.find((s) => s.id === formData.student_id)?.full_name || ''}
             selectedSongs={selectedSongs}
           />

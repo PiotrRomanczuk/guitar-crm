@@ -105,7 +105,13 @@ export default function AssignmentForm({
 }
 
 async function submitAssignment(
-  formData: Record<string, string>,
+  formData: {
+    title: string;
+    description: string;
+    due_date: string;
+    status: string;
+    student_id: string;
+  },
   mode: string,
   id: string | undefined,
   router: ReturnType<typeof useRouter>,

@@ -18,7 +18,7 @@ export const InviteUserSchema = z.object({
     .optional()
     .or(z.literal('')),
   role: z.enum(['student', 'teacher', 'admin'], {
-    required_error: 'Please select a role',
+    message: 'Please select a role',
   }),
 });
 

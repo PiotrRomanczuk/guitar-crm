@@ -9,7 +9,7 @@ export const SongSchema = z.object({
   level: DifficultyLevelEnum,
   key: MusicKeyEnum,
   chords: z.string().optional(),
-  audio_files: z.record(z.string()).optional(), // JSONB field - key: audio type, value: URL
+  audio_files: z.record(z.string(), z.string()).optional(), // JSONB field - key: audio type, value: URL
   ultimate_guitar_link: URLField,
   youtube_url: URLField,
   gallery_images: z.array(z.string()).optional(),
@@ -38,7 +38,7 @@ export const SongInputSchema = z.object({
   youtube_url: URLField,
   gallery_images: z.array(z.string()).optional(),
   cover_image_url: URLField.optional().or(z.literal('')).nullable(),
-  audio_files: z.record(z.string()).optional(), // key: audio type, value: URL
+  audio_files: z.record(z.string(), z.string()).optional(), // key: audio type, value: URL
   spotify_link_url: URLField.optional().or(z.literal('')),
   capo_fret: z.number().int().min(0).max(20).optional().nullable(),
   strumming_pattern: z.string().max(100).optional().nullable(),
@@ -113,7 +113,7 @@ export const SongImportSchema = z.object({
 
 // Song import validation schema (for validation mode)
 export const SongImportValidationSchema = z.object({
-  songs: z.array(z.record(z.unknown())), // Accepts objects for validation before type checking
+  songs: z.array(z.record(z.string(), z.unknown())), // Accepts objects for validation before type checking
   overwrite: z.boolean().default(false),
   validate_only: z.boolean().default(false),
 });
