@@ -172,13 +172,12 @@ describe('createAssignmentTemplate', () => {
 
   it('should validate input data', async () => {
     mockGetUserWithRolesSSR.mockResolvedValue({
-      user: { id: 'teacher-id' },
+      user: { id: '523e4567-e89b-12d3-a456-426614174004' },
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
     });
 
-    // Invalid data - missing required fields
     await expect(
       createAssignmentTemplate({
         title: '',
@@ -240,7 +239,6 @@ describe('updateAssignmentTemplate', () => {
 
     await updateAssignmentTemplate(updateData);
 
-    // Admin should not check ownership
     expect(mockSelect).not.toHaveBeenCalled();
     expect(mockUpdate).toHaveBeenCalledWith(updateData);
   });
@@ -363,7 +361,6 @@ describe('deleteAssignmentTemplate', () => {
 
     await deleteAssignmentTemplate('template-id');
 
-    // Admin should not check ownership
     expect(mockSelect).not.toHaveBeenCalled();
     expect(mockDelete).toHaveBeenCalled();
   });
