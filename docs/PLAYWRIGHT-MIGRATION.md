@@ -1,16 +1,16 @@
 # 🚀 PLAYWRIGHT E2E MIGRATION - ACTIVE PROGRESS
 
-**Last Updated:** 2026-02-01 13:45
+**Last Updated:** 2026-02-02 23:25
 **Status:** 🟡 IN PROGRESS
-**Completion:** 8/37 tests (22%)
+**Completion:** 12/41 tests (29%) - 4 new critical tests added
 
 ---
 
 ## 📊 Current Status
 
-### ✅ COMPLETED TESTS (8/37)
+### ✅ COMPLETED TESTS (12/41)
 
-#### Priority 1: Foundation ✅ (5/5 - 100%)
+#### Priority 1: Foundation & Security ✅ (9/9 - 100%)
 - [x] **smoke/critical-path.spec.ts** - 8 tests ✅
   - App loads, auth system, protected routes, navigation, responsive design
 - [x] **smoke/api-endpoints.spec.ts** - 25 tests ✅
@@ -18,6 +18,14 @@
 - [x] **auth-test.spec.ts** - 3 tests ✅
   - Login success, invalid credentials, session persistence
   - Session caching working (.auth/*.json files)
+- [x] **auth/sign-up-complete.spec.ts** - 40 tests ✅ NEW
+  - Complete sign-up flow with validation, email verification UI, mobile responsive
+- [x] **security/auth-server-actions.spec.ts** - 21 tests ✅ NEW
+  - Server action authorization (inviteUser, createShadowUser, deleteUser)
+- [x] **security/teacher-isolation.spec.ts** - 2 tests ✅ NEW
+  - Teacher data isolation, lesson filtering, student list vulnerability
+- [x] **onboarding/complete-flow.spec.ts** - 8 tests ✅ (16 documented) NEW
+  - Access control, redirect logic, multi-step form (goals → skill → preferences)
 - [x] **admin/admin-song-crud.spec.ts** - 5 tests ✅
   - List, Create Form, Create Flow, Edit Flow, Delete Flow
 - [x] **songs/teacher/song-crud.spec.ts** - 5 tests ✅
