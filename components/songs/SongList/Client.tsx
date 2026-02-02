@@ -3,10 +3,10 @@
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import type { Song } from '../types';
-import SongListFilter from './Filter';
-import SongListTable from './Table';
-import SongListHeader from './Header';
-import SongListEmpty from './Empty';
+import SongListFilter from '../list/Filter';
+import SongListTable from '../list/Table';
+import SongListHeader from '../list/Header';
+import SongListEmpty from '../list/Empty';
 import {
   Pagination,
   PaginationContent,

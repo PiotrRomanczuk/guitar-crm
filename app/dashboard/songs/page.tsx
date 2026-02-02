@@ -76,9 +76,7 @@ export default async function SongsPage(props: Props) {
         } as Song);
     });
     
-    const initialSongs = Array.from(processedSongsMap.values());
-
-    return <StudentSongsPageClient initialSongs={initialSongs} />;
+    return <StudentSongsPageClient />;
   }
 
   return (
