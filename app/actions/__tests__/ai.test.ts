@@ -95,36 +95,35 @@ describe('getAvailableModels', () => {
       { id: 'model-2', name: 'Claude 3' },
     ];
 
-    mockGetAIProvider.mockReturnValue({
-      getModels: jest.fn().mockResolvedValue(mockModels),
+    mockGetAIProvider.mockResolvedValue({
+      name: 'OpenRouter',
+      listModels: jest.fn().mockResolvedValue(mockModels),
     });
 
     const result = await getAvailableModels();
 
-    expect(result.success).toBe(true);
     expect(result.models).toEqual(mockModels);
+    expect(result.providerName).toBe('OpenRouter');
+    expect(result.error).toBeUndefined();
   });
 
   it('should handle provider errors', async () => {
-    mockGetAIProvider.mockReturnValue({
-      getModels: jest.fn().mockRejectedValue(new Error('API error')),
-    });
+    mockGetAIProvider.mockRejectedValue(new Error('API error'));
 
     const result = await getAvailableModels();
 
-    expect(result.success).toBe(false);
+    expect(result.models).toBeUndefined();
+    expect(result.providerName).toBeUndefined();
     expect(result.error).toBe('API error');
   });
 
   it('should handle unknown error types', async () => {
-    mockGetAIProvider.mockReturnValue({
-      getModels: jest.fn().mockRejectedValue('String error'),
-    });
+    mockGetAIProvider.mockRejectedValue('String error');
 
     const result = await getAvailableModels();
 
-    expect(result.success).toBe(false);
-    expect(result.error).toBe('Unknown error');
+    expect(result.models).toBeUndefined();
+    expect(result.error).toBe('Failed to fetch available models.');
   });
 });
 
