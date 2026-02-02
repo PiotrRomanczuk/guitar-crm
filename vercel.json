@@ -1,27 +1,8 @@
 {
-  "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
-    }
-  },
-  "functions": {
-    "app/**": {
-      "maxDuration": 30
-    }
-  },
-  "regions": ["iad1"],
   "crons": [
     {
-      "path": "/api/cron/daily-report",
-      "schedule": "0 20 * * *"
+      "path": "/api/cron/renew-webhooks",
+      "schedule": "0 2 * * *"
     }
-  ],
-  "github": {
-    "enabled": true,
-    "autoAlias": true
-  }
+  ]
 }

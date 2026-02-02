@@ -1,80 +1,73 @@
-# Security Tests
+# Security Tests Documentation
 
 ## Overview
 
-Critical security tests for server action authorization in Strummy.
+This directory contains critical security tests for the Strummy application, focusing on authorization and access control enforcement.
 
-## Files
+## Test Files
 
-- **auth-server-actions.spec.ts** (650 lines, 21 tests)
-  - Tests authorization controls for `inviteUser()`, `createShadowUser()`, `deleteUser()`
-  - Verifies role-based access control (RBAC)
-  - Priority: P0 - Critical Security
+### `auth-server-actions.spec.ts`
 
-## Running Tests
+**Purpose**: Verify server action authorization controls
+
+**Test Coverage**: 21 tests across 5 test suites
+
+**Priority**: P0 - Critical Security Tests
+
+**Tags**: `@security`, `@server-actions`, `@authorization`, `@rbac`
+
+## What We're Testing
+
+### 1. Server Action Authorization
+
+The tests verify that Next.js Server Actions in `/app/dashboard/actions.ts` properly enforce role-based access control:
+
+#### Critical Server Actions Tested:
+
+1. **`inviteUser()`** (Lines 120-189)
+   - Admin-only action
+   - Creates new users and assigns roles
+   - **Security Risk**: Could allow privilege escalation if not secured
+   - **Current Status**: ✅ FIXED - Proper admin check implemented
+
+2. **`createShadowUser()`** (Lines 191-391)
+   - Teacher/Admin action
+   - Creates student profiles from calendar sync
+   - **Security Risk**: Could allow unauthorized student creation
+   - **Current Status**: ✅ FIXED - Teacher/Admin check implemented
+
+3. **`deleteUser()`** (Lines 605-654)
+   - Admin-only action
+   - Removes users from system
+   - **Security Risk**: Critical - user data deletion
+   - **Current Status**: ✅ SECURE - Properly implemented from start
+
+## Running the Tests
+
+### Run All Security Tests
+
+```bash
+npx playwright test tests/e2e/security/
+```
+
+### Run with Specific Tags
 
 ```bash
 # All security tests
-npx playwright test tests/e2e/security/
-
-# With tags
 npx playwright test --grep @security
+
+# Server action tests only
 npx playwright test --grep @server-actions
 ```
 
-## Test Coverage
+## Test Suites
 
 ### 1. inviteUser() Security (5 tests)
-- Admin access allowed
-- Unauthenticated blocked
-- Student blocked
-- Teacher (non-admin) blocked
-- Server-side enforcement
-
 ### 2. createShadowUser() Security (4 tests)
-- Admin access allowed
-- Teacher access allowed
-- Student blocked
-- Server-side enforcement
-
 ### 3. deleteUser() Security (4 tests)
-- Admin access allowed
-- Student blocked
-- Teacher (non-admin) blocked
-- Server-side enforcement
-
-### 4. Cross-Role Authorization (4 tests)
-- Privilege escalation prevention
-- Per-request authorization
-- Authentication required
-- Role hierarchy enforcement
-
+### 4. Cross-Role Authorization Enforcement (4 tests)
 ### 5. Security Best Practices (4 tests)
-- No sensitive data leakage
-- Email validation
-- HTTPS headers
-- Session timeout
-
-## Security Status
-
-✅ **All vulnerabilities FIXED**
-
-Previously vulnerable server actions now have proper authorization:
-- `inviteUser()` - Admin-only check added
-- `createShadowUser()` - Teacher/Admin check added
-- `deleteUser()` - Already secure (reference pattern)
-
-## Quick Reference
-
-**Test Credentials** (from `playwright.config.ts`):
-- Admin: `p.romanczuk@gmail.com` / `test123_admin`
-- Teacher: `teacher@example.com` / `test123_teacher`
-- Student: `student@example.com` / `test123_student`
-
-**Tags**:
-- `@security` - All security tests
-- `@server-actions` - Server action tests
-- `@authorization` - Authorization tests
-- `@rbac` - Role-based access control
 
 **Last Updated**: 2026-02-02
+**Test Count**: 21 tests
+**Status**: All tests passing ✅
