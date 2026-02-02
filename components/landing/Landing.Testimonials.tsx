@@ -40,24 +40,24 @@ function TestimonialCard({
   avatar,
 }: (typeof testimonials)[0]) {
   return (
-    <div className="rounded-xl bg-[#27231c] p-8 border border-[#3a2e22] flex flex-col gap-6 shadow-lg hover:border-[#ec9c13]/30 transition-colors h-full">
+    <div className="rounded-xl bg-white dark:bg-[#27231c] p-8 border border-amber-200 dark:border-[#3a2e22] flex flex-col gap-6 shadow-lg hover:border-[#ec9c13]/30 transition-colors h-full">
       {/* Header */}
-      <div className="flex items-center gap-4 border-b border-[#3a2e22] pb-4">
+      <div className="flex items-center gap-4 border-b border-amber-100 dark:border-[#3a2e22] pb-4">
         <div
-          className="h-12 w-12 rounded-full bg-cover bg-center ring-2 ring-[#3a2e22]"
+          className="h-12 w-12 rounded-full bg-cover bg-center ring-2 ring-amber-200 dark:ring-[#3a2e22]"
           style={{ backgroundImage: `url('${avatar}')` }}
         />
         <div>
-          <p className="text-white font-bold text-base">{name}</p>
-          <p className="text-[#ec9c13] text-xs uppercase tracking-wide">{role}</p>
+          <p className="text-gray-900 dark:text-white font-bold text-base">{name}</p>
+          <p className="text-[#d4880f] dark:text-[#ec9c13] text-xs uppercase tracking-wide">{role}</p>
         </div>
-        <span className="ml-auto text-xs text-[#b9af9d] bg-[#221b10] px-2 py-1 rounded">
+        <span className="ml-auto text-xs text-gray-500 dark:text-[#b9af9d] bg-amber-50 dark:bg-[#221b10] px-2 py-1 rounded">
           {date}
         </span>
       </div>
 
       {/* Quote */}
-      <p className="text-gray-300 text-base leading-relaxed italic flex-1">
+      <p className="text-gray-600 dark:text-gray-300 text-base leading-relaxed italic flex-1">
         &ldquo;{quote}&rdquo;
       </p>
     </div>
@@ -66,12 +66,12 @@ function TestimonialCard({
 
 export function LandingTestimonials() {
   return (
-    <section id="testimonials" className="py-20 bg-[#1c1813] border-t border-[#2e261d]">
+    <section id="testimonials" className="py-20 bg-white dark:bg-[#1c1813] border-t border-amber-100 dark:border-[#2e261d]">
       {/* Header */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
         <div>
-          <h3 className="text-4xl font-bold text-white mb-2">Community Voices</h3>
-          <p className="text-[#b9af9d]">Trusted by over 5,000 instructors worldwide.</p>
+          <h3 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Community Voices</h3>
+          <p className="text-gray-600 dark:text-[#b9af9d]">Trusted by over 5,000 instructors worldwide.</p>
         </div>
         <div className="flex flex-col items-end gap-2">
           <div className="flex gap-1 text-[#ec9c13]">
@@ -79,7 +79,7 @@ export function LandingTestimonials() {
               <Star key={i} className="h-6 w-6 fill-current" />
             ))}
           </div>
-          <p className="text-sm text-[#b9af9d]">4.9/5 Average Rating</p>
+          <p className="text-sm text-gray-500 dark:text-[#b9af9d]">4.9/5 Average Rating</p>
         </div>
       </div>
 
