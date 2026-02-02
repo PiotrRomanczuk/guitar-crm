@@ -69,6 +69,7 @@
     "test:pw:songs": "playwright test --grep @songs",
     "test:pw:assignments": "playwright test --grep @assignments",
     "test:pw:dashboard": "playwright test --grep @dashboard",
+    "test:pw:security": "playwright test --grep @security",
     "test:pw:all": "playwright test",
     "test:pw:iphone12": "playwright test --project=\"iPhone 12\"",
     "test:pw:iphone15": "playwright test --project=\"iPhone 15 Pro Max\"",
