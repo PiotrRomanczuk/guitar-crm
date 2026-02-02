@@ -9,7 +9,7 @@ export const OnboardingSchema = z.object({
     .array(z.string())
     .min(1, 'Please select at least one goal'),
   skillLevel: z.enum(['beginner', 'intermediate', 'advanced'], {
-    required_error: 'Please select your skill level',
+    message: 'Please select your skill level',
   }),
   learningStyle: z
     .array(z.string())

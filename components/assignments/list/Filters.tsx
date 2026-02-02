@@ -86,7 +86,7 @@ export function Filters({
       <FilterChips
         chips={statusChips}
         selected={status || ''}
-        onChange={onStatusChange}
+        onChange={(value) => onStatusChange(Array.isArray(value) ? value[0] || '' : value)}
       />
 
       {/* Student Filter (dropdown for teachers) */}
