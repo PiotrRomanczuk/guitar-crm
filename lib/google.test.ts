@@ -3,6 +3,10 @@ import {
   getGoogleAuthUrl,
   getGoogleClient,
   getCalendarEventsInRange,
+  createGoogleCalendarEvent,
+  updateGoogleCalendarEvent,
+  deleteGoogleCalendarEvent,
+  stopCalendarWatch,
 } from '@/lib/google';
 import { google } from 'googleapis';
 import { createClient } from '@/lib/supabase/server';
@@ -23,6 +27,13 @@ jest.mock('googleapis', () => {
       calendar: jest.fn().mockReturnValue({
         events: {
           list: jest.fn(),
+          insert: jest.fn(),
+          patch: jest.fn(),
+          delete: jest.fn(),
+          watch: jest.fn(),
+        },
+        channels: {
+          stop: jest.fn(),
         },
       }),
     },
@@ -31,6 +42,16 @@ jest.mock('googleapis', () => {
 
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(),
+}));
+
+jest.mock('@/lib/ai/retry', () => ({
+  withRetry: jest.fn((fn) => fn()),
+  AI_PROVIDER_RETRY_CONFIG: {
+    maxRetries: 3,
+    initialDelayMs: 1000,
+    maxDelayMs: 8000,
+    backoffMultiplier: 2,
+  },
 }));
 
 describe('Google Library', () => {
@@ -74,7 +95,7 @@ describe('Google Library', () => {
       expect(mockOAuth2Client.generateAuthUrl).toHaveBeenCalledWith({
         access_type: 'offline',
         scope: [
-          'https://www.googleapis.com/auth/calendar.readonly',
+          'https://www.googleapis.com/auth/calendar',
           'https://www.googleapis.com/auth/userinfo.email',
         ],
         prompt: 'consent',
@@ -167,6 +188,270 @@ describe('Google Library', () => {
         timeMax: endDate.toISOString(),
         singleEvents: true,
         orderBy: 'startTime',
+      });
+    });
+  });
+
+  describe('createGoogleCalendarEvent', () => {
+    const mockSupabase = {
+      from: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: {
+          access_token: 'mock-access-token',
+          refresh_token: 'mock-refresh-token',
+          expires_at: 1234567890,
+        },
+        error: null,
+      }),
+    };
+
+    beforeEach(() => {
+      (createClient as jest.Mock).mockResolvedValue(mockSupabase);
+    });
+
+    it('should create a Google Calendar event with correct parameters', async () => {
+      const mockInsert = jest.fn().mockResolvedValue({
+        data: { id: 'event-123' },
+      });
+
+      (google.calendar as unknown as jest.Mock).mockReturnValue({
+        events: { insert: mockInsert },
+      });
+
+      const lesson = {
+        title: 'Guitar Lesson',
+        scheduled_at: '2026-02-10T15:00:00Z',
+        notes: 'Practice scales',
+        student_email: 'student@example.com',
+        duration_minutes: 45,
+      };
+
+      const result = await createGoogleCalendarEvent('user-123', lesson);
+
+      expect(result.eventId).toBe('event-123');
+      expect(mockInsert).toHaveBeenCalledWith({
+        calendarId: 'primary',
+        requestBody: expect.objectContaining({
+          summary: 'Guitar Lesson',
+          description: 'Practice scales',
+          attendees: [{ email: 'student@example.com' }],
+          start: expect.objectContaining({
+            dateTime: '2026-02-10T15:00:00.000Z',
+            timeZone: 'UTC',
+          }),
+          end: expect.objectContaining({
+            dateTime: '2026-02-10T15:45:00.000Z',
+            timeZone: 'UTC',
+          }),
+        }),
+      });
+    });
+
+    it('should use default 60-minute duration when not specified', async () => {
+      const mockInsert = jest.fn().mockResolvedValue({
+        data: { id: 'event-456' },
+      });
+
+      (google.calendar as unknown as jest.Mock).mockReturnValue({
+        events: { insert: mockInsert },
+      });
+
+      const lesson = {
+        title: 'Guitar Lesson',
+        scheduled_at: '2026-02-10T15:00:00Z',
+        student_email: 'student@example.com',
+      };
+
+      await createGoogleCalendarEvent('user-123', lesson);
+
+      const call = mockInsert.mock.calls[0][0];
+      expect(call.requestBody.end.dateTime).toBe('2026-02-10T16:00:00.000Z');
+    });
+
+    it('should throw error when event ID is not returned', async () => {
+      const mockInsert = jest.fn().mockResolvedValue({
+        data: {},
+      });
+
+      (google.calendar as unknown as jest.Mock).mockReturnValue({
+        events: { insert: mockInsert },
+      });
+
+      const lesson = {
+        title: 'Guitar Lesson',
+        scheduled_at: '2026-02-10T15:00:00Z',
+        student_email: 'student@example.com',
+      };
+
+      await expect(createGoogleCalendarEvent('user-123', lesson)).rejects.toThrow(
+        'Failed to create Google Calendar event: No event ID returned'
+      );
+    });
+  });
+
+  describe('updateGoogleCalendarEvent', () => {
+    const mockSupabase = {
+      from: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: {
+          access_token: 'mock-access-token',
+          refresh_token: 'mock-refresh-token',
+          expires_at: 1234567890,
+        },
+        error: null,
+      }),
+    };
+
+    beforeEach(() => {
+      (createClient as jest.Mock).mockResolvedValue(mockSupabase);
+    });
+
+    it('should update event title only when specified', async () => {
+      const mockPatch = jest.fn().mockResolvedValue({ data: {} });
+
+      (google.calendar as unknown as jest.Mock).mockReturnValue({
+        events: { patch: mockPatch },
+      });
+
+      await updateGoogleCalendarEvent('user-123', 'event-123', {
+        title: 'Updated Lesson Title',
+      });
+
+      expect(mockPatch).toHaveBeenCalledWith({
+        calendarId: 'primary',
+        eventId: 'event-123',
+        requestBody: {
+          summary: 'Updated Lesson Title',
+        },
+      });
+    });
+
+    it('should update scheduled time and duration', async () => {
+      const mockPatch = jest.fn().mockResolvedValue({ data: {} });
+
+      (google.calendar as unknown as jest.Mock).mockReturnValue({
+        events: { patch: mockPatch },
+      });
+
+      await updateGoogleCalendarEvent('user-123', 'event-123', {
+        scheduled_at: '2026-02-15T10:00:00Z',
+        duration_minutes: 90,
+      });
+
+      expect(mockPatch).toHaveBeenCalledWith({
+        calendarId: 'primary',
+        eventId: 'event-123',
+        requestBody: {
+          start: {
+            dateTime: '2026-02-15T10:00:00.000Z',
+            timeZone: 'UTC',
+          },
+          end: {
+            dateTime: '2026-02-15T11:30:00.000Z',
+            timeZone: 'UTC',
+          },
+        },
+      });
+    });
+
+    it('should update multiple fields at once', async () => {
+      const mockPatch = jest.fn().mockResolvedValue({ data: {} });
+
+      (google.calendar as unknown as jest.Mock).mockReturnValue({
+        events: { patch: mockPatch },
+      });
+
+      await updateGoogleCalendarEvent('user-123', 'event-123', {
+        title: 'New Title',
+        notes: 'New notes',
+        scheduled_at: '2026-02-20T14:00:00Z',
+      });
+
+      expect(mockPatch).toHaveBeenCalledWith({
+        calendarId: 'primary',
+        eventId: 'event-123',
+        requestBody: {
+          summary: 'New Title',
+          description: 'New notes',
+          start: expect.any(Object),
+          end: expect.any(Object),
+        },
+      });
+    });
+  });
+
+  describe('deleteGoogleCalendarEvent', () => {
+    const mockSupabase = {
+      from: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: {
+          access_token: 'mock-access-token',
+          refresh_token: 'mock-refresh-token',
+          expires_at: 1234567890,
+        },
+        error: null,
+      }),
+    };
+
+    beforeEach(() => {
+      (createClient as jest.Mock).mockResolvedValue(mockSupabase);
+    });
+
+    it('should delete a Google Calendar event', async () => {
+      const mockDelete = jest.fn().mockResolvedValue({ data: {} });
+
+      (google.calendar as unknown as jest.Mock).mockReturnValue({
+        events: { delete: mockDelete },
+      });
+
+      await deleteGoogleCalendarEvent('user-123', 'event-123');
+
+      expect(mockDelete).toHaveBeenCalledWith({
+        calendarId: 'primary',
+        eventId: 'event-123',
+      });
+    });
+  });
+
+  describe('stopCalendarWatch', () => {
+    const mockSupabase = {
+      from: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: {
+          access_token: 'mock-access-token',
+          refresh_token: 'mock-refresh-token',
+          expires_at: 1234567890,
+        },
+        error: null,
+      }),
+    };
+
+    beforeEach(() => {
+      (createClient as jest.Mock).mockResolvedValue(mockSupabase);
+    });
+
+    it('should stop a calendar watch subscription', async () => {
+      const mockStop = jest.fn().mockResolvedValue({ data: {} });
+
+      (google.calendar as unknown as jest.Mock).mockReturnValue({
+        channels: { stop: mockStop },
+      });
+
+      await stopCalendarWatch('user-123', 'channel-123', 'resource-123');
+
+      expect(mockStop).toHaveBeenCalledWith({
+        requestBody: {
+          id: 'channel-123',
+          resourceId: 'resource-123',
+        },
       });
     });
   });
