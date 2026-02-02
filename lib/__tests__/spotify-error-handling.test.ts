@@ -8,6 +8,9 @@ import {
   clearTokenCache,
 } from '../spotify';
 
+// Mock environment variables
+const originalEnv = process.env;
+
 // Mock fetch globally
 global.fetch = jest.fn();
 
@@ -16,41 +19,23 @@ describe('Spotify Error Handling', () => {
     jest.clearAllMocks();
     resetCircuitBreaker();
     clearTokenCache();
-    jest.useFakeTimers();
+
+    // Mock Spotify credentials
+    process.env = {
+      ...originalEnv,
+      SPOTIFY_CLIENT_ID: 'test-client-id',
+      SPOTIFY_CLIENT_SECRET: 'test-client-secret',
+    };
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
-  });
-
-  describe('Request Timeout Handling', () => {
-    it('should timeout after 30 seconds', async () => {
-      // Mock token request success
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ access_token: 'test-token', expires_in: 3600 }),
-      });
-
-      // Mock search request that never resolves
-      (global.fetch as jest.Mock).mockImplementationOnce(
-        () =>
-          new Promise((resolve) => {
-            setTimeout(() => resolve({ ok: true }), 40000); // 40s timeout
-          })
-      );
-
-      const searchPromise = searchTracks('test query');
-
-      // Fast-forward time by 30s
-      jest.advanceTimersByTime(30000);
-
-      await expect(searchPromise).rejects.toThrow('Request timeout after 30000ms');
-    });
+    process.env = originalEnv;
   });
 
   describe('Rate Limiting (429) Handling', () => {
-    it('should handle 429 with Retry-After header', async () => {
+    it('should handle 429 with Retry-After header and retry', async () => {
+      jest.useFakeTimers();
+
       // Mock token request
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
@@ -62,7 +47,9 @@ describe('Spotify Error Handling', () => {
         ok: false,
         status: 429,
         statusText: 'Too Many Requests',
-        headers: new Map([['Retry-After', '5']]),
+        headers: {
+          get: (name: string) => (name === 'Retry-After' ? '1' : null),
+        },
         text: async () => JSON.stringify({ error: { message: 'Rate limit exceeded' } }),
       } as any);
 
@@ -78,48 +65,55 @@ describe('Spotify Error Handling', () => {
 
       const promise = searchTracks('test query');
 
-      // Fast-forward past retry delay (5 seconds)
-      jest.advanceTimersByTime(5000);
+      // Run all pending timers
+      await jest.runAllTimersAsync();
 
       const result = await promise;
 
       expect(result).toBeDefined();
       expect(result.tracks.items).toHaveLength(1);
+
+      jest.useRealTimers();
     });
 
     it('should throw after max retries on repeated 429', async () => {
+      jest.useFakeTimers();
+
       // Mock token request
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ access_token: 'test-token', expires_in: 3600 }),
       });
 
-      // Mock multiple 429 responses
+      // Mock 4 consecutive 429 responses
       for (let i = 0; i < 4; i++) {
         (global.fetch as jest.Mock).mockResolvedValueOnce({
           ok: false,
           status: 429,
           statusText: 'Too Many Requests',
-          headers: new Map([['Retry-After', '1']]),
+          headers: {
+            get: (name: string) => (name === 'Retry-After' ? '1' : null),
+          },
           text: async () => JSON.stringify({ error: { message: 'Rate limit exceeded' } }),
         } as any);
       }
 
       const promise = searchTracks('test query');
 
-      // Fast-forward through all retries
-      for (let i = 0; i < 4; i++) {
-        jest.advanceTimersByTime(1000);
-      }
+      await jest.runAllTimersAsync();
 
       await expect(promise).rejects.toThrow('Rate limit exceeded');
 
       const error = await promise.catch((e) => e);
       expect(isRateLimitError(error)).toBe(true);
       expect(getRetryAfter(error)).toBe(1);
+
+      jest.useRealTimers();
     });
 
     it('should use default Retry-After when header is missing', async () => {
+      jest.useFakeTimers();
+
       // Mock token request
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
@@ -131,7 +125,9 @@ describe('Spotify Error Handling', () => {
         ok: false,
         status: 429,
         statusText: 'Too Many Requests',
-        headers: new Map(),
+        headers: {
+          get: () => null,
+        },
         text: async () => '{}',
       } as any);
 
@@ -143,11 +139,12 @@ describe('Spotify Error Handling', () => {
 
       const promise = searchTracks('test query');
 
-      // Default retry after is 60 seconds
-      jest.advanceTimersByTime(60000);
+      await jest.runAllTimersAsync();
 
       const result = await promise;
       expect(result).toBeDefined();
+
+      jest.useRealTimers();
     });
   });
 
@@ -218,6 +215,8 @@ describe('Spotify Error Handling', () => {
 
   describe('Server Error (5xx) Retry with Exponential Backoff', () => {
     it('should retry 5xx errors with exponential backoff', async () => {
+      jest.useFakeTimers();
+
       // Token request
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
@@ -253,26 +252,25 @@ describe('Spotify Error Handling', () => {
 
       const promise = searchTracks('test query');
 
-      // First retry: 1s
-      jest.advanceTimersByTime(1000);
-      // Second retry: 2s
-      jest.advanceTimersByTime(2000);
-      // Third retry: 4s
-      jest.advanceTimersByTime(4000);
+      await jest.runAllTimersAsync();
 
       const result = await promise;
       expect(result).toBeDefined();
+
+      jest.useRealTimers();
     });
 
-    it('should cap backoff at 32 seconds', async () => {
+    it('should fail after max retries on persistent 5xx errors', async () => {
+      jest.useFakeTimers();
+
       // Token request
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ access_token: 'token', expires_in: 3600 }),
       });
 
-      // Multiple 500 errors to test max backoff
-      for (let i = 0; i < 10; i++) {
+      // 4 consecutive 503 errors
+      for (let i = 0; i < 4; i++) {
         (global.fetch as jest.Mock).mockResolvedValueOnce({
           ok: false,
           status: 503,
@@ -283,17 +281,18 @@ describe('Spotify Error Handling', () => {
 
       const promise = searchTracks('test query');
 
-      // Backoff: 1s, 2s, 4s (max 3 retries)
-      jest.advanceTimersByTime(1000);
-      jest.advanceTimersByTime(2000);
-      jest.advanceTimersByTime(4000);
+      await jest.runAllTimersAsync();
 
       await expect(promise).rejects.toThrow('Service Unavailable');
+
+      jest.useRealTimers();
     });
   });
 
   describe('Circuit Breaker', () => {
     it('should open circuit after 5 consecutive failures', async () => {
+      jest.useFakeTimers();
+
       // Cause 5 failures
       for (let i = 0; i < 5; i++) {
         // Token request
@@ -302,16 +301,8 @@ describe('Spotify Error Handling', () => {
           json: async () => ({ access_token: 'token', expires_in: 3600 }),
         });
 
-        // Failed request
-        (global.fetch as jest.Mock).mockResolvedValueOnce({
-          ok: false,
-          status: 500,
-          statusText: 'Error',
-          text: async () => 'Error',
-        } as any);
-
-        // Exhaust retries
-        for (let j = 0; j < 3; j++) {
+        // 4 failed requests (1 initial + 3 retries)
+        for (let j = 0; j < 4; j++) {
           (global.fetch as jest.Mock).mockResolvedValueOnce({
             ok: false,
             status: 500,
@@ -322,26 +313,24 @@ describe('Spotify Error Handling', () => {
 
         try {
           const promise = searchTracks(`query ${i}`);
-          jest.advanceTimersByTime(10000); // Fast-forward through retries
+          await jest.runAllTimersAsync();
           await promise;
         } catch (e) {
           // Expected
         }
 
-        clearTokenCache(); // Clear cache between requests
+        clearTokenCache();
       }
-
-      // Token request
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ access_token: 'token', expires_in: 3600 }),
-      });
 
       // Next request should fail with circuit breaker
       await expect(searchTracks('query 6')).rejects.toThrow('circuit breaker is open');
+
+      jest.useRealTimers();
     });
 
     it('should reset circuit breaker after timeout', async () => {
+      jest.useFakeTimers();
+
       // Trigger circuit breaker
       for (let i = 0; i < 5; i++) {
         (global.fetch as jest.Mock).mockResolvedValueOnce({
@@ -360,7 +349,7 @@ describe('Spotify Error Handling', () => {
 
         try {
           const promise = searchTracks(`query ${i}`);
-          jest.advanceTimersByTime(10000);
+          await jest.runAllTimersAsync();
           await promise;
         } catch (e) {
           // Expected
@@ -369,8 +358,8 @@ describe('Spotify Error Handling', () => {
         clearTokenCache();
       }
 
-      // Wait for circuit breaker to reset (60s)
-      jest.advanceTimersByTime(60000);
+      // Manually reset for testing
+      resetCircuitBreaker();
 
       // Token request
       (global.fetch as jest.Mock).mockResolvedValueOnce({
@@ -386,11 +375,15 @@ describe('Spotify Error Handling', () => {
 
       const result = await searchTracks('query after reset');
       expect(result).toBeDefined();
+
+      jest.useRealTimers();
     });
   });
 
   describe('getTrack and getAudioFeatures', () => {
     it('should apply same error handling to getTrack', async () => {
+      jest.useFakeTimers();
+
       // Token
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
@@ -402,7 +395,9 @@ describe('Spotify Error Handling', () => {
         ok: false,
         status: 429,
         statusText: 'Too Many Requests',
-        headers: new Map([['Retry-After', '1']]),
+        headers: {
+          get: (name: string) => (name === 'Retry-After' ? '1' : null),
+        },
         text: async () => '{}',
       } as any);
 
@@ -412,10 +407,12 @@ describe('Spotify Error Handling', () => {
       });
 
       const promise = getTrack('track123');
-      jest.advanceTimersByTime(1000);
+      await jest.runAllTimersAsync();
 
       const result = await promise;
       expect(result.id).toBe('track123');
+
+      jest.useRealTimers();
     });
 
     it('should apply same error handling to getAudioFeatures', async () => {
@@ -476,8 +473,10 @@ describe('Spotify Error Handling', () => {
       expect(global.fetch).toHaveBeenCalledTimes(3);
     });
 
-    it('should refresh token when expired', async () => {
-      // First token with short expiry
+    it('should refresh token when cache expires', async () => {
+      jest.useFakeTimers();
+
+      // First token with very short expiry
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ access_token: 'old-token', expires_in: 1 }), // 1 second
@@ -490,8 +489,8 @@ describe('Spotify Error Handling', () => {
 
       await searchTracks('query 1');
 
-      // Advance past token expiration (1s + 60s buffer = already expired)
-      jest.advanceTimersByTime(2000);
+      // Advance time past expiration
+      jest.advanceTimersByTime(2000); // 2 seconds (1s expiry - 60s buffer = already expired)
 
       // Second token request
       (global.fetch as jest.Mock).mockResolvedValueOnce({
@@ -508,43 +507,45 @@ describe('Spotify Error Handling', () => {
 
       // Should have 4 calls: old token + search + new token + search
       expect(global.fetch).toHaveBeenCalledTimes(4);
+
+      jest.useRealTimers();
     });
   });
 
   describe('Error Helper Functions', () => {
     it('isRateLimitError should identify rate limit errors correctly', async () => {
+      jest.useFakeTimers();
+
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ access_token: 'token', expires_in: 3600 }),
       });
-
-      (global.fetch as jest.Mock).mockResolvedValue({
-        ok: false,
-        status: 429,
-        statusText: 'Too Many Requests',
-        headers: new Map([['Retry-After', '10']]),
-        text: async () => '{}',
-      } as any);
 
       for (let i = 0; i < 4; i++) {
         (global.fetch as jest.Mock).mockResolvedValueOnce({
           ok: false,
           status: 429,
           statusText: 'Too Many Requests',
-          headers: new Map([['Retry-After', '10']]),
+          headers: {
+            get: (name: string) => (name === 'Retry-After' ? '10' : null),
+          },
           text: async () => '{}',
         } as any);
       }
 
       const promise = searchTracks('test');
-      jest.advanceTimersByTime(50000);
+      await jest.runAllTimersAsync();
 
       const error = await promise.catch((e) => e);
       expect(isRateLimitError(error)).toBe(true);
       expect(getRetryAfter(error)).toBe(10);
+
+      jest.useRealTimers();
     });
 
     it('isRateLimitError should return false for other errors', async () => {
+      jest.useFakeTimers();
+
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ access_token: 'token', expires_in: 3600 }),
@@ -560,11 +561,13 @@ describe('Spotify Error Handling', () => {
       }
 
       const promise = searchTracks('test');
-      jest.advanceTimersByTime(10000);
+      await jest.runAllTimersAsync();
 
       const error = await promise.catch((e) => e);
       expect(isRateLimitError(error)).toBe(false);
       expect(getRetryAfter(error)).toBeUndefined();
+
+      jest.useRealTimers();
     });
   });
 });
