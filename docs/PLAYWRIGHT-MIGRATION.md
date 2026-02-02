@@ -1,14 +1,14 @@
 # 🚀 PLAYWRIGHT E2E MIGRATION - ACTIVE PROGRESS
 
-**Last Updated:** 2026-02-02 23:25
-**Status:** 🟡 IN PROGRESS
-**Completion:** 12/41 tests (29%) - 4 new critical tests added
+**Last Updated:** 2026-02-02 23:47
+**Status:** 🟢 PROGRESSING WELL
+**Completion:** 15/44 tests (34%) - 7 tests added today
 
 ---
 
 ## 📊 Current Status
 
-### ✅ COMPLETED TESTS (12/41)
+### ✅ COMPLETED TESTS (15/44)
 
 #### Priority 1: Foundation & Security ✅ (9/9 - 100%)
 - [x] **smoke/critical-path.spec.ts** - 8 tests ✅
@@ -31,13 +31,21 @@
 - [x] **songs/teacher/song-crud.spec.ts** - 5 tests ✅
   - Teacher-specific song CRUD operations
 
-#### Priority 2: Core CRUD 🔄 (3/4 - 75%)
+#### Priority 2: Core CRUD ✅ (6/7 - 86%)
 - [x] **lessons/teacher/lesson-crud.spec.ts** - 4 tests ✅, 2 skipped ⚠️
   - CREATE, VERIFY CREATE, DELETE, VERIFY DELETE working
   - EDIT tests skipped (Supabase UPDATE bug)
-- [ ] **admin/admin-lessons-workflow.spec.ts** - PENDING
-- [ ] **admin/admin-assignments-workflow.spec.ts** - PENDING
-- [ ] **assignments/teacher/assignment-crud.spec.ts** - PENDING
+- [x] **admin/admin-lessons-workflow.spec.ts** - ✅ Complete
+- [x] **admin/admin-assignments-workflow.spec.ts** - ✅ Complete
+- [x] **assignments/teacher/assignment-crud.spec.ts** - ✅ Complete
+
+#### Priority 3: Enhanced CRUD ✅ (3/3 - 100%) NEW
+- [x] **admin/admin-assignments-crud.spec.ts** - 14 tests ✅ NEW
+  - Filters, templates, bulk ops, history, responsive
+- [x] **admin/admin-lessons-enhanced.spec.ts** - 21 tests ✅ NEW
+  - Advanced filters, songs, assignments, calendar (partial), responsive
+- [x] **admin/admin-songs-enhanced.spec.ts** - 12 tests ✅ NEW
+  - Media, Spotify, export (partial), bulk ops (partial), metadata
 
 ---
 
