@@ -106,7 +106,6 @@ export default async function SongList({ searchParams }: SongListProps) {
       selectedStudentId={studentId}
       totalPages={totalPages}
       currentPage={page}
-      pageSize={pageSize}
     />
   );
 }
