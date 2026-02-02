@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Dashboard Server Actions Security Tests
  *
@@ -110,9 +109,9 @@ describe('inviteUser - Authorization Tests', () => {
   });
 
   it('should allow admin to invite student', async () => {
-    // Mock authenticated admin user
+    const adminId = '123e4567-e89b-12d3-a456-426614174000';
     mockGetUser.mockResolvedValue({
-      data: { user: { id: 'admin-id', email: 'admin@example.com' } },
+      data: { user: { id: adminId, email: 'admin@example.com' } },
     });
 
     mockSingle.mockResolvedValue({
@@ -135,8 +134,9 @@ describe('inviteUser - Authorization Tests', () => {
   });
 
   it('should allow admin to invite teacher', async () => {
+    const adminId = '123e4567-e89b-12d3-a456-426614174000';
     mockGetUser.mockResolvedValue({
-      data: { user: { id: 'admin-id', email: 'admin@example.com' } },
+      data: { user: { id: adminId, email: 'admin@example.com' } },
     });
 
     mockSingle.mockResolvedValue({
@@ -158,8 +158,9 @@ describe('inviteUser - Authorization Tests', () => {
   });
 
   it('should allow admin to invite admin', async () => {
+    const adminId = '123e4567-e89b-12d3-a456-426614174000';
     mockGetUser.mockResolvedValue({
-      data: { user: { id: 'admin-id', email: 'admin@example.com' } },
+      data: { user: { id: adminId, email: 'admin@example.com' } },
     });
 
     mockSingle.mockResolvedValue({
@@ -188,8 +189,9 @@ describe('inviteUser - Authorization Tests', () => {
   });
 
   it('should reject teacher attempting to invite users', async () => {
+    const teacherId = '223e4567-e89b-12d3-a456-426614174001';
     mockGetUser.mockResolvedValue({
-      data: { user: { id: 'teacher-id', email: 'teacher@example.com' } },
+      data: { user: { id: teacherId, email: 'teacher@example.com' } },
     });
 
     mockSingle.mockResolvedValue({
@@ -200,13 +202,13 @@ describe('inviteUser - Authorization Tests', () => {
       'Unauthorized: Only admins can invite users'
     );
 
-    // Should not reach admin client
     expect(mockAdminInviteUserByEmail).not.toHaveBeenCalled();
   });
 
   it('should reject student attempting to invite users', async () => {
+    const studentId = '323e4567-e89b-12d3-a456-426614174002';
     mockGetUser.mockResolvedValue({
-      data: { user: { id: 'student-id', email: 'student@example.com' } },
+      data: { user: { id: studentId, email: 'student@example.com' } },
     });
 
     mockSingle.mockResolvedValue({
@@ -233,12 +235,13 @@ describe('inviteUser - Authorization Tests', () => {
   });
 
   it('should reject when profile lookup fails', async () => {
+    const userId = '423e4567-e89b-12d3-a456-426614174003';
     mockGetUser.mockResolvedValue({
-      data: { user: { id: 'user-id', email: 'user@example.com' } },
+      data: { user: { id: userId, email: 'user@example.com' } },
     });
 
     mockSingle.mockResolvedValue({
-      data: null, // No profile found
+      data: null,
     });
 
     await expect(inviteUser('student@example.com', 'New Student', 'student')).rejects.toThrow(
@@ -253,8 +256,9 @@ describe('createShadowUser - Authorization Tests', () => {
   });
 
   it('should allow admin to create shadow user', async () => {
+    const adminId = '123e4567-e89b-12d3-a456-426614174000';
     mockGetUser.mockResolvedValue({
-      data: { user: { id: 'admin-id', email: 'admin@example.com' } },
+      data: { user: { id: adminId, email: 'admin@example.com' } },
     });
 
     mockSingle.mockResolvedValue({
@@ -278,8 +282,9 @@ describe('createShadowUser - Authorization Tests', () => {
   });
 
   it('should allow teacher to create shadow user', async () => {
+    const teacherId = '223e4567-e89b-12d3-a456-426614174001';
     mockGetUser.mockResolvedValue({
-      data: { user: { id: 'teacher-id', email: 'teacher@example.com' } },
+      data: { user: { id: teacherId, email: 'teacher@example.com' } },
     });
 
     mockSingle.mockResolvedValue({
@@ -301,8 +306,9 @@ describe('createShadowUser - Authorization Tests', () => {
   });
 
   it('should reject student attempting to create shadow user', async () => {
+    const studentId = '323e4567-e89b-12d3-a456-426614174002';
     mockGetUser.mockResolvedValue({
-      data: { user: { id: 'student-id', email: 'student@example.com' } },
+      data: { user: { id: studentId, email: 'student@example.com' } },
     });
 
     mockSingle.mockResolvedValue({
@@ -313,7 +319,6 @@ describe('createShadowUser - Authorization Tests', () => {
       'Unauthorized: Only teachers and admins can create shadow users'
     );
 
-    // Should not reach admin client
     expect(mockAdminGenerateLink).not.toHaveBeenCalled();
     expect(mockAdminCreateUser).not.toHaveBeenCalled();
   });
@@ -329,12 +334,13 @@ describe('createShadowUser - Authorization Tests', () => {
   });
 
   it('should reject when profile lookup fails', async () => {
+    const userId = '423e4567-e89b-12d3-a456-426614174003';
     mockGetUser.mockResolvedValue({
-      data: { user: { id: 'user-id', email: 'user@example.com' } },
+      data: { user: { id: userId, email: 'user@example.com' } },
     });
 
     mockSingle.mockResolvedValue({
-      data: null, // No profile found
+      data: null,
     });
 
     await expect(createShadowUser('shadow@example.com')).rejects.toThrow(
@@ -349,12 +355,13 @@ describe('Authorization Edge Cases', () => {
   });
 
   it('inviteUser - should handle null is_admin gracefully', async () => {
+    const userId = '523e4567-e89b-12d3-a456-426614174004';
     mockGetUser.mockResolvedValue({
-      data: { user: { id: 'user-id', email: 'user@example.com' } },
+      data: { user: { id: userId, email: 'user@example.com' } },
     });
 
     mockSingle.mockResolvedValue({
-      data: { is_admin: null }, // Null instead of false
+      data: { is_admin: null },
     });
 
     await expect(inviteUser('student@example.com', 'Student', 'student')).rejects.toThrow(
@@ -363,12 +370,13 @@ describe('Authorization Edge Cases', () => {
   });
 
   it('createShadowUser - should handle missing role fields', async () => {
+    const userId = '623e4567-e89b-12d3-a456-426614174005';
     mockGetUser.mockResolvedValue({
-      data: { user: { id: 'user-id', email: 'user@example.com' } },
+      data: { user: { id: userId, email: 'user@example.com' } },
     });
 
     mockSingle.mockResolvedValue({
-      data: {}, // Empty profile
+      data: {},
     });
 
     await expect(createShadowUser('shadow@example.com')).rejects.toThrow('Unauthorized');
