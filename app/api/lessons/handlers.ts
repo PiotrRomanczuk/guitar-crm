@@ -8,6 +8,11 @@ import {
   addSongsToLesson,
   insertLessonRecord,
 } from './utils';
+import {
+  syncLessonCreation,
+  syncLessonUpdate,
+  syncLessonDeletion,
+} from '../../../lib/services/calendar-lesson-sync';
 
 export interface LessonQueryParams {
   userId?: string;
@@ -257,6 +262,9 @@ export async function createLessonHandler(
       await addSongsToLesson(supabase, data.id, song_ids);
     }
 
+    // Sync to Google Calendar (non-blocking, errors are logged)
+    await syncLessonCreation(supabase, data);
+
     return { lesson: data, status: 201 };
   } catch (error) {
     if (error instanceof ZodError) {
@@ -403,6 +411,15 @@ export async function updateLessonHandler(
       await handleLessonSongsUpdate(supabase, id, song_ids);
     }
 
+    // Sync to Google Calendar if relevant fields changed
+    if (updateData.title || updateData.scheduled_at || updateData.notes !== undefined) {
+      await syncLessonUpdate(supabase, data, {
+        title: updateData.title as string | undefined,
+        scheduled_at: updateData.scheduled_at as string | undefined,
+        notes: updateData.notes as string | null | undefined,
+      });
+    }
+
     // Check if status changed to COMPLETED and send email
     if (dbData.status === 'COMPLETED') {
       // Await to ensure email is sent before function terminates (important for serverless)
@@ -436,6 +453,9 @@ export async function deleteLessonHandler(
       status: 403,
     };
   }
+
+  // Sync deletion to Google Calendar before deleting from DB
+  await syncLessonDeletion(supabase, id);
 
   const { error } = await supabase.from('lessons').delete().eq('id', id);
 
