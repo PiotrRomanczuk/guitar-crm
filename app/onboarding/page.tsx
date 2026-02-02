@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { OnboardingForm } from '@/components/onboarding/OnboardingForm';
+import { Music } from 'lucide-react';
 
 export default async function OnboardingPage() {
   const supabase = await createClient();
@@ -24,16 +25,23 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
-            Welcome to Guitar CRM!
-          </h2>
-          <p className="mt-2 text-center text-sm text-muted-foreground">
-            Let&apos;s get your profile set up.
-          </p>
+    <div className="relative min-h-screen w-full flex flex-col items-center bg-background">
+      {/* Subtle background gradient */}
+      <div
+        className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none"
+        aria-hidden="true"
+      />
+
+      {/* Mobile container */}
+      <div className="relative w-full max-w-md min-h-screen flex flex-col px-6 py-8">
+        {/* Branding */}
+        <div className="flex flex-col items-center mb-4">
+          <div className="mb-4 rounded-2xl bg-gradient-to-br from-card to-muted border border-border flex items-center justify-center shadow-lg p-4">
+            <Music className="h-10 w-10 text-primary" />
+          </div>
         </div>
+
+        {/* Form */}
         <OnboardingForm user={user} />
       </div>
     </div>

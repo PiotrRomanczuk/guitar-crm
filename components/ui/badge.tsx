@@ -17,6 +17,26 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        // Status variants for lessons/assignments
+        scheduled:
+          "border-transparent bg-warning/20 text-warning dark:bg-warning/30 dark:text-warning",
+        completed:
+          "border-transparent bg-success/20 text-success dark:bg-success/30 dark:text-success",
+        cancelled:
+          "border-transparent bg-destructive/20 text-destructive dark:bg-destructive/30 dark:text-destructive",
+        late:
+          "border-destructive bg-destructive/10 text-destructive dark:border-destructive/50",
+        "in-progress":
+          "border-transparent bg-primary/20 text-primary dark:bg-primary/30 dark:text-primary",
+        "not-started":
+          "border-transparent bg-muted text-muted-foreground",
+        // Difficulty variants for songs
+        beginner:
+          "border-transparent bg-success/20 text-success dark:bg-success/30 dark:text-success",
+        intermediate:
+          "border-transparent bg-warning/20 text-warning dark:bg-warning/30 dark:text-warning",
+        advanced:
+          "border-transparent bg-destructive/20 text-destructive dark:bg-destructive/30 dark:text-destructive",
       },
     },
     defaultVariants: {

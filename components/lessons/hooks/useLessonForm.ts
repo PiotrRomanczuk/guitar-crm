@@ -117,13 +117,45 @@ export default function useLessonForm({
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear validation error for this field
+    // Clear validation error for this field when user starts typing
     if (validationErrors[name]) {
       setValidationErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
       });
+    }
+  };
+
+  const handleBlur = (field: keyof LessonFormData) => {
+    // Validate single field on blur
+    try {
+      const schema = partial ? LessonInputSchema.partial() : LessonInputSchema;
+      const fieldValue = formData[field];
+
+      // Only validate if field has a value or is required
+      if (fieldValue || !partial) {
+        schema.pick({ [field]: true } as any).parse({ [field]: fieldValue });
+
+        // Clear error if validation passes
+        if (validationErrors[field]) {
+          setValidationErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[field];
+            return newErrors;
+          });
+        }
+      }
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const fieldError = err.issues.find((issue) => issue.path[0] === field);
+        if (fieldError) {
+          setValidationErrors((prev) => ({
+            ...prev,
+            [field]: fieldError.message,
+          }));
+        }
+      }
     }
   };
 
@@ -201,6 +233,7 @@ export default function useLessonForm({
     error,
     validationErrors,
     handleChange,
+    handleBlur,
     handleSongChange,
     handleSubmit,
   };

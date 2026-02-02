@@ -1,84 +1,26 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import {
-  Users,
-  Calendar,
-  Music2,
-  TrendingUp,
-  Bell,
-  CreditCard,
-  BookOpen,
-  Target,
-  Sparkles,
-  BarChart3,
-  Clock,
-  FileText,
-} from 'lucide-react';
+import Link from 'next/link';
+import { Brain, Library, TrendingUp, ArrowRight } from 'lucide-react';
 
-const teacherFeatures = [
+const features = [
   {
-    icon: Users,
-    title: 'Student Profiles',
-    description: 'Complete student records with learning history, preferences, and progress notes.',
+    icon: Brain,
+    title: 'AI Lesson Notes',
+    description:
+      'Auto-generate detailed summaries and practice plans after every lesson so you can focus entirely on teaching.',
   },
   {
-    icon: Calendar,
-    title: 'Smart Scheduling',
-    description: 'Drag-and-drop calendar with conflict detection and automatic reminders.',
-  },
-  {
-    icon: Music2,
-    title: 'Repertoire Library',
-    description: 'Organize songs by difficulty, genre, and technique with Spotify integration.',
-  },
-  {
-    icon: CreditCard,
-    title: 'Payment Tracking',
-    description: 'Invoice generation, payment history, and automated billing reminders.',
-  },
-  {
-    icon: FileText,
-    title: 'Lesson Plans',
-    description: 'Create reusable lesson templates and track what was covered each session.',
-  },
-  {
-    icon: BarChart3,
-    title: 'Studio Analytics',
-    description: 'Insights on retention, revenue, and teaching patterns to grow your studio.',
-  },
-];
-
-const studentFeatures = [
-  {
-    icon: BookOpen,
-    title: 'Practice Journal',
-    description: 'Log practice sessions with notes, record clips, and track consistency.',
-  },
-  {
-    icon: Target,
-    title: 'Goal Tracking',
-    description: 'Set and achieve musical goals with visual progress indicators.',
-  },
-  {
-    icon: Music2,
+    icon: Library,
     title: 'Song Library',
-    description: 'Access your assigned repertoire with tabs, chords, and reference recordings.',
+    description:
+      'Access over 1000+ tabs, chords, and sheet music directly integrated into your dashboard for seamless lesson flow.',
   },
   {
     icon: TrendingUp,
-    title: 'Progress Insights',
-    description: 'See your growth over time with skill assessments and milestone tracking.',
-  },
-  {
-    icon: Clock,
-    title: 'Lesson History',
-    description: 'Review past lessons, assignments, and teacher feedback anytime.',
-  },
-  {
-    icon: Sparkles,
-    title: 'AI Practice Tips',
-    description: 'Get personalized suggestions based on your goals and practice patterns.',
+    title: 'Student Progress',
+    description:
+      'Track practice streaks, technical improvements, and repertoire growth visually to keep students motivated.',
   },
 ];
 
@@ -86,134 +28,57 @@ function FeatureCard({
   icon: Icon,
   title,
   description,
-  index,
 }: {
-  icon: typeof Users;
+  icon: typeof Brain;
   title: string;
   description: string;
-  index: number;
 }) {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1, rootMargin: '50px' }
-    );
-
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div
-      ref={ref}
-      className={`group relative p-6 rounded-2xl bg-card/50 border border-border/50 hover:border-primary/30 hover:bg-card transition-all duration-500 ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-      }`}
-      style={{ transitionDelay: `${index * 75}ms` }}
-    >
-      {/* Glow effect on hover */}
-      <div className="absolute inset-0 rounded-2xl bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
+    <div className="group relative overflow-hidden rounded-xl border border-amber-200 dark:border-[#3a2e22] bg-white dark:bg-[#221b10] p-8 transition-all hover:border-[#ec9c13]/50 hover:shadow-xl hover:shadow-[#ec9c13]/5 hover:-translate-y-1">
+      {/* Hover gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#ec9c13]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-      <div className="relative">
+      <div className="relative z-10 flex flex-col items-start gap-6 h-full">
         {/* Icon */}
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-primary/20 transition-all duration-300">
-          <Icon className="w-5 h-5 text-primary" />
+        <div className="p-4 rounded-xl bg-amber-50 dark:bg-[#2e261d] text-[#d4880f] dark:text-[#ec9c13] border border-amber-200 dark:border-[#3a2e22] shadow-inner group-hover:bg-amber-100 dark:group-hover:bg-[#3a2e22] transition-colors">
+          <Icon className="h-7 w-7" />
         </div>
 
         {/* Content */}
-        <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
-          {title}
-        </h3>
-        <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-      </div>
-    </div>
-  );
-}
+        <div className="flex-1">
+          <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{title}</h4>
+          <p className="text-gray-600 dark:text-[#b9af9d] leading-relaxed">{description}</p>
+        </div>
 
-function SectionHeader({
-  badge,
-  title,
-  subtitle,
-}: {
-  badge: string;
-  title: string;
-  subtitle: string;
-}) {
-  return (
-    <div className="text-center mb-12">
-      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-4">
-        <span className="text-xs font-medium text-primary uppercase tracking-wider">{badge}</span>
+        {/* Link */}
+        <Link
+          href="#"
+          className="inline-flex items-center text-[#d4880f] dark:text-[#ec9c13] font-bold text-sm hover:text-amber-600 dark:hover:text-amber-300 mt-auto"
+        >
+          Learn more
+          <ArrowRight className="w-4 h-4 ml-1" />
+        </Link>
       </div>
-      <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{title}</h2>
-      <p className="text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>
     </div>
   );
 }
 
 export function LandingFeatures() {
   return (
-    <section id="features" className="relative py-24 sm:py-32 overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl" />
+    <section id="features" className="px-6 lg:px-8 py-20 bg-amber-50/50 dark:bg-[#181511] flex flex-col gap-12 items-center">
+      {/* Header */}
+      <div className="flex flex-col gap-3 text-center max-w-3xl">
+        <h3 className="text-4xl font-bold text-gray-900 dark:text-white">Crafted Features</h3>
+        <p className="text-gray-600 dark:text-[#b9af9d] text-lg">
+          Everything you need to manage your studio effectively, built with precision.
+        </p>
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* For Teachers */}
-        <div className="mb-24">
-          <SectionHeader
-            badge="For Teachers"
-            title="Run your studio effortlessly"
-            subtitle="Everything you need to manage students, schedule lessons, and grow your teaching practice."
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {teacherFeatures.map((feature, i) => (
-              <FeatureCard key={feature.title} {...feature} index={i} />
-            ))}
-          </div>
-        </div>
-
-        {/* Divider with organic shape */}
-        <div className="relative py-12">
-          <svg
-            className="w-full h-12 text-border"
-            viewBox="0 0 1200 48"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0,24 Q300,48 600,24 T1200,24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1"
-              strokeDasharray="8 8"
-            />
-          </svg>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-background border border-border flex items-center justify-center">
-            <Bell className="w-5 h-5 text-primary" />
-          </div>
-        </div>
-
-        {/* For Students */}
-        <div>
-          <SectionHeader
-            badge="For Students"
-            title="Accelerate your journey"
-            subtitle="Tools designed to help you practice smarter, track progress, and stay motivated."
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {studentFeatures.map((feature, i) => (
-              <FeatureCard key={feature.title} {...feature} index={i} />
-            ))}
-          </div>
-        </div>
+      {/* Feature cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-7xl">
+        {features.map((feature) => (
+          <FeatureCard key={feature.title} {...feature} />
+        ))}
       </div>
     </section>
   );

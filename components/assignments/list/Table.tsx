@@ -1,8 +1,12 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import StatusBadge, { getStatusVariant } from '@/components/shared/StatusBadge';
 import type { Assignment } from '@/components/assignments/hooks';
+import {
+  AssignmentCard,
+  AssignmentSectionHeader,
+} from '@/components/assignments/shared';
 import {
   Table as UiTable,
   TableBody,
@@ -11,6 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { isThisWeek, isPast, startOfToday } from 'date-fns';
 
 interface TableProps {
   assignments: Assignment[];
@@ -38,10 +44,69 @@ function getStatusText(status: string): string {
 }
 
 /**
- * Assignment list table with clickable rows
+ * Get badge variant based on status
+ */
+function getStatusVariant(status: string) {
+  switch (status) {
+    case 'completed':
+      return 'completed' as const;
+    case 'in_progress':
+      return 'in-progress' as const;
+    case 'overdue':
+      return 'late' as const;
+    case 'cancelled':
+      return 'cancelled' as const;
+    default:
+      return 'not-started' as const;
+  }
+}
+
+/**
+ * Group assignments by section (This Week, Later, Completed)
+ */
+function groupAssignments(assignments: Assignment[]) {
+  const today = startOfToday();
+  const thisWeek: Assignment[] = [];
+  const later: Assignment[] = [];
+  const overdue: Assignment[] = [];
+  const completed: Assignment[] = [];
+
+  assignments.forEach((assignment) => {
+    if (assignment.status === 'completed') {
+      completed.push(assignment);
+      return;
+    }
+
+    if (assignment.status === 'overdue') {
+      overdue.push(assignment);
+      return;
+    }
+
+    if (!assignment.due_date) {
+      later.push(assignment);
+      return;
+    }
+
+    const dueDate = new Date(assignment.due_date);
+
+    if (isPast(dueDate) && dueDate < today) {
+      overdue.push(assignment);
+    } else if (isThisWeek(dueDate)) {
+      thisWeek.push(assignment);
+    } else {
+      later.push(assignment);
+    }
+  });
+
+  return { thisWeek, later, overdue, completed };
+}
+
+/**
+ * Assignment list with card view for mobile and table view for desktop
  */
 export function Table({ assignments }: TableProps) {
   const router = useRouter();
+  const grouped = useMemo(() => groupAssignments(assignments), [assignments]);
 
   const handleRowClick = (id: string) => {
     router.push(`/dashboard/assignments/${id}`);
@@ -50,37 +115,98 @@ export function Table({ assignments }: TableProps) {
   return (
     <>
       {/* Mobile View (Cards) */}
-      <div className="md:hidden space-y-4">
-        {assignments.map((assignment) => (
-          <div
-            key={assignment.id}
-            onClick={() => handleRowClick(assignment.id)}
-            className="bg-card rounded-xl border shadow-sm p-4 space-y-3 cursor-pointer hover:bg-muted/50 transition-colors"
-          >
-            <div className="flex justify-between items-start gap-3">
-              <div className="min-w-0 flex-1">
-                <h3 className="font-medium truncate text-base">{assignment.title}</h3>
-                {assignment.description && (
-                  <p className="text-xs text-muted-foreground line-clamp-1 mt-1">
-                    {assignment.description}
-                  </p>
-                )}
-              </div>
-              <StatusBadge variant={getStatusVariant(assignment.status, 'assignment')} className="flex-shrink-0">
-                {getStatusText(assignment.status)}
-              </StatusBadge>
-            </div>
-
-            <div className="flex justify-between items-center text-sm text-muted-foreground pt-2 border-t border-border">
-              <span className="truncate max-w-[50%]">
-                {assignment.student_profile?.full_name ||
+      <div className="md:hidden space-y-2">
+        {/* Overdue Section */}
+        {grouped.overdue.length > 0 && (
+          <>
+            <AssignmentSectionHeader title="Overdue" count={grouped.overdue.length} />
+            {grouped.overdue.map((assignment) => (
+              <AssignmentCard
+                key={assignment.id}
+                id={assignment.id}
+                title={assignment.title}
+                description={assignment.description || undefined}
+                studentName={
+                  assignment.student_profile?.full_name ||
                   assignment.student_profile?.email ||
-                  'Unknown'}
-              </span>
-              <span>Due: {formatDate(assignment.due_date)}</span>
-            </div>
-          </div>
-        ))}
+                  'Unknown'
+                }
+                dueDate={assignment.due_date}
+                status="overdue"
+                progress={15}
+              />
+            ))}
+          </>
+        )}
+
+        {/* This Week Section */}
+        {grouped.thisWeek.length > 0 && (
+          <>
+            <AssignmentSectionHeader title="This Week" count={grouped.thisWeek.length} />
+            {grouped.thisWeek.map((assignment) => (
+              <AssignmentCard
+                key={assignment.id}
+                id={assignment.id}
+                title={assignment.title}
+                description={assignment.description || undefined}
+                studentName={
+                  assignment.student_profile?.full_name ||
+                  assignment.student_profile?.email ||
+                  'Unknown'
+                }
+                dueDate={assignment.due_date}
+                status={assignment.status}
+                progress={assignment.status === 'in_progress' ? 40 : 0}
+              />
+            ))}
+          </>
+        )}
+
+        {/* Later Section */}
+        {grouped.later.length > 0 && (
+          <>
+            <AssignmentSectionHeader title="Later" />
+            {grouped.later.map((assignment) => (
+              <AssignmentCard
+                key={assignment.id}
+                id={assignment.id}
+                title={assignment.title}
+                description={assignment.description || undefined}
+                studentName={
+                  assignment.student_profile?.full_name ||
+                  assignment.student_profile?.email ||
+                  'Unknown'
+                }
+                dueDate={assignment.due_date}
+                status={assignment.status}
+                progress={assignment.status === 'in_progress' ? 40 : 0}
+              />
+            ))}
+          </>
+        )}
+
+        {/* Completed Section */}
+        {grouped.completed.length > 0 && (
+          <>
+            <AssignmentSectionHeader title="Completed" />
+            {grouped.completed.map((assignment) => (
+              <AssignmentCard
+                key={assignment.id}
+                id={assignment.id}
+                title={assignment.title}
+                description={assignment.description || undefined}
+                studentName={
+                  assignment.student_profile?.full_name ||
+                  assignment.student_profile?.email ||
+                  'Unknown'
+                }
+                dueDate={assignment.due_date}
+                status="completed"
+                progress={100}
+              />
+            ))}
+          </>
+        )}
       </div>
 
       {/* Desktop View (Table) */}
@@ -120,9 +246,9 @@ export function Table({ assignments }: TableProps) {
                   {formatDate(assignment.due_date)}
                 </TableCell>
                 <TableCell>
-                  <StatusBadge variant={getStatusVariant(assignment.status, 'assignment')}>
+                  <Badge variant={getStatusVariant(assignment.status)}>
                     {getStatusText(assignment.status)}
-                  </StatusBadge>
+                  </Badge>
                 </TableCell>
               </TableRow>
             ))}

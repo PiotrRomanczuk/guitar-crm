@@ -22,7 +22,7 @@ interface UserFormProps {
 }
 
 export default function UserForm({ initialData, isEdit }: UserFormProps) {
-  const { formData, loading, error, handleChange, handleSubmit } = useUserFormState(
+  const { formData, loading, error, validationErrors, handleChange, handleBlur, handleSubmit } = useUserFormState(
     initialData,
     isEdit
   );
@@ -36,7 +36,12 @@ export default function UserForm({ initialData, isEdit }: UserFormProps) {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          <UserFormFields formData={formData} onChange={handleChange} />
+          <UserFormFields
+            formData={formData}
+            errors={validationErrors}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
           <UserFormActions loading={loading} isEdit={isEdit} />
         </form>
       </CardContent>

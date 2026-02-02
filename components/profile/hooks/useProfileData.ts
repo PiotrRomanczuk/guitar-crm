@@ -5,6 +5,21 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { ProfileEditSchema, type ProfileEdit } from '@/schemas/ProfileSchema';
 import { queryClient } from '@/lib/query-client';
+import { ZodError } from 'zod';
+
+function parseZodErrors(err: unknown): Record<string, string> {
+  if (err instanceof ZodError) {
+    return err.issues.reduce(
+      (acc: Record<string, string>, e) => {
+        const field = e.path[0]?.toString() || 'unknown';
+        acc[field] = e.message;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+  }
+  return {};
+}
 
 async function loadProfileFromDb(userId: string): Promise<ProfileEdit> {
   const supabase = createClient();
@@ -67,6 +82,7 @@ async function saveProfileToDb(userId: string, profileData: ProfileEdit) {
 
 export function useProfileData(user: { id: string } | null) {
   const [success, setSuccess] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<ProfileEdit>({
     firstname: '',
     lastname: '',
@@ -97,14 +113,67 @@ export function useProfileData(user: { id: string } | null) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       setSuccess(true);
+      setValidationErrors({});
       setTimeout(() => setSuccess(false), 3000);
     },
+    onError: (err) => {
+      if (err instanceof ZodError) {
+        setValidationErrors(parseZodErrors(err));
+      }
+    },
   });
+
+  const handleFormDataChange = (data: ProfileEdit) => {
+    setFormData(data);
+    // Clear validation errors for changed fields
+    const changedFields = Object.keys(data).filter(
+      (key) => data[key as keyof ProfileEdit] !== formData[key as keyof ProfileEdit]
+    );
+    if (changedFields.length > 0) {
+      setValidationErrors((prev) => {
+        const next = { ...prev };
+        changedFields.forEach((field) => delete next[field]);
+        return next;
+      });
+    }
+  };
+
+  const handleBlur = (field: string) => {
+    // Validate single field on blur
+    try {
+      const fieldSchema = ProfileEditSchema.shape[field as keyof typeof ProfileEditSchema.shape];
+      if (fieldSchema) {
+        fieldSchema.parse(formData[field as keyof ProfileEdit]);
+        // Clear error if validation passes
+        if (validationErrors[field]) {
+          setValidationErrors((prev) => {
+            const next = { ...prev };
+            delete next[field];
+            return next;
+          });
+        }
+      }
+    } catch (err) {
+      const fieldErrors = parseZodErrors(err);
+      if (fieldErrors[field]) {
+        setValidationErrors((prev) => ({ ...prev, [field]: fieldErrors[field] }));
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    saveProfile(formData);
+
+    // Validate before submitting
+    try {
+      ProfileEditSchema.parse(formData);
+      setValidationErrors({});
+      saveProfile(formData);
+    } catch (err) {
+      const fieldErrors = parseZodErrors(err);
+      setValidationErrors(fieldErrors);
+    }
   };
 
   const error = fetchError || saveError;
@@ -116,7 +185,9 @@ export function useProfileData(user: { id: string } | null) {
     error,
     success,
     formData,
-    setFormData,
+    validationErrors,
+    setFormData: handleFormDataChange,
+    handleBlur,
     handleSubmit,
   };
 }

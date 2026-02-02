@@ -1,10 +1,17 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, LucideIcon } from 'lucide-react';
+import { TrendingUp, UserPlus, UserCheck, Users, AlertTriangle, LucideIcon } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+
+const iconMap: Record<string, LucideIcon> = {
+  UserPlus,
+  UserCheck,
+  Users,
+  AlertTriangle,
+};
 
 interface PipelineStage {
   id: 'lead' | 'trial' | 'active' | 'at_risk';
@@ -13,7 +20,7 @@ interface PipelineStage {
   color: string;
   bgColor: string;
   borderColor: string;
-  icon: LucideIcon;
+  icon: string;
 }
 
 interface PipelineData {
@@ -82,7 +89,7 @@ export function StudentPipeline({ onStageClick }: StudentPipelineProps) {
             {/* Pipeline Stages */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {stages.map((stage, index) => {
-                const Icon = stage.icon;
+                const Icon = iconMap[stage.icon] || UserPlus;
                 return (
                   <button
                     key={stage.id}

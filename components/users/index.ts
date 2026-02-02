@@ -19,3 +19,6 @@ export { default as UserAssignments } from './details/UserAssignments';
 export { default as UserSongs } from './details/UserSongs';
 export { StudentAssignments } from './details/StudentAssignments';
 export { StudentRepertoire } from './details/StudentRepertoire';
+
+// Shared components (Stitch-based UI)
+export * from './shared';

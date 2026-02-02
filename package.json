@@ -1,5 +1,5 @@
 {
-  "name": "guitar-crm",
+  "name": "strummy",
   "version": "0.65.0",
   "private": true,
   "scripts": {
@@ -69,6 +69,7 @@
     "test:pw:songs": "playwright test --grep @songs",
     "test:pw:assignments": "playwright test --grep @assignments",
     "test:pw:dashboard": "playwright test --grep @dashboard",
+    "test:pw:security": "playwright test --grep @security",
     "test:pw:all": "playwright test",
     "test:pw:iphone12": "playwright test --project=\"iPhone 12\"",
     "test:pw:iphone15": "playwright test --project=\"iPhone 15 Pro Max\"",
@@ -76,7 +77,8 @@
     "test:pw:desktop": "playwright test --project=\"Desktop Chrome\"",
     "test:pw:mobile": "playwright test --project=\"iPhone 12\" --project=\"iPhone 15 Pro Max\"",
     "test:pw:tablet": "playwright test --project=\"iPad Pro\" --project=\"iPad (gen 7)\"",
-    "test:pw:devices": "playwright test --project=\"iPhone 12\" --project=\"iPad Pro\" --project=\"Desktop Chrome\""
+    "test:pw:devices": "playwright test --project=\"iPhone 12\" --project=\"iPad Pro\" --project=\"Desktop Chrome\"",
+    "test:cleanup": "npx tsx scripts/cleanup-test-data.ts"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -91,6 +93,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@sentry/nextjs": "^10.31.0",
@@ -127,6 +130,7 @@
     "qs": "^6.14.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/cypress": "^10.1.0",
     "@testing-library/jest-dom": "^6.9.1",

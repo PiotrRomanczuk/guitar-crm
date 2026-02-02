@@ -10,6 +10,11 @@ import FormAlert from '@/components/shared/FormAlert';
 import { Eye, EyeOff } from 'lucide-react';
 import { ResetPasswordSchema } from '@/schemas/AuthSchema';
 
+interface FieldErrors {
+  password?: string;
+  confirmPassword?: string;
+}
+
 interface ResetPasswordFormProps {
   onSuccess?: () => void;
 }
@@ -26,36 +31,47 @@ export default function ResetPasswordForm({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [touched, setTouched] = useState({
-    newPassword: false,
+    password: false,
     confirmPassword: false,
   });
 
-  const validate = () => {
-    if (!touched.newPassword && !touched.confirmPassword) return null;
-
+  const getFieldErrors = (): FieldErrors => {
+    const errors: FieldErrors = {};
     const result = ResetPasswordSchema.safeParse({
       password: newPassword,
       confirmPassword,
     });
 
-    if (result.success) return null;
-
-    // Return only the first relevant error based on touched fields
-    for (const issue of result.error.issues) {
-      if (issue.path[0] === 'password' && touched.newPassword) return issue.message;
-      if (issue.path[0] === 'confirmPassword' && touched.confirmPassword) return issue.message;
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as 'password' | 'confirmPassword';
+        if (touched[field] && !errors[field]) {
+          errors[field] = issue.message;
+        }
+      }
     }
-    return null;
+
+    return errors;
   };
 
-  const validationError = validate();
+  const fieldErrors = getFieldErrors();
+
+  const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewPassword(e.target.value);
+    setError(null);
+  };
+
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassword(e.target.value);
+    setError(null);
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     // Mark all fields as touched
     setTouched({
-      newPassword: true,
+      password: true,
       confirmPassword: true,
     });
 
@@ -115,17 +131,18 @@ export default function ResetPasswordForm({
             name="newPassword"
             type={showNewPassword ? 'text' : 'password'}
             value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            onBlur={() => setTouched({ ...touched, newPassword: true })}
+            onChange={handleNewPasswordChange}
+            onBlur={() => setTouched({ ...touched, password: true })}
             required
             minLength={6}
-            className="pr-10"
+            className={fieldErrors.password ? 'pr-10 border-destructive' : 'pr-10'}
             placeholder="Enter new password"
+            aria-invalid={!!fieldErrors.password}
           />
           <button
             type="button"
             onClick={() => setShowNewPassword(!showNewPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             aria-label={showNewPassword ? 'Hide password' : 'Show password'}
           >
             {showNewPassword ? (
@@ -135,7 +152,14 @@ export default function ResetPasswordForm({
             )}
           </button>
         </div>
-        <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
+        {fieldErrors.password && (
+          <p className="text-sm text-destructive" role="alert">
+            {fieldErrors.password}
+          </p>
+        )}
+        {!fieldErrors.password && (
+          <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -146,17 +170,18 @@ export default function ResetPasswordForm({
             name="confirmPassword"
             type={showConfirmPassword ? 'text' : 'password'}
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={handleConfirmPasswordChange}
             onBlur={() => setTouched({ ...touched, confirmPassword: true })}
             required
             minLength={6}
-            className="pr-10"
+            className={fieldErrors.confirmPassword ? 'pr-10 border-destructive' : 'pr-10'}
             placeholder="Confirm new password"
+            aria-invalid={!!fieldErrors.confirmPassword}
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
           >
             {showConfirmPassword ? (
@@ -166,9 +191,13 @@ export default function ResetPasswordForm({
             )}
           </button>
         </div>
+        {fieldErrors.confirmPassword && (
+          <p className="text-sm text-destructive" role="alert">
+            {fieldErrors.confirmPassword}
+          </p>
+        )}
       </div>
 
-      {validationError && <FormAlert type="error" message={validationError} />}
       {error && <FormAlert type="error" message={error} />}
 
       <Button type="submit" disabled={loading} className="w-full">

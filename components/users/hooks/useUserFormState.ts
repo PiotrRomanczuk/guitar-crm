@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { UserInputSchema } from '@/schemas/UserSchema';
+import { ZodError } from 'zod';
 
 export interface FormData {
   firstName: string;
@@ -83,6 +85,20 @@ async function saveUserToApi(payload: SaveUserPayload): Promise<void> {
   }
 }
 
+function parseZodErrors(err: unknown): Record<string, string> {
+  if (err instanceof ZodError) {
+    return err.issues.reduce(
+      (acc: Record<string, string>, e) => {
+        const field = e.path[0]?.toString() || 'unknown';
+        acc[field] = e.message;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+  }
+  return {};
+}
+
 export function useUserFormState(
   initialData: InitialData | undefined,
   isEdit: boolean | undefined
@@ -90,6 +106,7 @@ export function useUserFormState(
   const router = useRouter();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState<FormData>(createInitialData(initialData));
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const {
     mutate: submitForm,
@@ -102,6 +119,19 @@ export function useUserFormState(
       queryClient.invalidateQueries({ queryKey: ['users'] });
       router.push('/dashboard/users');
     },
+    onError: (err) => {
+      // Try to parse Zod errors from the response
+      if (err instanceof Error && err.message) {
+        try {
+          const parsed = JSON.parse(err.message);
+          if (parsed.errors) {
+            setValidationErrors(parsed.errors);
+          }
+        } catch {
+          // Not JSON, ignore
+        }
+      }
+    },
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,11 +140,51 @@ export function useUserFormState(
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+    // Clear field error on input
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
+  };
+
+  const handleBlur = (field: string) => {
+    // Validate single field on blur
+    try {
+      const fieldSchema = UserInputSchema.shape[field as keyof typeof UserInputSchema.shape];
+      if (fieldSchema) {
+        fieldSchema.parse(formData[field as keyof FormData]);
+        // Clear error if validation passes
+        if (validationErrors[field]) {
+          setValidationErrors((prev) => {
+            const next = { ...prev };
+            delete next[field];
+            return next;
+          });
+        }
+      }
+    } catch (err) {
+      const fieldErrors = parseZodErrors(err);
+      if (fieldErrors[field]) {
+        setValidationErrors((prev) => ({ ...prev, [field]: fieldErrors[field] }));
+      }
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    submitForm({ data: formData, initialData, isEdit });
+    setValidationErrors({});
+
+    // Validate before submitting
+    try {
+      UserInputSchema.parse(formData);
+      submitForm({ data: formData, initialData, isEdit });
+    } catch (err) {
+      const fieldErrors = parseZodErrors(err);
+      setValidationErrors(fieldErrors);
+    }
   };
 
   const error = mutationError
@@ -123,5 +193,5 @@ export function useUserFormState(
       : 'Unknown error'
     : null;
 
-  return { formData, loading, error, handleChange, handleSubmit };
+  return { formData, loading, error, validationErrors, handleChange, handleBlur, handleSubmit };
 }

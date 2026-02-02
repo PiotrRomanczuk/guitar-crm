@@ -90,7 +90,7 @@ export function createFormData(song?: Song | null): SongFormData {
     gallery_images: song?.gallery_images || [],
     cover_image_url: song?.cover_image_url || '',
     spotify_link_url: song?.spotify_link_url || '',
-    tiktok_short_url: song?.tiktok_short_url || '',
+    // tiktok_short_url: song?.tiktok_short_url || '', // Field not in schema
     capo_fret: song?.capo_fret ?? null,
     strumming_pattern: song?.strumming_pattern || '',
     category: song?.category || '',
