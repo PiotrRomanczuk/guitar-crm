@@ -123,6 +123,27 @@ export async function inviteUser(
   role: 'student' | 'teacher' | 'admin' = 'student',
   phone?: string
 ) {
+  // ✅ Authorization check - CRITICAL SECURITY FIX
+  const supabase = await createClient();
+  const {
+    data: { user: currentUser },
+  } = await supabase.auth.getUser();
+
+  if (!currentUser) {
+    throw new Error('Unauthorized: Authentication required');
+  }
+
+  // Check if current user is admin
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', currentUser.id)
+    .single();
+
+  if (!profile?.is_admin) {
+    throw new Error('Unauthorized: Only admins can invite users');
+  }
+
   const supabaseAdmin = createAdminClient();
 
   const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
@@ -173,6 +194,17 @@ export async function createShadowUser(studentEmail: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error('Unauthorized');
+
+  // ✅ Authorization check - CRITICAL SECURITY FIX
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin, is_teacher')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.is_admin && !profile?.is_teacher) {
+    throw new Error('Unauthorized: Only teachers and admins can create shadow users');
+  }
 
   const supabaseAdmin = createAdminClient();
 
