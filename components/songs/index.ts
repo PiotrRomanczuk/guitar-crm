@@ -13,3 +13,6 @@ export { useSongList, useSong } from './hooks';
 
 // Types
 export type { Song, SongWithStatus, SongLevel, SongFilters, SongStatus } from './types';
+
+// Shared components (Stitch-based UI)
+export * from './shared';

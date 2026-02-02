@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { generateAssignmentStream } from '@/app/actions/ai';
+import { cn } from '@/lib/utils';
 
 interface Props {
   studentName: string;
@@ -59,20 +59,46 @@ export function AssignmentAI({
   const canGenerate = studentName && focusArea && duration && !disabled;
 
   return (
-    <Button
+    <button
       type="button"
-      variant="outline"
-      size="sm"
       onClick={handleGenerate}
       disabled={loading || !canGenerate}
-      className="mt-2"
-    >
-      {loading ? (
-        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-      ) : (
-        <Sparkles className="w-4 h-4 mr-2" />
+      className={cn(
+        'relative group flex items-center gap-2 px-4 py-2 rounded-full mt-2',
+        'bg-gradient-to-r from-primary/10 to-warning/10',
+        'hover:from-primary/20 hover:to-warning/20',
+        'transition-all duration-300',
+        'border border-primary/20',
+        'shadow-[0_0_15px_hsl(var(--primary)/0.15)]',
+        'disabled:opacity-50 disabled:cursor-not-allowed',
+        'overflow-hidden'
       )}
-      AI Generate Assignment
-    </Button>
+    >
+      {/* Icon */}
+      <Sparkles
+        className={cn(
+          'h-4 w-4 text-primary',
+          'group-hover:scale-110 transition-transform duration-300',
+          loading && 'animate-spin'
+        )}
+      />
+
+      {/* Label */}
+      <span className="text-xs font-bold text-primary uppercase tracking-wide">
+        {loading ? 'Generating...' : 'AI Assist'}
+      </span>
+
+      {/* Shimmer effect */}
+      <div
+        className={cn(
+          'absolute inset-0 rounded-full',
+          'bg-gradient-to-r from-transparent via-white/20 to-transparent',
+          'translate-x-[-100%] group-hover:translate-x-[100%]',
+          'transition-transform duration-700',
+          'pointer-events-none'
+        )}
+        aria-hidden="true"
+      />
+    </button>
   );
 }

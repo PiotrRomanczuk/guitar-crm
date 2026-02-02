@@ -9,8 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { FilterChips } from '@/components/ui/filter-chips';
+import { Search } from 'lucide-react';
 
 interface Student {
   id: string;
@@ -31,6 +31,14 @@ interface FiltersProps {
   onReset: () => void;
 }
 
+const statusChips = [
+  { id: '', label: 'All' },
+  { id: 'not_started', label: 'Not Started' },
+  { id: 'in_progress', label: 'In Progress' },
+  { id: 'completed', label: 'Completed' },
+  { id: 'overdue', label: 'Overdue' },
+];
+
 export function Filters({
   search,
   status,
@@ -39,7 +47,6 @@ export function Filters({
   onSearchChange,
   onStatusChange,
   onStudentChange,
-  onReset,
 }: FiltersProps) {
   const [students, setStudents] = useState<Student[]>([]);
 
@@ -61,65 +68,48 @@ export function Filters({
   }, [showStudentFilter]);
 
   return (
-    <div className="bg-card rounded-xl border shadow-sm p-4 space-y-4 animate-fade-in mb-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="space-y-2">
-          <Label>Search</Label>
-          <Input
-            placeholder="Search assignments..."
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
+    <div className="space-y-4">
+      {/* Search Bar */}
+      <div className="relative group">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
         </div>
+        <Input
+          placeholder="Search by student or title..."
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="pl-10 bg-card"
+        />
+      </div>
 
-        {showStudentFilter && (
-          <div className="space-y-2">
-            <Label>Student</Label>
-            <Select
-              value={studentId || 'all'}
-              onValueChange={(val) => onStudentChange(val === 'all' ? '' : val)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="All Students" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Students</SelectItem>
-                {students.map((student) => (
-                  <SelectItem key={student.id} value={student.id}>
-                    {student.full_name || student.email}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+      {/* Filter Chips */}
+      <FilterChips
+        chips={statusChips}
+        selected={status || ''}
+        onChange={onStatusChange}
+      />
 
-        <div className="space-y-2">
-          <Label>Status</Label>
+      {/* Student Filter (dropdown for teachers) */}
+      {showStudentFilter && students.length > 0 && (
+        <div className="pt-2">
           <Select
-            value={status || 'all'}
-            onValueChange={(val) => onStatusChange(val === 'all' ? '' : val)}
+            value={studentId || 'all'}
+            onValueChange={(val) => onStudentChange(val === 'all' ? '' : val)}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="All Statuses" />
+            <SelectTrigger className="w-full sm:w-[200px] bg-card">
+              <SelectValue placeholder="All Students" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="not_started">Not Started</SelectItem>
-              <SelectItem value="in_progress">In Progress</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="overdue">Overdue</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="all">All Students</SelectItem>
+              {students.map((student) => (
+                <SelectItem key={student.id} value={student.id}>
+                  {student.full_name || student.email}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
-
-        <div className="flex items-end">
-          <Button variant="outline" onClick={onReset} className="w-full">
-            Reset Filters
-          </Button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
