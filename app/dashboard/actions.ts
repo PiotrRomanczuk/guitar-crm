@@ -367,12 +367,6 @@ export async function createShadowUser(studentEmail: string) {
           .update({ teacher_id: userId })
           .eq('teacher_id', orphanProfile.id);
 
-        // User Roles
-        await supabaseAdmin
-          .from('user_roles')
-          .update({ user_id: userId })
-          .eq('user_id', orphanProfile.id);
-
         // 5. Delete orphan profile
         await supabaseAdmin.from('profiles').delete().eq('id', orphanProfile.id);
 

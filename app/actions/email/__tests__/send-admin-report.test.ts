@@ -7,6 +7,8 @@
  * @see app/actions/email/send-admin-report.ts
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { sendAdminSongReport } from '../send-admin-report';
 
 // Mock song analytics

@@ -7,6 +7,8 @@
  * @see app/actions/student/dashboard.ts
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { getStudentDashboardData } from '../student/dashboard';
 
 // Mock getUserWithRolesSSR

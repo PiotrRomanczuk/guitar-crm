@@ -48,6 +48,7 @@ export function useTemplateForm(initialTitle = '', initialDescription = '') {
       }
 
       // Create a minimal schema for this field (need to add teacher_id for validation)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const fieldSchema = AssignmentTemplateInputSchema.pick({ [field]: true } as any);
       fieldSchema.parse({ [field]: fieldValue });
 

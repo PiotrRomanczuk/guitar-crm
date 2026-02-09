@@ -135,6 +135,7 @@ export default function useLessonForm({
 
       // Only validate if field has a value or is required
       if (fieldValue || !partial) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         schema.pick({ [field]: true } as any).parse({ [field]: fieldValue });
 
         // Clear error if validation passes

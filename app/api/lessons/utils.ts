@@ -144,6 +144,14 @@ export function prepareLessonForDb(lessonData: Partial<LessonInput>) {
   // Remove song_ids if it exists (should be handled separately)
   delete dbData.song_ids;
 
+  // Remove auto-generated fields that are set by database triggers
+  // lesson_number is auto-set by set_lesson_number() trigger
+  delete dbData.lesson_number;
+  delete dbData.lesson_teacher_number;
+
+  // Remove fields that don't exist in the actual database schema
+  delete dbData.creator_user_id;
+
   // Filter out undefined values to prevent Supabase JSONB operator errors
   Object.keys(dbData).forEach((key) => {
     if (dbData[key] === undefined) {

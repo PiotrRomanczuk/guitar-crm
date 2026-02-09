@@ -14,6 +14,8 @@
  * @see schemas/UserSchema.ts
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import {
   UserSchema,
   UserInputSchema,

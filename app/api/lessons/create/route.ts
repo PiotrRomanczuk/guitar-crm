@@ -15,18 +15,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user has permission to create lessons (using user_roles)
-    const { data: roles, error: rolesError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id);
+    // Check if user has permission to create lessons (using profiles boolean flags)
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('is_admin, is_teacher')
+      .eq('id', user.id)
+      .single();
 
-    const userRoles = roles?.map((r) => r.role) || [];
-    const canCreate = userRoles.includes('admin') || userRoles.includes('teacher');
+    const canCreate = profile?.is_admin || profile?.is_teacher;
 
     if (!canCreate) {
       return NextResponse.json(
-        { error: 'Forbidden', debug: { user, roles, rolesError } },
+        { error: 'Forbidden', debug: { user, profile, profileError } },
         { status: 403 }
       );
     }

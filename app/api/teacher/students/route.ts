@@ -14,34 +14,56 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: roles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+    // Check teacher role from profiles table boolean flags
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_teacher')
+      .eq('id', user.id)
+      .single();
 
-    const userRoles = roles?.map((r) => r.role) || [];
-
-    if (!userRoles.includes('teacher')) {
+    if (!profile?.is_teacher) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Get students assigned to this teacher
-    // We select profiles that have a 'student' role
+    // Get student IDs from active (non-deleted) lessons where this user is the teacher
+    const { data: lessonData, error: lessonError } = await supabase
+      .from('lessons')
+      .select('student_id')
+      .eq('teacher_id', user.id)
+      .is('deleted_at', null);
+
+    if (lessonError) {
+      return NextResponse.json({ error: lessonError.message }, { status: 500 });
+    }
+
+    // Extract unique student IDs
+    const studentIds = Array.from(
+      new Set((lessonData || []).map((l) => l.student_id))
+    );
+
+    // If teacher has no students via lessons, return empty list
+    if (studentIds.length === 0) {
+      return NextResponse.json({ students: [] });
+    }
+
+    // Fetch only the profiles for students linked to this teacher via lessons
     const { data: students, error: studentsError } = await supabase
       .from('profiles')
-      .select('id, full_name, user_roles!inner(role)')
-      .eq('user_roles.role', 'student')
+      .select('id, full_name')
+      .in('id', studentIds)
       .order('full_name');
 
     if (studentsError) {
       return NextResponse.json({ error: studentsError.message }, { status: 500 });
     }
 
-    // Map back to flat structure if needed, or just return profiles
-    const flatStudents = students?.map((s) => ({
+    const flatStudents = (students || []).map((s) => ({
       id: s.id,
       full_name: s.full_name,
-      is_student: true, // We know they are students because of the filter
+      is_student: true,
     }));
 
-    return NextResponse.json({ students: flatStudents || [] });
+    return NextResponse.json({ students: flatStudents });
   } catch (error) {
     console.error('Error fetching teacher students:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

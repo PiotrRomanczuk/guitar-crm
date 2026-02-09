@@ -9,6 +9,8 @@
  * @see app/actions/assignment-templates.ts
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import {
   createAssignmentTemplate,
   updateAssignmentTemplate,

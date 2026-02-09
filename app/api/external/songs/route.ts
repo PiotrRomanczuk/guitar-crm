@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     const key = searchParams.get('key') || undefined;
 
     // Build filter
-    const filter: Record<string, any> = {};
+    const filter: Record<string, unknown> = {};
     if (level) filter.level = level;
     if (key) filter.key = key;
 

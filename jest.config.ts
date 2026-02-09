@@ -33,6 +33,7 @@ const config: Config = {
     '<rootDir>/hooks/**/__tests__/**/*.test.{js,jsx,ts,tsx}',
     '<rootDir>/hooks/**/*.test.{js,jsx,ts,tsx}',
     '<rootDir>/app/actions/**/*.test.{js,jsx,ts,tsx}',
+    '<rootDir>/app/auth/**/*.test.{js,jsx,ts,tsx}',
 
     // Component unit tests (not integration)
     '<rootDir>/components/**/*.unit.test.{js,jsx,ts,tsx}',

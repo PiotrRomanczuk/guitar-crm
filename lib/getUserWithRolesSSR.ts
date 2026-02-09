@@ -25,26 +25,7 @@ export async function getUserWithRolesSSR() {
     };
   }
 
-  // Fetch roles from user_roles table
-  const { data: roles, error: rolesError } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', user.id);
-
-  if (rolesError) {
-    // Profile error - user exists but no profile record (handle gracefully in calling code)
-  }
-
-  if (roles && roles.length > 0) {
-    return {
-      user,
-      isAdmin: roles.some((r) => r.role === 'admin'),
-      isTeacher: roles.some((r) => r.role === 'teacher'),
-      isStudent: roles.some((r) => r.role === 'student'),
-    };
-  }
-
-  // Fallback: Check profiles table
+  // Fetch roles from profiles table boolean flags
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin, is_teacher, is_student')

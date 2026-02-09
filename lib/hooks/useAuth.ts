@@ -46,21 +46,7 @@ export function useAuth(): AuthState {
     const supabase = createClient();
 
     try {
-      // First try user_roles table
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id);
-
-      if (!rolesError && roles && roles.length > 0) {
-        return {
-          isAdmin: roles.some((r) => r.role === 'admin'),
-          isTeacher: roles.some((r) => r.role === 'teacher'),
-          isStudent: roles.some((r) => r.role === 'student'),
-        };
-      }
-
-      // Fallback to profiles table
+      // Fetch roles from profiles table boolean flags
       const { data: profile } = await supabase
         .from('profiles')
         .select('is_admin, is_teacher, is_student')

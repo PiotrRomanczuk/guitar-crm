@@ -17,14 +17,14 @@ export async function GET(request: Request) {
     }
     const userId = user.id;
 
-    // 1. Verify user has teacher or admin role
-    const { data: roles, error: rolesError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .in('role', ['admin', 'teacher']);
+    // 1. Verify user has teacher or admin role via profiles boolean flags
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('is_admin, is_teacher')
+      .eq('id', userId)
+      .single();
 
-    if (rolesError || !roles || roles.length === 0) {
+    if (profileError || !profile || (!profile.is_admin && !profile.is_teacher)) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 

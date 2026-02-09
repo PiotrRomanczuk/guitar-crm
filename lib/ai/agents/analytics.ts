@@ -140,7 +140,7 @@ INSIGHT DELIVERY:
   optionalContext: ['schoolStats', 'enrollmentData', 'revenueData'],
 
   dataAccess: {
-    tables: ['profiles', 'lessons', 'user_roles', 'songs'],
+    tables: ['profiles', 'lessons', 'songs'],
     permissions: ['read'],
   },
 

@@ -88,11 +88,8 @@ test.describe.serial('Teacher Lesson CRUD', { tag: ['@teacher', '@lessons', '@cr
     ).toBeVisible({ timeout: 10000 });
   });
 
-  // TODO: Fix JSONB operator error in lesson update
-  // Error: "operator does not exist: jsonb - jsonb"
-  // This appears to be a Supabase PostgREST issue with PATCH operations
-  // Need to investigate: https://github.com/PostgREST/postgrest/issues
-  test.skip('3. EDIT: should update the lesson', async ({ page }) => {
+  // Fixed in BMS-44: Database column renamed + field filtering in prepareLessonForDb()
+  test('3. EDIT: should update the lesson', async ({ page }) => {
     await page.goto('/dashboard/lessons');
     await page.waitForSelector('[data-testid="lesson-table"]', { timeout: 10000 });
 
@@ -125,7 +122,7 @@ test.describe.serial('Teacher Lesson CRUD', { tag: ['@teacher', '@lessons', '@cr
     await expect(page).toHaveURL(/\/lessons\/[^/]+$/, { timeout: 15000 });
   });
 
-  test.skip('4. VERIFY EDIT: should find edited lesson in list', async ({ page }) => {
+  test('4. VERIFY EDIT: should find edited lesson in list', async ({ page }) => {
     await page.goto('/dashboard/lessons');
 
     // Wait for desktop table to load

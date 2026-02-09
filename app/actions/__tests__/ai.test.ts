@@ -12,6 +12,8 @@
  * @see app/actions/ai.ts
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import {
   getProviderAppropriateModel,
   generateLessonNotes,

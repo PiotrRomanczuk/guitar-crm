@@ -115,13 +115,17 @@
 ## ⚠️ KNOWN ISSUES
 
 ### 🔴 Critical
-1. **Supabase PostgREST UPDATE Bug** (Lesson Edit)
-   - Error: "operator does not exist: jsonb - jsonb"
-   - Affects: Lesson UPDATE operations
-   - Status: Investigating, tests skipped for now
+- None currently
 
 ### 🟡 Minor
 - None currently
+
+### ✅ Recently Fixed
+1. **Supabase PostgREST UPDATE Bug** (Lesson Edit) - BMS-44
+   - Error: "operator does not exist: jsonb - jsonb"
+   - Root Cause: Database column `lesson_number` didn't match TypeScript types `lesson_teacher_number`
+   - Fix: Migrations 030 & 031 + enhanced field filtering in `prepareLessonForDb()`
+   - Status: ✅ Fixed - tests re-enabled
 
 ---
 
