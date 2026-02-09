@@ -17,13 +17,13 @@ export async function GET() {
     // For now, we'll simulate the pipeline data based on lesson activity
     // Once the migration is applied, we'll use the actual student_status column
 
-    // Get all students
-    const { data: studentRoles } = await supabase
-      .from('user_roles')
-      .select('user_id')
-      .eq('role', 'student');
+    // Get all students via profiles table boolean flags
+    const { data: studentProfiles } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('is_student', true);
 
-    if (!studentRoles || studentRoles.length === 0) {
+    if (!studentProfiles || studentProfiles.length === 0) {
       return NextResponse.json({
         stages: [
           {
@@ -70,7 +70,7 @@ export async function GET() {
       });
     }
 
-    const studentIds = studentRoles.map((r) => r.user_id);
+    const studentIds = studentProfiles.map((p) => p.id);
 
     // Categorize students based on lesson activity
     let leads = 0;

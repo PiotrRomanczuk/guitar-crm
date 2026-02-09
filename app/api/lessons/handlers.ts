@@ -56,13 +56,17 @@ type SupabaseClient = Awaited<
 >;
 
 /**
- * Get teacher's student IDs
+ * Get teacher's student IDs from active (non-deleted) lessons only
  */
 async function getTeacherStudentIds(
   supabase: SupabaseClient,
   teacherId: string
 ): Promise<string[]> {
-  const { data } = await supabase.from('lessons').select('student_id').eq('teacher_id', teacherId);
+  const { data } = await supabase
+    .from('lessons')
+    .select('student_id')
+    .eq('teacher_id', teacherId)
+    .is('deleted_at', null);
 
   const studentIds = data?.map((l) => l.student_id) || [];
   const uniqueStudentIds = Array.from(new Set(studentIds));

@@ -15,21 +15,19 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
-    // Use adminClient to check role to bypass potential RLS on user_roles
+    // Check if user is admin via profiles table boolean flags
     const adminClient = createAdminClient();
-    const { data: adminRole, error: roleError } = await adminClient
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'admin')
-      .maybeSingle();
+    const { data: profile, error: profileError } = await adminClient
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
 
-    if (roleError) {
-      console.error('[SongStats] Error checking role:', roleError);
+    if (profileError) {
+      console.error('[SongStats] Error checking role:', profileError);
     }
 
-    if (!adminRole) {
+    if (!profile?.is_admin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

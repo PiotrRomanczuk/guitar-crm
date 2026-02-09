@@ -27,30 +27,18 @@ export async function GET() {
     const fourteenDaysAgo = new Date();
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
-    // Get all students with user_roles
-    const { data: studentRoles } = await supabase
-      .from('user_roles')
-      .select('user_id')
-      .eq('role', 'student');
-
-    if (!studentRoles || studentRoles.length === 0) {
-      return NextResponse.json([]);
-    }
-
-    const studentIds = studentRoles.map((r) => r.user_id);
-
-    // Get profiles for these students
-    const { data: profiles } = await supabase
+    // Get all students via profiles table boolean flags
+    const { data: studentProfiles } = await supabase
       .from('profiles')
       .select('id, full_name, email')
-      .in('id', studentIds);
+      .eq('is_student', true);
 
-    if (!profiles) {
+    if (!studentProfiles || studentProfiles.length === 0) {
       return NextResponse.json([]);
     }
 
     // Check each student for issues
-    for (const profile of profiles) {
+    for (const profile of studentProfiles) {
       const studentName = profile.full_name || profile.email || 'Unknown Student';
 
       // Check for recent lessons

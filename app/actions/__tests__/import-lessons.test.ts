@@ -8,6 +8,8 @@
  * @see app/actions/import-lessons.ts
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { importLessonsFromGoogle, fetchGoogleEvents, ImportEvent } from '../import-lessons';
 
 // Mock getUserWithRolesSSR

@@ -27,25 +27,13 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get all students
-    const { data: studentRoles } = await supabase
-      .from('user_roles')
-      .select('user_id')
-      .eq('role', 'student');
-
-    if (!studentRoles || studentRoles.length === 0) {
-      return NextResponse.json([]);
-    }
-
-    const studentIds = studentRoles.map((r) => r.user_id);
-
-    // Get profiles
-    const { data: profiles } = await supabase
+    // Get all students via profiles table boolean flags
+    const { data: studentProfiles } = await supabase
       .from('profiles')
       .select('id, full_name, email')
-      .in('id', studentIds);
+      .eq('is_student', true);
 
-    if (!profiles) {
+    if (!studentProfiles || studentProfiles.length === 0) {
       return NextResponse.json([]);
     }
 
@@ -54,7 +42,7 @@ export async function GET() {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    for (const profile of profiles) {
+    for (const profile of studentProfiles) {
       // Get all lessons for this student
       const { data: allLessons } = await supabase
         .from('lessons')

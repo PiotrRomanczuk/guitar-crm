@@ -16,17 +16,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
-    // Use adminClient to check role to bypass potential RLS on user_roles
+    // Check if user is admin via profiles table boolean flags
     const adminClient = createAdminClient();
-    const { data: adminRole } = await adminClient
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'admin')
-      .maybeSingle();
+    const { data: profile } = await adminClient
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
 
-    const isAdmin = !!adminRole;
+    const isAdmin = profile?.is_admin === true;
 
     const userId = searchParams.get('userId');
     const dateFrom = searchParams.get('dateFrom');

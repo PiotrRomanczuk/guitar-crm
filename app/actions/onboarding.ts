@@ -25,7 +25,7 @@ export async function completeOnboarding(onboardingData: OnboardingData) {
   const fullName = user.user_metadata?.full_name || `${firstName} ${lastName}`.trim();
 
   try {
-    // 1. Update profile with onboarding data
+    // 1. Update profile with onboarding data and assign student role via boolean flag
     const { error: profileError } = await adminClient
       .from('profiles')
       .update({
@@ -43,21 +43,7 @@ export async function completeOnboarding(onboardingData: OnboardingData) {
       return { error: 'Failed to update profile' };
     }
 
-    // 2. Assign student role
-    const { error: roleError } = await adminClient.from('user_roles').insert({
-      user_id: user.id,
-      role: 'student',
-    });
-
-    if (roleError) {
-      // Ignore duplicate key error (23505)
-      if (roleError.code !== '23505') {
-        console.error('Error assigning role:', roleError);
-        return { error: 'Failed to assign role' };
-      }
-    }
-
-    // 3. Store onboarding preferences (if you have a separate table for this)
+    // 2. Store onboarding preferences (if you have a separate table for this)
     // For now, we'll log them - you can create a user_preferences table later
     console.log('User onboarding preferences:', {
       userId: user.id,

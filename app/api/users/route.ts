@@ -5,9 +5,9 @@ import { randomUUID } from 'crypto';
 
 export async function GET(request: Request) {
   try {
-    const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
+    const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
 
-    if (!user || (!isAdmin && !isTeacher)) {
+    if (!user || (!isAdmin && !isTeacher && !isStudent)) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -21,7 +21,70 @@ export async function GET(request: Request) {
     const limit = parseInt(url.searchParams.get('limit') || '50');
     const offset = parseInt(url.searchParams.get('offset') || '0');
 
+    // Student role: can only see their own profile
+    if (isStudent && !isAdmin && !isTeacher) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error || !data) {
+        return Response.json({ error: 'Profile not found' }, { status: 404 });
+      }
+
+      const mapped = {
+        id: data.id,
+        email: data.email,
+        firstName: data.full_name ? data.full_name.split(' ')[0] : '',
+        lastName: data.full_name ? data.full_name.split(' ').slice(1).join(' ') : '',
+        full_name: data.full_name,
+        isAdmin: data.is_admin,
+        isTeacher: data.is_teacher,
+        isStudent: data.is_student,
+        isShadow: data.is_shadow,
+        isActive: data.is_active ?? true,
+        isRegistered: true,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+      };
+
+      return Response.json(
+        { data: [mapped], total: 1, limit, offset },
+        { status: 200 }
+      );
+    }
+
+    // Teacher role: can only see students linked via active lessons
+    // Determine allowed profile IDs for teacher
+    let allowedStudentIds: string[] | null = null;
+    if (isTeacher && !isAdmin) {
+      const { data: lessonData } = await supabase
+        .from('lessons')
+        .select('student_id')
+        .eq('teacher_id', user.id)
+        .is('deleted_at', null);
+
+      allowedStudentIds = Array.from(
+        new Set((lessonData || []).map((l) => l.student_id))
+      );
+
+      // If teacher has no students, return empty result
+      if (allowedStudentIds.length === 0) {
+        return Response.json(
+          { data: [], total: 0, limit, offset },
+          { status: 200 }
+        );
+      }
+    }
+
+    // Build query
     let query = supabase.from('profiles').select('*', { count: 'exact' });
+
+    // For teachers, restrict to their students only
+    if (allowedStudentIds !== null) {
+      query = query.in('id', allowedStudentIds);
+    }
 
     if (searchQuery) {
       query = query.or(`email.ilike.%${searchQuery}%,full_name.ilike.%${searchQuery}%`);
@@ -47,47 +110,78 @@ export async function GET(request: Request) {
       return Response.json({ error: error.message }, { status: 500 });
     }
 
-    // Fetch auth data for each user to check registration status and map to camelCase
-    const mappedData = await Promise.all(
-      (data || []).map(async (profile) => {
-        let isRegistered = false;
-        try {
-          // Only check auth status if we have an ID (which we should)
-          if (profile.id) {
+    // Optimize: Fetch all auth users in a single query instead of N+1 individual queries
+    // Build a map of userId -> auth user data for quick lookup
+    const authUserMap = new Map<string, { isRegistered: boolean }>();
+
+    if (data && data.length > 0) {
+      try {
+        // Filter out shadow users (they don't exist in auth.users)
+        const nonShadowProfileIds = data.filter(p => !p.is_shadow).map(p => p.id);
+
+        if (nonShadowProfileIds.length > 0) {
+          // Fetch all auth users in a single paginated query
+          // Note: listUsers returns max 1000 users per page, but we handle pagination if needed
+          let page = 1;
+          let hasMore = true;
+
+          while (hasMore && page <= 10) { // Safety limit: max 10 pages (10k users)
             const {
-              data: { user },
-            } = await supabaseAdmin.auth.admin.getUserById(profile.id);
+              data: { users: authUsers },
+            } = await supabaseAdmin.auth.admin.listUsers({
+              page,
+              perPage: 1000,
+            });
 
-            // Check registration status based on identities and sign-in history
-            const hasSignedIn = !!user?.last_sign_in_at;
-            const hasOauthProvider = user?.app_metadata?.providers?.some(
-              (p: string) => p !== 'email'
-            );
+            if (authUsers && authUsers.length > 0) {
+              authUsers.forEach((authUser) => {
+                // Check registration status based on identities and sign-in history
+                const hasSignedIn = !!authUser.last_sign_in_at;
+                const hasOauthProvider = authUser.app_metadata?.providers?.some(
+                  (p: string) => p !== 'email'
+                );
 
-            isRegistered = hasSignedIn || !!hasOauthProvider;
+                authUserMap.set(authUser.id, {
+                  isRegistered: hasSignedIn || !!hasOauthProvider,
+                });
+              });
+
+              // Check if we need to fetch more pages
+              hasMore = authUsers.length === 1000;
+              page++;
+            } else {
+              hasMore = false;
+            }
           }
-        } catch (err) {
-          console.error(`Failed to fetch auth user for ${profile.id}:`, err);
         }
+      } catch (err) {
+        console.error('Failed to fetch auth users in batch:', err);
+        // Continue with empty map - users will show as not registered
+      }
+    }
 
-        return {
-          id: profile.id,
-          email: profile.email,
-          // Split full_name into firstName/lastName
-          firstName: profile.full_name ? profile.full_name.split(' ')[0] : '',
-          lastName: profile.full_name ? profile.full_name.split(' ').slice(1).join(' ') : '',
-          full_name: profile.full_name,
-          isAdmin: profile.is_admin,
-          isTeacher: profile.is_teacher,
-          isStudent: profile.is_student,
-          isShadow: profile.is_shadow,
-          isActive: profile.is_active ?? true,
-          isRegistered: isRegistered,
-          created_at: profile.created_at,
-          updated_at: profile.updated_at,
-        };
-      })
-    );
+    // Map profiles with auth data from the lookup map
+    const mappedData = (data || []).map((profile) => {
+      const authData = authUserMap.get(profile.id);
+      const isRegistered = authData?.isRegistered ?? false;
+
+      return {
+        id: profile.id,
+        email: profile.email,
+        // Split full_name into firstName/lastName
+        firstName: profile.full_name ? profile.full_name.split(' ')[0] : '',
+        lastName: profile.full_name ? profile.full_name.split(' ').slice(1).join(' ') : '',
+        full_name: profile.full_name,
+        isAdmin: profile.is_admin,
+        isTeacher: profile.is_teacher,
+        isStudent: profile.is_student,
+        isShadow: profile.is_shadow,
+        isActive: profile.is_active ?? true,
+        isRegistered: isRegistered,
+        created_at: profile.created_at,
+        updated_at: profile.updated_at,
+      };
+    });
 
     return Response.json(
       {

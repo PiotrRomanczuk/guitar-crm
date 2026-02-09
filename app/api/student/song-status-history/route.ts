@@ -46,13 +46,14 @@ export async function GET(req: Request) {
     const studentId = searchParams.get('studentId');
     const limit = parseInt(searchParams.get('limit') || '50');
 
-    // Check if user is admin/teacher or requesting their own data
-    const { data: userRoles } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id);
+    // Check if user is admin/teacher via profiles table boolean flags
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin, is_teacher')
+      .eq('id', user.id)
+      .single();
 
-    const isAdminOrTeacher = userRoles?.some((ur) => ['admin', 'teacher'].includes(ur.role));
+    const isAdminOrTeacher = profile?.is_admin || profile?.is_teacher;
     const targetStudentId = studentId || user.id;
 
     // If not admin/teacher, can only see own data

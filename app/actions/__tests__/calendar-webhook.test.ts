@@ -7,6 +7,8 @@
  * @see app/actions/calendar-webhook.ts
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { enableCalendarWebhook } from '../calendar-webhook';
 
 // Mock getUserWithRolesSSR

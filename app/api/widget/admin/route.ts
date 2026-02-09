@@ -22,14 +22,14 @@ export async function GET(request: NextRequest) {
     const { userId, profile } = auth;
     const supabase = createClient();
 
-    // Check if user is admin
-    const { data: userWithRoles } = await supabase
-      .from('users')
-      .select('*, user_roles(role)')
+    // Check if user is admin via profiles table boolean flags
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('is_admin')
       .eq('id', userId)
       .single();
 
-    const isAdmin = userWithRoles?.user_roles?.some((ur: { role: string }) => ur.role === 'admin');
+    const isAdmin = userProfile?.is_admin === true;
 
     if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden. Admin access required.' }, { status: 403 });
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       .toISOString()
       .split('T')[0];
 
-    // Total counts
+    // Total counts - use profiles boolean flags for teacher/student counts
     const [
       { count: totalUsers },
       { count: totalTeachers },
@@ -49,9 +49,9 @@ export async function GET(request: NextRequest) {
       { count: totalSongs },
       { count: totalLessons },
     ] = await Promise.all([
-      supabase.from('users').select('*', { count: 'exact', head: true }),
-      supabase.from('user_roles').select('*', { count: 'exact', head: true }).eq('role', 'teacher'),
-      supabase.from('user_roles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_teacher', true),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_student', true),
       supabase.from('songs').select('*', { count: 'exact', head: true }),
       supabase.from('lessons').select('*', { count: 'exact', head: true }),
     ]);
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
       .gte('created_at', thirtyDaysAgo);
 
     const { count: recentUsers } = await supabase
-      .from('users')
+      .from('profiles')
       .select('*', { count: 'exact', head: true })
       .gte('created_at', thirtyDaysAgo);
 

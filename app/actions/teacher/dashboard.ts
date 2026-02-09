@@ -56,22 +56,15 @@ export async function getTeacherDashboardData(): Promise<TeacherDashboardData> {
 
   const supabase = await createClient();
 
-  // Fetch students
-  const { data: studentsData } = await supabase
-    .from('user_roles')
-    .select('user_id, role')
-    .eq('role', 'student');
-
-  const studentIds = studentsData?.map((s) => s.user_id) || [];
-
-  const { data: profiles } = await supabase
+  // Fetch students using profiles table boolean flags
+  const { data: studentProfiles } = await supabase
     .from('profiles')
     .select('id, full_name, avatar_url')
-    .in('id', studentIds);
+    .eq('is_student', true);
 
   // Fetch stats for each student
   const students = await Promise.all(
-    profiles?.map(async (profile) => {
+    studentProfiles?.map(async (profile) => {
       const { count: lessonsCompleted } = await supabase
         .from('lessons')
         .select('*', { count: 'exact', head: true })

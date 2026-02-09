@@ -178,7 +178,7 @@ const handleApiResponse = async (
   endpoint: string,
   retryCount = 0,
   retryFn?: () => Promise<Response>
-): Promise<any> => {
+): Promise<unknown> => {
   // Handle rate limiting
   if (response.status === 429) {
     const retryAfter = parseInt(response.headers.get('Retry-After') || '60', 10);
@@ -250,9 +250,8 @@ export const searchTracks = async (query: string, retryCount = 0) => {
   checkCircuitBreaker();
 
   try {
-    const { access_token } = await getAccessToken();
-
     const makeRequest = async () => {
+      const { access_token } = await getAccessToken();
       return fetchWithTimeout(
         `${SEARCH_ENDPOINT}?q=${encodeURIComponent(query)}&type=track&limit=10`,
         {
@@ -278,9 +277,8 @@ export const getTrack = async (trackId: string, retryCount = 0) => {
   checkCircuitBreaker();
 
   try {
-    const { access_token } = await getAccessToken();
-
     const makeRequest = async () => {
+      const { access_token } = await getAccessToken();
       return fetchWithTimeout(`${TRACK_ENDPOINT}/${trackId}`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
@@ -303,9 +301,8 @@ export const getAudioFeatures = async (trackId: string, retryCount = 0) => {
   checkCircuitBreaker();
 
   try {
-    const { access_token } = await getAccessToken();
-
     const makeRequest = async () => {
+      const { access_token } = await getAccessToken();
       return fetchWithTimeout(`${AUDIO_FEATURES_ENDPOINT}/${trackId}`, {
         headers: {
           Authorization: `Bearer ${access_token}`,

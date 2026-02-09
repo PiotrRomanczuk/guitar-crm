@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 'use server';
 
 import { getAIProvider, isAIError, type AIMessage, type AIModelInfo } from '@/lib/ai';
