@@ -29,13 +29,32 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = parseInt(searchParams.get("offset") || "0");
 
+    // Get user profile for role-based filtering
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_admin, is_teacher, is_student")
+      .eq("id", user.id)
+      .single();
+
     let supabaseQuery = supabase
       .from("lessons")
       .select(`
         *,
-        profile:profiles!lessons_student_id_fkey(email, firstName, lastName),
-        teacher_profile:profiles!lessons_teacher_id_fkey(email, firstName, lastName)
+        profile:profiles!lessons_student_id_fkey(email, full_name),
+        teacher_profile:profiles!lessons_teacher_id_fkey(email, full_name)
       `);
+
+    // Apply role-based access control
+    if (profile?.is_admin) {
+      // Admins see all lessons
+    } else if (profile?.is_teacher) {
+      supabaseQuery = supabaseQuery.eq("teacher_id", user.id);
+    } else {
+      supabaseQuery = supabaseQuery.eq("student_id", user.id);
+    }
+
+    // Exclude soft-deleted lessons
+    supabaseQuery = supabaseQuery.is("deleted_at", null);
 
     // Apply filters
     if (query) {
@@ -62,15 +81,15 @@ export async function GET(request: NextRequest) {
     }
 
     if (dateFrom) {
-      supabaseQuery = supabaseQuery.gte("date", dateFrom);
+      supabaseQuery = supabaseQuery.gte("scheduled_at", dateFrom);
     }
 
     if (dateTo) {
-      supabaseQuery = supabaseQuery.lte("date", dateTo);
+      supabaseQuery = supabaseQuery.lte("scheduled_at", dateTo);
     }
 
     // Apply sorting
-    const validSortFields = ["title", "date", "created_at", "updated_at", "lesson_number"];
+    const validSortFields = ["title", "scheduled_at", "created_at", "updated_at", "lesson_number"];
     const validSortOrders = ["asc", "desc"];
     
     if (validSortFields.includes(sortBy) && validSortOrders.includes(sortOrder)) {

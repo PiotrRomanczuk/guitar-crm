@@ -439,7 +439,7 @@ test.describe(
           '/api/users/invite',
           '/api/users/delete',
           '/api/calendar/sync',
-          '/api/lessons/create',
+          '/api/lessons',
           '/api/assignments/create',
         ];
 
