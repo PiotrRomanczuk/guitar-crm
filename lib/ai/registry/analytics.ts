@@ -20,19 +20,19 @@ interface AgentAnalytics {
 }
 
 /**
- * In-memory execution log (for development and immediate analytics)
+ * In-memory execution log (capped for serverless safety) [BMS-114]
  */
+const MAX_IN_MEMORY_LOGS = 100;
 let executionLog: AgentResponse[] = [];
 
 /**
- * Add execution to log
+ * Add execution to log (capped at MAX_IN_MEMORY_LOGS)
  */
 export function addToExecutionLog(response: AgentResponse): void {
   executionLog.push(response);
 
-  // Keep only last 1000 executions in memory
-  if (executionLog.length > 1000) {
-    executionLog.shift();
+  if (executionLog.length > MAX_IN_MEMORY_LOGS) {
+    executionLog = executionLog.slice(-MAX_IN_MEMORY_LOGS);
   }
 }
 
@@ -86,30 +86,29 @@ export async function logExecution(
   // Add to in-memory log
   addToExecutionLog(response);
 
-  // Log to database if analytics are enabled
-  if (agent?.enableAnalytics) {
-    try {
-      const supabase = await createClient();
-      await supabase.from('agent_execution_logs').insert({
-        agent_id: response.metadata.agentId,
-        request_id: response.analytics.requestId,
-        user_id: request.context.userId,
-        user_role: request.context.userRole,
-        successful: response.success,
-        execution_time: response.metadata.executionTime,
-        input_hash: response.analytics.inputHash,
-        error_code: response.error?.code,
-        model_used: response.metadata.model,
-        provider_used: response.metadata.provider,
-        tokens_used: response.metadata.tokensUsed,
-        timestamp: response.analytics.timestamp,
-        session_id: request.context.sessionId,
-        entity_type: request.context.entityType,
-        entity_id: request.context.entityId,
-      });
-    } catch (error) {
-      console.error('[AgentAnalytics] Failed to log execution to database:', error);
-    }
+  // Always attempt DB logging; silently fail if table doesn't exist [BMS-114]
+  try {
+    const supabase = await createClient();
+    await supabase.from('agent_execution_logs').insert({
+      agent_id: response.metadata.agentId,
+      request_id: response.analytics?.requestId,
+      user_id: request.context.userId,
+      user_role: request.context.userRole,
+      successful: response.success,
+      execution_time: response.metadata.executionTime,
+      input_hash: response.analytics?.inputHash,
+      error_code: response.error?.code,
+      model_used: response.metadata.model,
+      provider_used: response.metadata.provider,
+      tokens_used: response.metadata.tokensUsed,
+      timestamp: response.analytics?.timestamp,
+      session_id: request.context.sessionId,
+      entity_type: request.context.entityType,
+      entity_id: request.context.entityId,
+    });
+  } catch (error) {
+    // DB logging is best-effort — don't break the request
+    console.warn('[AgentAnalytics] Failed to log execution to database:', error);
   }
 }
 
@@ -258,6 +257,60 @@ export async function getPerformanceMetrics(
       topErrors: [],
     };
   }
+}
+
+/**
+ * Structured AI operation log entry [BMS-111]
+ */
+interface AIOperationLog {
+  level: 'info' | 'warn' | 'error';
+  operation: string;
+  agentId: string;
+  provider?: string;
+  model?: string;
+  latencyMs?: number;
+  success: boolean;
+  errorCategory?: 'auth' | 'rate_limit' | 'timeout' | 'provider' | 'validation' | 'unknown';
+  tokenCount?: number;
+  userId?: string;
+}
+
+/**
+ * Emit a structured log for AI operations [BMS-111]
+ *
+ * Provides consistent, parseable log output for monitoring and alerting.
+ */
+export function logAIOperation(entry: AIOperationLog): void {
+  const payload = {
+    ts: new Date().toISOString(),
+    ...entry,
+  };
+
+  if (entry.level === 'error') {
+    console.error('[AI]', JSON.stringify(payload));
+  } else if (entry.level === 'warn') {
+    console.warn('[AI]', JSON.stringify(payload));
+  } else {
+    console.log('[AI]', JSON.stringify(payload));
+  }
+}
+
+/**
+ * Categorize an error for structured logging [BMS-111]
+ */
+export function categorizeError(
+  error: unknown
+): AIOperationLog['errorCategory'] {
+  if (error instanceof Error) {
+    const msg = error.message.toLowerCase();
+    if (msg.includes('auth') || msg.includes('unauthenticated')) return 'auth';
+    if (msg.includes('rate limit')) return 'rate_limit';
+    if (msg.includes('timeout') || msg.includes('abort')) return 'timeout';
+    if (msg.includes('validation') || msg.includes('invalid')) return 'validation';
+    if (msg.includes('provider') || msg.includes('openrouter') || msg.includes('ollama'))
+      return 'provider';
+  }
+  return 'unknown';
 }
 
 /**
