@@ -5,7 +5,7 @@ export interface Song {
   level: 'beginner' | 'intermediate' | 'advanced';
   key: string;
   chords?: string;
-  audio_files?: string;
+  audio_files?: Record<string, string> | null;
   ultimate_guitar_link?: string;
   short_title?: string;
   comments?: string;
@@ -26,5 +26,5 @@ export interface Song {
   cover_image_url?: string | null;
 }
 
-export type CreateSongDTO = Omit<Song, 'Id' | 'CreatedAt' | 'UpdatedAt'>;
+export type CreateSongDTO = Omit<Song, 'id' | 'created_at' | 'updated_at'>;
 export type UpdateSongDTO = Partial<CreateSongDTO>;
