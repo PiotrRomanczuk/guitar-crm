@@ -31,8 +31,8 @@ describe('getUserWithRolesSSR', () => {
     (createServerClient as jest.Mock).mockReturnValue(mockSupabaseClient);
   });
 
-  describe('Admin User (p.romanczuk@gmail.com)', () => {
-    it('returns user with admin and teacher roles', async () => {
+  describe('Admin User', () => {
+    it('returns user with admin and teacher roles from profile', async () => {
       const mockUser = {
         id: 'admin-user-id',
         email: 'p.romanczuk@gmail.com',
@@ -67,8 +67,8 @@ describe('getUserWithRolesSSR', () => {
     });
   });
 
-  describe('Teacher User (teacher@example.com)', () => {
-    it('returns user with teacher role only', async () => {
+  describe('Teacher User', () => {
+    it('returns user with teacher role only from profile', async () => {
       const mockUser = {
         id: 'teacher-user-id',
         email: 'teacher@example.com',
@@ -103,8 +103,8 @@ describe('getUserWithRolesSSR', () => {
     });
   });
 
-  describe('Student User (student@example.com)', () => {
-    it('returns user with student role only', async () => {
+  describe('Student User', () => {
+    it('returns user with student role only from profile', async () => {
       const mockUser = {
         id: 'student-user-id',
         email: 'student@example.com',
