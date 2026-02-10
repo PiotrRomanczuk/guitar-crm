@@ -198,7 +198,7 @@ export async function getLessonsHandler(
       assignments(title)
     `,
     { count: 'exact' }
-  );
+  ).is('deleted_at', null);
 
   // Apply role-based filtering
   const filteringResult = await applyRoleBasedFiltering(supabase, baseQuery, user, profile, {
@@ -458,10 +458,13 @@ export async function deleteLessonHandler(
     };
   }
 
-  // Sync deletion to Google Calendar before deleting from DB
+  // Sync deletion to Google Calendar before soft-deleting from DB
   await syncLessonDeletion(supabase, id);
 
-  const { error } = await supabase.from('lessons').delete().eq('id', id);
+  const { error } = await supabase
+    .from('lessons')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id);
 
   if (error) {
     return { error: error.message, status: 500 };
