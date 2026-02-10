@@ -1,0 +1,37 @@
+import type { AIGenerationType } from '@/types/ai-generation';
+
+export function truncateContent(content: string, maxLength = 100): string {
+  if (content.length <= maxLength) return content;
+  return content.slice(0, maxLength).trimEnd() + '...';
+}
+
+export function getGenerationTypeColor(type: AIGenerationType): string {
+  const colors: Record<AIGenerationType, string> = {
+    lesson_notes: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+    assignment: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+    email_draft: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    post_lesson_summary: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300',
+    student_progress: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300',
+    admin_insights: 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-300',
+    chat: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
+  };
+  return colors[type];
+}
+
+export function formatRelativeDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `${diffDays}d ago`;
+
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
