@@ -251,9 +251,7 @@ async function fetchEnrollmentData(supabase: any) {
 /**
  * Fetch revenue data (placeholder - implement based on your billing system)
  */
-async function fetchRevenueData(supabase: any) {
-  // This would integrate with your billing/payment system
-  // For now, return empty data
-  console.warn('Revenue data fetching not implemented');
-  return [];
+async function fetchRevenueData(_supabase: any) {
+  // Not yet implemented — return null so agents know data is unavailable [BMS-116]
+  return null;
 }
