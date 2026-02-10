@@ -1,4 +1,4 @@
-import { AssignmentFilterSchema, AssignmentSortSchema } from '@/schemas/AssignmentSchema';
+import { AssignmentFilterSchema, AssignmentSortSchema, validateStatusTransition } from '@/schemas/AssignmentSchema';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { queueNotification } from '@/lib/services/notification-service';
 
@@ -23,6 +23,8 @@ type QueryParams = {
   due_date_to?: string;
   sortField?: string;
   sortDirection?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
 };
 
 type AssignmentInput = {
@@ -44,7 +46,7 @@ function buildAssignmentQuery(supabase: SupabaseClient, userId: string, profile:
       teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
       student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
       lesson:lessons(id, lesson_number, scheduled_at)
-    `);
+    `, { count: 'exact' });
 
   // Apply role-based filters
   if (profile.isAdmin) return query; // Admins see all
@@ -99,18 +101,30 @@ export async function getAssignmentsHandler(
       direction: queryParams.sortDirection || 'desc',
     });
 
+    const page = queryParams.page || 1;
+    const limit = Math.min(queryParams.limit || 50, 100); // Max 100 per page
+    const offset = (page - 1) * limit;
+
     let query = buildAssignmentQuery(supabase, userId, profile);
     query = applyFilters(query, filters);
     query = query.order(sort.field, { ascending: sort.direction === 'asc' });
+    query = query.range(offset, offset + limit - 1);
 
-    const { data: assignments, error } = await query;
+    const { data: assignments, error, count } = await query;
 
     if (error) {
       console.error('Error fetching assignments:', error);
       return { error: 'Failed to fetch assignments', status: 500 };
     }
 
-    return { assignments, status: 200 };
+    return {
+      assignments,
+      total: count ?? 0,
+      page,
+      limit,
+      hasMore: (assignments?.length ?? 0) === limit,
+      status: 200,
+    };
   } catch (error) {
     console.error('Error in getAssignmentsHandler:', error);
     return { error: 'Internal server error', status: 500 };
@@ -367,6 +381,14 @@ export async function updateAssignmentHandler(
         if (hasUnauthorizedFields) {
           return { error: 'Students can only update assignment status', status: 403 };
         }
+      }
+    }
+
+    // Validate status transition if status is being changed
+    if (input.status && input.status !== existingAssignment.status) {
+      const transition = validateStatusTransition(existingAssignment.status, input.status);
+      if (!transition.valid) {
+        return { error: transition.error, status: 400 };
       }
     }
 

@@ -1,4 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
+import { validateStatusTransition } from '@/schemas/AssignmentSchema';
 
 interface Profile {
   isAdmin: boolean;
@@ -130,6 +131,7 @@ export async function getAssignmentHandler(
 
 /**
  * PATCH handler - Update assignment
+ * Optimized: combines permission check into update WHERE clause (single query in happy path)
  */
 export async function updateAssignmentHandler(
   supabase: SupabaseClient,
@@ -139,42 +141,49 @@ export async function updateAssignmentHandler(
   input: UpdateInput,
   body: Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
 ) {
-  // Fetch existing assignment
-  const { data: existingAssignment, error: fetchError } = await supabase
-    .from('assignments')
-    .select('*')
-    .eq('id', assignmentId)
-    .single();
-
-  if (fetchError || !existingAssignment) {
-    return { data: null, error: 'Assignment not found', status: 404 };
-  }
-
-  // Check update permissions
-  const { canUpdate, isTeacherOwner, isStudentOwner } = checkUpdateAccess(
-    profile,
-    existingAssignment,
-    userId
-  );
-
-  if (!canUpdate) {
-    return { data: null, error: 'Access denied', status: 403 };
-  }
-
-  // Validate student can only update allowed fields
-  const studentValidation = validateStudentUpdate(isStudentOwner, profile, isTeacherOwner, body);
-  if (!studentValidation.valid) {
-    return { data: null, error: studentValidation.error!, status: 403 };
+  // For students, validate they only update allowed fields before querying
+  if (profile.isStudent && !profile.isAdmin && !profile.isTeacher) {
+    const allowedFields = ['status'];
+    const providedFields = Object.keys(body);
+    if (providedFields.some((field) => !allowedFields.includes(field))) {
+      return { data: null, error: 'Students can only update assignment status', status: 403 };
+    }
   }
 
   // Build update data
   const updateData = buildUpdateData(input);
 
-  // Update assignment
-  const { data: assignment, error } = await supabase
+  // For status transitions, fetch current status first (only when status is changing)
+  if (input.status) {
+    const { data: current } = await supabase
+      .from('assignments')
+      .select('status')
+      .eq('id', assignmentId)
+      .single();
+
+    if (current && input.status !== current.status) {
+      const transition = validateStatusTransition(current.status, input.status);
+      if (!transition.valid) {
+        return { data: null, error: transition.error!, status: 400 };
+      }
+    }
+  }
+
+  // Single update query with permission filters in WHERE clause
+  let query = supabase
     .from('assignments')
     .update(updateData)
-    .eq('id', assignmentId)
+    .eq('id', assignmentId);
+
+  if (!profile.isAdmin) {
+    if (profile.isTeacher) {
+      query = query.eq('teacher_id', userId);
+    } else if (profile.isStudent) {
+      query = query.eq('student_id', userId);
+    }
+  }
+
+  const { data: assignment, error } = await query
     .select(
       `
       *,
@@ -186,6 +195,19 @@ export async function updateAssignmentHandler(
     .single();
 
   if (error) {
+    if (error.code === 'PGRST116') {
+      // No rows returned - either not found or permission denied
+      const { data: exists } = await supabase
+        .from('assignments')
+        .select('id')
+        .eq('id', assignmentId)
+        .single();
+
+      if (!exists) {
+        return { data: null, error: 'Assignment not found', status: 404 };
+      }
+      return { data: null, error: 'Access denied', status: 403 };
+    }
     console.error('Error updating assignment:', error);
     return { data: null, error: 'Failed to update assignment', status: 500 };
   }
