@@ -100,7 +100,7 @@ const complete = async (
       if (error instanceof Error) {
         return {
           error: `Failed to connect to OpenRouter: ${error.message}`,
-          details: error,
+          code: 'PROVIDER_ERROR',
         };
       }
 
