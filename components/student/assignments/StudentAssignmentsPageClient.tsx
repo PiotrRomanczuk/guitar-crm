@@ -70,7 +70,7 @@ export function StudentAssignmentsPageClient() {
       if (!response.ok) throw new Error('Failed to fetch assignments');
 
       const data = await response.json();
-      setAssignments(data);
+      setAssignments(data.assignments ?? data);
       // setError(null);
     } catch (err) {
       console.error('Error loading assignments:', err);

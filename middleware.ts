@@ -87,6 +87,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Check if user account is deactivated (for dashboard routes only)
+  if (isDashboard && user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_active')
+      .eq('id', user.id)
+      .single();
+
+    if (profile && profile.is_active === false) {
+      log.info('Redirecting to sign-in (account deactivated)', { userId: user.id });
+      await supabase.auth.signOut();
+      const url = request.nextUrl.clone();
+      url.pathname = '/sign-in';
+      url.searchParams.set('error', 'account_deactivated');
+      return NextResponse.redirect(url);
+    }
+  }
+
   // Admin gating example: block /dashboard/admin without 'admin' role
   if (pathname.startsWith('/dashboard/admin') && user && !roles.includes('admin')) {
     log.info('Redirecting to dashboard (forbidden admin access)');
