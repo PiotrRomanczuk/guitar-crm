@@ -107,12 +107,12 @@ const complete = async (
         if (error.name === 'AbortError') {
           return {
             error: 'Request timeout - the model took too long to respond',
-            details: error,
+            code: 'TIMEOUT',
           };
         }
         return {
           error: `Failed to connect to Ollama: ${error.message}`,
-          details: error,
+          code: 'PROVIDER_ERROR',
         };
       }
 
