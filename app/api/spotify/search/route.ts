@@ -11,7 +11,10 @@ export async function GET(request: Request) {
   }
 
   try {
-    const data = await searchTracks(query);
+    const data = await searchTracks(query) as {
+      error?: { message: string; status: number };
+      tracks: { items: SpotifyApiTrack[] };
+    };
 
     if (data.error) {
       return NextResponse.json({ error: data.error.message }, { status: data.error.status });

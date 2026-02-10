@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable max-lines-per-function */
@@ -62,23 +64,10 @@ describe('getTeacherDashboardData', () => {
 
     // Create comprehensive mock that handles all query sequences
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'user_roles') {
-        return {
-          select: () => ({
-            eq: () => Promise.resolve({
-              data: [
-                { user_id: 'student-1', role: 'student' },
-                { user_id: 'student-2', role: 'student' },
-              ],
-            }),
-          }),
-        };
-      }
-
       if (table === 'profiles') {
         return {
           select: () => ({
-            in: () => Promise.resolve({
+            eq: () => Promise.resolve({
               data: [
                 { id: 'student-1', full_name: 'John Doe', avatar_url: 'https://example.com/avatar1.jpg' },
                 { id: 'student-2', full_name: 'Jane Smith', avatar_url: null },
@@ -160,19 +149,10 @@ describe('getTeacherDashboardData', () => {
 
     // Mock empty student data
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'user_roles') {
-        return {
-          select: () => ({
-            eq: () => ({
-              data: [],
-            }),
-          }),
-        };
-      }
       if (table === 'profiles') {
         return {
           select: () => ({
-            in: () => ({
+            eq: () => Promise.resolve({
               data: [],
             }),
           }),
@@ -220,25 +200,20 @@ describe('getTeacherDashboardData', () => {
       isStudent: false,
     });
 
+    let profilesCallCount = 0;
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'user_roles') {
-        return {
-          select: () => ({
-            eq: () => Promise.resolve({
-              data: [{ user_id: 'student-1', role: 'student' }],
-            }),
-          }),
-        };
-      }
-
       if (table === 'profiles') {
-        return {
-          select: () => ({
-            in: () => Promise.resolve({
-              data: [{ id: 'student-1', full_name: 'New Student', avatar_url: null }],
+        profilesCallCount++;
+        if (profilesCallCount === 1) {
+          // First call: fetch students with is_student = true
+          return {
+            select: () => ({
+              eq: () => Promise.resolve({
+                data: [{ id: 'student-1', full_name: 'New Student', avatar_url: null }],
+              }),
             }),
-          }),
-        };
+          };
+        }
       }
 
       if (table === 'lessons') {
@@ -289,25 +264,19 @@ describe('getTeacherDashboardData', () => {
       isStudent: false,
     });
 
+    let profilesCallCount2 = 0;
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'user_roles') {
-        return {
-          select: () => ({
-            eq: () => Promise.resolve({
-              data: [{ user_id: 'student-1', role: 'student' }],
-            }),
-          }),
-        };
-      }
-
       if (table === 'profiles') {
-        return {
-          select: () => ({
-            in: () => Promise.resolve({
-              data: [{ id: 'student-1', full_name: null, avatar_url: null }],
+        profilesCallCount2++;
+        if (profilesCallCount2 === 1) {
+          return {
+            select: () => ({
+              eq: () => Promise.resolve({
+                data: [{ id: 'student-1', full_name: null, avatar_url: null }],
+              }),
             }),
-          }),
-        };
+          };
+        }
       }
 
       if (table === 'lessons') {
@@ -357,19 +326,10 @@ describe('getTeacherDashboardData', () => {
     });
 
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'user_roles') {
-        return {
-          select: () => ({
-            eq: () => ({
-              data: [],
-            }),
-          }),
-        };
-      }
       if (table === 'profiles') {
         return {
           select: () => ({
-            in: () => ({
+            eq: () => Promise.resolve({
               data: [],
             }),
           }),
@@ -410,24 +370,10 @@ describe('getTeacherDashboardData', () => {
     });
 
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'user_roles') {
-        return {
-          select: () => ({
-            eq: () => Promise.resolve({
-              data: [
-                { user_id: 'student-1', role: 'student' },
-                { user_id: 'student-2', role: 'student' },
-                { user_id: 'student-3', role: 'student' },
-              ],
-            }),
-          }),
-        };
-      }
-
       if (table === 'profiles') {
         return {
           select: () => ({
-            in: () => Promise.resolve({
+            eq: () => Promise.resolve({
               data: [
                 { id: 'student-1', full_name: 'Student 1', avatar_url: null },
                 { id: 'student-2', full_name: 'Student 2', avatar_url: null },

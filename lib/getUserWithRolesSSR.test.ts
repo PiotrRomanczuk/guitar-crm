@@ -40,8 +40,6 @@ describe('getUserWithRolesSSR', () => {
         role: 'authenticated',
       };
 
-      const mockRoles = [{ role: 'admin' }, { role: 'teacher' }];
-
       mockSupabaseClient.auth.getUser.mockResolvedValue({
         data: { user: mockUser },
         error: null,
@@ -49,9 +47,11 @@ describe('getUserWithRolesSSR', () => {
 
       mockSupabaseClient.from.mockReturnValue({
         select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            data: mockRoles,
-            error: null,
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: { is_admin: true, is_teacher: true, is_student: false },
+              error: null,
+            }),
           }),
         }),
       });
@@ -76,8 +76,6 @@ describe('getUserWithRolesSSR', () => {
         role: 'authenticated',
       };
 
-      const mockRoles = [{ role: 'teacher' }];
-
       mockSupabaseClient.auth.getUser.mockResolvedValue({
         data: { user: mockUser },
         error: null,
@@ -85,9 +83,11 @@ describe('getUserWithRolesSSR', () => {
 
       mockSupabaseClient.from.mockReturnValue({
         select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            data: mockRoles,
-            error: null,
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: { is_admin: false, is_teacher: true, is_student: false },
+              error: null,
+            }),
           }),
         }),
       });
@@ -112,8 +112,6 @@ describe('getUserWithRolesSSR', () => {
         role: 'authenticated',
       };
 
-      const mockRoles = [{ role: 'student' }];
-
       mockSupabaseClient.auth.getUser.mockResolvedValue({
         data: { user: mockUser },
         error: null,
@@ -121,9 +119,11 @@ describe('getUserWithRolesSSR', () => {
 
       mockSupabaseClient.from.mockReturnValue({
         select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            data: mockRoles,
-            error: null,
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: { is_admin: false, is_teacher: false, is_student: true },
+              error: null,
+            }),
           }),
         }),
       });

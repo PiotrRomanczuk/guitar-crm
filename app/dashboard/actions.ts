@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 'use server';
 
 import { createClient } from '@/lib/supabase/server';

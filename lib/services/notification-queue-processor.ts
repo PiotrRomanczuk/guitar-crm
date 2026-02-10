@@ -26,6 +26,16 @@ import {
 import type { NotificationType } from '@/types/notifications';
 import { sendNotification } from './notification-service';
 
+interface QueuedNotification {
+  id: string;
+  notification_type: string;
+  recipient_user_id: string;
+  template_data: Record<string, unknown>;
+  entity_type: string | null;
+  entity_id: string | null;
+  priority: number;
+}
+
 // Re-export getNotificationHtml helper (will be used by retry logic)
 async function getNotificationHtml(
   type: NotificationType,
@@ -125,8 +135,9 @@ export async function processQueuedNotifications(
     const supabase = createAdminClient();
 
     // Get pending notifications
-    const { data: queuedNotifications, error: fetchError } = await supabase
-      .rpc('get_pending_notifications', { batch_size: batchSize });
+    const { data: rpcData, error: fetchError } = await supabase
+      .rpc('get_pending_notifications' as never, { batch_size: batchSize } as never);
+    const queuedNotifications = rpcData as QueuedNotification[] | null;
 
     if (fetchError) {
       logError(
@@ -179,7 +190,7 @@ export async function processQueuedNotifications(
           {
             notification_id: notification.id,
             user_id: notification.recipient_user_id,
-            notification_type: notification.notification_type,
+            notification_type: notification.notification_type as NotificationType,
           }
         );
         failed++;
