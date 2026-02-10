@@ -18,6 +18,7 @@ interface PasswordInputProps {
   placeholder?: string;
   className?: string;
   autoComplete?: string;
+  'data-testid'?: string;
 }
 
 interface PasswordRequirement {
@@ -66,6 +67,7 @@ function PasswordInput({
   placeholder = '••••••••',
   className,
   autoComplete = 'current-password',
+  'data-testid': dataTestId,
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = React.useState(false);
   const strength = showStrength ? calculateStrength(value) : null;
@@ -100,6 +102,7 @@ function PasswordInput({
           placeholder={placeholder}
           autoComplete={autoComplete}
           aria-invalid={!!error}
+          data-testid={dataTestId}
           className={cn(
             'h-12 pl-10 pr-10 rounded-lg',
             'bg-card dark:bg-muted/30',

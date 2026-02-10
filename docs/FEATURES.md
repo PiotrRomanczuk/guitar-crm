@@ -111,10 +111,118 @@
 | iOS Student Widget | ✅ Done | Scriptable widget |
 | iOS Admin Widget | ✅ Done | Admin statistics widget |
 | Bearer Token API | ✅ Done | External app authentication |
-| Email Notifications | ✅ Done | Song database report, cron |
+| Email Notifications | ✅ Done | Comprehensive notification system with preferences |
 | Google Calendar | 🔄 Partial | Import works |
 | Stripe Payments | ❌ Planned | No implementation |
 | Video Lessons | ❌ Planned | Long-term vision |
+
+### 📧 Email Notifications
+
+Strummy includes a comprehensive email notification system to keep students and teachers informed about lessons, assignments, achievements, and important updates.
+
+#### Overview
+
+The notification system sends automated, personalized emails based on your activity and preferences. You have full control over which notifications you receive, and you can unsubscribe from any notification type at any time.
+
+#### Available Notifications
+
+**Lessons**
+- **24h Lesson Reminders**: Get reminded 24 hours before your scheduled lesson so you never miss a session
+- **Lesson Recaps**: Receive a detailed summary after each lesson including songs worked on, notes, and what to practice
+- **Lesson Cancellations**: Immediate notification when a lesson is cancelled with optional reschedule link
+- **Lesson Rescheduling**: Get notified when a lesson time changes with both old and new times
+
+**Assignments**
+- **New Assignments**: Instant notification when your teacher assigns new homework or practice tasks
+- **Due Reminders**: Get reminded 2 days before an assignment is due
+- **Overdue Alerts**: Friendly reminder when an assignment becomes overdue
+- **Assignment Completions**: Confirmation when you mark an assignment as complete
+
+**Achievements**
+- **Song Mastery**: Celebrate when you master a new song with a personalized email
+- **Milestones**: Get recognized when you reach learning milestones (10 songs mastered, 6 months of lessons, etc.)
+
+**Account**
+- **Welcome Email**: New students receive a warm welcome with login instructions and getting started tips
+- **Trial Ending Reminder**: If you're on a trial, get a reminder before it expires
+
+**Digests** (Opt-in)
+- **Weekly Progress Digest**: Optional weekly summary of your learning progress, practice time, and upcoming lessons
+- **Teacher Daily Summary**: Teachers can opt-in to receive a daily overview of upcoming lessons and student activity
+
+**System**
+- **Calendar Conflicts**: Get alerted when there are scheduling conflicts in your calendar
+- **Integration Alerts**: Notification when calendar integrations need renewal or are expiring
+- **Critical System Alerts**: Admin-only notifications about system errors or issues
+
+#### Managing Your Preferences
+
+1. **Access Settings**: Log in to Strummy and navigate to Dashboard → Settings → Notifications
+2. **Toggle Notifications**: Turn individual notification types on or off with a single click
+3. **Save Changes**: Your preferences are saved immediately and apply to all future notifications
+4. **Enable/Disable All**: Use the "Enable All" or "Disable All" button for quick control
+
+**Note**: Some critical notifications (like lesson cancellations) cannot be disabled to ensure you don't miss important updates.
+
+#### Unsubscribe Process
+
+**From Email Footer**
+- Every email includes an "Unsubscribe" link in the footer
+- Click the link to unsubscribe from that specific notification type
+- You'll see a confirmation page - no login required
+
+**From Settings Page**
+- Log in and go to Settings → Notifications
+- Toggle off any notification types you don't want to receive
+- Changes take effect immediately
+
+**Resubscribe**
+- You can resubscribe at any time from Settings → Notifications
+- Toggle the notification type back on
+- Or click "Enable All" to restore all notifications
+
+#### Email Delivery
+
+**Not Receiving Emails?**
+1. Check your spam/junk folder - add `noreply@strummy.com` to your safe senders list
+2. Verify your email address is correct in Settings → Profile
+3. Check if you've unsubscribed from that notification type
+4. Contact support if issues persist: support@strummy.com
+
+**Email Bounces**
+- If your email bounces (invalid address), we'll automatically pause notifications
+- Update your email address in Settings → Profile to resume notifications
+- We'll attempt delivery 3 times before marking as bounced
+
+#### For Teachers
+
+**Additional Notifications**
+- **Daily Summary**: Opt-in digest sent every morning with today's lessons and student activity
+- **Student Completions**: Get notified when students complete assignments
+- **Achievement Alerts**: Be the first to know when your students reach milestones
+
+**Your Students**
+- Students are automatically notified about lessons, assignments, and achievements
+- You can preview email templates in Settings → Notifications
+- Students can manage their own preferences independently
+
+**Best Practices**
+- Always include notes in lesson recaps - students love detailed feedback!
+- Set clear assignment due dates so reminders work properly
+- Celebrate student achievements - they'll receive encouraging emails automatically
+
+#### Technical Details
+
+| Feature | Status |
+|---------|--------|
+| 18 Notification Types | ✅ Implemented |
+| User Preferences | ✅ Per-notification control |
+| Unsubscribe Flow | ✅ One-click + resubscribe |
+| Bounce Handling | ✅ Automatic pause |
+| Retry Logic | ✅ 3 attempts with backoff |
+| Rate Limiting | ✅ Prevents spam |
+| Queue System | ✅ Scheduled delivery |
+| Email Templates | ✅ React-based, responsive |
 
 ---
 

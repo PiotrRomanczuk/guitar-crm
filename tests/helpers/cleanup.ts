@@ -1,10 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { createClient } from '@supabase/supabase-js';
+import { execSync } from 'child_process';
 import * as dotenv from 'dotenv';
 
 // Load environment variables from .env.local
 dotenv.config({ path: '.env.local' });
+
+// Check if local Supabase is running - if not, clear local env vars to use remote
+// Mirrors logic in playwright.config.ts and next.config.ts
+if (process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL) {
+  try {
+    execSync('nc -z 127.0.0.1 54321 2>/dev/null', { timeout: 2000 });
+  } catch {
+    delete process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY;
+    delete process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY;
+  }
+}
 
 /**
  * Test Data Cleanup Helper
@@ -93,10 +106,16 @@ const TEST_PATTERNS = {
  * Uses service role key to bypass RLS policies
  */
 function getSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL || 'http://127.0.0.1:54321';
+  // Use local URL if available (set by playwright.config.ts only when local Supabase is running)
+  // Otherwise fall back to remote URL
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL ||
+                      process.env.NEXT_PUBLIC_SUPABASE_REMOTE_URL ||
+                      process.env.NEXT_PUBLIC_SUPABASE_URL ||
+                      'http://127.0.0.1:54321';
 
   // Prefer service role key to bypass RLS policies
   const supabaseKey = process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY ||
+                      process.env.SUPABASE_REMOTE_SERVICE_ROLE_KEY ||
                       process.env.SUPABASE_SERVICE_ROLE_KEY ||
                       process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY;
 

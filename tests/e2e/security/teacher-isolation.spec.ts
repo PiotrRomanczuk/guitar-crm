@@ -27,8 +27,14 @@ import { createClient } from '@supabase/supabase-js';
 
 // Supabase admin client for test data setup
 const getSupabaseAdmin = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL || 'http://127.0.0.1:54321';
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  // Use local URL if available (cleared by playwright.config.ts when local Supabase is not running)
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL ||
+                      process.env.NEXT_PUBLIC_SUPABASE_REMOTE_URL ||
+                      process.env.NEXT_PUBLIC_SUPABASE_URL ||
+                      'http://127.0.0.1:54321';
+  const supabaseServiceKey = process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY ||
+                             process.env.SUPABASE_REMOTE_SERVICE_ROLE_KEY ||
+                             process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
   if (!supabaseServiceKey) {
     throw new Error('SUPABASE_SERVICE_ROLE_KEY is required for security tests');
