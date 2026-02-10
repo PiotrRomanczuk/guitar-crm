@@ -102,7 +102,7 @@ export async function getAssignmentHandler(
   userId: string,
   profile: Profile
 ) {
-  // Fetch assignment with related data
+  // Fetch assignment with related data (exclude soft-deleted)
   const { data: assignment, error } = await supabase
     .from('assignments')
     .select(
@@ -114,6 +114,7 @@ export async function getAssignmentHandler(
     `
     )
     .eq('id', assignmentId)
+    .is('deleted_at', null)
     .single();
 
   if (error || !assignment) {
@@ -139,11 +140,12 @@ export async function updateAssignmentHandler(
   input: UpdateInput,
   body: Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
 ) {
-  // Fetch existing assignment
+  // Fetch existing assignment (exclude soft-deleted)
   const { data: existingAssignment, error: fetchError } = await supabase
     .from('assignments')
     .select('*')
     .eq('id', assignmentId)
+    .is('deleted_at', null)
     .single();
 
   if (fetchError || !existingAssignment) {
@@ -202,11 +204,12 @@ export async function deleteAssignmentHandler(
   userId: string,
   profile: Profile
 ) {
-  // Fetch existing assignment to check ownership
+  // Fetch existing assignment to check ownership (exclude soft-deleted)
   const { data: existingAssignment, error: fetchError } = await supabase
     .from('assignments')
     .select('teacher_id')
     .eq('id', assignmentId)
+    .is('deleted_at', null)
     .single();
 
   if (fetchError || !existingAssignment) {
@@ -222,8 +225,11 @@ export async function deleteAssignmentHandler(
     };
   }
 
-  // Delete assignment
-  const { error } = await supabase.from('assignments').delete().eq('id', assignmentId);
+  // Soft delete assignment
+  const { error } = await supabase
+    .from('assignments')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', assignmentId);
 
   if (error) {
     console.error('Error deleting assignment:', error);

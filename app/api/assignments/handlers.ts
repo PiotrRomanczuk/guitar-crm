@@ -39,12 +39,15 @@ type AssignmentInput = {
  * Build base query with role-based filters
  */
 function buildAssignmentQuery(supabase: SupabaseClient, userId: string, profile: Profile) {
-  const query = supabase.from('assignments').select(`
+  let query = supabase.from('assignments').select(`
       *,
       teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
       student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
       lesson:lessons(id, lesson_number, scheduled_at)
     `);
+
+  // Exclude soft-deleted assignments
+  query = query.is('deleted_at', null);
 
   // Apply role-based filters
   if (profile.isAdmin) return query; // Admins see all
@@ -281,172 +284,3 @@ export async function createAssignmentHandler(
   }
 }
 
-type UpdateInput = Partial<AssignmentInput> & { id: string };
-
-/**
- * GET handler - Get single assignment
- */
-export async function getAssignmentHandler(
-  supabase: SupabaseClient,
-  assignmentId: string,
-  userId: string,
-  profile: Profile
-) {
-  try {
-    const { data: assignment, error } = await supabase
-      .from('assignments')
-      .select(
-        `
-        *,
-        teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
-        student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
-        lesson:lessons(id, lesson_number, scheduled_at)
-      `
-      )
-      .eq('id', assignmentId)
-      .single();
-
-    if (error || !assignment) {
-      return { error: 'Assignment not found', status: 404 };
-    }
-
-    // Check access
-    if (!profile.isAdmin && assignment.teacher_id !== userId && assignment.student_id !== userId) {
-      return { error: 'Unauthorized', status: 403 };
-    }
-
-    return { data: assignment, status: 200 };
-  } catch (error) {
-    console.error('Error in getAssignmentHandler:', error);
-    return { error: 'Internal server error', status: 500 };
-  }
-}
-
-/**
- * PUT handler - Update assignment
- */
-export async function updateAssignmentHandler(
-  supabase: SupabaseClient,
-  assignmentId: string,
-  userId: string,
-  profile: Profile,
-  input: UpdateInput,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _body: unknown // kept for signature compatibility if needed
-) {
-  try {
-    // Get existing assignment
-    const { data: existingAssignment, error: fetchError } = await supabase
-      .from('assignments')
-      .select('*')
-      .eq('id', assignmentId)
-      .single();
-
-    if (fetchError || !existingAssignment) {
-      return { error: 'Assignment not found', status: 404 };
-    }
-
-    // Check permissions
-    if (!profile.isAdmin) {
-      // Teachers can update their own assignments
-      if (profile.isTeacher && existingAssignment.teacher_id !== userId) {
-        return { error: 'Unauthorized', status: 403 };
-      }
-      // Students can only update status
-      if (profile.isStudent) {
-        if (existingAssignment.student_id !== userId) {
-          return { error: 'Unauthorized', status: 403 };
-        }
-        // Check if student is trying to update fields other than status
-        const allowedFields = ['status', 'id'];
-        const attemptedFields = Object.keys(input);
-        const hasUnauthorizedFields = attemptedFields.some(
-          (field) => !allowedFields.includes(field)
-        );
-
-        if (hasUnauthorizedFields) {
-          return { error: 'Students can only update assignment status', status: 403 };
-        }
-      }
-    }
-
-    // Update assignment
-    const { data: updatedAssignment, error: updateError } = await supabase
-      .from('assignments')
-      .update({
-        title: input.title,
-        description: input.description,
-        due_date: input.due_date,
-        teacher_id: input.teacher_id,
-        student_id: input.student_id,
-        lesson_id: input.lesson_id,
-        status: input.status,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', assignmentId)
-      .select(
-        `
-        *,
-        teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
-        student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
-        lesson:lessons(id, lesson_number, scheduled_at)
-      `
-      )
-      .single();
-
-    if (updateError) {
-      console.error('Error updating assignment:', updateError);
-      return { error: 'Failed to update assignment', status: 500 };
-    }
-
-    return { data: updatedAssignment, status: 200 };
-  } catch (error) {
-    console.error('Error in updateAssignmentHandler:', error);
-    return { error: 'Internal server error', status: 500 };
-  }
-}
-
-/**
- * DELETE handler - Delete assignment
- */
-export async function deleteAssignmentHandler(
-  supabase: SupabaseClient,
-  assignmentId: string,
-  userId: string,
-  profile: Profile
-) {
-  try {
-    // Get existing assignment
-    const { data: existingAssignment, error: fetchError } = await supabase
-      .from('assignments')
-      .select('teacher_id')
-      .eq('id', assignmentId)
-      .single();
-
-    if (fetchError || !existingAssignment) {
-      return { error: 'Assignment not found', status: 404 };
-    }
-
-    // Check permissions
-    if (!profile.isAdmin) {
-      if (existingAssignment.teacher_id !== userId) {
-        return { error: 'Unauthorized', status: 403 };
-      }
-    }
-
-    const { error: deleteError } = await supabase
-      .from('assignments')
-      .delete()
-      .eq('id', assignmentId);
-
-    if (deleteError) {
-      console.error('Error deleting assignment:', deleteError);
-      return { error: 'Failed to delete assignment', status: 500 };
-    }
-
-    return { status: 200 };
-  } catch (error) {
-    console.error('Error in deleteAssignmentHandler:', error);
-    return { error: 'Internal server error', status: 500 };
-  }
-}
