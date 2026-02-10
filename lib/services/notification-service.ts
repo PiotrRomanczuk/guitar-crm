@@ -105,7 +105,7 @@ export async function sendNotification(
     const htmlContent = await getNotificationHtml(type, templateData, recipient);
 
     // 4. Create log entry (pending)
-    const { data: logEntry, error: logError } = await supabase
+    const { data: logEntry, error: logInsertError } = await supabase
       .from('notification_log')
       .insert({
         notification_type: type,
@@ -120,10 +120,10 @@ export async function sendNotification(
       .select('id')
       .single();
 
-    if (logError || !logEntry) {
+    if (logInsertError || !logEntry) {
       logError(
         'Failed to create log entry',
-        logError instanceof Error ? logError : new Error('Failed to create log entry'),
+        logInsertError instanceof Error ? logInsertError : new Error('Failed to create log entry'),
         {
           user_id: recipientUserId,
           notification_type: type,
