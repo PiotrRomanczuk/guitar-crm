@@ -30,6 +30,7 @@
     "test:ai:check": "npx tsx scripts/testing/test-ai.ts check",
     "test:emails": "npx tsx scripts/testing/test-emails.ts",
     "test:spotify": "npx tsx scripts/testing/test-spotify.ts",
+    "verify:cron": "npx tsx scripts/verify-cron-jobs.ts",
     "db:inspect": "npx tsx scripts/database/inspect-db.ts",
     "seed:songs": "npx tsx scripts/database/seeding/seed-songs.ts",
     "new-feature": "./scripts/development/new-feature.sh",
