@@ -34,40 +34,15 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Song } from '@/types/Song';
-import { SongStatus } from '@/lib/constants';
 import { createClient } from '@/lib/supabase/client';
 import { SongStatusHistory } from './SongStatusHistory';
 import { toast } from 'sonner';
-
-const difficultyColors = {
-  beginner: 'bg-success/10 text-success border-success/20',
-  intermediate: 'bg-primary/10 text-primary border-primary/20',
-  advanced: 'bg-destructive/10 text-destructive border-destructive/20',
-};
-
-const difficultyLabels = {
-  beginner: 'Beginner',
-  intermediate: 'Intermediate',
-  advanced: 'Advanced',
-};
-
-const statusLabels: Record<string, string> = {
-  to_learn: '📝 To Learn',
-  learning: '🎵 Learning',
-  practicing: '🎸 Practicing',
-  improving: '📈 Improving',
-  mastered: '🏆 Mastered',
-  // Legacy statuses
-  started: 'Started',
-  remembered: 'Remembered',
-  with_author: 'With Author',
-};
-
-function formatDuration(ms: number): string {
-  const minutes = Math.floor(ms / 60000);
-  const seconds = ((ms % 60000) / 1000).toFixed(0);
-  return `${minutes}:${Number(seconds) < 10 ? '0' : ''}${seconds}`;
-}
+import {
+  difficultyColors,
+  difficultyLabels,
+  statusLabelsWithEmoji as statusLabels,
+  formatDuration,
+} from './StudentSongs.constants';
 
 export function StudentSongDetailPageClient() {
   const params = useParams();
