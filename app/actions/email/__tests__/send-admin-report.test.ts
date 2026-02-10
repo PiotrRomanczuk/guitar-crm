@@ -134,7 +134,7 @@ describe('sendAdminSongReport', () => {
 
     expect(mockSendMail).toHaveBeenCalledWith(
       expect.objectContaining({
-        subject: expect.stringMatching(/Song Database Report - \d{1,2}\/\d{1,2}\/\d{4}/),
+        subject: expect.stringMatching(/Song Database Report - \d{1,2}[./]\d{1,2}[./]\d{4}/),
       })
     );
   });

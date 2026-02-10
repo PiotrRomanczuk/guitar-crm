@@ -255,7 +255,6 @@ export async function POST(request: Request) {
       finalFullName = finalFullName.replace(/\$\$\$\s*/g, '').trim();
     }
 
-    let userId: string;
     let finalEmail = email;
 
     if (!email || email.trim() === '') {
@@ -317,7 +316,7 @@ export async function POST(request: Request) {
       return Response.json({ error: authError.message }, { status: 500 });
     }
 
-    userId = authData.user.id;
+    const userId = authData.user.id;
 
     // Update the profile with additional fields (trigger creates basic profile)
     const { data: profileData, error: updateError } = await supabaseAdmin
