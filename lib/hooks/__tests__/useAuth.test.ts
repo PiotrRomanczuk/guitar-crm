@@ -68,11 +68,14 @@ describe('useAuth', () => {
     });
   });
 
-  // Helper to setup the chain of mocks for role fetching
-  const setupRoleMocks = (userRolesData: { data: unknown[] | null; error: unknown }) => {
+  // Helper to setup the chain of mocks for profile fetching
+  // Source queries: supabase.from('profiles').select('is_admin, is_teacher, is_student').eq('id', user.id).single()
+  const setupProfileMocks = (profileResult: { data: unknown; error: unknown }) => {
     mockFrom.mockReturnValue({
       select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockResolvedValue(userRolesData),
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue(profileResult),
+        }),
       }),
     });
   };
@@ -81,7 +84,7 @@ describe('useAuth', () => {
     it('should start in loading state', () => {
       // Don't resolve getUser yet
       mockGetUser.mockReturnValue(new Promise(() => {}));
-      setupRoleMocks({ data: [], error: null });
+      setupProfileMocks({ data: null, error: null });
 
       const { result } = renderHook(() => useAuth());
 
@@ -93,7 +96,7 @@ describe('useAuth', () => {
   describe('Unauthenticated State', () => {
     it('should return null user when not authenticated', async () => {
       mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
-      setupRoleMocks({ data: [], error: null });
+      setupProfileMocks({ data: null, error: null });
 
       const { result } = renderHook(() => useAuth());
 
@@ -110,9 +113,12 @@ describe('useAuth', () => {
   });
 
   describe('Authenticated State with Roles', () => {
-    it('should fetch admin role from user_roles table', async () => {
+    it('should fetch admin role from profiles table', async () => {
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-      setupRoleMocks({ data: [{ role: 'admin' }], error: null });
+      setupProfileMocks({
+        data: { is_admin: true, is_teacher: false, is_student: false },
+        error: null,
+      });
 
       const { result } = renderHook(() => useAuth());
 
@@ -126,9 +132,12 @@ describe('useAuth', () => {
       expect(result.current.isStudent).toBe(false);
     });
 
-    it('should fetch teacher role from user_roles table', async () => {
+    it('should fetch teacher role from profiles table', async () => {
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-      setupRoleMocks({ data: [{ role: 'teacher' }], error: null });
+      setupProfileMocks({
+        data: { is_admin: false, is_teacher: true, is_student: false },
+        error: null,
+      });
 
       const { result } = renderHook(() => useAuth());
 
@@ -141,9 +150,12 @@ describe('useAuth', () => {
       expect(result.current.isStudent).toBe(false);
     });
 
-    it('should fetch student role from user_roles table', async () => {
+    it('should fetch student role from profiles table', async () => {
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-      setupRoleMocks({ data: [{ role: 'student' }], error: null });
+      setupProfileMocks({
+        data: { is_admin: false, is_teacher: false, is_student: true },
+        error: null,
+      });
 
       const { result } = renderHook(() => useAuth());
 
@@ -158,7 +170,10 @@ describe('useAuth', () => {
 
     it('should handle multiple roles', async () => {
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-      setupRoleMocks({ data: [{ role: 'admin' }, { role: 'teacher' }], error: null });
+      setupProfileMocks({
+        data: { is_admin: true, is_teacher: true, is_student: false },
+        error: null,
+      });
 
       const { result } = renderHook(() => useAuth());
 
@@ -178,7 +193,7 @@ describe('useAuth', () => {
         data: { user: null },
         error: { message: 'Auth error' },
       });
-      setupRoleMocks({ data: [], error: null });
+      setupProfileMocks({ data: null, error: null });
 
       const { result } = renderHook(() => useAuth());
 
@@ -192,7 +207,7 @@ describe('useAuth', () => {
 
     it('should handle role fetch errors gracefully', async () => {
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-      setupRoleMocks({ data: null, error: { message: 'Database error' } });
+      setupProfileMocks({ data: null, error: { message: 'Database error' } });
 
       const { result } = renderHook(() => useAuth());
 
@@ -211,7 +226,7 @@ describe('useAuth', () => {
   describe('Auth State Listener', () => {
     it('should setup auth state change listener', async () => {
       mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
-      setupRoleMocks({ data: [], error: null });
+      setupProfileMocks({ data: null, error: null });
 
       renderHook(() => useAuth());
 
@@ -220,7 +235,7 @@ describe('useAuth', () => {
 
     it('should cleanup subscription on unmount', async () => {
       mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
-      setupRoleMocks({ data: [], error: null });
+      setupProfileMocks({ data: null, error: null });
 
       const { unmount } = renderHook(() => useAuth());
 
@@ -244,11 +259,13 @@ describe('useHasRole', () => {
     });
   });
 
-  const setupMocks = (user: unknown, roles: { data: unknown[] | null; error: unknown }) => {
+  const setupMocks = (user: unknown, profileResult: { data: unknown; error: unknown }) => {
     mockGetUser.mockResolvedValue({ data: { user }, error: null });
     mockFrom.mockReturnValue({
       select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockResolvedValue(roles),
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue(profileResult),
+        }),
       }),
     });
   };
@@ -256,7 +273,7 @@ describe('useHasRole', () => {
   it('should return true when user has admin role', async () => {
     setupMocks(
       { id: 'test-id', email: 'admin@example.com' },
-      { data: [{ role: 'admin' }], error: null }
+      { data: { is_admin: true, is_teacher: false, is_student: false }, error: null }
     );
 
     const { result } = renderHook(() => useHasRole('admin'));
@@ -269,7 +286,7 @@ describe('useHasRole', () => {
   it('should return false when user does not have admin role', async () => {
     setupMocks(
       { id: 'test-id', email: 'student@example.com' },
-      { data: [{ role: 'student' }], error: null }
+      { data: { is_admin: false, is_teacher: false, is_student: true }, error: null }
     );
 
     const { result } = renderHook(() => useHasRole('admin'));
@@ -282,7 +299,7 @@ describe('useHasRole', () => {
   it('should return true for teacher role', async () => {
     setupMocks(
       { id: 'test-id', email: 'teacher@example.com' },
-      { data: [{ role: 'teacher' }], error: null }
+      { data: { is_admin: false, is_teacher: true, is_student: false }, error: null }
     );
 
     const { result } = renderHook(() => useHasRole('teacher'));
@@ -295,7 +312,7 @@ describe('useHasRole', () => {
   it('should return true for student role', async () => {
     setupMocks(
       { id: 'test-id', email: 'student@example.com' },
-      { data: [{ role: 'student' }], error: null }
+      { data: { is_admin: false, is_teacher: false, is_student: true }, error: null }
     );
 
     const { result } = renderHook(() => useHasRole('student'));
@@ -316,11 +333,13 @@ describe('useHasAnyRole', () => {
     });
   });
 
-  const setupMocks = (user: unknown, roles: { data: unknown[] | null; error: unknown }) => {
+  const setupMocks = (user: unknown, profileResult: { data: unknown; error: unknown }) => {
     mockGetUser.mockResolvedValue({ data: { user }, error: null });
     mockFrom.mockReturnValue({
       select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockResolvedValue(roles),
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue(profileResult),
+        }),
       }),
     });
   };
@@ -328,7 +347,7 @@ describe('useHasAnyRole', () => {
   it('should return true when user has any of the specified roles', async () => {
     setupMocks(
       { id: 'test-id', email: 'teacher@example.com' },
-      { data: [{ role: 'teacher' }], error: null }
+      { data: { is_admin: false, is_teacher: true, is_student: false }, error: null }
     );
 
     const { result } = renderHook(() => useHasAnyRole(['admin', 'teacher']));
@@ -341,7 +360,7 @@ describe('useHasAnyRole', () => {
   it('should return false when user has none of the specified roles', async () => {
     setupMocks(
       { id: 'test-id', email: 'student@example.com' },
-      { data: [{ role: 'student' }], error: null }
+      { data: { is_admin: false, is_teacher: false, is_student: true }, error: null }
     );
 
     const { result } = renderHook(() => useHasAnyRole(['admin', 'teacher']));
@@ -354,7 +373,7 @@ describe('useHasAnyRole', () => {
   it('should return true when user has one of multiple specified roles', async () => {
     setupMocks(
       { id: 'test-id', email: 'admin@example.com' },
-      { data: [{ role: 'admin' }], error: null }
+      { data: { is_admin: true, is_teacher: false, is_student: false }, error: null }
     );
 
     const { result } = renderHook(() => useHasAnyRole(['admin', 'teacher', 'student']));

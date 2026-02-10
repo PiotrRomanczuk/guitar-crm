@@ -70,7 +70,7 @@ describe('base-template', () => {
       });
 
       expect(html).toContain('Notification Settings');
-      expect(html).toContain('/settings/notifications');
+      expect(html).toContain('/dashboard/settings');
     });
 
     it('should include dark mode CSS', () => {

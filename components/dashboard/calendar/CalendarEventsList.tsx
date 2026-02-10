@@ -2,11 +2,11 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
+import { createShadowUser } from '@/app/dashboard/actions';
 import {
   getGoogleEvents,
-  createShadowUser,
   syncAllLessonsFromCalendar,
-} from '@/app/dashboard/actions';
+} from '@/app/dashboard/calendar-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, ArrowRight, RefreshCw } from 'lucide-react';
