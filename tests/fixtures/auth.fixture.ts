@@ -1,4 +1,5 @@
 import { test as base, Page } from '@playwright/test';
+import * as fs from 'fs';
 import * as path from 'path';
 
 /**
@@ -41,6 +42,9 @@ const credentials: Record<Role, AuthCredentials> = {
 
 // Session storage paths
 const authDir = path.join(__dirname, '..', '.auth');
+if (!fs.existsSync(authDir)) {
+  fs.mkdirSync(authDir, { recursive: true });
+}
 const getStoragePath = (role: Role) => path.join(authDir, `${role}.json`);
 
 /**
@@ -50,11 +54,11 @@ async function performLogin(page: Page, role: Role): Promise<void> {
   const creds = credentials[role];
   const storagePath = getStoragePath(role);
 
-  // Navigate to sign-in page
-  await page.goto('/sign-in');
+  // Navigate to sign-in page (use domcontentloaded to avoid slow Turbopack compilation waits)
+  await page.goto('/sign-in', { waitUntil: 'domcontentloaded', timeout: 45000 });
 
-  // Wait for form to be visible
-  await page.waitForSelector('[data-testid="email"]', { state: 'visible' });
+  // Wait for form to be visible (handles isChecking state in sign-in page)
+  await page.waitForSelector('[data-testid="email"]', { state: 'visible', timeout: 30000 });
 
   // Fill in credentials using data-testid
   await page.fill('[data-testid="email"]', creds.email);
@@ -63,11 +67,11 @@ async function performLogin(page: Page, role: Role): Promise<void> {
   // Submit form using data-testid
   await page.click('[data-testid="signin-button"]');
 
-  // Wait for successful login redirect
-  await page.waitForURL(/\/dashboard/, { timeout: 30000 });
+  // Wait for successful login redirect (longer timeout for first compilation of dashboard)
+  await page.waitForURL(/\/dashboard/, { timeout: 60000, waitUntil: 'domcontentloaded' });
 
   // Verify we're logged in by checking for main content (use first main element)
-  await page.locator('main').first().waitFor({ state: 'visible' });
+  await page.locator('main').first().waitFor({ state: 'visible', timeout: 30000 });
 
   // Save authenticated state
   await page.context().storageState({ path: storagePath });
@@ -96,8 +100,8 @@ export const test = base.extend<AuthFixtures>({
         );
 
         // Verify session is still valid
-        await page.goto('/dashboard');
-        const isLoggedIn = await page.locator('main').first().isVisible({ timeout: 5000 });
+        await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 30000 });
+        const isLoggedIn = await page.locator('main').first().isVisible({ timeout: 10000 });
 
         if (isLoggedIn) {
           // Session is valid, reuse it
