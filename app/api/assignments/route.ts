@@ -38,6 +38,8 @@ function extractQueryParams(searchParams: URLSearchParams) {
     due_date_to: searchParams.get('due_date_to') || undefined,
     sortField: searchParams.get('sortField') || undefined,
     sortDirection: searchParams.get('sortDirection') as 'asc' | 'desc' | undefined,
+    page: searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : undefined,
+    limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : undefined,
   };
 }
 
@@ -76,7 +78,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
-    return NextResponse.json(result.assignments, { status: 200 });
+    return NextResponse.json({
+      assignments: result.assignments,
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      hasMore: result.hasMore,
+    }, { status: 200 });
   } catch (error) {
     console.error('Error in GET /api/assignments:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

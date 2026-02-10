@@ -255,6 +255,43 @@ export async function createLessonHandler(
     const validatedData = LessonInputSchema.parse(body);
     const { song_ids, ...lessonData } = validatedData;
 
+    // Validate that teacher_id references an existing teacher
+    if (lessonData.teacher_id) {
+      const { data: teacher, error: teacherError } = await supabase
+        .from('profiles')
+        .select('id, is_teacher')
+        .eq('id', lessonData.teacher_id)
+        .single();
+
+      if (teacherError || !teacher) {
+        return { error: 'Teacher not found', status: 400 };
+      }
+      if (!teacher.is_teacher && !profile?.isAdmin) {
+        return { error: 'Specified user is not a teacher', status: 400 };
+      }
+
+      // Non-admin teachers can only create lessons for themselves
+      if (!profile?.isAdmin && lessonData.teacher_id !== user!.id) {
+        return { error: 'Teachers can only create lessons for themselves', status: 403 };
+      }
+    }
+
+    // Validate that student_id references an existing student
+    if (lessonData.student_id) {
+      const { data: student, error: studentError } = await supabase
+        .from('profiles')
+        .select('id, is_student')
+        .eq('id', lessonData.student_id)
+        .single();
+
+      if (studentError || !student) {
+        return { error: 'Student not found', status: 400 };
+      }
+      if (!student.is_student) {
+        return { error: 'Specified user is not a student', status: 400 };
+      }
+    }
+
     const { data, error } = await insertLessonRecord(supabase, lessonData);
 
     if (error) {
