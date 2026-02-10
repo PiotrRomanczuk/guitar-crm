@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getTrack } from '@/lib/spotify';
+import type { SpotifyApiTrack } from '@/types/spotify';
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -63,7 +64,7 @@ export async function POST(request: Request) {
       // If an alternative Spotify track was selected, fetch its data
       if (overrideSpotifyId) {
         try {
-          const trackData = await getTrack(overrideSpotifyId);
+          const trackData = await getTrack(overrideSpotifyId) as SpotifyApiTrack;
           console.log('🎵 Fetched alternative track data:', {
             id: trackData.id,
             name: trackData.name,

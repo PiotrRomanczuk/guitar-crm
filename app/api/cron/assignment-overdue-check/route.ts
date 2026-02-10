@@ -45,7 +45,7 @@ export async function GET(request: Request) {
         student_id,
         student_profile:profiles!assignments_student_id_fkey(id, email, full_name)
       `)
-      .in('status', ['not_started', 'pending', 'in_progress'])
+      .in('status', ['not_started', 'in_progress'])
       .lt('due_date', now.toISOString());
 
     if (error) {
@@ -88,7 +88,7 @@ export async function GET(request: Request) {
     // Queue an overdue alert for each assignment
     for (const assignment of assignments) {
       try {
-        const dueDate = new Date(assignment.due_date);
+        const dueDate = new Date(assignment.due_date!);
         const dueDateFormatted = dueDate.toLocaleDateString('en-US', {
           weekday: 'long',
           year: 'numeric',

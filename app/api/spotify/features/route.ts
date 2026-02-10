@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getAudioFeatures } from '@/lib/spotify';
 
+interface AudioFeaturesResponse {
+  error?: { message: string; status: number };
+  key: number;
+  mode: number;
+  tempo: number;
+  time_signature: number;
+  duration_ms: number;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
@@ -10,7 +19,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const features = await getAudioFeatures(id);
+    const features = await getAudioFeatures(id) as AudioFeaturesResponse;
 
     if (features.error) {
       return NextResponse.json(

@@ -714,6 +714,156 @@ export type Database = {
           }
         ];
       };
+      notification_log: {
+        Row: {
+          id: string;
+          notification_type: string;
+          recipient_user_id: string;
+          recipient_email: string;
+          status: string;
+          subject: string | null;
+          template_data: Json | null;
+          sent_at: string | null;
+          error_message: string | null;
+          retry_count: number;
+          max_retries: number;
+          entity_type: string | null;
+          entity_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          notification_type: string;
+          recipient_user_id: string;
+          recipient_email: string;
+          status?: string;
+          subject?: string | null;
+          template_data?: Json | null;
+          sent_at?: string | null;
+          error_message?: string | null;
+          retry_count?: number;
+          max_retries?: number;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          notification_type?: string;
+          recipient_user_id?: string;
+          recipient_email?: string;
+          status?: string;
+          subject?: string | null;
+          template_data?: Json | null;
+          sent_at?: string | null;
+          error_message?: string | null;
+          retry_count?: number;
+          max_retries?: number;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_log_recipient_user_id_fkey';
+            columns: ['recipient_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      notification_preferences: {
+        Row: {
+          id: string;
+          user_id: string;
+          notification_type: string;
+          enabled: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          notification_type: string;
+          enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          notification_type?: string;
+          enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_preferences_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      notification_queue: {
+        Row: {
+          id: string;
+          notification_type: string;
+          recipient_user_id: string;
+          template_data: Json | null;
+          scheduled_for: string;
+          processed_at: string | null;
+          status: string;
+          priority: number;
+          entity_type: string | null;
+          entity_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          notification_type: string;
+          recipient_user_id: string;
+          template_data?: Json | null;
+          scheduled_for?: string;
+          processed_at?: string | null;
+          status?: string;
+          priority?: number;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          notification_type?: string;
+          recipient_user_id?: string;
+          template_data?: Json | null;
+          scheduled_for?: string;
+          processed_at?: string | null;
+          status?: string;
+          priority?: number;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_queue_recipient_user_id_fkey';
+            columns: ['recipient_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;

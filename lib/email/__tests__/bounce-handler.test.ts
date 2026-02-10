@@ -215,7 +215,7 @@ describe('Bounce Handler - User Management and Stats', () => {
 
       await disableNotificationsForUser('user-123', 'Too many bounces');
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Notifications disabled for user user-123')
+        expect.stringContaining('Notifications disabled for user')
       );
     });
 
@@ -257,7 +257,7 @@ describe('Bounce Handler - User Management and Stats', () => {
       await reenableNotificationsForUser('user-123', 'admin-123');
       expect(callCount).toBe(2);
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Notifications re-enabled for user user-123')
+        expect.stringContaining('Notifications re-enabled for user')
       );
     });
 

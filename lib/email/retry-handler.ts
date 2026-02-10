@@ -156,7 +156,7 @@ export async function updateNotificationRetry(
   try {
     const supabase = createAdminClient();
 
-    const updateData: Partial<NotificationLog> = {
+    const updateData: Record<string, unknown> = {
       retry_count: retryCount,
       status,
     };
@@ -170,7 +170,7 @@ export async function updateNotificationRetry(
 
     const { error } = await supabase
       .from('notification_log')
-      .update(updateData)
+      .update(updateData as { status?: string; retry_count?: number; sent_at?: string | null; error_message?: string | null })
       .eq('id', notificationId);
 
     if (error) {
@@ -284,7 +284,8 @@ export async function getRetryableNotifications(
 
     // Filter by backoff schedule
     const currentTime = new Date();
-    const readyNotifications = (data || []).filter(notification =>
+    const typedData = (data || []) as unknown as NotificationLog[];
+    const readyNotifications = typedData.filter(notification =>
       isReadyForRetry(notification, currentTime)
     );
 
@@ -328,7 +329,7 @@ export async function getDeadLetterCandidates(
       return [];
     }
 
-    return data || [];
+    return (data || []) as unknown as NotificationLog[];
   } catch (error) {
     logError(
       'getDeadLetterCandidates error',

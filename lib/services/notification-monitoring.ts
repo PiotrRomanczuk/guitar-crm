@@ -73,6 +73,23 @@ async function sendAdminEmail(
 }
 
 // ============================================================================
+// TYPES
+// ============================================================================
+
+interface BounceRateCheck {
+  templateType: string;
+  bounceCount: number;
+  totalSent: number;
+  bounceRate: number;
+}
+
+interface BounceStatRow {
+  notification_type: string;
+  bounce_count: number;
+  total_sent: number;
+}
+
+// ============================================================================
 // MONITORING CHECKS
 // ============================================================================
 
@@ -210,7 +227,10 @@ export async function checkBounceRate(): Promise<void> {
   const supabase = createAdminClient();
 
   // Get bounce stats by notification type
-  const { data: stats, error } = await supabase.rpc('get_bounce_stats');
+  const { data: stats, error } = await supabase.rpc('get_bounce_stats' as never) as unknown as {
+    data: BounceStatRow[] | null;
+    error: { message: string } | null;
+  };
 
   if (error) {
     console.error('Failed to check bounce rate:', error);

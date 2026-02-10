@@ -59,8 +59,8 @@ export function Charts({ data }: ChartsProps) {
                 }}
                 itemStyle={{ color: 'hsl(var(--foreground))' }}
                 cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }}
-                formatter={(value: number) => [
-                  formatMetricValue(data.metric, value),
+                formatter={(value: number | undefined) => [
+                  formatMetricValue(data.metric, value ?? 0),
                   getMetricLabel(data.metric),
                 ]}
                 labelFormatter={(label) => `Cohort: ${label}`}

@@ -25,6 +25,7 @@ import type {
   QueueNotificationParams,
   NotificationResult,
 } from '@/types/notifications';
+import type { Json } from '@/database.types';
 
 // ============================================================================
 // MAIN NOTIFICATION FUNCTIONS
@@ -79,7 +80,7 @@ export async function sendNotification(
           recipient_email: recipient.email,
           status: 'skipped',
           subject: getNotificationSubject(type, templateData),
-          template_data: templateData,
+          template_data: templateData as unknown as Json,
           entity_type: entityType,
           entity_id: entityId,
         })
@@ -105,7 +106,7 @@ export async function sendNotification(
     const htmlContent = await getNotificationHtml(type, templateData, recipient);
 
     // 4. Create log entry (pending)
-    const { data: logEntry, error: logError } = await supabase
+    const { data: logEntry, error: logEntryError } = await supabase
       .from('notification_log')
       .insert({
         notification_type: type,
@@ -113,17 +114,17 @@ export async function sendNotification(
         recipient_email: recipient.email,
         status: 'pending',
         subject,
-        template_data: templateData,
+        template_data: templateData as unknown as Json,
         entity_type: entityType,
         entity_id: entityId,
       })
       .select('id')
       .single();
 
-    if (logError || !logEntry) {
+    if (logEntryError || !logEntry) {
       logError(
         'Failed to create log entry',
-        logError instanceof Error ? logError : new Error('Failed to create log entry'),
+        logEntryError instanceof Error ? logEntryError : new Error('Failed to create log entry'),
         {
           user_id: recipientUserId,
           notification_type: type,
@@ -244,7 +245,7 @@ export async function queueNotification(
       .insert({
         notification_type: type,
         recipient_user_id: recipientUserId,
-        template_data: templateData,
+        template_data: templateData as unknown as Json,
         scheduled_for: scheduledFor.toISOString(),
         priority,
         entity_type: entityType,

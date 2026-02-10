@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports, react-hooks/rules-of-hooks */
 import { test as base, Page } from '@playwright/test';
 import * as path from 'path';
 

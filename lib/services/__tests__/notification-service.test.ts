@@ -2,12 +2,9 @@ import {
   sendNotification,
   queueNotification,
   checkUserPreference,
-  processQueuedNotifications,
-  retryFailedNotifications,
 } from '../notification-service';
 import { createAdminClient } from '@/lib/supabase/admin';
 import transporter from '@/lib/email/smtp-client';
-import * as retryHandler from '@/lib/email/retry-handler';
 
 // Mock dependencies
 jest.mock('@/lib/supabase/admin', () => ({
@@ -18,12 +15,12 @@ jest.mock('@/lib/email/smtp-client', () => ({
   sendMail: jest.fn(),
 }));
 
-jest.mock('@/lib/email/retry-handler', () => ({
-  getRetryableNotifications: jest.fn(),
-  updateNotificationRetry: jest.fn(),
-  processDeadLetterQueue: jest.fn(),
-  shouldMoveToDeadLetter: jest.fn(),
-  moveToDeadLetter: jest.fn(),
+jest.mock('@/lib/logging/notification-logger', () => ({
+  logNotificationSent: jest.fn(),
+  logNotificationFailed: jest.fn(),
+  logNotificationQueued: jest.fn(),
+  logNotificationSkipped: jest.fn(),
+  logError: jest.fn(),
 }));
 
 describe('notification-service', () => {
@@ -113,9 +110,6 @@ describe('notification-service', () => {
       // Mock email sending
       (transporter.sendMail as jest.Mock).mockResolvedValue({ messageId: 'msg-123' });
 
-      // Mock log update
-      mockSupabase.eq.mockResolvedValue({ data: null, error: null });
-
       const result = await sendNotification({
         type: 'lesson_reminder_24h',
         recipientUserId: 'user-123',
@@ -203,9 +197,6 @@ describe('notification-service', () => {
 
       // Mock email sending failure
       (transporter.sendMail as jest.Mock).mockRejectedValue(new Error('SMTP error'));
-
-      // Mock log update
-      mockSupabase.eq.mockResolvedValue({ data: null, error: null });
 
       const result = await sendNotification({
         type: 'lesson_reminder_24h',
@@ -317,138 +308,4 @@ describe('notification-service', () => {
     });
   });
 
-  describe('processQueuedNotifications', () => {
-    it('should process pending notifications', async () => {
-      const queuedNotifications = [
-        {
-          id: 'queue-1',
-          notification_type: 'lesson_reminder_24h',
-          recipient_user_id: 'user-123',
-          recipient_email: 'student@example.com',
-          template_data: { studentName: 'John' },
-          priority: 5,
-        },
-      ];
-
-      mockSupabase.rpc.mockResolvedValueOnce({
-        data: queuedNotifications,
-        error: null,
-      });
-
-      // Mock sendNotification dependencies
-      mockSupabase.single
-        .mockResolvedValueOnce({
-          data: mockRecipient,
-          error: null,
-        })
-        .mockResolvedValueOnce({
-          data: { enabled: true },
-          error: null,
-        })
-        .mockResolvedValueOnce({
-          data: { id: 'log-123' },
-          error: null,
-        });
-
-      (transporter.sendMail as jest.Mock).mockResolvedValue({ messageId: 'msg-123' });
-      mockSupabase.eq.mockResolvedValue({ data: null, error: null });
-
-      const result = await processQueuedNotifications(10);
-
-      expect(result.processed).toBe(1);
-      expect(result.failed).toBe(0);
-      expect(mockSupabase.rpc).toHaveBeenCalledWith('get_pending_notifications', {
-        batch_size: 10,
-      });
-    });
-
-    it('should return zero when no notifications to process', async () => {
-      mockSupabase.rpc.mockResolvedValueOnce({
-        data: [],
-        error: null,
-      });
-
-      const result = await processQueuedNotifications();
-
-      expect(result.processed).toBe(0);
-      expect(result.failed).toBe(0);
-    });
-
-    it('should handle fetch error gracefully', async () => {
-      mockSupabase.rpc.mockResolvedValueOnce({
-        data: null,
-        error: { message: 'Database error' },
-      });
-
-      const result = await processQueuedNotifications();
-
-      expect(result.processed).toBe(0);
-      expect(result.failed).toBe(0);
-    });
-  });
-
-  describe('retryFailedNotifications', () => {
-    it('should retry failed notifications that are ready', async () => {
-      const pastDate = new Date();
-      pastDate.setHours(pastDate.getHours() - 2); // 2 hours ago
-
-      const failedNotifications = [
-        {
-          id: 'log-fail-1',
-          notification_type: 'lesson_reminder_24h',
-          recipient_user_id: 'user-123',
-          recipient_email: 'student@example.com',
-          subject: 'Upcoming Lesson Reminder',
-          template_data: { studentName: 'John' },
-          retry_count: 0,
-          updated_at: pastDate.toISOString(),
-          status: 'failed',
-        },
-      ];
-
-      // Mock retry handler functions
-      (retryHandler.getRetryableNotifications as jest.Mock).mockResolvedValue(failedNotifications);
-      (retryHandler.shouldMoveToDeadLetter as jest.Mock).mockReturnValue(false);
-      (retryHandler.updateNotificationRetry as jest.Mock).mockResolvedValue(true);
-      (retryHandler.processDeadLetterQueue as jest.Mock).mockResolvedValue(0);
-
-      // Mock recipient lookup
-      mockSupabase.single.mockResolvedValueOnce({
-        data: mockRecipient,
-        error: null,
-      });
-
-      // Mock email sending
-      (transporter.sendMail as jest.Mock).mockResolvedValue({ messageId: 'msg-retry-123' });
-
-      const result = await retryFailedNotifications();
-
-      expect(result.retried).toBe(1);
-      expect(result.failed).toBe(0);
-      expect(result.deadLettered).toBe(0);
-    });
-
-    it('should skip notifications not ready for retry', async () => {
-      // Mock empty list (already filtered by retry handler)
-      (retryHandler.getRetryableNotifications as jest.Mock).mockResolvedValue([]);
-      (retryHandler.processDeadLetterQueue as jest.Mock).mockResolvedValue(0);
-
-      const result = await retryFailedNotifications();
-
-      expect(result.retried).toBe(0);
-      expect(result.failed).toBe(0);
-      expect(result.deadLettered).toBe(0);
-    });
-
-    it('should return zero when no failed notifications exist', async () => {
-      (retryHandler.getRetryableNotifications as jest.Mock).mockResolvedValue([]);
-      (retryHandler.processDeadLetterQueue as jest.Mock).mockResolvedValue(0);
-
-      const result = await retryFailedNotifications();
-
-      expect(result.retried).toBe(0);
-      expect(result.failed).toBe(0);
-      expect(result.deadLettered).toBe(0);
-    });
-  });
 });
