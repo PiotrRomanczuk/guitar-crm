@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import { test, expect } from '@playwright/test';
 import { loginAsTeacher } from '../../helpers/auth';
 

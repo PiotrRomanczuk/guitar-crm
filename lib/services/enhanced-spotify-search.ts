@@ -85,9 +85,9 @@ export async function searchSongWithAI(
       console.log(`🔍 Query ${i + 1}: ${query}`);
 
       try {
-        const searchData = await searchTracks(query);
+        const searchData = await searchTracks(query) as { tracks?: { items?: SpotifyTrack[] } } | null;
 
-        if (searchData?.tracks?.items?.length > 0) {
+        if (searchData?.tracks?.items && searchData.tracks.items.length > 0) {
           // Score all tracks from this search
           const scoredTracks = searchData.tracks.items.map((track: SpotifyTrack) => {
             const score = analysis
