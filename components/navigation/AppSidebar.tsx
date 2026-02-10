@@ -13,6 +13,7 @@ import {
   Music2,
   Activity,
   Calendar,
+  Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -85,6 +86,7 @@ export function AppSidebar({ isAdmin, isTeacher, isStudent }: AppSidebarProps) {
           },
           { id: 'logs', label: 'Activity Logs', icon: FileText, path: '/dashboard/logs' },
           { id: 'health', label: 'Health', icon: Activity, path: '/dashboard/health' },
+          { id: 'ai-history', label: 'AI History', icon: Sparkles, path: '/dashboard/ai/history' },
         ],
       };
     } else if (isStudent) {
