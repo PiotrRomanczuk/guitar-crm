@@ -12,9 +12,36 @@ const querySchema = z.object({
 });
 
 export async function GET(request: Request) {
+	const supabase = await createClient();
+
+	// Authenticate user
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+
+	if (!user) {
+		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	}
+
+	// Get user profile for role-based access
+	const { data: profile } = await supabase
+		.from('profiles')
+		.select('is_admin, is_teacher, is_student')
+		.eq('id', user.id)
+		.single();
+
+	if (!profile) {
+		return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+	}
+
 	const { searchParams } = new URL(request.url);
-	const userId = searchParams.get('userId');
+	let userId = searchParams.get('userId');
 	const level = searchParams.get('level');
+
+	// Students can only see their own songs
+	if (profile.is_student && !profile.is_admin && !profile.is_teacher) {
+		userId = user.id;
+	}
 
 	const parseResult = querySchema.safeParse({ userId, level });
 	if (!parseResult.success) {
@@ -23,8 +50,6 @@ export async function GET(request: Request) {
 			{ status: 400 }
 		);
 	}
-
-	const supabase = await createClient();
 
 	// Fetch assigned songs for student
 	const { data, error } = await supabase

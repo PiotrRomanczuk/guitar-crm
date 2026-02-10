@@ -62,22 +62,20 @@ describe('getTeacherDashboardData', () => {
 
     // Create comprehensive mock that handles all query sequences
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'user_roles') {
-        return {
-          select: () => ({
-            eq: () => Promise.resolve({
-              data: [
-                { user_id: 'student-1', role: 'student' },
-                { user_id: 'student-2', role: 'student' },
-              ],
-            }),
-          }),
-        };
-      }
-
       if (table === 'profiles') {
         return {
-          select: () => ({
+          select: (...args: any[]) => ({
+            eq: (field: string) => {
+              if (field === 'is_student') {
+                return Promise.resolve({
+                  data: [
+                    { id: 'student-1', full_name: 'John Doe', avatar_url: 'https://example.com/avatar1.jpg' },
+                    { id: 'student-2', full_name: 'Jane Smith', avatar_url: null },
+                  ],
+                });
+              }
+              return Promise.resolve({ data: [] });
+            },
             in: () => Promise.resolve({
               data: [
                 { id: 'student-1', full_name: 'John Doe', avatar_url: 'https://example.com/avatar1.jpg' },
@@ -160,24 +158,18 @@ describe('getTeacherDashboardData', () => {
 
     // Mock empty student data
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'user_roles') {
-        return {
-          select: () => ({
-            eq: () => ({
-              data: [],
-            }),
-          }),
-        };
-      }
       if (table === 'profiles') {
         return {
           select: () => ({
-            in: () => ({
-              data: [],
-            }),
+            eq: () => Promise.resolve({ data: [] }),
           }),
         };
       }
+      return {
+        select: () => ({
+          eq: () => Promise.resolve({ data: [] }),
+        }),
+      };
     });
 
     const result = await getTeacherDashboardData();
@@ -221,20 +213,10 @@ describe('getTeacherDashboardData', () => {
     });
 
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'user_roles') {
-        return {
-          select: () => ({
-            eq: () => Promise.resolve({
-              data: [{ user_id: 'student-1', role: 'student' }],
-            }),
-          }),
-        };
-      }
-
       if (table === 'profiles') {
         return {
           select: () => ({
-            in: () => Promise.resolve({
+            eq: () => Promise.resolve({
               data: [{ id: 'student-1', full_name: 'New Student', avatar_url: null }],
             }),
           }),
@@ -290,20 +272,10 @@ describe('getTeacherDashboardData', () => {
     });
 
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'user_roles') {
-        return {
-          select: () => ({
-            eq: () => Promise.resolve({
-              data: [{ user_id: 'student-1', role: 'student' }],
-            }),
-          }),
-        };
-      }
-
       if (table === 'profiles') {
         return {
           select: () => ({
-            in: () => Promise.resolve({
+            eq: () => Promise.resolve({
               data: [{ id: 'student-1', full_name: null, avatar_url: null }],
             }),
           }),
@@ -357,24 +329,18 @@ describe('getTeacherDashboardData', () => {
     });
 
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'user_roles') {
-        return {
-          select: () => ({
-            eq: () => ({
-              data: [],
-            }),
-          }),
-        };
-      }
       if (table === 'profiles') {
         return {
           select: () => ({
-            in: () => ({
-              data: [],
-            }),
+            eq: () => Promise.resolve({ data: [] }),
           }),
         };
       }
+      return {
+        select: () => ({
+          eq: () => Promise.resolve({ data: [] }),
+        }),
+      };
     });
 
     const result = await getTeacherDashboardData();
@@ -410,24 +376,10 @@ describe('getTeacherDashboardData', () => {
     });
 
     mockFrom.mockImplementation((table: string) => {
-      if (table === 'user_roles') {
-        return {
-          select: () => ({
-            eq: () => Promise.resolve({
-              data: [
-                { user_id: 'student-1', role: 'student' },
-                { user_id: 'student-2', role: 'student' },
-                { user_id: 'student-3', role: 'student' },
-              ],
-            }),
-          }),
-        };
-      }
-
       if (table === 'profiles') {
         return {
           select: () => ({
-            in: () => Promise.resolve({
+            eq: () => Promise.resolve({
               data: [
                 { id: 'student-1', full_name: 'Student 1', avatar_url: null },
                 { id: 'student-2', full_name: 'Student 2', avatar_url: null },

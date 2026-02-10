@@ -3,6 +3,27 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(request: NextRequest) {
   const supabase = await createClient();
+
+  // Authenticate user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Verify user is admin or teacher
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin, is_teacher')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.is_admin && !profile?.is_teacher) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const body = await request.json();
 
   // First check if the song exists

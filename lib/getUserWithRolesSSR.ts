@@ -32,48 +32,10 @@ export async function getUserWithRolesSSR() {
     .eq('id', user.id)
     .single();
 
-  if (profile) {
-    return {
-      user,
-      isAdmin: profile.is_admin,
-      isTeacher: profile.is_teacher,
-      isStudent: profile.is_student,
-    };
-  }
-
-  // Fallback: if user is development admin, set isAdmin true
-  if (user.email === 'p.romanczuk@gmail.com') {
-    return {
-      user,
-      isAdmin: true,
-      isTeacher: true,
-      isStudent: false,
-    };
-  }
-
-  // Fallback for test users (bypass potential RLS issues in CI/Development)
-  if (user.email === 'student@example.com') {
-    return {
-      user,
-      isAdmin: false,
-      isTeacher: false,
-      isStudent: true,
-    };
-  }
-
-  if (user.email === 'teacher@example.com') {
-    return {
-      user,
-      isAdmin: false,
-      isTeacher: true,
-      isStudent: false,
-    };
-  }
-
   return {
     user,
-    isAdmin: false,
-    isTeacher: false,
-    isStudent: false,
+    isAdmin: profile?.is_admin ?? false,
+    isTeacher: profile?.is_teacher ?? false,
+    isStudent: profile?.is_student ?? false,
   };
 }

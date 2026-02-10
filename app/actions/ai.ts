@@ -9,6 +9,20 @@ import { executeAgent } from '@/lib/ai/registry';
 import { mapToOllamaModel } from '@/lib/ai/model-mappings';
 
 /**
+ * Verify the current user is authenticated. Throws if not.
+ */
+async function requireAuth() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('Unauthorized');
+  }
+  return user;
+}
+
+/**
  * Unified streaming abstraction for all AI functions
  */
 async function* createAIStream(
@@ -112,6 +126,7 @@ import {
  */
 export async function* generateAIResponseStream(prompt: string, model: string = DEFAULT_AI_MODEL) {
   try {
+    await requireAuth();
     const provider = await getAIProvider();
     const providerModel = await getProviderAppropriateModel(provider, model);
 
@@ -165,6 +180,7 @@ export async function generateAIResponse(
   model: string = DEFAULT_AI_MODEL
 ): Promise<{ content?: string; error?: string }> {
   try {
+    await requireAuth();
     // Get the configured provider
     const provider = await getAIProvider();
 
@@ -226,6 +242,7 @@ export async function getAvailableModels(): Promise<{
   error?: string;
 }> {
   try {
+    await requireAuth();
     const provider = await getAIProvider();
     const models = await provider.listModels();
 
@@ -258,6 +275,7 @@ export async function* generateLessonNotesStream(params: {
   skillsWorked?: string;
   nextSteps?: string;
 }) {
+  await requireAuth();
   yield* executeAgentStream('lesson-notes-assistant', params);
 }
 
@@ -270,6 +288,7 @@ export async function generateLessonNotes(params: {
   previousNotes?: string;
 }): Promise<{ success: boolean; notes: string; error?: string }> {
   try {
+    await requireAuth();
     const response = await generateLessonNotesAgent({
       student_name: params.studentName,
       lesson_topic: params.lessonTopic,
@@ -319,6 +338,7 @@ export async function* generateAssignmentStream(params: {
   timeAvailable?: string;
   additionalNotes?: string;
 }) {
+  await requireAuth();
   yield* executeAgentStream('assignment-generator', params);
 }
 
@@ -331,6 +351,7 @@ export async function generateAssignment(params: {
   lessonTopic?: string;
 }): Promise<{ success: boolean; assignment: string; error?: string }> {
   try {
+    await requireAuth();
     const response = await generateAssignmentAgent({
       student_name: params.studentName,
       student_level: params.studentLevel,
@@ -380,6 +401,7 @@ export async function* generateEmailDraftStream(params: {
   tone?: string;
   additional_info?: string;
 }) {
+  await requireAuth();
   yield* executeAgentStream('email-draft-generator', params);
 }
 
@@ -393,6 +415,7 @@ export async function generateEmailDraft(params: {
   context: Record<string, unknown>;
 }): Promise<{ success: boolean; subject: string; body: string; error?: string }> {
   try {
+    await requireAuth();
     const response = await generateEmailDraftAgent({
       template_type: params.templateType,
       student_name: params.studentName,
@@ -463,6 +486,7 @@ export async function* generatePostLessonSummaryStream(params: {
   challengesNoted?: string;
   nextSteps?: string;
 }) {
+  await requireAuth();
   yield* executeAgentStream('post-lesson-summary', params);
 }
 
@@ -476,6 +500,7 @@ export async function generatePostLessonSummary(params: {
   teacherNotes?: string;
 }): Promise<{ success: boolean; summary: string; error?: string }> {
   try {
+    await requireAuth();
     const response = await generatePostLessonSummaryAgent({
       student_name: params.studentName,
       lesson_date: new Date().toLocaleDateString(),
@@ -531,6 +556,7 @@ export async function* analyzeStudentProgressStream(params: {
   lessonHistory?: any;
   skillAssessments?: any;
 }) {
+  await requireAuth();
   yield* executeAgentStream('student-progress-insights', params);
 }
 
@@ -539,6 +565,7 @@ export async function analyzeStudentProgress(params: {
   timePeriod: string;
 }): Promise<{ success: boolean; insights: string; error?: string }> {
   try {
+    await requireAuth();
     const response = await analyzeStudentProgressAgent({
       student_ids: [params.studentId],
       time_period: params.timePeriod,
@@ -581,6 +608,7 @@ export async function* generateAdminInsightsStream(params: {
   timeframe?: string;
   focusAreas?: string[];
 }) {
+  await requireAuth();
   yield* executeAgentStream('admin-dashboard-insights', params);
 }
 
@@ -594,6 +622,7 @@ export async function generateAdminInsights(params: {
   teacherStats?: string;
 }): Promise<{ success: boolean; insights: string; error?: string }> {
   try {
+    await requireAuth();
     const response = await generateAdminInsightsAgent({
       total_users: params.totalStudents + params.newStudents,
       total_students: params.totalStudents,
