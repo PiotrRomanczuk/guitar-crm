@@ -47,7 +47,7 @@ export function useAssignmentList(filters?: AssignmentListFilters) {
         }
 
         const data = await response.json();
-        setAssignments(data);
+        setAssignments(data.assignments ?? data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
         setAssignments([]);
