@@ -353,7 +353,10 @@ export async function DELETE(request: NextRequest) {
           continue;
         }
 
-        const { error } = await supabase.from('lessons').delete().eq('id', lessonId);
+        const { error } = await supabase
+          .from('lessons')
+          .update({ deleted_at: new Date().toISOString() })
+          .eq('id', lessonId);
 
         if (error) {
           results.errors.push({

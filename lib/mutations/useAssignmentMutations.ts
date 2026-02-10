@@ -34,7 +34,7 @@ async function createAssignment(payload: CreateAssignmentPayload): Promise<Assig
 }
 
 async function updateAssignment(payload: UpdateAssignmentPayload): Promise<Assignment> {
-  return await apiClient.put<Assignment>(`/api/assignments/${payload.id}`, payload.data);
+  return await apiClient.patch<Assignment>(`/api/assignments/${payload.id}`, payload.data);
 }
 
 async function deleteAssignment(payload: DeleteAssignmentPayload): Promise<DeleteResult> {
