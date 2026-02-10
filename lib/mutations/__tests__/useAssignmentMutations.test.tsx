@@ -18,13 +18,13 @@ import { useAssignmentMutations } from '../useAssignmentMutations';
 
 // Mock the apiClient
 const mockPost = jest.fn();
-const mockPut = jest.fn();
+const mockPatch = jest.fn();
 const mockDelete = jest.fn();
 
 jest.mock('@/lib/api-client', () => ({
   apiClient: {
     post: (...args: unknown[]) => mockPost(...args),
-    put: (...args: unknown[]) => mockPut(...args),
+    patch: (...args: unknown[]) => mockPatch(...args),
     delete: (...args: unknown[]) => mockDelete(...args),
   },
 }));
@@ -155,7 +155,7 @@ describe('useAssignmentMutations', () => {
   describe('update mutation', () => {
     it('should update an assignment successfully', async () => {
       const updatedAssignment = { ...mockAssignment, title: 'Updated Assignment' };
-      mockPut.mockResolvedValueOnce(updatedAssignment);
+      mockPatch.mockResolvedValueOnce(updatedAssignment);
 
       const { result } = renderHook(() => useAssignmentMutations(), {
         wrapper: createWrapper(),
@@ -173,7 +173,7 @@ describe('useAssignmentMutations', () => {
         expect(result.current.update.isPending).toBe(false);
       });
 
-      expect(mockPut).toHaveBeenCalledWith(`/api/assignments/${mockAssignmentId}`, {
+      expect(mockPatch).toHaveBeenCalledWith(`/api/assignments/${mockAssignmentId}`, {
         id: mockAssignmentId,
         title: 'Updated Assignment',
       });
@@ -181,7 +181,7 @@ describe('useAssignmentMutations', () => {
 
     it('should update assignment status', async () => {
       const updatedAssignment = { ...mockAssignment, status: 'in_progress' };
-      mockPut.mockResolvedValueOnce(updatedAssignment);
+      mockPatch.mockResolvedValueOnce(updatedAssignment);
 
       const { result } = renderHook(() => useAssignmentMutations(), {
         wrapper: createWrapper(),
@@ -199,7 +199,7 @@ describe('useAssignmentMutations', () => {
         expect(result.current.update.isPending).toBe(false);
       });
 
-      expect(mockPut).toHaveBeenCalledWith(`/api/assignments/${mockAssignmentId}`, {
+      expect(mockPatch).toHaveBeenCalledWith(`/api/assignments/${mockAssignmentId}`, {
         id: mockAssignmentId,
         status: 'in_progress',
       });
@@ -207,7 +207,7 @@ describe('useAssignmentMutations', () => {
 
     it('should handle update error', async () => {
       const error = new Error('Failed to update assignment');
-      mockPut.mockRejectedValueOnce(error);
+      mockPatch.mockRejectedValueOnce(error);
 
       const { result } = renderHook(() => useAssignmentMutations(), {
         wrapper: createWrapper(),
@@ -311,7 +311,7 @@ describe('useAssignmentMutations', () => {
 
       for (let i = 1; i < statuses.length; i++) {
         const newStatus = statuses[i];
-        mockPut.mockResolvedValueOnce({ ...mockAssignment, status: newStatus });
+        mockPatch.mockResolvedValueOnce({ ...mockAssignment, status: newStatus });
 
         const { result } = renderHook(() => useAssignmentMutations(), {
           wrapper: createWrapper(),
@@ -330,7 +330,7 @@ describe('useAssignmentMutations', () => {
         });
       }
 
-      expect(mockPut).toHaveBeenCalledTimes(2);
+      expect(mockPatch).toHaveBeenCalledTimes(2);
     });
   });
 });
