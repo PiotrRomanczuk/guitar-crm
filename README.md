@@ -4,6 +4,17 @@
 
 A comprehensive Customer Relationship Management system for guitar teachers, built with Next.js, TypeScript, and Supabase.
 
+## Key Features
+
+- **Lesson Management**: Schedule, track, and manage student lessons with calendar integration
+- **Song Library**: Organize songs with Spotify integration and AI-powered insights
+- **Assignment System**: Create, assign, and track student homework and practice tasks
+- **Email Notifications**: Automated reminders, recaps, and achievement emails with full preference control
+- **AI Assistant**: Generate lesson notes, assignments, and personalized student summaries
+- **Role-Based Access**: Separate dashboards for admins, teachers, and students
+- **Google Calendar Sync**: Two-way integration for seamless scheduling
+- **Mobile Widgets**: iOS widgets for quick access to student information
+
 ## 📚 Documentation
 
 Full documentation is available in the [`docs/`](./docs/README.md) folder:

@@ -1,10 +1,30 @@
 import { defineConfig, devices } from '@playwright/test';
+import { execSync } from 'child_process';
 import * as dotenv from 'dotenv';
 
 // Load test environment variables from .env.local
 dotenv.config({ path: '.env.local' });
 
-// Load test credentials from cypress.env.json for compatibility
+// Check if local Supabase is running on port 54321
+// Mirrors the same logic in next.config.ts so test helpers use the correct DB
+function isLocalSupabaseRunning(): boolean {
+  try {
+    execSync('nc -z 127.0.0.1 54321 2>/dev/null', { timeout: 2000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+if (process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL && !isLocalSupabaseRunning()) {
+  console.log('[Playwright] Local Supabase not detected on port 54321, using REMOTE configuration');
+  delete process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL;
+  delete process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY;
+  delete process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY;
+  delete process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL;
+}
+
+// Load test credentials
 const testCredentials = {
   TEST_ADMIN_EMAIL: 'p.romanczuk@gmail.com',
   TEST_ADMIN_PASSWORD: 'test123_admin',

@@ -17,6 +17,7 @@ import { StudentPipeline } from '@/components/dashboard/pipeline/StudentPipeline
 import { HealthAlertsBanner } from '@/components/dashboard/health/HealthAlertsBanner';
 import { HealthSummaryWidget } from '@/components/dashboard/health/HealthSummaryWidget';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
+import { TeacherPerformance } from '@/components/dashboard/teacher/Performance';
 import { Users, BookOpen, Music, Shield } from 'lucide-react';
 
 // Section wrapper for consistent spacing and optional titles
@@ -124,6 +125,21 @@ export function TeacherDashboardClient({
         {/* Student Pipeline */}
         <DashboardSection>
           <StudentPipeline />
+        </DashboardSection>
+
+        {/* Teacher Performance Metrics */}
+        <DashboardSection>
+          <div className="space-y-4">
+            <div className="flex flex-col gap-2">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+                Performance Metrics
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
+                Track your teaching effectiveness and student progress over time.
+              </p>
+            </div>
+            <TeacherPerformance />
+          </div>
         </DashboardSection>
 
         {/* Student Management */}
