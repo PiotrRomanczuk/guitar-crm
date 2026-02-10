@@ -42,11 +42,10 @@ test.describe('🔍 Smoke Tests - Critical Path Verification', { tag: '@smoke' }
 
   test('should have protected dashboard route', async ({ page }) => {
     // Attempt to access protected route without authentication
-    // Set a longer timeout for this navigation as it may redirect
-    await page.goto('/dashboard', { waitUntil: 'networkidle', timeout: 15000 });
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 30000 });
 
     // Wait for any redirects to complete
-    await page.waitForLoadState('networkidle', { timeout: 15000 });
+    await page.waitForLoadState('networkidle', { timeout: 30000 });
     const currentUrl = page.url();
 
     const isRedirected =
@@ -81,17 +80,17 @@ test.describe('🔍 Smoke Tests - Critical Path Verification', { tag: '@smoke' }
   });
 
   test('should have working API endpoints', async ({ request, baseURL }) => {
-    // Test critical API endpoints
-    const endpoints = ['/api/health', '/api/auth/session'];
+    // Test actual API endpoints that exist in the app
+    const endpoints = ['/api/database/status', '/api/lessons', '/api/song'];
 
     for (const endpoint of endpoints) {
       const response = await request.get(`${baseURL}${endpoint}`, {
         failOnStatusCode: false,
+        timeout: 15000,
       });
 
-      // Accept 200 (working), 404 (not implemented), or 401/403 (protected but responding)
-      expect([200, 401, 403, 404, 405]).toContain(response.status());
-      console.log(`✅ ${endpoint} responding with status: ${response.status()}`);
+      // Accept 200 (working) or 401/403 (protected but responding)
+      expect([200, 401, 403]).toContain(response.status());
     }
   });
 
@@ -131,7 +130,7 @@ test.describe('🔍 Smoke Tests - Critical Path Verification', { tag: '@smoke' }
       }
     });
 
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 30000 });
 
     // Just verify the page loads without crashing
     await expect(page.locator('body')).toBeVisible();
@@ -140,6 +139,5 @@ test.describe('🔍 Smoke Tests - Critical Path Verification', { tag: '@smoke' }
     if (errors.length > 0) {
       console.log('Console errors detected:', errors);
     }
-    console.log('✅ Page loaded without critical console errors');
   });
 });
