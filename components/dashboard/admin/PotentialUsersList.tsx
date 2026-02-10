@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getPotentialCustomerEvents } from '@/app/dashboard/actions';
+import { getPotentialCustomerEvents } from '@/app/dashboard/calendar-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Mail, Phone } from 'lucide-react';
 import { InviteUserModal } from '../InviteUserModal';

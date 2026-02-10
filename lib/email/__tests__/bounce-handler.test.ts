@@ -21,14 +21,21 @@ jest.mock('@/lib/supabase/admin', () => ({
   createAdminClient: jest.fn(() => mockSupabase),
 }));
 
+// Mock the notification logger
+const mockLogInfo = jest.fn();
+const mockLogError = jest.fn();
+const mockLogWarning = jest.fn();
+const mockLogBounce = jest.fn();
+
+jest.mock('@/lib/logging/notification-logger', () => ({
+  logInfo: (...args: unknown[]) => mockLogInfo(...args),
+  logError: (...args: unknown[]) => mockLogError(...args),
+  logWarning: (...args: unknown[]) => mockLogWarning(...args),
+  logBounce: (...args: unknown[]) => mockLogBounce(...args),
+}));
+
 beforeEach(() => {
   jest.clearAllMocks();
-  jest.spyOn(console, 'log').mockImplementation();
-  jest.spyOn(console, 'error').mockImplementation();
-});
-
-afterEach(() => {
-  jest.restoreAllMocks();
 });
 
 describe('Bounce Handler - handleBounce and checkConsecutiveBounces', () => {
@@ -200,7 +207,11 @@ describe('Bounce Handler - handleBounce and checkConsecutiveBounces', () => {
 
       const result = await checkConsecutiveBounces('user-123');
       expect(result).toBe(0);
-      expect(console.error).toHaveBeenCalled();
+      expect(mockLogError).toHaveBeenCalledWith(
+        'Failed to fetch notification logs',
+        expect.any(Error),
+        { user_id: 'user-123' }
+      );
     });
   });
 });
@@ -214,8 +225,9 @@ describe('Bounce Handler - User Management and Stats', () => {
       });
 
       await disableNotificationsForUser('user-123', 'Too many bounces');
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Notifications disabled for user user-123')
+      expect(mockLogInfo).toHaveBeenCalledWith(
+        'Notifications disabled for user',
+        { user_id: 'user-123', reason: 'Too many bounces' }
       );
     });
 
@@ -256,8 +268,9 @@ describe('Bounce Handler - User Management and Stats', () => {
 
       await reenableNotificationsForUser('user-123', 'admin-123');
       expect(callCount).toBe(2);
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Notifications re-enabled for user user-123')
+      expect(mockLogInfo).toHaveBeenCalledWith(
+        'Notifications re-enabled for user',
+        { user_id: 'user-123', admin_id: 'admin-123' }
       );
     });
 

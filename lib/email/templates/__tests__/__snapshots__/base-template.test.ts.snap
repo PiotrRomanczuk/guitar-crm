@@ -169,7 +169,7 @@ exports[`base-template snapshot tests should match snapshot for full email 1`] =
               View Dashboard
             </a>
             <span style="color: #d4d4d8; margin: 0 8px;">•</span>
-            <a href="https://example.com/settings/notifications" style="color: #71717a; text-decoration: none;">
+            <a href="https://example.com/dashboard/settings" style="color: #71717a; text-decoration: none;">
               Notification Settings
             </a>
           </p>
@@ -302,7 +302,7 @@ exports[`base-template snapshot tests should match snapshot for minimal email 1`
               View Dashboard
             </a>
             <span style="color: #d4d4d8; margin: 0 8px;">•</span>
-            <a href="https://example.com/settings/notifications" style="color: #71717a; text-decoration: none;">
+            <a href="https://example.com/dashboard/settings" style="color: #71717a; text-decoration: none;">
               Notification Settings
             </a>
           </p>

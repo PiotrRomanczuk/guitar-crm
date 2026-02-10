@@ -4,20 +4,12 @@
  */
 
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
-import { cookies } from 'next/headers';
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/server';
 
 // Mock dependencies
-jest.mock('next/headers');
-jest.mock('@supabase/ssr');
+jest.mock('@/lib/supabase/server');
 
 describe('getUserWithRolesSSR', () => {
-  const mockCookieStore = {
-    getAll: jest.fn(),
-    set: jest.fn(),
-    get: jest.fn(),
-  };
-
   const mockSupabaseClient = {
     auth: {
       getUser: jest.fn(),
@@ -27,8 +19,7 @@ describe('getUserWithRolesSSR', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (cookies as jest.Mock).mockResolvedValue(mockCookieStore);
-    (createServerClient as jest.Mock).mockReturnValue(mockSupabaseClient);
+    (createClient as jest.Mock).mockResolvedValue(mockSupabaseClient);
   });
 
   describe('Admin User (p.romanczuk@gmail.com)', () => {
@@ -40,7 +31,11 @@ describe('getUserWithRolesSSR', () => {
         role: 'authenticated',
       };
 
-      const mockRoles = [{ role: 'admin' }, { role: 'teacher' }];
+      const mockProfile = {
+        is_admin: true,
+        is_teacher: true,
+        is_student: false,
+      };
 
       mockSupabaseClient.auth.getUser.mockResolvedValue({
         data: { user: mockUser },
@@ -49,9 +44,11 @@ describe('getUserWithRolesSSR', () => {
 
       mockSupabaseClient.from.mockReturnValue({
         select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            data: mockRoles,
-            error: null,
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: mockProfile,
+              error: null,
+            }),
           }),
         }),
       });
@@ -76,7 +73,11 @@ describe('getUserWithRolesSSR', () => {
         role: 'authenticated',
       };
 
-      const mockRoles = [{ role: 'teacher' }];
+      const mockProfile = {
+        is_admin: false,
+        is_teacher: true,
+        is_student: false,
+      };
 
       mockSupabaseClient.auth.getUser.mockResolvedValue({
         data: { user: mockUser },
@@ -85,9 +86,11 @@ describe('getUserWithRolesSSR', () => {
 
       mockSupabaseClient.from.mockReturnValue({
         select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            data: mockRoles,
-            error: null,
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: mockProfile,
+              error: null,
+            }),
           }),
         }),
       });
@@ -112,7 +115,11 @@ describe('getUserWithRolesSSR', () => {
         role: 'authenticated',
       };
 
-      const mockRoles = [{ role: 'student' }];
+      const mockProfile = {
+        is_admin: false,
+        is_teacher: false,
+        is_student: true,
+      };
 
       mockSupabaseClient.auth.getUser.mockResolvedValue({
         data: { user: mockUser },
@@ -121,9 +128,11 @@ describe('getUserWithRolesSSR', () => {
 
       mockSupabaseClient.from.mockReturnValue({
         select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            data: mockRoles,
-            error: null,
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: mockProfile,
+              error: null,
+            }),
           }),
         }),
       });
@@ -175,7 +184,7 @@ describe('getUserWithRolesSSR', () => {
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
             single: jest.fn().mockResolvedValue({
-              data: null, // No roles found
+              data: null,
               error: null,
             }),
           }),

@@ -1,11 +1,14 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CalendarEventsList } from '@/components/dashboard/calendar/CalendarEventsList';
-import { getGoogleEvents, createShadowUser } from '@/app/dashboard/actions';
+import { createShadowUser } from '@/app/dashboard/actions';
+import { getGoogleEvents } from '@/app/dashboard/calendar-actions';
 
 // Mock dependencies
 jest.mock('@/app/dashboard/actions', () => ({
-  getGoogleEvents: jest.fn(),
   createShadowUser: jest.fn(),
+}));
+jest.mock('@/app/dashboard/calendar-actions', () => ({
+  getGoogleEvents: jest.fn(),
   syncAllLessonsFromCalendar: jest.fn(),
 }));
 
