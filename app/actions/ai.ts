@@ -4,9 +4,30 @@
 
 import { getAIProvider, isAIError, type AIMessage, type AIModelInfo } from '@/lib/ai';
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
-import { createClient } from '@/lib/supabase/server';
 import { executeAgent } from '@/lib/ai/registry';
 import { mapToOllamaModel } from '@/lib/ai/model-mappings';
+import { requireAIAuth, AIAuthError } from '@/lib/ai/auth';
+import { checkRateLimit } from '@/lib/ai/rate-limiter';
+
+/**
+ * Safely handle auth/rate-limit errors and return a user-friendly message.
+ */
+function handleAuthError(error: unknown): string {
+  if (error instanceof AIAuthError) {
+    return error.message;
+  }
+  return 'An unexpected error occurred.';
+}
+
+/**
+ * Enforce rate limits for a given user and agent.
+ */
+async function enforceRateLimit(user: { id: string; role: string }, agentId: string) {
+  const result = await checkRateLimit(user.id, user.role, agentId);
+  if (!result.allowed) {
+    throw new Error(`Rate limit exceeded. Please try again in ${result.retryAfter} seconds.`);
+  }
+}
 
 /**
  * Unified streaming abstraction for all AI functions
@@ -46,10 +67,13 @@ async function* executeAgentStream(
   options?: { delayMs?: number; chunkSize?: number }
 ) {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, agentId);
+
     const result = await executeAgent(
       agentId,
       input,
-      context,
+      { ...context, userId: user.id, userRole: user.role },
     );
 
     if (result.error) {
@@ -112,6 +136,9 @@ import {
  */
 export async function* generateAIResponseStream(prompt: string, model: string = DEFAULT_AI_MODEL) {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'ai-response-stream');
+
     const provider = await getAIProvider();
     const providerModel = await getProviderAppropriateModel(provider, model);
 
@@ -165,6 +192,9 @@ export async function generateAIResponse(
   model: string = DEFAULT_AI_MODEL
 ): Promise<{ content?: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'ai-response');
+
     // Get the configured provider
     const provider = await getAIProvider();
 
@@ -226,6 +256,8 @@ export async function getAvailableModels(): Promise<{
   error?: string;
 }> {
   try {
+    await requireAIAuth();
+
     const provider = await getAIProvider();
     const models = await provider.listModels();
 
@@ -270,6 +302,9 @@ export async function generateLessonNotes(params: {
   previousNotes?: string;
 }): Promise<{ success: boolean; notes: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'lesson-notes-assistant');
+
     const response = await generateLessonNotesAgent({
       student_name: params.studentName,
       lesson_topic: params.lessonTopic,
@@ -331,6 +366,9 @@ export async function generateAssignment(params: {
   lessonTopic?: string;
 }): Promise<{ success: boolean; assignment: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'assignment-generator');
+
     const response = await generateAssignmentAgent({
       student_name: params.studentName,
       student_level: params.studentLevel,
@@ -393,6 +431,9 @@ export async function generateEmailDraft(params: {
   context: Record<string, unknown>;
 }): Promise<{ success: boolean; subject: string; body: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'email-draft-generator');
+
     const response = await generateEmailDraftAgent({
       template_type: params.templateType,
       student_name: params.studentName,
@@ -476,6 +517,9 @@ export async function generatePostLessonSummary(params: {
   teacherNotes?: string;
 }): Promise<{ success: boolean; summary: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'post-lesson-summary');
+
     const response = await generatePostLessonSummaryAgent({
       student_name: params.studentName,
       lesson_date: new Date().toLocaleDateString(),
@@ -539,6 +583,9 @@ export async function analyzeStudentProgress(params: {
   timePeriod: string;
 }): Promise<{ success: boolean; insights: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'student-progress-insights');
+
     const response = await analyzeStudentProgressAgent({
       student_ids: [params.studentId],
       time_period: params.timePeriod,
@@ -594,6 +641,9 @@ export async function generateAdminInsights(params: {
   teacherStats?: string;
 }): Promise<{ success: boolean; insights: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'admin-dashboard-insights');
+
     const response = await generateAdminInsightsAgent({
       total_users: params.totalStudents + params.newStudents,
       total_students: params.totalStudents,
