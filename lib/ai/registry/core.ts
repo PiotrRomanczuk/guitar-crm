@@ -118,7 +118,6 @@ export async function executeAgentRequest(request: AgentRequest): Promise<AgentR
       error: {
         code: getErrorCode(error),
         message: error instanceof Error ? error.message : 'Unknown error',
-        details: error,
       },
       metadata: {
         agentId: request.agentId,
