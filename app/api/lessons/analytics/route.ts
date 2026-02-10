@@ -14,6 +14,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Verify user role and enforce data isolation
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin, is_teacher, is_student')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    }
+
     const teacherId = searchParams.get('teacherId');
     const studentId = searchParams.get('studentId');
     const period = searchParams.get('period') || 'month'; // week, month, quarter, year
@@ -23,12 +34,26 @@ export async function GET(request: NextRequest) {
     // Build base query for lessons
     let baseQuery = supabase.from('lessons').select('*');
 
-    if (teacherId) {
-      baseQuery = baseQuery.eq('teacher_id', teacherId);
-    }
-
-    if (studentId) {
-      baseQuery = baseQuery.eq('student_id', studentId);
+    // Role-based filtering: teachers see only their own, students see only their own
+    if (profile.is_admin) {
+      // Admins can filter by any teacherId/studentId
+      if (teacherId) {
+        baseQuery = baseQuery.eq('teacher_id', teacherId);
+      }
+      if (studentId) {
+        baseQuery = baseQuery.eq('student_id', studentId);
+      }
+    } else if (profile.is_teacher) {
+      // Teachers can only see their own lessons — ignore teacherId param
+      baseQuery = baseQuery.eq('teacher_id', user.id);
+      if (studentId) {
+        baseQuery = baseQuery.eq('student_id', studentId);
+      }
+    } else if (profile.is_student) {
+      // Students can only see their own lessons
+      baseQuery = baseQuery.eq('student_id', user.id);
+    } else {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     if (dateFrom) {

@@ -84,24 +84,44 @@ export async function GET(request: NextRequest) {
     } // Teacher stats
     if (profile.is_teacher) {
       console.log('[API /api/dashboard/stats] User is teacher, fetching teacher stats');
-      const [{ count: myStudents }, { count: activeLessons }, { count: songsLibrary }] =
-        await Promise.all([
-          supabase
-            .from('lessons')
-            .select('*', { count: 'exact', head: true })
-            .eq('teacher_id', user.id),
-          supabase
-            .from('lessons')
-            .select('*', { count: 'exact', head: true })
-            .eq('teacher_id', user.id)
-            .eq('status', 'IN_PROGRESS'),
-          supabase.from('songs').select('*', { count: 'exact', head: true }),
-        ]);
+      const [
+        { count: myStudents },
+        { count: activeLessons },
+        { count: songsLibrary },
+        { count: totalAssignments },
+        { count: completedAssignments },
+      ] = await Promise.all([
+        supabase
+          .from('lessons')
+          .select('*', { count: 'exact', head: true })
+          .eq('teacher_id', user.id),
+        supabase
+          .from('lessons')
+          .select('*', { count: 'exact', head: true })
+          .eq('teacher_id', user.id)
+          .eq('status', 'IN_PROGRESS'),
+        supabase.from('songs').select('*', { count: 'exact', head: true }),
+        supabase
+          .from('assignments')
+          .select('*', { count: 'exact', head: true })
+          .eq('teacher_id', user.id),
+        supabase
+          .from('assignments')
+          .select('*', { count: 'exact', head: true })
+          .eq('teacher_id', user.id)
+          .eq('status', 'completed'),
+      ]);
+
+      const studentProgress =
+        totalAssignments && totalAssignments > 0
+          ? Math.round(((completedAssignments || 0) / totalAssignments) * 100)
+          : 0;
 
       console.log('[API /api/dashboard/stats] Teacher stats:', {
         myStudents,
         activeLessons,
         songsLibrary,
+        studentProgress,
       });
       return NextResponse.json({
         role: 'teacher',
@@ -109,7 +129,7 @@ export async function GET(request: NextRequest) {
           myStudents: myStudents || 0,
           activeLessons: activeLessons || 0,
           songsLibrary: songsLibrary || 0,
-          studentProgress: 0, // TODO: Calculate average progress
+          studentProgress,
         },
       });
     }
@@ -126,19 +146,46 @@ export async function GET(request: NextRequest) {
 
       const lessonIds = lessons?.map((l) => l.id) || [];
 
-      // Get songs count for these lessons
-      const { count: songsLearning } = await supabase
-        .from('lesson_songs')
-        .select('*', { count: 'exact', head: true })
-        .in('lesson_id', lessonIds);
+      // Get song status counts for these lessons
+      const [{ count: songsLearning }, { count: completedSongs }, { count: totalAssigned }, { count: completedStudentAssignments }, { count: totalStudentAssignments }] =
+        await Promise.all([
+          supabase
+            .from('lesson_songs')
+            .select('*', { count: 'exact', head: true })
+            .in('lesson_id', lessonIds.length > 0 ? lessonIds : ['']),
+          supabase
+            .from('lesson_songs')
+            .select('*', { count: 'exact', head: true })
+            .in('lesson_id', lessonIds.length > 0 ? lessonIds : [''])
+            .eq('status', 'completed'),
+          supabase
+            .from('lesson_songs')
+            .select('*', { count: 'exact', head: true })
+            .in('lesson_id', lessonIds.length > 0 ? lessonIds : ['']),
+          supabase
+            .from('assignments')
+            .select('*', { count: 'exact', head: true })
+            .eq('student_id', user.id)
+            .eq('status', 'completed'),
+          supabase
+            .from('assignments')
+            .select('*', { count: 'exact', head: true })
+            .eq('student_id', user.id),
+        ]);
 
       const uniqueTeachers = new Set(lessons?.map((l) => l.teacher_id)).size;
       const lessonsDone = lessons?.length || 0;
+
+      // Calculate progress from completed songs and assignments
+      const totalItems = (totalAssigned || 0) + (totalStudentAssignments || 0);
+      const completedItems = (completedSongs || 0) + (completedStudentAssignments || 0);
+      const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
       console.log('[API /api/dashboard/stats] Student stats:', {
         uniqueTeachers,
         lessonsDone,
         songsLearning,
+        progress,
       });
       return NextResponse.json({
         role: 'student',
@@ -146,7 +193,7 @@ export async function GET(request: NextRequest) {
           myTeacher: uniqueTeachers || 0,
           lessonsDone: lessonsDone,
           songsLearning: songsLearning || 0,
-          progress: 0, // TODO: Calculate progress percentage
+          progress,
         },
       });
     }
