@@ -6,7 +6,7 @@
  * - Error handling
  * - Model mapping
  *
- * Note: ai.ts functions have NO authorization checks
+ * Note: ai.ts functions require authentication (requireAuth)
  * Note: Streaming functions are thin wrappers, testing non-streaming versions
  *
  * @see app/actions/ai.ts
@@ -34,9 +34,17 @@ jest.mock('@/lib/ai/model-mappings', () => ({
   mapToOllamaModel: (model: string) => mockMapToOllamaModel(model),
 }));
 
-// Mock Supabase
+// Mock Supabase with auth
 jest.mock('@/lib/supabase/server', () => ({
-  createClient: jest.fn(() => Promise.resolve({})),
+  createClient: jest.fn(() =>
+    Promise.resolve({
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: { user: { id: 'test-user-id', email: 'test@example.com' } },
+        }),
+      },
+    })
+  ),
 }));
 
 // Mock agent execution functions

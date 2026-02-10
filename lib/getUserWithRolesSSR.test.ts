@@ -31,16 +31,14 @@ describe('getUserWithRolesSSR', () => {
     (createServerClient as jest.Mock).mockReturnValue(mockSupabaseClient);
   });
 
-  describe('Admin User (p.romanczuk@gmail.com)', () => {
-    it('returns user with admin and teacher roles', async () => {
+  describe('Admin User', () => {
+    it('returns user with admin and teacher roles from profile', async () => {
       const mockUser = {
         id: 'admin-user-id',
         email: 'p.romanczuk@gmail.com',
         aud: 'authenticated',
         role: 'authenticated',
       };
-
-      const mockRoles = [{ role: 'admin' }, { role: 'teacher' }];
 
       mockSupabaseClient.auth.getUser.mockResolvedValue({
         data: { user: mockUser },
@@ -49,9 +47,11 @@ describe('getUserWithRolesSSR', () => {
 
       mockSupabaseClient.from.mockReturnValue({
         select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            data: mockRoles,
-            error: null,
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: { is_admin: true, is_teacher: true, is_student: false },
+              error: null,
+            }),
           }),
         }),
       });
@@ -67,16 +67,14 @@ describe('getUserWithRolesSSR', () => {
     });
   });
 
-  describe('Teacher User (teacher@example.com)', () => {
-    it('returns user with teacher role only', async () => {
+  describe('Teacher User', () => {
+    it('returns user with teacher role only from profile', async () => {
       const mockUser = {
         id: 'teacher-user-id',
         email: 'teacher@example.com',
         aud: 'authenticated',
         role: 'authenticated',
       };
-
-      const mockRoles = [{ role: 'teacher' }];
 
       mockSupabaseClient.auth.getUser.mockResolvedValue({
         data: { user: mockUser },
@@ -85,9 +83,11 @@ describe('getUserWithRolesSSR', () => {
 
       mockSupabaseClient.from.mockReturnValue({
         select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            data: mockRoles,
-            error: null,
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: { is_admin: false, is_teacher: true, is_student: false },
+              error: null,
+            }),
           }),
         }),
       });
@@ -103,16 +103,14 @@ describe('getUserWithRolesSSR', () => {
     });
   });
 
-  describe('Student User (student@example.com)', () => {
-    it('returns user with student role only', async () => {
+  describe('Student User', () => {
+    it('returns user with student role only from profile', async () => {
       const mockUser = {
         id: 'student-user-id',
         email: 'student@example.com',
         aud: 'authenticated',
         role: 'authenticated',
       };
-
-      const mockRoles = [{ role: 'student' }];
 
       mockSupabaseClient.auth.getUser.mockResolvedValue({
         data: { user: mockUser },
@@ -121,9 +119,11 @@ describe('getUserWithRolesSSR', () => {
 
       mockSupabaseClient.from.mockReturnValue({
         select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            data: mockRoles,
-            error: null,
+          eq: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: { is_admin: false, is_teacher: false, is_student: true },
+              error: null,
+            }),
           }),
         }),
       });

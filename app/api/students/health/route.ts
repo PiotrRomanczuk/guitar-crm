@@ -27,6 +27,17 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Verify user is admin or teacher
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin, is_teacher')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile?.is_admin && !profile?.is_teacher) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     // Get all students via profiles table boolean flags
     const { data: studentProfiles } = await supabase
       .from('profiles')
