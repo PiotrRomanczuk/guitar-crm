@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test';
-import { loginAsAdmin } from '../../../helpers/auth';
+import { test, expect } from '../../../fixtures';
 
 /**
  * Teacher Song CRUD Test - Granular Steps
@@ -23,12 +22,12 @@ test.describe('Teacher Song CRUD', { tag: ['@teacher', '@songs', '@crud'] }, () 
   // Increase timeout for these tests due to Next.js compilation
   test.setTimeout(60000);
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, loginAs }) => {
     // Set viewport matching Cypress
     await page.setViewportSize({ width: 1280, height: 720 });
 
     // Login as admin (who has is_teacher=true)
-    await loginAsAdmin(page);
+    await loginAs('admin');
   });
 
   // ===========================================

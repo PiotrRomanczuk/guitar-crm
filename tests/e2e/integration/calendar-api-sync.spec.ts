@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import { test, expect } from '@playwright/test';
-import { loginAsTeacher } from '../../helpers/auth';
+import { test, expect } from '../../fixtures';
 
 /**
  * Calendar API Sync E2E Tests
@@ -28,8 +27,8 @@ test.describe('Calendar API Sync', { tag: ['@api', '@calendar'] }, () => {
   });
 
   test.describe('Lesson Creation API with Sync', () => {
-    test('should create lesson via API and return google_event_id if synced', async ({ page, request }) => {
-      await loginAsTeacher(page);
+    test('should create lesson via API and return google_event_id if synced', async ({ page, request, loginAs }) => {
+      await loginAs('teacher');
 
       // Get auth cookies
       const cookies = await page.context().cookies();
@@ -74,12 +73,12 @@ test.describe('Calendar API Sync', { tag: ['@api', '@calendar'] }, () => {
       }
     });
 
-    test('should include google_event_id in lesson data after sync', async ({ page }) => {
+    test('should include google_event_id in lesson data after sync', async ({ page, loginAs }) => {
       if (!createdLessonId) {
         test.skip();
       }
 
-      await loginAsTeacher(page);
+      await loginAs('teacher');
 
       // Navigate to lesson detail
       await page.goto(`/dashboard/lessons/${createdLessonId}`);
@@ -94,12 +93,12 @@ test.describe('Calendar API Sync', { tag: ['@api', '@calendar'] }, () => {
   });
 
   test.describe('Lesson Update API with Sync', () => {
-    test('should update lesson and trigger sync', async ({ page, request }) => {
+    test('should update lesson and trigger sync', async ({ page, request, loginAs }) => {
       if (!createdLessonId) {
         test.skip();
       }
 
-      await loginAsTeacher(page);
+      await loginAs('teacher');
       const cookies = await page.context().cookies();
       const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
@@ -125,8 +124,8 @@ test.describe('Calendar API Sync', { tag: ['@api', '@calendar'] }, () => {
   });
 
   test.describe('Error Handling and Resilience', () => {
-    test('should handle sync failures gracefully', async ({ page, request }) => {
-      await loginAsTeacher(page);
+    test('should handle sync failures gracefully', async ({ page, request, loginAs }) => {
+      await loginAs('teacher');
 
       // Create a lesson with invalid data that might cause sync issues
       const response = await request.post('/api/lessons', {
@@ -148,8 +147,8 @@ test.describe('Calendar API Sync', { tag: ['@api', '@calendar'] }, () => {
       expect(response.status()).toBe(400);
     });
 
-    test('should create lesson even if calendar sync fails', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should create lesson even if calendar sync fails', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       // Navigate to form
       await page.goto('/dashboard/lessons/new');
@@ -163,8 +162,8 @@ test.describe('Calendar API Sync', { tag: ['@api', '@calendar'] }, () => {
       await expect(titleInput).toBeVisible({ timeout: 10000 });
     });
 
-    test('should handle network errors during sync', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should handle network errors during sync', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       // Go to lessons list
       await page.goto('/dashboard/lessons');
@@ -184,8 +183,8 @@ test.describe('Calendar API Sync', { tag: ['@api', '@calendar'] }, () => {
   });
 
   test.describe('Database Consistency', () => {
-    test('should maintain lesson data integrity', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should maintain lesson data integrity', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       await page.goto('/dashboard/lessons');
       await page.waitForLoadState('networkidle');
@@ -198,8 +197,8 @@ test.describe('Calendar API Sync', { tag: ['@api', '@calendar'] }, () => {
       expect(pageContent.length).toBeGreaterThan(0);
     });
 
-    test('should not create duplicate lessons', async ({ page, request }) => {
-      await loginAsTeacher(page);
+    test('should not create duplicate lessons', async ({ page, request, loginAs }) => {
+      await loginAs('teacher');
       const cookies = await page.context().cookies();
       const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
@@ -227,12 +226,12 @@ test.describe('Calendar API Sync', { tag: ['@api', '@calendar'] }, () => {
   });
 
   test.describe('Cleanup', () => {
-    test('should delete test lesson if created', async ({ page, request }) => {
+    test('should delete test lesson if created', async ({ page, request, loginAs }) => {
       if (!createdLessonId) {
         test.skip();
       }
 
-      await loginAsTeacher(page);
+      await loginAs('teacher');
       const cookies = await page.context().cookies();
       const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 

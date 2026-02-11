@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test';
-import { loginAsAdmin } from '../../../helpers/auth';
+import { test, expect } from '../../../fixtures';
 import { fillLessonForm, submitForm } from '../../../helpers/form';
 
 /**
@@ -30,9 +29,9 @@ const testData = {
 
 test.describe.serial('Teacher Lesson CRUD', { tag: ['@teacher', '@lessons', '@crud'] }, () => {
   // Set viewport to desktop to avoid mobile-hidden elements
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, loginAs }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await loginAsAdmin(page);
+    await loginAs('admin');
   });
 
   test('1. CREATE: should create a new lesson', async ({ page }) => {

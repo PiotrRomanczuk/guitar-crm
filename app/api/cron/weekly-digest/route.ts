@@ -88,7 +88,7 @@ export async function GET(request: Request) {
             id,
             status,
             lessons!inner(student_id, updated_at),
-            songs(title, artist)
+            songs(title, author)
           `)
           .eq('lessons.student_id', studentId)
           .eq('status', 'mastered')

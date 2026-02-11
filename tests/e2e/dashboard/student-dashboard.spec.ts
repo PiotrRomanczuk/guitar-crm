@@ -148,7 +148,7 @@ test.describe(
         await page.waitForLoadState('networkidle');
 
         // Wait for page to load - "My Songs" heading appears
-        await expect(page.locator('text=/My Songs/i')).toBeVisible({
+        await expect(page.locator('h1:text-matches("My Songs", "i")')).toBeVisible({
           timeout: 10000,
         });
 
@@ -190,7 +190,7 @@ test.describe(
         await page.waitForLoadState('networkidle');
 
         // The student songs view displays assigned songs
-        await expect(page.locator('text=/My Songs/i')).toBeVisible({
+        await expect(page.locator('h1:text-matches("My Songs", "i")')).toBeVisible({
           timeout: 10000,
         });
         await expect(
@@ -220,7 +220,7 @@ test.describe(
         await page.waitForLoadState('networkidle');
 
         // Wait for page to load - "My Assignments" heading appears
-        await expect(page.locator('text=/My Assignments/i')).toBeVisible({
+        await expect(page.getByRole('heading', { name: 'My Assignments', level: 1 })).toBeVisible({
           timeout: 10000,
         });
 
@@ -330,17 +330,15 @@ test.describe(
         await page.goto('/dashboard/settings');
         await page.waitForLoadState('networkidle');
 
-        // Look for theme toggle
-        const themeToggle = page
-          .locator(
-            '[data-testid="theme-toggle"], button:has-text("Theme"), [aria-label*="theme"]'
-          )
-          .first();
+        // Look for theme selector (could be a select/combobox or toggle button)
+        const themeSelect = page.locator('select[aria-label="Theme"], [data-testid="theme-select"]').first();
+        const themeToggleButton = page.locator('[data-testid="theme-toggle"]').first();
 
-        const hasThemeToggle = (await themeToggle.count()) > 0;
-
-        if (hasThemeToggle) {
-          await themeToggle.click();
+        if ((await themeSelect.count()) > 0) {
+          // Theme is a select dropdown - change to dark
+          await themeSelect.selectOption('dark');
+        } else if ((await themeToggleButton.count()) > 0) {
+          await themeToggleButton.click();
         }
       });
     });
@@ -374,9 +372,9 @@ test.describe(
         await page.goto('/dashboard/lessons');
         await page.waitForLoadState('networkidle');
 
-        // Should not see any admin controls
+        // Should not see admin-specific controls like "All Students" filter
         await expect(
-          page.locator('text=/all lessons|manage|teacher/i')
+          page.locator('text=/all students|filter by student/i')
         ).not.toBeVisible();
       });
     });

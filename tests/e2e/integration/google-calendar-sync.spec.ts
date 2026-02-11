@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import { test, expect } from '@playwright/test';
-import { loginAsTeacher, loginAsAdmin } from '../../helpers/auth';
+import { test, expect } from '../../fixtures';
 
 /**
  * Google Calendar Integration E2E Tests
@@ -26,13 +25,13 @@ import { loginAsTeacher, loginAsAdmin } from '../../helpers/auth';
  */
 
 test.describe('Google Calendar Integration', { tag: ['@integration', '@calendar'] }, () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, loginAs }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
   });
 
   test.describe('Calendar Import Page Access', () => {
-    test('should allow teacher to access calendar import page', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should allow teacher to access calendar import page', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       // Navigate to calendar import page
       await page.goto('/dashboard/lessons/import');
@@ -46,8 +45,8 @@ test.describe('Google Calendar Integration', { tag: ['@integration', '@calendar'
       expect(pageContent).toContain('Google Calendar');
     });
 
-    test('should allow admin to access calendar import page', async ({ page }) => {
-      await loginAsAdmin(page);
+    test('should allow admin to access calendar import page', async ({ page, loginAs }) => {
+      await loginAs('admin');
 
       await page.goto('/dashboard/lessons/import');
       await page.waitForLoadState('networkidle');
@@ -55,8 +54,8 @@ test.describe('Google Calendar Integration', { tag: ['@integration', '@calendar'
       await expect(page).toHaveURL('/dashboard/lessons/import');
     });
 
-    test('should show connect button when not authenticated with Google', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should show connect button when not authenticated with Google', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       await page.goto('/dashboard/lessons/import');
       await page.waitForLoadState('networkidle');
@@ -78,8 +77,8 @@ test.describe('Google Calendar Integration', { tag: ['@integration', '@calendar'
       notesEdited: 'Testing calendar sync EDITED',
     };
 
-    test('should create lesson and trigger calendar sync', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should create lesson and trigger calendar sync', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       // Navigate to new lesson page
       await page.goto('/dashboard/lessons/new');
@@ -135,8 +134,8 @@ test.describe('Google Calendar Integration', { tag: ['@integration', '@calendar'
       expect(pageContent).toContain(testLesson.title);
     });
 
-    test('should update lesson and trigger calendar sync', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should update lesson and trigger calendar sync', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       // Go to lessons list
       await page.goto('/dashboard/lessons');
@@ -195,8 +194,8 @@ test.describe('Google Calendar Integration', { tag: ['@integration', '@calendar'
       }
     });
 
-    test('should delete lesson and trigger calendar sync', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should delete lesson and trigger calendar sync', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       // Go to lessons list
       await page.goto('/dashboard/lessons');
@@ -253,8 +252,8 @@ test.describe('Google Calendar Integration', { tag: ['@integration', '@calendar'
   });
 
   test.describe('Calendar Event Import Flow', () => {
-    test('should display event import UI with date range selectors', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should display event import UI with date range selectors', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       await page.goto('/dashboard/lessons/import');
       await page.waitForLoadState('networkidle');
@@ -272,8 +271,8 @@ test.describe('Google Calendar Integration', { tag: ['@integration', '@calendar'
       ).toBeTruthy();
     });
 
-    test('should show webhook control for real-time sync', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should show webhook control for real-time sync', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       await page.goto('/dashboard/lessons/import');
       await page.waitForLoadState('networkidle');
@@ -291,8 +290,8 @@ test.describe('Google Calendar Integration', { tag: ['@integration', '@calendar'
   });
 
   test.describe('Calendar Integration Status', () => {
-    test('should show integration status in dashboard', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should show integration status in dashboard', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       await page.goto('/dashboard');
       await page.waitForLoadState('networkidle');
@@ -305,8 +304,8 @@ test.describe('Google Calendar Integration', { tag: ['@integration', '@calendar'
       await expect(page).toHaveURL('/dashboard');
     });
 
-    test('should handle connection errors gracefully', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should handle connection errors gracefully', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       // Try to access import page and verify no crashes
       await page.goto('/dashboard/lessons/import');
@@ -330,8 +329,8 @@ test.describe('Google Calendar Integration', { tag: ['@integration', '@calendar'
   });
 
   test.describe('API Integration Verification', () => {
-    test('should make correct API calls when creating lesson', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should make correct API calls when creating lesson', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       // Track API requests
       const apiCalls: string[] = [];
@@ -348,8 +347,8 @@ test.describe('Google Calendar Integration', { tag: ['@integration', '@calendar'
       expect(apiCalls.length).toBeGreaterThan(0);
     });
 
-    test('should handle network errors during sync', async ({ page }) => {
-      await loginAsTeacher(page);
+    test('should handle network errors during sync', async ({ page, loginAs }) => {
+      await loginAs('teacher');
 
       // Simulate offline mode briefly
       await page.context().setOffline(true);

@@ -15,7 +15,7 @@ export const TEST_CREDENTIALS = {
     password: process.env.TEST_TEACHER_PASSWORD || 'test123_teacher',
   },
   student: {
-    email: process.env.TEST_STUDENT_EMAIL || 'student1@example.com',
+    email: process.env.TEST_STUDENT_EMAIL || 'student@example.com',
     password: process.env.TEST_STUDENT_PASSWORD || 'test123_student',
   },
 } as const;

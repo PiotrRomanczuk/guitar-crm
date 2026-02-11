@@ -1,5 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
-import { loginAsAdmin } from '../../helpers/auth';
+import { test, expect } from '../../fixtures';
+import { Page } from '@playwright/test';
 
 /**
  * Admin Song CRUD Test - Granular Steps
@@ -19,7 +19,7 @@ const testSong = {
 };
 
 test.describe('Admin Song CRUD', { tag: ['@admin', '@crud'] }, () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, loginAs, context }) => {
     // Clear browser state before each test
     await context.clearCookies();
     await context.clearPermissions();
@@ -28,7 +28,7 @@ test.describe('Admin Song CRUD', { tag: ['@admin', '@crud'] }, () => {
     await page.setViewportSize({ width: 1280, height: 720 });
 
     // Login as admin
-    await loginAsAdmin(page);
+    await loginAs('admin');
   });
 
   // ===========================================

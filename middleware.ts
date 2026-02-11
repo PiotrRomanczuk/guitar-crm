@@ -93,7 +93,7 @@ export async function middleware(request: NextRequest) {
       .from('profiles')
       .select('is_active')
       .eq('id', user.id)
-      .single();
+      .single() as { data: { is_active: boolean } | null };
 
     if (profile && profile.is_active === false) {
       log.info('Redirecting to sign-in (account deactivated)', { userId: user.id });

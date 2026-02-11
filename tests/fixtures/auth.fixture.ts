@@ -48,6 +48,18 @@ if (!fs.existsSync(authDir)) {
 }
 const getStoragePath = (role: Role) => path.join(authDir, `${role}.json`);
 
+// Track session age to avoid using very stale sessions
+const SESSION_MAX_AGE_MS = 30 * 60 * 1000; // 30 minutes
+
+function isSessionFresh(storagePath: string): boolean {
+  try {
+    const stats = fs.statSync(storagePath);
+    return Date.now() - stats.mtimeMs < SESSION_MAX_AGE_MS;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Perform login for a specific role and save session state
  */
@@ -55,7 +67,7 @@ async function performLogin(page: Page, role: Role): Promise<void> {
   const creds = credentials[role];
   const storagePath = getStoragePath(role);
 
-  // Navigate to sign-in page (use domcontentloaded to avoid slow Turbopack compilation waits)
+  // Navigate to sign-in page
   await page.goto('/sign-in', { waitUntil: 'domcontentloaded', timeout: 45000 });
 
   // Wait for form to be visible (handles isChecking state in sign-in page)
@@ -68,48 +80,64 @@ async function performLogin(page: Page, role: Role): Promise<void> {
   // Submit form using data-testid
   await page.click('[data-testid="signin-button"]');
 
-  // Wait for successful login redirect (longer timeout for first compilation of dashboard)
+  // Wait for successful login redirect
   await page.waitForURL(/\/dashboard/, { timeout: 60000, waitUntil: 'domcontentloaded' });
 
-  // Verify we're logged in by checking for main content (use first main element)
+  // Verify we're logged in by checking for main content
   await page.locator('main').first().waitFor({ state: 'visible', timeout: 30000 });
 
-  // Save authenticated state
+  // Save full authenticated state (cookies + localStorage + sessionStorage)
   await page.context().storageState({ path: storagePath });
 }
 
 export const test = base.extend<AuthFixtures>({
   /**
    * Login as a specific role with session caching
-   *
-   * @param role - The role to log in as (admin, teacher, student)
-   *
-   * @example
-   * test('should view dashboard', async ({ page, loginAs }) => {
-   *   await loginAs('teacher');
-   *   await page.goto('/dashboard');
-   * });
    */
   loginAs: async ({ page }, use) => {
     const loginFn = async (role: Role) => {
       const storagePath = getStoragePath(role);
 
-      // Try to use existing session
-      try {
-        await page.context().addCookies(
-          JSON.parse(require('fs').readFileSync(storagePath, 'utf-8')).cookies
-        );
+      // Only try reusing session if file exists and is fresh
+      if (fs.existsSync(storagePath) && isSessionFresh(storagePath)) {
+        try {
+          const storageState = JSON.parse(fs.readFileSync(storagePath, 'utf-8'));
 
-        // Verify session is still valid
-        await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 30000 });
-        const isLoggedIn = await page.locator('main').first().isVisible({ timeout: 10000 });
+          // Restore cookies
+          if (storageState.cookies?.length) {
+            await page.context().addCookies(storageState.cookies);
+          }
 
-        if (isLoggedIn) {
-          // Session is valid, reuse it
-          return;
+          // Restore localStorage
+          if (storageState.origins?.length) {
+            for (const origin of storageState.origins) {
+              if (origin.localStorage?.length) {
+                await page.goto(origin.origin, { waitUntil: 'domcontentloaded', timeout: 15000 });
+                for (const item of origin.localStorage) {
+                  await page.evaluate(
+                    ([key, value]) => localStorage.setItem(key, value),
+                    [item.name, item.value]
+                  );
+                }
+              }
+            }
+          }
+
+          // Verify session is still valid by navigating to dashboard
+          await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+          // Check we actually landed on dashboard (not redirected to sign-in)
+          const url = page.url();
+          if (url.includes('/dashboard')) {
+            const isLoggedIn = await page.locator('main').first().isVisible({ timeout: 10000 });
+            if (isLoggedIn) {
+              return; // Session is valid
+            }
+          }
+        } catch {
+          // Session restoration failed, delete stale file
+          try { fs.unlinkSync(storagePath); } catch { /* ignore */ }
         }
-      } catch {
-        // Session file doesn't exist or is invalid, perform fresh login
       }
 
       // Perform fresh login
@@ -121,11 +149,6 @@ export const test = base.extend<AuthFixtures>({
 
   /**
    * Logout from current session
-   *
-   * @example
-   * test('should logout', async ({ page, logout }) => {
-   *   await logout();
-   * });
    */
   logout: async ({ page }, use) => {
     const logoutFn = async () => {

@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
           id,
           due_date,
           status,
-          song:songs(title, artist)
+          song:songs(title, author)
         `
         )
         .eq('student_id', userId)
@@ -121,8 +121,8 @@ export async function GET(request: NextRequest) {
         dueDate: assignment.due_date,
         status: assignment.status,
         song: assignment.song
-          ? `${(assignment.song as { title: string; artist: string }).title} - ${
-              (assignment.song as { title: string; artist: string }).artist
+          ? `${(assignment.song as { title: string; author: string }).title} - ${
+              (assignment.song as { title: string; author: string }).author
             }`
           : 'Unknown',
       })),
