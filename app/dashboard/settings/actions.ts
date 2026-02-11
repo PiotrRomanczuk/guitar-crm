@@ -2,6 +2,7 @@
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { existsSync } from 'fs';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import path from 'path';
 
@@ -9,31 +10,37 @@ const execAsync = promisify(exec);
 
 export async function performDatabaseBackup() {
   try {
+    if (process.env.NODE_ENV === 'production') {
+      return { success: false, error: 'Database backup is only available in development' };
+    }
+
     const { isAdmin } = await getUserWithRolesSSR();
 
     if (!isAdmin) {
       return { success: false, error: 'Unauthorized: Only admins can perform backups' };
     }
 
-    // Path to the backup script
-    const scriptPath = path.join(process.cwd(), 'scripts', 'database', 'backup', 'full-backup.sh');
+    const scriptPath = path.join(process.cwd(), 'scripts', 'database', 'backup', 'backup-db.sh');
 
-    // Prepare environment variables, removing potentially problematic ones injected by VS Code extensions
+    if (!existsSync(scriptPath)) {
+      return { success: false, error: 'Backup script not found' };
+    }
+
     const env = { ...process.env };
     delete env.LD_PRELOAD;
     delete env.NODE_OPTIONS;
 
-    // Execute the script using bash directly to avoid permission issues
-    // and pass the sanitized environment
-    const { stdout, stderr } = await execAsync(`bash "${scriptPath}"`, { env });
+    const { stderr } = await execAsync(`bash "${scriptPath}"`, {
+      env,
+      timeout: 60_000,
+    });
 
-    console.log('Backup stdout:', stdout);
-    if (stderr) console.error('Backup stderr:', stderr);
+    if (stderr) {
+      console.error('[backup] stderr output during backup');
+    }
 
     return { success: true, message: 'Backup completed successfully' };
-  } catch (error: unknown) {
-    console.error('Backup failed:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Backup failed';
-    return { success: false, error: errorMessage };
+  } catch {
+    return { success: false, error: 'Backup failed. Check server logs for details.' };
   }
 }
