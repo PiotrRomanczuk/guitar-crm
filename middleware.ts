@@ -95,7 +95,8 @@ export async function middleware(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    if (profile && profile.is_active === false) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (profile && (profile as any).is_active === false) {
       log.info('Redirecting to sign-in (account deactivated)', { userId: user.id });
       await supabase.auth.signOut();
       const url = request.nextUrl.clone();

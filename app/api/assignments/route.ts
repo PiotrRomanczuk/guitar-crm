@@ -80,10 +80,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       assignments: result.assignments,
-      total: result.total,
-      page: result.page,
-      limit: result.limit,
-      hasMore: result.hasMore,
     }, { status: 200 });
   } catch (error) {
     console.error('Error in GET /api/assignments:', error);
