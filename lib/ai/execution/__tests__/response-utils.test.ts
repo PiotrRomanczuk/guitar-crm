@@ -71,7 +71,7 @@ describe('extractAgentResult', () => {
   });
 
   it('should throw with default message when error has no message', () => {
-    const response = { ...makeErrorResponse(), error: { code: 'UNKNOWN' } };
+    const response = { ...makeErrorResponse(), error: { code: 'UNKNOWN', message: '' } };
     expect(() => extractAgentResult(response)).toThrow('Agent execution failed');
   });
 });

@@ -8,6 +8,7 @@ import { executeAgent } from '@/lib/ai/registry';
 import { mapToOllamaModel } from '@/lib/ai/model-mappings';
 import { requireAIAuth, AIAuthError } from '@/lib/ai/auth';
 import { checkRateLimit } from '@/lib/ai/rate-limiter';
+import { createClient } from '@/lib/supabase/server';
 import type { AIGenerationType } from '@/types/ai-generation';
 
 /**
@@ -23,7 +24,7 @@ function handleAuthError(error: unknown): string {
 /**
  * Enforce rate limits for a given user and agent.
  */
-async function enforceRateLimit(user: { id: string; role: string }, agentId: string) {
+async function enforceRateLimit(user: { id: string; role: 'admin' | 'teacher' | 'student' | 'anonymous' }, agentId: string) {
   const result = await checkRateLimit(user.id, user.role, agentId);
   if (!result.allowed) {
     throw new Error(`Rate limit exceeded. Please try again in ${result.retryAfter} seconds.`);
@@ -123,12 +124,12 @@ async function* executeAgentStream(
           generationType,
           agentId,
           inputParams: input,
-          outputContent: result.error,
+          outputContent: result.error.message,
           isSuccessful: false,
-          errorMessage: result.error,
+          errorMessage: result.error.message,
         });
       }
-      yield `Error: ${result.error}`;
+      yield `Error: ${result.error.message}`;
       return;
     }
 
@@ -449,7 +450,7 @@ export async function generateLessonNotes(params: {
       return { success: false, notes: '', error: err };
     }
 
-    const result = extractAgentResult(response);
+    const result = extractAgentResult(response) as any;
     const notes = result.content || result;
 
     saveAIGeneration({
@@ -527,7 +528,7 @@ export async function generateAssignment(params: {
       return { success: false, assignment: '', error: err };
     }
 
-    const result = extractAgentResult(response);
+    const result = extractAgentResult(response) as any;
     const assignment = result.content || result;
 
     saveAIGeneration({
@@ -608,7 +609,7 @@ export async function generateEmailDraft(params: {
       return { success: false, subject: '', body: '', error: err };
     }
 
-    const result = extractAgentResult(response);
+    const result = extractAgentResult(response) as any;
 
     // Parse the AI response to extract subject and body
     const content = result.content || result;
@@ -703,7 +704,7 @@ export async function generatePostLessonSummary(params: {
       return { success: false, summary: '', error: err };
     }
 
-    const result = extractAgentResult(response);
+    const result = extractAgentResult(response) as any;
     const summary = result.content || result;
 
     saveAIGeneration({
@@ -778,7 +779,7 @@ export async function analyzeStudentProgress(params: {
       return { success: false, insights: '', error: err };
     }
 
-    const result = extractAgentResult(response);
+    const result = extractAgentResult(response) as any;
     const insights = result.content || result;
 
     saveAIGeneration({
@@ -852,7 +853,7 @@ export async function generateAdminInsights(params: {
       return { success: false, insights: '', error: err };
     }
 
-    const result = extractAgentResult(response);
+    const result = extractAgentResult(response) as any;
     const insights = result.content || result;
 
     saveAIGeneration({
