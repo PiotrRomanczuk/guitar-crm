@@ -137,7 +137,7 @@ export function SongResourceLinks({ song }: Props) {
             {song.audio_files && (
               <Button variant="outline" asChild className="h-12">
                 <a
-                  href={song.audio_files}
+                  href={Object.values(song.audio_files)[0] ?? '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2"
