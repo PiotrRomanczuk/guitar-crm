@@ -14,7 +14,15 @@ export async function middleware(request: NextRequest) {
       .join(', '),
   });
 
-  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseConfig();
+  let supabaseUrl: string | undefined;
+  let supabaseAnonKey: string | undefined;
+  try {
+    const config = getSupabaseConfig();
+    supabaseUrl = config.url;
+    supabaseAnonKey = config.anonKey;
+  } catch {
+    // Config missing — let the request through without auth checks
+  }
 
   // Skip middleware if Supabase is not configured
   if (!supabaseUrl || !supabaseAnonKey) {
