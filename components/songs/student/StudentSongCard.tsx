@@ -191,7 +191,7 @@ export function StudentSongCard({ song, onStatusChange, isUpdating }: StudentSon
               )}
               {song.audio_files && (
                 <a
-                  href={song.audio_files}
+                  href={Object.values(song.audio_files)[0] ?? '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
