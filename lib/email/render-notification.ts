@@ -7,7 +7,7 @@
 
 import type { NotificationType } from '@/types/notifications';
 import { generateLessonReminderHtml } from './templates/lesson-reminder';
-import { generateLessonRecapHtml } from './templates/lesson-recap';
+import { generateLessonRecapHtml, type LessonEmailData } from './templates/lesson-recap';
 import { generateLessonCancellationHtml } from './templates/lesson-cancellation';
 import { generateLessonRescheduledHtml } from './templates/lesson-rescheduled-notification';
 import { generateAssignmentDueReminderHtml } from './templates/assignment-due-reminder';
@@ -38,30 +38,28 @@ function renderLessonTemplate(
     case 'lesson_recap':
       return generateLessonRecapHtml({
         studentName: (d.studentName as string) || name,
-        teacherName: (d.teacherName as string) || '',
         lessonDate: (d.lessonDate as string) || '',
         lessonTitle: (d.lessonTitle as string) || 'Your Recent Lesson',
-        songsCovered: (d.songsCovered as string[]) || [],
-        teacherNotes: (d.teacherNotes as string) || '',
-        nextLessonDate: d.nextLessonDate as string | undefined,
-        assignments: d.assignments as string[] | undefined,
+        notes: (d.notes as string) || null,
+        songs: d.songs as LessonEmailData['songs'],
       });
     case 'lesson_cancelled':
       return generateLessonCancellationHtml({
         studentName: (d.studentName as string) || name,
+        teacherName: (d.teacherName as string) || '',
         lessonDate: (d.lessonDate as string) || '',
         lessonTime: (d.lessonTime as string) || '',
         reason: d.reason as string | undefined,
-        rescheduleUrl: d.rescheduleUrl as string | undefined,
+        rescheduleLink: d.rescheduleLink as string | undefined,
       });
     case 'lesson_rescheduled':
       return generateLessonRescheduledHtml({
         studentName: (d.studentName as string) || name,
-        originalDate: (d.originalDate as string) || '',
-        originalTime: (d.originalTime as string) || '',
+        teacherName: (d.teacherName as string) || '',
+        oldDate: (d.oldDate as string) || '',
+        oldTime: (d.oldTime as string) || '',
         newDate: (d.newDate as string) || '',
         newTime: (d.newTime as string) || '',
-        reason: d.reason as string | undefined,
       });
     default:
       return null;
@@ -79,8 +77,8 @@ function renderStudentTemplate(
         studentName: (d.studentName as string) || name,
         assignmentTitle: (d.assignmentTitle as string) || '',
         dueDate: (d.dueDate as string) || '',
-        songTitle: d.songTitle as string | undefined,
-        description: d.description as string | undefined,
+        assignmentDescription: d.assignmentDescription as string | undefined,
+        assignmentLink: (d.assignmentLink as string) || '',
       });
     case 'assignment_overdue_alert':
       return generateAssignmentOverdueAlertHtml({
@@ -88,34 +86,33 @@ function renderStudentTemplate(
         assignmentTitle: (d.assignmentTitle as string) || '',
         dueDate: (d.dueDate as string) || '',
         daysOverdue: (d.daysOverdue as number) || 0,
-        songTitle: d.songTitle as string | undefined,
+        assignmentLink: (d.assignmentLink as string) || '',
       });
     case 'song_mastery_achievement':
       return generateSongMasteryAchievementHtml({
         studentName: (d.studentName as string) || name,
         songTitle: (d.songTitle as string) || '',
         songArtist: (d.songArtist as string) || '',
-        masteryDate: (d.masteryDate as string) || '',
-        practiceSessionCount: d.practiceSessionCount as number | undefined,
-        totalPracticeMinutes: d.totalPracticeMinutes as number | undefined,
+        masteredDate: (d.masteredDate as string) || '',
+        totalSongsMastered: (d.totalSongsMastered as number) || 0,
       });
     case 'student_welcome':
       return generateStudentWelcomeHtml({
         studentName: (d.studentName as string) || name,
         teacherName: (d.teacherName as string) || '',
+        loginLink: (d.loginLink as string) || '',
         firstLessonDate: d.firstLessonDate as string | undefined,
-        loginUrl: d.loginUrl as string | undefined,
       });
     case 'weekly_progress_digest':
       return generateWeeklyProgressDigestHtml({
-        studentName: (d.studentName as string) || name,
-        weekStartDate: (d.weekStartDate as string) || '',
-        weekEndDate: (d.weekEndDate as string) || '',
+        recipientName: (d.recipientName as string) || name,
+        weekStart: (d.weekStart as string) || '',
+        weekEnd: (d.weekEnd as string) || '',
         lessonsCompleted: (d.lessonsCompleted as number) || 0,
-        practiceMinutes: (d.practiceMinutes as number) || 0,
-        songsProgressed: (d.songsProgressed as number) || 0,
-        highlights: d.highlights as string[] | undefined,
-        teacherMessage: d.teacherMessage as string | undefined,
+        songsMastered: (d.songsMastered as number) || 0,
+        practiceTime: (d.practiceTime as number) || 0,
+        highlights: (d.highlights as string[]) || [],
+        upcomingLessons: (d.upcomingLessons as Array<{ date: string; title: string }>) || [],
       });
     default:
       return null;
@@ -131,10 +128,10 @@ function renderTeacherTemplate(
   return generateTeacherDailySummaryHtml({
     teacherName: (d.teacherName as string) || name,
     date: (d.date as string) || '',
-    lessonsToday: (d.lessonsToday as number) || 0,
-    studentsCount: (d.studentsCount as number) || 0,
-    lessons: (d.lessons as Array<{ studentName: string; time: string; status: string }>) || [],
-    upcomingAssignments: d.upcomingAssignments as Array<{ studentName: string; title: string; dueDate: string }> | undefined,
+    upcomingLessons: (d.upcomingLessons as Array<{ studentName: string; time: string; title: string }>) || [],
+    completedLessons: (d.completedLessons as number) || 0,
+    pendingAssignments: (d.pendingAssignments as number) || 0,
+    recentAchievements: (d.recentAchievements as Array<{ studentName: string; achievement: string }>) || [],
   });
 }
 
