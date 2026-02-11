@@ -28,10 +28,13 @@ export interface ApiResponse<T = unknown> {
  * based on the current environment configuration.
  */
 export class DatabaseRouter {
-  private endpoint: DatabaseEndpoint;
+  private endpoint: DatabaseEndpoint | null = null;
 
-  constructor() {
-    this.endpoint = this.getActiveEndpoint();
+  private getOrInitEndpoint(): DatabaseEndpoint {
+    if (!this.endpoint) {
+      this.endpoint = this.getActiveEndpoint();
+    }
+    return this.endpoint;
   }
 
   /**
@@ -76,19 +79,21 @@ export class DatabaseRouter {
   async executeRequest<T = unknown>(options: HttpRequestOptions): Promise<ApiResponse<T>> {
     const { method, path, body, headers = {}, params = {} } = options;
 
+    const endpoint = this.getOrInitEndpoint();
+
     // Build URL with query parameters
-    const url = new URL(`${this.endpoint.baseUrl}${path}`);
+    const url = new URL(`${endpoint.baseUrl}${path}`);
     Object.entries(params).forEach(([key, value]) => {
       url.searchParams.append(key, value);
     });
 
     // Merge headers
     const requestHeaders = {
-      ...this.endpoint.headers,
+      ...endpoint.headers,
       ...headers,
     };
 
-    const logPrefix = this.endpoint.isLocal ? '🏠 [LOCAL-API]' : '☁️  [REMOTE-API]';
+    const logPrefix = endpoint.isLocal ? '🏠 [LOCAL-API]' : '☁️  [REMOTE-API]';
     console.log(`${logPrefix} ${method} ${path}`, { params, hasBody: !!body });
 
     try {
@@ -109,7 +114,7 @@ export class DatabaseRouter {
         data,
         error: response.ok ? null : new Error(`HTTP ${response.status}: ${response.statusText}`),
         status: response.status,
-        isLocal: this.endpoint.isLocal,
+        isLocal: endpoint.isLocal,
       };
 
       if (!response.ok) {
@@ -128,7 +133,7 @@ export class DatabaseRouter {
         data: null as T,
         error: error as Error,
         status: 0,
-        isLocal: this.endpoint.isLocal,
+        isLocal: endpoint.isLocal,
       };
     }
   }
@@ -184,9 +189,10 @@ export class DatabaseRouter {
    * Get information about the current endpoint
    */
   getEndpointInfo(): { baseUrl: string; isLocal: boolean } {
+    const endpoint = this.getOrInitEndpoint();
     return {
-      baseUrl: this.endpoint.baseUrl,
-      isLocal: this.endpoint.isLocal,
+      baseUrl: endpoint.baseUrl,
+      isLocal: endpoint.isLocal,
     };
   }
 
