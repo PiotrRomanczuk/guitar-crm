@@ -7,7 +7,6 @@ import { Database } from '@/database.types';
 import { sendLessonCompletedEmail } from '@/lib/email/send-lesson-email';
 
 export async function sendLessonSummaryEmail(lessonId: string) {
-  console.log(`[sendLessonSummaryEmail] Starting for lessonId: ${lessonId}`);
   const supabase = await createClient();
 
   try {
@@ -57,7 +56,6 @@ export async function sendLessonSummaryEmail(lessonId: string) {
       notes: ls.notes,
     })) || [];
 
-    console.log(`[sendLessonSummaryEmail] Sending email to ${studentEmail}`);
     const emailResult = await sendLessonCompletedEmail({
       studentEmail,
       studentName,
@@ -78,7 +76,6 @@ export async function sendLessonSummaryEmail(lessonId: string) {
         return { success: false, error: errorMessage };
     }
 
-    console.log('[sendLessonSummaryEmail] Email sent successfully');
     return { success: true };
   } catch (error) {
     console.error('[sendLessonSummaryEmail] Exception:', error);

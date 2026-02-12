@@ -43,16 +43,6 @@ export async function completeOnboarding(onboardingData: OnboardingData) {
       return { error: 'Failed to update profile' };
     }
 
-    // 2. Store onboarding preferences (if you have a separate table for this)
-    // For now, we'll log them - you can create a user_preferences table later
-    console.log('User onboarding preferences:', {
-      userId: user.id,
-      goals: onboardingData.goals,
-      skillLevel: onboardingData.skillLevel,
-      learningStyle: onboardingData.learningStyle,
-      instrumentPreference: onboardingData.instrumentPreference,
-    });
-
     // TODO: Store in user_preferences table
     // await adminClient.from('user_preferences').insert({
     //   user_id: user.id,

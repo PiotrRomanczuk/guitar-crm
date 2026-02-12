@@ -21,12 +21,9 @@ const checkLocalSupabase = async (): Promise<boolean> => {
 };
 
 const nextConfig = async (): Promise<NextConfig> => {
-  console.log('🔍 [NextConfig] Checking environment...');
-
   // Only run this check in development
   if (process.env.NODE_ENV === 'development') {
     const isLocalSupabaseRunning = await checkLocalSupabase();
-    console.log(`🔍 [NextConfig] Local Supabase running: ${isLocalSupabaseRunning}`);
 
     if (!isLocalSupabaseRunning && process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL) {
       console.warn('\n⚠️  Local Supabase not detected on port 54321.');
@@ -42,7 +39,7 @@ const nextConfig = async (): Promise<NextConfig> => {
         delete process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL;
       }
     } else if (isLocalSupabaseRunning) {
-      console.log('\n✅ Local Supabase detected on port 54321.\n');
+      // Local Supabase detected
     }
   }
 

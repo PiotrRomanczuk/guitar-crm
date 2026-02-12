@@ -65,7 +65,7 @@ async function sendAdminEmail(
       html: htmlContent,
     });
 
-    console.log(`Admin email sent: ${subject}`);
+    // Email sent successfully
   } catch (error) {
     console.error('Failed to send admin email:', error);
     throw error;

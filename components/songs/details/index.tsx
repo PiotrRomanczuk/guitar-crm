@@ -17,8 +17,6 @@ interface Props {
 
 async function loadSongData(songId: string): Promise<Song | null> {
   try {
-    console.log('[SongDetail Server] Loading song directly from Supabase:', songId);
-
     const supabase = await createClient();
 
     const { data, error } = await supabase
@@ -34,11 +32,9 @@ async function loadSongData(songId: string): Promise<Song | null> {
     }
 
     if (!data) {
-      console.log('[SongDetail Server] Song not found:', songId);
       return null;
     }
 
-    console.log('[SongDetail Server] Song loaded:', data.id, data.title);
     return data as Song;
   } catch (err) {
     console.error('[SongDetail Server] Exception:', err);
@@ -47,11 +43,7 @@ async function loadSongData(songId: string): Promise<Song | null> {
 }
 
 export default async function SongDetail({ songId, isAdmin = false, isTeacher = false }: Props) {
-  console.log('[SongDetail Server Component] Rendering songId:', songId);
-
   const song = await loadSongData(songId);
-
-  console.log('[SongDetail Server Component] Got song data:', !!song);
 
   if (!song) {
     return (
