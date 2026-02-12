@@ -19,6 +19,7 @@ import {
   logNotificationQueued,
   logNotificationSkipped,
   logError,
+  logInfo,
 } from '@/lib/logging/notification-logger';
 import type {
   NotificationType,
@@ -369,6 +370,58 @@ export async function checkUserPreference(
   }
 }
 
+
+// ============================================================================
+// QUEUE MANAGEMENT FUNCTIONS
+// ============================================================================
+
+/**
+ * Cancel pending queue entries for a specific entity.
+ * Used to prevent duplicate sends when a notification is sent manually.
+ */
+export async function cancelPendingQueueEntries(
+  entityType: string,
+  entityId: string,
+  notificationType: NotificationType
+): Promise<number> {
+  try {
+    const supabase = createAdminClient();
+
+    const { data, error } = await supabase
+      .from('notification_queue')
+      .update({
+        status: 'cancelled',
+        processed_at: new Date().toISOString(),
+      })
+      .eq('entity_type', entityType)
+      .eq('entity_id', entityId)
+      .eq('notification_type', notificationType)
+      .eq('status', 'pending')
+      .select('id');
+
+    if (error) {
+      logError(
+        'Failed to cancel pending queue entries',
+        error instanceof Error ? error : new Error(error.message),
+        { entity_type: entityType, entity_id: entityId, notification_type: notificationType }
+      );
+      return 0;
+    }
+
+    const count = data?.length ?? 0;
+    if (count > 0) {
+      logInfo(`Cancelled ${count} pending queue entries for ${notificationType} on ${entityType}:${entityId}`);
+    }
+    return count;
+  } catch (error) {
+    logError(
+      'cancelPendingQueueEntries error',
+      error instanceof Error ? error : new Error('Unknown error'),
+      { entity_type: entityType, entity_id: entityId, notification_type: notificationType }
+    );
+    return 0;
+  }
+}
 
 // ============================================================================
 // HELPER FUNCTIONS

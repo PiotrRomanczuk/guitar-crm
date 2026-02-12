@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { Database } from '@/database.types';
 
-import { sendLessonCompletedEmail } from '@/lib/email/send-lesson-email';
+import { sendNotification, cancelPendingQueueEntries } from '@/lib/services/notification-service';
 
 export async function sendLessonSummaryEmail(lessonId: string) {
   console.log(`[sendLessonSummaryEmail] Starting for lessonId: ${lessonId}`);
@@ -16,14 +16,17 @@ export async function sendLessonSummaryEmail(lessonId: string) {
       .select(`
         *,
         student:profiles!lessons_student_id_fkey (
+          id,
           email,
+          full_name
+        ),
+        teacher:profiles!lessons_teacher_id_fkey (
           full_name
         ),
         lesson_songs (
           notes,
           status,
           song:songs (
-            id,
             title,
             author
           )
@@ -41,44 +44,39 @@ export async function sendLessonSummaryEmail(lessonId: string) {
       return { success: false, error: 'Lesson or student not found' };
     }
 
-    const studentEmail = lesson.student.email;
-    const studentName = lesson.student.full_name || 'Student';
-
-    if (!studentEmail) {
-      return { success: false, error: 'Student has no email address' };
-    }
-
     // @ts-expect-error - Supabase types are complex with joins
     const songs = lesson.lesson_songs?.map((ls) => ({
-      id: ls.song?.id,
       title: ls.song?.title || 'Unknown Song',
       artist: ls.song?.author || 'Unknown Artist',
       status: ls.status,
-      notes: ls.notes,
     })) || [];
 
-    console.log(`[sendLessonSummaryEmail] Sending email to ${studentEmail}`);
-    const emailResult = await sendLessonCompletedEmail({
-      studentEmail,
-      studentName,
-      lessonDate: new Date(lesson.scheduled_at).toLocaleDateString(),
-      lessonTitle: lesson.title,
-      notes: lesson.notes,
-      songs,
+    const result = await sendNotification({
+      type: 'lesson_recap',
+      recipientUserId: lesson.student_id,
+      templateData: {
+        studentName: lesson.student.full_name || 'Student',
+        teacherName: lesson.teacher?.full_name || 'Your Teacher',
+        lessonDate: new Date(lesson.scheduled_at).toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric',
+        }),
+        lessonTitle: lesson.title || 'Guitar Lesson',
+        songs,
+        notes: lesson.notes || '',
+      },
+      entityType: 'lesson',
+      entityId: lessonId,
     });
 
-    if (!emailResult) {
-      console.error('[sendLessonSummaryEmail] Email sending failed: No result returned (API Key missing or Exception)');
-      return { success: false, error: 'Email configuration missing or service unavailable' };
+    if (!result.success) {
+      console.error('[sendLessonSummaryEmail] Notification service failed:', result.error);
+      return { success: false, error: result.error || 'Failed to send email' };
     }
 
-    if (emailResult.error) {
-        console.error('[sendLessonSummaryEmail] Email sending failed:', emailResult.error);
-        const errorMessage = (emailResult.error as { message?: string }).message || 'Failed to send email via provider';
-        return { success: false, error: errorMessage };
-    }
+    // Cancel any pending queued recap for this lesson (from DB trigger)
+    await cancelPendingQueueEntries('lesson', lessonId, 'lesson_recap');
 
-    console.log('[sendLessonSummaryEmail] Email sent successfully');
+    console.log('[sendLessonSummaryEmail] Email sent successfully via notification service');
     return { success: true };
   } catch (error) {
     console.error('[sendLessonSummaryEmail] Exception:', error);

@@ -1,6 +1,5 @@
 // Pure functions for lesson API business logic - testable without Next.js dependencies
 import { LessonInputSchema } from '../../../schemas/LessonSchema';
-import { sendLessonCompletedEmail } from '../../../lib/email/send-lesson-email';
 import { ZodError } from 'zod';
 import {
   transformLessonData,
@@ -320,76 +319,6 @@ export async function createLessonHandler(
 
 import { handleLessonSongsUpdate } from './utils';
 
-async function handleLessonCompletionEmail(supabase: SupabaseClient, lessonId: string) {
-  try {
-    const { data: lesson, error } = await supabase
-      .from('lessons')
-      .select(
-        `
-        *,
-        student:profiles!lessons_student_id_fkey (
-          email,
-          full_name
-        ),
-        lesson_songs (
-          notes,
-          status,
-          song:songs (
-            title,
-            author
-          )
-        )
-      `
-      )
-      .eq('id', lessonId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching lesson details for email:', error);
-      return;
-    }
-
-    if (!lesson || !lesson.student) {
-      console.error('Lesson or student not found for email');
-      return;
-    }
-
-    const studentEmail = lesson.student.email;
-    const studentName = lesson.student.full_name || 'Student';
-
-    if (!studentEmail) {
-      console.warn('Student has no email, skipping notification');
-      return;
-    }
-
-    const songs =
-      lesson.lesson_songs?.map((ls: unknown) => {
-        const lessonSong = ls as {
-          song?: { title?: string; author?: string };
-          status?: string;
-          notes?: string;
-        };
-        return {
-          title: lessonSong.song?.title || 'Unknown Song',
-          artist: lessonSong.song?.author || 'Unknown Artist',
-          status: lessonSong.status,
-          notes: lessonSong.notes,
-        };
-      }) || [];
-
-    await sendLessonCompletedEmail({
-      studentEmail,
-      studentName,
-      lessonDate: new Date(lesson.scheduled_at).toLocaleDateString(),
-      lessonTitle: lesson.title,
-      notes: lesson.notes,
-      songs,
-    });
-  } catch (err) {
-    console.error('Error in handleLessonCompletionEmail:', err);
-  }
-}
-
 export async function updateLessonHandler(
   supabase: SupabaseClient,
   user: { id: string } | null,
@@ -461,11 +390,8 @@ export async function updateLessonHandler(
       });
     }
 
-    // Check if status changed to COMPLETED and send email
-    if (dbData.status === 'COMPLETED') {
-      // Await to ensure email is sent before function terminates (important for serverless)
-      await handleLessonCompletionEmail(supabase, id);
-    }
+    // Lesson recap email is handled by DB trigger (tr_notify_lesson_completed)
+    // which queues it with a 30-minute delay for deduplication with manual sends
 
     return { lesson: data, status: 200 };
   } catch (error) {
