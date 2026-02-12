@@ -65,8 +65,10 @@ export function useNotifications(userId?: string, options: UseNotificationsOptio
     if (!userId) return;
 
     try {
+      // Type assertion needed because in_app_notifications table doesn't exist in remote DB types yet
+      type InAppNotificationRow = typeof supabase extends { from: (table: infer _T) => unknown } ? unknown : never;
       let query = supabase
-        .from('in_app_notifications' as any)
+        .from('in_app_notifications' as unknown as InAppNotificationRow)
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
@@ -83,8 +85,8 @@ export function useNotifications(userId?: string, options: UseNotificationsOptio
         setNotifications([]);
         setUnreadCount(0);
       } else {
-        setNotifications((data as any) || []);
-        setUnreadCount(((data as any)?.filter((n: any) => !n.is_read).length) || 0);
+        setNotifications((data as unknown as InAppNotification[]) || []);
+        setUnreadCount((data as unknown as InAppNotification[])?.filter((n) => !n.is_read).length || 0);
       }
     } catch (error) {
       console.error('[useNotifications] Fetch exception:', error);
