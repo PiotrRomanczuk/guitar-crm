@@ -23,7 +23,7 @@ import Image from 'next/image';
 interface Song {
   id: string;
   title: string;
-  artist: string | null;
+  author: string | null;
   cover_image_url: string | null;
   spotify_link_url: string | null;
 }
@@ -62,7 +62,7 @@ export function SongSelectionDrawer({ open, onClose, onConfirm }: SongSelectionD
       const supabase = createClient();
       let query = supabase
         .from('songs')
-        .select('id, title, artist, cover_image_url, spotify_link_url')
+        .select('id, title, author, cover_image_url, spotify_link_url')
         .is('deleted_at', null)
         .order('title');
 
@@ -89,7 +89,7 @@ export function SongSelectionDrawer({ open, onClose, onConfirm }: SongSelectionD
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (song) =>
-          song.title.toLowerCase().includes(query) || song.artist?.toLowerCase().includes(query)
+          song.title.toLowerCase().includes(query) || song.author?.toLowerCase().includes(query)
       );
     }
 
@@ -213,7 +213,7 @@ export function SongSelectionDrawer({ open, onClose, onConfirm }: SongSelectionD
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate">{song.title}</div>
                       <div className="text-sm text-muted-foreground truncate">
-                        {song.artist || 'Unknown Artist'}
+                        {song.author || 'Unknown Artist'}
                       </div>
                     </div>
 
