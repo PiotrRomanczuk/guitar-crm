@@ -1,7 +1,7 @@
 ---
 allowed-tools: Read, Edit, Write, Bash, Glob, Grep
 argument-hint: [--patch|--minor|--major] [--skip-linear] [--dry-run]
-description: Full ship workflow — validate branch & changes, run tests, bump version, update Linear, push, and create PR
+description: Full ship workflow — validate branch & changes, run tests, update Linear, push, and create PR (version bumped automatically post-merge)
 ---
 
 # Ship Workflow
@@ -10,7 +10,7 @@ Execute the complete shipping workflow for the current branch: **$ARGUMENTS**
 
 ## Workflow Overview
 
-This is the **full end-to-end release workflow**. It validates the branch and its changes, runs unit tests, bumps the version, updates Linear, pushes (lint + tsc run automatically on push via hooks), and creates a PR — all in one command.
+This is the **full end-to-end release workflow**. It validates the branch and its changes, runs unit tests, updates Linear, pushes (lint + tsc run automatically on push via hooks), and creates a PR — all in one command. Version bumping happens automatically after the PR is merged to `main` via a GitHub Action.
 
 **IMPORTANT**: Execute each phase sequentially. **Stop immediately** if any phase fails and report the failure clearly to the user. Do NOT proceed past a failed gate.
 
@@ -113,38 +113,25 @@ Quality gates:
 
 ---
 
-## Phase 5: Version Bump
+## Phase 5: Version Bump (Automated Post-Merge)
 
-### Auto-detect bump type from branch prefix (unless overridden via $ARGUMENTS):
+Version bumping is handled **automatically** by a GitHub Action that runs after the PR is merged to `main`. No manual `npm version` is needed during `/ship`.
 
-| Branch prefix | Bump type | Example |
-|---|---|---|
-| `feature/` | minor | 0.65.0 → 0.66.0 |
-| `feat/` | minor | 0.65.0 → 0.66.0 |
-| `fix/` | patch | 0.65.0 → 0.65.1 |
-| `refactor/` | patch | 0.65.0 → 0.65.1 |
-| `test/` | patch | 0.65.0 → 0.65.1 |
-| `chore/` | patch | 0.65.0 → 0.65.1 |
-| `docs/` | patch | 0.65.0 → 0.65.1 |
-| `perf/` | patch | 0.65.0 → 0.65.1 |
+### How it works:
+- The `version-bump.yml` workflow triggers on push to `main`
+- It extracts the PR number from the squash-merge commit, reads the source branch name, and determines the bump type
+- Bump type logic: `feature/`|`feat/` → minor, everything else → patch
+- Override with PR labels: `version:major`, `version:minor`, `version:patch`
+- A concurrency group ensures sequential execution when multiple PRs merge close together
 
-### Override via arguments:
-- `--patch` → force patch bump
-- `--minor` → force minor bump
-- `--major` → force major bump
-
-### Execute:
-1. Read current version from `package.json`
-2. Run `npm version {type} --no-git-tag-version` to bump without creating a git tag
-3. Read the new version
-4. Stage `package.json` and `package-lock.json`
-5. Commit: `chore: bump version {old} → {new} [STRUM-XXX]`
+### What to display:
+1. Detect the bump type from the branch prefix (same rules as above)
+2. Print the expected bump type for visibility — **do not run `npm version`**
 
 ```
 Version bump:
   Type:   minor (auto-detected from feature/ branch)
-  Before: 0.65.0
-  After:  0.66.0
+  Action: will be applied automatically after merge to main
 ```
 
 ---
@@ -199,7 +186,7 @@ Closes STRUM-XXX
 
 ## Quality Gates
 - [x] Unit tests passing
-- [x] Version bumped: {old} → {new}
+- [x] Version bump: auto ({type} from branch prefix, applied post-merge)
 - [x] Lint + TSC checked on push (hooks)
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
@@ -221,7 +208,7 @@ EOF
 ```
 Ship complete!
   Branch:   feature/STRUM-123-add-lesson-reminders
-  Version:  0.65.0 → 0.66.0
+  Version:  auto-bump on merge (minor)
   PR:       https://github.com/...
   Linear:   STRUM-123 → In Review
 

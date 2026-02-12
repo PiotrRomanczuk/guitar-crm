@@ -97,7 +97,7 @@ export async function syncLessonCreation(
       .update({ google_event_id: eventId })
       .eq('id', lessonData.id);
 
-    console.log(`✓ Lesson synced to Google Calendar: ${eventId}`);
+    // Lesson synced to Google Calendar
   } catch (error) {
     // Log error but don't fail the lesson creation
     console.error('Failed to sync lesson to Google Calendar:', error);
@@ -140,7 +140,7 @@ export async function syncLessonUpdate(
       }
     );
 
-    console.log(`✓ Lesson updated in Google Calendar: ${lessonData.google_event_id}`);
+    // Lesson updated in Google Calendar
   } catch (error) {
     // Log error but don't fail the lesson update
     console.error('Failed to update Google Calendar event:', error);
@@ -180,7 +180,7 @@ export async function syncLessonDeletion(
     // Delete Google Calendar event
     await deleteGoogleCalendarEvent(lesson.teacher_id, lesson.google_event_id);
 
-    console.log(`✓ Lesson deleted from Google Calendar: ${lesson.google_event_id}`);
+    // Lesson deleted from Google Calendar
   } catch (error) {
     // Log error but don't fail the lesson deletion
     console.error('Failed to delete Google Calendar event:', error);

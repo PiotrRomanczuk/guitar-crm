@@ -9,27 +9,15 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { renewExpiringWebhooks, cleanupExpiredWebhooks } from '@/lib/services/webhook-renewal';
+import { verifyCronSecret } from '@/lib/auth/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  // Verify cron secret for security
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-
-  if (!cronSecret) {
-    console.error('CRON_SECRET not configured');
-    return NextResponse.json({ error: 'Cron not configured' }, { status: 500 });
-  }
-
-  if (authHeader !== `Bearer ${cronSecret}`) {
-    console.error('Unauthorized cron request');
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const authError = verifyCronSecret(request);
+  if (authError) return authError;
 
   try {
-    console.log('🔄 Cron job started: webhook renewal');
-
     // Renew expiring webhooks
     const renewalSummary = await renewExpiringWebhooks();
 
@@ -48,8 +36,6 @@ export async function GET(request: NextRequest) {
         deleted: cleanedUp,
       },
     };
-
-    console.log('✓ Cron job completed:', response);
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {

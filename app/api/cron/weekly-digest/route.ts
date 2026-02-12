@@ -10,19 +10,15 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { queueNotification } from '@/lib/services/notification-service';
+import { verifyCronSecret } from '@/lib/auth/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-  // Verify the request is from Vercel Cron
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
+  const authError = verifyCronSecret(request);
+  if (authError) return authError;
 
   try {
-    console.log('[Cron] Starting weekly digest generation...');
-
     const supabase = createAdminClient();
 
     // Get all students who have weekly digest enabled
@@ -50,15 +46,12 @@ export async function GET(request: Request) {
     }
 
     if (!preferences || preferences.length === 0) {
-      console.log('[Cron] No students opted in for weekly digest.');
       return NextResponse.json({
         success: true,
         message: 'No recipients for weekly digest',
         count: 0,
       });
     }
-
-    console.log(`[Cron] Found ${preferences.length} student(s) for weekly digest`);
 
     // Calculate week range (last 7 days)
     const now = new Date();
@@ -153,7 +146,6 @@ export async function GET(request: Request) {
         });
 
         queued++;
-        console.log(`[Cron] Queued weekly digest for student ${studentId}`);
       } catch (notificationError) {
         console.error(
           `[Cron] Failed to queue weekly digest for ${pref.user_id}:`,
@@ -162,10 +154,6 @@ export async function GET(request: Request) {
         failed++;
       }
     }
-
-    console.log(
-      `[Cron] Weekly digest generation complete. Queued: ${queued}, Failed: ${failed}`
-    );
 
     return NextResponse.json({
       success: true,
