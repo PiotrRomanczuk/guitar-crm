@@ -400,9 +400,10 @@ export async function cancelPendingQueueEntries(
       .select('id');
 
     if (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       logError(
         'Failed to cancel pending queue entries',
-        error instanceof Error ? error : new Error(error.message),
+        error instanceof Error ? error : new Error(errorMessage),
         { entity_type: entityType, entity_id: entityId, notification_type: notificationType }
       );
       return 0;
