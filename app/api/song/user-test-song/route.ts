@@ -1,18 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
-export async function GET(req: NextRequest) {
-	const searchParams = req.nextUrl.searchParams;
-	const userId = searchParams.get('userId');
+export async function GET() {
+	const supabase = await createClient();
 
-	if (!userId) {
-		return NextResponse.json(
-			{ error: 'Missing userId parameter' },
-			{ status: 400 }
-		);
+	// Require authenticated user and use session user ID
+	const { data: { user } } = await supabase.auth.getUser();
+	if (!user) {
+		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
-	const supabase = await createClient();
+	const userId = user.id;
 
 	// 1. Get all lesson IDs for this user (as student)
 	const { data: lessons, error: lessonsError } = await supabase

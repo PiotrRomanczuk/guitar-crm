@@ -18,19 +18,15 @@ import {
   checkQueueBacklog,
   sendDailyAdminSummary,
 } from '@/lib/services/notification-monitoring';
+import { verifyCronSecret } from '@/lib/auth/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-  // Verify the request is from Vercel Cron
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
+  const authError = verifyCronSecret(request);
+  if (authError) return authError;
 
   try {
-    console.log('[Cron] Starting admin monitoring checks...');
-
     const results = {
       failureCheck: 'pending',
       bounceCheck: 'pending',
@@ -74,8 +70,6 @@ export async function GET(request: Request) {
         results.dailySummary = 'failed';
       }
     }
-
-    console.log('[Cron] Admin monitoring completed:', results);
 
     return NextResponse.json({
       success: true,

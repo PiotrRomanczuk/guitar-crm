@@ -7,11 +7,14 @@
  *
  * GET /api/database/status - Returns current database status
  * POST /api/database/status - Tests connection and returns detailed status
+ *
+ * Requires admin authentication.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { DatabaseMiddleware } from '@/lib/database/middleware';
 import { testConnection } from '@/lib/database/connection';
+import { createClient } from '@/lib/supabase/server';
 
 interface DatabaseStatusResponse {
   success: boolean;
@@ -33,10 +36,24 @@ interface DatabaseStatusResponse {
   timestamp: string;
 }
 
+async function verifyAdmin() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
+
+  const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+  if (!profile?.is_admin) return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
+
+  return { user };
+}
+
 /**
  * GET - Returns current database configuration and routing info
  */
-export async function GET(request: NextRequest): Promise<NextResponse<DatabaseStatusResponse>> {
+export async function GET(request: NextRequest): Promise<NextResponse<DatabaseStatusResponse | { error: string }>> {
+  const auth = await verifyAdmin();
+  if ('error' in auth && auth.error) return auth.error;
+
   try {
     const dbInfo = DatabaseMiddleware.detectPreference(request);
     const localConfig = DatabaseMiddleware.getLocalConfig();
@@ -87,7 +104,10 @@ export async function GET(request: NextRequest): Promise<NextResponse<DatabaseSt
 /**
  * POST - Tests actual database connection and returns detailed status
  */
-export async function POST(request: NextRequest): Promise<NextResponse<DatabaseStatusResponse>> {
+export async function POST(request: NextRequest): Promise<NextResponse<DatabaseStatusResponse | { error: string }>> {
+  const auth = await verifyAdmin();
+  if ('error' in auth && auth.error) return auth.error;
+
   try {
     const dbInfo = DatabaseMiddleware.detectPreference(request);
     const localConfig = DatabaseMiddleware.getLocalConfig();

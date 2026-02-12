@@ -28,10 +28,10 @@ npx playwright test      # Run E2E tests (Playwright)
 npm run setup:db         # Set up Supabase database
 npm run seed             # Add sample data
 
-# Version Management
-npm version patch        # Bug fixes (0.65.0 → 0.65.1)
-npm version minor        # New features (0.65.0 → 0.66.0)
-npm version major        # Breaking changes (0.65.0 → 1.0.0)
+# Version Management (automated post-merge via GitHub Action)
+# Branch prefix determines bump type: feature/ → minor, fix/ → patch, etc.
+# Override with PR labels: version:major, version:minor, version:patch
+# Manual bump only needed for hotfixes to production branch
 ```
 
 ## Development Workflow (Summary)
@@ -42,7 +42,7 @@ npm version major        # Breaking changes (0.65.0 → 1.0.0)
 2. **Branch from `main`** -- `feature/STRUM-XXX-description`, `fix/...`, `refactor/...`
 3. **Commit format** -- `type(scope): description [STRUM-XXX]`
 4. **Test before push** -- `npm run lint && npm test`
-5. **Bump version** -- patch (fix), minor (feature), major (breaking)
+5. **Version bumps automatically on merge** -- patch (fix), minor (feature), major (label override)
 6. **Create PR** -- title `[STRUM-XXX] Description`, link Linear ticket
 7. **Squash and Merge** to `main` → verify on Preview → merge to `production`
 
