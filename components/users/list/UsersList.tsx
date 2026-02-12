@@ -86,7 +86,7 @@ export default function UsersList() {
 
       {loading ? (
         <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-          <TableSkeleton columns={5} rows={5} />
+          <TableSkeleton columns={4} rows={5} />
         </div>
       ) : (
         <UsersListTable users={users} onDelete={handleDeleteClick} />
