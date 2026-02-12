@@ -72,8 +72,8 @@ export async function checkAuthRateLimit(
 
     // Record this attempt
     await supabase
-      .from('auth_rate_limits')
-      .insert({ identifier, operation, attempted_at: new Date().toISOString() });
+      .from('auth_rate_limits' as never)
+      .insert({ identifier, operation, attempted_at: new Date().toISOString() } as never);
 
     if (currentCount >= config.maxAttempts) {
       const retryAfter = Math.ceil(config.windowMs / 1000);
@@ -107,10 +107,10 @@ export async function resetAuthRateLimit(
   try {
     const supabase = createAdminClient();
     await supabase
-      .from('auth_rate_limits')
+      .from('auth_rate_limits' as never)
       .delete()
-      .eq('identifier', identifier)
-      .eq('operation', operation);
+      .eq('identifier' as never, identifier as never)
+      .eq('operation' as never, operation as never);
   } catch {
     // Best effort — don't block on cleanup failure
   }
@@ -122,7 +122,7 @@ export async function resetAuthRateLimit(
 export async function clearAllAuthRateLimits(): Promise<void> {
   try {
     const supabase = createAdminClient();
-    await supabase.from('auth_rate_limits').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('auth_rate_limits' as never).delete().neq('id' as never, '00000000-0000-0000-0000-000000000000' as never);
   } catch {
     // Best effort
   }

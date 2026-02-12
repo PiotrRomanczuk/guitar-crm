@@ -37,7 +37,7 @@ export async function checkRateLimit(userId: string): Promise<RateLimitResult> {
     );
 
     if (error) {
-      logError('Rate limit check failed, failing open', error instanceof Error ? error : new Error(error.message), { user_id: userId });
+      logError('Rate limit check failed, failing open', error instanceof Error ? error : new Error(String(error)), { user_id: userId });
       return { allowed: true };
     }
 
@@ -65,7 +65,7 @@ export async function checkSystemRateLimit(): Promise<RateLimitResult> {
     );
 
     if (error) {
-      logError('System rate limit check failed, failing open', error instanceof Error ? error : new Error(error.message));
+      logError('System rate limit check failed, failing open', error instanceof Error ? error : new Error(String(error)));
       return { allowed: true };
     }
 
