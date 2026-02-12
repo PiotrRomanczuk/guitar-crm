@@ -10,15 +10,13 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { queueNotification } from '@/lib/services/notification-service';
+import { verifyCronSecret } from '@/lib/auth/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-  // Verify the request is from Vercel Cron
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
+  const authError = verifyCronSecret(request);
+  if (authError) return authError;
 
   try {
     const supabase = createAdminClient();
