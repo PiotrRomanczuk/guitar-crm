@@ -20,9 +20,9 @@ npm run lint             # Run ESLint
 npm test                 # Run Jest unit tests
 npm test -- --watch      # Watch mode
 npm run test:coverage    # With coverage report
-npm run cypress:open     # Cypress interactive
-npm run cypress:run      # Cypress headless
-npm run test:smoke       # Smoke tests only
+npm run test:integration # Run Jest integration tests
+npm run test:all         # Run unit + integration tests
+npx playwright test      # Run E2E tests (Playwright)
 
 # Database
 npm run setup:db         # Set up Supabase database
@@ -53,7 +53,7 @@ npm version major        # Breaking changes (0.65.0 → 1.0.0)
 - **Backend**: Supabase (PostgreSQL with RLS), Server Actions
 - **Validation**: Zod schemas in `/schemas`
 - **AI**: OpenRouter (cloud) and Ollama (local) via abstraction layer in `/lib/ai`
-- **Testing**: Jest (70% unit), Cypress (E2E)
+- **Testing**: Jest (unit + integration), Playwright (E2E)
 
 ### Directory Structure
 - `/app` -- Next.js App Router pages, API routes, Server Actions
@@ -82,7 +82,7 @@ Specialized AI agents live in `.claude/agents/`. Each agent has a focused respon
 | **Feature Developer** | `feature-developer.md` | New features: Next.js/React/Supabase patterns, RSC-optimized, Zod validation |
 | **UI Engineer** | `ui-engineer.md` | UI: shadcn/ui, Radix UI, Tailwind CSS 4, Framer Motion, mobile-first |
 | **Refactoring Specialist** | `refactoring-specialist.md` | Split oversized files, eliminate `any` types, enforce SRP |
-| **Test Engineer** | `test-engineer.md` | Unit (Jest/MSW), integration, E2E (Playwright/Cypress) |
+| **Test Engineer** | `test-engineer.md` | Unit (Jest), integration (Jest), E2E (Playwright) |
 | **Git Workflow** | `git-workflow.md` | Branching, commits, Linear linking, versioning, PR lifecycle |
 
 #### Database & Supabase
@@ -170,10 +170,14 @@ Mobile-first with Tailwind breakpoints. Always include `dark:` variants.
 
 **TDD workflow**: Write failing test → Implement → Refactor
 
-**Pyramid**: 70% unit (Jest), 20% integration, 10% E2E (Cypress)
+**Pyramid**: 70% unit (Jest), 20% integration (Jest), 10% E2E (Playwright)
 
-**Coverage threshold**: 70% minimum
+- **Unit tests**: `npm test` — runs ~60 suites, ~1100+ tests
+- **Integration tests**: `npm run test:integration` — uses `jest.config.integration.ts`
+- **E2E tests**: `npx playwright test` — 5 core journey specs
+- **All Jest tests**: `npm run test:all`
 
+Integration test helpers live in `lib/testing/integration-helpers.ts`.
 Tests live in `/__tests__` mirroring source structure.
 
 ## Deployment
