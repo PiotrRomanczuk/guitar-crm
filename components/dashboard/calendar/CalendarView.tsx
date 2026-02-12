@@ -1,10 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
-import { isSameDay } from 'date-fns';
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import type { GoogleEvent } from './CalendarEventsList.EventCard';
+import { isGuitarLesson, type GoogleEvent } from './CalendarEventsList.EventCard';
 import type { DayButton } from 'react-day-picker';
 
 interface CalendarViewProps {
@@ -17,6 +16,7 @@ export function CalendarView({ events, selectedDate, onSelectDate }: CalendarVie
   const eventsByDate = useMemo(() => {
     const map = new Map<string, number>();
     for (const event of events) {
+      if (!isGuitarLesson(event)) continue;
       const dateStr = event.start.dateTime || event.start.date;
       if (!dateStr) continue;
       const key = new Date(dateStr).toDateString();
@@ -33,9 +33,6 @@ export function CalendarView({ events, selectedDate, onSelectDate }: CalendarVie
       className="rounded-md border w-full"
       classNames={{
         month: 'flex flex-col w-full gap-4',
-        table: 'w-full border-collapse',
-        head_row: 'flex w-full',
-        row: 'flex w-full mt-2',
         weekdays: 'flex w-full',
         weekday: 'text-muted-foreground rounded-md flex-1 font-normal text-[0.8rem] select-none',
         week: 'flex w-full mt-2',

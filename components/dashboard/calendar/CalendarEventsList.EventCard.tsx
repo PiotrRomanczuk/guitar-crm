@@ -14,6 +14,11 @@ export interface GoogleEvent {
   attendees?: { email: string; responseStatus?: string }[];
 }
 
+export function isGuitarLesson(event: { description?: string | null }): boolean {
+  if (!event.description) return false;
+  return event.description.includes('Powered by Calendly.com');
+}
+
 interface EventCardProps {
   event: GoogleEvent;
   showAttendees: boolean;
