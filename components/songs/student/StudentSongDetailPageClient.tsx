@@ -231,6 +231,7 @@ export function StudentSongDetailPageClient() {
                 src={song.cover_image_url}
                 alt={`${song.title} cover`}
                 fill
+                sizes="(max-width: 768px) 100vw, 448px"
                 className="object-cover"
                 priority
               />
@@ -505,6 +506,7 @@ export function StudentSongDetailPageClient() {
                         src={image}
                         alt={`${song.title} gallery image ${index + 1}`}
                         fill
+                        sizes="(max-width: 768px) 50vw, 200px"
                         className="object-cover hover:scale-105 transition-transform cursor-pointer"
                       />
                     </div>

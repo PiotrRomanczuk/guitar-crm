@@ -13,6 +13,33 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
+/** Track scroll direction to auto-hide bottom nav on scroll down */
+function useScrollDirection() {
+  const [visible, setVisible] = React.useState(true);
+  const lastScrollY = React.useRef(0);
+
+  React.useEffect(() => {
+    const threshold = 10;
+
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY <= 0) {
+        setVisible(true);
+      } else if (currentY - lastScrollY.current > threshold) {
+        setVisible(false); // scrolling down
+      } else if (lastScrollY.current - currentY > threshold) {
+        setVisible(true); // scrolling up
+      }
+      lastScrollY.current = currentY;
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return visible;
+}
+
 interface NavItem {
   href: string;
   label: string;
@@ -64,6 +91,7 @@ interface MobileBottomNavProps {
  */
 function MobileBottomNav({ className }: MobileBottomNavProps) {
   const pathname = usePathname();
+  const visible = useScrollDirection();
 
   const isActive = (item: NavItem) => {
     if (item.matchPaths) {
@@ -78,6 +106,8 @@ function MobileBottomNav({ className }: MobileBottomNavProps) {
         'fixed bottom-0 left-0 right-0 z-50',
         'bg-card/95 backdrop-blur-md border-t border-border',
         'pb-safe md:hidden', // Only show on mobile, with safe area padding
+        'transition-transform duration-300 ease-in-out',
+        !visible && 'translate-y-full',
         className
       )}
       aria-label="Mobile navigation"

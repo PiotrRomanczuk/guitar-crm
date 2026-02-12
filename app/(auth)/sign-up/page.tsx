@@ -110,7 +110,7 @@ export default function SignUpPage() {
           {/* Sign Up Form */}
           <form onSubmit={state.handleSubmit} className="flex flex-col gap-5 mt-8">
             {/* Name Grid */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="firstName" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground pl-1">
                   First Name
