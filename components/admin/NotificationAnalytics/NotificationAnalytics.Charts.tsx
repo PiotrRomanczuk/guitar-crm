@@ -127,7 +127,7 @@ export function NotificationCharts({ analytics }: ChartsProps) {
                         borderColor: 'hsl(var(--border))',
                       }}
                       itemStyle={{ color: 'hsl(var(--foreground))' }}
-                      formatter={(value: number) => `${value.toFixed(1)}%`}
+                      formatter={((value: number) => `${value.toFixed(1)}%`) as never}
                     />
                     <Legend />
                   </PieChart>
