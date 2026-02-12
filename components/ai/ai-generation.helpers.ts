@@ -1,8 +1,31 @@
 import type { AIGenerationType } from '@/types/ai-generation';
 
-export function truncateContent(content: string, maxLength = 100): string {
-  if (content.length <= maxLength) return content;
-  return content.slice(0, maxLength).trimEnd() + '...';
+/** Convert literal \n sequences to real newlines */
+export function normalizeNewlines(content: string): string {
+  return content.replace(/\\n/g, '\n');
+}
+
+/** Strip markdown syntax and collapse whitespace into clean plaintext */
+export function stripMarkdown(content: string): string {
+  return normalizeNewlines(content)
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/`(.+?)`/g, '$1')
+    .replace(/^\s*[-*]\s+/gm, '')
+    .replace(/^\s*\d+\.\s+/gm, '')
+    .replace(/\|/g, ' ')
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1')
+    .replace(/\n+/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+export function truncateContent(content: string, maxLength = 120): string {
+  if (!content) return '';
+  const clean = stripMarkdown(content);
+  if (clean.length <= maxLength) return clean;
+  return clean.slice(0, maxLength).trimEnd() + '...';
 }
 
 export function getGenerationTypeColor(type: AIGenerationType): string {
