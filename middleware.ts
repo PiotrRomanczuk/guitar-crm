@@ -69,19 +69,6 @@ export async function middleware(request: NextRequest) {
     error: userError?.message,
   });
 
-  let roles: string[] = [];
-
-  // Only attempt to refresh the session if one exists
-  // This prevents "Refresh Token Not Found" errors for unauthenticated users
-  if (user) {
-    // Extract roles from user metadata if available (fallback to empty array)
-    roles = Array.isArray(user?.user_metadata?.roles)
-      ? (user!.user_metadata!.roles as string[])
-      : typeof user?.user_metadata?.role === 'string'
-      ? [user!.user_metadata!.role as string]
-      : [];
-  }
-
   const pathname = request.nextUrl.pathname;
   const isDashboard = pathname.startsWith('/dashboard');
 
@@ -95,11 +82,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Check if user account is deactivated (for dashboard routes only)
+  // Check if user account is deactivated and fetch role flags (for dashboard routes only)
   if (isDashboard && user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('is_active')
+      .select('is_active, is_admin, is_teacher, is_student')
       .eq('id', user.id)
       .single();
 
@@ -111,24 +98,37 @@ export async function middleware(request: NextRequest) {
       url.searchParams.set('error', 'account_deactivated');
       return NextResponse.redirect(url);
     }
-  }
 
-  // Admin gating example: block /dashboard/admin without 'admin' role
-  if (pathname.startsWith('/dashboard/admin') && user && !roles.includes('admin')) {
-    log.info('Redirecting to dashboard (forbidden admin access)');
-    const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
-    url.searchParams.set('error', 'forbidden');
-    return NextResponse.redirect(url);
-  }
+    // Admin gating: block /dashboard/admin without admin role from DB
+    if (pathname.startsWith('/dashboard/admin') && !profile?.is_admin) {
+      log.info('Redirecting to dashboard (forbidden admin access)');
+      const url = request.nextUrl.clone();
+      url.pathname = '/dashboard';
+      url.searchParams.set('error', 'forbidden');
+      return NextResponse.redirect(url);
+    }
 
-  // Optionally attach user id to headers for downstream usage
-  if (user) {
+    // Build roles array from DB booleans for downstream usage
+    const roles: string[] = [];
+    if (profile?.is_admin) roles.push('admin');
+    if (profile?.is_teacher) roles.push('teacher');
+    if (profile?.is_student) roles.push('student');
+
+    // Attach user id and roles to headers for downstream usage
     response.headers.set('x-user-id', user.id);
     if (roles.length) {
       response.headers.set('x-user-roles', roles.join(','));
     }
+  } else if (user) {
+    // Non-dashboard route but user is authenticated
+    response.headers.set('x-user-id', user.id);
   }
+
+  // Security headers
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
   return response;
 }

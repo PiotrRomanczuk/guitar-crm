@@ -5,6 +5,12 @@ export async function GET() {
   try {
     const supabase = await createClient();
 
+    // Require authenticated user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // Fetch all profiles - using * to get all columns
     const { data: profiles, error } = await supabase
       .from('profiles')
