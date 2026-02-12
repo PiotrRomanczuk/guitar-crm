@@ -19,6 +19,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { ExportButton } from '@/components/users/actions/ExportButton';
+import { CsvSongImportButton } from '@/components/users/import';
 
 interface UserDetailProps {
   user: {
@@ -124,7 +125,10 @@ export default function UserDetail({ user }: UserDetailProps) {
         </Link>
 
         {user.is_student && (
-          <ExportButton userId={user.id} userName={user.full_name || user.email} />
+          <>
+            <CsvSongImportButton studentId={user.id} />
+            <ExportButton userId={user.id} userName={user.full_name || user.email} />
+          </>
         )}
 
         <AlertDialog>
