@@ -14,7 +14,15 @@ export async function middleware(request: NextRequest) {
       .join(', '),
   });
 
-  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseConfig();
+  let supabaseUrl: string | undefined;
+  let supabaseAnonKey: string | undefined;
+  try {
+    const config = getSupabaseConfig();
+    supabaseUrl = config.url;
+    supabaseAnonKey = config.anonKey;
+  } catch {
+    // Config missing — let the request through without auth checks
+  }
 
   // Skip middleware if Supabase is not configured
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -85,6 +93,25 @@ export async function middleware(request: NextRequest) {
     // Preserve original destination for post-login redirect
     url.searchParams.set('redirect', pathname);
     return NextResponse.redirect(url);
+  }
+
+  // Check if user account is deactivated (for dashboard routes only)
+  if (isDashboard && user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_active')
+      .eq('id', user.id)
+      .single();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (profile && (profile as any).is_active === false) {
+      log.info('Redirecting to sign-in (account deactivated)', { userId: user.id });
+      await supabase.auth.signOut();
+      const url = request.nextUrl.clone();
+      url.pathname = '/sign-in';
+      url.searchParams.set('error', 'account_deactivated');
+      return NextResponse.redirect(url);
+    }
   }
 
   // Admin gating example: block /dashboard/admin without 'admin' role

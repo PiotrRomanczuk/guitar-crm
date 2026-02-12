@@ -25,6 +25,7 @@ import type {
   QueueNotificationParams,
   NotificationResult,
 } from '@/types/notifications';
+import type { Json } from '@/database.types';
 
 // ============================================================================
 // MAIN NOTIFICATION FUNCTIONS
@@ -79,7 +80,7 @@ export async function sendNotification(
           recipient_email: recipient.email,
           status: 'skipped',
           subject: getNotificationSubject(type, templateData),
-          template_data: templateData,
+          template_data: templateData as unknown as Json,
           entity_type: entityType,
           entity_id: entityId,
         })
@@ -105,7 +106,7 @@ export async function sendNotification(
     const htmlContent = await getNotificationHtml(type, templateData, recipient);
 
     // 4. Create log entry (pending)
-    const { data: logEntry, error: logInsertError } = await supabase
+    const { data: logEntry, error: logEntryError } = await supabase
       .from('notification_log')
       .insert({
         notification_type: type,
@@ -113,17 +114,17 @@ export async function sendNotification(
         recipient_email: recipient.email,
         status: 'pending',
         subject,
-        template_data: templateData,
+        template_data: templateData as unknown as Json,
         entity_type: entityType,
         entity_id: entityId,
       })
       .select('id')
       .single();
 
-    if (logInsertError || !logEntry) {
+    if (logEntryError || !logEntry) {
       logError(
         'Failed to create log entry',
-        logInsertError instanceof Error ? logInsertError : new Error('Failed to create log entry'),
+        logEntryError instanceof Error ? logEntryError : new Error('Failed to create log entry'),
         {
           user_id: recipientUserId,
           notification_type: type,
@@ -244,7 +245,7 @@ export async function queueNotification(
       .insert({
         notification_type: type,
         recipient_user_id: recipientUserId,
-        template_data: templateData,
+        template_data: templateData as unknown as Json,
         scheduled_for: scheduledFor.toISOString(),
         priority,
         entity_type: entityType,
@@ -377,67 +378,13 @@ function getNotificationSubject(
 }
 
 /**
- * Get notification HTML content (placeholder - will be implemented with templates)
+ * Get notification HTML content using dedicated email templates.
  */
 async function getNotificationHtml(
   type: NotificationType,
   templateData: Record<string, unknown>,
   recipient: { full_name: string | null; email: string }
 ): Promise<string> {
-  // TODO: Import and call actual template functions once they're created
-  // For now, return a simple placeholder
-
-  let baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE ||
-    'http://localhost:3000';
-
-  if (baseUrl.endsWith('/')) {
-    baseUrl = baseUrl.slice(0, -1);
-  }
-
-  const recipientName = recipient.full_name || 'there';
-
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${getNotificationSubject(type, templateData)}</title>
-    </head>
-    <body style="margin: 0; padding: 0; background-color: #f9fafb; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-      <div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-
-        <!-- Header -->
-        <div style="background-color: #18181b; padding: 32px 24px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">Guitar CRM</h1>
-        </div>
-
-        <!-- Content -->
-        <div style="padding: 32px 24px;">
-          <h2 style="color: #18181b; margin: 0 0 16px 0; font-size: 20px; font-weight: 600;">${getNotificationSubject(type, templateData)}</h2>
-          <p style="color: #52525b; margin: 0 0 24px 0; line-height: 1.6;">
-            Hi ${recipientName},<br><br>
-            This is a notification from Guitar CRM.
-          </p>
-
-          <pre style="background-color: #f4f4f5; padding: 16px; border-radius: 8px; overflow-x: auto;">
-${JSON.stringify(templateData, null, 2)}
-          </pre>
-        </div>
-
-        <!-- Footer -->
-        <div style="background-color: #f4f4f5; padding: 24px; text-align: center; border-top: 1px solid #e4e4e7;">
-          <p style="margin: 0 0 8px 0; font-size: 14px; color: #71717a;">
-            <a href="${baseUrl}/settings/notifications" style="color: #3b82f6; text-decoration: none;">Manage notification preferences</a>
-          </p>
-          <p style="margin: 0; font-size: 12px; color: #a1a1aa;">
-            © ${new Date().getFullYear()} Guitar CRM. All rights reserved.
-          </p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
+  const { renderNotificationHtml } = await import('@/lib/email/render-notification');
+  return renderNotificationHtml(type, templateData, recipient);
 }

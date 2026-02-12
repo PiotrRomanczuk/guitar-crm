@@ -8,11 +8,25 @@
 import type { AgentSpecification, AgentRequest, AgentResponse } from './types';
 import { validateSpecification, validateRequest, checkPermissions } from './validation';
 import { prepareContext, executeAgent, generateRequestId } from './execution';
-import { logExecution } from './analytics';
+import { logExecution, logAIOperation, categorizeError } from './analytics';
 import { checkRateLimit } from '../rate-limiter';
 
 // Registry state - using Map for efficient lookups
 const agents = new Map<string, AgentSpecification>();
+
+/**
+ * Fallback templates returned when AI providers are unavailable [BMS-113]
+ */
+const AGENT_FALLBACK_TEMPLATES: Record<string, string> = {
+  'lesson-notes-assistant':
+    '## Lesson Notes (AI Unavailable)\n\n**Student:** [name]\n**Date:** [date]\n\n### Topics Covered\n- \n\n### Progress\n- \n\n### Next Steps\n- \n\n*AI-generated notes are temporarily unavailable. Please fill in manually.*',
+  'assignment-generator':
+    '## Practice Assignment (AI Unavailable)\n\n**Student:** [name]\n**Focus Area:** [focus]\n\n### Tasks\n1. \n2. \n3. \n\n### Goals\n- \n\n*AI-generated assignments are temporarily unavailable. Please fill in manually.*',
+  'email-draft-generator':
+    'Subject: [Update for student]\n\nHi [name],\n\n[Your message here]\n\nBest regards,\n[Teacher]\n\n*AI-generated email drafts are temporarily unavailable.*',
+  'post-lesson-summary':
+    '## Post-Lesson Summary (AI Unavailable)\n\n**Student:** [name]\n**Date:** [date]\n\n### What We Worked On\n- \n\n### Achievements\n- \n\n### Areas for Improvement\n- \n\n*AI-generated summaries are temporarily unavailable.*',
+};
 
 // Utility functions
 function hashInput(input: Record<string, any>): string {
@@ -106,6 +120,19 @@ export async function executeAgentRequest(request: AgentRequest): Promise<AgentR
       },
     };
 
+    // Structured success logging [BMS-111]
+    logAIOperation({
+      level: 'info',
+      operation: 'executeAgentRequest',
+      agentId: request.agentId,
+      provider: 'auto',
+      model: request.overrides?.model || agent.model || 'default',
+      latencyMs: Date.now() - startTime,
+      success: true,
+      tokenCount: result?.usage?.total_tokens,
+      userId: request.context.userId,
+    });
+
     // Log execution
     if (agent.enableLogging) {
       await logExecution(response, request, agent);
@@ -118,7 +145,6 @@ export async function executeAgentRequest(request: AgentRequest): Promise<AgentR
       error: {
         code: getErrorCode(error),
         message: error instanceof Error ? error.message : 'Unknown error',
-        details: error,
       },
       metadata: {
         agentId: request.agentId,
@@ -134,9 +160,25 @@ export async function executeAgentRequest(request: AgentRequest): Promise<AgentR
       },
     };
 
-    // Log error
-    console.error(`[AgentRegistry] Execution failed for ${request.agentId}:`, error);
+    // Structured error logging [BMS-111]
+    logAIOperation({
+      level: 'error',
+      operation: 'executeAgentRequest',
+      agentId: request.agentId,
+      model: request.overrides?.model || 'unknown',
+      latencyMs: Date.now() - startTime,
+      success: false,
+      errorCategory: categorizeError(error),
+      userId: request.context.userId,
+    });
+
     await logExecution(response, request);
+
+    // Attach fallback template if available [BMS-113]
+    const fallback = AGENT_FALLBACK_TEMPLATES[request.agentId];
+    if (fallback) {
+      response.result = { content: fallback, isFallback: true };
+    }
 
     return response;
   }

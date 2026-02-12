@@ -6,7 +6,7 @@
  * - Error handling
  * - Model mapping
  *
- * Note: ai.ts functions have NO authorization checks
+ * Note: ai.ts functions require authentication (requireAuth)
  * Note: Streaming functions are thin wrappers, testing non-streaming versions
  *
  * @see app/actions/ai.ts
@@ -34,9 +34,38 @@ jest.mock('@/lib/ai/model-mappings', () => ({
   mapToOllamaModel: (model: string) => mockMapToOllamaModel(model),
 }));
 
-// Mock Supabase
+// Mock Supabase with auth
 jest.mock('@/lib/supabase/server', () => ({
-  createClient: jest.fn(() => Promise.resolve({})),
+  createClient: jest.fn(() =>
+    Promise.resolve({
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: { user: { id: 'test-user-id', email: 'test@example.com' } },
+        }),
+      },
+    })
+  ),
+}));
+
+// Mock auth [BMS-107]
+const mockRequireAIAuth = jest.fn();
+jest.mock('@/lib/ai/auth', () => ({
+  requireAIAuth: () => mockRequireAIAuth(),
+  AIAuthError: class AIAuthError extends Error {
+    code: string;
+    status: number;
+    constructor(code: string, message: string) {
+      super(message);
+      this.code = code;
+      this.status = code === 'UNAUTHENTICATED' ? 401 : 403;
+    }
+  },
+}));
+
+// Mock rate limiter [BMS-108]
+const mockCheckRateLimit = jest.fn();
+jest.mock('@/lib/ai/rate-limiter', () => ({
+  checkRateLimit: (...args: any[]) => mockCheckRateLimit(...args),
 }));
 
 // Mock agent execution functions
@@ -57,6 +86,16 @@ jest.mock('@/lib/ai/agent-execution', () => ({
   formatAgentError: (error: any) => mockFormatAgentError(error),
   isAgentSuccess: (result: any) => mockIsAgentSuccess(result),
 }));
+
+// Default: authenticated admin user with rate limiting allowed
+beforeEach(() => {
+  mockRequireAIAuth.mockResolvedValue({
+    id: 'test-user-id',
+    role: 'admin',
+    email: 'admin@test.com',
+  });
+  mockCheckRateLimit.mockResolvedValue({ allowed: true });
+});
 
 describe('getProviderAppropriateModel', () => {
   beforeEach(() => {
@@ -313,5 +352,97 @@ describe('AI Error Handling', () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toBe('Failed to generate lesson notes');
+  });
+});
+
+describe('Authentication enforcement [BMS-107]', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockCheckRateLimit.mockResolvedValue({ allowed: true });
+  });
+
+  it('should reject unauthenticated generateLessonNotes calls', async () => {
+    mockRequireAIAuth.mockRejectedValue(
+      new Error('Authentication required to use AI features.')
+    );
+
+    const result = await generateLessonNotes({
+      studentName: 'Test',
+      songsCovered: [],
+      lessonTopic: 'Test',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('Authentication required to use AI features.');
+  });
+
+  it('should reject unauthenticated generateAssignment calls', async () => {
+    mockRequireAIAuth.mockRejectedValue(
+      new Error('Authentication required to use AI features.')
+    );
+
+    const result = await generateAssignment({
+      studentName: 'Test',
+      studentLevel: 'beginner',
+      recentSongs: [],
+      focusArea: 'Test',
+      duration: '1 week',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('Authentication required to use AI features.');
+  });
+
+  it('should reject unauthenticated getAvailableModels calls', async () => {
+    mockRequireAIAuth.mockRejectedValue(
+      new Error('Authentication required to use AI features.')
+    );
+
+    const result = await getAvailableModels();
+
+    expect(result.error).toBe('Authentication required to use AI features.');
+  });
+});
+
+describe('Rate limiting enforcement [BMS-108]', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockRequireAIAuth.mockResolvedValue({
+      id: 'test-user-id',
+      role: 'admin',
+      email: 'admin@test.com',
+    });
+  });
+
+  it('should reject rate-limited requests', async () => {
+    mockCheckRateLimit.mockResolvedValue({ allowed: false, retryAfter: 30 });
+
+    const result = await generateLessonNotes({
+      studentName: 'Test',
+      songsCovered: [],
+      lessonTopic: 'Test',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('Rate limit exceeded');
+  });
+
+  it('should pass user ID to rate limiter', async () => {
+    mockCheckRateLimit.mockResolvedValue({ allowed: true });
+    mockGenerateLessonNotesAgent.mockResolvedValue({ success: true, result: { content: 'ok' } });
+    mockIsAgentSuccess.mockReturnValue(true);
+    mockExtractAgentResult.mockReturnValue({ content: 'ok' });
+
+    await generateLessonNotes({
+      studentName: 'Test',
+      songsCovered: [],
+      lessonTopic: 'Test',
+    });
+
+    expect(mockCheckRateLimit).toHaveBeenCalledWith(
+      'test-user-id',
+      'admin',
+      'lesson-notes-assistant'
+    );
   });
 });

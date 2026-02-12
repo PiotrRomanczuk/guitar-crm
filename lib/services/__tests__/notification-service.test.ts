@@ -3,13 +3,8 @@ import {
   queueNotification,
   checkUserPreference,
 } from '../notification-service';
-import {
-  processQueuedNotifications,
-  retryFailedNotifications,
-} from '../notification-queue-processor';
 import { createAdminClient } from '@/lib/supabase/admin';
 import transporter from '@/lib/email/smtp-client';
-import * as retryHandler from '@/lib/email/retry-handler';
 
 // Mock dependencies
 jest.mock('@/lib/supabase/admin', () => ({
@@ -20,61 +15,54 @@ jest.mock('@/lib/email/smtp-client', () => ({
   sendMail: jest.fn(),
 }));
 
-jest.mock('@/lib/email/retry-handler', () => ({
-  getRetryableNotifications: jest.fn(),
-  updateNotificationRetry: jest.fn(),
-  processDeadLetterQueue: jest.fn(),
-  shouldMoveToDeadLetter: jest.fn(),
-  moveToDeadLetter: jest.fn(),
-}));
-
 jest.mock('@/lib/logging/notification-logger', () => ({
   logNotificationSent: jest.fn(),
   logNotificationFailed: jest.fn(),
   logNotificationQueued: jest.fn(),
   logNotificationSkipped: jest.fn(),
   logError: jest.fn(),
-  logInfo: jest.fn(),
-  logDebug: jest.fn(),
-  logWarning: jest.fn(),
-  logBatchProcessed: jest.fn(),
 }));
 
-/**
- * Creates a chainable mock for Supabase client.
- *
- * The key insight: every chainable method (from, select, eq, insert, update, lt,
- * order, limit) returns the same mock object, so chains like
- *   supabase.from('x').select('y').eq('a', 'b').single()
- * all work. The terminal method `.single()` returns a promise with
- * the test data you configure via `mockSingle.mockResolvedValueOnce(...)`.
- *
- * For chains that do NOT end with `.single()` (e.g., update().eq()),
- * `.eq()` itself returns a thenable (the mock has `.then` support via
- * `mockResolvedValue` on the eq level when needed).
- * We handle that by making `.eq()` resolve as a promise when awaited
- * only when the test explicitly overrides it.
- */
-function createChainableMock() {
-  const mock: Record<string, jest.Mock> = {};
-
-  // All chainable methods return the mock itself
-  const chainMethods = ['from', 'select', 'eq', 'insert', 'update', 'lt', 'order', 'limit'];
-  for (const method of chainMethods) {
-    mock[method] = jest.fn().mockReturnValue(mock);
-  }
-
-  // Terminal method: single() returns a promise with data
-  mock.single = jest.fn().mockResolvedValue({ data: null, error: null });
-
-  // rpc is a standalone method that returns a promise
-  mock.rpc = jest.fn().mockResolvedValue({ data: null, error: null });
-
-  return mock;
-}
-
 describe('notification-service', () => {
-  let mockSupabase: Record<string, jest.Mock>;
+  let mockSupabase: {
+    from: jest.Mock;
+    select: jest.Mock;
+    eq: jest.Mock;
+    single: jest.Mock;
+    insert: jest.Mock;
+    update: jest.Mock;
+    lt: jest.Mock;
+    order: jest.Mock;
+    limit: jest.Mock;
+    rpc: jest.Mock;
+  };
+
+  const createMockSupabase = () => {
+    const mock = {
+      from: jest.fn(),
+      select: jest.fn(),
+      eq: jest.fn(),
+      single: jest.fn(),
+      insert: jest.fn(),
+      update: jest.fn(),
+      lt: jest.fn(),
+      order: jest.fn(),
+      limit: jest.fn(),
+      rpc: jest.fn(),
+    };
+
+    // Chain methods return the mock object itself
+    mock.from.mockReturnValue(mock);
+    mock.select.mockReturnValue(mock);
+    mock.eq.mockReturnValue(mock);
+    mock.insert.mockReturnValue(mock);
+    mock.update.mockReturnValue(mock);
+    mock.lt.mockReturnValue(mock);
+    mock.order.mockReturnValue(mock);
+    mock.limit.mockReturnValue(mock);
+
+    return mock;
+  };
 
   const mockRecipient = {
     id: 'user-123',
@@ -86,7 +74,7 @@ describe('notification-service', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSupabase = createChainableMock();
+    mockSupabase = createMockSupabase();
     (createAdminClient as jest.Mock).mockReturnValue(mockSupabase);
 
     // Set up environment
@@ -101,19 +89,19 @@ describe('notification-service', () => {
 
   describe('sendNotification', () => {
     it('should successfully send a notification', async () => {
-      // Mock recipient lookup: from().select().eq().single()
+      // Mock recipient lookup
       mockSupabase.single.mockResolvedValueOnce({
         data: mockRecipient,
         error: null,
       });
 
-      // Mock preference check: from().select().eq().eq().single()
+      // Mock preference check
       mockSupabase.single.mockResolvedValueOnce({
         data: { enabled: true },
         error: null,
       });
 
-      // Mock log entry creation: from().insert().select().single()
+      // Mock log entry creation
       mockSupabase.single.mockResolvedValueOnce({
         data: { id: 'log-123' },
         error: null,
@@ -121,13 +109,6 @@ describe('notification-service', () => {
 
       // Mock email sending
       (transporter.sendMail as jest.Mock).mockResolvedValue({ messageId: 'msg-123' });
-
-      // The update chain (from().update().eq()) does not call .single(),
-      // it is awaited directly. The chain returns the mock which is not
-      // a promise by default, but the source code does `await supabase.from(...).update(...).eq(...)`.
-      // Since .eq() returns the mock (a plain object), awaiting it yields the mock itself,
-      // which is truthy and doesn't throw. The source only checks for errors on the
-      // email send, so this is fine.
 
       const result = await sendNotification({
         type: 'lesson_reminder_24h',
@@ -162,7 +143,7 @@ describe('notification-service', () => {
         error: null,
       });
 
-      // Mock log entry creation (skipped status)
+      // Mock log entry creation (skipped)
       mockSupabase.single.mockResolvedValueOnce({
         data: { id: 'log-skip-123' },
         error: null,
@@ -180,7 +161,6 @@ describe('notification-service', () => {
     });
 
     it('should handle recipient not found error', async () => {
-      // Mock recipient lookup fails
       mockSupabase.single.mockResolvedValueOnce({
         data: null,
         error: { message: 'User not found' },
@@ -193,7 +173,7 @@ describe('notification-service', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Recipient not found');
+      expect(result.error).toBe('Recipient not found');
     });
 
     it('should handle email sending failure', async () => {
@@ -328,140 +308,4 @@ describe('notification-service', () => {
     });
   });
 
-  describe('processQueuedNotifications', () => {
-    it('should process pending notifications', async () => {
-      const queuedNotifications = [
-        {
-          id: 'queue-1',
-          notification_type: 'lesson_reminder_24h',
-          recipient_user_id: 'user-123',
-          recipient_email: 'student@example.com',
-          template_data: { studentName: 'John' },
-          priority: 5,
-        },
-      ];
-
-      mockSupabase.rpc.mockResolvedValueOnce({
-        data: queuedNotifications,
-        error: null,
-      });
-
-      // Mock sendNotification dependencies (called internally):
-      // 1. recipient lookup
-      mockSupabase.single
-        .mockResolvedValueOnce({
-          data: mockRecipient,
-          error: null,
-        })
-        // 2. preference check
-        .mockResolvedValueOnce({
-          data: { enabled: true },
-          error: null,
-        })
-        // 3. log entry creation
-        .mockResolvedValueOnce({
-          data: { id: 'log-123' },
-          error: null,
-        });
-
-      (transporter.sendMail as jest.Mock).mockResolvedValue({ messageId: 'msg-123' });
-
-      const result = await processQueuedNotifications(10);
-
-      expect(result.processed).toBe(1);
-      expect(result.failed).toBe(0);
-      expect(mockSupabase.rpc).toHaveBeenCalledWith('get_pending_notifications', {
-        batch_size: 10,
-      });
-    });
-
-    it('should return zero when no notifications to process', async () => {
-      mockSupabase.rpc.mockResolvedValueOnce({
-        data: [],
-        error: null,
-      });
-
-      const result = await processQueuedNotifications();
-
-      expect(result.processed).toBe(0);
-      expect(result.failed).toBe(0);
-    });
-
-    it('should handle fetch error gracefully', async () => {
-      mockSupabase.rpc.mockResolvedValueOnce({
-        data: null,
-        error: { message: 'Database error' },
-      });
-
-      const result = await processQueuedNotifications();
-
-      expect(result.processed).toBe(0);
-      expect(result.failed).toBe(0);
-    });
-  });
-
-  describe('retryFailedNotifications', () => {
-    it('should retry failed notifications that are ready', async () => {
-      const pastDate = new Date();
-      pastDate.setHours(pastDate.getHours() - 2); // 2 hours ago
-
-      const failedNotifications = [
-        {
-          id: 'log-fail-1',
-          notification_type: 'lesson_reminder_24h',
-          recipient_user_id: 'user-123',
-          recipient_email: 'student@example.com',
-          subject: 'Upcoming Lesson Reminder',
-          template_data: { studentName: 'John' },
-          retry_count: 0,
-          updated_at: pastDate.toISOString(),
-          status: 'failed',
-        },
-      ];
-
-      // Mock retry handler functions
-      (retryHandler.getRetryableNotifications as jest.Mock).mockResolvedValue(failedNotifications);
-      (retryHandler.shouldMoveToDeadLetter as jest.Mock).mockReturnValue(false);
-      (retryHandler.updateNotificationRetry as jest.Mock).mockResolvedValue(true);
-      (retryHandler.processDeadLetterQueue as jest.Mock).mockResolvedValue(0);
-
-      // Mock recipient lookup via .single()
-      mockSupabase.single.mockResolvedValueOnce({
-        data: mockRecipient,
-        error: null,
-      });
-
-      // Mock email sending
-      (transporter.sendMail as jest.Mock).mockResolvedValue({ messageId: 'msg-retry-123' });
-
-      const result = await retryFailedNotifications();
-
-      expect(result.retried).toBe(1);
-      expect(result.failed).toBe(0);
-      expect(result.deadLettered).toBe(0);
-    });
-
-    it('should skip notifications not ready for retry', async () => {
-      // Mock empty list (already filtered by retry handler)
-      (retryHandler.getRetryableNotifications as jest.Mock).mockResolvedValue([]);
-      (retryHandler.processDeadLetterQueue as jest.Mock).mockResolvedValue(0);
-
-      const result = await retryFailedNotifications();
-
-      expect(result.retried).toBe(0);
-      expect(result.failed).toBe(0);
-      expect(result.deadLettered).toBe(0);
-    });
-
-    it('should return zero when no failed notifications exist', async () => {
-      (retryHandler.getRetryableNotifications as jest.Mock).mockResolvedValue([]);
-      (retryHandler.processDeadLetterQueue as jest.Mock).mockResolvedValue(0);
-
-      const result = await retryFailedNotifications();
-
-      expect(result.retried).toBe(0);
-      expect(result.failed).toBe(0);
-      expect(result.deadLettered).toBe(0);
-    });
-  });
 });

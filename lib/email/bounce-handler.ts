@@ -17,6 +17,7 @@ import {
   logError,
   logInfo,
 } from '@/lib/logging/notification-logger';
+import type { NotificationType } from '@/types/notifications';
 
 // ============================================================================
 // BOUNCE HANDLING FUNCTIONS
@@ -75,7 +76,7 @@ export async function handleBounce(
     bounceReason,
     logEntry.recipient_user_id,
     logEntry.recipient_email,
-    { notification_type: logEntry.notification_type }
+    { notification_type: logEntry.notification_type as NotificationType }
   );
 
   // 3. Check consecutive bounce count

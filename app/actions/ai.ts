@@ -1,12 +1,74 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any, max-lines */
 
 'use server';
 
 import { getAIProvider, isAIError, type AIMessage, type AIModelInfo } from '@/lib/ai';
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
-import { createClient } from '@/lib/supabase/server';
 import { executeAgent } from '@/lib/ai/registry';
 import { mapToOllamaModel } from '@/lib/ai/model-mappings';
+import { requireAIAuth, AIAuthError } from '@/lib/ai/auth';
+import { checkRateLimit } from '@/lib/ai/rate-limiter';
+import { createClient } from '@/lib/supabase/server';
+import type { AIGenerationType } from '@/types/ai-generation';
+
+/**
+ * Safely handle auth/rate-limit errors and return a user-friendly message.
+ */
+function handleAuthError(error: unknown): string {
+  if (error instanceof AIAuthError) {
+    return error.message;
+  }
+  return 'An unexpected error occurred.';
+}
+
+/**
+ * Enforce rate limits for a given user and agent.
+ */
+async function enforceRateLimit(user: { id: string; role: 'admin' | 'teacher' | 'student' | 'anonymous' }, agentId: string) {
+  const result = await checkRateLimit(user.id, user.role, agentId);
+  if (!result.allowed) {
+    throw new Error(`Rate limit exceeded. Please try again in ${result.retryAfter} seconds.`);
+  }
+}
+
+/**
+ * Fire-and-forget save of AI generation to the database.
+ * Never throws, never blocks the generation flow.
+ */
+async function saveAIGeneration(data: {
+  generationType: AIGenerationType;
+  agentId?: string;
+  modelId?: string;
+  provider?: string;
+  inputParams: Record<string, any>;
+  outputContent: string;
+  isSuccessful?: boolean;
+  errorMessage?: string;
+  contextEntityType?: string;
+  contextEntityId?: string;
+}) {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase.from('ai_generations').insert({
+      user_id: user.id,
+      generation_type: data.generationType,
+      agent_id: data.agentId ?? null,
+      model_id: data.modelId ?? null,
+      provider: data.provider ?? null,
+      input_params: data.inputParams,
+      output_content: data.outputContent,
+      is_successful: data.isSuccessful ?? true,
+      error_message: data.errorMessage ?? null,
+      context_entity_type: data.contextEntityType ?? null,
+      context_entity_id: data.contextEntityId ?? null,
+    });
+  } catch (err) {
+    console.error('[AI] Failed to save generation:', err);
+  }
+}
 
 /**
  * Unified streaming abstraction for all AI functions
@@ -43,25 +105,60 @@ async function* executeAgentStream(
   agentId: string,
   input: Record<string, any>,
   context: Record<string, any> = {},
-  options?: { delayMs?: number; chunkSize?: number }
+  options?: { delayMs?: number; chunkSize?: number },
+  generationType?: AIGenerationType
 ) {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, agentId);
+
     const result = await executeAgent(
       agentId,
       input,
-      context,
+      { ...context, userId: user.id, userRole: user.role },
     );
 
     if (result.error) {
-      yield `Error: ${result.error}`;
+      if (generationType) {
+        saveAIGeneration({
+          generationType,
+          agentId,
+          inputParams: input,
+          outputContent: result.error.message,
+          isSuccessful: false,
+          errorMessage: result.error.message,
+        });
+      }
+      yield `Error: ${result.error.message}`;
       return;
     }
 
     const content = String(result.result?.content || result.result || 'No content generated.');
+
+    if (generationType) {
+      saveAIGeneration({
+        generationType,
+        agentId,
+        inputParams: input,
+        outputContent: content,
+      });
+    }
+
     yield* createAIStream(content, options);
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Failed to generate content.';
+    if (generationType) {
+      saveAIGeneration({
+        generationType,
+        agentId,
+        inputParams: input,
+        outputContent: '',
+        isSuccessful: false,
+        errorMessage: errorMsg,
+      });
+    }
     console.error(`[${agentId}] Stream error:`, error);
-    yield `Error: ${error instanceof Error ? error.message : 'Failed to generate content.'}`;
+    yield `Error: ${errorMsg}`;
   }
 }
 
@@ -112,6 +209,9 @@ import {
  */
 export async function* generateAIResponseStream(prompt: string, model: string = DEFAULT_AI_MODEL) {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'ai-response-stream');
+
     const provider = await getAIProvider();
     const providerModel = await getProviderAppropriateModel(provider, model);
 
@@ -140,12 +240,30 @@ export async function* generateAIResponseStream(prompt: string, model: string = 
     });
 
     if (isAIError(result)) {
+      saveAIGeneration({
+        generationType: 'chat',
+        modelId: providerModel,
+        provider: provider.name?.toLowerCase(),
+        inputParams: { prompt },
+        outputContent: result.error,
+        isSuccessful: false,
+        errorMessage: result.error,
+      });
       yield `Error: ${result.error}`;
       return;
     }
 
     // Simulate streaming by yielding words progressively
     const content = result.content || 'No response generated.';
+
+    saveAIGeneration({
+      generationType: 'chat',
+      modelId: providerModel,
+      provider: provider.name?.toLowerCase(),
+      inputParams: { prompt },
+      outputContent: content,
+    });
+
     const words = content.split(' ');
 
     for (let i = 0; i < words.length; i++) {
@@ -155,8 +273,16 @@ export async function* generateAIResponseStream(prompt: string, model: string = 
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Failed to generate AI response.';
+    saveAIGeneration({
+      generationType: 'chat',
+      inputParams: { prompt },
+      outputContent: '',
+      isSuccessful: false,
+      errorMessage: errorMsg,
+    });
     console.error('[AI Stream] Error:', error);
-    yield `Error: ${error instanceof Error ? error.message : 'Failed to generate AI response.'}`;
+    yield `Error: ${errorMsg}`;
   }
 }
 
@@ -165,6 +291,9 @@ export async function generateAIResponse(
   model: string = DEFAULT_AI_MODEL
 ): Promise<{ content?: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'ai-response');
+
     // Get the configured provider
     const provider = await getAIProvider();
 
@@ -204,16 +333,38 @@ export async function generateAIResponse(
     // Handle error response
     if (isAIError(result)) {
       console.error(`[AI] ${provider.name} error:`, result.error);
+      saveAIGeneration({
+        generationType: 'chat',
+        modelId: providerModel,
+        provider: provider.name?.toLowerCase(),
+        inputParams: { prompt },
+        outputContent: result.error,
+        isSuccessful: false,
+        errorMessage: result.error,
+      });
       return { error: result.error };
     }
 
-    // Return success response
+    // Save success and return
+    saveAIGeneration({
+      generationType: 'chat',
+      modelId: providerModel,
+      provider: provider.name?.toLowerCase(),
+      inputParams: { prompt },
+      outputContent: result.content || '',
+    });
     return { content: result.content };
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Failed to generate AI response.';
     console.error('[AI] Unexpected error:', error);
-    return {
-      error: error instanceof Error ? error.message : 'Failed to generate AI response.',
-    };
+    saveAIGeneration({
+      generationType: 'chat',
+      inputParams: { prompt },
+      outputContent: '',
+      isSuccessful: false,
+      errorMessage: errorMsg,
+    });
+    return { error: errorMsg };
   }
 }
 
@@ -226,6 +377,8 @@ export async function getAvailableModels(): Promise<{
   error?: string;
 }> {
   try {
+    await requireAIAuth();
+
     const provider = await getAIProvider();
     const models = await provider.listModels();
 
@@ -258,7 +411,7 @@ export async function* generateLessonNotesStream(params: {
   skillsWorked?: string;
   nextSteps?: string;
 }) {
-  yield* executeAgentStream('lesson-notes-assistant', params);
+  yield* executeAgentStream('lesson-notes-assistant', params, {}, undefined, 'lesson_notes');
 }
 
 export async function generateLessonNotes(params: {
@@ -270,6 +423,9 @@ export async function generateLessonNotes(params: {
   previousNotes?: string;
 }): Promise<{ success: boolean; notes: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'lesson-notes-assistant');
+
     const response = await generateLessonNotesAgent({
       student_name: params.studentName,
       lesson_topic: params.lessonTopic,
@@ -282,27 +438,41 @@ export async function generateLessonNotes(params: {
     });
 
     if (!isAgentSuccess(response)) {
-      return {
-        success: false,
-        notes: '',
-        error: formatAgentError(response),
-      };
+      const err = formatAgentError(response);
+      saveAIGeneration({
+        generationType: 'lesson_notes',
+        agentId: 'lesson-notes-assistant',
+        inputParams: params,
+        outputContent: '',
+        isSuccessful: false,
+        errorMessage: err,
+      });
+      return { success: false, notes: '', error: err };
     }
 
-    const result = extractAgentResult(response);
+    const result = extractAgentResult(response) as any;
     const notes = result.content || result;
 
-    return {
-      success: true,
-      notes,
-    };
+    saveAIGeneration({
+      generationType: 'lesson_notes',
+      agentId: 'lesson-notes-assistant',
+      inputParams: params,
+      outputContent: notes,
+    });
+
+    return { success: true, notes };
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Failed to generate lesson notes';
     console.error('[AI] generateLessonNotes error:', error);
-    return {
-      success: false,
-      notes: '',
-      error: error instanceof Error ? error.message : 'Failed to generate lesson notes',
-    };
+    saveAIGeneration({
+      generationType: 'lesson_notes',
+      agentId: 'lesson-notes-assistant',
+      inputParams: params,
+      outputContent: '',
+      isSuccessful: false,
+      errorMessage: errorMsg,
+    });
+    return { success: false, notes: '', error: errorMsg };
   }
 }
 
@@ -319,7 +489,7 @@ export async function* generateAssignmentStream(params: {
   timeAvailable?: string;
   additionalNotes?: string;
 }) {
-  yield* executeAgentStream('assignment-generator', params);
+  yield* executeAgentStream('assignment-generator', params, {}, undefined, 'assignment');
 }
 
 export async function generateAssignment(params: {
@@ -331,6 +501,9 @@ export async function generateAssignment(params: {
   lessonTopic?: string;
 }): Promise<{ success: boolean; assignment: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'assignment-generator');
+
     const response = await generateAssignmentAgent({
       student_name: params.studentName,
       student_level: params.studentLevel,
@@ -343,27 +516,41 @@ export async function generateAssignment(params: {
     });
 
     if (!isAgentSuccess(response)) {
-      return {
-        success: false,
-        assignment: '',
-        error: formatAgentError(response),
-      };
+      const err = formatAgentError(response);
+      saveAIGeneration({
+        generationType: 'assignment',
+        agentId: 'assignment-generator',
+        inputParams: params,
+        outputContent: '',
+        isSuccessful: false,
+        errorMessage: err,
+      });
+      return { success: false, assignment: '', error: err };
     }
 
-    const result = extractAgentResult(response);
+    const result = extractAgentResult(response) as any;
     const assignment = result.content || result;
 
-    return {
-      success: true,
-      assignment,
-    };
+    saveAIGeneration({
+      generationType: 'assignment',
+      agentId: 'assignment-generator',
+      inputParams: params,
+      outputContent: assignment,
+    });
+
+    return { success: true, assignment };
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Failed to generate assignment';
     console.error('[AI] generateAssignment error:', error);
-    return {
-      success: false,
-      assignment: '',
-      error: error instanceof Error ? error.message : 'Failed to generate assignment',
-    };
+    saveAIGeneration({
+      generationType: 'assignment',
+      agentId: 'assignment-generator',
+      inputParams: params,
+      outputContent: '',
+      isSuccessful: false,
+      errorMessage: errorMsg,
+    });
+    return { success: false, assignment: '', error: errorMsg };
   }
 }
 
@@ -380,7 +567,7 @@ export async function* generateEmailDraftStream(params: {
   tone?: string;
   additional_info?: string;
 }) {
-  yield* executeAgentStream('email-draft-generator', params);
+  yield* executeAgentStream('email-draft-generator', params, {}, undefined, 'email_draft');
 }
 
 export async function generateEmailDraft(params: {
@@ -393,6 +580,9 @@ export async function generateEmailDraft(params: {
   context: Record<string, unknown>;
 }): Promise<{ success: boolean; subject: string; body: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'email-draft-generator');
+
     const response = await generateEmailDraftAgent({
       template_type: params.templateType,
       student_name: params.studentName,
@@ -407,15 +597,19 @@ export async function generateEmailDraft(params: {
     });
 
     if (!isAgentSuccess(response)) {
-      return {
-        success: false,
-        subject: '',
-        body: '',
-        error: formatAgentError(response),
-      };
+      const err = formatAgentError(response);
+      saveAIGeneration({
+        generationType: 'email_draft',
+        agentId: 'email-draft-generator',
+        inputParams: params,
+        outputContent: '',
+        isSuccessful: false,
+        errorMessage: err,
+      });
+      return { success: false, subject: '', body: '', error: err };
     }
 
-    const result = extractAgentResult(response);
+    const result = extractAgentResult(response) as any;
 
     // Parse the AI response to extract subject and body
     const content = result.content || result;
@@ -429,19 +623,26 @@ export async function generateEmailDraft(params: {
       body = content.replace(/Subject:\s*.+?(?:\n|$)/i, '').trim();
     }
 
-    return {
-      success: true,
-      subject,
-      body,
-    };
+    saveAIGeneration({
+      generationType: 'email_draft',
+      agentId: 'email-draft-generator',
+      inputParams: params,
+      outputContent: content,
+    });
+
+    return { success: true, subject, body };
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Failed to generate email draft';
     console.error('[AI] generateEmailDraft error:', error);
-    return {
-      success: false,
-      subject: '',
-      body: '',
-      error: error instanceof Error ? error.message : 'Failed to generate email draft',
-    };
+    saveAIGeneration({
+      generationType: 'email_draft',
+      agentId: 'email-draft-generator',
+      inputParams: params,
+      outputContent: '',
+      isSuccessful: false,
+      errorMessage: errorMsg,
+    });
+    return { success: false, subject: '', body: '', error: errorMsg };
   }
 }
 
@@ -463,7 +664,7 @@ export async function* generatePostLessonSummaryStream(params: {
   challengesNoted?: string;
   nextSteps?: string;
 }) {
-  yield* executeAgentStream('post-lesson-summary', params);
+  yield* executeAgentStream('post-lesson-summary', params, {}, undefined, 'post_lesson_summary');
 }
 
 export async function generatePostLessonSummary(params: {
@@ -476,6 +677,9 @@ export async function generatePostLessonSummary(params: {
   teacherNotes?: string;
 }): Promise<{ success: boolean; summary: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'post-lesson-summary');
+
     const response = await generatePostLessonSummaryAgent({
       student_name: params.studentName,
       lesson_date: new Date().toLocaleDateString(),
@@ -488,27 +692,41 @@ export async function generatePostLessonSummary(params: {
     });
 
     if (!isAgentSuccess(response)) {
-      return {
-        success: false,
-        summary: '',
-        error: formatAgentError(response),
-      };
+      const err = formatAgentError(response);
+      saveAIGeneration({
+        generationType: 'post_lesson_summary',
+        agentId: 'post-lesson-summary',
+        inputParams: params,
+        outputContent: '',
+        isSuccessful: false,
+        errorMessage: err,
+      });
+      return { success: false, summary: '', error: err };
     }
 
-    const result = extractAgentResult(response);
+    const result = extractAgentResult(response) as any;
     const summary = result.content || result;
 
-    return {
-      success: true,
-      summary,
-    };
+    saveAIGeneration({
+      generationType: 'post_lesson_summary',
+      agentId: 'post-lesson-summary',
+      inputParams: params,
+      outputContent: summary,
+    });
+
+    return { success: true, summary };
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Failed to generate post-lesson summary';
     console.error('[AI] generatePostLessonSummary error:', error);
-    return {
-      success: false,
-      summary: '',
-      error: error instanceof Error ? error.message : 'Failed to generate post-lesson summary',
-    };
+    saveAIGeneration({
+      generationType: 'post_lesson_summary',
+      agentId: 'post-lesson-summary',
+      inputParams: params,
+      outputContent: '',
+      isSuccessful: false,
+      errorMessage: errorMsg,
+    });
+    return { success: false, summary: '', error: errorMsg };
   }
 }
 
@@ -531,7 +749,7 @@ export async function* analyzeStudentProgressStream(params: {
   lessonHistory?: any;
   skillAssessments?: any;
 }) {
-  yield* executeAgentStream('student-progress-insights', params);
+  yield* executeAgentStream('student-progress-insights', params, {}, undefined, 'student_progress');
 }
 
 export async function analyzeStudentProgress(params: {
@@ -539,6 +757,9 @@ export async function analyzeStudentProgress(params: {
   timePeriod: string;
 }): Promise<{ success: boolean; insights: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'student-progress-insights');
+
     const response = await analyzeStudentProgressAgent({
       student_ids: [params.studentId],
       time_period: params.timePeriod,
@@ -546,27 +767,41 @@ export async function analyzeStudentProgress(params: {
     });
 
     if (!isAgentSuccess(response)) {
-      return {
-        success: false,
-        insights: '',
-        error: formatAgentError(response),
-      };
+      const err = formatAgentError(response);
+      saveAIGeneration({
+        generationType: 'student_progress',
+        agentId: 'student-progress-insights',
+        inputParams: params,
+        outputContent: '',
+        isSuccessful: false,
+        errorMessage: err,
+      });
+      return { success: false, insights: '', error: err };
     }
 
-    const result = extractAgentResult(response);
+    const result = extractAgentResult(response) as any;
     const insights = result.content || result;
 
-    return {
-      success: true,
-      insights,
-    };
+    saveAIGeneration({
+      generationType: 'student_progress',
+      agentId: 'student-progress-insights',
+      inputParams: params,
+      outputContent: insights,
+    });
+
+    return { success: true, insights };
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Failed to analyze student progress';
     console.error('[AI] analyzeStudentProgress error:', error);
-    return {
-      success: false,
-      insights: '',
-      error: error instanceof Error ? error.message : 'Failed to analyze student progress',
-    };
+    saveAIGeneration({
+      generationType: 'student_progress',
+      agentId: 'student-progress-insights',
+      inputParams: params,
+      outputContent: '',
+      isSuccessful: false,
+      errorMessage: errorMsg,
+    });
+    return { success: false, insights: '', error: errorMsg };
   }
 }
 
@@ -581,7 +816,7 @@ export async function* generateAdminInsightsStream(params: {
   timeframe?: string;
   focusAreas?: string[];
 }) {
-  yield* executeAgentStream('admin-dashboard-insights', params);
+  yield* executeAgentStream('admin-dashboard-insights', params, {}, undefined, 'admin_insights');
 }
 
 export async function generateAdminInsights(params: {
@@ -594,6 +829,9 @@ export async function generateAdminInsights(params: {
   teacherStats?: string;
 }): Promise<{ success: boolean; insights: string; error?: string }> {
   try {
+    const user = await requireAIAuth();
+    await enforceRateLimit(user, 'admin-dashboard-insights');
+
     const response = await generateAdminInsightsAgent({
       total_users: params.totalStudents + params.newStudents,
       total_students: params.totalStudents,
@@ -603,26 +841,40 @@ export async function generateAdminInsights(params: {
     });
 
     if (!isAgentSuccess(response)) {
-      return {
-        success: false,
-        insights: '',
-        error: formatAgentError(response),
-      };
+      const err = formatAgentError(response);
+      saveAIGeneration({
+        generationType: 'admin_insights',
+        agentId: 'admin-dashboard-insights',
+        inputParams: params,
+        outputContent: '',
+        isSuccessful: false,
+        errorMessage: err,
+      });
+      return { success: false, insights: '', error: err };
     }
 
-    const result = extractAgentResult(response);
+    const result = extractAgentResult(response) as any;
     const insights = result.content || result;
 
-    return {
-      success: true,
-      insights,
-    };
+    saveAIGeneration({
+      generationType: 'admin_insights',
+      agentId: 'admin-dashboard-insights',
+      inputParams: params,
+      outputContent: insights,
+    });
+
+    return { success: true, insights };
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Failed to generate admin insights';
     console.error('[AI] generateAdminInsights error:', error);
-    return {
-      success: false,
-      insights: '',
-      error: error instanceof Error ? error.message : 'Failed to generate admin insights',
-    };
+    saveAIGeneration({
+      generationType: 'admin_insights',
+      agentId: 'admin-dashboard-insights',
+      inputParams: params,
+      outputContent: '',
+      isSuccessful: false,
+      errorMessage: errorMsg,
+    });
+    return { success: false, insights: '', error: errorMsg };
   }
 }

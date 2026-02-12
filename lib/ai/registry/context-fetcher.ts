@@ -2,7 +2,9 @@
 /**
  * Agent Context Data Fetchers
  *
- * Utilities for fetching context data required by agents
+ * Utilities for fetching context data required by agents.
+ * All queries use the RLS-enforced Supabase client from createClient(),
+ * so access is scoped to the authenticated user's permissions. [BMS-112]
  */
 
 import { createClient } from '@/lib/supabase/server';
@@ -94,14 +96,22 @@ async function fetchCurrentStudent(supabase: any, context: AgentContext) {
  * Fetch recent lessons
  */
 async function fetchRecentLessons(supabase: any, context: AgentContext) {
-  const { data: lessons, error } = await supabase
+  // RLS enforces access; additionally scope by userId when available [BMS-112]
+  let query = supabase
     .from('lessons')
     .select('*')
     .order('scheduled_at', { ascending: false })
     .limit(5);
 
+  if (context.userId) {
+    query = query.eq('teacher_id', context.userId);
+  }
+
+  const { data: lessons, error } = await query;
+
   if (error) {
-    throw new Error(`Failed to fetch recent lessons: ${error.message}`);
+    console.warn('[ContextFetcher] Failed to fetch recent lessons:', error.message);
+    return [];
   }
 
   return lessons || [];
@@ -132,14 +142,21 @@ async function fetchStudentData(supabase: any, context: AgentContext) {
  * Fetch lesson history
  */
 async function fetchLessonHistory(supabase: any, context: AgentContext) {
-  const { data: lessons, error } = await supabase
+  let query = supabase
     .from('lessons')
     .select('*')
     .order('scheduled_at', { ascending: false })
     .limit(20);
 
+  if (context.userId) {
+    query = query.eq('teacher_id', context.userId);
+  }
+
+  const { data: lessons, error } = await query;
+
   if (error) {
-    throw new Error(`Failed to fetch lesson history: ${error.message}`);
+    console.warn('[ContextFetcher] Failed to fetch lesson history:', error.message);
+    return [];
   }
 
   return lessons || [];
@@ -149,14 +166,21 @@ async function fetchLessonHistory(supabase: any, context: AgentContext) {
  * Fetch assignment history
  */
 async function fetchAssignmentHistory(supabase: any, context: AgentContext) {
-  const { data: assignments, error } = await supabase
+  let query = supabase
     .from('assignments')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(10);
 
+  if (context.userId) {
+    query = query.eq('teacher_id', context.userId);
+  }
+
+  const { data: assignments, error } = await query;
+
   if (error) {
-    throw new Error(`Failed to fetch assignment history: ${error.message}`);
+    console.warn('[ContextFetcher] Failed to fetch assignment history:', error.message);
+    return [];
   }
 
   return assignments || [];
@@ -251,9 +275,7 @@ async function fetchEnrollmentData(supabase: any) {
 /**
  * Fetch revenue data (placeholder - implement based on your billing system)
  */
-async function fetchRevenueData(supabase: any) {
-  // This would integrate with your billing/payment system
-  // For now, return empty data
-  console.warn('Revenue data fetching not implemented');
-  return [];
+async function fetchRevenueData(_supabase: any) {
+  // Not yet implemented — return null so agents know data is unavailable [BMS-116]
+  return null;
 }

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any, max-lines */
 
 'use client';
 
@@ -470,7 +470,7 @@ export function StudentSongDetailPageClient() {
                 {song.audio_files && (
                   <Button variant="outline" asChild className="h-12">
                     <a
-                      href={song.audio_files}
+                      href={Object.values(song.audio_files)[0] ?? '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2"

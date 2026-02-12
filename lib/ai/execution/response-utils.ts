@@ -17,7 +17,7 @@ export function isAgentSuccess(response: AgentResponse): boolean {
 /**
  * Extract result from successful agent response
  */
-export function extractAgentResult(response: AgentResponse): any {
+export function extractAgentResult(response: AgentResponse): unknown {
   if (!response.success) {
     throw new Error(response.error?.message || 'Agent execution failed');
   }

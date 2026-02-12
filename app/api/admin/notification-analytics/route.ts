@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
     );
 
     // Sort by date
-    sentByDay.sort((a, b) => a.date.localeCompare(b.date));
+    sentByDay.sort((a: { date: string; count: number }, b: { date: string; count: number }) => a.date.localeCompare(b.date));
 
     const analytics: NotificationAnalytics = {
       totalSent,

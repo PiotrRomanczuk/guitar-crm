@@ -60,10 +60,10 @@ describe('songs actions', () => {
         isTeacher: false,
       });
 
-      await updateLessonSongStatus(validLessonSongId, 'completed');
+      await updateLessonSongStatus(validLessonSongId, 'mastered');
 
       expect(mockFrom).toHaveBeenCalledWith('lesson_songs');
-      expect(mockUpdate).toHaveBeenCalledWith({ status: 'completed' });
+      expect(mockUpdate).toHaveBeenCalledWith({ status: 'mastered' });
       expect(mockEq).toHaveBeenCalledWith('id', validLessonSongId);
     });
 
@@ -73,10 +73,10 @@ describe('songs actions', () => {
         isTeacher: true,
       });
 
-      await updateLessonSongStatus(validLessonSongId, 'in_progress');
+      await updateLessonSongStatus(validLessonSongId, 'started');
 
       expect(mockFrom).toHaveBeenCalledWith('lesson_songs');
-      expect(mockUpdate).toHaveBeenCalledWith({ status: 'in_progress' });
+      expect(mockUpdate).toHaveBeenCalledWith({ status: 'started' });
       expect(mockEq).toHaveBeenCalledWith('id', validLessonSongId);
     });
 
@@ -87,43 +87,78 @@ describe('songs actions', () => {
       });
 
       await expect(
-        updateLessonSongStatus(validLessonSongId, 'completed')
+        updateLessonSongStatus(validLessonSongId, 'mastered')
       ).rejects.toThrow('Unauthorized');
 
       expect(mockFrom).not.toHaveBeenCalled();
     });
 
-    it('should accept not_started status', async () => {
+    it('should accept to_learn status', async () => {
       mockGetUserWithRolesSSR.mockResolvedValueOnce({
         isAdmin: true,
         isTeacher: false,
       });
 
-      await updateLessonSongStatus(validLessonSongId, 'not_started');
+      await updateLessonSongStatus(validLessonSongId, 'to_learn');
 
-      expect(mockUpdate).toHaveBeenCalledWith({ status: 'not_started' });
+      expect(mockUpdate).toHaveBeenCalledWith({ status: 'to_learn' });
     });
 
-    it('should accept in_progress status', async () => {
+    it('should accept started status', async () => {
       mockGetUserWithRolesSSR.mockResolvedValueOnce({
         isAdmin: true,
         isTeacher: false,
       });
 
-      await updateLessonSongStatus(validLessonSongId, 'in_progress');
+      await updateLessonSongStatus(validLessonSongId, 'started');
 
-      expect(mockUpdate).toHaveBeenCalledWith({ status: 'in_progress' });
+      expect(mockUpdate).toHaveBeenCalledWith({ status: 'started' });
     });
 
-    it('should accept completed status', async () => {
+    it('should accept remembered status', async () => {
       mockGetUserWithRolesSSR.mockResolvedValueOnce({
         isAdmin: true,
         isTeacher: false,
       });
 
-      await updateLessonSongStatus(validLessonSongId, 'completed');
+      await updateLessonSongStatus(validLessonSongId, 'remembered');
 
-      expect(mockUpdate).toHaveBeenCalledWith({ status: 'completed' });
+      expect(mockUpdate).toHaveBeenCalledWith({ status: 'remembered' });
+    });
+
+    it('should accept with_author status', async () => {
+      mockGetUserWithRolesSSR.mockResolvedValueOnce({
+        isAdmin: true,
+        isTeacher: false,
+      });
+
+      await updateLessonSongStatus(validLessonSongId, 'with_author');
+
+      expect(mockUpdate).toHaveBeenCalledWith({ status: 'with_author' });
+    });
+
+    it('should accept mastered status', async () => {
+      mockGetUserWithRolesSSR.mockResolvedValueOnce({
+        isAdmin: true,
+        isTeacher: false,
+      });
+
+      await updateLessonSongStatus(validLessonSongId, 'mastered');
+
+      expect(mockUpdate).toHaveBeenCalledWith({ status: 'mastered' });
+    });
+
+    it('should reject invalid status values', async () => {
+      mockGetUserWithRolesSSR.mockResolvedValueOnce({
+        isAdmin: true,
+        isTeacher: false,
+      });
+
+      await expect(
+        updateLessonSongStatus(validLessonSongId, 'completed')
+      ).rejects.toThrow('Invalid song status');
+
+      expect(mockFrom).not.toHaveBeenCalled();
     });
 
     it('should throw error when database update fails', async () => {

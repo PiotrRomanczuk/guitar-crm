@@ -4,12 +4,20 @@
  */
 
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
-import { createClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
 
 // Mock dependencies
-jest.mock('@/lib/supabase/server');
+jest.mock('next/headers');
+jest.mock('@supabase/ssr');
 
 describe('getUserWithRolesSSR', () => {
+  const mockCookieStore = {
+    getAll: jest.fn(),
+    set: jest.fn(),
+    get: jest.fn(),
+  };
+
   const mockSupabaseClient = {
     auth: {
       getUser: jest.fn(),
@@ -19,22 +27,17 @@ describe('getUserWithRolesSSR', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (createClient as jest.Mock).mockResolvedValue(mockSupabaseClient);
+    (cookies as jest.Mock).mockResolvedValue(mockCookieStore);
+    (createServerClient as jest.Mock).mockReturnValue(mockSupabaseClient);
   });
 
-  describe('Admin User (p.romanczuk@gmail.com)', () => {
-    it('returns user with admin and teacher roles', async () => {
+  describe('Admin User', () => {
+    it('returns user with admin and teacher roles from profile', async () => {
       const mockUser = {
         id: 'admin-user-id',
         email: 'p.romanczuk@gmail.com',
         aud: 'authenticated',
         role: 'authenticated',
-      };
-
-      const mockProfile = {
-        is_admin: true,
-        is_teacher: true,
-        is_student: false,
       };
 
       mockSupabaseClient.auth.getUser.mockResolvedValue({
@@ -46,7 +49,7 @@ describe('getUserWithRolesSSR', () => {
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
             single: jest.fn().mockResolvedValue({
-              data: mockProfile,
+              data: { is_admin: true, is_teacher: true, is_student: false },
               error: null,
             }),
           }),
@@ -64,19 +67,13 @@ describe('getUserWithRolesSSR', () => {
     });
   });
 
-  describe('Teacher User (teacher@example.com)', () => {
-    it('returns user with teacher role only', async () => {
+  describe('Teacher User', () => {
+    it('returns user with teacher role only from profile', async () => {
       const mockUser = {
         id: 'teacher-user-id',
         email: 'teacher@example.com',
         aud: 'authenticated',
         role: 'authenticated',
-      };
-
-      const mockProfile = {
-        is_admin: false,
-        is_teacher: true,
-        is_student: false,
       };
 
       mockSupabaseClient.auth.getUser.mockResolvedValue({
@@ -88,7 +85,7 @@ describe('getUserWithRolesSSR', () => {
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
             single: jest.fn().mockResolvedValue({
-              data: mockProfile,
+              data: { is_admin: false, is_teacher: true, is_student: false },
               error: null,
             }),
           }),
@@ -106,19 +103,13 @@ describe('getUserWithRolesSSR', () => {
     });
   });
 
-  describe('Student User (student@example.com)', () => {
-    it('returns user with student role only', async () => {
+  describe('Student User', () => {
+    it('returns user with student role only from profile', async () => {
       const mockUser = {
         id: 'student-user-id',
         email: 'student@example.com',
         aud: 'authenticated',
         role: 'authenticated',
-      };
-
-      const mockProfile = {
-        is_admin: false,
-        is_teacher: false,
-        is_student: true,
       };
 
       mockSupabaseClient.auth.getUser.mockResolvedValue({
@@ -130,7 +121,7 @@ describe('getUserWithRolesSSR', () => {
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
             single: jest.fn().mockResolvedValue({
-              data: mockProfile,
+              data: { is_admin: false, is_teacher: false, is_student: true },
               error: null,
             }),
           }),
@@ -184,7 +175,7 @@ describe('getUserWithRolesSSR', () => {
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
             single: jest.fn().mockResolvedValue({
-              data: null,
+              data: null, // No roles found
               error: null,
             }),
           }),

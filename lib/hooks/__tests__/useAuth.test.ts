@@ -68,13 +68,13 @@ describe('useAuth', () => {
     });
   });
 
-  // Helper to setup the chain of mocks for profile fetching
-  // Source queries: supabase.from('profiles').select('is_admin, is_teacher, is_student').eq('id', user.id).single()
-  const setupProfileMocks = (profileResult: { data: unknown; error: unknown }) => {
+  // Helper to setup the chain of mocks for role fetching
+  // Source uses: from('profiles').select('is_admin, is_teacher, is_student').eq('id', user.id).single()
+  const setupRoleMocks = (profileData: { data: Record<string, boolean> | null; error: unknown }) => {
     mockFrom.mockReturnValue({
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue(profileResult),
+          single: jest.fn().mockResolvedValue(profileData),
         }),
       }),
     });
@@ -84,7 +84,7 @@ describe('useAuth', () => {
     it('should start in loading state', () => {
       // Don't resolve getUser yet
       mockGetUser.mockReturnValue(new Promise(() => {}));
-      setupProfileMocks({ data: null, error: null });
+      setupRoleMocks({ data: null, error: null });
 
       const { result } = renderHook(() => useAuth());
 
@@ -96,7 +96,7 @@ describe('useAuth', () => {
   describe('Unauthenticated State', () => {
     it('should return null user when not authenticated', async () => {
       mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
-      setupProfileMocks({ data: null, error: null });
+      setupRoleMocks({ data: null, error: null });
 
       const { result } = renderHook(() => useAuth());
 
@@ -115,10 +115,7 @@ describe('useAuth', () => {
   describe('Authenticated State with Roles', () => {
     it('should fetch admin role from profiles table', async () => {
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-      setupProfileMocks({
-        data: { is_admin: true, is_teacher: false, is_student: false },
-        error: null,
-      });
+      setupRoleMocks({ data: { is_admin: true, is_teacher: false, is_student: false }, error: null });
 
       const { result } = renderHook(() => useAuth());
 
@@ -134,10 +131,7 @@ describe('useAuth', () => {
 
     it('should fetch teacher role from profiles table', async () => {
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-      setupProfileMocks({
-        data: { is_admin: false, is_teacher: true, is_student: false },
-        error: null,
-      });
+      setupRoleMocks({ data: { is_admin: false, is_teacher: true, is_student: false }, error: null });
 
       const { result } = renderHook(() => useAuth());
 
@@ -152,10 +146,7 @@ describe('useAuth', () => {
 
     it('should fetch student role from profiles table', async () => {
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-      setupProfileMocks({
-        data: { is_admin: false, is_teacher: false, is_student: true },
-        error: null,
-      });
+      setupRoleMocks({ data: { is_admin: false, is_teacher: false, is_student: true }, error: null });
 
       const { result } = renderHook(() => useAuth());
 
@@ -170,10 +161,7 @@ describe('useAuth', () => {
 
     it('should handle multiple roles', async () => {
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-      setupProfileMocks({
-        data: { is_admin: true, is_teacher: true, is_student: false },
-        error: null,
-      });
+      setupRoleMocks({ data: { is_admin: true, is_teacher: true, is_student: false }, error: null });
 
       const { result } = renderHook(() => useAuth());
 
@@ -193,7 +181,7 @@ describe('useAuth', () => {
         data: { user: null },
         error: { message: 'Auth error' },
       });
-      setupProfileMocks({ data: null, error: null });
+      setupRoleMocks({ data: null, error: null });
 
       const { result } = renderHook(() => useAuth());
 
@@ -207,7 +195,8 @@ describe('useAuth', () => {
 
     it('should handle role fetch errors gracefully', async () => {
       mockGetUser.mockResolvedValue({ data: { user: mockUser }, error: null });
-      setupProfileMocks({ data: null, error: { message: 'Database error' } });
+      // Simulate error fetching profile - single() returns null data with error
+      setupRoleMocks({ data: null, error: { message: 'Database error' } });
 
       const { result } = renderHook(() => useAuth());
 
@@ -226,7 +215,7 @@ describe('useAuth', () => {
   describe('Auth State Listener', () => {
     it('should setup auth state change listener', async () => {
       mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
-      setupProfileMocks({ data: null, error: null });
+      setupRoleMocks({ data: null, error: null });
 
       renderHook(() => useAuth());
 
@@ -235,7 +224,7 @@ describe('useAuth', () => {
 
     it('should cleanup subscription on unmount', async () => {
       mockGetUser.mockResolvedValue({ data: { user: null }, error: null });
-      setupProfileMocks({ data: null, error: null });
+      setupRoleMocks({ data: null, error: null });
 
       const { unmount } = renderHook(() => useAuth());
 
@@ -259,12 +248,12 @@ describe('useHasRole', () => {
     });
   });
 
-  const setupMocks = (user: unknown, profileResult: { data: unknown; error: unknown }) => {
+  const setupMocks = (user: unknown, profileData: { data: Record<string, boolean> | null; error: unknown }) => {
     mockGetUser.mockResolvedValue({ data: { user }, error: null });
     mockFrom.mockReturnValue({
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue(profileResult),
+          single: jest.fn().mockResolvedValue(profileData),
         }),
       }),
     });
@@ -333,12 +322,12 @@ describe('useHasAnyRole', () => {
     });
   });
 
-  const setupMocks = (user: unknown, profileResult: { data: unknown; error: unknown }) => {
+  const setupMocks = (user: unknown, profileData: { data: Record<string, boolean> | null; error: unknown }) => {
     mockGetUser.mockResolvedValue({ data: { user }, error: null });
     mockFrom.mockReturnValue({
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue(profileResult),
+          single: jest.fn().mockResolvedValue(profileData),
         }),
       }),
     });
