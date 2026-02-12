@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, Trash2, CheckCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, Trash2, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
 import type { AIGeneration } from '@/types/ai-generation';
 import { GENERATION_TYPE_LABELS } from '@/types/ai-generation';
 import { truncateContent, getGenerationTypeColor, formatRelativeDate } from './ai-generation.helpers';
@@ -59,9 +59,7 @@ export function AIGenerationHistoryTable({
           <TableRow>
             <TableHead className="w-[140px]">Type</TableHead>
             <TableHead>Content</TableHead>
-            <TableHead className="w-[120px]">Model</TableHead>
             <TableHead className="w-[100px]">Date</TableHead>
-            <TableHead className="w-[60px]">Status</TableHead>
             <TableHead className="w-[80px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -69,35 +67,33 @@ export function AIGenerationHistoryTable({
           {generations.map((gen) => (
             <TableRow
               key={gen.id}
-              className="cursor-pointer"
+              className="cursor-pointer group"
               onClick={() => onSelect(gen)}
             >
-              <TableCell>
+              <TableCell className="align-top pt-3">
                 <Badge className={getGenerationTypeColor(gen.generation_type)}>
                   {GENERATION_TYPE_LABELS[gen.generation_type]}
                 </Badge>
               </TableCell>
-              <TableCell className="max-w-[300px]">
-                <span className="text-sm truncate block">
-                  {truncateContent(gen.output_content)}
-                </span>
-              </TableCell>
-              <TableCell>
-                <span className="font-mono text-xs text-muted-foreground">
+              <TableCell className="py-3">
+                {gen.is_successful ? (
+                  <p className="text-sm text-foreground line-clamp-2 leading-relaxed">
+                    {truncateContent(gen.output_content, 160)}
+                  </p>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-destructive">
+                    <AlertTriangle className="size-3.5 shrink-0" />
+                    <span>{gen.error_message || 'Generation failed'}</span>
+                  </div>
+                )}
+                <span className="text-xs text-muted-foreground mt-1 block font-mono">
                   {gen.model_id ? gen.model_id.split('/').pop() : '-'}
                 </span>
               </TableCell>
-              <TableCell className="text-sm text-muted-foreground">
+              <TableCell className="align-top pt-3 text-sm text-muted-foreground whitespace-nowrap">
                 {formatRelativeDate(gen.created_at)}
               </TableCell>
-              <TableCell>
-                {gen.is_successful ? (
-                  <CheckCircle className="size-4 text-green-500" />
-                ) : (
-                  <XCircle className="size-4 text-destructive" />
-                )}
-              </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="align-top pt-2.5 text-right">
                 <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                   <Button
                     variant="ghost"
@@ -106,13 +102,13 @@ export function AIGenerationHistoryTable({
                     onClick={() => onToggleStar(gen.id)}
                   >
                     <Star
-                      className={`size-3.5 ${gen.is_starred ? 'fill-yellow-400 text-yellow-400' : ''}`}
+                      className={`size-3.5 ${gen.is_starred ? 'fill-yellow-400 text-yellow-400' : 'opacity-0 group-hover:opacity-100 transition-opacity'}`}
                     />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-7 text-destructive hover:text-destructive"
+                    className="size-7 text-destructive hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={() => onDelete(gen.id)}
                   >
                     <Trash2 className="size-3.5" />
