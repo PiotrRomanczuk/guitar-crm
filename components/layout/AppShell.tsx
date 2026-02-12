@@ -9,10 +9,11 @@ import { getSupabaseConfig } from '@/lib/supabase/config';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsWidescreen } from '@/hooks/use-is-widescreen';
 import { Separator } from '@/components/ui/separator';
+import { NotificationBell } from '@/components/notifications';
 
 interface AppShellProps {
   children: React.ReactNode;
-  user: { email?: string } | null;
+  user: { id?: string; email?: string } | null;
   isAdmin: boolean;
   isTeacher: boolean;
   isStudent: boolean;
@@ -75,6 +76,7 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
                       .replace(/^\w/, (c) => c.toUpperCase()) || 'Page'}
               </h2>
             </div>
+            <NotificationBell userId={user?.id} />
           </header>
           <main className="flex-1 bg-background p-3 sm:p-4 md:p-6 lg:p-8 ultrawide:p-10 overflow-x-hidden w-full max-w-full">
             {children}

@@ -84,11 +84,14 @@ export type NotificationCategory = keyof typeof NOTIFICATION_CATEGORIES;
 // DATABASE TABLE TYPES
 // ============================================================================
 
+export type NotificationDeliveryChannel = 'email' | 'in_app' | 'both';
+
 export interface NotificationPreference {
   id: string;
   user_id: string;
   notification_type: NotificationType;
   enabled: boolean;
+  delivery_channel: NotificationDeliveryChannel;
   created_at: string;
   updated_at: string;
 }
