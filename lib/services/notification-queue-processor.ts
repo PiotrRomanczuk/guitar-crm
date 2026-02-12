@@ -85,6 +85,32 @@ export async function processQueuedNotifications(
     // Process each notification
     for (const notification of queuedNotifications) {
       try {
+        // Dedup check: skip if already sent manually for this entity
+        if (notification.entity_type && notification.entity_id) {
+          const { data: existing } = await supabase
+            .from('notification_log')
+            .select('id')
+            .eq('notification_type', notification.notification_type)
+            .eq('entity_type', notification.entity_type)
+            .eq('entity_id', notification.entity_id)
+            .eq('status', 'sent')
+            .limit(1);
+
+          if (existing && existing.length > 0) {
+            await supabase
+              .from('notification_queue')
+              .update({
+                status: 'cancelled',
+                processed_at: new Date().toISOString(),
+              })
+              .eq('id', notification.id);
+
+            logInfo(`Skipped duplicate notification ${notification.id} — already sent for ${notification.entity_type}:${notification.entity_id}`);
+            processed++;
+            continue;
+          }
+        }
+
         const result = await sendNotification({
           type: notification.notification_type as NotificationType,
           recipientUserId: notification.recipient_user_id,

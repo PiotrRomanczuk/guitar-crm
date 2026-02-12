@@ -27,7 +27,7 @@ export function generateAssignmentOverdueAlertHtml(data: AssignmentOverdueAlertD
 
     ${createCardSection(`
       <div style="margin-bottom: 16px;">
-        <h3 style="margin: 0 0 8px 0; color: #18181b; font-size: 18px; font-weight: 600;">
+        <h3 style="margin: 0 0 8px 0; color: #1c1917; font-size: 18px; font-weight: 600;">
           ${assignmentTitle}
         </h3>
       </div>
@@ -35,7 +35,7 @@ export function generateAssignmentOverdueAlertHtml(data: AssignmentOverdueAlertD
       ${createDetailRow('Was Due', `<span style="color: #ef4444;">${dueDate}</span>`)}
       ${createDetailRow('Days Overdue', `<span style="color: #ef4444; font-weight: 600;">${daysOverdue}</span>`)}
 
-      <div style="margin-top: 16px; padding-top: 16px; border-top: 1px dashed #e4e4e7;">
+      <div style="margin-top: 16px; padding-top: 16px; border-top: 1px dashed #e8e0d8;">
         ${createStatusBadge('Overdue', 'warning')}
       </div>
     `)}

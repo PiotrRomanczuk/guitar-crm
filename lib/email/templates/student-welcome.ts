@@ -18,7 +18,7 @@ export function generateStudentWelcomeHtml(data: StudentWelcomeData): string {
   const { studentName, teacherName, loginLink, firstLessonDate } = data;
 
   const bodyContent = `
-    ${createSectionHeading('Welcome to Strummy! 🎸')}
+    ${createSectionHeading('Welcome to Strummy!')}
     ${createGreeting(studentName)}
     ${createParagraph(
       `We're thrilled to have you join us! You've been enrolled with ${teacherName} and are all set to begin your guitar learning journey.`
@@ -26,10 +26,10 @@ export function generateStudentWelcomeHtml(data: StudentWelcomeData): string {
 
     ${createCardSection(`
       <div style="text-align: center; margin-bottom: 20px;">
-        <h3 style="margin: 0 0 12px 0; color: #18181b; font-size: 18px; font-weight: 600;">
+        <h3 style="margin: 0 0 12px 0; color: #1c1917; font-size: 18px; font-weight: 600;">
           Getting Started
         </h3>
-        <p style="margin: 0; color: #52525b; line-height: 1.6; font-size: 15px;">
+        <p style="margin: 0; color: #57534e; line-height: 1.6; font-size: 15px;">
           Your account is ready! Log in to access your dashboard, view lessons, track progress, and communicate with your teacher.
         </p>
       </div>
@@ -42,7 +42,7 @@ export function generateStudentWelcomeHtml(data: StudentWelcomeData): string {
       "On your dashboard, you'll be able to:"
     )}
 
-    <ul style="margin: 0 0 24px 0; padding-left: 24px; color: #52525b; line-height: 1.8; font-size: 15px;">
+    <ul style="margin: 0 0 24px 0; padding-left: 24px; color: #57534e; line-height: 1.8; font-size: 15px;">
       <li>View your upcoming lessons and lesson history</li>
       <li>Track songs you're learning and your progress</li>
       <li>Complete assignments from your teacher</li>
@@ -56,7 +56,7 @@ export function generateStudentWelcomeHtml(data: StudentWelcomeData): string {
   `;
 
   return generateBaseEmailHtml({
-    subject: 'Welcome to Strummy Guitar CRM! 🎸',
+    subject: 'Welcome to Strummy Guitar CRM!',
     preheader: `Get started with ${teacherName} and begin your guitar journey`,
     bodyContent,
     footerNote: 'Happy strumming!',

@@ -25,25 +25,25 @@ export function generateLessonRescheduledHtml(data: LessonRescheduledData): stri
 
     ${createCardSection(`
       <div style="text-align: center; margin-bottom: 16px;">
-        <p style="margin: 0 0 4px 0; font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
+        <p style="margin: 0 0 4px 0; font-size: 12px; color: #78716c; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
           Previous Time
         </p>
-        <p style="margin: 0; color: #71717a; font-size: 15px; text-decoration: line-through;">
+        <p style="margin: 0; color: #78716c; font-size: 15px; text-decoration: line-through;">
           ${oldDate} at ${oldTime}
         </p>
       </div>
 
       <div style="text-align: center; margin: 16px 0;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
-          <path d="M19 9L12 16L5 9" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M19 9L12 16L5 9" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
 
       <div style="text-align: center; margin-top: 16px;">
-        <p style="margin: 0 0 4px 0; font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
+        <p style="margin: 0 0 4px 0; font-size: 12px; color: #78716c; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
           New Time
         </p>
-        <p style="margin: 0; color: #18181b; font-size: 18px; font-weight: 700;">
+        <p style="margin: 0; color: #1c1917; font-size: 18px; font-weight: 700;">
           ${newDate} at ${newTime}
         </p>
       </div>

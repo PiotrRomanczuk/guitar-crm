@@ -99,7 +99,38 @@ describe('base-template', () => {
       });
 
       const currentYear = new Date().getFullYear();
-      expect(html).toContain(`© ${currentYear} Strummy`);
+      expect(html).toContain(`${currentYear} Strummy`);
+    });
+
+    it('should use warm gold accent colors', () => {
+      const html = generateBaseEmailHtml({
+        subject: 'Test',
+        bodyContent: '<p>Test</p>',
+        ctaButton: { text: 'Click', url: 'https://example.com' },
+      });
+
+      // Gold accent bar
+      expect(html).toContain('linear-gradient(135deg, #f59e0b, #d97706)');
+      // Gold header text
+      expect(html).toContain('color: #f59e0b');
+      // Warm body background
+      expect(html).toContain('background-color: #faf8f5');
+      // Gold CTA button
+      expect(html).toContain('background-color: #f59e0b');
+      // Warm header background
+      expect(html).toContain('background-color: #0f0c0a');
+    });
+
+    it('should include dark mode badge overrides', () => {
+      const html = generateBaseEmailHtml({
+        subject: 'Test',
+        bodyContent: '<p>Test</p>',
+      });
+
+      expect(html).toContain('.badge-success');
+      expect(html).toContain('.badge-warning');
+      expect(html).toContain('.badge-info');
+      expect(html).toContain('.badge-default');
     });
   });
 
@@ -109,7 +140,9 @@ describe('base-template', () => {
 
       expect(card).toContain('class="card"');
       expect(card).toContain('Card content');
-      expect(card).toContain('border-radius: 8px');
+      expect(card).toContain('border-radius: 10px');
+      expect(card).toContain('#faf5f0');
+      expect(card).toContain('#e8e0d8');
     });
   });
 
@@ -120,45 +153,56 @@ describe('base-template', () => {
       expect(row).toContain('Date');
       expect(row).toContain('February 10, 2026');
       expect(row).toContain('text-transform: uppercase');
+      expect(row).toContain('#78716c');
+      expect(row).toContain('#1c1917');
     });
   });
 
   describe('createStatusBadge', () => {
-    it('should create a success badge', () => {
+    it('should create a translucent success badge', () => {
       const badge = createStatusBadge('Completed', 'success');
 
       expect(badge).toContain('Completed');
-      expect(badge).toContain('#10b981'); // success color
+      expect(badge).toContain('#dcfce7'); // translucent green bg
+      expect(badge).toContain('#15803d'); // green text
+      expect(badge).toContain('badge-success');
     });
 
-    it('should create a warning badge', () => {
+    it('should create a translucent warning badge', () => {
       const badge = createStatusBadge('Pending', 'warning');
 
       expect(badge).toContain('Pending');
-      expect(badge).toContain('#f59e0b'); // warning color
+      expect(badge).toContain('#fef3c7'); // translucent amber bg
+      expect(badge).toContain('#b45309'); // amber text
+      expect(badge).toContain('badge-warning');
     });
 
-    it('should create an info badge', () => {
+    it('should create a gold info badge (not blue)', () => {
       const badge = createStatusBadge('New', 'info');
 
       expect(badge).toContain('New');
-      expect(badge).toContain('#3b82f6'); // info color
+      expect(badge).toContain('#fef3c7'); // gold bg (same as warning)
+      expect(badge).toContain('#b45309'); // amber text
+      expect(badge).toContain('badge-info');
+      expect(badge).not.toContain('#3b82f6'); // no blue
     });
 
-    it('should create a default badge', () => {
+    it('should create a warm default badge', () => {
       const badge = createStatusBadge('Unknown');
 
       expect(badge).toContain('Unknown');
-      expect(badge).toContain('#6b7280'); // default color
+      expect(badge).toContain('#f5f0eb'); // warm bg
+      expect(badge).toContain('#78716c'); // warm text
+      expect(badge).toContain('badge-default');
     });
   });
 
   describe('createDivider', () => {
-    it('should create a horizontal divider', () => {
+    it('should create a warm divider', () => {
       const divider = createDivider();
 
       expect(divider).toContain('<hr');
-      expect(divider).toContain('border-top: 1px solid #e4e4e7');
+      expect(divider).toContain('border-top: 1px solid #e8e0d8');
     });
   });
 
@@ -168,6 +212,7 @@ describe('base-template', () => {
 
       expect(greeting).toContain('Hi John,');
       expect(greeting).toContain('<p');
+      expect(greeting).toContain('#57534e');
     });
   });
 
@@ -178,6 +223,7 @@ describe('base-template', () => {
       expect(heading).toContain('Lesson Details');
       expect(heading).toContain('<h2');
       expect(heading).toContain('font-size: 20px');
+      expect(heading).toContain('#1c1917');
     });
   });
 
@@ -188,6 +234,7 @@ describe('base-template', () => {
       expect(heading).toContain('Songs Practiced');
       expect(heading).toContain('<h3');
       expect(heading).toContain('font-size: 16px');
+      expect(heading).toContain('#1c1917');
     });
   });
 
@@ -198,6 +245,7 @@ describe('base-template', () => {
       expect(paragraph).toContain('This is a test paragraph.');
       expect(paragraph).toContain('<p');
       expect(paragraph).toContain('line-height: 1.6');
+      expect(paragraph).toContain('#57534e');
     });
   });
 

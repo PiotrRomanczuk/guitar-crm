@@ -3,6 +3,12 @@
  *
  * Reusable HTML email template with consistent styling, mobile-responsive design,
  * dark mode support, and unsubscribe footer.
+ *
+ * Design tokens match the Strummy dashboard warm guitar-studio aesthetic:
+ * - Primary: gold #f59e0b
+ * - Dark bg: #0f0c0a (warm brownish-black)
+ * - Dark card: #171412
+ * - Borders: #e8e0d8 (warm) / #2e2926 (dark)
  */
 
 export interface BaseEmailTemplateOptions {
@@ -95,35 +101,51 @@ export function generateBaseEmailHtml(options: BaseEmailTemplateOptions): string
         /* Dark mode support */
         @media (prefers-color-scheme: dark) {
           .email-container {
-            background-color: #1a1a1a !important;
+            background-color: #0f0c0a !important;
           }
           .email-content {
-            background-color: #2d2d2d !important;
-            color: #e5e5e5 !important;
+            background-color: #171412 !important;
+            color: #f5f2ec !important;
           }
           .email-header {
-            background-color: #18181b !important;
+            background-color: #0a0908 !important;
           }
           .email-footer {
-            background-color: #262626 !important;
-            border-color: #404040 !important;
+            background-color: #131110 !important;
+            border-color: #2e2926 !important;
           }
           .text-primary {
-            color: #e5e5e5 !important;
+            color: #f5f2ec !important;
           }
           .text-secondary {
-            color: #a3a3a3 !important;
+            color: #d6d0c8 !important;
           }
           .text-muted {
-            color: #737373 !important;
+            color: #978e82 !important;
           }
           .card {
-            background-color: #333333 !important;
-            border-color: #404040 !important;
+            background-color: #1e1a17 !important;
+            border-color: #2e2926 !important;
           }
           .button-primary {
-            background-color: #3b82f6 !important;
-            color: #ffffff !important;
+            background-color: #f59e0b !important;
+            color: #0f0c0a !important;
+          }
+          .badge-success {
+            background-color: #052e16 !important;
+            color: #4ade80 !important;
+          }
+          .badge-warning {
+            background-color: #422006 !important;
+            color: #fbbf24 !important;
+          }
+          .badge-info {
+            background-color: #422006 !important;
+            color: #fbbf24 !important;
+          }
+          .badge-default {
+            background-color: #292524 !important;
+            color: #a8a29e !important;
           }
         }
 
@@ -148,7 +170,7 @@ export function generateBaseEmailHtml(options: BaseEmailTemplateOptions): string
         }
       </style>
     </head>
-    <body style="margin: 0; padding: 0; background-color: #f9fafb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+    <body style="margin: 0; padding: 0; background-color: #faf8f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
 
       <!-- Preheader text (hidden but shows in email preview) -->
       ${preheader ? `
@@ -158,14 +180,17 @@ export function generateBaseEmailHtml(options: BaseEmailTemplateOptions): string
       ` : ''}
 
       <!-- Email Container -->
-      <div class="email-container" style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+      <div class="email-container" style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(120, 80, 40, 0.08), 0 2px 4px -1px rgba(120, 80, 40, 0.04);">
+
+        <!-- Gold accent bar -->
+        <div style="height: 4px; background: linear-gradient(135deg, #f59e0b, #d97706);"></div>
 
         <!-- Header -->
-        <div class="email-header" style="background-color: #18181b; padding: 32px 24px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.025em;">
+        <div class="email-header" style="background-color: #0f0c0a; padding: 32px 24px; text-align: center;">
+          <h1 style="color: #f59e0b; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.025em;">
             Strummy
           </h1>
-          <p style="color: #a3a3a3; margin: 8px 0 0 0; font-size: 14px; font-weight: 400;">
+          <p style="color: #a8a29e; margin: 8px 0 0 0; font-size: 14px; font-weight: 400;">
             Guitar Student Management
           </p>
         </div>
@@ -177,7 +202,7 @@ export function generateBaseEmailHtml(options: BaseEmailTemplateOptions): string
           ${ctaButton ? `
           <!-- Call to Action Button -->
           <div style="margin-top: 32px; text-align: center;">
-            <a href="${ctaButton.url}" class="button-primary" style="display: inline-block; padding: 14px 32px; background-color: #3b82f6; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
+            <a href="${ctaButton.url}" class="button-primary" style="display: inline-block; padding: 14px 32px; background-color: #f59e0b; color: #0f0c0a; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 1px 3px 0 rgba(120, 80, 40, 0.15);">
               ${ctaButton.text}
             </a>
           </div>
@@ -185,29 +210,29 @@ export function generateBaseEmailHtml(options: BaseEmailTemplateOptions): string
         </div>
 
         <!-- Footer -->
-        <div class="email-footer" style="background-color: #f4f4f5; padding: 24px; text-align: center; border-top: 1px solid #e4e4e7;">
+        <div class="email-footer" style="background-color: #f5f0eb; padding: 24px; text-align: center; border-top: 1px solid #e8e0d8;">
           ${footerNote ? `
-          <p style="margin: 0 0 16px 0; font-size: 14px; color: #71717a; font-weight: 500;">
+          <p style="margin: 0 0 16px 0; font-size: 14px; color: #78716c; font-weight: 500;">
             ${footerNote}
           </p>
           ` : ''}
 
-          <p style="margin: 0 0 12px 0; font-size: 14px; color: #71717a;">
-            <a href="${baseUrl}/dashboard" style="color: #3b82f6; text-decoration: none; font-weight: 500;">
+          <p style="margin: 0 0 12px 0; font-size: 14px; color: #78716c;">
+            <a href="${baseUrl}/dashboard" style="color: #b45309; text-decoration: none; font-weight: 500;">
               View Dashboard
             </a>
-            <span style="color: #d4d4d8; margin: 0 8px;">•</span>
-            <a href="${unsubscribeLink}" style="color: #71717a; text-decoration: none;">
+            <span style="color: #d6cfc6; margin: 0 8px;">•</span>
+            <a href="${unsubscribeLink}" style="color: #78716c; text-decoration: none;">
               Notification Settings
             </a>
           </p>
 
-          <p style="margin: 0 0 8px 0; font-size: 12px; color: #a1a1aa;">
+          <p style="margin: 0 0 8px 0; font-size: 12px; color: #a8a29e;">
             You're receiving this email because you have an account with Strummy Guitar CRM.
           </p>
 
-          <p style="margin: 0; font-size: 12px; color: #a1a1aa;">
-            © ${currentYear} Strummy. All rights reserved.
+          <p style="margin: 0; font-size: 12px; color: #a8a29e;">
+            &copy; ${currentYear} Strummy. All rights reserved.
           </p>
         </div>
       </div>
@@ -224,7 +249,7 @@ export function generateBaseEmailHtml(options: BaseEmailTemplateOptions): string
  */
 export function createCardSection(content: string): string {
   return `
-    <div class="card" style="margin-bottom: 24px; background-color: #f4f4f5; border-radius: 8px; border: 1px solid #e4e4e7; overflow: hidden; padding: 20px;">
+    <div class="card" style="margin-bottom: 24px; background-color: #faf5f0; border-radius: 10px; border: 1px solid #e8e0d8; overflow: hidden; padding: 20px;">
       ${content}
     </div>
   `;
@@ -236,10 +261,10 @@ export function createCardSection(content: string): string {
 export function createDetailRow(label: string, value: string): string {
   return `
     <div style="margin-bottom: 16px;">
-      <p style="margin: 0 0 4px 0; font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
+      <p style="margin: 0 0 4px 0; font-size: 12px; color: #78716c; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
         ${label}
       </p>
-      <p style="margin: 0; color: #18181b; font-size: 16px; font-weight: 500;">
+      <p style="margin: 0; color: #1c1917; font-size: 16px; font-weight: 500;">
         ${value}
       </p>
     </div>
@@ -247,20 +272,20 @@ export function createDetailRow(label: string, value: string): string {
 }
 
 /**
- * Helper function to create a status badge
+ * Helper function to create a status badge (translucent style matching dashboard)
  */
 export function createStatusBadge(text: string, color: 'success' | 'warning' | 'info' | 'default' = 'default'): string {
   const colorMap = {
-    success: '#10b981',
-    warning: '#f59e0b',
-    info: '#3b82f6',
-    default: '#6b7280',
+    success: { bg: '#dcfce7', text: '#15803d' },
+    warning: { bg: '#fef3c7', text: '#b45309' },
+    info: { bg: '#fef3c7', text: '#b45309' },
+    default: { bg: '#f5f0eb', text: '#78716c' },
   };
 
-  const bgColor = colorMap[color] || colorMap.default;
+  const colors = colorMap[color] || colorMap.default;
 
   return `
-    <span style="display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background-color: ${bgColor}; color: #ffffff; white-space: nowrap;">
+    <span class="badge-${color}" style="display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background-color: ${colors.bg}; color: ${colors.text}; white-space: nowrap;">
       ${text}
     </span>
   `;
@@ -271,7 +296,7 @@ export function createStatusBadge(text: string, color: 'success' | 'warning' | '
  */
 export function createDivider(): string {
   return `
-    <hr style="border: none; border-top: 1px solid #e4e4e7; margin: 24px 0;">
+    <hr style="border: none; border-top: 1px solid #e8e0d8; margin: 24px 0;">
   `;
 }
 
@@ -280,7 +305,7 @@ export function createDivider(): string {
  */
 export function createGreeting(name: string): string {
   return `
-    <p style="color: #52525b; margin: 0 0 24px 0; line-height: 1.6; font-size: 16px;">
+    <p style="color: #57534e; margin: 0 0 24px 0; line-height: 1.6; font-size: 16px;">
       Hi ${name},
     </p>
   `;
@@ -291,7 +316,7 @@ export function createGreeting(name: string): string {
  */
 export function createSectionHeading(heading: string): string {
   return `
-    <h2 class="text-primary" style="color: #18181b; margin: 0 0 16px 0; font-size: 20px; font-weight: 600;">
+    <h2 class="text-primary" style="color: #1c1917; margin: 0 0 16px 0; font-size: 20px; font-weight: 600;">
       ${heading}
     </h2>
   `;
@@ -302,7 +327,7 @@ export function createSectionHeading(heading: string): string {
  */
 export function createSubsectionHeading(heading: string): string {
   return `
-    <h3 class="text-primary" style="color: #18181b; font-size: 16px; font-weight: 600; margin: 0 0 12px 0;">
+    <h3 class="text-primary" style="color: #1c1917; font-size: 16px; font-weight: 600; margin: 0 0 12px 0;">
       ${heading}
     </h3>
   `;
@@ -313,7 +338,7 @@ export function createSubsectionHeading(heading: string): string {
  */
 export function createParagraph(text: string): string {
   return `
-    <p class="text-secondary" style="color: #52525b; margin: 0 0 16px 0; line-height: 1.6; font-size: 15px;">
+    <p class="text-secondary" style="color: #57534e; margin: 0 0 16px 0; line-height: 1.6; font-size: 15px;">
       ${text}
     </p>
   `;
