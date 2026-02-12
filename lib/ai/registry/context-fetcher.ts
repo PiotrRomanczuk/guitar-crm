@@ -50,6 +50,15 @@ export async function fetchContextData(contextKey: string, context: AgentContext
     case 'revenueData':
       return await fetchRevenueData(supabase);
 
+    case 'studentLessons':
+      return await fetchStudentLessons(supabase, context);
+
+    case 'studentAssignments':
+      return await fetchStudentAssignments(supabase, context);
+
+    case 'studentRepertoire':
+      return await fetchStudentRepertoire(supabase, context);
+
     default:
       throw new Error(`Unknown context key: ${contextKey}`);
   }
@@ -278,4 +287,101 @@ async function fetchEnrollmentData(supabase: any) {
 async function fetchRevenueData(_supabase: any) {
   // Not yet implemented — return null so agents know data is unavailable [BMS-116]
   return null;
+}
+
+/**
+ * Fetch lessons scoped to a specific student (last 5)
+ */
+async function fetchStudentLessons(supabase: any, context: AgentContext) {
+  if (context.entityType !== 'student' || !context.entityId) {
+    return [];
+  }
+
+  const { data: lessons, error } = await supabase
+    .from('lessons')
+    .select('id, title, scheduled_at, notes, status')
+    .eq('student_id', context.entityId)
+    .order('scheduled_at', { ascending: false })
+    .limit(5);
+
+  if (error) {
+    console.warn('[ContextFetcher] Failed to fetch student lessons:', error.message);
+    return [];
+  }
+
+  return lessons || [];
+}
+
+/**
+ * Fetch assignments scoped to a specific student
+ */
+async function fetchStudentAssignments(supabase: any, context: AgentContext) {
+  if (context.entityType !== 'student' || !context.entityId) {
+    return [];
+  }
+
+  const { data: assignments, error } = await supabase
+    .from('assignments')
+    .select('id, title, description, status, due_date')
+    .eq('student_id', context.entityId)
+    .order('due_date', { ascending: true })
+    .limit(10);
+
+  if (error) {
+    console.warn('[ContextFetcher] Failed to fetch student assignments:', error.message);
+    return [];
+  }
+
+  return assignments || [];
+}
+
+/**
+ * Fetch repertoire (songs + statuses) scoped to a specific student
+ */
+async function fetchStudentRepertoire(supabase: any, context: AgentContext) {
+  if (context.entityType !== 'student' || !context.entityId) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('lesson_songs')
+    .select(
+      `
+      status,
+      created_at,
+      songs (
+        id,
+        title,
+        author
+      ),
+      lessons!inner (
+        student_id,
+        scheduled_at
+      )
+    `
+    )
+    .eq('lessons.student_id', context.entityId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.warn('[ContextFetcher] Failed to fetch student repertoire:', error.message);
+    return [];
+  }
+
+  if (!data) return [];
+
+  // Deduplicate by song, keeping most recent status
+  const songMap = new Map<string, { title: string; author: string; status: string }>();
+  for (const item of data) {
+    const song = item.songs;
+    if (song && !songMap.has(song.id)) {
+      songMap.set(song.id, {
+        title: song.title,
+        author: song.author,
+        status: item.status,
+      });
+    }
+  }
+
+  return Array.from(songMap.values());
 }

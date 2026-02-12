@@ -47,7 +47,7 @@ export interface AgentSpecification {
 
   // UI Integration
   uiConfig: {
-    category: 'content' | 'analysis' | 'automation' | 'communication';
+    category: 'content' | 'analysis' | 'automation' | 'communication' | 'assistant';
     icon: string;
     placement: ('dashboard' | 'modal' | 'inline' | 'sidebar')[];
     loadingMessage?: string;

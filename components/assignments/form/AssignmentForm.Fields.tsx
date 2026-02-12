@@ -98,6 +98,7 @@ export function AssignmentFormFields({
           {selectedStudent && formData.title && (
             <AssignmentAI
               studentName={selectedStudent.full_name || selectedStudent.email || ''}
+              studentId={selectedStudent.id}
               studentLevel="intermediate" // Default, could be enhanced with actual level data
               recentSongs={recentSongs}
               focusArea={formData.title}
