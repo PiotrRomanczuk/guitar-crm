@@ -9,6 +9,7 @@
 
 import { NextResponse } from 'next/server';
 import { processQueuedNotifications, retryFailedNotifications } from '@/lib/services/notification-queue-processor';
+import { cleanupExpiredAuthEntries } from '@/lib/auth/rate-limiter';
 import {
   logCronStart,
   logCronComplete,
@@ -34,6 +35,9 @@ export async function GET(request: Request) {
 
     // Also retry failed notifications
     const retryResult = await retryFailedNotifications();
+
+    // Cleanup expired auth rate limit entries
+    await cleanupExpiredAuthEntries();
 
     const duration = Date.now() - startTime;
 

@@ -10,7 +10,8 @@
 'use server';
 
 import { createAdminClient } from '@/lib/supabase/admin';
-import transporter from '@/lib/email/smtp-client';
+import transporter, { isSmtpConfigured } from '@/lib/email/smtp-client';
+import { checkRateLimit, checkSystemRateLimit } from '@/lib/email/rate-limiter';
 import {
   getRetryableNotifications,
   updateNotificationRetry,
@@ -186,6 +187,23 @@ export async function retryFailedNotifications(): Promise<{ retried: number; fai
           notification.template_data as Record<string, unknown>,
           recipient
         );
+
+        // Check rate limits before retry
+        const userRL = await checkRateLimit(notification.recipient_user_id);
+        if (!userRL.allowed) {
+          continue; // Skip this notification, try next
+        }
+        const systemRL = await checkSystemRateLimit();
+        if (!systemRL.allowed) {
+          break; // Stop all retries this cycle
+        }
+
+        // Check SMTP configuration
+        if (!isSmtpConfigured()) {
+          await updateNotificationRetry(notification.id, 'failed', notification.retry_count + 1, 'SMTP not configured');
+          failed++;
+          continue;
+        }
 
         // Attempt to send
         await transporter.sendMail({

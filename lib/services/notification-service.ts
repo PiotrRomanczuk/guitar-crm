@@ -11,7 +11,8 @@
 'use server';
 
 import { createAdminClient } from '@/lib/supabase/admin';
-import transporter from '@/lib/email/smtp-client';
+import transporter, { isSmtpConfigured } from '@/lib/email/smtp-client';
+import { checkRateLimit, checkSystemRateLimit } from '@/lib/email/rate-limiter';
 import {
   logNotificationSent,
   logNotificationFailed,
@@ -138,7 +139,34 @@ export async function sendNotification(
       };
     }
 
-    // 5. Send email
+    // 5. Check rate limits
+    const userRateLimit = await checkRateLimit(recipientUserId);
+    if (!userRateLimit.allowed) {
+      await supabase
+        .from('notification_log')
+        .update({ status: 'failed', error_message: `User rate limited. Retry after ${userRateLimit.retryAfter}s` })
+        .eq('id', logEntry.id);
+      return { success: false, error: `User rate limited. Retry after ${userRateLimit.retryAfter}s`, logId: logEntry.id };
+    }
+    const systemRateLimit = await checkSystemRateLimit();
+    if (!systemRateLimit.allowed) {
+      await supabase
+        .from('notification_log')
+        .update({ status: 'failed', error_message: 'System rate limit reached' })
+        .eq('id', logEntry.id);
+      return { success: false, error: 'System rate limit reached', logId: logEntry.id };
+    }
+
+    // 6. Check SMTP configuration
+    if (!isSmtpConfigured()) {
+      await supabase
+        .from('notification_log')
+        .update({ status: 'failed', error_message: 'SMTP not configured: missing GMAIL_USER or GMAIL_APP_PASSWORD' })
+        .eq('id', logEntry.id);
+      return { success: false, error: 'SMTP not configured: missing GMAIL_USER or GMAIL_APP_PASSWORD', logId: logEntry.id };
+    }
+
+    // 7. Send email
     try {
       await transporter.sendMail({
         from: `"Guitar CRM" <${process.env.GMAIL_USER}>`,

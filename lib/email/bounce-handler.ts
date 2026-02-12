@@ -4,7 +4,7 @@
  * Handles email bounces by:
  * - Logging bounced emails in notification_log
  * - Tracking consecutive bounce counts
- * - Auto-disabling notifications after 3 consecutive bounces
+ * - Auto-disabling notifications after 5 consecutive bounces
  * - Allowing admins to manually re-enable notifications
  */
 
@@ -82,8 +82,8 @@ export async function handleBounce(
   // 3. Check consecutive bounce count
   const consecutiveBounces = await checkConsecutiveBounces(logEntry.recipient_user_id);
 
-  // 4. Auto-disable notifications if 3+ consecutive bounces
-  if (consecutiveBounces >= 3) {
+  // 4. Auto-disable notifications if 5+ consecutive bounces
+  if (consecutiveBounces >= 5) {
     logWarning('Auto-disabling notifications due to consecutive bounces', {
       user_id: logEntry.recipient_user_id,
       recipient_email: logEntry.recipient_email,
@@ -142,7 +142,7 @@ export async function checkConsecutiveBounces(userId: string): Promise<number> {
 
 /**
  * Disable all notifications for a user
- * Sets is_active to false in the profiles table
+ * Sets enabled to false on all notification_preferences rows for the user
  *
  * @param userId - User ID to disable notifications for
  * @param reason - Reason for disabling (logged but not stored in DB currently)
@@ -153,14 +153,11 @@ export async function disableNotificationsForUser(
 ): Promise<void> {
   const supabase = createAdminClient();
 
-  // Update user profile to disable notifications
+  // Disable all notification preferences for the user
   const { error } = await supabase
-    .from('profiles')
-    .update({
-      is_active: false,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', userId);
+    .from('notification_preferences')
+    .update({ enabled: false })
+    .eq('user_id', userId);
 
   if (error) {
     const err = new Error(`Failed to disable notifications: ${error.message}`);
@@ -179,7 +176,7 @@ export async function disableNotificationsForUser(
 
 /**
  * Re-enable notifications for a user (admin only)
- * Sets is_active to true in the profiles table
+ * Sets enabled to true on all notification_preferences rows for the user
  *
  * @param userId - User ID to re-enable notifications for
  * @param adminId - Admin user ID who is re-enabling notifications
@@ -207,14 +204,11 @@ export async function reenableNotificationsForUser(
     throw error;
   }
 
-  // 2. Re-enable notifications for the user
+  // 2. Re-enable all notification preferences for the user
   const { error: updateError } = await supabase
-    .from('profiles')
-    .update({
-      is_active: true,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', userId);
+    .from('notification_preferences')
+    .update({ enabled: true })
+    .eq('user_id', userId);
 
   if (updateError) {
     const error = new Error(`Failed to re-enable notifications: ${updateError.message}`);
@@ -269,16 +263,16 @@ export async function getBounceStats(userId: string): Promise<{
   // Get consecutive bounces
   const consecutiveBounces = await checkConsecutiveBounces(userId);
 
-  // Check if notifications are disabled
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('is_active')
-    .eq('id', userId)
-    .single();
+  // Check if notifications are disabled (all preferences disabled = notifications disabled)
+  const { count, error: prefError } = await supabase
+    .from('notification_preferences')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('enabled', true);
 
-  if (profileError) {
-    const error = new Error(`Failed to fetch user profile: ${profileError.message}`);
-    logError('Failed to fetch user profile', error, { user_id: userId });
+  if (prefError) {
+    const error = new Error(`Failed to fetch notification preferences: ${prefError.message}`);
+    logError('Failed to fetch notification preferences', error, { user_id: userId });
     throw error;
   }
 
@@ -286,6 +280,6 @@ export async function getBounceStats(userId: string): Promise<{
     totalBounces,
     consecutiveBounces,
     lastBounceDate,
-    isDisabled: !profile?.is_active,
+    isDisabled: (count ?? 0) === 0,
   };
 }
