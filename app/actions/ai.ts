@@ -10,6 +10,7 @@ import { requireAIAuth, AIAuthError } from '@/lib/ai/auth';
 import { checkRateLimit } from '@/lib/ai/rate-limiter';
 import { createClient } from '@/lib/supabase/server';
 import type { AIGenerationType } from '@/types/ai-generation';
+import { getConversation, saveConversationMessages, trackAIUsage } from './ai-conversations';
 
 /**
  * Safely handle auth/rate-limit errors and return a user-friendly message.
@@ -207,7 +208,12 @@ import {
 /**
  * Generate AI response with streaming support
  */
-export async function* generateAIResponseStream(prompt: string, model: string = DEFAULT_AI_MODEL) {
+export async function* generateAIResponseStream(
+  prompt: string,
+  model: string = DEFAULT_AI_MODEL,
+  conversationId?: string,
+) {
+  const startMs = Date.now();
   try {
     const user = await requireAIAuth();
     await enforceRateLimit(user, 'ai-response-stream');
@@ -221,17 +227,28 @@ export async function* generateAIResponseStream(prompt: string, model: string = 
       return;
     }
 
+    // Build messages: system prompt + prior conversation history + new user prompt
     const messages: AIMessage[] = [
       {
         role: 'system',
         content:
           'You are a helpful assistant for the Guitar CRM admin dashboard. Keep your answers concise and relevant to managing a music school.',
       },
-      {
-        role: 'user',
-        content: prompt,
-      },
     ];
+
+    if (conversationId) {
+      const { data: conv } = await getConversation(conversationId);
+      if (conv?.messages.length) {
+        const prior = conv.messages.slice(-20);
+        for (const msg of prior) {
+          if (msg.role === 'user' || msg.role === 'assistant') {
+            messages.push({ role: msg.role, content: msg.content });
+          }
+        }
+      }
+    }
+
+    messages.push({ role: 'user', content: prompt });
 
     const result = await provider.complete({
       model: providerModel,
@@ -253,7 +270,6 @@ export async function* generateAIResponseStream(prompt: string, model: string = 
       return;
     }
 
-    // Simulate streaming by yielding words progressively
     const content = result.content || 'No response generated.';
 
     saveAIGeneration({
@@ -264,12 +280,27 @@ export async function* generateAIResponseStream(prompt: string, model: string = 
       outputContent: content,
     });
 
+    // Persist conversation messages and track usage (fire-and-forget)
+    const latencyMs = Date.now() - startMs;
+    if (conversationId) {
+      saveConversationMessages({
+        conversationId,
+        userMessage: prompt,
+        assistantMessage: content,
+        modelId: providerModel,
+        latencyMs,
+      }).catch((e) => console.error('[AI] saveConversationMessages error:', e));
+    }
+    trackAIUsage({ modelId: providerModel, latencyMs }).catch((e) =>
+      console.error('[AI] trackAIUsage error:', e),
+    );
+
+    // Simulate streaming by yielding words progressively
     const words = content.split(' ');
 
     for (let i = 0; i < words.length; i++) {
       const partial = words.slice(0, i + 1).join(' ');
       yield partial;
-      // Small delay for streaming effect
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
   } catch (error) {
