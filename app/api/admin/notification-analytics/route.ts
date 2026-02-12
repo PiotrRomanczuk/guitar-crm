@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
     const sentByDay = totalLogs.reduce(
       (acc, log) => {
         const date = new Date(log.created_at).toISOString().split('T')[0];
-        const existing = acc.find((item) => item.date === date);
+        const existing = acc.find((item: { date: string; count: number }) => item.date === date);
         if (existing) {
           existing.count++;
         } else {
