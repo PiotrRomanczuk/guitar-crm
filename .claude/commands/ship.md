@@ -21,7 +21,11 @@ This is the **full end-to-end release workflow**. It validates the branch and it
 Run ALL of these checks before proceeding:
 
 1. **Get current branch name** via `git branch --show-current`
-2. **ABORT if on `main` or `production`** — print error: "Cannot ship from main or production. Create a feature branch first."
+2. **If on `main` or `production`** — do NOT abort. Instead, **automatically create a new feature branch**:
+   - Detect the domain from uncommitted changed files (e.g., `calendar-actions.ts` → `calendar`)
+   - Extract or ask for a Linear ticket ID (use `STRUM-XXX` as placeholder if unknown)
+   - Create branch: `git checkout -b feature/STRUM-XXX-{domain}-{short-description}`
+   - Continue the workflow on the new branch
 3. **Check for uncommitted changes** via `git status --porcelain` — warn the user if there are unstaged or staged changes and ask whether to commit them or abort
 4. **Get commits ahead of main** via `git log main..HEAD --oneline` — ABORT if there are zero commits AND no uncommitted changes (nothing to ship)
 5. **Extract Linear ticket ID** from branch name (pattern: `STRUM-XXX` or `STRUM-\d+`) — warn if not found but continue

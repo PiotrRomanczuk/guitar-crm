@@ -74,7 +74,7 @@ export async function getGoogleEvents() {
       orderBy: 'startTime',
     });
 
-    return response.data.items;
+    return (response.data.items || []).filter(isGuitarLesson);
   } catch (error) {
     if (error instanceof Error && error.message === 'Google Calendar not connected') {
       return null;
@@ -207,7 +207,7 @@ export async function syncAllLessonsFromCalendar() {
       orderBy: 'startTime',
     });
 
-    const events = response.data.items || [];
+    const events = (response.data.items || []).filter(isGuitarLesson);
     let totalSynced = 0;
 
     for (const event of events) {
@@ -240,8 +240,14 @@ export async function syncAllLessonsFromCalendar() {
   }
 }
 
+export function isGuitarLesson(event: { description?: string | null }): boolean {
+  if (!event.description) return false;
+  return event.description.includes('Powered by Calendly.com');
+}
+
 function isEventRelevant(event: calendar_v3.Schema$Event, studentEmail: string): boolean {
   if (!event.start?.dateTime || !event.id) return false;
+  if (!isGuitarLesson(event)) return false;
 
   return !!(
     event.attendees?.some((a) => a.email === studentEmail) ||
