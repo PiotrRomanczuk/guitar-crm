@@ -19,26 +19,19 @@ async function saveSong(mode: 'create' | 'edit', data: unknown, songId?: string)
     const endpoint = mode === 'create' ? '/api/song' : `/api/song?id=${songId}`;
     const method = mode === 'create' ? 'POST' : 'PUT';
 
-    console.log('[Songs] saveSong called:', { mode, endpoint, method, data });
-
     const res = await fetch(endpoint, {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
 
-    console.log('[Songs] Response status:', res.status);
-
     if (!res.ok) {
       const json = await res.json().catch(() => ({}));
-      console.error('[Songs] Error response:', json);
       return { error: new Error(json.error || `Request failed: ${res.status}`) } as const;
     }
     const json = await res.json().catch(() => ({}));
-    console.log('[Songs] Success response:', json);
     return { error: null, data: json } as const;
   } catch (e) {
-    console.error('[Songs] Exception caught:', e);
     return { error: e instanceof Error ? e : new Error('Network error') } as const;
   }
 }
@@ -127,32 +120,22 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
     setSubmitError(null);
     setIsSubmitting(true);
 
-    console.log('[Songs] Form submitted:', { mode, formData });
-
     try {
       const validatedData = SongInputSchema.parse(formData);
-      console.log('[Songs] Validation passed:', validatedData);
 
       const { error, data } = await saveSong(mode, validatedData, song?.id);
       if (error) {
-        console.error('[Songs] Save failed:', error.message);
         setSubmitError('Failed to save song');
         return;
       }
 
-      console.log('[Songs] Save successful!');
       // data.song should be available from the API response
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const savedSongId = (data as any)?.song?.id || song?.id;
       onSuccess?.(savedSongId);
     } catch (err) {
-      console.error(
-        '[Songs] Submit error:',
-        err instanceof Error ? err.message : String(err)
-      );
       const fieldErrors = parseZodErrors(err);
       if (Object.keys(fieldErrors).length > 0) {
-        console.log('[Songs] Validation errors:', fieldErrors);
         setErrors(fieldErrors);
       } else {
         setSubmitError('Failed to save song');

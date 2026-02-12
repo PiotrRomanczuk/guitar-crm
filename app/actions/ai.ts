@@ -173,7 +173,6 @@ export async function getProviderAppropriateModel(
   // If using Ollama, map OpenRouter models to local equivalents
   if (provider.name === 'Ollama') {
     const mapped = mapToOllamaModel(requestedModel);
-    console.log(`[AI] Mapped ${requestedModel} to ${mapped} for Ollama`);
     return mapped;
   }
 

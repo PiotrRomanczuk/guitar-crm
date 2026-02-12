@@ -739,7 +739,7 @@ export type Database = {
           deleted_at?: string | null;
           google_event_id?: string | null;
           id?: string;
-          lesson_teacher_number: number;
+          lesson_teacher_number?: number;
           notes?: string | null;
           scheduled_at: string;
           status?: Database['public']['Enums']['lesson_status'];
