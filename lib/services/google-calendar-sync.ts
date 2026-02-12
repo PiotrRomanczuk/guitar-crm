@@ -2,7 +2,11 @@ import { createClient } from '@/lib/supabase/server';
 import { matchStudentByEmail, createShadowStudent } from '@/lib/services/import-utils';
 import { TablesInsert } from '@/types/database.types';
 import { getCalendarEventsInRange } from '@/lib/google';
-import { isGuitarLesson } from '@/app/dashboard/calendar-actions';
+
+function isGuitarLesson(event: { description?: string | null }): boolean {
+  if (!event.description) return false;
+  return event.description.includes('Powered by Calendly.com');
+}
 
 export interface ImportEvent {
   googleEventId: string;
