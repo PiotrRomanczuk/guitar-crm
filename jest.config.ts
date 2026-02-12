@@ -76,16 +76,16 @@ const config: Config = {
     '!**/*.test.{js,jsx,ts,tsx}',
   ],
 
-  // Coverage thresholds temporarily disabled - tracked in Linear backlog (BMS-187)
-  // TODO: Re-enable with realistic per-file thresholds once coverage improves
-  // coverageThreshold: {
-  //   global: {
-  //     branches: 70,
-  //     functions: 80,
-  //     lines: 75,
-  //     statements: 75,
-  //   },
-  // },
+  // Coverage thresholds for quality gates
+  // Thresholds set to current baseline (~44%). Raise as coverage improves.
+  coverageThreshold: {
+    global: {
+      branches: 30,
+      functions: 35,
+      lines: 40,
+      statements: 40,
+    },
+  },
 
   // Ignore patterns - Exclude integration tests
   testPathIgnorePatterns: [
