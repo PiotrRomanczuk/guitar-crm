@@ -156,7 +156,7 @@ components/<domain>/<Feature>/
 - Function body: Max 50 LOC
 
 ### UI Components
-Always check shadcn/ui first (`npx shadcn@latest add [component]`). Extend existing components rather than building from scratch.
+**MANDATORY**: When creating or modifying ANY UI component, ALWAYS use the shadcn MCP server (configured in `.mcp.json`) to look up available components, check their APIs, and install new ones. Never guess at shadcn/ui component APIs or props -- query the MCP server first. Extend existing components rather than building from scratch.
 
 ### Form Validation
 - Validate on blur, not on every keystroke
