@@ -35,7 +35,7 @@ export function SongCard({ song }: { song: Song }) {
 
           <div className="flex-1 min-w-0">
             <p className="font-medium text-sm sm:text-base truncate">{song.title}</p>
-            <p className="text-xs sm:text-sm text-muted-foreground">{song.artist}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">{song.artist}</p>
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2">
               <Badge

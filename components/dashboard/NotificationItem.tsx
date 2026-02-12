@@ -59,9 +59,9 @@ export function NotificationItem({ notification, onDismiss }: NotificationItemPr
         <div className={`shrink-0 ${config.color}`}>
           <Icon className="h-5 w-5" />
         </div>
-        <div className="flex-1 space-y-1 pr-8">
-          <p className="font-semibold text-sm">{notification.title}</p>
-          <p className="text-sm text-muted-foreground">{notification.message}</p>
+        <div className="flex-1 min-w-0 space-y-1 pr-8">
+          <p className="font-semibold text-sm truncate">{notification.title}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2">{notification.message}</p>
           <div className="flex items-center justify-between mt-2">
             <p className="text-xs text-muted-foreground">
               {format(new Date(notification.timestamp), 'MMM d, h:mm a')}

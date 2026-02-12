@@ -179,6 +179,19 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Prevent pull-to-refresh conflicts in PWA/standalone mode */
+  @media (display-mode: standalone) {
+    body {
+      overscroll-behavior-y: contain;
+    }
+  }
+
+  /* Prevent overscroll bounce in modal/drawer scroll containers */
+  [role="dialog"],
+  [data-state="open"] {
+    overscroll-behavior: contain;
+  }
 }
 
 @layer utilities {
@@ -193,6 +206,29 @@
   .gradient-text {
     @apply bg-clip-text text-transparent;
     background-image: var(--gradient-gold);
+  }
+
+  /* Safe area inset utilities for notched/Dynamic Island iPhones */
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pl-safe {
+    padding-left: env(safe-area-inset-left);
+  }
+  .pr-safe {
+    padding-right: env(safe-area-inset-right);
+  }
+  .px-safe {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Keyboard-aware bottom padding (uses --keyboard-height set by useKeyboardViewport hook) */
+  .pb-keyboard {
+    padding-bottom: var(--keyboard-height, 0px);
   }
 }
 

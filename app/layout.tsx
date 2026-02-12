@@ -25,13 +25,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Strummy - Guitar Teaching Studio',
   description: 'The premium platform for guitar teachers to manage students, lessons, and track progress',
-  // viewport removed, now exported separately
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Strummy',
+  },
 };
 
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: 'cover' as const,
 };
 
 export default async function RootLayout({

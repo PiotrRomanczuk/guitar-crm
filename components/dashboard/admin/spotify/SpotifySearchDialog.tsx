@@ -11,12 +11,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from '@/components/ui/responsive-dialog';
 import { ExternalLink, Loader2, Search } from 'lucide-react';
 import Image from 'next/image';
 import type { SpotifyMatch, SpotifySearchResult } from './types';
@@ -48,38 +48,88 @@ export function SpotifySearchDialog({
   actionLoading,
 }: SpotifySearchDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Search for Alternative Spotify Match</DialogTitle>
-          <DialogDescription>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+      <ResponsiveDialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto p-4 sm:p-6">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>Search for Alternative Spotify Match</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>
             Original song: <strong>{currentMatch?.songs.title}</strong> by{' '}
             <strong>{currentMatch?.songs.author}</strong>
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
 
         <div className="space-y-4">
           <div className="flex gap-2">
             <Input
-              placeholder="Search Spotify (e.g., 'Song Title Artist Name')"
+              placeholder="Search Spotify..."
               value={searchQuery}
               onChange={(e) => onSearchQueryChange(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && onSearch()}
+              className="h-11 sm:h-9"
             />
-            <Button onClick={onSearch} disabled={searching}>
+            <Button onClick={onSearch} disabled={searching} className="h-11 sm:h-9 shrink-0">
               {searching ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Search className="w-4 h-4 mr-2" />
+                <Search className="w-4 h-4 sm:mr-2" />
               )}
-              Search
+              <span className="hidden sm:inline">Search</span>
             </Button>
           </div>
 
           {searchResults.length > 0 && (
             <div className="space-y-2">
               <h3 className="font-semibold text-sm">Search Results</h3>
-              <div className="rounded-lg border border-border overflow-hidden">
+
+              {/* Mobile: Card layout */}
+              <div className="md:hidden space-y-2 max-h-[50vh] overflow-y-auto">
+                {searchResults.map((result) => (
+                  <div
+                    key={result.id}
+                    className="flex items-center gap-3 p-3 rounded-lg border border-border"
+                  >
+                    {result.coverUrl && (
+                      <Image
+                        src={result.coverUrl}
+                        alt={result.name}
+                        width={48}
+                        height={48}
+                        className="rounded shrink-0"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{result.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{result.artist}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDuration(result.duration_ms)}
+                        {result.release_date && ` \u2022 ${result.release_date.split('-')[0]}`}
+                      </p>
+                    </div>
+                    <div className="flex gap-1 shrink-0">
+                      <Button size="icon" variant="ghost" className="h-9 w-9" asChild>
+                        <a href={result.url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="h-9"
+                        onClick={() => onSelectAlternative(result)}
+                        disabled={actionLoading === currentMatch?.id}
+                      >
+                        {actionLoading === currentMatch?.id ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          'Select'
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop: Table layout */}
+              <div className="hidden md:block rounded-lg border border-border overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
@@ -159,7 +209,7 @@ export function SpotifySearchDialog({
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

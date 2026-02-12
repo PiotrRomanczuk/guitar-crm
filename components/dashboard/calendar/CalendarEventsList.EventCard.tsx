@@ -28,8 +28,8 @@ interface EventCardProps {
 
 export function EventCard({ event, showAttendees, isPending, onCreateShadowUser }: EventCardProps) {
   return (
-    <div className="flex flex-col gap-1 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
-      <div className="font-medium">{event.summary}</div>
+    <div className="flex flex-col gap-1 p-4 sm:p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+      <div className="font-medium truncate">{event.summary}</div>
       <div className="flex items-center gap-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-1">
           <Clock className="w-3 h-3" />
@@ -54,7 +54,7 @@ export function EventCard({ event, showAttendees, isPending, onCreateShadowUser 
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-5 w-5 hover:bg-primary/10 hover:text-primary"
+                className="h-8 w-8 sm:h-5 sm:w-5 hover:bg-primary/10 hover:text-primary"
                 title="Create Shadow User & Sync"
                 onClick={(e) => {
                   e.preventDefault();

@@ -39,10 +39,10 @@ export function LessonSongsList({ lessonId, lessonSongs, canEdit }: LessonSongsL
         <ul className="divide-y divide-border">
           {lessonSongs.map((ls, index) =>
             ls.song ? (
-              <li key={`${ls.song.id}-${index}`} className="py-3 flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-foreground">{ls.song.title}</p>
-                  <p className="text-sm text-muted-foreground">{ls.song.author}</p>
+              <li key={`${ls.song.id}-${index}`} className="py-3 flex justify-between items-center gap-4">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-foreground truncate">{ls.song.title}</p>
+                  <p className="text-sm text-muted-foreground truncate">{ls.song.author}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   {canEdit && (

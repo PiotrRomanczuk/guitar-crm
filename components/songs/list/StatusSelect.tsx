@@ -11,6 +11,7 @@ import {
 import { updateLessonSongStatus } from '@/app/actions/songs';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
+import { useHaptic } from '@/hooks/use-haptic';
 
 interface Props {
   lessonSongId: string;
@@ -46,8 +47,10 @@ function getStatusBadgeVariant(
 export default function StatusSelect({ lessonSongId, currentStatus }: Props) {
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState(currentStatus);
+  const haptic = useHaptic();
 
   const handleStatusChange = (newStatus: string) => {
+    haptic(newStatus === 'mastered' ? 'success' : 'light');
     setStatus(newStatus);
     startTransition(async () => {
       try {
@@ -55,6 +58,7 @@ export default function StatusSelect({ lessonSongId, currentStatus }: Props) {
         toast.success('Status updated');
       } catch (error) {
         console.error(error);
+        haptic('error');
         toast.error('Failed to update status');
         setStatus(currentStatus); // Revert on error
       }
@@ -63,7 +67,7 @@ export default function StatusSelect({ lessonSongId, currentStatus }: Props) {
 
   return (
     <Select value={status} onValueChange={handleStatusChange} disabled={isPending}>
-      <SelectTrigger className="w-[140px] h-8 border-dashed">
+      <SelectTrigger className="w-[140px] h-11 sm:h-8 border-dashed">
         <div className="flex items-center gap-2">
           <Badge variant={getStatusBadgeVariant(status)} className="w-2 h-2 rounded-full p-0" />
           <SelectValue placeholder="Status" />

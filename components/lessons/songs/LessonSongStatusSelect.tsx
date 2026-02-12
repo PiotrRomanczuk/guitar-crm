@@ -11,6 +11,7 @@ import {
 import { updateLessonSongStatus } from '@/app/dashboard/lessons/actions';
 import { Database } from '@/database.types';
 import { toast } from 'sonner';
+import { useHaptic } from '@/hooks/use-haptic';
 
 type LessonSongStatus = Database['public']['Enums']['lesson_song_status'];
 
@@ -27,10 +28,12 @@ export function LessonSongStatusSelect({
 }: LessonSongStatusSelectProps) {
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<LessonSongStatus>(currentStatus);
+  const haptic = useHaptic();
 
   const handleStatusChange = (value: string) => {
     const newStatus = value as LessonSongStatus;
     const oldStatus = status;
+    haptic(newStatus === 'mastered' ? 'success' : 'light');
     setStatus(newStatus); // Optimistic update
 
     startTransition(async () => {
@@ -39,6 +42,7 @@ export function LessonSongStatusSelect({
         toast.success('Status updated');
       } catch (error) {
         console.error('Failed to update status:', error);
+        haptic('error');
         setStatus(oldStatus); // Revert on error
         toast.error('Failed to update song status');
       }

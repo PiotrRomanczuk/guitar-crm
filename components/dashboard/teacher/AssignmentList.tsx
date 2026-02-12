@@ -117,9 +117,9 @@ export function AssignmentList({ assignments, isLoading, error, onRetry }: Assig
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium">{assignment.title}</p>
+                    <p className="font-medium truncate">{assignment.title}</p>
                     {assignment.songTitle && (
-                      <p className="text-sm text-primary">{assignment.songTitle}</p>
+                      <p className="text-sm text-primary truncate">{assignment.songTitle}</p>
                     )}
 
                     <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">

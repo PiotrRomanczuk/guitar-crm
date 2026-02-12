@@ -74,7 +74,7 @@ export default function AssignmentForm({
         ← Back to assignments
       </Link>
 
-      <div className="bg-card rounded-lg shadow-md p-8 max-w-2xl">
+      <div className="bg-card rounded-lg shadow-md p-4 sm:p-6 lg:p-8 max-w-2xl">
         <h1 className="text-2xl font-bold text-foreground mb-6">
           {mode === 'create' ? 'Create Assignment' : 'Edit Assignment'}
         </h1>

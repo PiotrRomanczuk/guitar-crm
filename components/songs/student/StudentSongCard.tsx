@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 import { Song } from '@/types/Song';
 import { getStatusBadgeClasses } from '@/lib/utils/status-colors';
 import { cardEntrance } from '@/lib/animations';
+import { useHaptic } from '@/hooks/use-haptic';
 
 const difficultyColors: Record<string, string> = {
   beginner: 'bg-green-500/10 text-green-500 border-green-500/20',
@@ -55,6 +56,7 @@ interface StudentSongCardProps {
 }
 
 export function StudentSongCard({ song, onStatusChange, isUpdating }: StudentSongCardProps) {
+  const haptic = useHaptic();
   const hasResources = song.youtube_url || song.ultimate_guitar_link || song.spotify_link_url || song.audio_files;
 
   return (
@@ -100,10 +102,10 @@ export function StudentSongCard({ song, onStatusChange, isUpdating }: StudentSon
         </div>
 
         {/* Song Info */}
-        <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
+        <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors truncate">
           {song.title}
         </h3>
-        <p className="text-muted-foreground text-sm mb-4">{song.author}</p>
+        <p className="text-muted-foreground text-sm mb-4 truncate">{song.author}</p>
 
         {/* Details */}
         <div className="space-y-2 mb-6">
@@ -126,10 +128,13 @@ export function StudentSongCard({ song, onStatusChange, isUpdating }: StudentSon
           </label>
           <Select
             value={song.status || 'to_learn'}
-            onValueChange={(newStatus) => onStatusChange(song.id, newStatus)}
+            onValueChange={(newStatus) => {
+              haptic(newStatus === 'mastered' ? 'success' : 'light');
+              onStatusChange(song.id, newStatus);
+            }}
             disabled={isUpdating}
           >
-            <SelectTrigger className="h-8 text-xs">
+            <SelectTrigger className="h-11 sm:h-8 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

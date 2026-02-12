@@ -109,7 +109,7 @@ export default function ImageUpload({
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              <Image fill className="object-cover" alt="Song Image" src={url} />
+              <Image fill sizes="(max-width: 768px) 50vw, 200px" className="object-cover" alt="Song Image" src={url} />
               {coverImage === url && (
                 <div className="absolute bottom-0 left-0 right-0 bg-primary/80 text-primary-foreground text-xs py-1 text-center font-medium">
                   Cover Image
