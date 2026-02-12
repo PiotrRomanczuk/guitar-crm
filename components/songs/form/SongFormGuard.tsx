@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import SongForm from '.';
 import { useSong } from '../hooks';
 import { useRouter } from 'next/navigation';
@@ -17,14 +17,7 @@ export default function SongFormGuard({ mode, songId, onSuccess }: Props) {
   // Fallback: show form; server-side API will still enforce authorization.
   const router = useRouter();
 
-  useEffect(() => {
-    console.log('[SongFormGuard] Component MOUNTED on client', { mode, songId });
-  }, [mode, songId]);
-
-  console.log('[SongFormGuard] Rendering with props:', { mode, songId });
-
   const { song, loading, error } = useSong(songId || '');
-  console.log('[SongFormGuard] useSong hook result:', { song, loading, error });
 
   if (mode === 'edit' && loading) {
     return (

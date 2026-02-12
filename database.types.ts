@@ -79,7 +79,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
         ];
       };
       ai_conversations: {
@@ -130,7 +130,76 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
+        ];
+      };
+      ai_generations: {
+        Row: {
+          agent_id: string | null;
+          context_entity_id: string | null;
+          context_entity_type: string | null;
+          created_at: string;
+          error_message: string | null;
+          generation_type: Database['public']['Enums']['ai_generation_type'];
+          id: string;
+          input_params: Json;
+          is_starred: boolean;
+          is_successful: boolean;
+          model_id: string | null;
+          output_content: string;
+          provider: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          agent_id?: string | null;
+          context_entity_id?: string | null;
+          context_entity_type?: string | null;
+          created_at?: string;
+          error_message?: string | null;
+          generation_type: Database['public']['Enums']['ai_generation_type'];
+          id?: string;
+          input_params: Json;
+          is_starred?: boolean;
+          is_successful?: boolean;
+          model_id?: string | null;
+          output_content: string;
+          provider?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          agent_id?: string | null;
+          context_entity_id?: string | null;
+          context_entity_type?: string | null;
+          created_at?: string;
+          error_message?: string | null;
+          generation_type?: Database['public']['Enums']['ai_generation_type'];
+          id?: string;
+          input_params?: Json;
+          is_starred?: boolean;
+          is_successful?: boolean;
+          model_id?: string | null;
+          output_content?: string;
+          provider?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'ai_generations_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'ai_generations_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
         ];
       };
       ai_messages: {
@@ -174,7 +243,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'ai_conversations';
             referencedColumns: ['id'];
-          }
+          },
         ];
       };
       ai_prompt_templates: {
@@ -231,7 +300,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
         ];
       };
       ai_usage_stats: {
@@ -285,7 +354,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
         ];
       };
       api_keys: {
@@ -362,7 +431,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'assignments';
             referencedColumns: ['id'];
-          }
+          },
         ];
       };
       assignment_templates: {
@@ -404,7 +473,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
         ];
       };
       assignments: {
@@ -482,8 +551,77 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
         ];
+      };
+      audit_log: {
+        Row: {
+          action: Database['public']['Enums']['audit_action'];
+          actor_id: string | null;
+          changes: Json;
+          created_at: string;
+          entity_id: string;
+          entity_type: Database['public']['Enums']['audit_entity'];
+          id: string;
+          metadata: Json | null;
+        };
+        Insert: {
+          action: Database['public']['Enums']['audit_action'];
+          actor_id?: string | null;
+          changes: Json;
+          created_at?: string;
+          entity_id: string;
+          entity_type: Database['public']['Enums']['audit_entity'];
+          id?: string;
+          metadata?: Json | null;
+        };
+        Update: {
+          action?: Database['public']['Enums']['audit_action'];
+          actor_id?: string | null;
+          changes?: Json;
+          created_at?: string;
+          entity_id?: string;
+          entity_type?: Database['public']['Enums']['audit_entity'];
+          id?: string;
+          metadata?: Json | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'audit_log_actor_id_fkey';
+            columns: ['actor_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'audit_log_actor_id_fkey';
+            columns: ['actor_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
+      auth_rate_limits: {
+        Row: {
+          attempted_at: string;
+          id: string;
+          identifier: string;
+          operation: string;
+        };
+        Insert: {
+          attempted_at?: string;
+          id?: string;
+          identifier: string;
+          operation: string;
+        };
+        Update: {
+          attempted_at?: string;
+          id?: string;
+          identifier?: string;
+          operation?: string;
+        };
+        Relationships: [];
       };
       lesson_history: {
         Row: {
@@ -526,7 +664,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'lessons';
             referencedColumns: ['id'];
-          }
+          },
         ];
       };
       lesson_songs: {
@@ -578,7 +716,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'songs';
             referencedColumns: ['id'];
-          }
+          },
         ];
       };
       lessons: {
@@ -601,7 +739,7 @@ export type Database = {
           deleted_at?: string | null;
           google_event_id?: string | null;
           id?: string;
-          lesson_teacher_number: number;
+          lesson_teacher_number?: number;
           notes?: string | null;
           scheduled_at: string;
           status?: Database['public']['Enums']['lesson_status'];
@@ -652,36 +790,234 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
+        ];
+      };
+      notification_log: {
+        Row: {
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string | null;
+          error_message: string | null;
+          id: string;
+          max_retries: number;
+          notification_type: string;
+          recipient_email: string;
+          recipient_user_id: string;
+          retry_count: number;
+          sent_at: string | null;
+          status: string;
+          subject: string;
+          template_data: Json | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          error_message?: string | null;
+          id?: string;
+          max_retries?: number;
+          notification_type: string;
+          recipient_email: string;
+          recipient_user_id: string;
+          retry_count?: number;
+          sent_at?: string | null;
+          status?: string;
+          subject: string;
+          template_data?: Json | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          error_message?: string | null;
+          id?: string;
+          max_retries?: number;
+          notification_type?: string;
+          recipient_email?: string;
+          recipient_user_id?: string;
+          retry_count?: number;
+          sent_at?: string | null;
+          status?: string;
+          subject?: string;
+          template_data?: Json | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_log_recipient_user_id_fkey';
+            columns: ['recipient_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      notification_preferences: {
+        Row: {
+          created_at: string;
+          enabled: boolean;
+          id: string;
+          notification_type: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          enabled?: boolean;
+          id?: string;
+          notification_type: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          enabled?: boolean;
+          id?: string;
+          notification_type?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_preferences_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      notification_queue: {
+        Row: {
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string | null;
+          id: string;
+          notification_type: string;
+          priority: number;
+          processed_at: string | null;
+          recipient_user_id: string;
+          scheduled_for: string;
+          status: string;
+          template_data: Json;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          id?: string;
+          notification_type: string;
+          priority?: number;
+          processed_at?: string | null;
+          recipient_user_id: string;
+          scheduled_for?: string;
+          status?: string;
+          template_data: Json;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          id?: string;
+          notification_type?: string;
+          priority?: number;
+          processed_at?: string | null;
+          recipient_user_id?: string;
+          scheduled_for?: string;
+          status?: string;
+          template_data?: Json;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_queue_recipient_user_id_fkey';
+            columns: ['recipient_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      pending_students: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          email: string;
+          full_name: string | null;
+          id: string;
+          notes: string | null;
+          phone: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          email: string;
+          full_name?: string | null;
+          id?: string;
+          notes?: string | null;
+          phone?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          email?: string;
+          full_name?: string | null;
+          id?: string;
+          notes?: string | null;
+          phone?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'pending_students_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'pending_students_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
         ];
       };
       practice_sessions: {
         Row: {
-          created_at: string | null;
+          created_at: string;
           duration_minutes: number;
           id: string;
           notes: string | null;
           song_id: string | null;
-          student_id: string | null;
-          updated_at: string | null;
+          student_id: string;
+          updated_at: string;
         };
         Insert: {
-          created_at?: string | null;
+          created_at?: string;
           duration_minutes: number;
           id?: string;
           notes?: string | null;
           song_id?: string | null;
-          student_id?: string | null;
-          updated_at?: string | null;
+          student_id: string;
+          updated_at?: string;
         };
         Update: {
-          created_at?: string | null;
+          created_at?: string;
           duration_minutes?: number;
           id?: string;
           notes?: string | null;
           song_id?: string | null;
-          student_id?: string | null;
-          updated_at?: string | null;
+          student_id?: string;
+          updated_at?: string;
         };
         Relationships: [
           {
@@ -711,156 +1047,6 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
-        ];
-      };
-      notification_log: {
-        Row: {
-          id: string;
-          notification_type: string;
-          recipient_user_id: string;
-          recipient_email: string;
-          status: string;
-          subject: string | null;
-          template_data: Json | null;
-          sent_at: string | null;
-          error_message: string | null;
-          retry_count: number;
-          max_retries: number;
-          entity_type: string | null;
-          entity_id: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          notification_type: string;
-          recipient_user_id: string;
-          recipient_email: string;
-          status?: string;
-          subject?: string | null;
-          template_data?: Json | null;
-          sent_at?: string | null;
-          error_message?: string | null;
-          retry_count?: number;
-          max_retries?: number;
-          entity_type?: string | null;
-          entity_id?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          notification_type?: string;
-          recipient_user_id?: string;
-          recipient_email?: string;
-          status?: string;
-          subject?: string | null;
-          template_data?: Json | null;
-          sent_at?: string | null;
-          error_message?: string | null;
-          retry_count?: number;
-          max_retries?: number;
-          entity_type?: string | null;
-          entity_id?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'notification_log_recipient_user_id_fkey';
-            columns: ['recipient_user_id'];
-            isOneToOne: false;
-            referencedRelation: 'profiles';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      notification_preferences: {
-        Row: {
-          id: string;
-          user_id: string;
-          notification_type: string;
-          enabled: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          notification_type: string;
-          enabled?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          notification_type?: string;
-          enabled?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'notification_preferences_user_id_fkey';
-            columns: ['user_id'];
-            isOneToOne: false;
-            referencedRelation: 'profiles';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
-      notification_queue: {
-        Row: {
-          id: string;
-          notification_type: string;
-          recipient_user_id: string;
-          template_data: Json | null;
-          scheduled_for: string;
-          processed_at: string | null;
-          status: string;
-          priority: number;
-          entity_type: string | null;
-          entity_id: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          notification_type: string;
-          recipient_user_id: string;
-          template_data?: Json | null;
-          scheduled_for?: string;
-          processed_at?: string | null;
-          status?: string;
-          priority?: number;
-          entity_type?: string | null;
-          entity_id?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          notification_type?: string;
-          recipient_user_id?: string;
-          template_data?: Json | null;
-          scheduled_for?: string;
-          processed_at?: string | null;
-          status?: string;
-          priority?: number;
-          entity_type?: string | null;
-          entity_id?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'notification_queue_recipient_user_id_fkey';
-            columns: ['recipient_user_id'];
-            isOneToOne: false;
-            referencedRelation: 'profiles';
-            referencedColumns: ['id'];
           },
         ];
       };
@@ -874,11 +1060,15 @@ export type Database = {
           is_active: boolean;
           is_admin: boolean;
           is_development: boolean;
-          is_shadow: boolean | null;
+          is_shadow: boolean;
           is_student: boolean;
           is_teacher: boolean;
+          lead_source: string | null;
           notes: string | null;
+          onboarding_completed: boolean;
           phone: string | null;
+          status_changed_at: string | null;
+          student_status: Database['public']['Enums']['student_pipeline_status'] | null;
           updated_at: string;
           user_id: string | null;
         };
@@ -891,11 +1081,15 @@ export type Database = {
           is_active?: boolean;
           is_admin?: boolean;
           is_development?: boolean;
-          is_shadow?: boolean | null;
+          is_shadow?: boolean;
           is_student?: boolean;
           is_teacher?: boolean;
+          lead_source?: string | null;
           notes?: string | null;
+          onboarding_completed?: boolean;
           phone?: string | null;
+          status_changed_at?: string | null;
+          student_status?: Database['public']['Enums']['student_pipeline_status'] | null;
           updated_at?: string;
           user_id?: string | null;
         };
@@ -908,13 +1102,44 @@ export type Database = {
           is_active?: boolean;
           is_admin?: boolean;
           is_development?: boolean;
-          is_shadow?: boolean | null;
+          is_shadow?: boolean;
           is_student?: boolean;
           is_teacher?: boolean;
+          lead_source?: string | null;
           notes?: string | null;
+          onboarding_completed?: boolean;
           phone?: string | null;
+          status_changed_at?: string | null;
+          student_status?: Database['public']['Enums']['student_pipeline_status'] | null;
           updated_at?: string;
           user_id?: string | null;
+        };
+        Relationships: [];
+      };
+      skills: {
+        Row: {
+          category: string;
+          created_at: string | null;
+          description: string | null;
+          id: string;
+          name: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          category: string;
+          created_at?: string | null;
+          description?: string | null;
+          id?: string;
+          name: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          category?: string;
+          created_at?: string | null;
+          description?: string | null;
+          id?: string;
+          name?: string;
+          updated_at?: string | null;
         };
         Relationships: [];
       };
@@ -963,7 +1188,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'songs';
             referencedColumns: ['id'];
-          }
+          },
         ];
       };
       songs: {
@@ -1137,7 +1362,62 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'songs';
             referencedColumns: ['id'];
-          }
+          },
+        ];
+      };
+      student_skills: {
+        Row: {
+          created_at: string | null;
+          id: string;
+          last_assessed_at: string | null;
+          notes: string | null;
+          skill_id: string;
+          status: string;
+          student_id: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: string;
+          last_assessed_at?: string | null;
+          notes?: string | null;
+          skill_id: string;
+          status: string;
+          student_id: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          last_assessed_at?: string | null;
+          notes?: string | null;
+          skill_id?: string;
+          status?: string;
+          student_id?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'student_skills_skill_id_fkey';
+            columns: ['skill_id'];
+            isOneToOne: false;
+            referencedRelation: 'skills';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'student_skills_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'student_skills_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
         ];
       };
       student_song_progress: {
@@ -1217,7 +1497,51 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
+        ];
+      };
+      sync_conflicts: {
+        Row: {
+          conflict_data: Json;
+          created_at: string;
+          google_event_id: string;
+          id: string;
+          lesson_id: string;
+          resolution: string | null;
+          resolved_at: string | null;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          conflict_data: Json;
+          created_at?: string;
+          google_event_id: string;
+          id?: string;
+          lesson_id: string;
+          resolution?: string | null;
+          resolved_at?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          conflict_data?: Json;
+          created_at?: string;
+          google_event_id?: string;
+          id?: string;
+          lesson_id?: string;
+          resolution?: string | null;
+          resolved_at?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'sync_conflicts_lesson_id_fkey';
+            columns: ['lesson_id'];
+            isOneToOne: false;
+            referencedRelation: 'lessons';
+            referencedColumns: ['id'];
+          },
         ];
       };
       user_history: {
@@ -1279,7 +1603,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
         ];
       };
       user_integrations: {
@@ -1345,7 +1669,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
         ];
       };
       webhook_subscriptions: {
@@ -1402,7 +1726,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
         ];
       };
       lesson_counts_per_teacher: {
@@ -1424,7 +1748,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
         ];
       };
       song_usage_stats: {
@@ -1449,6 +1773,14 @@ export type Database = {
       };
     };
     Functions: {
+      check_auth_rate_limit: {
+        Args: { p_identifier: string; p_operation: string; p_window_ms: number };
+        Returns: number;
+      };
+      cleanup_auth_rate_limits: {
+        Args: Record<string, never>;
+        Returns: undefined;
+      };
       has_active_lesson_assignments: {
         Args: { song_uuid: string };
         Returns: boolean;
@@ -1457,10 +1789,11 @@ export type Database = {
         Args: { _role: Database['public']['Enums']['user_role'] };
         Returns: boolean;
       };
-      is_admin: { Args: never; Returns: boolean };
-      is_student: { Args: never; Returns: boolean };
-      is_teacher: { Args: never; Returns: boolean };
-      show_limit: { Args: never; Returns: number };
+      is_admin: { Args: Record<string, never>; Returns: boolean };
+      is_admin_or_teacher: { Args: Record<string, never>; Returns: boolean };
+      is_student: { Args: Record<string, never>; Returns: boolean };
+      is_teacher: { Args: Record<string, never>; Returns: boolean };
+      show_limit: { Args: Record<string, never>; Returns: number };
       show_trgm: { Args: { '': string }; Returns: string[] };
       soft_delete_song_with_cascade: {
         Args: { song_uuid: string; user_uuid: string };
@@ -1469,6 +1802,14 @@ export type Database = {
     };
     Enums: {
       ai_context_type: 'general' | 'student' | 'lesson' | 'song' | 'assignment' | 'practice';
+      ai_generation_type:
+        | 'lesson_notes'
+        | 'assignment'
+        | 'email_draft'
+        | 'post_lesson_summary'
+        | 'student_progress'
+        | 'admin_insights'
+        | 'chat';
       ai_message_role: 'system' | 'user' | 'assistant';
       ai_prompt_category:
         | 'email'
@@ -1478,7 +1819,23 @@ export type Database = {
         | 'feedback'
         | 'reminder'
         | 'custom';
-      assignment_status: 'not_started' | 'in_progress' | 'completed' | 'overdue' | 'cancelled';
+      assignment_status:
+        | 'not_started'
+        | 'pending'
+        | 'in_progress'
+        | 'completed'
+        | 'overdue'
+        | 'cancelled';
+      audit_action:
+        | 'created'
+        | 'updated'
+        | 'deleted'
+        | 'status_changed'
+        | 'rescheduled'
+        | 'cancelled'
+        | 'completed'
+        | 'role_changed';
+      audit_entity: 'profile' | 'lesson' | 'assignment' | 'song' | 'song_progress';
       difficulty_level: 'beginner' | 'intermediate' | 'advanced';
       lesson_song_status: 'to_learn' | 'started' | 'remembered' | 'with_author' | 'mastered';
       lesson_status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'RESCHEDULED';
@@ -1514,6 +1871,8 @@ export type Database = {
         | 'A#m'
         | 'Bbm'
         | 'Bm';
+      spotify_match_status: 'pending' | 'approved' | 'rejected' | 'auto_applied';
+      student_pipeline_status: 'lead' | 'trial' | 'active' | 'inactive' | 'churned';
       user_role: 'admin' | 'teacher' | 'student';
     };
     CompositeTypes: {
@@ -1535,7 +1894,7 @@ export type Tables<
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
-    : never = never
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
@@ -1546,12 +1905,12 @@ export type Tables<
     ? R
     : never
   : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
-  ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
-      Row: infer R;
-    }
-    ? R
-    : never
-  : never;
+    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R;
+      }
+      ? R
+      : never
+    : never;
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
@@ -1561,7 +1920,7 @@ export type TablesInsert<
     schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
-    : never = never
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
@@ -1571,12 +1930,12 @@ export type TablesInsert<
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-  ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
-      Insert: infer I;
-    }
-    ? I
-    : never
-  : never;
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I;
+      }
+      ? I
+      : never
+    : never;
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
@@ -1586,7 +1945,7 @@ export type TablesUpdate<
     schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
-    : never = never
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
@@ -1596,12 +1955,12 @@ export type TablesUpdate<
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-  ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
-      Update: infer U;
-    }
-    ? U
-    : never
-  : never;
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U;
+      }
+      ? U
+      : never
+    : never;
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
@@ -1611,14 +1970,14 @@ export type Enums<
     schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
-    : never = never
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-  ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
-  : never;
+    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+    : never;
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
@@ -1628,14 +1987,14 @@ export type CompositeTypes<
     schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
-    : never = never
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-  ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
-  : never;
+    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+    : never;
 
 export const Constants = {
   graphql_public: {
@@ -1644,6 +2003,15 @@ export const Constants = {
   public: {
     Enums: {
       ai_context_type: ['general', 'student', 'lesson', 'song', 'assignment', 'practice'],
+      ai_generation_type: [
+        'lesson_notes',
+        'assignment',
+        'email_draft',
+        'post_lesson_summary',
+        'student_progress',
+        'admin_insights',
+        'chat',
+      ],
       ai_message_role: ['system', 'user', 'assistant'],
       ai_prompt_category: [
         'email',
@@ -1654,7 +2022,25 @@ export const Constants = {
         'reminder',
         'custom',
       ],
-      assignment_status: ['not_started', 'in_progress', 'completed', 'overdue', 'cancelled'],
+      assignment_status: [
+        'not_started',
+        'pending',
+        'in_progress',
+        'completed',
+        'overdue',
+        'cancelled',
+      ],
+      audit_action: [
+        'created',
+        'updated',
+        'deleted',
+        'status_changed',
+        'rescheduled',
+        'cancelled',
+        'completed',
+        'role_changed',
+      ],
+      audit_entity: ['profile', 'lesson', 'assignment', 'song', 'song_progress'],
       difficulty_level: ['beginner', 'intermediate', 'advanced'],
       lesson_song_status: ['to_learn', 'started', 'remembered', 'with_author', 'mastered'],
       lesson_status: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'RESCHEDULED'],
@@ -1691,6 +2077,8 @@ export const Constants = {
         'Bbm',
         'Bm',
       ],
+      spotify_match_status: ['pending', 'approved', 'rejected', 'auto_applied'],
+      student_pipeline_status: ['lead', 'trial', 'active', 'inactive', 'churned'],
       user_role: ['admin', 'teacher', 'student'],
     },
   },

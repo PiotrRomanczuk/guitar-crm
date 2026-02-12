@@ -29,7 +29,6 @@ export function SimpleDatabaseStatus({ className, variant = 'fixed' }: SimpleDat
         : process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL;
     const hasLocal = !!localUrl;
 
-    console.log('[SimpleDatabaseStatus] Local URL:', localUrl, 'Has local:', hasLocal);
     setHasLocalEnv(hasLocal);
 
     // Determine what we are actually connected to

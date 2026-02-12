@@ -5,7 +5,6 @@ import Header from '@/components/navigation/Header';
 import { HorizontalNav } from '@/components/navigation/HorizontalNav';
 import { AppSidebar } from '@/components/navigation/AppSidebar';
 import { Toaster } from 'sonner';
-import { getSupabaseConfig } from '@/lib/supabase/config';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsWidescreen } from '@/hooks/use-is-widescreen';
 import { Separator } from '@/components/ui/separator';
@@ -32,18 +31,6 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
   // Use sidebar on widescreen displays, horizontal nav on vertical/narrow displays
   const useSidebar = showNavigation && isWidescreen;
   const useHorizontalNav = showNavigation && !isWidescreen;
-
-  const { isLocal } = getSupabaseConfig();
-  console.log('AppShell:', {
-    pathname,
-    hasUser: !!user,
-    isAuthPage,
-    showNavigation,
-    isWidescreen,
-    useSidebar,
-    useHorizontalNav,
-    db: isLocal ? 'local' : 'remote',
-  });
 
   // Auth pages - no navigation
   if (isAuthPage || !user) {

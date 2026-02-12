@@ -59,7 +59,6 @@ export async function executeAgent(
   // If using Ollama, map OpenRouter models to local equivalents
   if (provider.name === 'Ollama') {
     appropriateModel = mapToOllamaModel(requestedModel);
-    console.log(`[AgentExecution] Mapped ${requestedModel} to ${appropriateModel} for Ollama`);
   }
 
   // Build system prompt with context

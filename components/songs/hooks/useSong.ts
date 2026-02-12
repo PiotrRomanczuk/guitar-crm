@@ -24,7 +24,6 @@ export default function useSong(songId: string) {
 
   useEffect(() => {
     let mounted = true;
-    console.log('[useSong-Effect] Effect started for:', songId);
 
     if (!songId) {
       setLoading(false);
@@ -33,9 +32,6 @@ export default function useSong(songId: string) {
 
     const fetchSong = async () => {
       try {
-        console.log('[useSong-Effect] Fetching...');
-
-        // TEST: Raw fetch to rule out Supabase client library issues
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
         const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -46,13 +42,10 @@ export default function useSong(songId: string) {
         // Get the session token for RLS
         const supabase = getSupabaseBrowserClient();
 
-        console.log('[useSong-Effect] Getting session...');
-
         let accessToken = null;
 
         // Strategy 1: getSession with timeout
         try {
-          console.log('[useSong-Effect] Strategy 1: getSession');
           const sessionPromise = supabase.auth.getSession();
           const sessionTimeout = new Promise((_, reject) =>
             setTimeout(() => reject('timeout'), 5000)
@@ -62,31 +55,25 @@ export default function useSong(songId: string) {
           };
 
           if (result?.data?.session?.access_token) {
-            console.log('[useSong-Effect] Got token from getSession');
             accessToken = result.data.session.access_token;
           }
-        } catch (e) {
-          console.warn('[useSong-Effect] getSession timed out or failed:', e);
+        } catch {
+          // getSession timed out or failed, will try refreshSession
         }
 
         // Strategy 2: refreshSession if no token
         if (!accessToken) {
-          console.log('[useSong-Effect] Strategy 2: refreshSession');
           try {
             const { data } = await supabase.auth.refreshSession();
             if (data?.session?.access_token) {
-              console.log('[useSong-Effect] Got token from refreshSession');
               accessToken = data.session.access_token;
             }
-          } catch (e) {
-            console.error('[useSong-Effect] refreshSession failed', e);
+          } catch {
+            // refreshSession failed
           }
         }
 
         const authHeader = accessToken ? `Bearer ${accessToken}` : `Bearer ${supabaseKey}`;
-
-        console.log('[useSong-Effect] Auth status:', accessToken ? 'Authenticated' : 'Anonymous');
-        console.log('[useSong-Effect] Attempting RAW FETCH to:', `${supabaseUrl}/rest/v1/songs`);
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
@@ -108,28 +95,19 @@ export default function useSong(songId: string) {
           }
 
           const data = await response.json();
-          console.log('[useSong-Effect] Fetch response data length:', data ? data.length : 'null');
 
           if (data && data.length > 0) {
-            console.log('[useSong-Effect] Song found:', data[0].title);
             setSong(data[0]);
           } else {
-            console.warn(
-              '[useSong-Effect] Song not found or empty response. Response:',
-              JSON.stringify(data)
-            );
             setSong(undefined);
           }
           setLoading(false);
           return; // Exit if raw fetch works
         } catch (fetchErr: unknown) {
-          console.error('[useSong-Effect] Raw fetch failed:', fetchErr);
-          // If raw fetch fails, we can try the client or just report error
           throw fetchErr;
         }
       } catch (err: unknown) {
         if (!mounted) return;
-        console.error('[useSong-Effect] Catch:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         if (mounted) {

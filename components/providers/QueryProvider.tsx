@@ -6,10 +6,7 @@ import { createQueryClient } from '@/lib/query-client';
 import { ThemeProvider } from './ThemeProvider';
 
 export function Providers({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(() => {
-    console.log('[QueryProvider] Creating new QueryClient');
-    return createQueryClient();
-  });
+  const [queryClient] = useState(() => createQueryClient());
 
   return (
     <QueryClientProvider client={queryClient}>
