@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { isSameDay, format } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
-import { EventCard, type GoogleEvent } from './CalendarEventsList.EventCard';
+import { EventCard, isGuitarLesson, type GoogleEvent } from './CalendarEventsList.EventCard';
 
 interface CalendarDayEventsProps {
   events: GoogleEvent[];
@@ -20,6 +20,7 @@ export function CalendarDayEvents({
 }: CalendarDayEventsProps) {
   const dayEvents = useMemo(() => {
     return events.filter((event) => {
+      if (!isGuitarLesson(event)) return false;
       const dateStr = event.start.dateTime || event.start.date;
       if (!dateStr) return false;
       return isSameDay(new Date(dateStr), selectedDate);
