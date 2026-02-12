@@ -9,10 +9,13 @@ import {
 } from '@/app/dashboard/calendar-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, ArrowRight, RefreshCw } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Calendar as CalendarIcon, ArrowRight, RefreshCw, List, LayoutGrid } from 'lucide-react';
 import { ConnectGoogleButton } from './ConnectGoogleButton';
 import { EventCard, type GoogleEvent } from './CalendarEventsList.EventCard';
 import { ShadowUserDialog, SyncAllDialog } from './CalendarEventsList.Dialogs';
+import { CalendarView } from './CalendarView';
+import { CalendarDayEvents } from './CalendarDayEvents';
 import { toast } from 'sonner';
 
 interface CalendarEventsListProps {
@@ -25,6 +28,7 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
   const [error, setError] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [shadowUserDialog, setShadowUserDialog] = useState<{ open: boolean; email: string }>({
     open: false,
     email: '',
@@ -99,7 +103,7 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
+            <CalendarIcon className="w-5 h-5" />
             Google Calendar
           </CardTitle>
         </CardHeader>
@@ -121,12 +125,152 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
     );
   }
 
+  // Compact mode: show limited list with "View all" link (used on dashboard home)
+  if (limit) {
+    return (
+      <CompactEventsList
+        events={events}
+        limit={limit}
+        isPending={isPending}
+        onCreateShadowUser={handleCreateShadowUserClick}
+        onSyncAll={handleSyncAllClick}
+        shadowUserDialog={shadowUserDialog}
+        setShadowUserDialog={setShadowUserDialog}
+        confirmCreateShadowUser={confirmCreateShadowUser}
+        syncAllDialog={syncAllDialog}
+        setSyncAllDialog={setSyncAllDialog}
+        confirmSyncAll={confirmSyncAll}
+      />
+    );
+  }
+
+  return (
+    <>
+      <Tabs defaultValue="calendar">
+        <div className="flex items-center justify-between mb-4">
+          <TabsList>
+            <TabsTrigger value="calendar">
+              <LayoutGrid className="size-4 mr-1.5" />
+              Calendar
+            </TabsTrigger>
+            <TabsTrigger value="list">
+              <List className="size-4 mr-1.5" />
+              List
+            </TabsTrigger>
+          </TabsList>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSyncAllClick}
+            disabled={isPending}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isPending ? 'animate-spin' : ''}`} />
+            Sync All
+          </Button>
+        </div>
+
+        <TabsContent value="calendar">
+          {events && events.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6">
+              <CalendarView
+                events={events}
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+              />
+              <Card>
+                <CardContent className="p-4">
+                  <CalendarDayEvents
+                    events={events}
+                    selectedDate={selectedDate}
+                    isPending={isPending}
+                    onCreateShadowUser={handleCreateShadowUserClick}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="text-center py-8 text-muted-foreground">
+                No upcoming events found.
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="list">
+          <Card>
+            <CardContent className="p-4">
+              {events && events.length > 0 ? (
+                <div className="space-y-4">
+                  {events.map((event) => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      showAttendees
+                      isPending={isPending}
+                      onCreateShadowUser={handleCreateShadowUserClick}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No upcoming events found.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      <ShadowUserDialog
+        open={shadowUserDialog.open}
+        email={shadowUserDialog.email}
+        onOpenChange={(open) => !open && setShadowUserDialog({ open: false, email: '' })}
+        onConfirm={confirmCreateShadowUser}
+      />
+
+      <SyncAllDialog
+        open={syncAllDialog}
+        onOpenChange={setSyncAllDialog}
+        onConfirm={confirmSyncAll}
+      />
+    </>
+  );
+}
+
+// Extracted compact view for dashboard home widget
+function CompactEventsList({
+  events,
+  limit,
+  isPending,
+  onCreateShadowUser,
+  onSyncAll,
+  shadowUserDialog,
+  setShadowUserDialog,
+  confirmCreateShadowUser,
+  syncAllDialog,
+  setSyncAllDialog,
+  confirmSyncAll,
+}: {
+  events: GoogleEvent[] | null;
+  limit: number;
+  isPending: boolean;
+  onCreateShadowUser: (email: string) => void;
+  onSyncAll: () => void;
+  shadowUserDialog: { open: boolean; email: string };
+  setShadowUserDialog: (v: { open: boolean; email: string }) => void;
+  confirmCreateShadowUser: () => void;
+  syncAllDialog: boolean;
+  setSyncAllDialog: (v: boolean) => void;
+  confirmSyncAll: () => void;
+}) {
   return (
     <Card>
       <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
+            <CalendarIcon className="w-5 h-5" />
             Upcoming Events
           </CardTitle>
           <div className="text-xs text-muted-foreground hidden sm:block">
@@ -136,7 +280,7 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
         <Button
           variant="outline"
           size="sm"
-          onClick={handleSyncAllClick}
+          onClick={onSyncAll}
           disabled={isPending}
           title="Sync all lessons"
           className="w-full sm:w-auto"
@@ -148,17 +292,17 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
       <CardContent>
         {events && events.length > 0 ? (
           <div className="space-y-4">
-            {(limit ? events.slice(0, limit) : events).map((event) => (
+            {events.slice(0, limit).map((event) => (
               <EventCard
                 key={event.id}
                 event={event}
-                showAttendees={!limit}
+                showAttendees={false}
                 isPending={isPending}
-                onCreateShadowUser={handleCreateShadowUserClick}
+                onCreateShadowUser={onCreateShadowUser}
               />
             ))}
 
-            {limit && events.length > limit && (
+            {events.length > limit && (
               <div className="pt-2">
                 <Button variant="outline" className="w-full" asChild>
                   <Link href="/dashboard/calendar">
