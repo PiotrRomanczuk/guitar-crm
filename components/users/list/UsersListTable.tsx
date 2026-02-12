@@ -12,9 +12,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Eye, Pencil, Users } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { MoreHorizontal, Trash2, Eye, Pencil, Users } from 'lucide-react';
 import EmptyState from '@/components/shared/EmptyState';
-import StatusBadge from '@/components/shared/StatusBadge';
 
 interface UserProfile {
   id: string;
@@ -64,13 +70,13 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
   return (
     <>
       {/* Mobile View (Cards) */}
-      <div className="md:hidden space-y-4">
+      <div className="md:hidden space-y-3">
         {users.map((user) => (
-          <div key={user.id} className="bg-card rounded-xl border border-border p-4 space-y-4">
-            <div className="flex items-start justify-between gap-3">
+          <div key={user.id} className="bg-card rounded-xl border border-border p-4">
+            <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <Avatar className="h-10 w-10 flex-shrink-0">
-                  <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                <Avatar className="h-8 w-8 flex-shrink-0">
+                  <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
                     {getInitials(user.firstName, user.lastName)}
                   </AvatarFallback>
                 </Avatar>
@@ -83,47 +89,58 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                   <p className="text-xs text-muted-foreground truncate">{user.email || 'N/A'}</p>
                 </div>
               </div>
-              <div className="flex flex-col gap-1 items-end flex-shrink-0">
-                <StatusBadge variant={user.isActive ? 'active' : 'inactive'} size="sm">
-                  {user.isActive ? 'Active' : 'Inactive'}
-                </StatusBadge>
-                <StatusBadge variant={user.isRegistered ? 'registered' : 'shadow'} size="sm">
-                  {user.isRegistered ? 'Registered' : 'Shadow'}
-                </StatusBadge>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Actions</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href={`/dashboard/users/${user.id}`} data-testid={`view-user-${user.id}`}>
+                      <Eye className="h-4 w-4 mr-2" />
+                      View
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/dashboard/users/${user.id}/edit`}
+                      data-testid={`edit-user-${user.id}`}
+                    >
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => onDelete(user.id, user.email || 'User')}
+                    className="text-destructive focus:text-destructive"
+                    data-testid={`delete-user-${user.id}`}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
-            <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
+            <div className="mt-3 pt-3 border-t border-border flex items-center gap-2">
               <Badge variant="secondary" className="text-xs">
                 {getRoleDisplay(user)}
               </Badge>
-
-              <div className="flex gap-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                  <Link href={`/dashboard/users/${user.id}`} data-testid={`view-user-${user.id}`}>
-                    <Eye className="h-4 w-4" />
-                    <span className="sr-only">View</span>
-                  </Link>
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                  <Link
-                    href={`/dashboard/users/${user.id}/edit`}
-                    data-testid={`edit-user-${user.id}`}
-                  >
-                    <Pencil className="h-4 w-4" />
-                    <span className="sr-only">Edit</span>
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onDelete(user.id, user.email || 'User')}
-                  className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                  data-testid={`delete-user-${user.id}`}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span className="sr-only">Delete</span>
-                </Button>
+              <div className="flex items-center gap-1.5 ml-auto">
+                <span
+                  className={`h-2 w-2 rounded-full ${user.isActive ? 'bg-success' : 'bg-muted-foreground/40'}`}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {user.isActive ? 'Active' : 'Inactive'}
+                </span>
+                {!user.isRegistered && (
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal">
+                    Shadow
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
@@ -133,14 +150,13 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
       {/* Desktop View (Table) */}
       <div className="hidden md:block bg-card rounded-xl border shadow-sm overflow-hidden animate-fade-in">
         <div className="overflow-x-auto">
-          <Table data-testid="users-table" className="min-w-[600px]">
+          <Table data-testid="users-table">
             <TableHeader>
               <TableRow>
                 <TableHead>User</TableHead>
-                <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="w-12"><span className="sr-only">Actions</span></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -152,65 +168,79 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                 >
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
                           {getInitials(user.firstName, user.lastName)}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="font-medium text-sm">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">
                           {user.firstName && user.lastName
                             ? `${user.firstName} ${user.lastName}`
                             : user.username || 'N/A'}
                         </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {user.email || 'N/A'}
+                        </p>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{user.email || 'N/A'}</TableCell>
                   <TableCell>
                     <Badge variant="secondary">{getRoleDisplay(user)}</Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-col gap-1">
-                      <StatusBadge variant={user.isActive ? 'active' : 'inactive'} size="sm">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`h-2 w-2 rounded-full flex-shrink-0 ${user.isActive ? 'bg-success' : 'bg-muted-foreground/40'}`}
+                      />
+                      <span className="text-sm text-muted-foreground">
                         {user.isActive ? 'Active' : 'Inactive'}
-                      </StatusBadge>
-                      <StatusBadge variant={user.isRegistered ? 'registered' : 'shadow'} size="sm">
-                        {user.isRegistered ? 'Registered' : 'Shadow'}
-                      </StatusBadge>
+                      </span>
+                      {!user.isRegistered && (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal">
+                          Shadow
+                        </Badge>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link
-                          href={`/dashboard/users/${user.id}`}
-                          data-testid={`view-user-${user.id}`}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Actions</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href={`/dashboard/users/${user.id}`}
+                            data-testid={`view-user-${user.id}`}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href={`/dashboard/users/${user.id}/edit`}
+                            data-testid={`edit-user-${user.id}`}
+                          >
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => onDelete(user.id, user.email || 'User')}
+                          className="text-destructive focus:text-destructive"
+                          data-testid={`delete-user-${user.id}`}
                         >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Link>
-                      </Button>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link
-                          href={`/dashboard/users/${user.id}/edit`}
-                          data-testid={`edit-user-${user.id}`}
-                        >
-                          <Pencil className="h-4 w-4 mr-1" />
-                          Edit
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onDelete(user.id, user.email || 'User')}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        data-testid={`delete-user-${user.id}`}
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Delete
-                      </Button>
-                    </div>
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
