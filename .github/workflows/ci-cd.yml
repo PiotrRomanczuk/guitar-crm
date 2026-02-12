@@ -77,6 +77,9 @@ jobs:
           CI: true
           SKIP_DB_TESTS: true
 
+      - name: Run Integration Tests
+        run: npx jest --config jest.config.integration.ts --passWithNoTests
+
       - name: Check coverage thresholds (non-blocking)
         run: |
           if [ ! -f coverage/coverage-summary.json ]; then
@@ -213,58 +216,26 @@ jobs:
           chmod +x scripts/database/maintenance/check-db-quality.sh
           ./scripts/database/maintenance/check-db-quality.sh
 
-  # Job 5: E2E Tests with Cypress (TEMPORARILY DISABLED)
   e2e-tests:
-    name: E2E Tests (Cypress)
+    name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
-    needs: [database-quality]
-    if: false # TEMPORARILY DISABLED FOR DEPLOYMENT TESTING
-
-    strategy:
-      fail-fast: false
-      matrix:
-        browser: [chrome]
-
+    needs: [build]
+    if: github.event_name == 'pull_request'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '22'
           cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run Cypress E2E tests
-        uses: cypress-io/github-action@v7
-        with:
-          browser: ${{ matrix.browser }}
-          start: npm run dev
-          wait-on: 'http://localhost:3000'
-          wait-on-timeout: 120
-          config: baseUrl=http://localhost:3000
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-
-      - name: Upload Cypress screenshots
-        uses: actions/upload-artifact@v6
+      - run: npm ci
+      - run: npx playwright install chromium --with-deps
+      - name: Run E2E Tests
+        run: npx playwright test --project="Desktop Chrome"
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: cypress-screenshots-${{ matrix.browser }}
-          path: cypress/screenshots
-          retention-days: 7
-
-      - name: Upload Cypress videos
-        uses: actions/upload-artifact@v6
-        if: always()
-        with:
-          name: cypress-videos-${{ matrix.browser }}
-          path: cypress/videos
+          name: playwright-report
+          path: playwright-report/
           retention-days: 7
 
   # Job 6: Security Audit
