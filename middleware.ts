@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import type { Database } from '@/types/database.types';
 import { getSupabaseConfig } from '@/lib/supabase/config';
 import { middlewareLogger as log } from '@/lib/logger';
 
@@ -37,7 +36,7 @@ export async function middleware(request: NextRequest) {
   });
 
   // Create a Supabase client using @supabase/ssr for proper cookie handling
-  const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
         log.debug('cookies.getAll called');
