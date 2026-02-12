@@ -36,11 +36,11 @@ export function generateWeeklyProgressDigestHtml(data: WeeklyProgressDigestData)
     <!-- Weekly Stats -->
     <div style="margin-bottom: 24px;">
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-        <div style="padding: 20px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 8px; text-align: center;">
+        <div style="padding: 20px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 8px; text-align: center;">
           <p style="margin: 0 0 4px 0; font-size: 28px; font-weight: 700; color: #ffffff;">
             ${lessonsCompleted}
           </p>
-          <p style="margin: 0; font-size: 12px; color: #dbeafe; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">
+          <p style="margin: 0; font-size: 12px; color: #fef3c7; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">
             Lessons
           </p>
         </div>
@@ -52,11 +52,11 @@ export function generateWeeklyProgressDigestHtml(data: WeeklyProgressDigestData)
             Songs
           </p>
         </div>
-        <div style="padding: 20px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 8px; text-align: center;">
+        <div style="padding: 20px; background: linear-gradient(135deg, #d97706 0%, #b45309 100%); border-radius: 8px; text-align: center;">
           <p style="margin: 0 0 4px 0; font-size: 28px; font-weight: 700; color: #ffffff;">
             ${practiceTime}h
           </p>
-          <p style="margin: 0; font-size: 12px; color: #ede9fe; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">
+          <p style="margin: 0; font-size: 12px; color: #fef3c7; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">
             Practice
           </p>
         </div>
@@ -68,8 +68,8 @@ export function generateWeeklyProgressDigestHtml(data: WeeklyProgressDigestData)
         ? `
     <!-- Weekly Highlights -->
     ${createCardSection(`
-      ${createSubsectionHeading('This Week\'s Highlights ✨')}
-      <ul style="margin: 0; padding-left: 24px; color: #52525b; line-height: 1.8; font-size: 15px;">
+      ${createSubsectionHeading('This Week\'s Highlights')}
+      <ul style="margin: 0; padding-left: 24px; color: #57534e; line-height: 1.8; font-size: 15px;">
         ${highlights.map((highlight) => `<li>${highlight}</li>`).join('')}
       </ul>
     `)}
@@ -83,17 +83,17 @@ export function generateWeeklyProgressDigestHtml(data: WeeklyProgressDigestData)
     <!-- Upcoming Lessons -->
     ${createCardSection(`
       ${createSubsectionHeading('Coming Up Next Week')}
-      <div style="border: 1px solid #e4e4e7; border-radius: 8px; overflow: hidden;">
+      <div style="border: 1px solid #e8e0d8; border-radius: 8px; overflow: hidden;">
         <table style="width: 100%; border-collapse: collapse;">
           ${upcomingLessons
             .map(
               (lesson, index) => `
-            <tr style="${index !== upcomingLessons.length - 1 ? 'border-bottom: 1px solid #e4e4e7;' : ''}">
+            <tr style="${index !== upcomingLessons.length - 1 ? 'border-bottom: 1px solid #e8e0d8;' : ''}">
               <td style="padding: 16px;">
-                <div style="color: #18181b; font-weight: 600; font-size: 15px;">
+                <div style="color: #1c1917; font-weight: 600; font-size: 15px;">
                   ${lesson.date}
                 </div>
-                <div style="color: #71717a; font-size: 14px; margin-top: 2px;">
+                <div style="color: #78716c; font-size: 14px; margin-top: 2px;">
                   ${lesson.title || 'Regular Lesson'}
                 </div>
               </td>
@@ -110,7 +110,7 @@ export function generateWeeklyProgressDigestHtml(data: WeeklyProgressDigestData)
 
     <div style="text-align: center; margin-top: 32px; padding: 20px; background-color: #fef3c7; border-radius: 8px; border: 1px solid #fde68a;">
       <p style="margin: 0; color: #78350f; font-size: 15px; font-weight: 500;">
-        💪 Keep up the fantastic work! Consistency is the key to mastery.
+        Keep up the fantastic work! Consistency is the key to mastery.
       </p>
     </div>
   `;

@@ -169,7 +169,7 @@ export async function sendNotification(
     // 7. Send email
     try {
       await transporter.sendMail({
-        from: `"Guitar CRM" <${process.env.GMAIL_USER}>`,
+        from: `"Strummy" <${process.env.GMAIL_USER}>`,
         to: recipient.email,
         subject,
         html: htmlContent,
@@ -386,23 +386,23 @@ function getNotificationSubject(
     lesson_recap: (data) => `Lesson Recap: ${data.lessonTitle || 'Your Recent Lesson'}`,
     lesson_cancelled: () => 'Lesson Cancelled',
     lesson_rescheduled: () => 'Lesson Rescheduled',
-    assignment_created: (data) => `New Assignment: ${data.assignmentTitle}`,
+    assignment_created: (data) => `New Assignment: ${data.assignmentTitle || 'Untitled'}`,
     assignment_due_reminder: (data) => `Assignment Due Soon: ${data.assignmentTitle}`,
     assignment_overdue_alert: (data) => `Overdue Assignment: ${data.assignmentTitle}`,
-    assignment_completed: (data) => `Assignment Completed: ${data.assignmentTitle}`,
+    assignment_completed: (data) => `Assignment Completed: ${data.assignmentTitle || 'Untitled'}`,
     song_mastery_achievement: (data) => `Congratulations! You Mastered "${data.songTitle}"`,
-    milestone_reached: (data) => `Milestone Reached: ${data.milestone}`,
-    student_welcome: () => 'Welcome to Guitar CRM!',
+    milestone_reached: (data) => `Milestone Reached: ${data.milestone || 'Achievement Unlocked'}`,
+    student_welcome: () => 'Welcome to Strummy!',
     trial_ending_reminder: () => 'Your Trial Period is Ending Soon',
     teacher_daily_summary: (data) => `Daily Summary - ${data.date}`,
     weekly_progress_digest: () => 'Your Weekly Progress Report',
     calendar_conflict_alert: () => 'Calendar Conflict Detected',
-    webhook_expiration_notice: () => 'Calendar Integration Expiring',
-    admin_error_alert: (data) => `System Error: ${data.errorType}`,
+    webhook_expiration_notice: () => 'Calendar Integration Expiring Soon',
+    admin_error_alert: (data) => `System Alert: ${data.errorType || 'Unknown Error'}`,
   };
 
   const subjectGenerator = subjectMap[type];
-  return subjectGenerator ? subjectGenerator(templateData) : 'Notification from Guitar CRM';
+  return subjectGenerator ? subjectGenerator(templateData) : 'Notification from Strummy';
 }
 
 /**
