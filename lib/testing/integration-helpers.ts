@@ -150,7 +150,7 @@ export function createMockNextRequest(
 ) {
   const { method = 'GET', body, headers = {} } = options;
   const fullUrl = url.startsWith('http') ? url : `http://localhost:3000${url}`;
-  const init: RequestInit = { method };
+  const init: { method: string; body?: string; headers?: Record<string, string> } = { method };
 
   if (body) {
     init.body = JSON.stringify(body);

@@ -3,6 +3,11 @@ import { matchStudentByEmail, createShadowStudent } from '@/lib/services/import-
 import { TablesInsert } from '@/types/database.types';
 import { getCalendarEventsInRange } from '@/lib/google';
 
+function isGuitarLesson(event: { description?: string | null }): boolean {
+  if (!event.description) return false;
+  return event.description.includes('Powered by Calendly.com');
+}
+
 export interface ImportEvent {
   googleEventId: string;
   title: string;
@@ -98,7 +103,7 @@ export async function fetchAndSyncRecentEvents(userId: string) {
     const googleEvents = await getCalendarEventsInRange(userId, startDate, endDate);
 
     const importEvents: ImportEvent[] = googleEvents
-      .filter((e) => e.attendees && e.attendees.length > 0 && e.attendees[0].email)
+      .filter((e) => isGuitarLesson(e) && e.attendees && e.attendees.length > 0 && e.attendees[0].email)
       .map((e) => ({
         googleEventId: e.id,
         title: e.summary,
