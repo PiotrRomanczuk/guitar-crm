@@ -26,9 +26,10 @@ export function HealthAlertsBanner() {
   const [dismissed, setDismissed] = useState(false);
 
   const { data } = useQuery({
-    queryKey: ['student-health'],
+    queryKey: ['students', 'health'],
     queryFn: fetchStudentHealth,
-    refetchInterval: 180000, // Refetch every 3 minutes
+    staleTime: 300000,
+    refetchInterval: 300000,
   });
 
   const criticalStudents = data?.filter((s) => s.healthStatus === 'critical') || [];

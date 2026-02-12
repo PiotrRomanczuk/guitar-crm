@@ -1,110 +1,86 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { driver } from 'driver.js';
+import { Button } from '@/components/ui/button';
 
 interface WelcomeTourProps {
   firstName?: string;
 }
 
+const TOUR_STEPS = [
+  {
+    element: 'body',
+    popover: {
+      title: 'Welcome to Strummy!',
+      description:
+        "Let's take a quick tour of your dashboard. You can skip anytime by pressing ESC.",
+      side: 'bottom' as const,
+      align: 'center' as const,
+    },
+  },
+  {
+    element: '[data-tour="todays-agenda"]',
+    popover: {
+      title: "Today's Agenda",
+      description: 'See your upcoming lessons and tasks for today at a glance.',
+      side: 'left' as const,
+    },
+  },
+  {
+    element: '[data-tour="student-list"]',
+    popover: {
+      title: 'Student Management',
+      description:
+        'View and manage your students. Use search and filters to find specific students quickly.',
+      side: 'left' as const,
+    },
+  },
+];
+
 export function WelcomeTour({ firstName }: WelcomeTourProps) {
   const [hasSeenTour, setHasSeenTour] = useState(() => {
-    // Check if user has seen the tour before
     if (typeof window !== 'undefined') {
       return !!localStorage.getItem('dashboard-tour-seen');
     }
     return true;
   });
 
-  useEffect(() => {
-    if (!hasSeenTour) {
-      const driverObj = driver({
-        showProgress: true,
-        steps: [
-          {
-            element: 'body',
-            popover: {
-              title: `Welcome to Strummy${firstName ? `, ${firstName}` : ''}! 🎸`,
-              description:
-                "Let's take a quick tour of your dashboard. You can skip this anytime by pressing ESC or clicking outside.",
-              side: 'bottom',
-              align: 'center',
-            },
-          },
-          {
-            element: '[data-tour="stats"]',
-            popover: {
-              title: 'Your Stats at a Glance',
-              description:
-                'View key metrics like total lessons, active students, and songs in your library. Click any stat card to see more details.',
-              side: 'bottom',
-            },
-          },
-          {
-            element: '[data-tour="quick-actions"]',
-            popover: {
-              title: 'Quick Actions',
-              description:
-                'Quickly schedule lessons, add songs, or create assignments without navigating through menus.',
-              side: 'bottom',
-            },
-          },
-          {
-            element: '[data-tour="student-list"]',
-            popover: {
-              title: 'Student Management',
-              description:
-                'View and manage your students. Use search and filters to find specific students quickly.',
-              side: 'left',
-            },
-          },
-          {
-            element: '[data-tour="ai-assistant"]',
-            popover: {
-              title: 'AI Assistant',
-              description:
-                "Need help? Your AI assistant can answer questions, provide practice tips, and suggest songs based on your preferences. Try asking something!",
-              side: 'left',
-            },
-          },
-          {
-            element: '[data-tour="todays-agenda"]',
-            popover: {
-              title: "Today's Agenda",
-              description: 'See your upcoming lessons and tasks for today at a glance.',
-              side: 'left',
-            },
-          },
-        ],
-        onDestroyed: () => {
-          localStorage.setItem('dashboard-tour-seen', 'true');
-          setHasSeenTour(true);
-        },
-      });
+  const personalizedSteps = TOUR_STEPS.map((step, i) =>
+    i === 0 && firstName
+      ? { ...step, popover: { ...step.popover, title: `Welcome to Strummy, ${firstName}!` } }
+      : step
+  );
 
-      // Start tour after a short delay to ensure DOM is ready
-      const timer = setTimeout(() => {
-        driverObj.drive();
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [hasSeenTour, firstName]);
-
-  const startTour = () => {
+  const startTour = useCallback(() => {
     setHasSeenTour(false);
-  };
+  }, []);
 
-  if (hasSeenTour) {
-    return (
-      <button
-        onClick={startTour}
-        className="fixed bottom-4 right-4 z-50 px-4 py-2 bg-primary text-primary-foreground text-sm rounded-lg shadow-lg hover:bg-primary/90 transition-colors"
-      >
-        Take Tour
-      </button>
-    );
-  }
+  useEffect(() => {
+    if (hasSeenTour) return;
 
-  return null;
+    const driverObj = driver({
+      showProgress: true,
+      steps: personalizedSteps,
+      onDestroyed: () => {
+        localStorage.setItem('dashboard-tour-seen', 'true');
+        setHasSeenTour(true);
+      },
+    });
+
+    const timer = setTimeout(() => driverObj.drive(), 500);
+    return () => clearTimeout(timer);
+  }, [hasSeenTour, personalizedSteps]);
+
+  if (!hasSeenTour) return null;
+
+  return (
+    <Button
+      onClick={startTour}
+      size="sm"
+      className="fixed bottom-4 right-4 z-50 shadow-lg"
+    >
+      Take Tour
+    </Button>
+  );
 }
