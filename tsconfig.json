@@ -31,5 +31,5 @@
     "**/*.mts",
     "types/jest.d.ts"
   ],
-  "exclude": ["node_modules", "cypress.config.ts", "cypress/**/*", "scripts/**/*"]
+  "exclude": ["node_modules", "cypress.config.ts", "cypress/**/*", "scripts/**/*", "tests/e2e/**/*"]
 }
