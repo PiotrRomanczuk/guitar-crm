@@ -85,7 +85,7 @@ describe('Bounce Handler - handleBounce and checkConsecutiveBounces', () => {
       );
     });
 
-    it('should auto-disable notifications after 3 consecutive bounces', async () => {
+    it('should NOT auto-disable notifications after only 3 consecutive bounces', async () => {
       const mockLogEntry = {
         id: 'log-123',
         recipient_user_id: 'user-123',
@@ -117,7 +117,57 @@ describe('Bounce Handler - handleBounce and checkConsecutiveBounces', () => {
               error: null,
             }),
           };
+        }
+        return { select: jest.fn() };
+      });
+
+      await handleBounce('log-123', 'Mailbox full');
+      // Should only be 3 calls (fetch log, update log, check bounces)
+      // No 4th call to disable since threshold is now 5
+      expect(callCount).toBe(3);
+    });
+
+    it('should auto-disable notifications after 5 consecutive bounces', async () => {
+      const mockLogEntry = {
+        id: 'log-123',
+        recipient_user_id: 'user-123',
+        recipient_email: 'user@example.com',
+        notification_type: 'lesson_reminder_24h',
+      };
+
+      let callCount = 0;
+      mockSupabase.from.mockImplementation((table: string) => {
+        callCount++;
+        if (callCount === 1) {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            single: jest.fn().mockResolvedValue({ data: mockLogEntry, error: null }),
+          };
+        } else if (callCount === 2) {
+          return {
+            update: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockResolvedValue({ error: null }),
+          };
+        } else if (callCount === 3) {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            order: jest.fn().mockReturnThis(),
+            limit: jest.fn().mockResolvedValue({
+              data: [
+                { status: 'bounced' },
+                { status: 'bounced' },
+                { status: 'bounced' },
+                { status: 'bounced' },
+                { status: 'bounced' },
+              ],
+              error: null,
+            }),
+          };
         } else if (callCount === 4) {
+          // disableNotificationsForUser targets notification_preferences
+          expect(table).toBe('notification_preferences');
           return {
             update: jest.fn().mockReturnThis(),
             eq: jest.fn().mockResolvedValue({ error: null }),
@@ -207,13 +257,18 @@ describe('Bounce Handler - handleBounce and checkConsecutiveBounces', () => {
 
 describe('Bounce Handler - User Management and Stats', () => {
   describe('disableNotificationsForUser', () => {
-    it('should set is_active to false and log reason', async () => {
-      mockSupabase.from.mockReturnValue({
-        update: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockResolvedValue({ error: null }),
+    it('should update notification_preferences to disabled', async () => {
+      const mockUpdate = jest.fn().mockReturnThis();
+      const mockEq = jest.fn().mockResolvedValue({ error: null });
+
+      mockSupabase.from.mockImplementation((table: string) => {
+        expect(table).toBe('notification_preferences');
+        return { update: mockUpdate, eq: mockEq };
       });
 
       await disableNotificationsForUser('user-123', 'Too many bounces');
+
+      expect(mockUpdate).toHaveBeenCalledWith({ enabled: false });
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Notifications disabled for user')
       );
@@ -232,11 +287,16 @@ describe('Bounce Handler - User Management and Stats', () => {
   });
 
   describe('reenableNotificationsForUser', () => {
-    it('should re-enable notifications when admin is valid', async () => {
+    it('should re-enable notification_preferences when admin is valid', async () => {
       let callCount = 0;
-      mockSupabase.from.mockImplementation(() => {
+      const tables: string[] = [];
+
+      mockSupabase.from.mockImplementation((table: string) => {
         callCount++;
+        tables.push(table);
         if (callCount === 1) {
+          // Admin check still queries profiles
+          expect(table).toBe('profiles');
           return {
             select: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
@@ -246,6 +306,8 @@ describe('Bounce Handler - User Management and Stats', () => {
             }),
           };
         } else if (callCount === 2) {
+          // Re-enable targets notification_preferences
+          expect(table).toBe('notification_preferences');
           return {
             update: jest.fn().mockReturnThis(),
             eq: jest.fn().mockResolvedValue({ error: null }),
@@ -256,6 +318,7 @@ describe('Bounce Handler - User Management and Stats', () => {
 
       await reenableNotificationsForUser('user-123', 'admin-123');
       expect(callCount).toBe(2);
+      expect(tables).toEqual(['profiles', 'notification_preferences']);
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining('Notifications re-enabled for user')
       );
@@ -278,9 +341,9 @@ describe('Bounce Handler - User Management and Stats', () => {
   });
 
   describe('getBounceStats', () => {
-    it('should return complete bounce statistics', async () => {
+    it('should return complete bounce statistics using notification_preferences', async () => {
       let callCount = 0;
-      mockSupabase.from.mockImplementation(() => {
+      mockSupabase.from.mockImplementation((table: string) => {
         callCount++;
         if (callCount === 1) {
           return {
@@ -305,14 +368,11 @@ describe('Bounce Handler - User Management and Stats', () => {
             }),
           };
         } else if (callCount === 3) {
-          return {
-            select: jest.fn().mockReturnThis(),
-            eq: jest.fn().mockReturnThis(),
-            single: jest.fn().mockResolvedValue({
-              data: { is_active: false },
-              error: null,
-            }),
-          };
+          expect(table).toBe('notification_preferences');
+          // Mock the .select().eq().eq() chain for count query
+          const eqFn = jest.fn().mockReturnValue({ count: 0, error: null });
+          const selectFn = jest.fn().mockReturnValue({ eq: jest.fn().mockReturnValue({ eq: eqFn }) });
+          return { select: selectFn };
         }
         return { select: jest.fn() };
       });
@@ -326,11 +386,20 @@ describe('Bounce Handler - User Management and Stats', () => {
       });
     });
 
-    it('should handle user with no bounces', async () => {
+    it('should handle user with active preferences (not disabled)', async () => {
       let callCount = 0;
       mockSupabase.from.mockImplementation(() => {
         callCount++;
-        if (callCount === 1 || callCount === 2) {
+        if (callCount === 1) {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            order: jest.fn().mockResolvedValue({
+              data: [],
+              error: null,
+            }),
+          };
+        } else if (callCount === 2) {
           return {
             select: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
@@ -338,14 +407,9 @@ describe('Bounce Handler - User Management and Stats', () => {
             limit: jest.fn().mockResolvedValue({ data: [], error: null }),
           };
         } else if (callCount === 3) {
-          return {
-            select: jest.fn().mockReturnThis(),
-            eq: jest.fn().mockReturnThis(),
-            single: jest.fn().mockResolvedValue({
-              data: { is_active: true },
-              error: null,
-            }),
-          };
+          const eqFn = jest.fn().mockReturnValue({ count: 3, error: null });
+          const selectFn = jest.fn().mockReturnValue({ eq: jest.fn().mockReturnValue({ eq: eqFn }) });
+          return { select: selectFn };
         }
         return { select: jest.fn() };
       });
