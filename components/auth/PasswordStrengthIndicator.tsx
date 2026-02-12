@@ -1,3 +1,6 @@
+import { Check, Circle } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+
 interface PasswordStrengthIndicatorProps {
   password: string;
 }
@@ -36,9 +39,9 @@ export function PasswordStrengthIndicator({ password }: PasswordStrengthIndicato
   const { strength, requirements, percentage } = calculatePasswordStrength(password);
 
   const strengthColors = {
-    weak: 'bg-destructive',
-    medium: 'bg-warning',
-    strong: 'bg-success',
+    weak: '[&_[data-slot=progress-indicator]]:bg-destructive',
+    medium: '[&_[data-slot=progress-indicator]]:bg-warning',
+    strong: '[&_[data-slot=progress-indicator]]:bg-success',
   };
 
   const strengthText = {
@@ -63,12 +66,10 @@ export function PasswordStrengthIndicator({ password }: PasswordStrengthIndicato
             {strengthText[strength]}
           </span>
         </div>
-        <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-          <div
-            className={`h-full ${strengthColors[strength]} transition-all duration-300`}
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
+        <Progress
+          value={percentage}
+          className={`h-1.5 bg-muted ${strengthColors[strength]}`}
+        />
       </div>
 
       {/* Requirements Checklist */}
@@ -76,28 +77,9 @@ export function PasswordStrengthIndicator({ password }: PasswordStrengthIndicato
         {requirements.map((req, index) => (
           <li key={index} className="flex items-center gap-2 text-xs">
             {req.met ? (
-              <svg
-                className="h-3.5 w-3.5 text-success"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
+              <Check className="h-3.5 w-3.5 text-success" />
             ) : (
-              <svg
-                className="h-3.5 w-3.5 text-muted-foreground"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <circle cx="12" cy="12" r="10" strokeWidth={2} />
-              </svg>
+              <Circle className="h-3.5 w-3.5 text-muted-foreground" />
             )}
             <span className={req.met ? 'text-success' : 'text-muted-foreground'}>
               {req.label}

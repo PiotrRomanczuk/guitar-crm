@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { X, CheckCircle2, Circle } from 'lucide-react';
-// import Link from 'next/link';
+import { Progress } from '@/components/ui/progress';
 
 interface ChecklistItem {
   id: string;
   label: string;
   completed: boolean;
-  // href?: string; // TODO: Enable tracking when we implement activity monitoring
 }
 
 export function QuickStartChecklist() {
@@ -21,23 +20,10 @@ export function QuickStartChecklist() {
   const [items, setItems] = useState<ChecklistItem[]>([
     { id: 'account', label: 'Account created', completed: true },
     { id: 'profile', label: 'Profile set up', completed: true },
-    // TODO: Implement activity tracking to auto-complete these items
-    // { id: 'browse-songs', label: 'Browse song library', completed: false, href: '/dashboard/songs' },
-    // { id: 'schedule-lesson', label: 'Schedule your first lesson', completed: false, href: '/dashboard/lessons' },
-    // { id: 'log-practice', label: 'Log your first practice session', completed: false, href: '/dashboard' },
   ]);
 
   useEffect(() => {
     // TODO: Re-enable when activity tracking is implemented
-    // const checklistData = localStorage.getItem('quick-start-checklist');
-    // if (checklistData) {
-    //   try {
-    //     const savedItems = JSON.parse(checklistData);
-    //     setItems(savedItems);
-    //   } catch (e) {
-    //     console.error('Failed to parse checklist data:', e);
-    //   }
-    // }
   }, []);
 
   const handleDismiss = () => {
@@ -86,81 +72,47 @@ export function QuickStartChecklist() {
           <span className="text-muted-foreground">Progress</span>
           <span className="font-semibold text-primary">{percentage}%</span>
         </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all duration-500 ease-out"
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
+        <Progress value={percentage} className="h-2" />
       </div>
 
       {/* Checklist Items */}
       <ul className="space-y-2">
-        {items.map((item) => {
-          // TODO: Re-enable Link wrapper when activity tracking is implemented
-          // const ItemWrapper = (item.href && !item.completed ? Link : 'div') as any;
-          // const wrapperProps = item.href && !item.completed ? { href: item.href } : {};
-          const ItemWrapper = 'div';
-          const wrapperProps = {};
-
-          return (
-            <li key={item.id}>
-              <ItemWrapper
-                {...wrapperProps}
-                className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
+        {items.map((item) => (
+          <li key={item.id}>
+            <div
+              className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
+                item.completed
+                  ? 'bg-success/10 border border-success/20'
+                  : 'border border-transparent'
+              }`}
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  handleToggle(item.id);
+                }}
+                className="shrink-0"
+                disabled={item.id === 'account' || item.id === 'profile'}
+              >
+                {item.completed ? (
+                  <CheckCircle2 className="h-5 w-5 text-success" />
+                ) : (
+                  <Circle className="h-5 w-5 text-muted-foreground" />
+                )}
+              </button>
+              <span
+                className={`text-sm ${
                   item.completed
-                    ? 'bg-success/10 border border-success/20'
-                    : 'border border-transparent'
-                    // TODO: Re-enable hover styles when links are active
-                    // : item.href
-                    // ? 'hover:bg-background cursor-pointer border border-transparent hover:border-primary/20'
-                    // : 'border border-transparent'
+                    ? 'text-success line-through'
+                    : 'text-foreground'
                 }`}
               >
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    handleToggle(item.id);
-                  }}
-                  className="shrink-0"
-                  disabled={item.id === 'account' || item.id === 'profile'}
-                >
-                  {item.completed ? (
-                    <CheckCircle2 className="h-5 w-5 text-success" />
-                  ) : (
-                    <Circle className="h-5 w-5 text-muted-foreground" />
-                  )}
-                </button>
-                <span
-                  className={`text-sm ${
-                    item.completed
-                      ? 'text-success line-through'
-                      : 'text-foreground'
-                  }`}
-                >
-                  {item.label}
-                </span>
-                {/* TODO: Re-enable arrow when links are active */}
-                {/* {item.href && !item.completed && (
-                  <svg
-                    className="ml-auto h-4 w-4 text-blue-600 dark:text-blue-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                )} */}
-              </ItemWrapper>
-            </li>
-          );
-        })}
+                {item.label}
+              </span>
+            </div>
+          </li>
+        ))}
       </ul>
 
       {/* Completion Message */}

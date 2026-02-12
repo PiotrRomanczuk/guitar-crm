@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
+import { Progress } from '@/components/ui/progress';
 
 interface StepIndicatorProps {
   currentStep: number;
@@ -39,16 +40,11 @@ function StepIndicator({
           )}
         </div>
       </div>
-      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-        <div
-          className="h-full bg-primary rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_hsl(var(--primary)/0.5)]"
-          style={{ width: `${percentage}%` }}
-          role="progressbar"
-          aria-valuenow={percentage}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        />
-      </div>
+      <Progress
+        value={percentage}
+        className="h-1.5 bg-muted"
+        aria-label={`Step ${currentStep} of ${totalSteps}`}
+      />
     </div>
   );
 }
