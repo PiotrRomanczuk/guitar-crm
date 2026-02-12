@@ -20,7 +20,6 @@ import {
   logNotificationSkipped,
   logError,
 } from '@/lib/logging/notification-logger';
-import { createInAppNotification } from './in-app-notification-service';
 import type {
   NotificationType,
   SendNotificationParams,
