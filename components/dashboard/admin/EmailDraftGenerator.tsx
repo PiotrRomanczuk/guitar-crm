@@ -94,6 +94,7 @@ export function EmailDraftGenerator({ students }: Props) {
       const streamGenerator = generateEmailDraftStream({
         template_type: templateType,
         student_name: selectedStudentData.full_name || selectedStudentData.email,
+        studentId: selectedStudent,
         context: JSON.stringify(context),
       });
 

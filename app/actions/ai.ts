@@ -189,6 +189,7 @@ import {
   generatePostLessonSummaryAgent,
   analyzeStudentProgressAgent,
   generateAdminInsightsAgent,
+  generateChatResponseAgent,
   extractAgentResult,
   formatAgentError,
   isAgentSuccess,
@@ -323,73 +324,42 @@ export async function generateAIResponse(
 ): Promise<{ content?: string; error?: string }> {
   try {
     const user = await requireAIAuth();
-    await enforceRateLimit(user, 'ai-response');
+    await enforceRateLimit(user, 'chat-assistant');
 
-    // Get the configured provider
-    const provider = await getAIProvider();
+    const response = await generateChatResponseAgent({ prompt, model });
 
-    // Map the model to the appropriate provider model
-    const providerModel = await getProviderAppropriateModel(provider, model);
-
-    console.log(`[AI] Using provider: ${provider.name}, model: ${providerModel}`);
-
-    // Check if provider is available
-    const available = await provider.isAvailable();
-    if (!available) {
-      return {
-        error: `${provider.name} is not available. Please check your configuration.`,
-      };
-    }
-
-    // Prepare messages
-    const messages: AIMessage[] = [
-      {
-        role: 'system',
-        content:
-          'You are a helpful assistant for the Guitar CRM admin dashboard. Keep your answers concise and relevant to managing a music school.',
-      },
-      {
-        role: 'user',
-        content: prompt,
-      },
-    ];
-
-    // Generate completion
-    const result = await provider.complete({
-      model: providerModel,
-      messages,
-      temperature: 0.7,
-    });
-
-    // Handle error response
-    if (isAIError(result)) {
-      console.error(`[AI] ${provider.name} error:`, result.error);
+    if (!isAgentSuccess(response)) {
+      const err = formatAgentError(response);
       saveAIGeneration({
         generationType: 'chat',
-        modelId: providerModel,
-        provider: provider.name?.toLowerCase(),
+        agentId: 'chat-assistant',
+        modelId: model,
         inputParams: { prompt },
-        outputContent: result.error,
+        outputContent: '',
         isSuccessful: false,
-        errorMessage: result.error,
+        errorMessage: err,
       });
-      return { error: result.error };
+      return { error: err };
     }
 
-    // Save success and return
+    const result = extractAgentResult(response) as any;
+    const content = result?.content || String(result) || '';
+
     saveAIGeneration({
       generationType: 'chat',
-      modelId: providerModel,
-      provider: provider.name?.toLowerCase(),
+      agentId: 'chat-assistant',
+      modelId: model,
       inputParams: { prompt },
-      outputContent: result.content || '',
+      outputContent: content,
     });
-    return { content: result.content };
+
+    return { content };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Failed to generate AI response.';
-    console.error('[AI] Unexpected error:', error);
+    console.error('[AI] generateAIResponse error:', error);
     saveAIGeneration({
       generationType: 'chat',
+      agentId: 'chat-assistant',
       inputParams: { prompt },
       outputContent: '',
       isSuccessful: false,
@@ -437,12 +407,16 @@ export async function getAvailableModels(): Promise<{
  */
 export async function* generateLessonNotesStream(params: {
   studentName: string;
+  studentId?: string;
   songTitle?: string;
   lessonFocus?: string;
   skillsWorked?: string;
   nextSteps?: string;
 }) {
-  yield* executeAgentStream('lesson-notes-assistant', params, {}, undefined, 'lesson_notes');
+  const context = params.studentId
+    ? { entityId: params.studentId, entityType: 'student' }
+    : {};
+  yield* executeAgentStream('lesson-notes-assistant', params, context, undefined, 'lesson_notes');
 }
 
 export async function generateLessonNotes(params: {
@@ -515,12 +489,16 @@ export async function generateLessonNotes(params: {
  */
 export async function* generateAssignmentStream(params: {
   studentName: string;
+  studentId?: string;
   skillLevel: string;
   focusArea: string;
   timeAvailable?: string;
   additionalNotes?: string;
 }) {
-  yield* executeAgentStream('assignment-generator', params, {}, undefined, 'assignment');
+  const context = params.studentId
+    ? { entityId: params.studentId, entityType: 'student' }
+    : {};
+  yield* executeAgentStream('assignment-generator', params, context, undefined, 'assignment');
 }
 
 export async function generateAssignment(params: {
@@ -594,11 +572,15 @@ export async function generateAssignment(params: {
 export async function* generateEmailDraftStream(params: {
   template_type: string;
   student_name: string;
+  studentId?: string;
   context?: string;
   tone?: string;
   additional_info?: string;
 }) {
-  yield* executeAgentStream('email-draft-generator', params, {}, undefined, 'email_draft');
+  const context = params.studentId
+    ? { entityId: params.studentId, entityType: 'student' }
+    : {};
+  yield* executeAgentStream('email-draft-generator', params, context, undefined, 'email_draft');
 }
 
 export async function generateEmailDraft(params: {
@@ -689,13 +671,17 @@ export async function generateEmailDraft(params: {
  */
 export async function* generatePostLessonSummaryStream(params: {
   studentName: string;
+  studentId?: string;
   songTitle?: string;
   lessonDuration?: string;
   skillsWorked?: string;
   challengesNoted?: string;
   nextSteps?: string;
 }) {
-  yield* executeAgentStream('post-lesson-summary', params, {}, undefined, 'post_lesson_summary');
+  const context = params.studentId
+    ? { entityId: params.studentId, entityType: 'student' }
+    : {};
+  yield* executeAgentStream('post-lesson-summary', params, context, undefined, 'post_lesson_summary');
 }
 
 export async function generatePostLessonSummary(params: {
@@ -776,11 +762,15 @@ export async function generatePostLessonSummary(params: {
  */
 export async function* analyzeStudentProgressStream(params: {
   studentData: any;
+  studentId?: string;
   timePeriod?: string;
   lessonHistory?: any;
   skillAssessments?: any;
 }) {
-  yield* executeAgentStream('student-progress-insights', params, {}, undefined, 'student_progress');
+  const context = params.studentId
+    ? { entityId: params.studentId, entityType: 'student' }
+    : {};
+  yield* executeAgentStream('student-progress-insights', params, context, undefined, 'student_progress');
 }
 
 export async function analyzeStudentProgress(params: {

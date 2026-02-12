@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 
 interface Props {
   studentName: string;
+  studentId?: string;
   studentLevel: 'beginner' | 'intermediate' | 'advanced';
   recentSongs: string[];
   focusArea: string;
@@ -18,6 +19,7 @@ interface Props {
 
 export function AssignmentAI({
   studentName,
+  studentId,
   studentLevel,
   recentSongs,
   focusArea,
@@ -37,6 +39,7 @@ export function AssignmentAI({
     try {
       const streamGenerator = generateAssignmentStream({
         studentName,
+        studentId,
         skillLevel: studentLevel,
         focusArea,
         timeAvailable: duration,

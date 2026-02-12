@@ -10,6 +10,7 @@ import { generatePostLessonSummaryStream } from '@/app/actions/ai';
 
 interface Props {
   studentName: string;
+  studentId?: string;
   duration: number;
   songsPracticed: string[];
   newTechniques?: string[];
@@ -21,6 +22,7 @@ interface Props {
 
 export function PostLessonSummaryAI({
   studentName,
+  studentId,
   duration,
   songsPracticed,
   newTechniques = [],
@@ -40,6 +42,7 @@ export function PostLessonSummaryAI({
     try {
       const streamGenerator = generatePostLessonSummaryStream({
         studentName,
+        studentId,
         songTitle: songsPracticed.join(', '),
         lessonDuration: `${duration} minutes`,
         skillsWorked: newTechniques.join(', '),

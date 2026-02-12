@@ -111,6 +111,7 @@ export default function LessonForm(props: UseLessonFormProps) {
             handleChange={handleChange}
             handleBlur={(field) => handleBlur(field as keyof typeof formData)}
             studentName={students.find((s) => s.id === formData.student_id)?.full_name || ''}
+            studentId={formData.student_id}
             selectedSongs={selectedSongs}
           />
 

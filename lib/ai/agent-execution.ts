@@ -18,6 +18,7 @@ export {
   generatePostLessonSummaryAgent,
   analyzeStudentProgressAgent,
   generateAdminInsightsAgent,
+  generateChatResponseAgent,
   executeCustomAgent,
   isAgentSuccess,
   extractAgentResult,

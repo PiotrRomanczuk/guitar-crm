@@ -73,10 +73,10 @@ CREATE INDEX ix_ai_generations_context ON ai_generations(context_entity_type, co
 -- TRIGGER
 -- ============================================================================
 
-CREATE TRIGGER tr_ai_generations_updated_at
+CREATE TRIGGER trigger_update_updated_at
     BEFORE UPDATE ON ai_generations
     FOR EACH ROW
-    EXECUTE FUNCTION set_updated_at();
+    EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================
 -- RLS

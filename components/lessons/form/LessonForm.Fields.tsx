@@ -23,6 +23,7 @@ interface Props {
   ) => void;
   handleBlur: (field: string) => void;
   studentName?: string;
+  studentId?: string;
   selectedSongs?: Array<{ title: string }>;
   previousNotes?: string;
 }
@@ -33,6 +34,7 @@ export function LessonFormFields({
   handleChange,
   handleBlur,
   studentName,
+  studentId,
   selectedSongs = [],
   previousNotes,
 }: Props) {
@@ -129,6 +131,7 @@ export function LessonFormFields({
           {studentName && selectedSongs.length > 0 && (
             <LessonNotesAI
               studentName={studentName}
+              studentId={studentId}
               songsCovered={selectedSongs.map((song) => song.title)}
               lessonTopic={formData.title || 'Guitar Lesson'}
               onNotesGenerated={handleNotesGenerated}
