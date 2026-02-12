@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState, useEffect } from 'react';
 import {
@@ -22,8 +21,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { generateAIResponseStream, getAvailableModels } from '@/app/actions/ai';
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
-import { Loader2, Send, Minimize2, Maximize2, Sparkles, Trash2 } from 'lucide-react';
+import { Send, Minimize2, Maximize2, Sparkles, Trash2 } from 'lucide-react';
 import type { AIModelInfo } from '@/lib/ai';
+import { useAIConversation } from '@/hooks/useAIConversation';
+import { AIAssistantCardMessages } from './AIAssistantCard.Messages';
+import { AIConversationHistory } from './AIConversationHistory';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -38,23 +40,23 @@ const SUGGESTED_PROMPTS = [
   'Tips for teaching guitar to beginners',
 ];
 
+function createWelcomeMessage(firstName?: string): Message {
+  return {
+    role: 'system',
+    content: `Hi${
+      firstName ? ` ${firstName}` : ''
+    }! I'm your Strummy AI assistant. I can help you with:\n\n- Practice tips and techniques\n- Song recommendations\n- Lesson planning advice\n- Student management strategies\n- Music theory questions\n\nTry asking me something or click one of the suggested prompts below!`,
+    timestamp: new Date(),
+  };
+}
+
 interface AIAssistantCardProps {
   firstName?: string;
 }
 
 export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
   const [prompt, setPrompt] = useState('');
-  const [messages, setMessages] = useState<Message[]>(() => {
-    // Initialize with welcome message
-    const welcomeMessage: Message = {
-      role: 'system',
-      content: `Hi${
-        firstName ? ` ${firstName}` : ''
-      }! 👋 I'm your Strummy AI assistant. I can help you with:\n\n• Practice tips and techniques\n• Song recommendations\n• Lesson planning advice\n• Student management strategies\n• Music theory questions\n\nTry asking me something or click one of the suggested prompts below!`,
-      timestamp: new Date(),
-    };
-    return [welcomeMessage];
-  });
+  const [messages, setMessages] = useState<Message[]>(() => [createWelcomeMessage(firstName)]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedModel, setSelectedModel] = useState(DEFAULT_AI_MODEL);
@@ -62,15 +64,24 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
   const [availableModels, setAvailableModels] = useState<AIModelInfo[]>([]);
   const [providerName, setProviderName] = useState<string>('');
 
-  // Fetch available models on component mount
+  const {
+    conversationId,
+    conversations,
+    isLoadingList,
+    isLoadingConversation,
+    startNewConversation,
+    loadConversation,
+    refreshConversationList,
+    clearCurrentConversation,
+    removeConversation,
+  } = useAIConversation();
+
   useEffect(() => {
     const fetchModels = async () => {
       const result = await getAvailableModels();
       if (result.models) {
         setAvailableModels(result.models);
         setProviderName(result.providerName || '');
-
-        // If current selected model is not in the list, use the first available
         if (result.models.length > 0 && !result.models.find((m) => m.id === selectedModel)) {
           setSelectedModel(result.models[0].id);
         }
@@ -83,41 +94,39 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
     const textToSend = customPrompt || prompt;
     if (!textToSend.trim()) return;
 
-    const userMessage: Message = {
-      role: 'user',
-      content: textToSend,
-      timestamp: new Date(),
-    };
+    // Ensure we have a conversation
+    let activeConvId = conversationId;
+    if (!activeConvId) {
+      activeConvId = await startNewConversation(selectedModel);
+      if (!activeConvId) {
+        setError('Failed to create conversation.');
+        return;
+      }
+    }
 
+    const userMessage: Message = { role: 'user', content: textToSend, timestamp: new Date() };
     setMessages((prev) => [...prev, userMessage]);
     setPrompt('');
     setIsLoading(true);
     setError('');
 
-    // Create placeholder message for streaming
-    const assistantMessageId = Date.now();
-    const assistantMessage: Message = {
-      role: 'assistant',
-      content: '',
-      timestamp: new Date(),
-    };
+    const assistantMessage: Message = { role: 'assistant', content: '', timestamp: new Date() };
     setMessages((prev) => [...prev, assistantMessage]);
 
     try {
-      const streamGenerator = generateAIResponseStream(textToSend, selectedModel);
-
-      for await (const chunk of streamGenerator) {
+      const stream = generateAIResponseStream(textToSend, selectedModel, activeConvId);
+      for await (const chunk of stream) {
         setMessages((prev) =>
-          prev.map((msg, index) =>
-            index === prev.length - 1 && msg.role === 'assistant'
+          prev.map((msg, i) =>
+            i === prev.length - 1 && msg.role === 'assistant'
               ? { ...msg, content: String(chunk) }
               : msg
           )
         );
       }
-    } catch (error) {
+      refreshConversationList();
+    } catch {
       setError('An unexpected error occurred.');
-      // Remove the placeholder message on error
       setMessages((prev) => prev.slice(0, -1));
     } finally {
       setIsLoading(false);
@@ -125,17 +134,23 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
   };
 
   const clearConversation = () => {
-    // Reset to just the welcome message
-    const welcomeMessage: Message = {
-      role: 'system',
-      content: `Hi${
-        firstName ? ` ${firstName}` : ''
-      }! 👋 I'm your Strummy AI assistant. I can help you with:\n\n• Practice tips and techniques\n• Song recommendations\n• Lesson planning advice\n• Student management strategies\n• Music theory questions\n\nTry asking me something or click one of the suggested prompts below!`,
-      timestamp: new Date(),
-    };
-    setMessages([welcomeMessage]);
+    clearCurrentConversation();
+    setMessages([createWelcomeMessage(firstName)]);
     setError('');
     setPrompt('');
+  };
+
+  const handleLoadConversation = async (id: string) => {
+    const loaded = await loadConversation(id);
+    if (loaded.length > 0) {
+      setMessages(loaded);
+    }
+    setError('');
+    setPrompt('');
+  };
+
+  const handleNewConversation = () => {
+    clearConversation();
   };
 
   return (
@@ -176,6 +191,15 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
                 {providerName}
               </Badge>
             )}
+            <AIConversationHistory
+              conversations={conversations}
+              currentConversationId={conversationId}
+              onSelect={handleLoadConversation}
+              onNew={handleNewConversation}
+              onDelete={removeConversation}
+              onRefresh={refreshConversationList}
+              isLoading={isLoadingList || isLoadingConversation}
+            />
             <Button
               variant="ghost"
               size="icon"
@@ -200,66 +224,12 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
       {!isMinimized && (
         <>
           <CardContent className="flex-1 flex flex-col gap-4 min-h-75 max-h-125">
-            {/* Conversation History */}
-            {messages.length > 0 ? (
-              <div className="flex-1 overflow-y-auto space-y-4 pr-2">
-                {messages.map((message, index) => (
-                  <div
-                    key={index}
-                    className={`p-3 rounded-lg ${
-                      message.role === 'user'
-                        ? 'bg-primary/10 ml-8'
-                        : message.role === 'system'
-                        ? 'bg-primary/5 border border-primary/20'
-                        : 'bg-muted mr-8'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold">
-                        {message.role === 'user'
-                          ? 'You'
-                          : message.role === 'system'
-                          ? '🤖 Welcome'
-                          : 'AI Assistant'}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {message.timestamp.toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                    </div>
-                    <div className="text-sm whitespace-pre-wrap">{message.content}</div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className="flex items-center justify-center p-4">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                <Sparkles className="h-12 w-12 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground text-center">
-                  Start a conversation or try a suggested prompt
-                </p>
-                <div className="grid grid-cols-1 gap-2 w-full max-w-md">
-                  {SUGGESTED_PROMPTS.map((suggestedPrompt, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleSubmit(suggestedPrompt)}
-                      className="justify-start text-left h-auto py-2 px-3"
-                    >
-                      <Sparkles className="h-3 w-3 mr-2 shrink-0" />
-                      <span className="text-xs">{suggestedPrompt}</span>
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
+            <AIAssistantCardMessages
+              messages={messages}
+              isLoading={isLoading}
+              suggestedPrompts={SUGGESTED_PROMPTS}
+              onSuggestedPromptClick={handleSubmit}
+            />
             {error && (
               <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm">
                 {error}
