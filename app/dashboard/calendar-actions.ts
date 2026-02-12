@@ -240,7 +240,7 @@ export async function syncAllLessonsFromCalendar() {
   }
 }
 
-export function isGuitarLesson(event: { description?: string | null }): boolean {
+function isGuitarLesson(event: { description?: string | null }): boolean {
   if (!event.description) return false;
   return event.description.includes('Powered by Calendly.com');
 }
