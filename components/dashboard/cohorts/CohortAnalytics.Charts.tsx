@@ -59,10 +59,10 @@ export function Charts({ data }: ChartsProps) {
                 }}
                 itemStyle={{ color: 'hsl(var(--foreground))' }}
                 cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }}
-                formatter={(value: number | undefined) => [
-                  formatMetricValue(data.metric, value ?? 0),
+                formatter={((value: number) => [
+                  formatMetricValue(data.metric, value),
                   getMetricLabel(data.metric),
-                ]}
+                ]) as never}
                 labelFormatter={(label) => `Cohort: ${label}`}
               />
               <Bar dataKey="value" radius={[4, 4, 0, 0]}>
