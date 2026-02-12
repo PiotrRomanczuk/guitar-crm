@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
 
 export default function SongListEmpty() {
   return (
@@ -13,11 +14,9 @@ export default function SongListEmpty() {
         />
       </div>
       <p className="text-lg text-muted-foreground mb-4">No songs found</p>
-      <Link href="/dashboard/songs/new">
-        <button className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90">
-          Create your first song
-        </button>
-      </Link>
+      <Button asChild>
+        <Link href="/dashboard/songs/new">Create your first song</Link>
+      </Button>
     </div>
   );
 }

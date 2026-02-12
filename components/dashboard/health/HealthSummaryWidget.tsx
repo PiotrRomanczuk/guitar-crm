@@ -21,9 +21,10 @@ async function fetchStudentHealth(): Promise<StudentHealth[]> {
 
 export function HealthSummaryWidget() {
   const { data, isLoading } = useQuery({
-    queryKey: ['student-health'],
+    queryKey: ['students', 'health'],
     queryFn: fetchStudentHealth,
-    refetchInterval: 180000, // Refetch every 3 minutes
+    staleTime: 300000,
+    refetchInterval: 300000,
   });
 
   const healthyCounts = {

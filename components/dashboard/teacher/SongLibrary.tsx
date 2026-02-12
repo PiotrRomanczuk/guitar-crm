@@ -1,33 +1,80 @@
 'use client';
 
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clock, Music2, Star, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Music2, Plus, ChevronRight, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
-import { staggerContainer, listItem, cardEntrance } from '@/lib/animations';
-
-interface Song {
-  id: string;
-  title: string;
-  artist: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  duration: string;
-  studentsLearning: number;
-}
+import { staggerContainer, cardEntrance } from '@/lib/animations';
+import type { Song } from './SongLibrary.Card';
+import { SongCard } from './SongLibrary.Card';
 
 interface SongLibraryProps {
   songs: Song[];
+  isLoading?: boolean;
+  error?: Error | null;
+  onRetry?: () => void;
 }
 
-const difficultyColors = {
-  Easy: 'bg-success/10 text-success border-0',
-  Medium: 'bg-primary/10 text-primary border-0',
-  Hard: 'bg-destructive/10 text-destructive border-0',
-};
+const DISPLAY_LIMIT = 5;
 
-export function SongLibrary({ songs }: SongLibraryProps) {
+function SongLibrarySkeleton() {
+  return (
+    <div className="bg-card rounded-xl border border-border overflow-hidden">
+      <div className="p-4 sm:p-6 border-b border-border">
+        <Skeleton className="h-5 w-28" />
+        <Skeleton className="h-4 w-44 mt-2" />
+      </div>
+      <div className="divide-y divide-border">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="p-4 flex items-start gap-3 sm:gap-4">
+            <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-24" />
+              <div className="flex gap-2">
+                <Skeleton className="h-5 w-14" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SongLibraryError({ onRetry }: { onRetry?: () => void }) {
+  return (
+    <div className="bg-card rounded-xl border border-destructive/50 overflow-hidden">
+      <div className="p-6 border-b border-border">
+        <h3 className="font-semibold text-destructive">Error loading songs</h3>
+        <p className="text-sm text-muted-foreground mt-1">
+          Failed to fetch song library. Please try again.
+        </p>
+      </div>
+      <div className="p-6 text-center">
+        {onRetry && (
+          <Button onClick={onRetry} variant="outline" className="min-h-[44px]">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Retry
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function SongLibrary({ songs, isLoading, error, onRetry }: SongLibraryProps) {
+  const [showAll] = useState(false);
+
+  if (isLoading) return <SongLibrarySkeleton />;
+  if (error) return <SongLibraryError onRetry={onRetry} />;
+
+  const displayedSongs = showAll ? songs : songs.slice(0, DISPLAY_LIMIT);
+  const hasMore = songs.length > DISPLAY_LIMIT;
+
   return (
     <motion.div
       variants={cardEntrance}
@@ -37,7 +84,10 @@ export function SongLibrary({ songs }: SongLibraryProps) {
     >
       <div className="p-4 sm:p-6 border-b border-border">
         <h3 className="font-semibold text-base sm:text-lg">Song Library</h3>
-        <p className="text-xs sm:text-sm text-muted-foreground mt-1">Popular songs being taught</p>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+          Popular songs being taught
+          {songs.length > 0 && ` (${songs.length})`}
+        </p>
       </div>
 
       {songs.length === 0 ? (
@@ -69,53 +119,31 @@ export function SongLibrary({ songs }: SongLibraryProps) {
           </Link>
         </motion.div>
       ) : (
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="divide-y divide-border"
-        >
-          <AnimatePresence mode="popLayout">
-            {songs.map((song) => (
-              <motion.div
-                key={song.id}
-                variants={listItem}
-                layout
-                whileHover={{ backgroundColor: 'rgba(0,0,0,0.02)' }}
-                whileTap={{ scale: 0.98 }}
-                className="p-4 transition-colors cursor-pointer"
-              >
-                <div className="flex items-start gap-3 sm:gap-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Music2 className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                  </div>
+        <>
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+            className="divide-y divide-border"
+          >
+            <AnimatePresence mode="popLayout">
+              {displayedSongs.map((song) => (
+                <SongCard key={song.id} song={song} />
+              ))}
+            </AnimatePresence>
+          </motion.div>
 
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm sm:text-base truncate">{song.title}</p>
-                    <p className="text-xs sm:text-sm text-muted-foreground">{song.artist}</p>
-
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2">
-                      <Badge
-                        variant="outline"
-                        className={cn('text-[10px] sm:text-xs', difficultyColors[song.difficulty])}
-                      >
-                        {song.difficulty}
-                      </Badge>
-                      <span className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {song.duration}
-                      </span>
-                      <span className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1">
-                        <Star className="w-3 h-3" />
-                        {song.studentsLearning} students
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+          {hasMore && (
+            <div className="p-4 border-t border-border">
+              <Link href="/dashboard/songs">
+                <Button variant="outline" className="w-full min-h-[44px]" size="sm">
+                  View All {songs.length} Songs
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </Link>
+            </div>
+          )}
+        </>
       )}
     </motion.div>
   );

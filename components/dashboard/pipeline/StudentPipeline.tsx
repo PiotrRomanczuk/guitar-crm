@@ -3,6 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, UserPlus, UserCheck, Users, AlertTriangle, LucideIcon } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
@@ -39,15 +40,12 @@ async function fetchPipelineData(): Promise<PipelineData> {
   return response.json();
 }
 
-interface StudentPipelineProps {
-  onStageClick?: (stageId: string) => void;
-}
-
-export function StudentPipeline({ onStageClick }: StudentPipelineProps) {
+export function StudentPipeline() {
+  const router = useRouter();
   const { data, isLoading, error } = useQuery({
     queryKey: ['student-pipeline'],
     queryFn: fetchPipelineData,
-    refetchInterval: 120000, // Refetch every 2 minutes
+    refetchInterval: 120000,
   });
 
   if (error) {
@@ -93,9 +91,13 @@ export function StudentPipeline({ onStageClick }: StudentPipelineProps) {
                 return (
                   <button
                     key={stage.id}
-                    onClick={() => onStageClick?.(stage.id)}
+                    onClick={() => router.push(`/dashboard/users?status=${stage.id}`)}
+                    aria-label={`${stage.count} ${stage.label} student${stage.count !== 1 ? 's' : ''}, click to view`}
                     className={cn(
-                      'relative p-4 rounded-lg border-2 transition-all hover:shadow-md',
+                      'relative p-4 rounded-lg border-2 min-h-[44px]',
+                      'cursor-pointer transition-all duration-200',
+                      'hover:shadow-lg hover:scale-[1.03]',
+                      'active:scale-[0.98]',
                       stage.borderColor,
                       stage.bgColor,
                       'text-left group'
@@ -131,7 +133,9 @@ export function StudentPipeline({ onStageClick }: StudentPipelineProps) {
                         </div>
                       )}
                     </div>
-                    <div className={cn('text-3xl font-bold mb-1', stage.color)}>{stage.count}</div>
+                    <div className={cn('text-3xl font-bold mb-1', stage.color)}>
+                      {stage.count}
+                    </div>
                     <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       {stage.label}
                     </div>
@@ -140,26 +144,24 @@ export function StudentPipeline({ onStageClick }: StudentPipelineProps) {
               })}
             </div>
 
-            {/* Conversion Metrics */}
-            {(conversions.leadToTrial > 0 || conversions.trialToActive > 0) && (
-              <div className="pt-4 border-t">
-                <h4 className="text-sm font-medium mb-3">Conversion Rates</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 rounded-lg bg-muted/50">
-                    <div className="text-xs text-muted-foreground mb-1">Lead → Trial</div>
-                    <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                      {conversions.leadToTrial}%
-                    </div>
+            {/* Conversion Metrics -- always visible for funnel insight */}
+            <div className="pt-4 border-t">
+              <h4 className="text-sm font-medium mb-3">Conversion Rates</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 rounded-lg bg-muted/50">
+                  <div className="text-xs text-muted-foreground mb-1">Lead → Trial</div>
+                  <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                    {conversions.leadToTrial}%
                   </div>
-                  <div className="p-3 rounded-lg bg-muted/50">
-                    <div className="text-xs text-muted-foreground mb-1">Trial → Active</div>
-                    <div className="text-xl font-bold text-green-600 dark:text-green-400">
-                      {conversions.trialToActive}%
-                    </div>
+                </div>
+                <div className="p-3 rounded-lg bg-muted/50">
+                  <div className="text-xs text-muted-foreground mb-1">Trial → Active</div>
+                  <div className="text-xl font-bold text-green-600 dark:text-green-400">
+                    {conversions.trialToActive}%
                   </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         )}
       </CardContent>

@@ -20,25 +20,24 @@ jest.mock('@/lib/getUserWithRolesSSR', () => ({
   getUserWithRolesSSR: () => mockGetUserWithRolesSSR(),
 }));
 
-// Mock Supabase client
-const mockSelect = jest.fn();
-const mockEq = jest.fn();
-const mockIn = jest.fn();
-const mockLt = jest.fn();
-const mockGt = jest.fn();
-const mockOrder = jest.fn();
-const mockLimit = jest.fn();
-const mockSingle = jest.fn();
+// Helper to build a chainable Supabase mock that resolves to a given value
+function chainable(resolveValue: any) {
+  const handler: any = new Proxy(() => {}, {
+    apply(_target: any, _thisArg: any, _args: any[]) {
+      return handler;
+    },
+    get(_target: any, prop: string) {
+      if (prop === 'then') {
+        return Promise.resolve(resolveValue).then.bind(Promise.resolve(resolveValue));
+      }
+      return handler;
+    },
+  });
+  return handler;
+}
 
-// mockFrom now controls the actual return behavior
-const mockFrom = jest.fn((table: string) => {
-  // Default fallback behavior
-  return {
-    select: () => ({
-      eq: () => Promise.resolve({ data: [] }),
-    }),
-  };
-});
+// mockFrom controls Supabase query behavior per table
+const mockFrom = jest.fn((table: string) => chainable({ data: [], count: 0 }));
 
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(() =>
@@ -47,6 +46,45 @@ jest.mock('@/lib/supabase/server', () => ({
     })
   ),
 }));
+
+/**
+ * Creates a standard mock implementation for all tables.
+ * Override specific tables by passing overrides.
+ */
+function createMockFrom(overrides: Record<string, (fields?: string, options?: any) => any> = {}) {
+  // Track per-table call counts for multi-call scenarios
+  const callCounts: Record<string, number> = {};
+
+  return (table: string) => {
+    callCounts[table] = (callCounts[table] || 0) + 1;
+
+    if (overrides[table]) {
+      return {
+        select: (fields?: string, options?: any) => overrides[table](fields, options),
+      };
+    }
+
+    // Default: return chainable empty result
+    return chainable({ data: [], count: 0 });
+  };
+}
+
+/** Standard lessons mock: returns count and next lesson data for student queries */
+function lessonsSelectMock(count: number, nextLessonDate: string | null) {
+  return (fields?: string, options?: any) => {
+    if (options?.count === 'exact') {
+      return chainable({ count });
+    }
+    // Range query for chart data (gte chain)
+    if (!options) {
+      return chainable({ data: [] });
+    }
+    // Next lesson query
+    return chainable({
+      data: nextLessonDate ? { scheduled_at: nextLessonDate } : null,
+    });
+  };
+}
 
 describe('getTeacherDashboardData', () => {
   beforeEach(() => {
@@ -62,7 +100,8 @@ describe('getTeacherDashboardData', () => {
       isStudent: false,
     });
 
-    // Create comprehensive mock that handles all query sequences
+    let lessonsCallIndex = 0;
+
     mockFrom.mockImplementation((table: string) => {
       if (table === 'profiles') {
         return {
@@ -78,40 +117,45 @@ describe('getTeacherDashboardData', () => {
       }
 
       if (table === 'lessons') {
+        lessonsCallIndex++;
         return {
           select: (fields: string, options: any) => {
             if (options?.count === 'exact') {
-              // Count query
-              return {
-                eq: () => ({
-                  lt: () => Promise.resolve({ count: 5 }),
-                }),
-              };
+              // Count queries: per-student completed lessons OR week count
+              return chainable({ count: 5 });
             }
-            // Next lesson query
-            return {
-              eq: () => ({
-                gt: () => ({
-                  order: () => ({
-                    limit: () => ({
-                      single: () => Promise.resolve({
-                        data: { scheduled_at: '2026-02-15T10:00:00Z' },
-                      }),
-                    }),
-                  }),
-                }),
-              }),
-            };
+            // Could be next-lesson query or chart-data query (gte)
+            return chainable({
+              data: { scheduled_at: '2026-02-15T10:00:00Z' },
+            });
           },
         };
       }
 
-      // Fallback
-      return {
-        select: () => ({
-          eq: () => Promise.resolve({ data: [] }),
-        }),
-      };
+      if (table === 'songs') {
+        return {
+          select: (fields: string, options: any) => {
+            if (options?.count === 'exact') {
+              return chainable({ count: 12 });
+            }
+            return chainable({
+              data: [
+                { id: 's1', title: 'Test Song', author: 'Test Artist', level: 'beginner' },
+              ],
+            });
+          },
+        };
+      }
+
+      if (table === 'assignments') {
+        return {
+          select: (fields: string, options: any) => {
+            return chainable({ count: 3 });
+          },
+        };
+      }
+
+      return chainable({ data: [], count: 0 });
     });
 
     const result = await getTeacherDashboardData();
@@ -134,7 +178,8 @@ describe('getTeacherDashboardData', () => {
     });
 
     expect(result.stats.totalStudents).toBe(2);
-    expect(result.activities).toHaveLength(5);
+    // Activities are now empty (no mock data)
+    expect(result.activities).toHaveLength(0);
     expect(result.chartData).toHaveLength(7);
   });
 
@@ -147,17 +192,15 @@ describe('getTeacherDashboardData', () => {
       isStudent: false,
     });
 
-    // Mock empty student data
     mockFrom.mockImplementation((table: string) => {
       if (table === 'profiles') {
         return {
           select: () => ({
-            eq: () => Promise.resolve({
-              data: [],
-            }),
+            eq: () => Promise.resolve({ data: [] }),
           }),
         };
       }
+      return chainable({ data: [], count: 0 });
     });
 
     const result = await getTeacherDashboardData();
@@ -205,7 +248,6 @@ describe('getTeacherDashboardData', () => {
       if (table === 'profiles') {
         profilesCallCount++;
         if (profilesCallCount === 1) {
-          // First call: fetch students with is_student = true
           return {
             select: () => ({
               eq: () => Promise.resolve({
@@ -220,32 +262,14 @@ describe('getTeacherDashboardData', () => {
         return {
           select: (fields: string, options: any) => {
             if (options?.count === 'exact') {
-              return {
-                eq: () => ({
-                  lt: () => Promise.resolve({ count: 0 }),
-                }),
-              };
+              return chainable({ count: 0 });
             }
-            return {
-              eq: () => ({
-                gt: () => ({
-                  order: () => ({
-                    limit: () => ({
-                      single: () => Promise.resolve({ data: null }),
-                    }),
-                  }),
-                }),
-              }),
-            };
+            return chainable({ data: null });
           },
         };
       }
 
-      return {
-        select: () => ({
-          eq: () => Promise.resolve({ data: [] }),
-        }),
-      };
+      return chainable({ data: [], count: 0 });
     });
 
     const result = await getTeacherDashboardData();
@@ -253,6 +277,7 @@ describe('getTeacherDashboardData', () => {
     expect(result.students).toHaveLength(1);
     expect(result.students[0].lessonsCompleted).toBe(0);
     expect(result.students[0].nextLesson).toBe('No upcoming lessons');
+    expect(result.students[0].level).toBe('Beginner');
   });
 
   it('should handle student with unknown name', async () => {
@@ -283,32 +308,14 @@ describe('getTeacherDashboardData', () => {
         return {
           select: (fields: string, options: any) => {
             if (options?.count === 'exact') {
-              return {
-                eq: () => ({
-                  lt: () => Promise.resolve({ count: 0 }),
-                }),
-              };
+              return chainable({ count: 0 });
             }
-            return {
-              eq: () => ({
-                gt: () => ({
-                  order: () => ({
-                    limit: () => ({
-                      single: () => Promise.resolve({ data: null }),
-                    }),
-                  }),
-                }),
-              }),
-            };
+            return chainable({ data: null });
           },
         };
       }
 
-      return {
-        select: () => ({
-          eq: () => Promise.resolve({ data: [] }),
-        }),
-      };
+      return chainable({ data: [], count: 0 });
     });
 
     const result = await getTeacherDashboardData();
@@ -316,7 +323,7 @@ describe('getTeacherDashboardData', () => {
     expect(result.students[0].name).toBe('Unknown');
   });
 
-  it('should return mock data for activities, songs, and assignments', async () => {
+  it('should return empty arrays for activities and assignments', async () => {
     const teacherId = '623e4567-e89b-12d3-a456-426614174005';
     mockGetUserWithRolesSSR.mockResolvedValue({
       user: { id: teacherId },
@@ -329,38 +336,30 @@ describe('getTeacherDashboardData', () => {
       if (table === 'profiles') {
         return {
           select: () => ({
-            eq: () => Promise.resolve({
-              data: [],
-            }),
+            eq: () => Promise.resolve({ data: [] }),
           }),
         };
       }
+      return chainable({ data: [], count: 0 });
     });
 
     const result = await getTeacherDashboardData();
 
-    // Verify mock data structure
-    expect(result.activities).toHaveLength(5);
-    expect(result.activities[0]).toHaveProperty('id');
-    expect(result.activities[0]).toHaveProperty('type');
-    expect(result.activities[0]).toHaveProperty('message');
-    expect(result.activities[0]).toHaveProperty('time');
+    // Activities and assignments return empty arrays (no mock data)
+    expect(result.activities).toEqual([]);
+    expect(result.assignments).toEqual([]);
 
+    // Chart data has 7 days with real (zero) values
     expect(result.chartData).toHaveLength(7);
     expect(result.chartData[0]).toHaveProperty('name');
     expect(result.chartData[0]).toHaveProperty('lessons');
     expect(result.chartData[0]).toHaveProperty('assignments');
 
-    expect(result.songs).toHaveLength(4);
-    expect(result.songs[0]).toHaveProperty('difficulty');
-    expect(['Easy', 'Medium', 'Hard']).toContain(result.songs[0].difficulty);
-
-    expect(result.assignments).toHaveLength(4);
-    expect(result.assignments[0]).toHaveProperty('status');
-    expect(['pending', 'submitted', 'overdue', 'completed']).toContain(result.assignments[0].status);
+    // Songs are fetched from DB (empty in this mock)
+    expect(result.songs).toEqual([]);
   });
 
-  it('should calculate stats correctly', async () => {
+  it('should calculate stats from real database counts', async () => {
     const teacherId = '723e4567-e89b-12d3-a456-426614174006';
     mockGetUserWithRolesSSR.mockResolvedValue({
       user: { id: teacherId },
@@ -388,41 +387,145 @@ describe('getTeacherDashboardData', () => {
         return {
           select: (fields: string, options: any) => {
             if (options?.count === 'exact') {
-              return {
-                eq: () => ({
-                  lt: () => Promise.resolve({ count: 0 }),
-                }),
-              };
+              return chainable({ count: 7 });
             }
-            return {
-              eq: () => ({
-                gt: () => ({
-                  order: () => ({
-                    limit: () => ({
-                      single: () => Promise.resolve({ data: null }),
-                    }),
-                  }),
-                }),
-              }),
-            };
+            return chainable({ data: null });
           },
         };
       }
 
-      return {
-        select: () => ({
-          eq: () => Promise.resolve({ data: [] }),
-        }),
-      };
+      if (table === 'songs') {
+        return {
+          select: (fields: string, options: any) => {
+            if (options?.count === 'exact') {
+              return chainable({ count: 25 });
+            }
+            return chainable({ data: [] });
+          },
+        };
+      }
+
+      if (table === 'assignments') {
+        return {
+          select: (fields: string, options: any) => {
+            return chainable({ count: 4 });
+          },
+        };
+      }
+
+      return chainable({ data: [], count: 0 });
     });
 
     const result = await getTeacherDashboardData();
 
-    expect(result.stats).toEqual({
-      totalStudents: 3,
-      songsInLibrary: 48,
-      lessonsThisWeek: 32,
-      pendingAssignments: 8,
+    expect(result.stats.totalStudents).toBe(3);
+    expect(result.stats.songsInLibrary).toBe(25);
+    // lessonsThisWeek uses the same count mock (7) for the week range query
+    expect(result.stats.lessonsThisWeek).toBe(7);
+    expect(result.stats.pendingAssignments).toBe(4);
+  });
+
+  it('should derive student level from lesson count', async () => {
+    const teacherId = '823e4567-e89b-12d3-a456-426614174007';
+    mockGetUserWithRolesSSR.mockResolvedValue({
+      user: { id: teacherId },
+      isTeacher: true,
+      isAdmin: false,
+      isStudent: false,
     });
+
+    // Return three students; each will get the same lesson count from our mock
+    // We test the boundary logic by checking specific counts
+    const studentCounts = [0, 5, 20];
+    let studentIndex = 0;
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'profiles') {
+        return {
+          select: () => ({
+            eq: () => Promise.resolve({
+              data: [
+                { id: 'beginner', full_name: 'Beginner Student', avatar_url: null },
+                { id: 'intermediate', full_name: 'Intermediate Student', avatar_url: null },
+                { id: 'advanced', full_name: 'Advanced Student', avatar_url: null },
+              ],
+            }),
+          }),
+        };
+      }
+
+      if (table === 'lessons') {
+        return {
+          select: (fields: string, options: any) => {
+            if (options?.count === 'exact') {
+              const count = studentCounts[studentIndex] ?? 0;
+              studentIndex++;
+              return chainable({ count });
+            }
+            return chainable({ data: null });
+          },
+        };
+      }
+
+      return chainable({ data: [], count: 0 });
+    });
+
+    const result = await getTeacherDashboardData();
+
+    expect(result.students[0].level).toBe('Beginner');
+    expect(result.students[1].level).toBe('Intermediate');
+    expect(result.students[2].level).toBe('Advanced');
+  });
+
+  it('should return real songs from database', async () => {
+    const teacherId = '923e4567-e89b-12d3-a456-426614174008';
+    mockGetUserWithRolesSSR.mockResolvedValue({
+      user: { id: teacherId },
+      isTeacher: true,
+      isAdmin: false,
+      isStudent: false,
+    });
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'profiles') {
+        return {
+          select: () => ({
+            eq: () => Promise.resolve({ data: [] }),
+          }),
+        };
+      }
+
+      if (table === 'songs') {
+        return {
+          select: (fields: string, options: any) => {
+            if (options?.count === 'exact') {
+              return chainable({ count: 2 });
+            }
+            return chainable({
+              data: [
+                { id: 's1', title: 'Wonderwall', author: 'Oasis', level: 'beginner' },
+                { id: 's2', title: 'Stairway', author: 'Led Zeppelin', level: 'advanced' },
+              ],
+            });
+          },
+        };
+      }
+
+      return chainable({ data: [], count: 0 });
+    });
+
+    const result = await getTeacherDashboardData();
+
+    expect(result.songs).toHaveLength(2);
+    expect(result.songs[0]).toEqual({
+      id: 's1',
+      title: 'Wonderwall',
+      artist: 'Oasis',
+      difficulty: 'Easy',
+      duration: '',
+      studentsLearning: 0,
+    });
+    expect(result.songs[1].difficulty).toBe('Hard');
+    expect(result.stats.songsInLibrary).toBe(2);
   });
 });
