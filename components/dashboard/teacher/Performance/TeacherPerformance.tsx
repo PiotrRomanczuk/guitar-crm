@@ -1,7 +1,8 @@
 'use client';
 
-import { Loader2, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useState } from 'react';
+import { Loader2, Info, RefreshCw, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useTeacherPerformance } from './useTeacherPerformance';
 import { MetricsGrid } from './TeacherPerformance.MetricsGrid';
 import { Charts } from './TeacherPerformance.Charts';
@@ -11,7 +12,6 @@ interface TeacherPerformanceProps {
   teacherId?: string;
 }
 
-// Empty metrics for loading state
 const emptyMetrics: TeacherPerformanceMetrics = {
   teacher_id: '',
   teacher_name: '',
@@ -34,15 +34,34 @@ const emptyMetrics: TeacherPerformanceMetrics = {
 };
 
 export function TeacherPerformance({ teacherId }: TeacherPerformanceProps) {
-  const { data, isLoading, error } = useTeacherPerformance(teacherId);
+  const { data, isLoading, error, refetch, isRefetching } = useTeacherPerformance(teacherId);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   if (error) {
+    if (isDismissed) return null;
+
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>Failed to load performance metrics. Please try again later.</AlertDescription>
-      </Alert>
+      <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm dark:bg-muted/20">
+        <Info className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <span className="text-muted-foreground">Performance metrics unavailable</span>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => refetch()}
+          disabled={isRefetching}
+          className="ml-auto h-7 gap-1.5 text-xs"
+        >
+          <RefreshCw className={`h-3 w-3 ${isRefetching ? 'animate-spin' : ''}`} />
+          Retry
+        </Button>
+        <button
+          onClick={() => setIsDismissed(true)}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Dismiss notice"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
     );
   }
 
