@@ -32,9 +32,8 @@ jobs:
         id: detect
         env:
           GH_TOKEN: ${{ github.token }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
-          COMMIT_MSG="${{ github.event.head_commit.message }}"
-
           # Extract PR number from squash-merge commit message (e.g. "Some title (#123)")
           PR_NUMBER=$(echo "$COMMIT_MSG" | grep -oP '\(#\K[0-9]+(?=\))' | tail -1)
 
