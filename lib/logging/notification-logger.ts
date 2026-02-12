@@ -136,7 +136,6 @@ function sendToSentry(error: Error, context?: LogContext): void {
 
   try {
     // Dynamic import to avoid build errors if Sentry not installed
-    // @ts-ignore - Sentry may not be installed
     import('@sentry/node').then((Sentry: { captureException: (error: Error, options: Record<string, unknown>) => void }) => {
       Sentry.captureException(error, {
         tags: {

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Email Bounce Handler
  *

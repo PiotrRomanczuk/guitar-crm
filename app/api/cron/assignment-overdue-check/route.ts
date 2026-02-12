@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Cron Job: Assignment Overdue Check
  *

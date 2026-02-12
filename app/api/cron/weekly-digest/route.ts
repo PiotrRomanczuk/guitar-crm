@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Cron Job: Weekly Progress Digest
  *

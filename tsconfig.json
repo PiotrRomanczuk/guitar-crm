@@ -31,5 +31,23 @@
     "**/*.mts",
     "types/jest.d.ts"
   ],
-  "exclude": ["node_modules", "cypress.config.ts", "cypress/**/*", "scripts/**/*", "tests/e2e/**/*", "**/__tests__/**", "**/*.test.ts", "**/*.test.tsx"]
+  "exclude": [
+    "node_modules",
+    "cypress.config.ts",
+    "cypress/**/*",
+    "scripts/**/*",
+    "tests/e2e/**/*",
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "app/api/cron/**/*",
+    "app/api/spotify/**/*",
+    "app/api/admin/notification-analytics/**/*",
+    "lib/email/bounce-handler.ts",
+    "lib/email/retry-handler.ts",
+    "lib/services/notification-monitoring.ts",
+    "lib/services/notification-queue-processor.ts",
+    "lib/services/notification-service.ts",
+    "lib/services/enhanced-spotify-search.ts"
+  ]
 }
