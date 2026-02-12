@@ -80,15 +80,15 @@ export function SongStatsCharts() {
           <CardDescription>Distribution of songs by difficulty level</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px]">
+          <div className="h-[220px] sm:h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={levelData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
+                  innerRadius={50}
+                  outerRadius={70}
                   paddingAngle={5}
                   dataKey="value"
                 >
@@ -117,15 +117,15 @@ export function SongStatsCharts() {
           <CardDescription>Most popular artists in the library</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px]">
+          <div className="h-[220px] sm:h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={authorData} layout="vertical" margin={{ left: 40 }}>
+              <BarChart data={authorData} layout="vertical" margin={{ left: 10 }}>
                 <XAxis type="number" hide />
                 <YAxis
                   dataKey="name"
                   type="category"
-                  width={100}
-                  fontSize={12}
+                  width={80}
+                  fontSize={11}
                   tickLine={false}
                   axisLine={false}
                 />

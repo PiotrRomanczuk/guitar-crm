@@ -105,10 +105,10 @@ export function PotentialUsersList() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+                    <div className="flex flex-col gap-1 text-sm text-muted-foreground max-w-[200px]">
                       {user.email && (
-                        <div className="flex items-center gap-2">
-                          <Mail className="w-3 h-3" /> {user.email}
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Mail className="w-3 h-3 shrink-0" /> <span className="truncate">{user.email}</span>
                         </div>
                       )}
                       {user.phone && (

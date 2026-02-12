@@ -146,13 +146,13 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
   return (
     <>
       <Tabs defaultValue="calendar">
-        <div className="flex items-center justify-between mb-4">
-          <TabsList>
-            <TabsTrigger value="calendar">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="calendar" className="flex-1 sm:flex-initial min-h-[44px] sm:min-h-0">
               <LayoutGrid className="size-4 mr-1.5" />
               Calendar
             </TabsTrigger>
-            <TabsTrigger value="list">
+            <TabsTrigger value="list" className="flex-1 sm:flex-initial min-h-[44px] sm:min-h-0">
               <List className="size-4 mr-1.5" />
               List
             </TabsTrigger>
@@ -161,6 +161,7 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
           <Button
             variant="outline"
             size="sm"
+            className="min-h-[44px] sm:min-h-0"
             onClick={handleSyncAllClick}
             disabled={isPending}
           >

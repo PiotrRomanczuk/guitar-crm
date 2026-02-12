@@ -91,16 +91,16 @@ function AssignmentCard({
           <div className="flex-1 mr-2">
             <h3
               className={cn(
-                'text-base font-bold text-foreground leading-tight mb-1',
+                'text-base font-bold text-foreground leading-tight mb-1 truncate',
                 isCompleted && 'line-through decoration-muted-foreground text-muted-foreground'
               )}
             >
               {title}
             </h3>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <User className="h-3.5 w-3.5" />
-                <span>{studentName}</span>
+              <div className="flex items-center gap-1 min-w-0">
+                <User className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{studentName}</span>
               </div>
               <span className="w-1 h-1 rounded-full bg-muted-foreground" />
               <div

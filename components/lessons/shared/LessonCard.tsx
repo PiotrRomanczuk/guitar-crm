@@ -90,14 +90,14 @@ function LessonCard({
           <div>
             <h4
               className={cn(
-                'text-base font-bold text-foreground leading-tight',
+                'text-base font-bold text-foreground leading-tight truncate',
                 isCancelled && 'line-through decoration-muted-foreground'
               )}
             >
               {studentName}
             </h4>
             {title && (
-              <p className="text-sm text-muted-foreground">{title}</p>
+              <p className="text-sm text-muted-foreground truncate">{title}</p>
             )}
           </div>
         </div>

@@ -139,6 +139,7 @@ export default function SongListTable({
                       src={song.cover_image_url}
                       alt={song.title || 'Song cover'}
                       fill
+                      sizes="64px"
                       className="object-cover"
                     />
                   ) : (
@@ -165,7 +166,7 @@ export default function SongListTable({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 -mr-2 -mt-2"
+                    className="h-11 w-11 sm:h-8 sm:w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 -mr-2 -mt-2"
                     onClick={() => handleDeleteClick(song)}
                     disabled={deletingSongId === song.id || checkingId === song.id}
                   >
@@ -256,6 +257,7 @@ export default function SongListTable({
                               src={song.cover_image_url}
                               alt={song.title || 'Song cover'}
                               fill
+                              sizes="48px"
                               className="object-cover"
                             />
                           ) : (
@@ -293,7 +295,7 @@ export default function SongListTable({
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                          className="h-11 w-11 sm:h-8 sm:w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                           data-testid="song-delete-button"
                           onClick={() => handleDeleteClick(song)}
                           disabled={deletingSongId === song.id || checkingId === song.id}

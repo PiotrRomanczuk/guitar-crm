@@ -40,6 +40,7 @@ export default function ImageGallery({ images }: Props) {
                     src={src}
                     alt={`Gallery image ${index + 1}`}
                     fill
+                    sizes="(max-width: 768px) 50vw, 200px"
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
@@ -67,6 +68,7 @@ export default function ImageGallery({ images }: Props) {
                 src={selectedImage}
                 alt="Full screen preview"
                 fill
+                sizes="90vw"
                 className="object-contain"
                 priority
               />
