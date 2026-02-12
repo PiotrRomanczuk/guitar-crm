@@ -41,7 +41,7 @@ export default async function SongList({ searchParams }: SongListProps) {
   }
 
   if (search) {
-    songQuery = songQuery.or(`title.ilike.%${search}%,artist.ilike.%${search}%`);
+    songQuery = songQuery.or(`title.ilike.%${search}%,author.ilike.%${search}%`);
   }
 
   if (level && level !== 'all') {
