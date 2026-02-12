@@ -75,7 +75,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
             <div className="flex flex-col items-center justify-center p-8 text-center">
               <Bell className="h-12 w-12 text-muted-foreground/30 mb-3" />
               <p className="text-sm text-muted-foreground">No notifications</p>
-              <parameter name="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 You&apos;re all caught up!
               </p>
             </div>
