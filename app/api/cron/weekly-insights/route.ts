@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sendWeeklyInsights } from '@/app/actions/email/send-weekly-insights';
+import { verifyCronSecret } from '@/lib/auth/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,20 +10,13 @@ export const dynamic = 'force-dynamic';
  * Runs every Monday at 9 AM UTC
  */
 export async function GET(request: Request) {
-  // Verify the request is from Vercel Cron
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
+  const authError = verifyCronSecret(request);
+  if (authError) return authError;
 
   try {
-    console.log('[Cron] Starting weekly insights email job...');
     const result = await sendWeeklyInsights();
 
     if (result.success) {
-      console.log(
-        `[Cron] Weekly insights sent successfully. Emails sent: ${result.emailsSent}`
-      );
       return NextResponse.json({
         success: true,
         emailsSent: result.emailsSent,

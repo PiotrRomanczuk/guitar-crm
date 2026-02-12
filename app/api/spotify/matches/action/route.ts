@@ -65,14 +65,6 @@ export async function POST(request: Request) {
       if (overrideSpotifyId) {
         try {
           const trackData = await getTrack(overrideSpotifyId) as SpotifyApiTrack;
-          console.log('🎵 Fetched alternative track data:', {
-            id: trackData.id,
-            name: trackData.name,
-            url: trackData.external_urls?.spotify,
-            duration: trackData.duration_ms,
-            album: trackData.album?.name,
-            image: trackData.album?.images?.[0]?.url,
-          });
 
           spotifyData = {
             spotify_url: trackData.external_urls.spotify,
@@ -91,13 +83,6 @@ export async function POST(request: Request) {
         }
       } else {
         // Use the original matched Spotify data
-        console.log('📋 Using original match data:', {
-          url: match.spotify_url,
-          duration: match.spotify_duration_ms,
-          release: match.spotify_release_date,
-          image: match.spotify_cover_image_url,
-        });
-
         spotifyData = {
           spotify_url: match.spotify_url,
           duration_ms: match.spotify_duration_ms,
@@ -117,8 +102,6 @@ export async function POST(request: Request) {
         updated_at: new Date().toISOString(),
       };
 
-      console.log(`📝 Updating song ${match.song_id} with data:`, updateData);
-
       const { data: updatedSong, error: updateError } = await supabase
         .from('songs')
         .update(updateData)
@@ -134,14 +117,7 @@ export async function POST(request: Request) {
         );
       }
 
-      console.log('✅ Song updated successfully:', updatedSong);
-
       // Mark match as approved
-      console.log(`📝 Marking match as approved:`, {
-        matchId,
-        userId: user.id,
-      });
-
       // First, delete any existing approved/rejected matches for this song to avoid unique constraint violations
       const { error: deleteError } = await supabase
         .from('spotify_matches')
@@ -173,16 +149,6 @@ export async function POST(request: Request) {
         );
       }
 
-      console.log('✅ Match marked as approved:', approvedMatch);
-
-      console.log(
-        `✅ Match approved: "${match.songs.title}" → ${
-          overrideSpotifyId
-            ? `Alternative track (${overrideSpotifyId})`
-            : `"${match.spotify_track_name}"`
-        }`
-      );
-
       return NextResponse.json({
         success: true,
         action: 'approved',
@@ -190,11 +156,6 @@ export async function POST(request: Request) {
       });
     } else if (action === 'reject') {
       // Mark match as rejected
-      console.log(`📝 Marking match as rejected:`, {
-        matchId,
-        userId: user.id,
-      });
-
       const { data: rejectedMatch, error: rejectError } = await supabase
         .from('spotify_matches')
         .update({
@@ -213,10 +174,6 @@ export async function POST(request: Request) {
           { status: 500 }
         );
       }
-
-      console.log('✅ Match marked as rejected:', rejectedMatch);
-
-      console.log(`❌ Match rejected: "${match.songs.title}"`);
 
       return NextResponse.json({
         success: true,

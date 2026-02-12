@@ -44,7 +44,6 @@ try {
   if (!agentsRegistered) {
     registerAllAgents();
     agentsRegistered = true;
-    console.log('[AI] Agents registered successfully');
   }
 } catch (error) {
   console.error('[AI] Failed to register agents:', error);

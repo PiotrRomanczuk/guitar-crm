@@ -161,11 +161,10 @@ export async function applyConflictResolution(
       })
       .eq('id', lessonId);
 
-    console.log(`✓ Conflict resolved: Using remote data for lesson ${lessonId}`);
+    // Remote data applied
   } else if (resolution === 'use_local') {
     // Local data wins - no update needed locally
     // The next sync will push local changes to remote
-    console.log(`✓ Conflict resolved: Using local data for lesson ${lessonId}`);
   }
 }
 
@@ -192,8 +191,6 @@ async function storeConflictForReview(
 
   if (error) {
     console.error('Failed to store conflict for review:', error);
-  } else {
-    console.log(`⚠️  Conflict flagged for manual review: lesson ${lessonId}`);
   }
 }
 
@@ -322,10 +319,6 @@ export async function autoResolveOldConflicts(
     } else {
       failed++;
     }
-  }
-
-  if (resolved > 0) {
-    console.log(`✓ Auto-resolved ${resolved} old conflict(s)`);
   }
 
   return { resolved, failed };
