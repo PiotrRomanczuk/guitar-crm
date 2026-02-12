@@ -14,10 +14,12 @@ import {
   progressInsightsAgent,
   adminInsightsAgent,
   songNormalizationAgent,
+  chatAssistantAgent,
   communicationAgents,
   contentAgents,
   analyticsAgents,
   systemAgents,
+  assistantAgents,
 } from './index';
 
 import {
@@ -101,6 +103,11 @@ describe('AI Agents', () => {
       it('should have logging enabled', () => {
         expect(emailDraftAgent.enableLogging).toBe(true);
       });
+
+      it('should include student-scoped context keys', () => {
+        expect(emailDraftAgent.optionalContext).toContain('studentLessons');
+        expect(emailDraftAgent.optionalContext).toContain('studentAssignments');
+      });
     });
 
     describe('lessonNotesAgent', () => {
@@ -124,6 +131,16 @@ describe('AI Agents', () => {
       it('should have lower temperature for structured content', () => {
         expect(lessonNotesAgent.temperature).toBeLessThanOrEqual(0.7);
       });
+
+      it('should include studentLessons in optionalContext', () => {
+        expect(lessonNotesAgent.optionalContext).toContain('studentLessons');
+      });
+
+      it('should have guitar-specific system prompt', () => {
+        expect(lessonNotesAgent.systemPrompt).toContain('barre');
+        expect(lessonNotesAgent.systemPrompt).toContain('BPM');
+        expect(lessonNotesAgent.systemPrompt).toContain('fret');
+      });
     });
 
     describe('assignmentGeneratorAgent', () => {
@@ -138,6 +155,16 @@ describe('AI Agents', () => {
 
       it('should have appropriate max tokens for detailed assignments', () => {
         expect(assignmentGeneratorAgent.maxTokens).toBeGreaterThanOrEqual(500);
+      });
+
+      it('should include student-scoped context keys', () => {
+        expect(assignmentGeneratorAgent.optionalContext).toContain('studentAssignments');
+        expect(assignmentGeneratorAgent.optionalContext).toContain('studentRepertoire');
+      });
+
+      it('should have practice methodology in system prompt', () => {
+        expect(assignmentGeneratorAgent.systemPrompt).toContain('Metronome');
+        expect(assignmentGeneratorAgent.systemPrompt).toContain('Chunking');
       });
     });
 
@@ -159,6 +186,17 @@ describe('AI Agents', () => {
         expect(progressInsightsAgent.dataAccess.permissions).toContain('read');
         expect(progressInsightsAgent.dataAccess.permissions).not.toContain('write');
       });
+
+      it('should include student-scoped context keys', () => {
+        expect(progressInsightsAgent.optionalContext).toContain('studentLessons');
+        expect(progressInsightsAgent.optionalContext).toContain('studentRepertoire');
+        expect(progressInsightsAgent.optionalContext).toContain('studentAssignments');
+      });
+
+      it('should reference guitar learning trajectory in prompt', () => {
+        expect(progressInsightsAgent.systemPrompt).toContain('Barre chord barrier');
+        expect(progressInsightsAgent.systemPrompt).toContain('Fingerpicking');
+      });
     });
 
     describe('adminInsightsAgent', () => {
@@ -172,6 +210,11 @@ describe('AI Agents', () => {
 
       it('should have lower temperature for analytical output', () => {
         expect(adminInsightsAgent.temperature).toBeLessThanOrEqual(0.6);
+      });
+
+      it('should reference music school business intelligence', () => {
+        expect(adminInsightsAgent.systemPrompt).toContain('Seasonal');
+        expect(adminInsightsAgent.systemPrompt).toContain('Retention');
       });
     });
 
@@ -204,6 +247,50 @@ describe('AI Agents', () => {
         expect(postLessonSummaryAgent.id).toBeDefined();
         expect(postLessonSummaryAgent.name).toBeDefined();
       });
+
+      it('should include student-scoped context keys', () => {
+        expect(postLessonSummaryAgent.optionalContext).toContain('studentLessons');
+        expect(postLessonSummaryAgent.optionalContext).toContain('studentRepertoire');
+      });
+
+      it('should have assessment terminology in system prompt', () => {
+        expect(postLessonSummaryAgent.systemPrompt).toContain('Developing');
+        expect(postLessonSummaryAgent.systemPrompt).toContain('Mastered');
+      });
+    });
+
+    describe('chatAssistantAgent', () => {
+      it('should have correct id', () => {
+        expect(chatAssistantAgent.id).toBe('chat-assistant');
+      });
+
+      it('should target admin and teacher users', () => {
+        expect(chatAssistantAgent.targetUsers).toContain('admin');
+        expect(chatAssistantAgent.targetUsers).toContain('teacher');
+      });
+
+      it('should have assistant UI category', () => {
+        expect(chatAssistantAgent.uiConfig.category).toBe('assistant');
+      });
+
+      it('should have conversational temperature', () => {
+        expect(chatAssistantAgent.temperature).toBe(0.7);
+      });
+
+      it('should have reasonable max tokens', () => {
+        expect(chatAssistantAgent.maxTokens).toBe(800);
+      });
+
+      it('should have guitar pedagogy knowledge in system prompt', () => {
+        expect(chatAssistantAgent.systemPrompt).toContain('CAGED');
+        expect(chatAssistantAgent.systemPrompt).toContain('Pentatonic');
+        expect(chatAssistantAgent.systemPrompt).toContain('pedagogy');
+      });
+
+      it('should have chat-related allowed fields', () => {
+        expect(chatAssistantAgent.inputValidation.allowedFields).toContain('prompt');
+        expect(chatAssistantAgent.inputValidation.allowedFields).toContain('model');
+      });
     });
   });
 
@@ -226,16 +313,20 @@ describe('AI Agents', () => {
     it('should export systemAgents', () => {
       expect(systemAgents).toHaveProperty('songNormalizationAgent');
     });
+
+    it('should export assistantAgents', () => {
+      expect(assistantAgents).toHaveProperty('chatAssistantAgent');
+    });
   });
 
   describe('Agent Specification Validation', () => {
-    // Filter out songNormalizationAgent since it's a system agent without uiConfig
     const uiAgents = [
       emailDraftAgent,
       lessonNotesAgent,
       assignmentGeneratorAgent,
       progressInsightsAgent,
       adminInsightsAgent,
+      chatAssistantAgent,
     ];
 
     const allAgents = [
@@ -245,6 +336,7 @@ describe('AI Agents', () => {
       progressInsightsAgent,
       adminInsightsAgent,
       songNormalizationAgent,
+      chatAssistantAgent,
     ];
 
     allAgents.forEach((agent) => {
@@ -292,7 +384,7 @@ describe('AI Agents', () => {
     uiAgents.forEach((agent) => {
       describe(`${agent.name} UI Config`, () => {
         it('should have valid UI config', () => {
-          expect(['content', 'analysis', 'automation', 'communication']).toContain(
+          expect(['content', 'analysis', 'automation', 'communication', 'assistant']).toContain(
             agent.uiConfig.category
           );
           expect(agent.uiConfig.icon).toBeDefined();
@@ -323,7 +415,7 @@ describe('AI Agents', () => {
     it('should register expected number of agents', () => {
       registerAllAgents();
       const agents = getAllAgents();
-      expect(agents.length).toBeGreaterThanOrEqual(6);
+      expect(agents.length).toBeGreaterThanOrEqual(7);
     });
 
     it('should register communication agents', () => {
@@ -346,6 +438,11 @@ describe('AI Agents', () => {
     it('should register system agents', () => {
       registerAllAgents();
       expect(hasAgent('song-normalization')).toBe(true);
+    });
+
+    it('should register assistant agents', () => {
+      registerAllAgents();
+      expect(hasAgent('chat-assistant')).toBe(true);
     });
   });
 });
@@ -403,17 +500,18 @@ describe('Agent Registry Core', () => {
       registerAgent(emailDraftAgent);
       registerAgent(adminInsightsAgent);
       registerAgent(lessonNotesAgent);
+      registerAgent(chatAssistantAgent);
     });
 
     it('should filter agents by admin role', () => {
       const agents = getAvailableAgents('admin');
-      expect(agents.length).toBe(3);
+      expect(agents.length).toBe(4);
     });
 
     it('should filter agents by teacher role', () => {
       const agents = getAvailableAgents('teacher');
       // Admin insights is admin-only
-      expect(agents.length).toBe(2);
+      expect(agents.length).toBe(3);
     });
 
     it('should return empty for student (no student agents in test set)', () => {
@@ -459,11 +557,12 @@ describe('Agent Registry Core', () => {
       registerAgent(emailDraftAgent);
       registerAgent(lessonNotesAgent);
       registerAgent(adminInsightsAgent);
+      registerAgent(chatAssistantAgent);
     });
 
     it('should return total agent count', () => {
       const stats = getRegistryStats();
-      expect(stats.totalAgents).toBe(3);
+      expect(stats.totalAgents).toBe(4);
     });
 
     it('should categorize agents by UI category', () => {
@@ -471,12 +570,13 @@ describe('Agent Registry Core', () => {
       expect(stats.agentsByCategory.communication).toBe(1);
       expect(stats.agentsByCategory.content).toBe(1);
       expect(stats.agentsByCategory.analysis).toBe(1);
+      expect(stats.agentsByCategory.assistant).toBe(1);
     });
 
     it('should categorize agents by target user', () => {
       const stats = getRegistryStats();
-      expect(stats.agentsByTargetUser.admin).toBe(3);
-      expect(stats.agentsByTargetUser.teacher).toBe(2);
+      expect(stats.agentsByTargetUser.admin).toBe(4);
+      expect(stats.agentsByTargetUser.teacher).toBe(3);
     });
   });
 });
@@ -488,6 +588,7 @@ describe('Agent Execution', () => {
     agents.forEach((agent) => unregisterAgent(agent.id));
     registerAgent(emailDraftAgent);
     registerAgent(lessonNotesAgent);
+    registerAgent(chatAssistantAgent);
   });
 
   const mockContext: Partial<AgentContext> = {
@@ -517,6 +618,17 @@ describe('Agent Execution', () => {
     // Should execute (mocked provider)
     expect(result).toBeDefined();
     expect(result.metadata.agentId).toBe('email-draft-generator');
+  });
+
+  it('should execute chat assistant agent', async () => {
+    const result = await executeAgent(
+      'chat-assistant',
+      { prompt: 'What are good beginner guitar songs?' },
+      mockContext
+    );
+
+    expect(result).toBeDefined();
+    expect(result.metadata.agentId).toBe('chat-assistant');
   });
 
   it('should include execution metadata', async () => {

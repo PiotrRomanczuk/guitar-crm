@@ -4,7 +4,7 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Clock, Play, Check, AlertTriangle, X } from 'lucide-react';
 
-type AssignmentStatus = 'not_started' | 'in_progress' | 'completed' | 'overdue' | 'cancelled';
+type AssignmentStatus = 'not_started' | 'pending' | 'in_progress' | 'completed' | 'overdue' | 'cancelled';
 
 interface AssignmentStatusBadgeProps {
   status: AssignmentStatus;
@@ -22,6 +22,11 @@ const statusConfig: Record<
 > = {
   not_started: {
     label: 'Not Started',
+    className: 'bg-muted text-muted-foreground border-border',
+    icon: Clock,
+  },
+  pending: {
+    label: 'Pending',
     className: 'bg-muted text-muted-foreground border-border',
     icon: Clock,
   },

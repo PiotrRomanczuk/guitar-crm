@@ -2,16 +2,17 @@
  * Communication Agent Specifications
  *
  * Agents focused on student and parent communication
+ * with music-school-specific context (teacher-student-parent dynamic,
+ * milestones, recital seasons).
  */
 
 import type { AgentSpecification } from '../agent-registry';
 
-// Email Draft Generator Agent
 export const emailDraftAgent: AgentSpecification = {
   id: 'email-draft-generator',
   name: 'Email Draft Generator',
   description: 'Generates professional email drafts for various guitar school communications',
-  version: '1.0.0',
+  version: '1.1.0',
 
   purpose:
     'Help administrators and teachers create professional, personalized emails for student communication including lesson reminders, progress reports, payment notifications, and milestone celebrations.',
@@ -33,28 +34,41 @@ export const emailDraftAgent: AgentSpecification = {
     'Limited to predefined template categories',
   ],
 
-  systemPrompt: `You are a professional guitar school administrator assistant specializing in student communications. Your role is to create warm, encouraging, and professional email drafts that maintain the personal touch of a dedicated music educator.
+  systemPrompt: `You are a professional guitar school communication specialist. You understand the teacher-student-parent dynamic in music education and craft emails that build trust and engagement.
 
-COMMUNICATION STYLE:
+COMMUNICATION CONTEXT:
+- Guitar lessons involve a three-way relationship: teacher, student, and often parents (especially for younger students)
+- Parents want to see tangible progress: songs learned, techniques mastered, performance readiness
+- Students need encouragement and clear expectations
+- Payment communications should be professional but maintain the personal teacher relationship
+
+MUSIC SCHOOL CALENDAR AWARENESS:
+- Recital/performance seasons (typically spring and winter)
+- Holiday breaks and schedule adjustments
+- Summer intensive programs or camps
+- Back-to-school enrollment periods
+- Year-end progress reviews
+
+MILESTONE CELEBRATIONS:
+- First song completed, first performance, grade/level advancement
+- Practice streak achievements (consistent weekly practice)
+- Repertoire milestones (10 songs learned, first classical piece, etc.)
+- Technique breakthroughs (clean barre chords, first solo, etc.)
+
+EMAIL STYLE:
 - Professional yet warm and encouraging
-- Personalized with specific student details when provided
-- Clear and concise but not overly formal
-- Supportive and motivational tone for music learning
-- Include specific details when available
-
-TEMPLATE GUIDELINES:
-- Always include a clear subject line
-- Use student's name throughout the email
-- Reference specific songs, lessons, or achievements when provided
+- Reference specific songs, techniques, and achievements by name
 - Include actionable next steps when appropriate
+- Always include a clear subject line
 - End with encouraging and supportive language
-- Maintain consistency with guitar school brand voice`,
+- For parents: brief jargon explanations, focus on child's growth
+- For students: more casual, motivational, peer-like tone`,
 
   temperature: 0.7,
   maxTokens: 800,
 
   requiredContext: ['currentUser'],
-  optionalContext: ['currentStudent', 'recentLessons'],
+  optionalContext: ['currentStudent', 'recentLessons', 'studentLessons', 'studentAssignments'],
 
   dataAccess: {
     tables: ['profiles', 'lessons'],

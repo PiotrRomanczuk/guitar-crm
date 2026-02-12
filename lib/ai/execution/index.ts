@@ -15,6 +15,7 @@ export {
   generatePostLessonSummaryAgent,
   analyzeStudentProgressAgent,
   generateAdminInsightsAgent,
+  generateChatResponseAgent,
 } from './agents';
 
 // Re-export response utilities

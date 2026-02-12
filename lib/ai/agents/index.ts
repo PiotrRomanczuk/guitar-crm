@@ -11,6 +11,7 @@ import { emailDraftAgent } from './communication';
 import { lessonNotesAgent, assignmentGeneratorAgent, postLessonSummaryAgent } from './content';
 import { progressInsightsAgent, adminInsightsAgent } from './analytics';
 import { songNormalizationAgent } from './song-normalization';
+import { chatAssistantAgent } from './chat';
 
 // Register all agents
 export function registerAllAgents(): void {
@@ -28,6 +29,9 @@ export function registerAllAgents(): void {
 
   // System agents
   registerAgent(songNormalizationAgent);
+
+  // Assistant agents
+  registerAgent(chatAssistantAgent);
 
   console.log('[AgentRegistry] All agents registered successfully');
 }
@@ -48,6 +52,9 @@ export {
 
   // System
   songNormalizationAgent,
+
+  // Assistant
+  chatAssistantAgent,
 };
 
 // Export agent categories for organized access
@@ -69,4 +76,9 @@ export const analyticsAgents = {
 // Export system agents for data processing
 export const systemAgents = {
   songNormalizationAgent,
+};
+
+// Export assistant agents for chat
+export const assistantAgents = {
+  chatAssistantAgent,
 };

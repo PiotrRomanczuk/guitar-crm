@@ -6,7 +6,7 @@ import { Check } from 'lucide-react';
 
 interface AssignmentProgressProps {
   progress: number;
-  status: 'not_started' | 'in_progress' | 'completed' | 'overdue' | 'cancelled';
+  status: 'not_started' | 'pending' | 'in_progress' | 'completed' | 'overdue' | 'cancelled';
   className?: string;
 }
 

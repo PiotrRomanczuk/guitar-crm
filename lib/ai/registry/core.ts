@@ -26,6 +26,12 @@ const AGENT_FALLBACK_TEMPLATES: Record<string, string> = {
     'Subject: [Update for student]\n\nHi [name],\n\n[Your message here]\n\nBest regards,\n[Teacher]\n\n*AI-generated email drafts are temporarily unavailable.*',
   'post-lesson-summary':
     '## Post-Lesson Summary (AI Unavailable)\n\n**Student:** [name]\n**Date:** [date]\n\n### What We Worked On\n- \n\n### Achievements\n- \n\n### Areas for Improvement\n- \n\n*AI-generated summaries are temporarily unavailable.*',
+  'student-progress-insights':
+    '## Student Progress Insights (AI Unavailable)\n\n**Student:** [name]\n**Period:** [time period]\n\n### Progress Overview\n- \n\n### Strengths\n- \n\n### Areas for Growth\n- \n\n### Recommendations\n- \n\n*AI-generated insights are temporarily unavailable. Please review lesson history manually.*',
+  'admin-dashboard-insights':
+    '## Business Insights (AI Unavailable)\n\n**Period:** [time period]\n\n### Key Metrics\n- Total Students: [count]\n- Active Lessons: [count]\n\n### Observations\n- \n\n### Action Items\n- \n\n*AI-generated business insights are temporarily unavailable.*',
+  'chat-assistant':
+    'I\'m sorry, the AI assistant is temporarily unavailable. Please try again in a few moments, or contact support if the issue persists.',
 };
 
 // Utility functions

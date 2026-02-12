@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 
 interface Props {
   studentName: string;
+  studentId?: string;
   songsCovered: string[];
   lessonTopic: string;
   duration?: number;
@@ -19,6 +20,7 @@ interface Props {
 
 export function LessonNotesAI({
   studentName,
+  studentId,
   songsCovered,
   lessonTopic,
   duration,
@@ -38,6 +40,7 @@ export function LessonNotesAI({
     try {
       const streamGenerator = generateLessonNotesStream({
         studentName,
+        studentId,
         songTitle: songsCovered.join(', '),
         lessonFocus: lessonTopic,
         skillsWorked: teacherNotes,

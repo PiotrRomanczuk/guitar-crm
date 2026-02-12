@@ -116,3 +116,13 @@ export async function generateAdminInsightsAgent(input: {
 
   return executeAgent('admin-dashboard-insights', input, context);
 }
+
+// Chat Assistant Execution
+export async function generateChatResponseAgent(input: {
+  prompt: string;
+  model?: string;
+}): Promise<AgentResponse> {
+  const context = await buildAgentContext(undefined, 'chat');
+
+  return executeAgent('chat-assistant', input, context);
+}
