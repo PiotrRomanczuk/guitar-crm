@@ -107,13 +107,13 @@ describe('Daily Report Cron API', () => {
       expect(response.status).toBe(401);
     });
 
-    it('should return 401 when CRON_SECRET is undefined', async () => {
+    it('should return 500 when CRON_SECRET is undefined (misconfigured)', async () => {
       delete process.env.CRON_SECRET;
       const request = createMockRequest('Bearer test-cron-secret-12345');
 
       const response = await GET(request);
 
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(500);
     });
 
     it('should authenticate with correct Bearer token', async () => {
@@ -189,18 +189,14 @@ describe('Daily Report Cron API', () => {
   });
 
   describe('Edge Cases', () => {
-    it('should handle empty CRON_SECRET matching empty bearer', async () => {
+    it('should return 500 when CRON_SECRET is empty string (misconfigured)', async () => {
       process.env.CRON_SECRET = '';
-      mockSendAdminSongReport.mockResolvedValueOnce({
-        success: true,
-        messageId: 'msg-empty',
-      });
       const request = createMockRequest('Bearer ');
 
       const response = await GET(request);
 
-      // Empty bearer should still match empty secret
-      expect(response.status).toBe(200);
+      // Empty CRON_SECRET is a server misconfiguration
+      expect(response.status).toBe(500);
     });
 
     it('should be case sensitive for Bearer token', async () => {

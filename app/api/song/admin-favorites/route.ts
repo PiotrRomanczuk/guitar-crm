@@ -1,18 +1,22 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { Song } from "@/types/Song";
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId");
-  if (!userId) {
-    return NextResponse.json({ error: "Missing userId" }, { status: 400 });
-  }
+export async function GET() {
   const supabase = await createClient();
+
+  // Require authenticated user and use session user ID
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const userId = user.id;
+
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("is_admin")
-    .eq("user_id", userId)
+    .eq("id", userId)
     .single();
   if (profileError) {
     return NextResponse.json(
@@ -22,7 +26,7 @@ export async function GET(req: NextRequest) {
   }
   if (!profile?.is_admin) {
     return NextResponse.json(
-      { error: "User is not an admin" },
+      { error: "Forbidden" },
       { status: 403 },
     );
   }

@@ -15,15 +15,13 @@ import {
   logCronComplete,
   logCronError,
 } from '@/lib/logging/notification-logger';
+import { verifyCronSecret } from '@/lib/auth/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-  // Verify the request is from Vercel Cron
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
+  const authError = verifyCronSecret(request);
+  if (authError) return authError;
 
   const startTime = Date.now();
 

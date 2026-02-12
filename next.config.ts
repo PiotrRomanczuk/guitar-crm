@@ -63,11 +63,6 @@ const nextConfig = async (): Promise<NextConfig> => {
       ],
     },
     serverExternalPackages: ['nodemailer'],
-    // TypeScript checking is handled by the CI pipeline's dedicated tsc step.
-    // This avoids duplicate checking and allows tsconfig exclude to work properly.
-    typescript: {
-      ignoreBuildErrors: true,
-    },
   };
 };
 
