@@ -29,14 +29,21 @@ jest.mock('next/headers', () => ({
   })),
 }));
 
-// Mock rate limiter
-jest.mock('@/lib/auth/rate-limiter', () => {
-  const actual = jest.requireActual('@/lib/auth/rate-limiter');
-  return {
-    ...actual,
-    checkAuthRateLimit: jest.fn(actual.checkAuthRateLimit),
-  };
-});
+// Mock rate limiter — Supabase-backed rate limiter has no in-memory state,
+// so we mock checkAuthRateLimit directly and simulate behavior per test.
+jest.mock('@/lib/auth/rate-limiter', () => ({
+  checkAuthRateLimit: jest.fn().mockResolvedValue({
+    allowed: true,
+    remaining: 4,
+    resetTime: Date.now() + 3600000,
+  }),
+  clearAllAuthRateLimits: jest.fn().mockResolvedValue(undefined),
+  AUTH_RATE_LIMITS: {
+    passwordReset: { maxAttempts: 5, windowMs: 60 * 60 * 1000 },
+    login: { maxAttempts: 10, windowMs: 15 * 60 * 1000 },
+    signup: { maxAttempts: 3, windowMs: 60 * 60 * 1000 },
+  },
+}));
 
 describe('Auth Actions', () => {
   beforeEach(() => {
@@ -79,12 +86,13 @@ describe('Auth Actions', () => {
     });
 
     it('should block request when rate limit exceeded', async () => {
-      // Exhaust rate limit (5 attempts)
-      for (let i = 0; i < 5; i++) {
-        await resetPassword(testEmail);
-      }
+      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
+        allowed: false,
+        remaining: 0,
+        resetTime: Date.now() + 3600000,
+        retryAfter: 3600,
+      });
 
-      // 6th attempt should be blocked
       const result = await resetPassword(testEmail);
 
       expect(result.error).toBeDefined();
@@ -93,14 +101,16 @@ describe('Auth Actions', () => {
       expect(result.retryAfter).toBeGreaterThan(0);
 
       // Should not call Supabase when rate limited
-      expect(mockResetPasswordForEmail).toHaveBeenCalledTimes(5);
+      expect(mockResetPasswordForEmail).not.toHaveBeenCalled();
     });
 
     it('should provide friendly retry message with minutes', async () => {
-      // Exhaust rate limit
-      for (let i = 0; i < 5; i++) {
-        await resetPassword(testEmail);
-      }
+      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
+        allowed: false,
+        remaining: 0,
+        resetTime: Date.now() + 3600000,
+        retryAfter: 3600,
+      });
 
       const result = await resetPassword(testEmail);
 
@@ -176,14 +186,17 @@ describe('Auth Actions', () => {
       const email1 = 'user1@example.com';
       const email2 = 'user2@example.com';
 
-      // Exhaust email1 limit
-      for (let i = 0; i < 5; i++) {
-        await resetPassword(email1);
-      }
+      // Mock: email1 is blocked
+      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
+        allowed: false,
+        remaining: 0,
+        resetTime: Date.now() + 3600000,
+        retryAfter: 3600,
+      });
       const blocked = await resetPassword(email1);
       expect(blocked.rateLimited).toBe(true);
 
-      // email2 should still be allowed
+      // Mock: email2 is allowed (default mock already returns allowed: true)
       const result = await resetPassword(email2);
       expect(result.success).toBe(true);
     });
@@ -249,10 +262,12 @@ describe('Auth Actions', () => {
     it('should log rate limit exceeded warning', async () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-      // Exhaust limit
-      for (let i = 0; i < 5; i++) {
-        await resetPassword(testEmail);
-      }
+      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
+        allowed: false,
+        remaining: 0,
+        resetTime: Date.now() + 3600000,
+        retryAfter: 3600,
+      });
 
       await resetPassword(testEmail);
 
@@ -265,43 +280,49 @@ describe('Auth Actions', () => {
   });
 
   describe('Rate Limit Integration', () => {
-    it('should reset rate limit after time window', async () => {
-      jest.useFakeTimers();
+    it('should block when rate limiter returns not allowed, then allow after reset', async () => {
       const email = 'timetest@example.com';
 
-      // Exhaust limit
-      for (let i = 0; i < 5; i++) {
-        await resetPassword(email);
-      }
-
-      // Should be blocked
+      // First call: blocked
+      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
+        allowed: false,
+        remaining: 0,
+        resetTime: Date.now() + 3600000,
+        retryAfter: 3600,
+      });
       const blocked = await resetPassword(email);
       expect(blocked.rateLimited).toBe(true);
 
-      // Advance time by 1 hour + 1 second
-      jest.advanceTimersByTime(60 * 60 * 1000 + 1000);
-
-      // Should be allowed again
+      // Second call: allowed again (simulating after window reset)
+      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
+        allowed: true,
+        remaining: 4,
+        resetTime: Date.now() + 3600000,
+      });
       const allowed = await resetPassword(email);
       expect(allowed.success).toBe(true);
-
-      jest.useRealTimers();
     });
 
-    it('should enforce strict 5 attempts per hour limit', async () => {
+    it('should enforce rate limit by blocking after max attempts', async () => {
       const email = 'strict@example.com';
-      let successCount = 0;
 
-      // Try 10 attempts
-      for (let i = 0; i < 10; i++) {
-        const result = await resetPassword(email);
-        if (result.success) {
-          successCount++;
-        }
+      // First 5 calls: allowed (default mock returns allowed: true)
+      for (let i = 0; i < 5; i++) {
+        await resetPassword(email);
       }
+      expect(mockResetPasswordForEmail).toHaveBeenCalledTimes(5);
 
-      // Only first 5 should succeed
-      expect(successCount).toBe(5);
+      // 6th call: blocked
+      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
+        allowed: false,
+        remaining: 0,
+        resetTime: Date.now() + 3600000,
+        retryAfter: 3600,
+      });
+      const result = await resetPassword(email);
+      expect(result.rateLimited).toBe(true);
+
+      // Supabase should not have been called for the blocked request
       expect(mockResetPasswordForEmail).toHaveBeenCalledTimes(5);
     });
   });

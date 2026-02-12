@@ -1,26 +1,18 @@
 /**
- * Rate Limiter for Authentication Operations
+ * Rate Limiter for Authentication Operations — Supabase-backed
  *
- * Implements in-memory rate limiting to prevent abuse of auth endpoints
- * Specifically designed for password reset and other security-sensitive operations
+ * Uses auth_rate_limits table via Supabase RPC to enforce rate limits.
+ * Stateless per invocation — works correctly on Vercel serverless.
  */
 
-interface RateLimitEntry {
-  count: number;
-  resetTime: number;
-  firstAttempt: number;
-}
-
-// In-memory store for rate limits
-// NOTE: In production with multiple servers, consider using Redis or similar
-const rateLimitStore = new Map<string, RateLimitEntry>();
+import { createAdminClient } from '@/lib/supabase/admin';
 
 /**
  * Rate limiter configuration
  */
 export interface AuthRateLimiterConfig {
-  maxAttempts: number; // Maximum attempts allowed
-  windowMs: number; // Time window in milliseconds
+  maxAttempts: number;
+  windowMs: number;
 }
 
 /**
@@ -48,133 +40,103 @@ export interface RateLimitResult {
   allowed: boolean;
   remaining: number;
   resetTime: number;
-  retryAfter?: number; // Seconds until next attempt is allowed
+  retryAfter?: number;
 }
 
 /**
- * Check if a request should be rate limited
- *
- * @param identifier - Unique identifier (IP address, email, or combination)
- * @param operation - Type of auth operation (passwordReset, login, signup)
- * @returns Rate limit result
+ * Check if a request should be rate limited, then record the attempt.
+ * Fails open on DB errors (allows request rather than blocking).
  */
 export async function checkAuthRateLimit(
   identifier: string,
   operation: keyof typeof AUTH_RATE_LIMITS
 ): Promise<RateLimitResult> {
   const config = AUTH_RATE_LIMITS[operation];
-  const key = `auth:${operation}:${identifier}`;
-
   const now = Date.now();
-  const entry = rateLimitStore.get(key);
 
-  // No entry or window has expired
-  if (!entry || now > entry.resetTime) {
-    const newEntry: RateLimitEntry = {
-      count: 1,
-      resetTime: now + config.windowMs,
-      firstAttempt: now,
-    };
-    rateLimitStore.set(key, newEntry);
+  try {
+    const supabase = createAdminClient();
+
+    // Check current count
+    const { data: count, error: countError } = await supabase.rpc(
+      'check_auth_rate_limit' as never,
+      { p_identifier: identifier, p_operation: operation, p_window_ms: config.windowMs } as never
+    );
+
+    if (countError) {
+      // Fail open
+      return { allowed: true, remaining: config.maxAttempts, resetTime: now + config.windowMs };
+    }
+
+    const currentCount = (count as number) ?? 0;
+
+    // Record this attempt
+    await supabase
+      .from('auth_rate_limits')
+      .insert({ identifier, operation, attempted_at: new Date().toISOString() });
+
+    if (currentCount >= config.maxAttempts) {
+      const retryAfter = Math.ceil(config.windowMs / 1000);
+      return {
+        allowed: false,
+        remaining: 0,
+        resetTime: now + config.windowMs,
+        retryAfter,
+      };
+    }
 
     return {
       allowed: true,
-      remaining: config.maxAttempts - 1,
-      resetTime: newEntry.resetTime,
+      remaining: config.maxAttempts - currentCount - 1,
+      resetTime: now + config.windowMs,
     };
+  } catch {
+    // Fail open
+    return { allowed: true, remaining: config.maxAttempts, resetTime: now + config.windowMs };
   }
-
-  // Increment count
-  entry.count += 1;
-
-  // Check if limit exceeded
-  if (entry.count > config.maxAttempts) {
-    const retryAfter = Math.ceil((entry.resetTime - now) / 1000);
-    return {
-      allowed: false,
-      remaining: 0,
-      resetTime: entry.resetTime,
-      retryAfter,
-    };
-  }
-
-  // Update entry
-  rateLimitStore.set(key, entry);
-
-  return {
-    allowed: true,
-    remaining: config.maxAttempts - entry.count,
-    resetTime: entry.resetTime,
-  };
 }
 
 /**
- * Reset rate limit for a specific identifier and operation
- * Useful for clearing limits after successful verification
+ * Reset rate limit for a specific identifier and operation.
+ * Useful for clearing limits after successful verification.
  */
-export function resetAuthRateLimit(
+export async function resetAuthRateLimit(
   identifier: string,
   operation: keyof typeof AUTH_RATE_LIMITS
-): void {
-  const key = `auth:${operation}:${identifier}`;
-  rateLimitStore.delete(key);
+): Promise<void> {
+  try {
+    const supabase = createAdminClient();
+    await supabase
+      .from('auth_rate_limits')
+      .delete()
+      .eq('identifier', identifier)
+      .eq('operation', operation);
+  } catch {
+    // Best effort — don't block on cleanup failure
+  }
 }
 
 /**
  * Clear all rate limit entries (useful for testing)
  */
-export function clearAllAuthRateLimits(): void {
-  rateLimitStore.clear();
-}
-
-/**
- * Clean up expired rate limit entries
- * Should be called periodically to prevent memory leaks
- */
-export function cleanupExpiredAuthEntries(): void {
-  const now = Date.now();
-  for (const [key, entry] of rateLimitStore.entries()) {
-    if (now > entry.resetTime) {
-      rateLimitStore.delete(key);
-    }
+export async function clearAllAuthRateLimits(): Promise<void> {
+  try {
+    const supabase = createAdminClient();
+    await supabase.from('auth_rate_limits').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  } catch {
+    // Best effort
   }
 }
 
 /**
- * Get current rate limit status without incrementing
- * Useful for checking limits before expensive operations
+ * Clean up expired rate limit entries via DB function.
+ * Called from the notification cron job.
  */
-export function getAuthRateLimitStatus(
-  identifier: string,
-  operation: keyof typeof AUTH_RATE_LIMITS
-): RateLimitResult | null {
-  const config = AUTH_RATE_LIMITS[operation];
-  const key = `auth:${operation}:${identifier}`;
-  const entry = rateLimitStore.get(key);
-
-  if (!entry) {
-    return null;
+export async function cleanupExpiredAuthEntries(): Promise<void> {
+  try {
+    const supabase = createAdminClient();
+    await supabase.rpc('cleanup_auth_rate_limits' as never);
+  } catch {
+    // Best effort — don't block cron on cleanup failure
   }
-
-  const now = Date.now();
-  if (now > entry.resetTime) {
-    return null;
-  }
-
-  const remaining = Math.max(0, config.maxAttempts - entry.count);
-  const retryAfter = entry.count >= config.maxAttempts
-    ? Math.ceil((entry.resetTime - now) / 1000)
-    : undefined;
-
-  return {
-    allowed: entry.count < config.maxAttempts,
-    remaining,
-    resetTime: entry.resetTime,
-    retryAfter,
-  };
-}
-
-// Run cleanup every 10 minutes
-if (typeof setInterval !== 'undefined') {
-  setInterval(cleanupExpiredAuthEntries, 10 * 60 * 1000);
 }

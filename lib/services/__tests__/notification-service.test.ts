@@ -12,7 +12,14 @@ jest.mock('@/lib/supabase/admin', () => ({
 }));
 
 jest.mock('@/lib/email/smtp-client', () => ({
-  sendMail: jest.fn(),
+  __esModule: true,
+  default: { sendMail: jest.fn() },
+  isSmtpConfigured: jest.fn().mockReturnValue(true),
+}));
+
+jest.mock('@/lib/email/rate-limiter', () => ({
+  checkRateLimit: jest.fn().mockResolvedValue({ allowed: true }),
+  checkSystemRateLimit: jest.fn().mockResolvedValue({ allowed: true }),
 }));
 
 jest.mock('@/lib/logging/notification-logger', () => ({
