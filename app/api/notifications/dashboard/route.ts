@@ -42,8 +42,8 @@ export async function GET() {
     if (todayLessons && todayLessons.length > 0) {
       const studentNames = todayLessons
         .map((l) => {
-          const profile = l.profile as { full_name: string | null } | null;
-          return profile?.full_name || 'a student';
+          const profiles = l.profile as unknown as { full_name: string | null }[] | null;
+          return profiles?.[0]?.full_name || 'a student';
         })
         .slice(0, 3);
 
@@ -126,8 +126,8 @@ export async function GET() {
       const studentNames = [
         ...new Set(
           overdueAssignments.map((a) => {
-            const profile = a.profile as { full_name: string | null } | null;
-            return profile?.full_name || 'a student';
+            const profiles = a.profile as unknown as { full_name: string | null }[] | null;
+            return profiles?.[0]?.full_name || 'a student';
           })
         ),
       ];
