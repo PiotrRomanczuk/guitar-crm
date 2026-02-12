@@ -65,7 +65,7 @@ export function registerAgent(spec: AgentSpecification): void {
   // Register agent
   agents.set(spec.id, spec);
 
-  console.log(`[AgentRegistry] Registered agent: ${spec.id} (${spec.name})`);
+  // Agent registered
 }
 
 /**
@@ -233,9 +233,7 @@ export function unregisterAgent(agentId: string): boolean {
   const existed = agents.has(agentId);
   agents.delete(agentId);
 
-  if (existed) {
-    console.log(`[AgentRegistry] Unregistered agent: ${agentId}`);
-  }
+  // Agent unregistered if it existed
 
   return existed;
 }

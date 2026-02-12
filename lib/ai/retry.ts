@@ -97,13 +97,6 @@ export async function withRetry<T>(
 
       // Calculate delay and wait
       const delay = calculateDelay(attempt, config);
-      console.log(
-        `[Retry] Attempt ${attempt + 1}/${config.maxRetries} failed. Retrying in ${Math.round(
-          delay
-        )}ms...`,
-        error instanceof Error ? error.message : error
-      );
-
       await sleep(delay);
     }
   }

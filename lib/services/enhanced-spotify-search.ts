@@ -55,9 +55,7 @@ export async function searchSongWithAI(
     // Step 1: AI Analysis (if enabled)
     let analysis = null;
     if (enableAIAnalysis) {
-      console.log(`🤖 AI analyzing: "${song.title}" by "${song.author}"`);
       analysis = await analyzeAndNormalizeSong(song);
-      console.log(`🤖 AI confidence: ${analysis.confidence}% - ${analysis.reasoning}`);
     }
 
     // Step 2: Generate search queries
@@ -75,14 +73,10 @@ export async function searchSongWithAI(
       ];
     }
 
-    console.log(`🔍 Generated ${queries.length} search queries for "${song.title}"`);
-
     // Step 3: Execute searches with early termination on good matches
     for (let i = 0; i < Math.min(queries.length, maxQueries); i++) {
       const query = queries[i];
       queriesUsed++;
-
-      console.log(`🔍 Query ${i + 1}: ${query}`);
 
       try {
         const searchData = await searchTracks(query) as { tracks?: { items?: SpotifyTrack[] } } | null;
@@ -106,10 +100,6 @@ export async function searchSongWithAI(
 
           const topTrack = scoredTracks[0];
 
-          console.log(
-            `✨ Best match from query: ${topTrack.track.name} by ${topTrack.track.artists[0]?.name} (${topTrack.score}%)`
-          );
-
           // Update best match if this is better
           if (!bestMatch || topTrack.score > bestMatch.confidence) {
             bestMatch = {
@@ -127,11 +117,8 @@ export async function searchSongWithAI(
 
           // Early termination if we found a high-confidence match
           if (topTrack.score >= minConfidenceScore) {
-            console.log(`🎯 High confidence match found (${topTrack.score}%), stopping search`);
             break;
           }
-        } else {
-          console.log(`❌ No results for query: ${query}`);
         }
 
         // Rate limiting delay
@@ -206,11 +193,8 @@ export async function searchSongsWithAI(
 ): Promise<SearchResult[]> {
   const results: SearchResult[] = [];
 
-  console.log(`🚀 Starting AI-enhanced search for ${songs.length} songs`);
-
   for (let i = 0; i < songs.length; i++) {
     const song = songs[i];
-    console.log(`\n📀 Processing ${i + 1}/${songs.length}: "${song.title}" by "${song.author}"`);
 
     const result = await searchSongWithAI(song, options);
     results.push(result);
@@ -224,8 +208,6 @@ export async function searchSongsWithAI(
       });
     }
 
-    console.log(`✅ Completed "${song.title}" - Confidence: ${result.match.confidence}%`);
-
     // Longer delay between songs to be nice to APIs
     await new Promise((resolve) => setTimeout(resolve, 300));
   }
@@ -236,14 +218,6 @@ export async function searchSongsWithAI(
   );
   const totalQueries = results.reduce((sum, r) => sum + r.queriesUsed, 0);
   const totalTime = results.reduce((sum, r) => sum + r.executionTime, 0);
-
-  console.log(`\n📊 Batch Search Summary:`);
-  console.log(`   Total songs: ${songs.length}`);
-  console.log(`   Successful matches: ${successful.length}`);
-  console.log(`   Success rate: ${Math.round((successful.length / songs.length) * 100)}%`);
-  console.log(`   Total queries used: ${totalQueries}`);
-  console.log(`   Total execution time: ${Math.round(totalTime / 1000)}s`);
-  console.log(`   Average time per song: ${Math.round(totalTime / songs.length)}ms`);
 
   return results;
 }

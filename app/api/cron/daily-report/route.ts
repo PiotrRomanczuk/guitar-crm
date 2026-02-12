@@ -11,11 +11,9 @@ export async function GET(request: Request) {
   }
 
   try {
-    console.log('[Cron] Starting daily song report...');
     const result = await sendAdminSongReport();
-    
+
     if (result.success) {
-      console.log('[Cron] Daily song report sent successfully.');
       return NextResponse.json({ success: true });
     } else {
       console.error('[Cron] Failed to send daily song report:', result.error);
