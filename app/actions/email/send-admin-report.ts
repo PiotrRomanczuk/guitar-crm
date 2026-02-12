@@ -5,12 +5,9 @@ import { generateAdminSongReportHtml } from '@/lib/email/templates/admin-song-re
 import transporter from '@/lib/email/smtp-client';
 
 export async function sendAdminSongReport() {
-  console.log('[sendAdminSongReport] Starting report generation...');
-
   try {
     // 1. Fetch Stats
     const stats = await getSongDatabaseStatistics();
-    console.log(`[sendAdminSongReport] Stats fetched. Total songs: ${stats.totalSongs}`);
 
     // 2. Generate HTML
     const html = generateAdminSongReportHtml(stats);
@@ -22,8 +19,6 @@ export async function sendAdminSongReport() {
       throw new Error('GMAIL_USER environment variable is not set');
     }
 
-    console.log(`[sendAdminSongReport] Sending email to ${adminEmail}...`);
-
     const info = await transporter.sendMail({
       from: `"Guitar CRM" <${process.env.GMAIL_USER}>`,
       to: adminEmail,
@@ -31,7 +26,6 @@ export async function sendAdminSongReport() {
       html: html,
     });
 
-    console.log(`[sendAdminSongReport] Email sent: ${info.messageId}`);
     return { success: true, messageId: info.messageId };
 
   } catch (error) {

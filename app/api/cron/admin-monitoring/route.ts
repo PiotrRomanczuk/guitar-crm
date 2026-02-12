@@ -29,8 +29,6 @@ export async function GET(request: Request) {
   }
 
   try {
-    console.log('[Cron] Starting admin monitoring checks...');
-
     const results = {
       failureCheck: 'pending',
       bounceCheck: 'pending',
@@ -74,8 +72,6 @@ export async function GET(request: Request) {
         results.dailySummary = 'failed';
       }
     }
-
-    console.log('[Cron] Admin monitoring completed:', results);
 
     return NextResponse.json({
       success: true,

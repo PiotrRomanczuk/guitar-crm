@@ -71,10 +71,9 @@ export async function syncGoogleEventsForUser(userId: string, events: ImportEven
     const lessonData: TablesInsert<'lessons'> = {
       student_id: studentId,
       teacher_id: userId,
-      creator_user_id: userId,
       title: event.title || 'Lesson',
       notes: event.notes,
-      start_time: event.startTime,
+      scheduled_at: event.startTime,
       google_event_id: event.googleEventId,
       status: 'SCHEDULED',
     };

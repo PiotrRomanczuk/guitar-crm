@@ -244,21 +244,6 @@ describe('Auth Actions', () => {
       mockHeaders.set('x-forwarded-for', '192.168.1.1');
     });
 
-    it('should log rate limit information', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-
-      await resetPassword(testEmail);
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Rate limit check passed')
-      );
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('attempts remaining')
-      );
-
-      consoleSpy.mockRestore();
-    });
-
     it('should log rate limit exceeded warning', async () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 

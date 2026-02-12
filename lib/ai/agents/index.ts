@@ -33,7 +33,7 @@ export function registerAllAgents(): void {
   // Assistant agents
   registerAgent(chatAssistantAgent);
 
-  console.log('[AgentRegistry] All agents registered successfully');
+  // All agents registered
 }
 
 // Export all agent specifications for reference

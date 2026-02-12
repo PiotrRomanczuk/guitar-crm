@@ -38,23 +38,14 @@ export async function inviteUser(
 
   let userId = existingUser?.id;
 
-  console.log(`[Invite Debug] Checking if user ${email} exists... Found ID: ${userId || 'No'}`);
-
   if (!userId) {
-    console.log(`[Invite Debug] Sending invite to ${email}...`);
     const { data: authData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
       email
     );
-    console.log('[Invite Debug] Supabase Response:', {
-      user: authData.user?.id,
-      error: inviteError?.message,
-    });
 
     if (inviteError) throw new Error(`Failed to invite user: ${inviteError.message}`);
     if (!authData.user) throw new Error('User creation failed');
     userId = authData.user.id;
-  } else {
-    console.log(`[Invite Debug] User already exists. Skipping invite email.`);
   }
 
   const updates: Record<string, unknown> = {
@@ -190,10 +181,6 @@ export async function createShadowUser(studentEmail: string) {
       upsertProfileError.code === '23505' &&
       upsertProfileError.message?.includes('profiles_email_key')
     ) {
-      console.log(
-        `[createShadowUser] Detected orphan profile for ${studentEmail}. Attempting cleanup...`
-      );
-
       // 1. Find the orphan profile
       const { data: orphanProfile } = await supabaseAdmin
         .from('profiles')
@@ -257,9 +244,6 @@ export async function createShadowUser(studentEmail: string) {
         // 5. Delete orphan profile
         await supabaseAdmin.from('profiles').delete().eq('id', orphanProfile.id);
 
-        console.log(
-          `[createShadowUser] Successfully migrated data from orphan profile ${orphanProfile.id} to ${userId}`
-        );
         return { success: true, userId };
       }
     }

@@ -19,8 +19,6 @@ interface SendWeeklyInsightsResult {
  * Called by cron job every Monday at 9 AM UTC
  */
 export async function sendWeeklyInsights(): Promise<SendWeeklyInsightsResult> {
-  console.log('[sendWeeklyInsights] Starting weekly insights email generation...');
-
   const errors: string[] = [];
   let emailsSent = 0;
 
@@ -40,22 +38,15 @@ export async function sendWeeklyInsights(): Promise<SendWeeklyInsightsResult> {
     }
 
     if (!teachers || teachers.length === 0) {
-      console.log('[sendWeeklyInsights] No active teachers found');
       return { success: true, emailsSent: 0 };
     }
 
-    console.log(`[sendWeeklyInsights] Found ${teachers.length} teachers/admins`);
-
     // Get last week's date range (Monday to Sunday)
     const { start, end } = getLastWeekDateRange();
-    console.log(
-      `[sendWeeklyInsights] Date range: ${start.toISOString()} to ${end.toISOString()}`
-    );
 
     // Send email to each teacher
     for (const teacher of teachers) {
       try {
-        console.log(`[sendWeeklyInsights] Processing teacher: ${teacher.email}`);
 
         // Get weekly insights data for this teacher
         const insightsData = await getWeeklyInsightsData(teacher.id, start, end);
@@ -71,9 +62,6 @@ export async function sendWeeklyInsights(): Promise<SendWeeklyInsightsResult> {
           html: html,
         });
 
-        console.log(
-          `[sendWeeklyInsights] Email sent to ${teacher.email}: ${info.messageId}`
-        );
         emailsSent++;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -84,10 +72,6 @@ export async function sendWeeklyInsights(): Promise<SendWeeklyInsightsResult> {
         errors.push(`${teacher.email}: ${errorMessage}`);
       }
     }
-
-    console.log(
-      `[sendWeeklyInsights] Completed. Sent ${emailsSent}/${teachers.length} emails`
-    );
 
     return {
       success: errors.length === 0,

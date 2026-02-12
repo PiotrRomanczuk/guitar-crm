@@ -28,8 +28,6 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
   const checkConnection = async () => {
     setLoading(true);
     try {
-      console.log('[DatabaseStatus] Starting connection check...');
-
       // Check cookie preference
       const match = document.cookie.match(new RegExp('(^| )sb-provider-preference=([^;]+)'));
       const currentPref = match && match[2] === 'remote' ? 'remote' : 'local';
@@ -56,22 +54,17 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
       // Get the URL from the client to display it
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const clientUrl = (supabase as any).supabaseUrl;
-      console.log('[DatabaseStatus] Testing connection to:', clientUrl);
-      console.log('[DatabaseStatus] Starting connection check at:', new Date().toISOString());
 
       // Test basic connectivity first
       try {
-        console.log('[DatabaseStatus] 🌐 Testing basic HTTP connectivity...');
         const testResponse = await fetch(`${clientUrl}/rest/v1/`, {
           method: 'HEAD',
           headers: {
             apikey: (supabase as any).supabaseKey,
           },
         });
-        console.log('[DatabaseStatus] HTTP test response status:', testResponse.status);
 
         // Try a direct REST call to profiles table
-        console.log('[DatabaseStatus] 🔍 Testing direct REST API call...');
         const restResponse = await fetch(`${clientUrl}/rest/v1/profiles?select=count&limit=0`, {
           method: 'HEAD',
           headers: {
@@ -79,19 +72,12 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
             'Content-Type': 'application/json',
           },
         });
-        console.log('[DatabaseStatus] REST API response status:', restResponse.status);
-        console.log(
-          '[DatabaseStatus] REST API response headers:',
-          Object.fromEntries(restResponse.headers.entries())
-        );
 
         if (restResponse.ok) {
-          console.log('[DatabaseStatus] ✅ Direct REST API works - setting connected');
           setConnectionStatus('connected');
           return;
         }
       } catch (fetchError) {
-        console.error('[DatabaseStatus] ❌ Basic HTTP connectivity failed:', fetchError);
         setConnectionStatus('error');
         toast.error(`Cannot reach ${clientUrl}`);
         return;
@@ -100,67 +86,43 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
       // Create a timeout promise (20 seconds - increased for slower connections)
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => {
-          console.error('[DatabaseStatus] ⏰ Timeout reached after 20 seconds');
           reject(new Error('Connection check timed out'));
         }, 20000)
       );
 
-      // Use a simpler health check that doesn't require data
-      console.log('[DatabaseStatus] 🔍 Executing health check query...');
-
       // Try a simple query with explicit timeout handling
       const checkPromise = (async () => {
         try {
-          console.log('[DatabaseStatus] 📡 Sending query to Supabase...');
-          const startTime = Date.now();
           const result = await supabase
             .from('profiles')
             .select('count', { count: 'exact', head: true });
-          const duration = Date.now() - startTime;
-          console.log('[DatabaseStatus] 📬 Query completed in', duration, 'ms');
-          console.log('[DatabaseStatus] 📦 Query result:', result);
           return result;
         } catch (queryError) {
-          console.error('[DatabaseStatus] 💥 Query threw error:', queryError);
           throw queryError;
         }
       })();
 
-      console.log('[DatabaseStatus] ⏳ Waiting for race between query and timeout...');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = (await Promise.race([checkPromise, timeoutPromise])) as any;
-      console.log('[DatabaseStatus] ✅ Race completed, result:', result);
       const { error } = result;
-      console.log('[DatabaseStatus] 📊 Error from query:', error);
 
       if (error) {
-        console.error('[DatabaseStatus] ❌ Connection check failed:', error);
-        console.error('[DatabaseStatus] Error code:', error.code);
-        console.error('[DatabaseStatus] Error message:', error.message);
-        console.error('[DatabaseStatus] Error details:', error.details);
-
         if (error.message?.includes('Invalid API key')) {
-          console.log('[DatabaseStatus] Invalid API key detected');
           setConnectionStatus('error');
           toast.error(`Invalid API Key for ${clientUrl}. Check your .env file.`);
         } else if (error.code === 'PGRST301' || error.code === '42501') {
           // RLS error means we connected successfully!
-          console.log('[DatabaseStatus] RLS error detected - connection successful!');
           setConnectionStatus('connected');
         } else {
-          console.log('[DatabaseStatus] Other error - setting status to error');
           setConnectionStatus('error');
-          // If it's a timeout, show a specific toast
           if (error.message === 'Connection check timed out') {
             toast.error(`Connection timed out connecting to ${clientUrl}`);
           }
         }
       } else {
-        console.log('[DatabaseStatus] ✅ Connection successful!');
         setConnectionStatus('connected');
       }
-    } catch (error) {
-      console.error('[DatabaseStatus] Failed to check database status', error);
+    } catch {
       setConnectionStatus('error');
     } finally {
       setLoading(false);

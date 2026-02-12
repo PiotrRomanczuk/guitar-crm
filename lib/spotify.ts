@@ -46,7 +46,6 @@ const checkCircuitBreaker = () => {
       circuitBreakerOpen = false;
       circuitBreakerResetTime = null;
       consecutiveFailures = 0;
-      console.log('Circuit breaker reset');
     } else {
       throw new Error('Spotify API circuit breaker is open. Too many consecutive failures.');
     }
@@ -141,7 +140,6 @@ const getAccessToken = async (retryCount = 0): Promise<{ access_token: string }>
       // Retry on 5xx server errors
       if (response.status >= 500 && retryCount < MAX_RETRIES) {
         const backoff = Math.min(INITIAL_BACKOFF * Math.pow(2, retryCount), MAX_BACKOFF);
-        console.log(`Retrying token request in ${backoff}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`);
         await sleep(backoff);
         return getAccessToken(retryCount + 1);
       }
@@ -186,7 +184,6 @@ const handleApiResponse = async (
 
     if (retryCount < MAX_RETRIES && retryFn) {
       const waitTime = retryAfter * 1000;
-      console.log(`Waiting ${waitTime}ms before retry (attempt ${retryCount + 1}/${MAX_RETRIES})`);
       await sleep(waitTime);
       const retryResponse = await retryFn();
       return handleApiResponse(retryResponse, endpoint, retryCount + 1, retryFn);
@@ -204,7 +201,6 @@ const handleApiResponse = async (
 
     // Retry once with fresh token
     if (retryCount === 0 && retryFn) {
-      console.log('Retrying with fresh token');
       const retryResponse = await retryFn();
       return handleApiResponse(retryResponse, endpoint, retryCount + 1, retryFn);
     }
@@ -232,7 +228,6 @@ const handleApiResponse = async (
     // Retry on 5xx server errors
     if (response.status >= 500 && retryCount < MAX_RETRIES && retryFn) {
       const backoff = Math.min(INITIAL_BACKOFF * Math.pow(2, retryCount), MAX_BACKOFF);
-      console.log(`Retrying ${endpoint} in ${backoff}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`);
       await sleep(backoff);
       const retryResponse = await retryFn();
       return handleApiResponse(retryResponse, endpoint, retryCount + 1, retryFn);

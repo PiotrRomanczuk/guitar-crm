@@ -6,44 +6,30 @@ import { NextRequest, NextResponse } from 'next/server';
  * Returns dashboard statistics based on user role
  */
 export async function GET(request: NextRequest) {
-  console.log('[API /api/dashboard/stats] Route handler called');
-  console.log('[API /api/dashboard/stats] Request URL:', request.url);
-
   try {
     const supabase = await createClient();
-    console.log('[API /api/dashboard/stats] Supabase client created');
 
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    console.log(
-      '[API /api/dashboard/stats] User check:',
-      user ? `Found user: ${user.id}` : 'No user'
-    );
-
     if (!user) {
-      console.log('[API /api/dashboard/stats] Returning 401 - Unauthorized');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user profile to check roles
-    console.log('[API /api/dashboard/stats] Fetching profile for user:', user.id);
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('is_admin, is_teacher, is_student')
       .eq('id', user.id)
       .single();
 
-    console.log('[API /api/dashboard/stats] Profile result:', { profile, error: profileError });
     if (!profile) {
-      console.log('[API /api/dashboard/stats] Returning 404 - Profile not found');
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     // Admin stats
     if (profile.is_admin) {
-      console.log('[API /api/dashboard/stats] User is admin, fetching admin stats');
       const [
         { count: totalUsers },
         { count: totalTeachers },
@@ -64,13 +50,6 @@ export async function GET(request: NextRequest) {
         supabase.from('lessons').select('*', { count: 'exact', head: true }),
       ]);
 
-      console.log('[API /api/dashboard/stats] Admin stats:', {
-        totalUsers,
-        totalTeachers,
-        totalStudents,
-        totalSongs,
-        totalLessons,
-      });
       return NextResponse.json({
         role: 'admin',
         stats: {
@@ -83,7 +62,6 @@ export async function GET(request: NextRequest) {
       });
     } // Teacher stats
     if (profile.is_teacher) {
-      console.log('[API /api/dashboard/stats] User is teacher, fetching teacher stats');
       const [
         { count: myStudents },
         { count: activeLessons },
@@ -117,12 +95,6 @@ export async function GET(request: NextRequest) {
           ? Math.round(((completedAssignments || 0) / totalAssignments) * 100)
           : 0;
 
-      console.log('[API /api/dashboard/stats] Teacher stats:', {
-        myStudents,
-        activeLessons,
-        songsLibrary,
-        studentProgress,
-      });
       return NextResponse.json({
         role: 'teacher',
         stats: {
@@ -136,8 +108,6 @@ export async function GET(request: NextRequest) {
 
     // Student stats
     if (profile.is_student) {
-      console.log('[API /api/dashboard/stats] User is student, fetching student stats');
-
       // Get lessons for this student
       const { data: lessons } = await supabase
         .from('lessons')
@@ -181,12 +151,6 @@ export async function GET(request: NextRequest) {
       const completedItems = (completedSongs || 0) + (completedStudentAssignments || 0);
       const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
-      console.log('[API /api/dashboard/stats] Student stats:', {
-        uniqueTeachers,
-        lessonsDone,
-        songsLearning,
-        progress,
-      });
       return NextResponse.json({
         role: 'student',
         stats: {
@@ -198,7 +162,6 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    console.log('[API /api/dashboard/stats] User has no specific role, returning empty stats');
     return NextResponse.json({
       role: 'user',
       stats: {},

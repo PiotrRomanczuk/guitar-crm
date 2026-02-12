@@ -55,7 +55,6 @@ let cachedProvider: AIProvider | null = null;
 const updateFactoryConfig = (config: Partial<ProviderFactoryConfig>): void => {
   factoryConfig = { ...factoryConfig, ...config };
   cachedProvider = null; // Clear cache when config changes
-  console.log('[AIProviderFactory] Config updated:', factoryConfig);
 };
 
 /**
@@ -69,7 +68,6 @@ const autoSelectProvider = async (): Promise<AIProvider> => {
   if (factoryConfig.preferLocal !== false) {
     const ollamaAvailable = await ollama.isAvailable();
     if (ollamaAvailable) {
-      console.log('[AIProviderFactory] Auto-selected Ollama (local available)');
       return ollama;
     }
   }
@@ -77,7 +75,6 @@ const autoSelectProvider = async (): Promise<AIProvider> => {
   // Try OpenRouter
   const openrouterAvailable = await openrouter.isAvailable();
   if (openrouterAvailable) {
-    console.log('[AIProviderFactory] Auto-selected OpenRouter');
     return openrouter;
   }
 
@@ -85,7 +82,6 @@ const autoSelectProvider = async (): Promise<AIProvider> => {
   if (factoryConfig.preferLocal === false) {
     const ollamaAvailable = await ollama.isAvailable();
     if (ollamaAvailable) {
-      console.log('[AIProviderFactory] Auto-selected Ollama (fallback)');
       return ollama;
     }
   }
@@ -109,12 +105,10 @@ const getProvider = async (): Promise<AIProvider> => {
   switch (factoryConfig.provider) {
     case 'ollama':
       provider = createOllamaProvider();
-      console.log('[AIProviderFactory] Using Ollama provider');
       break;
 
     case 'openrouter':
       provider = createOpenRouterProvider();
-      console.log('[AIProviderFactory] Using OpenRouter provider');
       break;
 
     case 'auto':
@@ -164,8 +158,6 @@ const getFactoryConfig = (): ProviderFactoryConfig => {
  * Factory object with all provider factory functions
  */
 export const createProviderFactory = () => {
-  console.log('[AIProviderFactory] Initialized with config:', factoryConfig);
-
   return {
     updateConfig: updateFactoryConfig,
     getProvider,

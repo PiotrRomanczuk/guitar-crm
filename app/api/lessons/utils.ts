@@ -87,7 +87,6 @@ export async function insertLessonRecord(
   // Note: lesson_teacher_number is auto-set by database trigger (set_lesson_numbers)
   // Do NOT manually set it here as it will conflict with the trigger
 
-  console.log('Inserting lesson with dbData:', dbData);
   return await supabase.from('lessons').insert(dbData).select().single();
 }
 

@@ -104,10 +104,6 @@ async function renewWebhook(subscription: WebhookSubscription): Promise<RenewalR
       throw updateError;
     }
 
-    console.log(
-      `✓ Renewed webhook for user ${subscription.user_id}: ${subscription.channel_id} → ${channelId}`
-    );
-
     return {
       success: true,
       userId: subscription.user_id,
@@ -133,12 +129,9 @@ async function renewWebhook(subscription: WebhookSubscription): Promise<RenewalR
  * @returns Summary of renewal operations
  */
 export async function renewExpiringWebhooks(): Promise<RenewalSummary> {
-  console.log('🔄 Starting webhook renewal process...');
-
   const expiring = await findExpiringWebhooks();
 
   if (expiring.length === 0) {
-    console.log('✓ No webhooks need renewal');
     return {
       totalChecked: 0,
       renewed: 0,
@@ -147,8 +140,6 @@ export async function renewExpiringWebhooks(): Promise<RenewalSummary> {
       results: [],
     };
   }
-
-  console.log(`Found ${expiring.length} webhook(s) expiring within 24 hours`);
 
   const results: RenewalResult[] = [];
 
@@ -163,8 +154,6 @@ export async function renewExpiringWebhooks(): Promise<RenewalSummary> {
 
   const renewed = results.filter((r) => r.success).length;
   const failed = results.filter((r) => !r.success).length;
-
-  console.log(`✓ Renewal complete: ${renewed} renewed, ${failed} failed`);
 
   return {
     totalChecked: expiring.length,
@@ -196,9 +185,5 @@ export async function cleanupExpiredWebhooks(): Promise<number> {
   }
 
   const deletedCount = data?.length || 0;
-  if (deletedCount > 0) {
-    console.log(`🗑️  Cleaned up ${deletedCount} expired webhook(s)`);
-  }
-
   return deletedCount;
 }

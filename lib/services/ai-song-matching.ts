@@ -60,8 +60,6 @@ export async function analyzeAndNormalizeSong(song: DatabaseSong): Promise<AIAna
       createFallbackNormalization,
     } = await import('@/lib/ai/agents/song-normalization');
 
-    console.log(`🤖 AI analyzing: "${song.title}" by "${song.author}"`);
-
     // Use the dedicated song normalization agent
     const response = await generateSongNormalizationAgent({
       title: song.title,
@@ -74,10 +72,6 @@ export async function analyzeAndNormalizeSong(song: DatabaseSong): Promise<AIAna
     const normalizationData = extractNormalizationData(response);
 
     if (normalizationData) {
-      console.log(
-        `🤖 AI success: ${normalizationData.confidence}% confidence - ${normalizationData.reasoning}`
-      );
-
       return {
         normalizedTitle: normalizationData.normalizedTitle,
         normalizedArtist: normalizationData.normalizedArtist,

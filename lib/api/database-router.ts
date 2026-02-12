@@ -53,14 +53,12 @@ export class DatabaseRouter {
       };
 
       if (config.isLocal) {
-        console.log('🔄 [DatabaseRouter] Using LOCAL database endpoint');
         return {
           baseUrl: `${config.url}/rest/v1`,
           headers,
           isLocal: true,
         };
       } else {
-        console.log('🌐 [DatabaseRouter] Using REMOTE database endpoint');
         return {
           baseUrl: `${config.url}/rest/v1`,
           headers,
@@ -94,7 +92,6 @@ export class DatabaseRouter {
     };
 
     const logPrefix = endpoint.isLocal ? '🏠 [LOCAL-API]' : '☁️  [REMOTE-API]';
-    console.log(`${logPrefix} ${method} ${path}`, { params, hasBody: !!body });
 
     try {
       const response = await fetch(url.toString(), {
@@ -119,11 +116,6 @@ export class DatabaseRouter {
 
       if (!response.ok) {
         console.error(`${logPrefix} Request failed:`, result.error);
-      } else {
-        console.log(`${logPrefix} Request successful:`, {
-          status: response.status,
-          dataType: typeof data,
-        });
       }
 
       return result;

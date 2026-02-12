@@ -18,8 +18,6 @@ async function getClientIdentifier(email: string): Promise<string> {
 }
 
 export async function resetPassword(email: string) {
-	console.log(`[Auth] Password reset requested for email: ${email}`);
-
 	// Rate limiting check
 	const identifier = await getClientIdentifier(email);
 	const rateLimit = await checkAuthRateLimit(identifier, 'passwordReset');
@@ -35,10 +33,6 @@ export async function resetPassword(email: string) {
 			retryAfter: rateLimit.retryAfter
 		};
 	}
-
-	console.log(
-		`[Auth] Rate limit check passed: ${rateLimit.remaining} attempts remaining`
-	);
 
 	const supabase = await createClient();
 	const headersList = await headers();
@@ -58,6 +52,5 @@ export async function resetPassword(email: string) {
 		return { error: error.message };
 	}
 
-	console.log(`[Auth] Password reset email sent to ${email}`);
 	return { success: true };
 }

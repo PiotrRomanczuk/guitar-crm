@@ -157,16 +157,12 @@ export async function GET(request: NextRequest) {
  * Create a new song (requires teacher or admin role)
  */
 export async function POST(request: NextRequest) {
-  console.log('[API/Songs] POST /api/song - Request received');
-
   try {
     const cookieStore = await cookies();
-    console.log('[API/Songs] Cookies retrieved, count:', cookieStore.getAll().length);
 
     let config;
     try {
       config = getSupabaseConfig();
-      console.log('[API/Songs] Using database:', config.isLocal ? 'LOCAL' : 'REMOTE');
     } catch (configError) {
       console.error('[API/Songs] Supabase config error:', configError);
       return NextResponse.json({ error: 'Database configuration error' }, { status: 500 });
@@ -186,52 +182,36 @@ export async function POST(request: NextRequest) {
         },
       },
     });
-    console.log('[API/Songs] Supabase client created');
 
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    console.log('[API/Songs] User retrieved:', user ? { id: user.id, email: user.email } : 'null');
 
     if (!user) {
-      console.error('[API/Songs] No user - returning 401');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const profile = await getOrCreateProfile(supabase, user.id, user.email || '');
-    console.log('[API/Songs] Profile retrieved:', profile);
 
     if (!profile) {
-      console.error('[API/Songs] Failed to get/create profile');
       return NextResponse.json({ error: 'Error creating user profile' }, { status: 500 });
     }
 
     const body = await request.json();
-    console.log('[API/Songs] Request body:', body);
 
     const result = await createSongHandler(supabase, user, profile, body);
-    console.log('[API/Songs] Handler result:', {
-      status: result.status,
-      hasError: !!result.error,
-      hasSong: !!result.song,
-    });
 
     if (result.error) {
-      console.error('[API/Songs] createSongHandler returned error:', result.error);
       return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
-    console.log('[API/Songs] Success! Returning song');
     return NextResponse.json(result.song, { status: result.status });
   } catch (error) {
     console.error('[API/Songs] POST /api/song error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    const errorStack = error instanceof Error ? error.stack : '';
-    console.error('[API/Songs] Error details:', { message: errorMessage, stack: errorStack });
     return NextResponse.json(
       {
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'Unknown error') : undefined,
       },
       { status: 500 }
     );
@@ -299,18 +279,15 @@ export async function PUT(request: NextRequest) {
  * Delete a song (requires teacher or admin role)
  */
 export async function DELETE(request: NextRequest) {
-  console.log('[API] DELETE /api/song - Request received');
   try {
     const { searchParams } = new URL(request.url);
     const songId = searchParams.get('id');
-    console.log('[API] DELETE /api/song - Song ID:', songId);
 
     if (!songId) {
       return NextResponse.json({ error: 'Song ID is required' }, { status: 400 });
     }
 
     const cookieStore = await cookies();
-    console.log('[API] DELETE /api/song - Cookies count:', cookieStore.getAll().length);
 
     const config = getSupabaseConfig();
     const supabase = createServerClient<Database>(config.url, config.anonKey, {
@@ -330,21 +307,18 @@ export async function DELETE(request: NextRequest) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    console.log('[API] DELETE /api/song - User:', user?.id);
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const profile = await getOrCreateProfile(supabase, user.id, user.email || '');
-    console.log('[API] DELETE /api/song - Profile found:', !!profile);
 
     if (!profile) {
       return NextResponse.json({ error: 'Error creating user profile' }, { status: 500 });
     }
 
     const result = await deleteSongHandler(supabase, user, profile, songId);
-    console.log('[API] DELETE /api/song - Handler result:', result);
 
     if (result.error) {
       return NextResponse.json({ error: result.error }, { status: result.status });

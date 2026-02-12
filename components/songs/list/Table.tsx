@@ -43,27 +43,23 @@ export default function SongListTable({
   const [checkingId, setCheckingId] = useState<string | null>(null);
 
   const handleDeleteClick = async (song: Song) => {
-    console.log('🎸 [FRONTEND] handleDeleteClick called for song:', song.id);
     setCheckingId(song.id);
 
     try {
       const supabase = getSupabaseBrowserClient();
-      console.log('🎸 [FRONTEND] Checking assignments for song:', song.id);
       const { count, error } = await supabase
         .from('lesson_songs')
         .select('*', { count: 'exact', head: true })
         .eq('song_id', song.id);
 
       if (error) {
-        console.error('🎸 [FRONTEND] Error checking assignments:', error);
-      } else {
-        console.log('🎸 [FRONTEND] Assignment count:', count);
+        console.error('Error checking assignments:', error);
       }
 
       setAssignmentCount(count || 0);
       setSongToDelete(song);
     } catch (err) {
-      console.error('🎸 [FRONTEND] Unexpected error in handleDeleteClick:', err);
+      console.error('Unexpected error in handleDeleteClick:', err);
     } finally {
       setCheckingId(null);
       setDeleteError(null);
@@ -107,7 +103,7 @@ export default function SongListTable({
       onDeleteSuccess?.();
       router.refresh();
     } catch (error) {
-      console.error('🎸 [FRONTEND] Delete failed:', error);
+      console.error('Delete failed:', error);
       setDeleteError(error instanceof Error ? error.message : 'Failed to delete song');
       setDeletingSongId(null);
     }

@@ -15,7 +15,7 @@ tools:
 1. **NEVER commit directly to `main` or `production`** -- always use feature branches
 2. **ALWAYS link to Linear** -- every commit and PR must reference a `STRUM-XXX` ticket
 3. **ALWAYS test before committing** -- `npm run lint && npm test`
-4. **ALWAYS bump version** -- patch for fixes/refactors, minor for features, major for breaking changes
+4. **Version is bumped automatically post-merge** -- a GitHub Action bumps patch/minor/major based on branch prefix or PR labels
 
 ---
 
@@ -59,21 +59,17 @@ Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `perf`, `style`
 
 ---
 
-## Version Bumping
+## Version Bumping (Automated)
 
-Update `package.json` version for EVERY meaningful change:
+Version bumping is handled automatically by a GitHub Action (`version-bump.yml`) that runs after each PR is merged to `main`. **Do not run `npm version` manually on feature branches.**
 
-| Change Type | Bump | Example |
+| Change Type | Bump | Trigger |
 |---|---|---|
-| Bug fix, small improvement, refactor | `npm version patch` | 0.65.0 → 0.65.1 |
-| New feature, new component | `npm version minor` | 0.65.0 → 0.66.0 |
-| Breaking change, major rewrite | `npm version major` | 0.65.0 → 1.0.0 |
+| Bug fix, small improvement, refactor | patch | `fix/`, `refactor/`, `chore/`, `test/`, `docs/`, `perf/` branch prefix |
+| New feature, new component | minor | `feature/` or `feat/` branch prefix |
+| Breaking change, major rewrite | major | Add `version:major` label to PR |
 
-```bash
-npm version patch -m "fix: resolve song mastery calculation [STRUM-124]"
-npm version minor -m "feat: add lesson reminder system [STRUM-123]"
-npm version major -m "feat!: redesign authentication flow [STRUM-130]"
-```
+Override with PR labels: `version:major`, `version:minor`, `version:patch`.
 
 ### CHANGELOG.md Format
 
@@ -195,8 +191,7 @@ npm run lint
 npm test
 npm run test:smoke
 
-# 5. Bump version and update changelog
-npm version minor -m "feat: add lesson reminder system [STRUM-XXX]"
+# 5. Version bump happens automatically after merge to main
 
 # 6. Commit with proper format
 git add .
@@ -221,8 +216,7 @@ npm test -- SongProgress --watch
 # Fix the bug, verify all tests pass
 npm test && npm run test:smoke
 
-# Bump patch version
-npm version patch -m "fix: resolve song progress calculation [STRUM-XXX]"
+# Version bump happens automatically after merge to main
 
 # Commit and push
 git add .
@@ -242,8 +236,7 @@ npm test
 # Ensure all tests STILL pass
 npm test
 
-# Bump patch version
-npm version patch -m "refactor: simplify user service layer [STRUM-XXX]"
+# Version bump happens automatically after merge to main
 
 git add .
 git commit -m "refactor(users): simplify service layer [STRUM-XXX]"
@@ -261,8 +254,9 @@ git checkout -b fix/STRUM-XXX-critical-auth-bug
 # Write test, fix bug, verify
 npm test && npm run test:smoke
 
-# Bump patch version
-npm version patch -m "fix!: resolve critical auth bug [STRUM-XXX]"
+# NOTE: For hotfixes to production, manual version bump may be needed
+# since the version-bump Action only watches main.
+# npm version patch --no-git-tag-version
 
 git add .
 git commit -m "fix(auth)!: resolve critical security bug [STRUM-XXX]"
@@ -295,7 +289,7 @@ git push origin v0.66.0
 ## Deployment Checklist
 
 - [ ] All tests passing (unit + E2E)
-- [ ] Version bumped in `package.json`
+- [ ] Version bumped automatically post-merge
 - [ ] CHANGELOG.md updated
 - [ ] Linear ticket linked in PR
 - [ ] Code reviewed and approved
@@ -313,7 +307,6 @@ git push origin v0.66.0
 git checkout main && git pull origin main
 git checkout -b feature/STRUM-XXX-description
 # ... make changes ...
-npm version minor
 npm test && npm run lint
 git add .
 git commit -m "feat(scope): description [STRUM-XXX]"

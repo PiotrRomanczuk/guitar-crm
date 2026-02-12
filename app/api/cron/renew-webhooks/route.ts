@@ -28,8 +28,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    console.log('🔄 Cron job started: webhook renewal');
-
     // Renew expiring webhooks
     const renewalSummary = await renewExpiringWebhooks();
 
@@ -48,8 +46,6 @@ export async function GET(request: NextRequest) {
         deleted: cleanedUp,
       },
     };
-
-    console.log('✓ Cron job completed:', response);
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {

@@ -33,23 +33,16 @@ export default function LessonForm(props: UseLessonFormProps) {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('[LessonForm] Form submitted', formData);
     setIsSubmitting(true);
 
     try {
       const result = await handleSubmit();
-      console.log('[LessonForm] Submit result:', result);
       if (result.success) {
-        console.log('[LessonForm] Submission successful, redirecting...');
         if (props.lessonId) {
-          console.log('[LessonForm] Redirecting to lesson:', props.lessonId);
           router.push(`/dashboard/lessons/${props.lessonId}`);
         } else {
-          console.log('[LessonForm] Redirecting to lessons list');
           router.push('/dashboard/lessons?created=true');
         }
-      } else {
-        console.error('[LessonForm] Submission failed:', result.error);
       }
     } catch (err) {
       console.error('[LessonForm] Exception during submission:', err);

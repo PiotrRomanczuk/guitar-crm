@@ -37,10 +37,6 @@ export async function POST(request: Request) {
   const minConfidence = parseInt(url.searchParams.get('minConfidence') || '20');
   const generateReport = url.searchParams.get('report') === 'true';
 
-  console.log(
-    `🎵 Starting AI-enhanced Spotify sync (limit: ${limit}, AI: ${enableAI}, min: ${minConfidence}%, auto-apply: >=85%)`
-  );
-
   // 1. Fetch songs
   let queryBuilder = supabase.from('songs').select('*').is('deleted_at', null); // Only active songs
 
@@ -65,8 +61,6 @@ export async function POST(request: Request) {
       message: 'No songs found to process',
     });
   }
-
-  console.log(`📀 Found ${songs.length} songs to process`);
 
   const results = {
     total: songs.length,
@@ -94,8 +88,8 @@ export async function POST(request: Request) {
         enableAIAnalysis: enableAI,
       },
       // Progress callback
-      (progress) => {
-        console.log(`📊 Progress: ${progress.completed}/${progress.total} songs processed`);
+      () => {
+        // Progress tracking (no-op in production)
       }
     );
 
@@ -146,13 +140,9 @@ export async function POST(request: Request) {
           if (updateError) {
             results.failed++;
             results.errors.push(`Failed to update ${song.title}: ${updateError.message}`);
-            console.error(`❌ Update failed for "${song.title}":`, updateError.message);
           } else {
             results.updated++;
             results.aiMatches++;
-            console.log(
-              `✅ Updated "${song.title}" → "${track.name}" (${match.confidence}% confidence)`
-            );
           }
         } else if (match.confidence >= 20 && track) {
           // Any reasonable match (20%+) - store for manual review
@@ -190,28 +180,15 @@ export async function POST(request: Request) {
               results.errors.push(
                 `Failed to store pending match for ${song.title}: ${insertError.message}`
               );
-              console.error(
-                `❌ Failed to store pending match for "${song.title}":`,
-                insertError.message
-              );
             } else {
               results.pending++;
-              console.log(
-                `📋 Stored pending match for "${song.title}" → "${track.name}" (${match.confidence}% confidence)`
-              );
             }
           } else {
             results.pending++;
-            console.log(
-              `⏭️  Pending match already exists for "${song.title}" (${match.confidence}% confidence)`
-            );
           }
         } else {
           // Very low confidence or no match
           results.skipped++;
-          console.log(
-            `⏭️  Skipped "${song.title}" (${match.confidence}% confidence): ${match.reason}`
-          );
 
           if (match.confidence > 0) {
             results.errors.push(`Very low confidence match for "${song.title}": ${match.reason}`);
@@ -221,7 +198,6 @@ export async function POST(request: Request) {
         const errorMessage = e instanceof Error ? e.message : 'Unknown error';
         results.failed++;
         results.errors.push(`Error updating ${song.title}: ${errorMessage}`);
-        console.error(`❌ Processing error for "${song.title}":`, errorMessage);
       }
     }
 
@@ -234,24 +210,11 @@ export async function POST(request: Request) {
         ? Math.round(confidenceScores.reduce((sum, c) => sum + c, 0) / confidenceScores.length)
         : 0;
 
-    console.log(`\n🎯 AI-Enhanced Spotify Sync Complete!`);
-    console.log(`   Total: ${results.total} songs`);
-    console.log(`   Updated: ${results.updated} songs`);
-    console.log(`   Pending Review: ${results.pending} songs`);
-    console.log(`   Skipped: ${results.skipped} songs`);
-    console.log(`   Failed: ${results.failed} songs`);
-    console.log(`   AI matches: ${results.aiMatches} songs`);
-    console.log(`   Average confidence: ${results.averageConfidence}%`);
-    console.log(`   Total queries: ${results.totalQueries}`);
-    console.log(`   Processing time: ${Math.round(results.processingTimeMs / 1000)}s`);
-
     // 5. Generate detailed report if requested
     if (generateReport) {
       const { generateMatchReport } = await import('@/lib/services/enhanced-spotify-search');
       const report = generateMatchReport(searchResults);
 
-      // You could save this report to a file or return it in the response
-      console.log('\n📊 Detailed Match Report Generated');
       // For now, just include summary in response
       (results as Record<string, unknown>).report = report.split('\n').slice(0, 20).join('\n') + '\n... (truncated)';
     }

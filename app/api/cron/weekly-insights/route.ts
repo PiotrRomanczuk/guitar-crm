@@ -16,13 +16,9 @@ export async function GET(request: Request) {
   }
 
   try {
-    console.log('[Cron] Starting weekly insights email job...');
     const result = await sendWeeklyInsights();
 
     if (result.success) {
-      console.log(
-        `[Cron] Weekly insights sent successfully. Emails sent: ${result.emailsSent}`
-      );
       return NextResponse.json({
         success: true,
         emailsSent: result.emailsSent,

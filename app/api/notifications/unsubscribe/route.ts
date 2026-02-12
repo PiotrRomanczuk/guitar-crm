@@ -64,9 +64,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Log the unsubscribe action
-    console.log(`User ${userId} unsubscribed from ${notificationType}`);
-
     // Redirect to confirmation page with success
     return NextResponse.redirect(
       new URL(
