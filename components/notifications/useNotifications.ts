@@ -66,7 +66,7 @@ export function useNotifications(userId?: string, options: UseNotificationsOptio
 
     try {
       let query = supabase
-        .from('in_app_notifications')
+        .from('in_app_notifications' as any)
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
@@ -83,8 +83,8 @@ export function useNotifications(userId?: string, options: UseNotificationsOptio
         setNotifications([]);
         setUnreadCount(0);
       } else {
-        setNotifications(data || []);
-        setUnreadCount(data?.filter((n) => !n.is_read).length || 0);
+        setNotifications((data as any) || []);
+        setUnreadCount(((data as any)?.filter((n: any) => !n.is_read).length) || 0);
       }
     } catch (error) {
       console.error('[useNotifications] Fetch exception:', error);

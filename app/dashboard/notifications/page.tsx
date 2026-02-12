@@ -10,7 +10,7 @@
 
 import { Metadata } from 'next';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
-import { getUser } from '@/lib/supabase/server-utils';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NotificationsPage() {
-  const user = await getUser();
+  const { user } = await getUserWithRolesSSR();
 
   if (!user) {
     redirect('/login');
