@@ -14,6 +14,7 @@ import {
   Activity,
   Calendar,
   Sparkles,
+  Video,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -72,6 +73,12 @@ export function AppSidebar({ isAdmin, isTeacher, isStudent }: AppSidebarProps) {
             label: 'Spotify Matches',
             icon: Music2,
             path: '/dashboard/admin/spotify-matches',
+          },
+          {
+            id: 'drive-videos',
+            label: 'Drive Videos',
+            icon: Video,
+            path: '/dashboard/admin/drive-videos',
           },
           {
             id: 'song-stats',
