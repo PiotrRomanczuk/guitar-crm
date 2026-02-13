@@ -23,11 +23,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Trash2, Music, Plus, MoreHorizontal, Eye, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Trash2, Music, Plus, MoreHorizontal, Eye } from 'lucide-react';
 import StatusSelect from './StatusSelect';
 import EmptyState from '@/components/shared/EmptyState';
 import StatusBadge, { getStatusVariant } from '@/components/shared/StatusBadge';
 import Image from 'next/image';
+import SortableHeader from './Table.SortableHeader';
+import HoverStatsCard from './Table.HoverStatsCard';
 
 type SortField = 'title' | 'author' | 'level' | 'key' | 'updated_at';
 type SortDirection = 'asc' | 'desc';
@@ -140,23 +142,6 @@ export default function SongListTable({
     setSongToDelete(null);
     setDeletingSongId(null);
     setDeleteError(null);
-  };
-
-  const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => {
-    const isActive = sortBy === field;
-    const Icon = isActive ? (sortDirection === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown;
-
-    return (
-      <TableHead
-        className="text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
-        onClick={() => onSort?.(field)}
-      >
-        <div className="flex items-center gap-2">
-          {children}
-          <Icon className={`h-4 w-4 ${isActive ? 'text-foreground' : 'text-muted-foreground/40'}`} />
-        </div>
-      </TableHead>
-    );
   };
 
   return (
@@ -337,46 +322,18 @@ export default function SongListTable({
                           />
                         </TableHead>
                       )}
-                      <SortableHeader field="title">Song</SortableHeader>
-                      <TableHead
-                        className="w-48 text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
-                        onClick={() => onSort?.('author')}
-                      >
-                        <div className="flex items-center gap-2">
-                          Author
-                          {sortBy === 'author' ? (
-                            sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
-                          ) : (
-                            <ArrowUpDown className="h-4 w-4 text-muted-foreground/40" />
-                          )}
-                        </div>
-                      </TableHead>
-                      <TableHead
-                        className="w-32 text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
-                        onClick={() => onSort?.('level')}
-                      >
-                        <div className="flex items-center gap-2">
-                          {selectedStudentId ? 'Status' : 'Level'}
-                          {sortBy === 'level' ? (
-                            sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
-                          ) : (
-                            <ArrowUpDown className="h-4 w-4 text-muted-foreground/40" />
-                          )}
-                        </div>
-                      </TableHead>
-                      <TableHead
-                        className="w-20 text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
-                        onClick={() => onSort?.('key')}
-                      >
-                        <div className="flex items-center gap-2">
-                          Key
-                          {sortBy === 'key' ? (
-                            sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
-                          ) : (
-                            <ArrowUpDown className="h-4 w-4 text-muted-foreground/40" />
-                          )}
-                        </div>
-                      </TableHead>
+                      <SortableHeader field="title" sortBy={sortBy} sortDirection={sortDirection} onSort={onSort}>
+                        Song
+                      </SortableHeader>
+                      <SortableHeader field="author" sortBy={sortBy} sortDirection={sortDirection} onSort={onSort}>
+                        Author
+                      </SortableHeader>
+                      <SortableHeader field="level" sortBy={sortBy} sortDirection={sortDirection} onSort={onSort}>
+                        {selectedStudentId ? 'Status' : 'Level'}
+                      </SortableHeader>
+                      <SortableHeader field="key" sortBy={sortBy} sortDirection={sortDirection} onSort={onSort}>
+                        Key
+                      </SortableHeader>
                       {canDelete && (
                         <TableHead className="w-24 text-right text-muted-foreground">Actions</TableHead>
                       )}
@@ -431,57 +388,7 @@ export default function SongListTable({
                         </div>
 
                         {/* Hover Card with Stats */}
-                        {(song as Song & { stats?: { lessonCount: number; studentCount: number; statusBreakdown: { mastered: number; learning: number; to_learn: number } } }).stats && (
-                          <div className="absolute left-4 top-full mt-1 z-50 hidden group-hover:block w-72 p-4 bg-card rounded-lg shadow-xl border border-border">
-                            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                              Song Usage
-                            </h4>
-
-                            <div className="space-y-2 text-sm">
-                              <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Lessons:</span>
-                                <span className="font-medium text-foreground">
-                                  {(song as Song & { stats: { lessonCount: number } }).stats.lessonCount}
-                                </span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Students:</span>
-                                <span className="font-medium text-foreground">
-                                  {(song as Song & { stats: { studentCount: number } }).stats.studentCount}
-                                </span>
-                              </div>
-                            </div>
-
-                            {(song as Song & { stats: { statusBreakdown: { mastered: number; learning: number; to_learn: number } } }).stats.statusBreakdown && (
-                              <>
-                                <div className="border-t border-border my-3" />
-                                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                                  Progress
-                                </h4>
-                                <div className="space-y-1.5 text-xs">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-success">✓ Mastered</span>
-                                    <span className="font-medium text-foreground">
-                                      {(song as Song & { stats: { statusBreakdown: { mastered: number } } }).stats.statusBreakdown.mastered}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-warning">→ Learning</span>
-                                    <span className="font-medium text-foreground">
-                                      {(song as Song & { stats: { statusBreakdown: { learning: number } } }).stats.statusBreakdown.learning}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-muted-foreground">○ To Learn</span>
-                                    <span className="font-medium text-foreground">
-                                      {(song as Song & { stats: { statusBreakdown: { to_learn: number } } }).stats.statusBreakdown.to_learn}
-                                    </span>
-                                  </div>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        )}
+                        <HoverStatsCard song={song as Song & { stats?: { lessonCount: number; studentCount: number; statusBreakdown?: { mastered: number; learning: number; to_learn: number } } }} />
                       </div>
                       <div className="w-48 px-4 py-3">
                         <span className="text-muted-foreground truncate">{song.author || 'Unknown'}</span>
