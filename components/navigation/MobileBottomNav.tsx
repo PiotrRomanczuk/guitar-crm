@@ -6,10 +6,10 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
-  History,
+  Music,
+  BookOpen,
   Users,
-  Calendar,
-  Settings,
+  MoreHorizontal,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -51,33 +51,39 @@ interface NavItem {
 const navItems: NavItem[] = [
   {
     href: '/dashboard',
-    label: 'Dashboard',
+    label: 'Home',
     icon: LayoutDashboard,
     matchPaths: ['/dashboard'],
   },
   {
+    href: '/dashboard/songs',
+    label: 'Songs',
+    icon: Music,
+    matchPaths: ['/dashboard/songs'],
+  },
+  {
     href: '/dashboard/lessons',
-    label: 'History',
-    icon: History,
+    label: 'Lessons',
+    icon: BookOpen,
     matchPaths: ['/dashboard/lessons'],
   },
   {
-    href: '/dashboard/students',
-    label: 'Students',
+    href: '/dashboard/users',
+    label: 'Users',
     icon: Users,
-    matchPaths: ['/dashboard/students', '/dashboard/users'],
-  },
-  {
-    href: '/dashboard/calendar',
-    label: 'Calendar',
-    icon: Calendar,
-    matchPaths: ['/dashboard/calendar'],
+    matchPaths: ['/dashboard/users'],
   },
   {
     href: '/dashboard/settings',
-    label: 'Settings',
-    icon: Settings,
-    matchPaths: ['/dashboard/settings'],
+    label: 'More',
+    icon: MoreHorizontal,
+    matchPaths: [
+      '/dashboard/settings',
+      '/dashboard/assignments',
+      '/dashboard/calendar',
+      '/dashboard/stats',
+      '/dashboard/notifications',
+    ],
   },
 ];
 
@@ -87,7 +93,7 @@ interface MobileBottomNavProps {
 
 /**
  * Fixed bottom navigation bar for mobile devices
- * Shows 5 tabs: Dashboard, History, Students, Calendar, Settings
+ * Shows 5 tabs: Home, Songs, Lessons, Users, More
  */
 function MobileBottomNav({ className }: MobileBottomNavProps) {
   const pathname = usePathname();
