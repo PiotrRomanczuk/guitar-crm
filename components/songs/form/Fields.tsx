@@ -7,6 +7,7 @@ import { SongFormData } from './helpers';
 import SpotifySearch from './SpotifySearch';
 import { SpotifyTrack } from '@/types/spotify';
 import FieldGroup from './FieldGroup';
+import CategoryCombobox from './CategoryCombobox';
 
 interface Props {
   formData: SongFormData;
@@ -86,14 +87,11 @@ export default function SongFormFields({
           />
         </div>
 
-        <SongFormFieldText
-          label="Category"
-          id="category"
+        <CategoryCombobox
           value={formData.category}
           error={errors.category}
           onChange={(value) => onChange('category', value)}
           onBlur={() => onBlur('category')}
-          placeholder="e.g. Rock, Pop, Folk"
         />
       </FieldGroup>
 
