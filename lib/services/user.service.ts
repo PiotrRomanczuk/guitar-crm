@@ -10,9 +10,9 @@
  * - Students: Can view self only
  *
  * Part of Phase 1 (Foundation) - Users Module Security & Architecture Cleanup
+ *
+ * Note: No 'use server' directive - these are utility functions used in API routes
  */
-
-'use server';
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
