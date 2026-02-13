@@ -82,7 +82,7 @@ export default async function SongList({ searchParams }: SongListProps) {
   }
 
   // Transform songs: calculate stats and add status fields for student filtering
-  const songs = rawSongs?.map((rawSong) => {
+  const songs = (rawSongs?.map((rawSong) => {
     const { lesson_songs, ...song } = rawSong as unknown as Record<string, unknown> & {
       lesson_songs?: Array<{
         id: string;
@@ -134,7 +134,7 @@ export default async function SongList({ searchParams }: SongListProps) {
       };
     }
     return { ...song, stats };
-  }) || [] as unknown as Song[];
+  }) || []) as unknown as Song[];
 
   // Fetch students for filter (only if admin or teacher)
   let students: { id: string; full_name: string | null }[] = [];
