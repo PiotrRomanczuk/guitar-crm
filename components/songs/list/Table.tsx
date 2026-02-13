@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import DeleteConfirmationDialog from '../actions/DeleteConfirmationDialog';
+import QuickAssignDialog from './QuickAssignDialog';
 import type { Song, SongWithStatus } from '@/components/songs/types';
 import {
   Table,
@@ -16,7 +17,14 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Music } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Trash2, Music, Plus, MoreHorizontal, Eye } from 'lucide-react';
 import StatusSelect from './StatusSelect';
 import EmptyState from '@/components/shared/EmptyState';
 import StatusBadge, { getStatusVariant } from '@/components/shared/StatusBadge';
@@ -41,6 +49,7 @@ export default function SongListTable({
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [assignmentCount, setAssignmentCount] = useState<number>(0);
   const [checkingId, setCheckingId] = useState<string | null>(null);
+  const [assignDialogSong, setAssignDialogSong] = useState<Song | null>(null);
 
   const handleDeleteClick = async (song: Song) => {
     setCheckingId(song.id);
@@ -180,27 +189,63 @@ export default function SongListTable({
                 )}
               </div>
 
-              <div className="pt-2 border-t border-border flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">
-                  {selectedStudentId ? 'Status' : 'Level'}
-                </span>
-                <div>
-                  {selectedStudentId && (song as SongWithStatus).lesson_song_id ? (
-                    <StatusSelect
-                      lessonSongId={(song as SongWithStatus).lesson_song_id!}
-                      currentStatus={(song as SongWithStatus).status || 'to_learn'}
-                    />
-                  ) : selectedStudentId ? (
-                    <Badge
-                      variant="outline"
-                      className="bg-muted text-muted-foreground border-border"
+              <div className="pt-2 border-t border-border space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    {selectedStudentId ? 'Status' : 'Level'}
+                  </span>
+                  <div>
+                    {selectedStudentId && (song as SongWithStatus).lesson_song_id ? (
+                      <StatusSelect
+                        lessonSongId={(song as SongWithStatus).lesson_song_id!}
+                        currentStatus={(song as SongWithStatus).status || 'to_learn'}
+                      />
+                    ) : selectedStudentId ? (
+                      <Badge
+                        variant="outline"
+                        className="bg-muted text-muted-foreground border-border"
+                      >
+                        Not Assigned
+                      </Badge>
+                    ) : (
+                      <StatusBadge variant={getStatusVariant(song.level)}>
+                        {song.level || 'Unknown'}
+                      </StatusBadge>
+                    )}
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAssignDialogSong(song);
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Assign to Lesson
+                  </Button>
+                  {canDelete && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(song);
+                      }}
+                      disabled={deletingSongId === song.id || checkingId === song.id}
+                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                     >
-                      Not Assigned
-                    </Badge>
-                  ) : (
-                    <StatusBadge variant={getStatusVariant(song.level)}>
-                      {song.level || 'Unknown'}
-                    </StatusBadge>
+                      {deletingSongId === song.id || checkingId === song.id ? (
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
                   )}
                 </div>
               </div>
@@ -292,21 +337,54 @@ export default function SongListTable({
                     <TableCell className="text-muted-foreground">{song.key}</TableCell>
                     {canDelete && (
                       <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-11 w-11 sm:h-8 sm:w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                          data-testid="song-delete-button"
-                          onClick={() => handleDeleteClick(song)}
-                          disabled={deletingSongId === song.id || checkingId === song.id}
-                        >
-                          {deletingSongId === song.id || checkingId === song.id ? (
-                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                          <span className="sr-only">Delete {song.title}</span>
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Open menu for {song.title}</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setAssignDialogSong(song);
+                              }}
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Quick Assign to Lesson
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/dashboard/songs/${song.id}`);
+                              }}
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteClick(song);
+                              }}
+                              disabled={deletingSongId === song.id || checkingId === song.id}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              {deletingSongId === song.id || checkingId === song.id ? (
+                                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                              ) : (
+                                <Trash2 className="mr-2 h-4 w-4" />
+                              )}
+                              Delete Song
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     )}
                   </TableRow>
@@ -327,6 +405,18 @@ export default function SongListTable({
           onClose={handleCancelDelete}
           isDeleting={deletingSongId === songToDelete.id}
           error={deleteError}
+        />
+      )}
+
+      {assignDialogSong && (
+        <QuickAssignDialog
+          isOpen={!!assignDialogSong}
+          song={assignDialogSong}
+          onClose={() => setAssignDialogSong(null)}
+          onSuccess={() => {
+            setAssignDialogSong(null);
+            router.refresh();
+          }}
         />
       )}
     </>

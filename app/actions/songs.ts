@@ -83,3 +83,83 @@ export async function getExistingCategories(): Promise<CategoryWithCount[]> {
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count);
 }
+
+export interface QuickAssignResult {
+  success: boolean;
+  error?: string;
+  isUpdate?: boolean;
+}
+
+/**
+ * Quick assign a song to a lesson
+ * Creates lesson_song relationship with initial status
+ * If song already in lesson, updates status instead (UPSERT)
+ */
+export async function quickAssignSongToLesson(
+  songId: string,
+  lessonId: string,
+  initialStatus: string = 'to_learn'
+): Promise<QuickAssignResult> {
+  const { isAdmin, isTeacher } = await getUserWithRolesSSR();
+
+  if (!isAdmin && !isTeacher) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
+  // Validate status
+  const parsed = SongStatusEnum.safeParse(initialStatus);
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: `Invalid status: ${initialStatus}. Must be one of: ${SongStatusEnum.options.join(', ')}`
+    };
+  }
+
+  const supabase = await createClient();
+
+  // Check if lesson exists and belongs to teacher (RLS will handle this)
+  const { data: lesson, error: lessonError } = await supabase
+    .from('lessons')
+    .select('id')
+    .eq('id', lessonId)
+    .single();
+
+  if (lessonError || !lesson) {
+    return { success: false, error: 'Lesson not found or access denied' };
+  }
+
+  // Check if song already exists in this lesson
+  const { data: existing } = await supabase
+    .from('lesson_songs')
+    .select('id')
+    .eq('lesson_id', lessonId)
+    .eq('song_id', songId)
+    .maybeSingle();
+
+  const isUpdate = !!existing;
+
+  // UPSERT: Insert if new, update if exists
+  const { error } = await supabase
+    .from('lesson_songs')
+    .upsert(
+      {
+        lesson_id: lessonId,
+        song_id: songId,
+        status: parsed.data,
+      },
+      {
+        onConflict: 'lesson_id,song_id',
+      }
+    );
+
+  if (error) {
+    console.error('Error assigning song to lesson:', error);
+    return { success: false, error: 'Failed to assign song' };
+  }
+
+  // Revalidate both the lesson detail page and songs page
+  revalidatePath(`/dashboard/lessons/${lessonId}`);
+  revalidatePath('/dashboard/songs');
+
+  return { success: true, isUpdate };
+}
