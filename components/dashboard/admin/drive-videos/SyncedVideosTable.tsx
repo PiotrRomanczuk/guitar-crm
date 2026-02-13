@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Pencil, Trash2, Check, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { QualityIcons } from './QualityIcons';
 
 interface SongInfo {
   id: string;
@@ -41,6 +42,11 @@ export interface SyncedVideo {
   mime_type: string;
   created_at: string;
   songs: SongInfo;
+  is_recording_correct: boolean;
+  is_well_lit: boolean;
+  mic_type: 'iphone' | 'external' | null;
+  is_audio_mixed: boolean;
+  is_video_edited: boolean;
 }
 
 interface SyncedVideosTableProps {
@@ -129,6 +135,7 @@ export function SyncedVideosTable({ videos, onVideoUpdated, onVideoDeleted }: Sy
               <TableHead>Video Title</TableHead>
               <TableHead>Filename</TableHead>
               <TableHead className="w-[80px]">Size</TableHead>
+              <TableHead className="w-[200px]">Quality</TableHead>
               <TableHead className="w-[100px] text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -170,6 +177,9 @@ export function SyncedVideosTable({ videos, onVideoUpdated, onVideoDeleted }: Sy
                 </TableCell>
                 <TableCell>
                   <Badge variant="secondary" className="text-xs">{formatFileSize(video.file_size_bytes)}</Badge>
+                </TableCell>
+                <TableCell>
+                  <QualityIcons video={video} onVideoUpdated={onVideoUpdated} />
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex gap-1 justify-end">
@@ -217,6 +227,7 @@ export function SyncedVideosTable({ videos, onVideoUpdated, onVideoDeleted }: Sy
               <Badge variant="secondary" className="text-xs shrink-0">{formatFileSize(video.file_size_bytes)}</Badge>
             </div>
             <div className="text-xs text-muted-foreground font-mono truncate">{video.filename}</div>
+            <QualityIcons video={video} onVideoUpdated={onVideoUpdated} />
             {editingId === video.id ? (
               <div className="flex items-center gap-1">
                 <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="h-8 text-sm" autoFocus />
