@@ -50,6 +50,30 @@ export const SongInputSchema = z.object({
   short_title: z.string().max(50, 'Short title too long').optional(),
 });
 
+// Song draft schema (minimal validation for quick capture)
+export const SongDraftSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
+  author: z.string().max(100, 'Author name too long').optional(),
+  level: DifficultyLevelEnum.optional(),
+  key: MusicKeyEnum.optional(),
+  chords: z.string().optional(),
+  ultimate_guitar_link: URLField,
+  youtube_url: URLField,
+  gallery_images: z.array(z.string()).optional(),
+  cover_image_url: URLField.optional().or(z.literal('')).nullable(),
+  audio_files: z.record(z.string(), z.string()).optional(),
+  spotify_link_url: URLField.optional().or(z.literal('')),
+  capo_fret: z.number().int().min(0).max(20).optional().nullable(),
+  strumming_pattern: z.string().max(100).optional().nullable(),
+  category: z.string().max(50).optional().nullable(),
+  tempo: z.number().int().min(0).max(300).optional().nullable(),
+  time_signature: z.number().int().min(1).max(16).optional().nullable(),
+  duration_ms: z.number().int().min(0).optional().nullable(),
+  release_year: z.number().int().min(1500).max(2100).optional().nullable(),
+  short_title: z.string().max(50, 'Short title too long').optional(),
+  is_draft: z.literal(true),
+});
+
 // Song update schema (for partial updates)
 export const SongUpdateSchema = SongInputSchema.partial().extend({
   id: z.string().uuid('Song ID is required'),

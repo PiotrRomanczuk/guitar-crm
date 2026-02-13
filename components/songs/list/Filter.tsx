@@ -3,6 +3,7 @@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Search, X } from 'lucide-react';
 import {
   Select,
@@ -64,7 +65,8 @@ export default function SongListFilter({ students, categories, authors }: Props)
     !!searchParams.get('studentId') ||
     !!searchParams.get('key') ||
     !!searchParams.get('category') ||
-    !!searchParams.get('author');
+    !!searchParams.get('author') ||
+    searchParams.get('showDrafts') === 'true';
 
   return (
     <div
@@ -195,6 +197,25 @@ export default function SongListFilter({ students, categories, authors }: Props)
             </Select>
           </div>
         )}
+
+        {/* Show Drafts Checkbox */}
+        <div className="flex items-end">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="show-drafts"
+              checked={searchParams.get('showDrafts') === 'true'}
+              onCheckedChange={(checked) =>
+                handleFilterChange('showDrafts', checked ? 'true' : null)
+              }
+            />
+            <Label
+              htmlFor="show-drafts"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            >
+              Show Drafts
+            </Label>
+          </div>
+        </div>
 
         {/* Reset Button */}
         <div className="flex items-end">

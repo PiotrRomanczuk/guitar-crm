@@ -1,12 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import { SongInputSchema, Song } from '@/schemas/SongSchema';
+import { SongInputSchema, SongDraftSchema, Song } from '@/schemas/SongSchema';
 import SongFormFields from './Fields';
+import MobileSongForm from './MobileSongForm';
 import { createFormData, clearFieldError, parseZodErrors, SongFormData } from './helpers';
 import { SpotifyTrack } from '@/types/spotify';
 import { useRouter } from 'next/navigation';
+import { useMediaQuery } from '@/hooks/use-media-query';
+import { toast } from 'sonner';
 import FormActions from '@/components/shared/FormActions';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 interface Props {
   mode: 'create' | 'edit';
@@ -38,16 +43,29 @@ async function saveSong(mode: 'create' | 'edit', data: unknown, songId?: string)
 
 export default function SongFormContent({ mode, song, onSuccess }: Props) {
   const router = useRouter();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const [formData, setFormData] = useState(createFormData(song));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [sectionsState, setSectionsState] = useState({
+    resources: false,
+    musical: false,
+  });
 
   const handleChange = (field: string, value: SongFormData[keyof SongFormData]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => clearFieldError(prev, field));
     }
+  };
+
+  const handleToggleSection = (section: 'resources' | 'musical') => {
+    setSectionsState((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
   };
 
   const handleBlur = (field: string) => {
@@ -145,6 +163,40 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
     }
   };
 
+  const handleSaveDraft = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsSavingDraft(true);
+    setErrors({});
+    setSubmitError(null);
+
+    try {
+      // Validate as draft (only title required)
+      const draftData = { ...formData, is_draft: true };
+      const validatedData = SongDraftSchema.parse(draftData);
+
+      const { error, data } = await saveSong(mode, validatedData, song?.id);
+      if (error) {
+        toast.error('Failed to save draft');
+        return;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const savedSongId = (data as any)?.song?.id || song?.id;
+      toast.success('Draft saved successfully');
+      onSuccess?.(savedSongId);
+    } catch (err) {
+      const fieldErrors = parseZodErrors(err);
+      if (Object.keys(fieldErrors).length > 0) {
+        setErrors(fieldErrors);
+        toast.error('Please fill required fields');
+      } else {
+        toast.error('Failed to save draft');
+      }
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {submitError && (
@@ -153,21 +205,57 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
         </div>
       )}
 
-      <SongFormFields
-        formData={formData}
-        errors={errors}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        onSpotifySelect={handleSpotifySelect}
-      />
+      {isMobile ? (
+        <MobileSongForm
+          formData={formData}
+          errors={errors}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          onSpotifySelect={handleSpotifySelect}
+        />
+      ) : (
+        <>
+          <SongFormFields
+            formData={formData}
+            errors={errors}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onSpotifySelect={handleSpotifySelect}
+            sectionsState={sectionsState}
+            onToggleSection={handleToggleSection}
+          />
 
-      <FormActions
-        isSubmitting={isSubmitting}
-        submitText={mode === 'create' ? 'Create Song' : 'Update Song'}
-        submittingText="Saving..."
-        onCancel={() => router.back()}
-        showCancel
-      />
+          <div className="flex flex-col-reverse sm:flex-row gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+              disabled={isSubmitting || isSavingDraft}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleSaveDraft}
+              disabled={isSubmitting || isSavingDraft || !formData.title}
+              className="w-full sm:w-auto"
+            >
+              {isSavingDraft && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save as Draft
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting || isSavingDraft}
+              className="w-full sm:w-auto"
+            >
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting ? 'Saving...' : (mode === 'create' ? 'Create Song' : 'Update Song')}
+            </Button>
+          </div>
+        </>
+      )}
     </form>
   );
 }

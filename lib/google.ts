@@ -21,6 +21,7 @@ export const getGoogleAuthUrl = (redirectUri?: string) => {
   const scopes = [
     'https://www.googleapis.com/auth/calendar',
     'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/drive.file',
   ];
 
   return oauth2Client.generateAuthUrl({

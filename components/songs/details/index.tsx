@@ -6,6 +6,7 @@ import SongDetailInfo from './Info';
 import SongDetailActions from './Actions';
 import YouTubeEmbed from './YouTubeEmbed';
 import ImageGallery from './ImageGallery';
+import VideoGallery from '../videos/VideoGallery';
 import type { Song } from '../types';
 import { createClient } from '@/lib/supabase/server';
 
@@ -71,6 +72,7 @@ export default async function SongDetail({ songId, isAdmin = false, isTeacher = 
         <SongDetailInfo song={song} />
         <YouTubeEmbed url={song.youtube_url} />
         <ImageGallery images={song.gallery_images} />
+        <VideoGallery songId={song.id} isTeacher={isAdmin || isTeacher} />
       </div>
     </div>
   );
