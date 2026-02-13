@@ -6,6 +6,8 @@
  * - Unread count tracking
  * - Mark as read functionality
  * - Optimistic updates for instant UI feedback
+ *
+ * @ts-nocheck - Temporary: in_app_notifications table not yet in database.types.ts
  */
 
 'use client';
