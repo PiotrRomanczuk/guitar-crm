@@ -17,6 +17,12 @@ interface AIStreamingStatusProps {
   reasoning?: string;
   /** Estimated total tokens (for progress calculation) */
   estimatedTotal?: number;
+  /** Progress percentage (0-100) */
+  progress?: number;
+  /** Queue position */
+  queuePosition?: number;
+  /** Queue message */
+  queueMessage?: string;
   /** Error message (if status is 'error') */
   error?: Error | null;
   /** Callback when cancel button is clicked */
@@ -53,6 +59,9 @@ export function AIStreamingStatus({
   tokenCount = 0,
   reasoning,
   estimatedTotal,
+  progress: providedProgress,
+  queuePosition,
+  queueMessage,
   error,
   onCancel,
   onRetry,
@@ -60,8 +69,10 @@ export function AIStreamingStatus({
 }: AIStreamingStatusProps) {
   const [isReasoningOpen, setIsReasoningOpen] = React.useState(false);
 
-  // Calculate progress percentage
-  const progress = estimatedTotal && tokenCount > 0
+  // Use provided progress or calculate from tokens
+  const progress = providedProgress !== undefined
+    ? providedProgress
+    : estimatedTotal && tokenCount > 0
     ? Math.min((tokenCount / estimatedTotal) * 100, 100)
     : undefined;
 
@@ -100,6 +111,7 @@ export function AIStreamingStatus({
 
           {/* Status Text */}
           <span className="text-sm font-medium">
+            {status === 'queued' && (queueMessage || 'Queued...')}
             {status === 'connecting' && 'Connecting...'}
             {status === 'streaming' && 'Streaming response...'}
             {status === 'complete' && 'Complete'}
@@ -116,7 +128,7 @@ export function AIStreamingStatus({
         </div>
 
         {/* Cancel Button */}
-        {(status === 'connecting' || status === 'streaming') && onCancel && (
+        {(status === 'queued' || status === 'connecting' || status === 'streaming') && onCancel && (
           <Button
             variant="ghost"
             size="icon"
