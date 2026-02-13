@@ -1939,6 +1939,24 @@ export type Database = {
         | 'A#m'
         | 'Bbm'
         | 'Bm';
+      notification_type:
+        | 'lesson_reminder_24h'
+        | 'lesson_recap'
+        | 'lesson_cancelled'
+        | 'lesson_rescheduled'
+        | 'assignment_created'
+        | 'assignment_due_reminder'
+        | 'assignment_overdue_alert'
+        | 'assignment_completed'
+        | 'song_mastery_achievement'
+        | 'milestone_reached'
+        | 'student_welcome'
+        | 'trial_ending_reminder'
+        | 'teacher_daily_summary'
+        | 'weekly_progress_digest'
+        | 'calendar_conflict_alert'
+        | 'webhook_expiration_notice'
+        | 'admin_error_alert';
       spotify_match_status: 'pending' | 'approved' | 'rejected' | 'auto_applied';
       student_pipeline_status: 'lead' | 'trial' | 'active' | 'inactive' | 'churned';
       user_role: 'admin' | 'teacher' | 'student';
