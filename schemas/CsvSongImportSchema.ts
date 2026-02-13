@@ -6,8 +6,10 @@ const europeanDateRegex = /^\d{2}\.\d{2}\.\d{4}$/;
 export const CsvSongRowSchema = z.object({
   date: z
     .string()
-    .min(1, 'Date is required')
-    .regex(europeanDateRegex, 'Date must be in DD.MM.YYYY format'),
+    .refine(
+      (val) => val === '' || europeanDateRegex.test(val),
+      'Date must be empty or in DD.MM.YYYY format'
+    ),
   title: z.string().min(1, 'Title is required').max(500, 'Title too long'),
   author: z.string().max(500, 'Author too long').optional().default(''),
 });

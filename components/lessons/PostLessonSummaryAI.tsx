@@ -1,12 +1,15 @@
 'use client';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Sparkles, Loader2, Copy, Check } from 'lucide-react';
+import { Sparkles, Copy, Check } from 'lucide-react';
 import { generatePostLessonSummaryStream } from '@/app/actions/ai';
+import { useAIStream } from '@/hooks/useAIStream';
+import { AIAssistButton } from '@/components/lessons/shared/AIAssistButton';
+import { AIStreamingStatus } from '@/components/ai';
 
 interface Props {
   studentName: string;
@@ -31,39 +34,45 @@ export function PostLessonSummaryAI({
   teacherNotes = '',
   onSummaryGenerated,
 }: Props) {
-  const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const handleGenerate = async () => {
-    setLoading(true);
-    setSummary(''); // Clear previous summary
+  // Streaming action wrapper
+  const streamAction = useCallback(
+    async function* (params: any, signal?: AbortSignal) {
+      yield* generatePostLessonSummaryStream(params);
+    },
+    []
+  );
 
-    try {
-      const streamGenerator = generatePostLessonSummaryStream({
-        studentName,
-        studentId,
-        songTitle: songsPracticed.join(', '),
-        lessonDuration: `${duration} minutes`,
-        skillsWorked: newTechniques.join(', '),
-        challengesNoted: struggles.join(', '),
-        nextSteps: successes.join(', '),
-      });
-
-      let currentSummary = '';
-      for await (const chunk of streamGenerator) {
-        currentSummary = String(chunk);
-        setSummary(currentSummary);
-        onSummaryGenerated?.(currentSummary);
-      }
-    } catch (error) {
-      console.error('Error generating post-lesson summary:', error);
+  // AI streaming hook
+  const aiStream = useAIStream(streamAction, {
+    onChunk: (content) => {
+      setSummary(content);
+      onSummaryGenerated?.(content);
+    },
+    onError: (error) => {
+      console.error('[PostLessonSummaryAI] Streaming error:', error);
       const errorMsg = 'Error generating summary. Please try again.';
       setSummary(errorMsg);
       onSummaryGenerated?.(errorMsg);
-    } finally {
-      setLoading(false);
-    }
+    },
+  });
+
+  const handleGenerate = async () => {
+    if (aiStream.isStreaming) return;
+
+    setSummary(''); // Clear previous summary
+
+    await aiStream.start({
+      studentName,
+      studentId,
+      songTitle: songsPracticed.join(', '),
+      lessonDuration: `${duration} minutes`,
+      skillsWorked: newTechniques.join(', '),
+      challengesNoted: struggles.join(', '),
+      nextSteps: successes.join(', '),
+    });
   };
 
   const handleCopy = async () => {
@@ -89,19 +98,31 @@ export function PostLessonSummaryAI({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex justify-between items-center">
-          <Button
+          <AIAssistButton
             onClick={handleGenerate}
-            disabled={loading || !canGenerate}
+            disabled={!canGenerate}
+            label="Generate Summary"
+            status={aiStream.status}
+            tokenCount={aiStream.tokenCount}
+            onCancel={aiStream.cancel}
             className="w-full sm:w-auto"
-          >
-            {loading ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Sparkles className="w-4 h-4 mr-2" />
-            )}
-            Generate Summary
-          </Button>
+          />
         </div>
+
+        {/* Streaming Status */}
+        {(aiStream.isStreaming || aiStream.isError) && (
+          <AIStreamingStatus
+            status={aiStream.status}
+            tokenCount={aiStream.tokenCount}
+            reasoning={aiStream.reasoning}
+            error={aiStream.error}
+            onCancel={aiStream.cancel}
+            onRetry={() => {
+              aiStream.reset();
+              handleGenerate();
+            }}
+          />
+        )}
 
         {summary && (
           <div className="space-y-2">

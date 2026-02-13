@@ -13,8 +13,8 @@ import { parseEuropeanDate, groupRowsByDate } from './import-csv-songs.helpers';
 export async function importCsvSongs(
   input: unknown
 ): Promise<CsvSongImportResult> {
-  const { user, isTeacher } = await getUserWithRolesSSR();
-  if (!user || !isTeacher) {
+  const { user, isTeacher, isAdmin } = await getUserWithRolesSSR();
+  if (!user || (!isTeacher && !isAdmin)) {
     return { success: false, error: 'Unauthorized' };
   }
 

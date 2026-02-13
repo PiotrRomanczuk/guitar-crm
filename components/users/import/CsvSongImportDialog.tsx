@@ -34,7 +34,7 @@ export function CsvSongImportDialog({ studentId, open, onOpenChange }: CsvSongIm
   const {
     step, rows, parseErrors, previewResults, importResult,
     isLoading, error,
-    handleCsvParse, handleAiParse, goToPreview, runImport, reset,
+    handleCsvParse, handleAiParse, goToPreview, runImport, reset, setRows,
   } = useCsvSongImport(studentId);
 
   const handleClose = () => {
@@ -63,6 +63,7 @@ export function CsvSongImportDialog({ studentId, open, onOpenChange }: CsvSongIm
             error={error}
             onCsvParse={handleCsvParse}
             onAiParse={handleAiParse}
+            onRowsChange={setRows}
             onNext={goToPreview}
           />
         )}
