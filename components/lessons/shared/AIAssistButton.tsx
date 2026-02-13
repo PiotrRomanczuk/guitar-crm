@@ -2,7 +2,9 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, X, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import type { AIStreamStatus } from '@/hooks/useAIStream';
 
 interface AIAssistButtonProps {
   onClick?: () => void;
@@ -10,11 +12,23 @@ interface AIAssistButtonProps {
   loading?: boolean;
   label?: string;
   className?: string;
+  /** Streaming status (optional, for enhanced streaming UI) */
+  status?: AIStreamStatus;
+  /** Token count to display (optional) */
+  tokenCount?: number;
+  /** Callback when cancel is clicked (optional, shown when streaming) */
+  onCancel?: () => void;
 }
 
 /**
  * AI Assist button with gold gradient glow and shimmer animation on hover
  * Used for AI-powered features like generating lesson plans, summaries, song suggestions
+ *
+ * Enhanced with streaming support:
+ * - Shows status (connecting/streaming/complete)
+ * - Displays token count during streaming
+ * - Cancel button (X icon) when streaming
+ * - Shimmer animation during active streaming
  */
 function AIAssistButton({
   onClick,
@@ -22,12 +36,28 @@ function AIAssistButton({
   loading = false,
   label = 'AI Assist',
   className,
+  status,
+  tokenCount,
+  onCancel,
 }: AIAssistButtonProps) {
+  // Determine if actively streaming
+  const isStreaming = status === 'streaming' || status === 'connecting';
+  const isActive = loading || isStreaming;
+
+  // Get display label based on status
+  const getLabel = () => {
+    if (status === 'connecting') return 'Connecting...';
+    if (status === 'streaming') return 'Streaming...';
+    if (status === 'complete') return 'Complete';
+    if (loading) return 'Working...';
+    return label;
+  };
+
   return (
     <button
       type="button"
-      onClick={onClick}
-      disabled={disabled || loading}
+      onClick={isStreaming && onCancel ? onCancel : onClick}
+      disabled={disabled || (loading && !onCancel)}
       className={cn(
         'relative group flex items-center gap-2 px-4 py-2 rounded-full',
         'bg-gradient-to-r from-primary/10 to-warning/10',
@@ -37,34 +67,61 @@ function AIAssistButton({
         'shadow-[0_0_15px_hsl(var(--primary)/0.15)]',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         'overflow-hidden',
+        isStreaming && 'animate-shimmer', // Shimmer during streaming
         className
       )}
     >
       {/* Icon */}
-      <Sparkles
-        className={cn(
-          'h-4 w-4 text-primary',
-          'group-hover:scale-110 transition-transform duration-300',
-          loading && 'animate-spin'
-        )}
-      />
+      {isStreaming && onCancel ? (
+        <X className="h-4 w-4 text-primary" />
+      ) : (
+        <Sparkles
+          className={cn(
+            'h-4 w-4 text-primary',
+            'group-hover:scale-110 transition-transform duration-300',
+            isActive && 'animate-pulse'
+          )}
+        />
+      )}
 
       {/* Label */}
       <span className="text-xs font-bold text-primary uppercase tracking-wide">
-        {loading ? 'Working...' : label}
+        {getLabel()}
       </span>
 
-      {/* Shimmer effect */}
-      <div
-        className={cn(
-          'absolute inset-0 rounded-full',
-          'bg-gradient-to-r from-transparent via-white/20 to-transparent',
-          'translate-x-[-100%] group-hover:translate-x-[100%]',
-          'transition-transform duration-700',
-          'pointer-events-none'
-        )}
-        aria-hidden="true"
-      />
+      {/* Token Count Badge */}
+      {tokenCount !== undefined && tokenCount > 0 && isStreaming && (
+        <Badge variant="secondary" className="text-xs ml-1">
+          {tokenCount}
+        </Badge>
+      )}
+
+      {/* Shimmer effect (on hover when not streaming) */}
+      {!isStreaming && (
+        <div
+          className={cn(
+            'absolute inset-0 rounded-full',
+            'bg-gradient-to-r from-transparent via-white/20 to-transparent',
+            'translate-x-[-100%] group-hover:translate-x-[100%]',
+            'transition-transform duration-700',
+            'pointer-events-none'
+          )}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Streaming shimmer animation */}
+      {isStreaming && (
+        <div
+          className={cn(
+            'absolute inset-0 rounded-full',
+            'bg-gradient-to-r from-transparent via-primary/30 to-transparent',
+            'animate-shimmer-slide',
+            'pointer-events-none'
+          )}
+          aria-hidden="true"
+        />
+      )}
     </button>
   );
 }

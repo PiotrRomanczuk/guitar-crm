@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   CardContent,
@@ -24,6 +24,8 @@ import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
 import { Send, Minimize2, Maximize2, Sparkles, Trash2 } from 'lucide-react';
 import type { AIModelInfo } from '@/lib/ai';
 import { useAIConversation } from '@/hooks/useAIConversation';
+import { useAIStream } from '@/hooks/useAIStream';
+import { AIStreamingStatus } from '@/components/ai';
 import { AIAssistantCardMessages } from './AIAssistantCard.Messages';
 import { AIConversationHistory } from './AIConversationHistory';
 
@@ -57,8 +59,6 @@ interface AIAssistantCardProps {
 export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState<Message[]>(() => [createWelcomeMessage(firstName)]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const [selectedModel, setSelectedModel] = useState(DEFAULT_AI_MODEL);
   const [isMinimized, setIsMinimized] = useState(false);
   const [availableModels, setAvailableModels] = useState<AIModelInfo[]>([]);
@@ -75,6 +75,36 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
     clearCurrentConversation,
     removeConversation,
   } = useAIConversation();
+
+  // Streaming action wrapper
+  const streamAction = useCallback(
+    async function* (params: { prompt: string; model: string; conversationId?: string }, signal?: AbortSignal) {
+      yield* generateAIResponseStream(params.prompt, params.model, params.conversationId, signal);
+    },
+    []
+  );
+
+  // AI streaming hook
+  const aiStream = useAIStream(streamAction, {
+    onChunk: (content) => {
+      // Update the last assistant message with streaming content
+      setMessages((prev) =>
+        prev.map((msg, i) =>
+          i === prev.length - 1 && msg.role === 'assistant'
+            ? { ...msg, content }
+            : msg
+        )
+      );
+    },
+    onComplete: () => {
+      refreshConversationList();
+    },
+    onError: (error) => {
+      console.error('[AIAssistantCard] Streaming error:', error);
+      // Remove the empty assistant message on error
+      setMessages((prev) => prev.slice(0, -1));
+    },
+  });
 
   useEffect(() => {
     const fetchModels = async () => {
@@ -94,12 +124,15 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
     const textToSend = customPrompt || prompt;
     if (!textToSend.trim()) return;
 
+    // Don't allow multiple simultaneous requests
+    if (aiStream.isStreaming) return;
+
     // Ensure we have a conversation
     let activeConvId = conversationId;
     if (!activeConvId) {
       activeConvId = await startNewConversation(selectedModel);
       if (!activeConvId) {
-        setError('Failed to create conversation.');
+        console.error('[AIAssistantCard] Failed to create conversation');
         return;
       }
     }
@@ -107,36 +140,22 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
     const userMessage: Message = { role: 'user', content: textToSend, timestamp: new Date() };
     setMessages((prev) => [...prev, userMessage]);
     setPrompt('');
-    setIsLoading(true);
-    setError('');
 
     const assistantMessage: Message = { role: 'assistant', content: '', timestamp: new Date() };
     setMessages((prev) => [...prev, assistantMessage]);
 
-    try {
-      const stream = generateAIResponseStream(textToSend, selectedModel, activeConvId);
-      for await (const chunk of stream) {
-        setMessages((prev) =>
-          prev.map((msg, i) =>
-            i === prev.length - 1 && msg.role === 'assistant'
-              ? { ...msg, content: String(chunk) }
-              : msg
-          )
-        );
-      }
-      refreshConversationList();
-    } catch {
-      setError('An unexpected error occurred.');
-      setMessages((prev) => prev.slice(0, -1));
-    } finally {
-      setIsLoading(false);
-    }
+    // Start streaming
+    await aiStream.start({
+      prompt: textToSend,
+      model: selectedModel,
+      conversationId: activeConvId,
+    });
   };
 
   const clearConversation = () => {
     clearCurrentConversation();
     setMessages([createWelcomeMessage(firstName)]);
-    setError('');
+    aiStream.reset();
     setPrompt('');
   };
 
@@ -145,7 +164,7 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
     if (loaded.length > 0) {
       setMessages(loaded);
     }
-    setError('');
+    aiStream.reset();
     setPrompt('');
   };
 
@@ -226,14 +245,31 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
           <CardContent className="flex-1 flex flex-col gap-4 min-h-75 max-h-125">
             <AIAssistantCardMessages
               messages={messages}
-              isLoading={isLoading}
+              isLoading={aiStream.isStreaming}
               suggestedPrompts={SUGGESTED_PROMPTS}
               onSuggestedPromptClick={handleSubmit}
             />
-            {error && (
-              <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm">
-                {error}
-              </div>
+
+            {/* Streaming Status */}
+            {(aiStream.isStreaming || aiStream.isError) && (
+              <AIStreamingStatus
+                status={aiStream.status}
+                tokenCount={aiStream.tokenCount}
+                reasoning={aiStream.reasoning}
+                error={aiStream.error}
+                onCancel={aiStream.cancel}
+                onRetry={() => {
+                  aiStream.reset();
+                  // Re-submit the last user message
+                  const lastUserMessage = messages
+                    .slice()
+                    .reverse()
+                    .find((m) => m.role === 'user');
+                  if (lastUserMessage) {
+                    handleSubmit(lastUserMessage.content);
+                  }
+                }}
+              />
             )}
           </CardContent>
           <CardFooter className="flex gap-2 border-t pt-4">
@@ -251,7 +287,7 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
             />
             <Button
               onClick={() => handleSubmit()}
-              disabled={isLoading || !prompt.trim()}
+              disabled={aiStream.isStreaming || !prompt.trim()}
               className="h-auto self-stretch"
             >
               <Send className="h-4 w-4" />

@@ -19,3 +19,7 @@ export type {
   DatabaseStatusState,
   UseDatabaseStatusReturn,
 } from './useDatabaseStatus';
+
+// AI streaming hook
+export { useAIStream } from './useAIStream';
+export type { AIStreamStatus, UseAIStreamOptions } from './useAIStream';

@@ -72,7 +72,8 @@ async function saveAIGeneration(data: {
 }
 
 /**
- * Unified streaming abstraction for all AI functions
+ * Unified streaming abstraction for all AI functions (LEGACY - fake streaming)
+ * @deprecated Use createAIStreamFromProvider for true streaming
  */
 async function* createAIStream(
   content: string,
@@ -97,6 +98,64 @@ async function* createAIStream(
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
+}
+
+/**
+ * Create a streaming response from an AI provider with true SSE streaming
+ * Falls back to fake streaming if provider doesn't support completeStream()
+ */
+async function* createAIStreamFromProvider(
+  provider: any,
+  request: {
+    model: string;
+    messages: AIMessage[];
+    temperature?: number;
+    maxTokens?: number;
+  },
+  signal?: AbortSignal
+) {
+  // Check if provider supports true streaming
+  if (provider.completeStream && typeof provider.completeStream === 'function') {
+    // Use true SSE streaming
+    let fullContent = '';
+    let fullReasoning = '';
+
+    try {
+      for await (const chunk of provider.completeStream(request, signal)) {
+        // Accumulate content
+        if (chunk.content) {
+          fullContent += chunk.content;
+          yield fullContent; // Yield accumulated content
+        }
+
+        // Accumulate reasoning (for models like DeepSeek R1)
+        if (chunk.reasoning) {
+          fullReasoning += chunk.reasoning;
+        }
+
+        // If stream is done, break
+        if (chunk.done) {
+          break;
+        }
+      }
+
+      return;
+    } catch (error) {
+      // If streaming fails, log error and fall through to non-streaming fallback
+      console.error('[AI Stream] Streaming failed, falling back to non-streaming:', error);
+    }
+  }
+
+  // Fallback: Use non-streaming complete() method + fake streaming
+  const result = await provider.complete(request);
+
+  if (isAIError(result)) {
+    yield `Error: ${result.error}`;
+    return;
+  }
+
+  const content = result.content || 'No response generated.';
+  yield* createAIStream(content, { delayMs: 50, chunkSize: 1 });
 }
 
 /**
@@ -206,14 +265,21 @@ import {
  * - 'auto' (default): Try Ollama first, fallback to OpenRouter
  */
 /**
- * Generate AI response with streaming support
+ * Generate AI response with TRUE streaming support (SSE)
+ * @param prompt - User's message
+ * @param model - AI model to use
+ * @param conversationId - Optional conversation ID for context
+ * @param signal - Optional AbortSignal for cancellation
  */
 export async function* generateAIResponseStream(
   prompt: string,
   model: string = DEFAULT_AI_MODEL,
   conversationId?: string,
+  signal?: AbortSignal,
 ) {
   const startMs = Date.now();
+  let fullContent = '';
+
   try {
     const user = await requireAIAuth();
     await enforceRateLimit(user, 'ai-response-stream');
@@ -250,43 +316,42 @@ export async function* generateAIResponseStream(
 
     messages.push({ role: 'user', content: prompt });
 
-    const result = await provider.complete({
-      model: providerModel,
-      messages,
-      temperature: 0.7,
-    });
+    // Use true streaming helper (falls back to fake streaming if not supported)
+    for await (const chunk of createAIStreamFromProvider(
+      provider,
+      {
+        model: providerModel,
+        messages,
+        temperature: 0.7,
+      },
+      signal
+    )) {
+      // Check if cancelled
+      if (signal?.aborted) {
+        yield `[Cancelled]`;
+        return;
+      }
 
-    if (isAIError(result)) {
-      saveAIGeneration({
-        generationType: 'chat',
-        modelId: providerModel,
-        provider: provider.name?.toLowerCase(),
-        inputParams: { prompt },
-        outputContent: result.error,
-        isSuccessful: false,
-        errorMessage: result.error,
-      });
-      yield `Error: ${result.error}`;
-      return;
+      fullContent = chunk;
+      yield chunk;
     }
 
-    const content = result.content || 'No response generated.';
-
+    // Save generation after streaming completes
+    const latencyMs = Date.now() - startMs;
     saveAIGeneration({
       generationType: 'chat',
       modelId: providerModel,
       provider: provider.name?.toLowerCase(),
       inputParams: { prompt },
-      outputContent: content,
+      outputContent: fullContent,
     });
 
     // Persist conversation messages and track usage (fire-and-forget)
-    const latencyMs = Date.now() - startMs;
     if (conversationId) {
       saveConversationMessages({
         conversationId,
         userMessage: prompt,
-        assistantMessage: content,
+        assistantMessage: fullContent,
         modelId: providerModel,
         latencyMs,
       }).catch((e) => console.error('[AI] saveConversationMessages error:', e));
@@ -294,21 +359,12 @@ export async function* generateAIResponseStream(
     trackAIUsage({ modelId: providerModel, latencyMs }).catch((e) =>
       console.error('[AI] trackAIUsage error:', e),
     );
-
-    // Simulate streaming by yielding words progressively
-    const words = content.split(' ');
-
-    for (let i = 0; i < words.length; i++) {
-      const partial = words.slice(0, i + 1).join(' ');
-      yield partial;
-      await new Promise((resolve) => setTimeout(resolve, 50));
-    }
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Failed to generate AI response.';
     saveAIGeneration({
       generationType: 'chat',
       inputParams: { prompt },
-      outputContent: '',
+      outputContent: fullContent,
       isSuccessful: false,
       errorMessage: errorMsg,
     });

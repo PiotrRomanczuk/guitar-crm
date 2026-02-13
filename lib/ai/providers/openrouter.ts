@@ -11,6 +11,7 @@ import type {
   AICompletionRequest,
   AIResult,
   AIModelInfo,
+  AIStreamChunk,
 } from '../types';
 import { withRetry, AI_PROVIDER_RETRY_CONFIG } from '../retry';
 
@@ -110,6 +111,186 @@ const complete = async (
 };
 
 /**
+ * Performs streaming completion using OpenRouter API with SSE
+ */
+async function* completeStream(
+  config: AIProviderConfig,
+  request: AICompletionRequest,
+  signal?: AbortSignal
+): AsyncGenerator<AIStreamChunk, void, undefined> {
+  if (!config.apiKey) {
+    yield {
+      content: '',
+      finishReason: 'error',
+      done: true,
+    };
+    return;
+  }
+
+  try {
+    const response = await fetch(`${config.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${config.apiKey}`,
+        'Content-Type': 'application/json',
+        ...config.headers,
+      },
+      body: JSON.stringify({
+        model: request.model,
+        messages: request.messages,
+        temperature: request.temperature,
+        max_tokens: request.maxTokens,
+        stream: true, // Enable streaming
+      }),
+      signal: signal || AbortSignal.timeout(config.timeout || 30000),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('[OpenRouter] Streaming API Error:', errorData);
+      yield {
+        content: '',
+        finishReason: 'error',
+        done: true,
+      };
+      return;
+    }
+
+    if (!response.body) {
+      console.error('[OpenRouter] No response body for streaming');
+      yield {
+        content: '',
+        finishReason: 'error',
+        done: true,
+      };
+      return;
+    }
+
+    // Parse SSE stream
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullContent = '';
+    let fullReasoning = '';
+    let usage: AIStreamChunk['usage'] | undefined;
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          break;
+        }
+
+        // Decode chunk and add to buffer
+        buffer += decoder.decode(value, { stream: true });
+
+        // Process complete lines
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+        for (const line of lines) {
+          const trimmedLine = line.trim();
+
+          // Skip empty lines and comments
+          if (!trimmedLine || trimmedLine.startsWith(':')) {
+            continue;
+          }
+
+          // Parse SSE data
+          if (trimmedLine.startsWith('data: ')) {
+            const data = trimmedLine.slice(6); // Remove 'data: ' prefix
+
+            // Check for stream termination
+            if (data === '[DONE]') {
+              yield {
+                content: '',
+                reasoning: fullReasoning || undefined,
+                usage,
+                finishReason: 'stop',
+                done: true,
+              };
+              return;
+            }
+
+            try {
+              const parsed = JSON.parse(data);
+              const choice = parsed.choices?.[0];
+
+              if (!choice) continue;
+
+              // Extract content delta
+              const delta = choice.delta;
+              const contentDelta = delta?.content || '';
+              const reasoningDelta = delta?.reasoning_content || '';
+
+              // Accumulate content
+              if (contentDelta) {
+                fullContent += contentDelta;
+              }
+              if (reasoningDelta) {
+                fullReasoning += reasoningDelta;
+              }
+
+              // Extract usage if available
+              if (parsed.usage) {
+                usage = {
+                  promptTokens: parsed.usage.prompt_tokens,
+                  completionTokens: parsed.usage.completion_tokens,
+                  totalTokens: parsed.usage.total_tokens,
+                };
+              }
+
+              // Extract finish reason
+              const finishReason = choice.finish_reason;
+
+              // Yield chunk
+              if (contentDelta || reasoningDelta || finishReason) {
+                yield {
+                  content: contentDelta,
+                  reasoning: reasoningDelta || undefined,
+                  usage,
+                  finishReason: finishReason || undefined,
+                  done: !!finishReason,
+                };
+              }
+
+              // If stream is finished, return
+              if (finishReason) {
+                return;
+              }
+            } catch (parseError) {
+              console.error('[OpenRouter] Failed to parse SSE chunk:', parseError);
+              // Continue processing other chunks
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  } catch (error) {
+    console.error('[OpenRouter] Streaming request failed:', error);
+
+    // Check if error is due to cancellation
+    if (signal?.aborted) {
+      yield {
+        content: '',
+        finishReason: 'cancelled',
+        done: true,
+      };
+      return;
+    }
+
+    yield {
+      content: '',
+      finishReason: 'error',
+      done: true,
+    };
+  }
+}
+
+/**
  * Checks if OpenRouter is available
  */
 const isAvailable = async (config: AIProviderConfig): Promise<boolean> => {
@@ -126,6 +307,8 @@ export const createOpenRouterProvider = (config?: Partial<AIProviderConfig>): AI
     name: 'OpenRouter' as const,
     listModels: () => listModels(),
     complete: (request: AICompletionRequest) => complete(providerConfig, request),
+    completeStream: (request: AICompletionRequest, signal?: AbortSignal) =>
+      completeStream(providerConfig, request, signal),
     isAvailable: () => isAvailable(providerConfig),
     getConfig: () => ({ ...providerConfig }),
   };
@@ -148,6 +331,16 @@ export class OpenRouterProvider implements AIProvider {
     return this.provider.complete(request);
   }
 
+  completeStream(
+    request: AICompletionRequest,
+    signal?: AbortSignal
+  ): AsyncGenerator<AIStreamChunk, void, undefined> {
+    if (!this.provider.completeStream) {
+      throw new Error('Streaming not supported by this provider');
+    }
+    return this.provider.completeStream(request, signal);
+  }
+
   async isAvailable(): Promise<boolean> {
     return this.provider.isAvailable();
   }
@@ -159,6 +352,16 @@ export class OpenRouterProvider implements AIProvider {
 
 // Free models available on OpenRouter
 const FREE_OPENROUTER_MODELS: AIModelInfo[] = [
+  {
+    id: 'openrouter/auto:free',
+    name: 'Free Models Router (Recommended)',
+    provider: 'OpenRouter',
+    description:
+      'Automatically routes to available free models to avoid rate limits. Best reliability for production use.',
+    bestFor: ['Production use', 'Rate limit avoidance', 'All general tasks', 'Automatic failover'],
+    contextWindow: 128000,
+    isFree: true,
+  },
   {
     id: 'meta-llama/llama-3.3-70b-instruct:free',
     name: 'Llama 3.3 70B Instruct',

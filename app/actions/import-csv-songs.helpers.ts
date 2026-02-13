@@ -1,6 +1,17 @@
 import type { CsvSongRow } from '@/schemas/CsvSongImportSchema';
 
 /**
+ * Return today's date as DD.MM.YYYY (UTC).
+ */
+export function getTodayEuropeanDate(): string {
+  const now = new Date();
+  const day = String(now.getUTCDate()).padStart(2, '0');
+  const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+  const year = now.getUTCFullYear();
+  return `${day}.${month}.${year}`;
+}
+
+/**
  * Parse DD.MM.YYYY date string to ISO datetime string (noon UTC).
  * Returns null if invalid.
  */
@@ -29,11 +40,16 @@ export function parseEuropeanDate(dateStr: string): string | null {
 
 /**
  * Group CSV rows by date string (original DD.MM.YYYY).
+ * Rows with empty date are assigned today's date.
  * Returns a Map of date -> rows for that date.
  */
 export function groupRowsByDate(rows: CsvSongRow[]): Map<string, CsvSongRow[]> {
+  const today = getTodayEuropeanDate();
   const groups = new Map<string, CsvSongRow[]>();
   for (const row of rows) {
+    if (!row.date) {
+      row.date = today;
+    }
     const existing = groups.get(row.date) || [];
     existing.push(row);
     groups.set(row.date, existing);

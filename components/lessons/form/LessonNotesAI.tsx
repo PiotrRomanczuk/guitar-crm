@@ -1,10 +1,11 @@
 'use client';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { useCallback } from 'react';
 import { generateLessonNotesStream } from '@/app/actions/ai';
-import { cn } from '@/lib/utils';
+import { useAIStream } from '@/hooks/useAIStream';
+import { AIAssistButton } from '@/components/lessons/shared/AIAssistButton';
+import { AIStreamingStatus } from '@/components/ai';
 
 interface Props {
   studentName: string;
@@ -29,80 +30,68 @@ export function LessonNotesAI({
   onNotesGenerated,
   disabled = false,
 }: Props) {
-  const [loading, setLoading] = useState(false);
+  // Streaming action wrapper
+  const streamAction = useCallback(
+    async function* (params: any, signal?: AbortSignal) {
+      yield* generateLessonNotesStream(params);
+    },
+    []
+  );
+
+  // AI streaming hook
+  const aiStream = useAIStream(streamAction, {
+    onChunk: (content) => {
+      onNotesGenerated(content);
+    },
+    onError: (error) => {
+      console.error('[LessonNotesAI] Streaming error:', error);
+      onNotesGenerated('Error generating notes. Please try again.');
+    },
+  });
 
   const handleGenerate = async () => {
-    if (!studentName || loading) return;
+    if (!studentName || aiStream.isStreaming) return;
 
-    setLoading(true);
     onNotesGenerated(''); // Clear previous notes
 
-    try {
-      const streamGenerator = generateLessonNotesStream({
-        studentName,
-        studentId,
-        songTitle: songsCovered.join(', '),
-        lessonFocus: lessonTopic,
-        skillsWorked: teacherNotes,
-        nextSteps: '',
-      });
-
-      let currentNotes = '';
-      for await (const chunk of streamGenerator) {
-        currentNotes = String(chunk);
-        onNotesGenerated(currentNotes);
-      }
-    } catch (error) {
-      console.error('Error generating lesson notes:', error);
-      onNotesGenerated('Error generating notes. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    await aiStream.start({
+      studentName,
+      studentId,
+      songTitle: songsCovered.join(', '),
+      lessonFocus: lessonTopic,
+      skillsWorked: teacherNotes,
+      nextSteps: '',
+    });
   };
 
   const canGenerate = studentName && songsCovered.length > 0 && lessonTopic && !disabled;
 
   return (
-    <button
-      type="button"
-      onClick={handleGenerate}
-      disabled={loading || !canGenerate}
-      className={cn(
-        'relative group flex items-center gap-2 px-4 py-2 rounded-full mt-2',
-        'bg-gradient-to-r from-primary/10 to-warning/10',
-        'hover:from-primary/20 hover:to-warning/20',
-        'transition-all duration-300',
-        'border border-primary/20',
-        'shadow-[0_0_15px_hsl(var(--primary)/0.15)]',
-        'disabled:opacity-50 disabled:cursor-not-allowed',
-        'overflow-hidden'
+    <div className="space-y-3">
+      <AIAssistButton
+        onClick={handleGenerate}
+        disabled={!canGenerate}
+        label="Generate Lesson Notes"
+        status={aiStream.status}
+        tokenCount={aiStream.tokenCount}
+        onCancel={aiStream.cancel}
+        className="mt-2"
+      />
+
+      {/* Streaming Status */}
+      {(aiStream.isStreaming || aiStream.isError) && (
+        <AIStreamingStatus
+          status={aiStream.status}
+          tokenCount={aiStream.tokenCount}
+          reasoning={aiStream.reasoning}
+          error={aiStream.error}
+          onCancel={aiStream.cancel}
+          onRetry={() => {
+            aiStream.reset();
+            handleGenerate();
+          }}
+        />
       )}
-    >
-      {/* Icon */}
-      <Sparkles
-        className={cn(
-          'h-4 w-4 text-primary',
-          'group-hover:scale-110 transition-transform duration-300',
-          loading && 'animate-spin'
-        )}
-      />
-
-      {/* Label */}
-      <span className="text-xs font-bold text-primary uppercase tracking-wide">
-        {loading ? 'Generating...' : 'AI Assist'}
-      </span>
-
-      {/* Shimmer effect */}
-      <div
-        className={cn(
-          'absolute inset-0 rounded-full',
-          'bg-gradient-to-r from-transparent via-white/20 to-transparent',
-          'translate-x-[-100%] group-hover:translate-x-[100%]',
-          'transition-transform duration-700',
-          'pointer-events-none'
-        )}
-        aria-hidden="true"
-      />
-    </button>
+    </div>
   );
 }

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table';
 import { CheckCircle2, AlertTriangle, PlusCircle, Loader2 } from 'lucide-react';
 import type { CsvSongImportRowResult } from '@/schemas/CsvSongImportSchema';
+import { getTodayEuropeanDate } from '@/app/actions/import-csv-songs.helpers';
 
 interface PreviewStepProps {
   results: CsvSongImportRowResult[];
@@ -81,7 +82,11 @@ export function PreviewStep({ results, isLoading, error, onImport, onBack }: Pre
           <TableBody>
             {results.map((row, i) => (
               <TableRow key={i} className={!row.success ? 'bg-destructive/5' : ''}>
-                <TableCell className="text-sm">{row.date}</TableCell>
+                <TableCell className="text-sm">
+                  {row.date || (
+                    <span>{getTodayEuropeanDate()} <span className="text-muted-foreground">(today)</span></span>
+                  )}
+                </TableCell>
                 <TableCell className="font-medium text-sm">{row.title}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{row.author || '-'}</TableCell>
                 <TableCell>
