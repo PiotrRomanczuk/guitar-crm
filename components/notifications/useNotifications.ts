@@ -42,19 +42,21 @@ export function useNotifications(userId?: string, options: UseNotificationsOptio
     fetchNotifications();
 
     // Real-time subscription
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     const channel = supabase
       .channel('in_app_notifications')
       .on(
-        'postgres_changes',
+        'postgres_changes' as any,
         {
           event: '*',
           schema: 'public',
           table: 'in_app_notifications',
           filter: `user_id=eq.${userId}`,
-        },
+        } as any,
         handleRealtimeUpdate
       )
       .subscribe();
+    /* eslint-enable @typescript-eslint/no-explicit-any */
 
     return () => {
       supabase.removeChannel(channel);
