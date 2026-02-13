@@ -4,13 +4,15 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import type { CsvSongRow } from '@/schemas/CsvSongImportSchema';
+import { AuthorCombobox } from './CsvSongImportDialog.AuthorCombobox';
 
 interface EditableSongListProps {
   rows: CsvSongRow[];
   onRowsChange: (rows: CsvSongRow[]) => void;
+  authors?: string[];
 }
 
-export function EditableSongList({ rows, onRowsChange }: EditableSongListProps) {
+export function EditableSongList({ rows, onRowsChange, authors }: EditableSongListProps) {
   const updateRow = (index: number, field: keyof CsvSongRow, value: string) => {
     const updated = rows.map((row, i) =>
       i === index ? { ...row, [field]: value } : row
@@ -35,12 +37,20 @@ export function EditableSongList({ rows, onRowsChange }: EditableSongListProps) 
             className="h-7 text-sm font-medium flex-1"
             placeholder="Song title"
           />
-          <Input
-            value={row.author}
-            onChange={(e) => updateRow(i, 'author', e.target.value)}
-            className="h-7 text-sm w-32 shrink-0"
-            placeholder="Author"
-          />
+          {authors && authors.length > 0 ? (
+            <AuthorCombobox
+              value={row.author ?? ''}
+              authors={authors}
+              onChange={(val) => updateRow(i, 'author', val)}
+            />
+          ) : (
+            <Input
+              value={row.author}
+              onChange={(e) => updateRow(i, 'author', e.target.value)}
+              className="h-7 text-sm w-32 shrink-0"
+              placeholder="Author"
+            />
+          )}
           {row.date && (
             <span className="text-xs text-muted-foreground w-20 shrink-0 text-right">
               {row.date}
