@@ -160,6 +160,16 @@ export class OpenRouterProvider implements AIProvider {
 // Free models available on OpenRouter
 const FREE_OPENROUTER_MODELS: AIModelInfo[] = [
   {
+    id: 'openrouter/auto:free',
+    name: 'Free Models Router (Recommended)',
+    provider: 'OpenRouter',
+    description:
+      'Automatically routes to available free models to avoid rate limits. Best reliability for production use.',
+    bestFor: ['Production use', 'Rate limit avoidance', 'All general tasks', 'Automatic failover'],
+    contextWindow: 128000,
+    isFree: true,
+  },
+  {
     id: 'meta-llama/llama-3.3-70b-instruct:free',
     name: 'Llama 3.3 70B Instruct',
     provider: 'Meta',

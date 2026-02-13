@@ -32,8 +32,8 @@ Output ONLY the JSON array, no markdown, no explanation.`;
 export async function parseTextToCsvRows(
   text: string
 ): Promise<{ success: boolean; rows?: CsvSongRow[]; error?: string }> {
-  const { user, isTeacher } = await getUserWithRolesSSR();
-  if (!user || !isTeacher) {
+  const { user, isTeacher, isAdmin } = await getUserWithRolesSSR();
+  if (!user || (!isTeacher && !isAdmin)) {
     return { success: false, error: 'Unauthorized' };
   }
 
