@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import { formatDate, formatTime } from './LessonTable.helpers';
 import { TableCell, TableRow } from '@/components/ui/table';
@@ -14,6 +17,7 @@ interface Props {
 }
 
 export default function LessonTableRow({ lesson, showTeacherColumn, showActions, baseUrl }: Props) {
+  const router = useRouter();
   const songs = lesson.lesson_songs?.map((ls) => ls.song?.title).filter(Boolean) || [];
   const assignments = lesson.assignments?.map((a) => a.title) || [];
   const hasContent = songs.length > 0 || assignments.length > 0;
@@ -26,17 +30,14 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
 
   return (
     <TableRow
-      className="group hover:bg-secondary/50 border-border transition-colors"
+      className="group hover:bg-secondary/50 border-border transition-colors cursor-pointer"
       data-testid="lesson-row"
+      onClick={() => router.push(`${baseUrl}/${lesson.id}`)}
     >
       <TableCell className="relative font-medium">
-        <Link
-          href={`${baseUrl}/${lesson.id}`}
-          className="text-foreground hover:text-primary transition-colors"
-          data-testid="lesson-title-link"
-        >
+        <div className="text-foreground">
           {lesson.title || 'Untitled Lesson'}
-        </Link>
+        </div>
 
         {hasContent && (
           <div className="absolute left-4 top-full mt-1 z-50 hidden group-hover:block w-64 p-4 bg-card rounded-lg shadow-xl border border-border">
@@ -95,7 +96,7 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
         </StatusBadge>
       </TableCell>
       {showActions && (
-        <TableCell>
+        <TableCell onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="sm" asChild>
             <Link href={`${baseUrl}/${lesson.id}`}>
               <Eye className="h-4 w-4 mr-1" />

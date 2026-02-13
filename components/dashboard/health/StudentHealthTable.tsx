@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Mail, Users, User, Clock, BookOpen } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import EmptyState from '@/components/shared/EmptyState';
 import { getHealthStatusColor, HealthStatus } from '@/lib/utils/studentHealth';
 import { formatDistanceToNow } from 'date-fns';
@@ -34,6 +35,8 @@ interface StudentHealthTableProps {
 }
 
 export function StudentHealthTable({ students, onSendMessage }: StudentHealthTableProps) {
+  const router = useRouter();
+
   if (students.length === 0) {
     return (
       <EmptyState
@@ -153,7 +156,11 @@ export function StudentHealthTable({ students, onSendMessage }: StudentHealthTab
             {students.map((student) => {
               const healthColors = getHealthStatusColor(student.healthStatus);
               return (
-                <TableRow key={student.id} className="hover:bg-muted/50 transition-colors">
+                <TableRow
+                  key={student.id}
+                  className="hover:bg-muted/50 transition-colors cursor-pointer"
+                  onClick={() => router.push(`/dashboard/users/${student.id}`)}
+                >
                   <TableCell className="font-medium">
                     <div>
                       <div className="text-foreground">{student.name}</div>
@@ -190,7 +197,7 @@ export function StudentHealthTable({ students, onSendMessage }: StudentHealthTab
                       <span className="text-xs text-muted-foreground">None</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-end gap-1">
                       <Link href={`/dashboard/lessons?student=${student.id}`}>
                         <Button

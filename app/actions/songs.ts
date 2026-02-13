@@ -164,6 +164,45 @@ export async function quickAssignSongToLesson(
   return { success: true, isUpdate };
 }
 
+export interface DuplicateCheckResult {
+  exists: boolean;
+  existingTitle?: string;
+  existingAuthor?: string;
+}
+
+/**
+ * Check if a song with the same normalized title+author already exists
+ */
+export async function checkSongDuplicate(params: {
+  title: string;
+  author: string;
+  excludeId?: string;
+}): Promise<DuplicateCheckResult> {
+  const supabase = await createClient();
+  const title = params.title.trim();
+  const author = params.author.trim();
+
+  if (!title || !author) return { exists: false };
+
+  let query = supabase
+    .from('songs')
+    .select('id, title, author')
+    .is('deleted_at', null)
+    .ilike('title', title)
+    .ilike('author', author)
+    .limit(1);
+
+  if (params.excludeId) {
+    query = query.neq('id', params.excludeId);
+  }
+
+  const { data } = await query;
+  if (data && data.length > 0) {
+    return { exists: true, existingTitle: data[0].title, existingAuthor: data[0].author };
+  }
+  return { exists: false };
+}
+
 export interface BulkDeleteResult {
   success: boolean;
   deletedCount: number;
