@@ -42,12 +42,23 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [sectionsState, setSectionsState] = useState({
+    resources: false,
+    musical: false,
+  });
 
   const handleChange = (field: string, value: SongFormData[keyof SongFormData]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => clearFieldError(prev, field));
     }
+  };
+
+  const handleToggleSection = (section: 'resources' | 'musical') => {
+    setSectionsState((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
   };
 
   const handleBlur = (field: string) => {
@@ -159,6 +170,8 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
         onChange={handleChange}
         onBlur={handleBlur}
         onSpotifySelect={handleSpotifySelect}
+        sectionsState={sectionsState}
+        onToggleSection={handleToggleSection}
       />
 
       <FormActions

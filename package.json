@@ -23,6 +23,7 @@
     "verify:cron": "npx tsx scripts/verify-cron-jobs.ts",
     "db:inspect": "npx tsx scripts/database/inspect-db.ts",
     "seed:songs": "npx tsx scripts/database/seeding/seed-songs.ts",
+    "seed:classics": "npx tsx scripts/database/seeding/import-100-classics.ts",
     "new-feature": "./scripts/development/new-feature.sh",
     "setup": "./scripts/setup/setup-env.sh",
     "setup:all": "./scripts/setup/setup-complete.sh",
