@@ -35,8 +35,8 @@ export function parseCsvText(text: string): {
   const titleIdx = headers.indexOf('title');
   const authorIdx = headers.indexOf('author');
 
-  if (dateIdx === -1 || titleIdx === -1) {
-    return { rows: [], errors: [{ line: 1, message: 'CSV must have "date" and "title" columns' }] };
+  if (titleIdx === -1) {
+    return { rows: [], errors: [{ line: 1, message: 'CSV must have a "title" column' }] };
   }
 
   const rows: CsvSongRow[] = [];
@@ -44,12 +44,12 @@ export function parseCsvText(text: string): {
 
   for (let i = 1; i < lines.length; i++) {
     const cols = lines[i].split(delimiter).map((c) => c.trim());
-    const date = cols[dateIdx] || '';
+    const date = dateIdx !== -1 ? cols[dateIdx] || '' : '';
     const title = cols[titleIdx] || '';
     const author = authorIdx !== -1 ? cols[authorIdx] || '' : '';
 
-    if (!date || !title) {
-      errors.push({ line: i + 1, message: `Missing ${!date ? 'date' : 'title'}` });
+    if (!title) {
+      errors.push({ line: i + 1, message: 'Missing title' });
       continue;
     }
 

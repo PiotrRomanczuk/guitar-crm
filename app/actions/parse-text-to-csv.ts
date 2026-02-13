@@ -16,16 +16,19 @@ The input may be in various formats:
 - Author may be in parentheses, after a dash, or missing entirely
 
 Rules:
-1. Always output dates in DD.MM.YYYY format
-2. Separate song title from author when possible
-3. If author is unclear or missing, use empty string ""
-4. Capitalize song titles properly (title case)
-5. Trim whitespace from all values
-6. Ignore empty lines and non-song content (headers, notes, etc.)
+1. If dates are present in the input, output them in DD.MM.YYYY format
+2. If NO dates are found anywhere in the input, use empty string "" for the date field
+3. Separate song title from author when possible
+4. If author is unclear or missing, use empty string ""
+5. Capitalize song titles properly (title case)
+6. Trim whitespace from all values
+7. Ignore empty lines and non-song content (headers, notes, etc.)
 
 Output ONLY a JSON array with objects having: date, title, author
-Example output:
+Example output with dates:
 [{"date":"29.02.2024","title":"Stand by Me","author":"Ben E. King"},{"date":"29.02.2024","title":"Son of the Blue Sky","author":""}]
+Example output without dates:
+[{"date":"","title":"Wonderwall","author":"Oasis"},{"date":"","title":"Blackbird","author":"The Beatles"}]
 
 Output ONLY the JSON array, no markdown, no explanation.`;
 

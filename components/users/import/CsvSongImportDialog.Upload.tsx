@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Upload, Sparkles, FileText } from 'lucide-react';
 import type { CsvSongRow } from '@/schemas/CsvSongImportSchema';
+import { EditableSongList } from './CsvSongImportDialog.EditableSongList';
 
 interface UploadStepProps {
   rows: CsvSongRow[];
@@ -15,6 +16,7 @@ interface UploadStepProps {
   error: string | null;
   onCsvParse: (text: string) => { rows: CsvSongRow[]; errors: Array<{ line: number; message: string }> };
   onAiParse: (text: string) => Promise<{ rows: CsvSongRow[]; errors: Array<{ line: number; message: string }> }>;
+  onRowsChange: (rows: CsvSongRow[]) => void;
   onNext: () => void;
 }
 
@@ -25,6 +27,7 @@ export function UploadStep({
   error,
   onCsvParse,
   onAiParse,
+  onRowsChange,
   onNext,
 }: UploadStepProps) {
   const [freeText, setFreeText] = useState('');
@@ -151,20 +154,15 @@ export function UploadStep({
         <div className="mt-3 space-y-3">
           <div className="flex items-center gap-2">
             <Badge variant="secondary">{rows.length} songs parsed</Badge>
-            <Badge variant="outline">{new Set(rows.map((r) => r.date)).size} dates</Badge>
-          </div>
-          <div className="max-h-40 overflow-y-auto border rounded-md p-2 text-sm">
-            {rows.slice(0, 20).map((row, i) => (
-              <div key={i} className="flex gap-2 py-0.5">
-                <span className="text-muted-foreground w-24 shrink-0">{row.date}</span>
-                <span className="font-medium truncate">{row.title}</span>
-                {row.author && <span className="text-muted-foreground truncate">- {row.author}</span>}
-              </div>
-            ))}
-            {rows.length > 20 && (
-              <p className="text-muted-foreground text-xs mt-1">...and {rows.length - 20} more</p>
+            {rows.some((r) => r.date) ? (
+              <Badge variant="outline">{new Set(rows.filter((r) => r.date).map((r) => r.date)).size} dates</Badge>
+            ) : (
+              <Badge variant="outline" className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
+                No dates — will use today
+              </Badge>
             )}
           </div>
+          <EditableSongList rows={rows} onRowsChange={onRowsChange} />
           <Button onClick={onNext} disabled={isLoading}>
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             Preview Import

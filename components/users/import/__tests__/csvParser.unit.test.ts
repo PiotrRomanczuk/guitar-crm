@@ -69,12 +69,12 @@ describe('parseCsvText', () => {
     expect(rows[0].author).toBe('Ben E. King');
   });
 
-  it('returns error for missing header', () => {
+  it('returns error for missing title header', () => {
     const csv = 'x;y;z\n29.02.2024;Song;Author';
     const { rows, errors } = parseCsvText(csv);
     expect(rows).toHaveLength(0);
     expect(errors).toHaveLength(1);
-    expect(errors[0].message).toContain('date');
+    expect(errors[0].message).toContain('title');
   });
 
   it('returns error for header-only CSV', () => {
@@ -92,12 +92,30 @@ describe('parseCsvText', () => {
     expect(errors[0].message).toContain('title');
   });
 
-  it('reports rows with missing date', () => {
+  it('allows rows with empty date', () => {
     const csv = 'date;title;author\n;Song Title;Author';
     const { rows, errors } = parseCsvText(csv);
-    expect(rows).toHaveLength(0);
-    expect(errors).toHaveLength(1);
-    expect(errors[0].message).toContain('date');
+    expect(errors).toHaveLength(0);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].date).toBe('');
+    expect(rows[0].title).toBe('Song Title');
+  });
+
+  it('parses CSV without date column', () => {
+    const csv = 'title;author\nStand by Me;Ben E. King\nBlackbird;The Beatles';
+    const { rows, errors } = parseCsvText(csv);
+    expect(errors).toHaveLength(0);
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toEqual({ date: '', title: 'Stand by Me', author: 'Ben E. King' });
+    expect(rows[1]).toEqual({ date: '', title: 'Blackbird', author: 'The Beatles' });
+  });
+
+  it('parses title-only CSV without date or author columns', () => {
+    const csv = 'title\nWonderwall\nBlackbird';
+    const { rows, errors } = parseCsvText(csv);
+    expect(errors).toHaveLength(0);
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toEqual({ date: '', title: 'Wonderwall', author: '' });
   });
 
   it('handles case-insensitive headers', () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,8 +14,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Mail, Loader2, Copy, Check, Send } from 'lucide-react';
+import { Mail, Copy, Check, Send } from 'lucide-react';
 import { generateEmailDraftStream } from '@/app/actions/ai';
+import { useAIStream } from '@/hooks/useAIStream';
+import { AIAssistButton } from '@/components/lessons/shared/AIAssistButton';
+import { AIStreamingStatus } from '@/components/ai';
 
 interface Student {
   id: string;
@@ -32,7 +35,6 @@ export function EmailDraftGenerator({ students }: Props) {
   const [templateType, setTemplateType] = useState<
     'lesson_reminder' | 'progress_report' | 'payment_reminder' | 'milestone_celebration'
   >('lesson_reminder');
-  const [loading, setLoading] = useState(false);
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [copied, setCopied] = useState(false);
@@ -44,83 +46,93 @@ export function EmailDraftGenerator({ students }: Props) {
   const [amount, setAmount] = useState('');
   const [achievement, setAchievement] = useState('');
 
+  // Streaming action wrapper
+  const streamAction = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async function* (params: any, signal?: AbortSignal) {
+      yield* generateEmailDraftStream(params);
+    },
+    []
+  );
+
+  // AI streaming hook
+  const aiStream = useAIStream(streamAction, {
+    onChunk: (fullContent) => {
+      // Try to parse if it looks like JSON with subject and body
+      try {
+        if (fullContent.includes('"subject"') && fullContent.includes('"body"')) {
+          const parsed = JSON.parse(fullContent);
+          setSubject(String(parsed.subject || ''));
+          setBody(String(parsed.body || ''));
+        } else {
+          // If not structured, put everything in body
+          setBody(fullContent);
+        }
+      } catch {
+        // If not valid JSON, just use as body content
+        setBody(fullContent);
+      }
+    },
+    onError: (error) => {
+      console.error('[EmailDraftGenerator] Streaming error:', error);
+    },
+  });
+
   const handleGenerate = async () => {
-    if (!selectedStudent) return;
+    if (!selectedStudent || aiStream.isStreaming) return;
 
     const selectedStudentData = students.find((s) => s.id === selectedStudent);
     if (!selectedStudentData) return;
 
-    setLoading(true);
-    try {
-      // Prepare context based on template type
-      let context: Record<string, unknown> = {};
+    // Clear previous content
+    setSubject('');
+    setBody('');
 
-      switch (templateType) {
-        case 'lesson_reminder':
-          context = {
-            lesson_date: lessonDate,
-            lesson_time: lessonTime,
-            practice_songs: practiceSongs,
-            notes: 'Looking forward to your lesson!',
-          };
-          break;
-        case 'progress_report':
-          context = {
-            lesson_count: 10, // Mock data
-            mastered_songs: practiceSongs || 'Wonderwall, Hotel California',
-            current_songs: 'Stairway to Heaven',
-            strengths: 'Great chord transitions',
-            improvements: 'Rhythm timing',
-            next_goals: 'Learn fingerpicking',
-          };
-          break;
-        case 'payment_reminder':
-          context = {
-            amount: amount || '$100',
-            due_date: new Date().toLocaleDateString(),
-            lessons_remaining: 3,
-            payment_method: 'Online payment or cash',
-          };
-          break;
-        case 'milestone_celebration':
-          context = {
-            achievement: achievement || 'Completed first song',
-            date: new Date().toLocaleDateString(),
-            next_challenge: 'Learning barre chords',
-          };
-          break;
-      }
+    // Prepare context based on template type
+    let context: Record<string, unknown> = {};
 
-      const streamGenerator = generateEmailDraftStream({
-        template_type: templateType,
-        student_name: selectedStudentData.full_name || selectedStudentData.email,
-        studentId: selectedStudent,
-        context: JSON.stringify(context),
-      });
-
-      let fullContent = '';
-      for await (const chunk of streamGenerator) {
-        fullContent = String(chunk);
-        // Try to parse if it looks like JSON with subject and body
-        try {
-          if (fullContent.includes('"subject"') && fullContent.includes('"body"')) {
-            const parsed = JSON.parse(fullContent);
-            setSubject(String(parsed.subject || ''));
-            setBody(String(parsed.body || ''));
-          } else {
-            // If not structured, put everything in body
-            setBody(fullContent);
-          }
-        } catch {
-          // If not valid JSON, just use as body content
-          setBody(fullContent);
-        }
-      }
-    } catch (error) {
-      console.error('Error generating email draft:', error);
-    } finally {
-      setLoading(false);
+    switch (templateType) {
+      case 'lesson_reminder':
+        context = {
+          lesson_date: lessonDate,
+          lesson_time: lessonTime,
+          practice_songs: practiceSongs,
+          notes: 'Looking forward to your lesson!',
+        };
+        break;
+      case 'progress_report':
+        context = {
+          lesson_count: 10, // Mock data
+          mastered_songs: practiceSongs || 'Wonderwall, Hotel California',
+          current_songs: 'Stairway to Heaven',
+          strengths: 'Great chord transitions',
+          improvements: 'Rhythm timing',
+          next_goals: 'Learn fingerpicking',
+        };
+        break;
+      case 'payment_reminder':
+        context = {
+          amount: amount || '$100',
+          due_date: new Date().toLocaleDateString(),
+          lessons_remaining: 3,
+          payment_method: 'Online payment or cash',
+        };
+        break;
+      case 'milestone_celebration':
+        context = {
+          achievement: achievement || 'Completed first song',
+          date: new Date().toLocaleDateString(),
+          next_challenge: 'Learning barre chords',
+        };
+        break;
     }
+
+    await aiStream.start({
+      template_type: templateType,
+      student_name: selectedStudentData.full_name || selectedStudentData.email,
+      studentId: selectedStudent,
+      context: JSON.stringify(context),
+    });
   };
 
   const handleCopy = async () => {
@@ -227,14 +239,30 @@ export function EmailDraftGenerator({ students }: Props) {
           </div>
         )}
 
-        <Button onClick={handleGenerate} disabled={loading || !selectedStudent} className="w-full">
-          {loading ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <Mail className="w-4 h-4 mr-2" />
-          )}
-          Generate Email Draft
-        </Button>
+        <AIAssistButton
+          onClick={handleGenerate}
+          disabled={!selectedStudent}
+          label="Generate Email Draft"
+          status={aiStream.status}
+          tokenCount={aiStream.tokenCount}
+          onCancel={aiStream.cancel}
+          className="w-full"
+        />
+
+        {/* Streaming Status */}
+        {(aiStream.isStreaming || aiStream.isError) && (
+          <AIStreamingStatus
+            status={aiStream.status}
+            tokenCount={aiStream.tokenCount}
+            reasoning={aiStream.reasoning}
+            error={aiStream.error}
+            onCancel={aiStream.cancel}
+            onRetry={() => {
+              aiStream.reset();
+              handleGenerate();
+            }}
+          />
+        )}
 
         {selectedStudentData && (
           <div className="p-3 bg-primary/10 rounded-lg">

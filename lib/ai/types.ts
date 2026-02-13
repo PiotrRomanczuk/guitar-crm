@@ -47,6 +47,26 @@ export interface AICompletionResponse {
   };
 }
 
+/**
+ * Represents a chunk of streaming data from an AI provider
+ */
+export interface AIStreamChunk {
+  /** Incremental content delta */
+  content: string;
+  /** Reasoning/thinking content (for models like DeepSeek R1) */
+  reasoning?: string;
+  /** Token usage statistics (if available in chunk) */
+  usage?: {
+    promptTokens?: number;
+    completionTokens?: number;
+    totalTokens?: number;
+  };
+  /** Finish reason when stream completes */
+  finishReason?: string;
+  /** Whether this is the final chunk */
+  done?: boolean;
+}
+
 export interface AIError {
   error: string;
   code?: string;
@@ -73,6 +93,16 @@ export interface AIProvider {
    * Generate a completion for the given messages
    */
   complete(request: AICompletionRequest): Promise<AIResult>;
+
+  /**
+   * Generate a streaming completion (optional, for providers that support it)
+   * @param request The completion request
+   * @param signal Optional AbortSignal for cancellation
+   */
+  completeStream?(
+    request: AICompletionRequest,
+    signal?: AbortSignal
+  ): AsyncGenerator<AIStreamChunk, void, undefined>;
 
   /**
    * Check if the provider is properly configured and available
