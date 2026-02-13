@@ -60,6 +60,8 @@ export async function checkRateLimit(
   remaining: number;
   resetTime: number;
   retryAfter?: number;
+  message?: string;
+  limit: number;
 }> {
   const config = DEFAULT_RATE_LIMITS[userRole] || DEFAULT_RATE_LIMITS.anonymous;
   const key = agentId ? `${userId}:${agentId}` : userId;
@@ -79,6 +81,8 @@ export async function checkRateLimit(
       allowed: true,
       remaining: config.maxRequests - 1,
       resetTime: newEntry.resetTime,
+      limit: config.maxRequests,
+      message: `${config.maxRequests - 1} requests remaining`,
     };
   }
 
@@ -87,21 +91,38 @@ export async function checkRateLimit(
 
   // Check if limit exceeded
   if (entry.count > config.maxRequests) {
+    const retryAfterSeconds = Math.ceil((entry.resetTime - now) / 1000);
+    const retryMessage = retryAfterSeconds < 60
+      ? `${retryAfterSeconds} seconds`
+      : `${Math.ceil(retryAfterSeconds / 60)} minutes`;
+
     return {
       allowed: false,
       remaining: 0,
       resetTime: entry.resetTime,
-      retryAfter: Math.ceil((entry.resetTime - now) / 1000), // Seconds until reset
+      retryAfter: retryAfterSeconds,
+      limit: config.maxRequests,
+      message: `Rate limit exceeded. Try again in ${retryMessage}.`,
     };
   }
 
   // Update entry
   rateLimitStore.set(key, entry);
 
+  const remaining = config.maxRequests - entry.count;
+  let message: string | undefined;
+
+  // Show warning when getting close to limit
+  if (remaining <= 5) {
+    message = `${remaining} request${remaining === 1 ? '' : 's'} remaining`;
+  }
+
   return {
     allowed: true,
-    remaining: config.maxRequests - entry.count,
+    remaining,
     resetTime: entry.resetTime,
+    limit: config.maxRequests,
+    message,
   };
 }
 
