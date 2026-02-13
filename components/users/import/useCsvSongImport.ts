@@ -6,6 +6,7 @@ import type { CsvSongImportResult, CsvSongImportRowResult } from '@/schemas/CsvS
 import { importCsvSongs } from '@/app/actions/import-csv-songs';
 import { parseTextToCsvRows } from '@/app/actions/parse-text-to-csv';
 import { parseCsvText } from './csvParser';
+import { useAuthorMatching } from './useAuthorMatching';
 
 export type ImportStep = 'upload' | 'preview' | 'results';
 
@@ -17,14 +18,16 @@ export function useCsvSongImport(studentId: string) {
   const [importResult, setImportResult] = useState<CsvSongImportResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { authors, resolveAllAuthors } = useAuthorMatching();
 
   const handleCsvParse = useCallback((text: string) => {
     const { rows: parsed, errors } = parseCsvText(text);
-    setRows(parsed);
+    const resolved = resolveAllAuthors(parsed);
+    setRows(resolved);
     setParseErrors(errors);
     setError(null);
-    return { rows: parsed, errors };
-  }, []);
+    return { rows: resolved, errors };
+  }, [resolveAllAuthors]);
 
   const handleAiParse = useCallback(async (text: string) => {
     setIsLoading(true);
@@ -32,16 +35,17 @@ export function useCsvSongImport(studentId: string) {
     try {
       const result = await parseTextToCsvRows(text);
       if (result.success && result.rows) {
-        setRows(result.rows);
+        const resolved = resolveAllAuthors(result.rows);
+        setRows(resolved);
         setParseErrors([]);
-        return { rows: result.rows, errors: [] };
+        return { rows: resolved, errors: [] };
       }
       setError(result.error || 'AI parsing failed');
       return { rows: [], errors: [] };
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [resolveAllAuthors]);
 
   const goToPreview = useCallback(async () => {
     if (rows.length === 0) return;
@@ -99,6 +103,7 @@ export function useCsvSongImport(studentId: string) {
     importResult,
     isLoading,
     error,
+    authors,
     handleCsvParse,
     handleAiParse,
     goToPreview,

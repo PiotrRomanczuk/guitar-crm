@@ -14,6 +14,7 @@ interface UploadStepProps {
   parseErrors: Array<{ line: number; message: string }>;
   isLoading: boolean;
   error: string | null;
+  authors?: string[];
   onCsvParse: (text: string) => { rows: CsvSongRow[]; errors: Array<{ line: number; message: string }> };
   onAiParse: (text: string) => Promise<{ rows: CsvSongRow[]; errors: Array<{ line: number; message: string }> }>;
   onRowsChange: (rows: CsvSongRow[]) => void;
@@ -25,6 +26,7 @@ export function UploadStep({
   parseErrors,
   isLoading,
   error,
+  authors,
   onCsvParse,
   onAiParse,
   onRowsChange,
@@ -162,7 +164,7 @@ export function UploadStep({
               </Badge>
             )}
           </div>
-          <EditableSongList rows={rows} onRowsChange={onRowsChange} />
+          <EditableSongList rows={rows} onRowsChange={onRowsChange} authors={authors} />
           <Button onClick={onNext} disabled={isLoading}>
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             Preview Import
