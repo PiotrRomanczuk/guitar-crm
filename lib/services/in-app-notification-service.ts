@@ -12,30 +12,13 @@
 
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { NotificationType } from '@/types/notifications';
+import type { Database } from '@/database.types';
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export interface InAppNotification {
-  id: string;
-  user_id: string;
-  notification_type: NotificationType;
-  title: string;
-  body: string;
-  icon?: string;
-  variant?: 'default' | 'success' | 'warning' | 'error' | 'info';
-  is_read: boolean;
-  read_at?: string;
-  action_url?: string;
-  action_label?: string;
-  entity_type?: string;
-  entity_id?: string;
-  priority: number;
-  created_at: string;
-  updated_at: string;
-  expires_at: string;
-}
+export type InAppNotification = Database['public']['Tables']['in_app_notifications']['Row'];
 
 export interface CreateInAppNotificationParams {
   type: NotificationType;
