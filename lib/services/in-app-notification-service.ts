@@ -6,8 +6,6 @@
  * - Real-time updates via Supabase Realtime
  * - Read/unread status management
  * - Polymorphic entity references
- *
- * @ts-nocheck - Temporary: in_app_notifications table not yet in database.types.ts
  */
 
 'use server';

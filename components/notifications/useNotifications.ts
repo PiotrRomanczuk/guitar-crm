@@ -6,8 +6,6 @@
  * - Unread count tracking
  * - Mark as read functionality
  * - Optimistic updates for instant UI feedback
- *
- * @ts-nocheck - Temporary: in_app_notifications table not yet in database.types.ts
  */
 
 'use client';
@@ -67,10 +65,8 @@ export function useNotifications(userId?: string, options: UseNotificationsOptio
     if (!userId) return;
 
     try {
-      // Type assertion needed because in_app_notifications table doesn't exist in remote DB types yet
-      type InAppNotificationRow = typeof supabase extends { from: (table: infer _T) => unknown } ? unknown : never;
       let query = supabase
-        .from('in_app_notifications' as unknown as InAppNotificationRow)
+        .from('in_app_notifications')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
@@ -87,8 +83,8 @@ export function useNotifications(userId?: string, options: UseNotificationsOptio
         setNotifications([]);
         setUnreadCount(0);
       } else {
-        setNotifications((data as unknown as InAppNotification[]) || []);
-        setUnreadCount((data as unknown as InAppNotification[])?.filter((n) => !n.is_read).length || 0);
+        setNotifications((data as InAppNotification[]) || []);
+        setUnreadCount((data as InAppNotification[])?.filter((n) => !n.is_read).length || 0);
       }
     } catch (error) {
       console.error('[useNotifications] Fetch exception:', error);

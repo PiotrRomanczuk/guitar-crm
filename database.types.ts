@@ -623,6 +623,74 @@ export type Database = {
         };
         Relationships: [];
       };
+      in_app_notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          notification_type: Database['public']['Enums']['notification_type'];
+          title: string;
+          body: string;
+          icon: string | null;
+          variant: string | null;
+          is_read: boolean;
+          read_at: string | null;
+          action_url: string | null;
+          action_label: string | null;
+          entity_type: string | null;
+          entity_id: string | null;
+          priority: number;
+          created_at: string;
+          updated_at: string;
+          expires_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          notification_type: Database['public']['Enums']['notification_type'];
+          title: string;
+          body: string;
+          icon?: string | null;
+          variant?: string | null;
+          is_read?: boolean;
+          read_at?: string | null;
+          action_url?: string | null;
+          action_label?: string | null;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          priority?: number;
+          created_at?: string;
+          updated_at?: string;
+          expires_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          notification_type?: Database['public']['Enums']['notification_type'];
+          title?: string;
+          body?: string;
+          icon?: string | null;
+          variant?: string | null;
+          is_read?: boolean;
+          read_at?: string | null;
+          action_url?: string | null;
+          action_label?: string | null;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          priority?: number;
+          created_at?: string;
+          updated_at?: string;
+          expires_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'in_app_notifications_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
       lesson_history: {
         Row: {
           change_type: string;

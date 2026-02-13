@@ -386,6 +386,46 @@ export async function queueNotification(
 }
 
 /**
+ * Cancel pending queued notifications for a specific entity
+ */
+export async function cancelPendingQueueEntries(
+  entityType: string,
+  entityId: string,
+  notificationType?: NotificationType
+): Promise<void> {
+  try {
+    const supabase = createAdminClient();
+
+    let query = supabase
+      .from('notification_queue')
+      .update({ status: 'cancelled' })
+      .eq('entity_type', entityType)
+      .eq('entity_id', entityId)
+      .eq('status', 'pending');
+
+    if (notificationType) {
+      query = query.eq('notification_type', notificationType);
+    }
+
+    const { error } = await query;
+
+    if (error) {
+      logError(
+        'Failed to cancel pending queue entries',
+        error instanceof Error ? error : new Error('Failed to cancel queue entries'),
+        { entity_type: entityType, entity_id: entityId, notification_type: notificationType }
+      );
+    }
+  } catch (error) {
+    logError(
+      'cancelPendingQueueEntries error',
+      error instanceof Error ? error : new Error('Unknown error'),
+      { entity_type: entityType, entity_id: entityId, notification_type: notificationType }
+    );
+  }
+}
+
+/**
  * Check if user has enabled a specific notification type
  */
 export async function checkUserPreference(
