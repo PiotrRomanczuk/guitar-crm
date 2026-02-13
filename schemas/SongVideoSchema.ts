@@ -24,10 +24,7 @@ export const CreateSongVideoInputSchema = z.object({
   google_drive_file_id: z.string().min(1, 'Drive file ID is required'),
   title: z.string().max(200).default(''),
   filename: z.string().min(1, 'Filename is required').max(255),
-  mime_type: z.enum(ALLOWED_VIDEO_TYPES, {
-    required_error: 'Video type is required',
-    invalid_type_error: 'File must be MP4, MOV, or WebM',
-  }),
+  mime_type: z.enum(ALLOWED_VIDEO_TYPES),
   file_size_bytes: z.number().int().nonnegative().max(MAX_FILE_SIZE_BYTES).optional(),
   duration_seconds: z.number().nonnegative().optional(),
   thumbnail_url: z.string().url().optional(),
@@ -43,10 +40,7 @@ export const UpdateSongVideoInputSchema = z.object({
 
 export const UploadUrlRequestSchema = z.object({
   filename: z.string().min(1, 'Filename is required').max(255),
-  mime_type: z.enum(ALLOWED_VIDEO_TYPES, {
-    required_error: 'Video type is required',
-    invalid_type_error: 'File must be MP4, MOV, or WebM',
-  }),
+  mime_type: z.enum(ALLOWED_VIDEO_TYPES),
   file_size_bytes: z.number().int().positive().max(MAX_FILE_SIZE_BYTES).optional(),
 });
 
