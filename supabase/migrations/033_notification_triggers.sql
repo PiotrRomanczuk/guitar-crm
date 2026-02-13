@@ -187,7 +187,7 @@ BEGIN
         WHERE id = v_student_id;
 
         -- Get song details
-        SELECT title, artist INTO v_song_title, v_song_artist
+        SELECT title, author INTO v_song_title, v_song_artist
         FROM songs
         WHERE id = NEW.song_id;
 
@@ -278,7 +278,7 @@ BEGIN
         SELECT jsonb_agg(
             jsonb_build_object(
                 'title', s.title,
-                'artist', s.artist,
+                'artist', s.author,
                 'status', ls.status
             )
         ) INTO v_songs
@@ -343,8 +343,8 @@ DECLARE
     v_template_data JSONB;
     v_base_url TEXT;
 BEGIN
-    -- Only proceed if this is a new student with a user_id (not a shadow user)
-    IF NEW.is_student = true AND NEW.user_id IS NOT NULL THEN
+    -- Only proceed if this is a new student with an auth account (not a shadow user)
+    IF NEW.is_student = true AND NOT NEW.is_shadow THEN
         -- For INSERT: welcome new users
         IF TG_OP = 'INSERT' THEN
             -- Get teacher name (if student has lessons scheduled)
@@ -386,7 +386,7 @@ BEGIN
             RAISE NOTICE 'Queued welcome notification for new student %', NEW.id;
 
         -- For UPDATE: welcome when shadow user converts to real user
-        ELSIF TG_OP = 'UPDATE' AND OLD.user_id IS NULL AND NEW.user_id IS NOT NULL THEN
+        ELSIF TG_OP = 'UPDATE' AND OLD.is_shadow = true AND NEW.is_shadow = false THEN
             -- Get teacher name
             SELECT p.full_name INTO v_teacher_name
             FROM profiles p

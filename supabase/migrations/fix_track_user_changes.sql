@@ -1,3 +1,12 @@
+-- ============================================================================
+-- MIGRATION DISABLED - BMS-218
+-- ============================================================================
+-- This migration references the `user_history` table which does not exist.
+-- The table will be created in BMS-219, after which this migration can be enabled.
+-- See: https://linear.app/bms95/issue/BMS-219
+-- ============================================================================
+
+/*
 -- Function to track user profile changes
 CREATE OR REPLACE FUNCTION track_user_changes()
 RETURNS TRIGGER
@@ -86,3 +95,4 @@ CREATE TRIGGER trigger_track_user_changes
 
 -- Add comment
 COMMENT ON FUNCTION track_user_changes() IS 'Automatically tracks all changes to user profiles';
+*/

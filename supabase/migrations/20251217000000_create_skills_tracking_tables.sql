@@ -32,13 +32,7 @@ CREATE POLICY "Everyone can view skills" ON skills
 
 -- Only admins/teachers can insert/update/delete skills
 CREATE POLICY "Admins and teachers can manage skills" ON skills
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM user_roles ur
-            WHERE ur.user_id = auth.uid()
-            AND ur.role IN ('admin', 'teacher')
-        )
-    );
+    FOR ALL USING (is_admin_or_teacher());
 
 -- Policies for student_skills
 -- Students can view their own skills
@@ -49,31 +43,19 @@ CREATE POLICY "Students can view their own skills" ON student_skills
 
 -- Admins/Teachers can view all student skills
 CREATE POLICY "Admins and teachers can view all student skills" ON student_skills
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM user_roles ur
-            WHERE ur.user_id = auth.uid()
-            AND ur.role IN ('admin', 'teacher')
-        )
-    );
+    FOR SELECT USING (is_admin_or_teacher());
 
 -- Admins/Teachers can manage student skills
 CREATE POLICY "Admins and teachers can manage student skills" ON student_skills
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM user_roles ur
-            WHERE ur.user_id = auth.uid()
-            AND ur.role IN ('admin', 'teacher')
-        )
-    );
+    FOR ALL USING (is_admin_or_teacher());
 
 -- Triggers for updated_at
 CREATE TRIGGER update_skills_updated_at
     BEFORE UPDATE ON skills
     FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
+    EXECUTE FUNCTION set_updated_at();
 
 CREATE TRIGGER update_student_skills_updated_at
     BEFORE UPDATE ON student_skills
     FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
+    EXECUTE FUNCTION set_updated_at();
