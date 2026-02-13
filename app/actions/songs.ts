@@ -163,3 +163,61 @@ export async function quickAssignSongToLesson(
 
   return { success: true, isUpdate };
 }
+
+export interface BulkDeleteResult {
+  success: boolean;
+  deletedCount: number;
+  errors: string[];
+}
+
+/**
+ * Bulk soft-delete songs using the soft_delete_song_with_cascade RPC
+ */
+export async function bulkSoftDeleteSongs(
+  songIds: string[]
+): Promise<BulkDeleteResult> {
+  const { isAdmin, isTeacher, user } = await getUserWithRolesSSR();
+
+  if (!isAdmin && !isTeacher) {
+    return { success: false, deletedCount: 0, errors: ['Unauthorized'] };
+  }
+
+  if (!user) {
+    return { success: false, deletedCount: 0, errors: ['User not authenticated'] };
+  }
+
+  if (songIds.length === 0) {
+    return { success: true, deletedCount: 0, errors: [] };
+  }
+
+  const supabase = await createClient();
+  let deletedCount = 0;
+  const errors: string[] = [];
+
+  for (const songId of songIds) {
+    const { data, error } = await supabase.rpc('soft_delete_song_with_cascade', {
+      song_uuid: songId,
+      user_uuid: user.id,
+    });
+
+    if (error) {
+      errors.push(`Failed to delete song ${songId}: ${error.message}`);
+      continue;
+    }
+
+    const result = data as { success: boolean; error?: string };
+    if (result.success) {
+      deletedCount++;
+    } else {
+      errors.push(result.error || `Failed to delete song ${songId}`);
+    }
+  }
+
+  revalidatePath('/dashboard/songs');
+
+  return {
+    success: errors.length === 0,
+    deletedCount,
+    errors,
+  };
+}
