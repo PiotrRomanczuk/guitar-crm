@@ -20,13 +20,15 @@ import { toast } from 'sonner';
 
 interface CalendarEventsListProps {
   limit?: number;
+  initialEvents?: GoogleEvent[] | null;
+  isConnected?: boolean;
 }
 
-export function CalendarEventsList({ limit }: CalendarEventsListProps) {
-  const [events, setEvents] = useState<GoogleEvent[] | null>(null);
-  const [loading, setLoading] = useState(true);
+export function CalendarEventsList({ limit, initialEvents, isConnected: initialIsConnected }: CalendarEventsListProps) {
+  const [events, setEvents] = useState<GoogleEvent[] | null>(initialEvents ?? null);
+  const [loading, setLoading] = useState(initialEvents === undefined);
   const [error, setError] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(initialIsConnected ?? false);
   const [isPending, startTransition] = useTransition();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [shadowUserDialog, setShadowUserDialog] = useState<{ open: boolean; email: string }>({
@@ -36,6 +38,9 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
   const [syncAllDialog, setSyncAllDialog] = useState(false);
 
   useEffect(() => {
+    // Only fetch if initialEvents not provided (e.g., when used in dashboard widget)
+    if (initialEvents !== undefined) return;
+
     async function fetchEvents() {
       try {
         const data = await getGoogleEvents();
@@ -53,7 +58,7 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
     }
 
     fetchEvents();
-  }, []);
+  }, [initialEvents]);
 
   const handleCreateShadowUserClick = (email: string) => {
     setShadowUserDialog({ open: true, email });

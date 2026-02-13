@@ -20,13 +20,17 @@ import {
 } from '@/components/ui/alert-dialog';
 import { TableSkeleton } from '@/components/ui/data-table';
 
-export default function UsersList() {
+interface UsersListProps {
+  initialUsers?: any[];
+}
+
+export default function UsersList({ initialUsers }: UsersListProps = {}) {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'' | 'admin' | 'teacher' | 'student'>('');
   const [activeFilter, setActiveFilter] = useState<'' | 'true' | 'false'>('');
   const [userToDelete, setUserToDelete] = useState<{ id: string; email: string } | null>(null);
 
-  const { users, loading, error, refetch } = useUsersList(search, roleFilter, activeFilter);
+  const { users, loading, error, refetch } = useUsersList(search, roleFilter, activeFilter, initialUsers);
 
   const handleDeleteClick = (userId: string, email: string) => {
     setUserToDelete({ id: userId, email });
