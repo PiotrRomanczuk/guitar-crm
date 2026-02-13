@@ -20,6 +20,7 @@ export { useProfiles } from './hooks/useProfiles';
 export * from './list/LessonTable.helpers';
 export { GoogleEventImporter } from './integrations/GoogleEventImporter';
 export { CalendarWebhookControl } from './integrations/CalendarWebhookControl';
+export { HistoricalCalendarSync } from './integrations/HistoricalCalendarSync';
 
 // Shared components (Stitch-based UI)
 export * from './shared';
