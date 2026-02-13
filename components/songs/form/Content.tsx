@@ -3,9 +3,11 @@
 import React, { useState } from 'react';
 import { SongInputSchema, Song } from '@/schemas/SongSchema';
 import SongFormFields from './Fields';
+import MobileSongForm from './MobileSongForm';
 import { createFormData, clearFieldError, parseZodErrors, SongFormData } from './helpers';
 import { SpotifyTrack } from '@/types/spotify';
 import { useRouter } from 'next/navigation';
+import { useMediaQuery } from '@/hooks/use-media-query';
 import FormActions from '@/components/shared/FormActions';
 
 interface Props {
@@ -38,6 +40,7 @@ async function saveSong(mode: 'create' | 'edit', data: unknown, songId?: string)
 
 export default function SongFormContent({ mode, song, onSuccess }: Props) {
   const router = useRouter();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const [formData, setFormData] = useState(createFormData(song));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -164,23 +167,35 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
         </div>
       )}
 
-      <SongFormFields
-        formData={formData}
-        errors={errors}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        onSpotifySelect={handleSpotifySelect}
-        sectionsState={sectionsState}
-        onToggleSection={handleToggleSection}
-      />
+      {isMobile ? (
+        <MobileSongForm
+          formData={formData}
+          errors={errors}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          onSpotifySelect={handleSpotifySelect}
+        />
+      ) : (
+        <>
+          <SongFormFields
+            formData={formData}
+            errors={errors}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onSpotifySelect={handleSpotifySelect}
+            sectionsState={sectionsState}
+            onToggleSection={handleToggleSection}
+          />
 
-      <FormActions
-        isSubmitting={isSubmitting}
-        submitText={mode === 'create' ? 'Create Song' : 'Update Song'}
-        submittingText="Saving..."
-        onCancel={() => router.back()}
-        showCancel
-      />
+          <FormActions
+            isSubmitting={isSubmitting}
+            submitText={mode === 'create' ? 'Create Song' : 'Update Song'}
+            submittingText="Saving..."
+            onCancel={() => router.back()}
+            showCancel
+          />
+        </>
+      )}
     </form>
   );
 }
