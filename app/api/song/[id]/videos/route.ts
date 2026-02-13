@@ -85,8 +85,8 @@ export async function POST(
     let fileSizeBytes = input.file_size_bytes;
     try {
       const meta = await getVideoMetadata(user.id, input.google_drive_file_id);
-      thumbnailUrl = thumbnailUrl || meta.thumbnailLink;
-      fileSizeBytes = fileSizeBytes || meta.size;
+      thumbnailUrl = thumbnailUrl ?? meta.thumbnailLink ?? undefined;
+      fileSizeBytes = fileSizeBytes ?? meta.size;
     } catch (err) {
       log.warn('Could not fetch Drive metadata', { err });
     }

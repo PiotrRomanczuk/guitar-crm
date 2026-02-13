@@ -25,7 +25,8 @@ export const CreateSongVideoInputSchema = z.object({
   title: z.string().max(200).default(''),
   filename: z.string().min(1, 'Filename is required').max(255),
   mime_type: z.enum(ALLOWED_VIDEO_TYPES, {
-    errorMap: () => ({ message: 'File must be MP4, MOV, or WebM' }),
+    required_error: 'Video type is required',
+    invalid_type_error: 'File must be MP4, MOV, or WebM',
   }),
   file_size_bytes: z.number().int().nonnegative().max(MAX_FILE_SIZE_BYTES).optional(),
   duration_seconds: z.number().nonnegative().optional(),
@@ -43,7 +44,8 @@ export const UpdateSongVideoInputSchema = z.object({
 export const UploadUrlRequestSchema = z.object({
   filename: z.string().min(1, 'Filename is required').max(255),
   mime_type: z.enum(ALLOWED_VIDEO_TYPES, {
-    errorMap: () => ({ message: 'File must be MP4, MOV, or WebM' }),
+    required_error: 'Video type is required',
+    invalid_type_error: 'File must be MP4, MOV, or WebM',
   }),
   file_size_bytes: z.number().int().positive().max(MAX_FILE_SIZE_BYTES).optional(),
 });
