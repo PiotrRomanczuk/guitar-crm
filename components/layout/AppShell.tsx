@@ -7,10 +7,9 @@ import { AppSidebar } from '@/components/navigation/AppSidebar';
 import { Toaster } from 'sonner';
 import { getSupabaseConfig } from '@/lib/supabase/config';
 import { MobileBottomNav } from '@/components/navigation/MobileBottomNav';
-import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { useLayoutMode } from '@/hooks/use-is-widescreen';
 import { useKeyboardViewport } from '@/hooks/use-keyboard-viewport';
-import { Separator } from '@/components/ui/separator';
 import { NotificationBell } from '@/components/notifications';
 
 interface AppShellProps {
@@ -62,20 +61,30 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
       <SidebarProvider defaultOpen={layoutMode === 'widescreen'}>
         <AppSidebar isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
         <SidebarInset className="overflow-x-hidden">
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-3.5" />
-            <div className="flex items-center gap-2 flex-1">
-              <h2 className="text-sm font-semibold">
-                {pathname === '/dashboard'
-                  ? 'Dashboard'
-                  : pathname
-                      ?.split('/')
-                      .pop()
-                      ?.replace(/-/g, ' ')
-                      .replace(/^\w/, (c) => c.toUpperCase()) || 'Page'}
-              </h2>
-            </div>
+          <header className="flex h-16 shrink-0 items-center justify-between border-b px-6">
+            <h2 className="text-lg font-semibold">
+              {(() => {
+                if (pathname === '/dashboard') return 'Dashboard';
+
+                const segments = pathname?.split('/') || [];
+                const lastSegment = segments.pop() || 'Page';
+
+                // Check if last segment is a UUID (contains 5 hyphens and is 36 chars)
+                const isUUID = lastSegment.length === 36 && lastSegment.split('-').length === 5;
+
+                if (isUUID) {
+                  // Get the parent segment for context
+                  const parentSegment = segments.pop();
+                  return parentSegment
+                    ? parentSegment.replace(/-/g, ' ').replace(/^\w/, (c) => c.toUpperCase())
+                    : 'Details';
+                }
+
+                return lastSegment
+                  .replace(/-/g, ' ')
+                  .replace(/^\w/, (c) => c.toUpperCase());
+              })()}
+            </h2>
             <NotificationBell userId={user?.id} />
           </header>
           <main className="flex-1 bg-background p-3 sm:p-4 md:p-6 lg:p-8 ultrawide:p-10 overflow-x-hidden w-full max-w-full">
