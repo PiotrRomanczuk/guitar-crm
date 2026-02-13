@@ -73,14 +73,14 @@ SELECT
     ) AS songs_mastered,
 
     COUNT(DISTINCT ssp.song_id) FILTER (
-        WHERE ssp.current_status IN ('learning', 'struggling', 'mastered')
+        WHERE ssp.current_status IN ('to_learn', 'started', 'remembered', 'with_author', 'mastered')
     ) AS songs_assigned,
 
     -- Mastery rate (mastered / assigned * 100)
     ROUND(
         COUNT(DISTINCT ssp.song_id) FILTER (WHERE ssp.current_status = 'mastered')::numeric /
         NULLIF(
-            COUNT(DISTINCT ssp.song_id) FILTER (WHERE ssp.current_status IN ('learning', 'struggling', 'mastered')),
+            COUNT(DISTINCT ssp.song_id) FILTER (WHERE ssp.current_status IN ('to_learn', 'started', 'remembered', 'with_author', 'mastered')),
             0
         ) * 100,
         1
@@ -100,7 +100,7 @@ LEFT JOIN lessons l ON l.teacher_id = p.id AND l.deleted_at IS NULL
 LEFT JOIN profiles student_profiles ON student_profiles.id = l.student_id AND student_profiles.is_active = true
 LEFT JOIN student_song_progress ssp ON ssp.student_id = student_profiles.id
 
-WHERE p.role IN ('teacher', 'admin')
+WHERE (p.is_teacher OR p.is_admin)
   AND p.is_active = true
 
 GROUP BY p.id, p.full_name, p.email;
@@ -136,7 +136,7 @@ LEFT JOIN lessons l ON l.teacher_id = p.id
     AND l.scheduled_at >= date_trunc('month', now() - interval '12 months')
     AND l.scheduled_at < date_trunc('month', now() + interval '1 month')
 
-WHERE p.role IN ('teacher', 'admin')
+WHERE (p.is_teacher OR p.is_admin)
   AND p.is_active = true
 
 GROUP BY p.id, date_trunc('month', l.scheduled_at)
