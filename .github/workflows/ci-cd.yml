@@ -247,7 +247,7 @@ jobs:
       - run: npx playwright install chromium --with-deps
       - name: Run E2E Tests
         run: npx playwright test --project="Desktop Chrome"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: playwright-report
