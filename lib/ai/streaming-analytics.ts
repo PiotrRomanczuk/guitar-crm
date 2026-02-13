@@ -154,6 +154,13 @@ export function completeStreamingSession(
 }
 
 /**
+ * Vercel Analytics window extension
+ */
+interface VercelAnalyticsWindow extends Window {
+  va?: (event: string, name: string, data: Record<string, unknown>) => void;
+}
+
+/**
  * Send metrics to analytics service (Vercel Analytics, etc.)
  *
  * @param metrics - Session metrics
@@ -162,8 +169,9 @@ export function completeStreamingSession(
 function sendToAnalytics(metrics: StreamingMetrics, summary: PerformanceSummary): void {
   try {
     // Check if Vercel Analytics is available
-    if (typeof window !== 'undefined' && (window as any).va) {
-      (window as any).va('track', 'AI Streaming', {
+    const analyticsWindow = typeof window !== 'undefined' ? (window as VercelAnalyticsWindow) : null;
+    if (analyticsWindow?.va) {
+      analyticsWindow.va('track', 'AI Streaming', {
         agentId: metrics.agentId,
         modelId: metrics.modelId,
         ttft: summary.ttft,
