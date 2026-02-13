@@ -24,6 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Trash2, Music, Plus, MoreHorizontal, Eye } from 'lucide-react';
 import StatusSelect from './StatusSelect';
 import EmptyState from '@/components/shared/EmptyState';
@@ -35,6 +36,11 @@ interface Props {
   canDelete?: boolean;
   onDeleteSuccess?: () => void;
   selectedStudentId?: string;
+  selectedIds?: Set<string>;
+  onToggleSelect?: (id: string) => void;
+  onToggleSelectAll?: (songIds: string[]) => void;
+  isAllSelected?: boolean;
+  isIndeterminate?: boolean;
 }
 
 export default function SongListTable({
@@ -42,6 +48,11 @@ export default function SongListTable({
   canDelete = false,
   onDeleteSuccess,
   selectedStudentId,
+  selectedIds,
+  onToggleSelect,
+  onToggleSelectAll,
+  isAllSelected = false,
+  isIndeterminate = false,
 }: Props) {
   const router = useRouter();
   const [deletingSongId, setDeletingSongId] = useState<string | null>(null);
@@ -142,6 +153,15 @@ export default function SongListTable({
           songs.map((song) => (
             <div key={song.id} className="bg-card rounded-xl border border-border p-4 space-y-3">
               <div className="flex items-start gap-3">
+                {canDelete && onToggleSelect && (
+                  <div className="pt-1">
+                    <Checkbox
+                      checked={selectedIds?.has(song.id) ?? false}
+                      onCheckedChange={() => onToggleSelect(song.id)}
+                      aria-label={`Select ${song.title}`}
+                    />
+                  </div>
+                )}
                 <div className="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-muted flex items-center justify-center border border-border">
                   {song.cover_image_url ? (
                     <Image
@@ -270,6 +290,17 @@ export default function SongListTable({
           <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow className="hover:bg-transparent border-border">
+                {canDelete && onToggleSelectAll && (
+                  <TableHead className="w-12">
+                    <Checkbox
+                      checked={isAllSelected || (isIndeterminate ? 'indeterminate' : false)}
+                      onCheckedChange={() =>
+                        onToggleSelectAll(songs.map((s) => s.id))
+                      }
+                      aria-label="Select all songs"
+                    />
+                  </TableHead>
+                )}
                 <TableHead className="text-muted-foreground">Song</TableHead>
                 <TableHead className="text-muted-foreground">
                   {selectedStudentId ? 'Status' : 'Level'}
@@ -283,7 +314,7 @@ export default function SongListTable({
             <TableBody>
               {songs.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={canDelete ? 4 : 3}>
+                  <TableCell colSpan={canDelete ? 5 : 3}>
                     <EmptyState
                       variant="table-cell"
                       icon={Music}
@@ -301,6 +332,18 @@ export default function SongListTable({
                     className="hover:bg-secondary/50 border-border transition-colors cursor-pointer"
                     onClick={() => router.push(`/dashboard/songs/${song.id}`)}
                   >
+                    {canDelete && onToggleSelect && (
+                      <TableCell
+                        className="w-12"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Checkbox
+                          checked={selectedIds?.has(song.id) ?? false}
+                          onCheckedChange={() => onToggleSelect(song.id)}
+                          aria-label={`Select ${song.title}`}
+                        />
+                      </TableCell>
+                    )}
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
                         <div className="relative w-12 h-12 rounded-md overflow-hidden flex-shrink-0 bg-muted flex items-center justify-center border border-border">
