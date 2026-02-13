@@ -12,7 +12,19 @@ const SONG_LIST_COLUMNS = `
   duration_ms, release_year, category, chords,
   ultimate_guitar_link, youtube_url, spotify_link_url,
   cover_image_url, gallery_images, audio_files,
-  deleted_at, created_at, updated_at, tiktok_short_url
+  deleted_at, created_at, updated_at, tiktok_short_url,
+  lesson_songs (
+    id,
+    status,
+    lessons (
+      id,
+      student_id,
+      profile:profiles!lessons_student_id_fkey (
+        id,
+        full_name
+      )
+    )
+  )
 `;
 
 interface SongListProps {
@@ -32,15 +44,7 @@ export default async function SongList({ searchParams }: SongListProps) {
     typeof searchParams?.studentId === 'string' ? searchParams.studentId : undefined;
   const search = typeof searchParams?.search === 'string' ? searchParams.search : undefined;
   const level = typeof searchParams?.level === 'string' ? searchParams.level : undefined;
-  const pageParam = typeof searchParams?.page === 'string' ? parseInt(searchParams.page) : 1;
-  const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
-
-  const pageSizeParam =
-    typeof searchParams?.pageSize === 'string' ? parseInt(searchParams.pageSize) : 15;
-  const pageSize = isNaN(pageSizeParam) || pageSizeParam < 1 ? 15 : pageSizeParam;
-
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
+  // Virtual scrolling - fetch all songs (no pagination)
 
   let songQuery;
 
@@ -64,9 +68,9 @@ export default async function SongList({ searchParams }: SongListProps) {
     songQuery = songQuery.eq('level', level);
   }
 
-  songQuery = songQuery.order('created_at', { ascending: false }).range(from, to);
+  songQuery = songQuery.order('updated_at', { ascending: false }); // Most recently updated first
 
-  const { data: rawSongs, count, error } = await songQuery;
+  const { data: rawSongs, error } = await songQuery;
 
   if (error) {
     console.error('Error fetching songs:', error);
@@ -77,28 +81,59 @@ export default async function SongList({ searchParams }: SongListProps) {
     );
   }
 
-  const totalPages = count ? Math.ceil(count / pageSize) : 0;
-
-  // Transform songs: strip join data and add status fields for student filtering
+  // Transform songs: calculate stats and add status fields for student filtering
   const songs = (rawSongs?.map((rawSong) => {
-    // Remove lesson_songs join data if present, keep only song columns
     const { lesson_songs, ...song } = rawSong as Record<string, unknown> & {
-      lesson_songs?: Array<{ id: string; status: string }>;
+      lesson_songs?: Array<{
+        id: string;
+        status: string;
+        lessons: {
+          id: string;
+          student_id: string;
+          profile: { id: string; full_name: string | null } | null;
+        } | null;
+      }>;
+    };
+
+    // Calculate stats
+    const lessonSongsArray = lesson_songs || [];
+    const uniqueStudents = new Set(
+      lessonSongsArray
+        .map((ls) => ls.lessons?.student_id)
+        .filter(Boolean)
+    );
+
+    const statusCounts = lessonSongsArray.reduce(
+      (acc, ls) => {
+        const status = ls.status || 'to_learn';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    const stats = {
+      lessonCount: lessonSongsArray.length,
+      studentCount: uniqueStudents.size,
+      statusBreakdown: {
+        mastered: statusCounts.mastered || 0,
+        learning: statusCounts.learning || 0,
+        to_learn: statusCounts.to_learn || 0,
+      },
     };
 
     if (
       studentId &&
-      lesson_songs &&
-      Array.isArray(lesson_songs) &&
-      lesson_songs.length > 0
+      lessonSongsArray.length > 0
     ) {
       return {
         ...song,
-        status: lesson_songs[0].status,
-        lesson_song_id: lesson_songs[0].id,
+        status: lessonSongsArray[0].status,
+        lesson_song_id: lessonSongsArray[0].id,
+        stats,
       };
     }
-    return song;
+    return { ...song, stats };
   }) || []) as Song[];
 
   // Fetch students for filter (only if admin or teacher)
@@ -120,8 +155,6 @@ export default async function SongList({ searchParams }: SongListProps) {
       isAdmin={isAdmin || isTeacher}
       students={students}
       selectedStudentId={studentId}
-      totalPages={totalPages}
-      currentPage={page}
     />
   );
 }
