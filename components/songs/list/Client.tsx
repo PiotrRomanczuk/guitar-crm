@@ -1,12 +1,18 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import type { Song } from '../types';
 import SongListFilter from './Filter';
 import SongListTable from './Table';
 import SongListHeader from './Header';
 import SongListEmpty from './Empty';
+import BulkActionBar from './BulkActionBar';
+import BulkDeleteDialog from './BulkDeleteDialog';
+import { useSongSelection } from './useSongSelection';
+import { bulkSoftDeleteSongs } from '@/app/actions/songs';
 import {
   Pagination,
   PaginationContent,
@@ -41,8 +47,40 @@ export function SongListClient({
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
+  const selection = useSongSelection();
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [bulkDeleteError, setBulkDeleteError] = useState<string | null>(null);
+
+  const songIds = initialSongs.map((s) => s.id);
+
   const handleDeleteSuccess = () => {
     router.refresh();
+  };
+
+  const handleBulkDelete = async () => {
+    setBulkDeleting(true);
+    setBulkDeleteError(null);
+
+    try {
+      const result = await bulkSoftDeleteSongs(Array.from(selection.selectedIds));
+
+      if (result.deletedCount > 0) {
+        toast.success(`Deleted ${result.deletedCount} ${result.deletedCount === 1 ? 'song' : 'songs'}`);
+      }
+
+      if (result.errors.length > 0) {
+        toast.error(`Failed to delete ${result.errors.length} ${result.errors.length === 1 ? 'song' : 'songs'}`);
+      }
+
+      setBulkDeleteOpen(false);
+      selection.clearSelection();
+      router.refresh();
+    } catch {
+      setBulkDeleteError('An unexpected error occurred');
+    } finally {
+      setBulkDeleting(false);
+    }
   };
 
   const createPageUrl = (pageNumber: number) => {
@@ -57,6 +95,18 @@ export function SongListClient({
 
       <SongListFilter students={students} categories={categories} authors={authors} />
 
+      {isAdmin && (
+        <BulkActionBar
+          selectedCount={selection.selectedCount}
+          onDelete={() => {
+            setBulkDeleteError(null);
+            setBulkDeleteOpen(true);
+          }}
+          onClear={selection.clearSelection}
+          isDeleting={bulkDeleting}
+        />
+      )}
+
       {initialSongs.length === 0 ? (
         <SongListEmpty />
       ) : (
@@ -66,6 +116,11 @@ export function SongListClient({
             canDelete={isAdmin}
             onDeleteSuccess={handleDeleteSuccess}
             selectedStudentId={selectedStudentId}
+            selectedIds={selection.selectedIds}
+            onToggleSelect={selection.toggleSelect}
+            onToggleSelectAll={selection.toggleSelectAll}
+            isAllSelected={selection.isAllSelected(songIds)}
+            isIndeterminate={selection.isIndeterminate(songIds)}
           />
           {totalPages > 1 && (
             <Pagination>
@@ -217,6 +272,14 @@ export function SongListClient({
           )}
         </>
       )}
+      <BulkDeleteDialog
+        isOpen={bulkDeleteOpen}
+        count={selection.selectedCount}
+        onConfirm={handleBulkDelete}
+        onClose={() => setBulkDeleteOpen(false)}
+        isDeleting={bulkDeleting}
+        error={bulkDeleteError}
+      />
     </div>
   );
 }
