@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Table,
   TableBody,
@@ -55,6 +56,8 @@ function getInitials(firstName: string | null, lastName: string | null): string 
 }
 
 export default function UsersListTable({ users, onDelete }: UsersListTableProps) {
+  const router = useRouter();
+
   if (users.length === 0) {
     return (
       <EmptyState
@@ -164,7 +167,8 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                 <TableRow
                   key={user.id}
                   data-testid={`user-row-${user.id}`}
-                  className="hover:bg-muted/50 transition-colors"
+                  className="hover:bg-muted/50 transition-colors cursor-pointer"
+                  onClick={() => router.push(`/dashboard/users/${user.id}`)}
                 >
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -203,7 +207,7 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-11 w-11 sm:h-8 sm:w-8">

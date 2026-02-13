@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { SongInputSchema, SongDraftSchema, Song } from '@/schemas/SongSchema';
 import SongFormFields from './Fields';
 import MobileSongForm from './MobileSongForm';
@@ -11,7 +11,9 @@ import { useMediaQuery } from '@/hooks/use-media-query';
 import { toast } from 'sonner';
 import FormActions from '@/components/shared/FormActions';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, AlertTriangle } from 'lucide-react';
+import { checkSongDuplicate } from '@/app/actions/songs';
 
 interface Props {
   mode: 'create' | 'edit';
@@ -49,6 +51,8 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
+  const dupCheckTimer = useRef<ReturnType<typeof setTimeout>>(null);
   const [sectionsState, setSectionsState] = useState({
     resources: false,
     musical: false,
@@ -68,13 +72,37 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
     }));
   };
 
+  const runDuplicateCheck = useCallback(
+    (title: string, author: string) => {
+      if (dupCheckTimer.current) clearTimeout(dupCheckTimer.current);
+      if (!title.trim() || !author.trim()) {
+        setDuplicateWarning(null);
+        return;
+      }
+      dupCheckTimer.current = setTimeout(async () => {
+        const result = await checkSongDuplicate({
+          title,
+          author,
+          excludeId: song?.id,
+        });
+        if (result.exists) {
+          setDuplicateWarning(
+            `A song called "${result.existingTitle}" by ${result.existingAuthor} already exists. You can still save if this is a different arrangement.`
+          );
+        } else {
+          setDuplicateWarning(null);
+        }
+      }, 400);
+    },
+    [song?.id]
+  );
+
   const handleBlur = (field: string) => {
     // Validate single field on blur
     try {
       const fieldSchema = SongInputSchema.shape[field as keyof typeof SongInputSchema.shape];
       if (fieldSchema) {
         fieldSchema.parse(formData[field as keyof SongFormData]);
-        // Clear error if validation passes
         if (errors[field]) {
           setErrors((prev) => clearFieldError(prev, field));
         }
@@ -84,6 +112,11 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
       if (fieldErrors[field]) {
         setErrors((prev) => ({ ...prev, [field]: fieldErrors[field] }));
       }
+    }
+
+    // Check for duplicates when title or author field loses focus
+    if (field === 'title' || field === 'author') {
+      runDuplicateCheck(formData.title, formData.author);
     }
   };
 
@@ -143,7 +176,7 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
 
       const { error, data } = await saveSong(mode, validatedData, song?.id);
       if (error) {
-        setSubmitError('Failed to save song');
+        setSubmitError(error.message);
         return;
       }
 
@@ -203,6 +236,15 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
         <div className="p-4 bg-destructive/10 border border-destructive/20 text-destructive rounded">
           {submitError}
         </div>
+      )}
+
+      {duplicateWarning && (
+        <Alert variant="default" className="border-yellow-500/50 bg-yellow-50 dark:bg-yellow-950/20">
+          <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+          <AlertDescription className="text-yellow-800 dark:text-yellow-200">
+            {duplicateWarning}
+          </AlertDescription>
+        </Alert>
       )}
 
       {isMobile ? (

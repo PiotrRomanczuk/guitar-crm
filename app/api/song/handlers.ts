@@ -153,6 +153,12 @@ export async function createSongHandler(
       .single();
 
     if (error) {
+      if (error.code === '23505') {
+        return {
+          error: 'A song with this title and author already exists',
+          status: 409,
+        };
+      }
       console.error('Supabase insert error:', error.message);
       return { error: error.message, status: 500 };
     }
