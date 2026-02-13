@@ -30,9 +30,9 @@ jest.mock('@/lib/logging/notification-logger', () => ({
   logError: jest.fn(),
 }));
 
-// Mock in-app notification service (inline mock to avoid file resolution)
+// Mock in-app notification service
 const mockCreateInAppNotification = jest.fn();
-jest.mock('../in-app-notification-service', () => ({
+jest.mock('@/lib/services/in-app-notification-service', () => ({
   createInAppNotification: mockCreateInAppNotification,
 }), { virtual: true });
 
@@ -102,7 +102,6 @@ describe('notification-service', () => {
   });
 
   describe('sendNotification', () => {
-    // TODO: Enable when delivery channel routing is implemented
     it.skip('should successfully send an in-app notification', async () => {
       // Mock recipient lookup
       mockSupabase.single.mockResolvedValueOnce({
@@ -279,8 +278,7 @@ describe('notification-service', () => {
       expect(result.success).toBe(false);
     });
 
-    // TODO: Enable when delivery channel routing is implemented
-    it.skip('should handle in-app notification creation failure gracefully', async () => {
+    it('should handle in-app notification creation failure gracefully', async () => {
       // Mock recipient lookup
       mockSupabase.single.mockResolvedValueOnce({
         data: mockRecipient,

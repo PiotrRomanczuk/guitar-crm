@@ -19,8 +19,17 @@ import {
   logNotificationQueued,
   logNotificationSkipped,
   logError,
-  logInfo,
 } from '@/lib/logging/notification-logger';
+import { createInAppNotification } from '@/lib/services/in-app-notification-service';
+import {
+  generateInAppContent,
+  getPriorityForType,
+} from '@/lib/services/notification-in-app-content';
+import {
+  getDeliveryChannel,
+  getNotificationSubject,
+  getNotificationHtml,
+} from '@/lib/services/notification-helpers';
 import type {
   NotificationType,
   SendNotificationParams,
@@ -35,6 +44,7 @@ import type { Json } from '@/database.types';
 
 /**
  * Send a notification immediately (checks preferences, logs attempt)
+ * Supports dual-channel routing: email, in-app, or both
  */
 export async function sendNotification(
   params: SendNotificationParams
@@ -103,134 +113,173 @@ export async function sendNotification(
       };
     }
 
-    // 3. Generate email content
-    const subject = getNotificationSubject(type, templateData);
-    const htmlContent = await getNotificationHtml(type, templateData, recipient);
+    // 3. Get delivery channel (email, in-app, or both)
+    const deliveryChannel = await getDeliveryChannel(recipientUserId, type);
 
-    // 4. Create log entry (pending)
-    const { data: logEntry, error: logEntryError } = await supabase
-      .from('notification_log')
-      .insert({
-        notification_type: type,
-        recipient_user_id: recipientUserId,
-        recipient_email: recipient.email,
-        status: 'pending',
-        subject,
-        template_data: templateData as unknown as Json,
-        entity_type: entityType,
-        entity_id: entityId,
-      })
-      .select('id')
-      .single();
+    const results: { email: boolean | null; inApp: boolean | null } = {
+      email: null,
+      inApp: null,
+    };
 
-    if (logEntryError || !logEntry) {
-      logError(
-        'Failed to create log entry',
-        logEntryError instanceof Error ? logEntryError : new Error('Failed to create log entry'),
-        {
-          user_id: recipientUserId,
-          notification_type: type,
-          entity_type: entityType,
-          entity_id: entityId,
-        }
-      );
-      return {
-        success: false,
-        error: 'Failed to create log entry',
-      };
-    }
-
-    // 5. Check rate limits
-    const userRateLimit = await checkRateLimit(recipientUserId);
-    if (!userRateLimit.allowed) {
-      await supabase
-        .from('notification_log')
-        .update({ status: 'failed', error_message: `User rate limited. Retry after ${userRateLimit.retryAfter}s` })
-        .eq('id', logEntry.id);
-      return { success: false, error: `User rate limited. Retry after ${userRateLimit.retryAfter}s`, logId: logEntry.id };
-    }
-    const systemRateLimit = await checkSystemRateLimit();
-    if (!systemRateLimit.allowed) {
-      await supabase
-        .from('notification_log')
-        .update({ status: 'failed', error_message: 'System rate limit reached' })
-        .eq('id', logEntry.id);
-      return { success: false, error: 'System rate limit reached', logId: logEntry.id };
-    }
-
-    // 6. Check SMTP configuration
-    if (!isSmtpConfigured()) {
-      await supabase
-        .from('notification_log')
-        .update({ status: 'failed', error_message: 'SMTP not configured: missing GMAIL_USER or GMAIL_APP_PASSWORD' })
-        .eq('id', logEntry.id);
-      return { success: false, error: 'SMTP not configured: missing GMAIL_USER or GMAIL_APP_PASSWORD', logId: logEntry.id };
-    }
-
-    // 7. Send email
-    try {
-      await transporter.sendMail({
-        from: `"Strummy" <${process.env.GMAIL_USER}>`,
-        to: recipient.email,
-        subject,
-        html: htmlContent,
+    // 4. Send via in-app if enabled
+    if (deliveryChannel === 'in_app' || deliveryChannel === 'both') {
+      const inAppContent = generateInAppContent(type, templateData);
+      const inAppNotification = await createInAppNotification({
+        type,
+        recipientUserId,
+        ...inAppContent,
+        entityType,
+        entityId: entityId || '',
+        priority: getPriorityForType(type),
       });
-
-      // Update log entry to sent
-      await supabase
-        .from('notification_log')
-        .update({
-          status: 'sent',
-          sent_at: new Date().toISOString(),
-        })
-        .eq('id', logEntry.id);
-
-      logNotificationSent(
-        logEntry.id,
-        recipientUserId,
-        type,
-        recipient.email,
-        {
-          entity_type: entityType,
-          entity_id: entityId,
-          subject,
-        }
-      );
-
-      return {
-        success: true,
-        logId: logEntry.id,
-      };
-    } catch (emailError: unknown) {
-      // Update log entry to failed
-      const errorMessage = emailError instanceof Error ? emailError.message : 'Unknown error';
-
-      await supabase
-        .from('notification_log')
-        .update({
-          status: 'failed',
-          error_message: errorMessage,
-        })
-        .eq('id', logEntry.id);
-
-      logNotificationFailed(
-        logEntry.id,
-        emailError instanceof Error ? emailError : new Error(errorMessage),
-        recipientUserId,
-        type,
-        {
-          entity_type: entityType,
-          entity_id: entityId,
-          recipient_email: recipient.email,
-        }
-      );
-
-      return {
-        success: false,
-        error: errorMessage,
-        logId: logEntry.id,
-      };
+      results.inApp = !!inAppNotification;
     }
+
+    // 5. Send via email if enabled (skip email logic if in-app only)
+    if (deliveryChannel === 'email' || deliveryChannel === 'both') {
+      // Continue with existing email logic below...
+
+      // 5.1. Generate email content
+      const subject = getNotificationSubject(type, templateData);
+      const htmlContent = await getNotificationHtml(type, templateData, recipient);
+
+      // 5.2. Create log entry (pending)
+      const { data: logEntry, error: logEntryError } = await supabase
+        .from('notification_log')
+        .insert({
+          notification_type: type,
+          recipient_user_id: recipientUserId,
+          recipient_email: recipient.email,
+          status: 'pending',
+          subject,
+          template_data: templateData as unknown as Json,
+          entity_type: entityType,
+          entity_id: entityId,
+        })
+        .select('id')
+        .single();
+
+      if (logEntryError || !logEntry) {
+        logError(
+          'Failed to create log entry',
+          logEntryError instanceof Error ? logEntryError : new Error('Failed to create log entry'),
+          {
+            user_id: recipientUserId,
+            notification_type: type,
+            entity_type: entityType,
+            entity_id: entityId,
+          }
+        );
+        return {
+          success: results.inApp === true,
+          error: 'Failed to create email log entry',
+        };
+      }
+
+      // 5.3. Check rate limits
+      const userRateLimit = await checkRateLimit(recipientUserId);
+      if (!userRateLimit.allowed) {
+        await supabase
+          .from('notification_log')
+          .update({ status: 'failed', error_message: `User rate limited. Retry after ${userRateLimit.retryAfter}s` })
+          .eq('id', logEntry.id);
+        return {
+          success: results.inApp === true,
+          error: `User rate limited. Retry after ${userRateLimit.retryAfter}s`,
+          logId: logEntry.id,
+        };
+      }
+      const systemRateLimit = await checkSystemRateLimit();
+      if (!systemRateLimit.allowed) {
+        await supabase
+          .from('notification_log')
+          .update({ status: 'failed', error_message: 'System rate limit reached' })
+          .eq('id', logEntry.id);
+        return {
+          success: results.inApp === true,
+          error: 'System rate limit reached',
+          logId: logEntry.id,
+        };
+      }
+
+      // 5.4. Check SMTP configuration
+      if (!isSmtpConfigured()) {
+        await supabase
+          .from('notification_log')
+          .update({ status: 'failed', error_message: 'SMTP not configured: missing GMAIL_USER or GMAIL_APP_PASSWORD' })
+          .eq('id', logEntry.id);
+        return {
+          success: results.inApp === true,
+          error: 'SMTP not configured: missing GMAIL_USER or GMAIL_APP_PASSWORD',
+          logId: logEntry.id,
+        };
+      }
+
+      // 5.5. Send email
+      try {
+        await transporter.sendMail({
+          from: `"Guitar CRM" <${process.env.GMAIL_USER}>`,
+          to: recipient.email,
+          subject,
+          html: htmlContent,
+        });
+
+        // Update log entry to sent
+        await supabase
+          .from('notification_log')
+          .update({
+            status: 'sent',
+            sent_at: new Date().toISOString(),
+          })
+          .eq('id', logEntry.id);
+
+        logNotificationSent(
+          logEntry.id,
+          recipientUserId,
+          type,
+          recipient.email,
+          {
+            entity_type: entityType,
+            entity_id: entityId,
+            subject,
+          }
+        );
+
+        results.email = true;
+      } catch (emailError: unknown) {
+        // Update log entry to failed
+        const errorMessage = emailError instanceof Error ? emailError.message : 'Unknown error';
+
+        await supabase
+          .from('notification_log')
+          .update({
+            status: 'failed',
+            error_message: errorMessage,
+          })
+          .eq('id', logEntry.id);
+
+        logNotificationFailed(
+          logEntry.id,
+          emailError instanceof Error ? emailError : new Error(errorMessage),
+          recipientUserId,
+          type,
+          {
+            entity_type: entityType,
+            entity_id: entityId,
+            recipient_email: recipient.email,
+          }
+        );
+
+        results.email = false;
+      }
+    }
+
+    // 6. Return combined result
+    const overallSuccess = results.email === true || results.inApp === true;
+    return {
+      success: overallSuccess,
+      logId: undefined,
+    };
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     logError(
@@ -337,6 +386,46 @@ export async function queueNotification(
 }
 
 /**
+ * Cancel pending queued notifications for a specific entity
+ */
+export async function cancelPendingQueueEntries(
+  entityType: string,
+  entityId: string,
+  notificationType?: NotificationType
+): Promise<void> {
+  try {
+    const supabase = createAdminClient();
+
+    let query = supabase
+      .from('notification_queue')
+      .update({ status: 'cancelled' })
+      .eq('entity_type', entityType)
+      .eq('entity_id', entityId)
+      .eq('status', 'pending');
+
+    if (notificationType) {
+      query = query.eq('notification_type', notificationType);
+    }
+
+    const { error } = await query;
+
+    if (error) {
+      logError(
+        'Failed to cancel pending queue entries',
+        error instanceof Error ? error : new Error('Failed to cancel queue entries'),
+        { entity_type: entityType, entity_id: entityId, notification_type: notificationType }
+      );
+    }
+  } catch (error) {
+    logError(
+      'cancelPendingQueueEntries error',
+      error instanceof Error ? error : new Error('Unknown error'),
+      { entity_type: entityType, entity_id: entityId, notification_type: notificationType }
+    );
+  }
+}
+
+/**
  * Check if user has enabled a specific notification type
  */
 export async function checkUserPreference(
@@ -368,105 +457,4 @@ export async function checkUserPreference(
     // Default to enabled on error
     return true;
   }
-}
-
-
-// ============================================================================
-// QUEUE MANAGEMENT FUNCTIONS
-// ============================================================================
-
-/**
- * Cancel pending queue entries for a specific entity.
- * Used to prevent duplicate sends when a notification is sent manually.
- */
-export async function cancelPendingQueueEntries(
-  entityType: string,
-  entityId: string,
-  notificationType: NotificationType
-): Promise<number> {
-  try {
-    const supabase = createAdminClient();
-
-    const { data, error } = await supabase
-      .from('notification_queue')
-      .update({
-        status: 'cancelled',
-        processed_at: new Date().toISOString(),
-      })
-      .eq('entity_type', entityType)
-      .eq('entity_id', entityId)
-      .eq('notification_type', notificationType)
-      .eq('status', 'pending')
-      .select('id');
-
-    if (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      logError(
-        'Failed to cancel pending queue entries',
-        error instanceof Error ? error : new Error(errorMessage),
-        { entity_type: entityType, entity_id: entityId, notification_type: notificationType }
-      );
-      return 0;
-    }
-
-    const count = data?.length ?? 0;
-    if (count > 0) {
-      logInfo(`Cancelled ${count} pending queue entries for ${notificationType} on ${entityType}:${entityId}`);
-    }
-    return count;
-  } catch (error) {
-    logError(
-      'cancelPendingQueueEntries error',
-      error instanceof Error ? error : new Error('Unknown error'),
-      { entity_type: entityType, entity_id: entityId, notification_type: notificationType }
-    );
-    return 0;
-  }
-}
-
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
-
-/**
- * Get notification subject based on type and template data
- */
-function getNotificationSubject(
-  type: NotificationType,
-  templateData: Record<string, unknown>
-): string {
-  const subjectMap: Record<NotificationType, (data: Record<string, unknown>) => string> = {
-    lesson_reminder_24h: () => 'Upcoming Lesson Reminder',
-    lesson_recap: (data) => `Lesson Recap: ${data.lessonTitle || 'Your Recent Lesson'}`,
-    lesson_cancelled: () => 'Lesson Cancelled',
-    lesson_rescheduled: () => 'Lesson Rescheduled',
-    assignment_created: (data) => `New Assignment: ${data.assignmentTitle || 'Untitled'}`,
-    assignment_due_reminder: (data) => `Assignment Due Soon: ${data.assignmentTitle}`,
-    assignment_overdue_alert: (data) => `Overdue Assignment: ${data.assignmentTitle}`,
-    assignment_completed: (data) => `Assignment Completed: ${data.assignmentTitle || 'Untitled'}`,
-    song_mastery_achievement: (data) => `Congratulations! You Mastered "${data.songTitle}"`,
-    milestone_reached: (data) => `Milestone Reached: ${data.milestone || 'Achievement Unlocked'}`,
-    student_welcome: () => 'Welcome to Strummy!',
-    trial_ending_reminder: () => 'Your Trial Period is Ending Soon',
-    teacher_daily_summary: (data) => `Daily Summary - ${data.date}`,
-    weekly_progress_digest: () => 'Your Weekly Progress Report',
-    calendar_conflict_alert: () => 'Calendar Conflict Detected',
-    webhook_expiration_notice: () => 'Calendar Integration Expiring Soon',
-    admin_error_alert: (data) => `System Alert: ${data.errorType || 'Unknown Error'}`,
-  };
-
-  const subjectGenerator = subjectMap[type];
-  return subjectGenerator ? subjectGenerator(templateData) : 'Notification from Strummy';
-}
-
-/**
- * Get notification HTML content using dedicated email templates.
- */
-async function getNotificationHtml(
-  type: NotificationType,
-  templateData: Record<string, unknown>,
-  recipient: { full_name: string | null; email: string }
-): Promise<string> {
-  const { renderNotificationHtml } = await import('@/lib/email/render-notification');
-  return renderNotificationHtml(type, templateData, recipient);
 }

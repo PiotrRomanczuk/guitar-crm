@@ -38,9 +38,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { NotificationBell } from '@/components/notifications';
 
 interface HorizontalNavProps {
-  user: { email?: string } | null;
+  user: { id?: string; email?: string } | null;
   isAdmin: boolean;
   isTeacher: boolean;
   isStudent: boolean;
@@ -205,6 +206,7 @@ export function HorizontalNav({ user, isAdmin, isTeacher, isStudent }: Horizonta
         {/* Right Side Actions */}
         <div className="flex items-center gap-2">
           <DatabaseStatus variant="inline" className="hidden md:flex" />
+          <NotificationBell userId={user?.id} />
           <ModeToggle />
 
           <DropdownMenu>
