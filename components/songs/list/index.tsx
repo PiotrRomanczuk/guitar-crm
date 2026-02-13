@@ -1,6 +1,19 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { SongListClient } from './Client';
+import type { Song } from '../types';
+
+// Explicit columns for the song list query.
+// Excludes search_vector (tsvector/unknown type) which is not needed in the UI
+// and can cause serialization issues between server and client components.
+const SONG_LIST_COLUMNS = `
+  id, title, author, short_title, level, key,
+  capo_fret, strumming_pattern, tempo, time_signature,
+  duration_ms, release_year, category, chords,
+  ultimate_guitar_link, youtube_url, spotify_link_url,
+  cover_image_url, gallery_images, audio_files,
+  deleted_at, created_at, updated_at, tiktok_short_url
+`;
 
 interface SongListProps {
   searchParams?: { [key: string]: string | string[] | undefined };
@@ -34,10 +47,13 @@ export default async function SongList({ searchParams }: SongListProps) {
   if (studentId) {
     songQuery = supabase
       .from('songs')
-      .select('*, lesson_songs!inner(id, status, lessons!inner(student_id))', { count: 'exact' })
+      .select(
+        `${SONG_LIST_COLUMNS}, lesson_songs!inner(id, status, lessons!inner(student_id))`,
+        { count: 'exact' }
+      )
       .eq('lesson_songs.lessons.student_id', studentId);
   } else {
-    songQuery = supabase.from('songs').select('*', { count: 'exact' });
+    songQuery = supabase.from('songs').select(SONG_LIST_COLUMNS, { count: 'exact' });
   }
 
   if (search) {
@@ -54,39 +70,39 @@ export default async function SongList({ searchParams }: SongListProps) {
 
   if (error) {
     console.error('Error fetching songs:', error);
-    return <div data-testid="song-list-error">Error loading songs: {error.message}</div>;
+    return (
+      <div data-testid="song-list-error">
+        Error loading songs: {String(error.message)}
+      </div>
+    );
   }
 
   const totalPages = count ? Math.ceil(count / pageSize) : 0;
 
-  // Transform songs to include status if filtering by student
-  const songs =
-    rawSongs?.map((song) => {
-      if (
-        studentId &&
-        song.lesson_songs &&
-        Array.isArray(song.lesson_songs) &&
-        song.lesson_songs.length > 0
-      ) {
-        // When using !inner join, Supabase returns the joined data.
-        // We take the status from the first matching lesson_song.
-        // Note: The query structure ensures these lesson_songs belong to the student.
-        return {
-          ...song,
-          status: song.lesson_songs[0].status,
-          lesson_song_id: song.lesson_songs[0].id,
-        };
-      }
-      return song;
-    }) || [];
+  // Transform songs: strip join data and add status fields for student filtering
+  const songs = (rawSongs?.map((rawSong) => {
+    // Remove lesson_songs join data if present, keep only song columns
+    const { lesson_songs, ...song } = rawSong as Record<string, unknown> & {
+      lesson_songs?: Array<{ id: string; status: string }>;
+    };
+
+    if (
+      studentId &&
+      lesson_songs &&
+      Array.isArray(lesson_songs) &&
+      lesson_songs.length > 0
+    ) {
+      return {
+        ...song,
+        status: lesson_songs[0].status,
+        lesson_song_id: lesson_songs[0].id,
+      };
+    }
+    return song;
+  }) || []) as Song[];
 
   // Fetch students for filter (only if admin or teacher)
   let students: { id: string; full_name: string | null }[] = [];
-
-  // We don't need songStudentMap anymore for client-side filtering,
-  // but we might want to keep it if we want to show which students are assigned to a song in the list?
-  // The user asked for "filtration", so SSR filtration is the key.
-  // I will remove songStudentMap logic as it's heavy and we are moving to SSR.
 
   if (isAdmin || isTeacher) {
     const { data: studentsData } = await supabase

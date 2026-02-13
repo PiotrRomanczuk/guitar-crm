@@ -169,3 +169,53 @@ export async function updateLessonSongStatus(
 
   revalidatePath(`/dashboard/lessons/${lessonId}`);
 }
+
+export interface AssignableLesson {
+  id: string;
+  scheduled_at: string;
+  title: string | null;
+  student: {
+    id: string;
+    full_name: string | null;
+  };
+}
+
+/**
+ * Get lessons available for song assignment
+ * Returns lessons from past 7 days + all future lessons
+ * Ordered by date DESC (most recent first)
+ */
+export async function getAssignableLessons(): Promise<AssignableLesson[]> {
+  const supabase = await createClient();
+
+  // Calculate date 7 days ago
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const { data, error } = await supabase
+    .from('lessons')
+    .select(`
+      id,
+      scheduled_at,
+      title,
+      student:profiles!lessons_student_id_fkey (
+        id,
+        full_name
+      )
+    `)
+    .gte('scheduled_at', sevenDaysAgo.toISOString())
+    .order('scheduled_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching assignable lessons:', error);
+    throw new Error('Failed to fetch lessons');
+  }
+
+  // Transform the data to match the expected type (student is an array from Supabase join)
+  return (data || []).map((lesson) => ({
+    id: lesson.id,
+    scheduled_at: lesson.scheduled_at,
+    title: lesson.title,
+    student: Array.isArray(lesson.student) ? lesson.student[0] : lesson.student,
+  })) as AssignableLesson[];
+}
