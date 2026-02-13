@@ -1,7 +1,7 @@
 // Pure functions for song API business logic - testable without Next.js dependencies
 
 import { Song } from '@/types/Song';
-import { SongInputSchema } from '@/schemas/SongSchema';
+import { SongInputSchema, SongDraftSchema } from '@/schemas/SongSchema';
 import { ZodError } from 'zod';
 
 export interface SongQueryParams {
@@ -141,7 +141,10 @@ export async function createSongHandler(
   }
 
   try {
-    const validatedSong = SongInputSchema.parse(body);
+    // Check if this is a draft and use appropriate schema
+    const isDraft = (body as { is_draft?: boolean })?.is_draft === true;
+    const schema = isDraft ? SongDraftSchema : SongInputSchema;
+    const validatedSong = schema.parse(body);
 
     const { data: song, error } = await supabase
       .from('songs')
@@ -187,8 +190,13 @@ export async function updateSongHandler(
   }
 
   try {
+    // Check if this is a draft and use appropriate schema
+    const isDraft = (body as { is_draft?: boolean })?.is_draft === true;
+    const schema = isDraft ? SongDraftSchema : SongInputSchema;
+    const validatedSong = schema.parse(body);
+
     const updateData = {
-      ...(typeof body === 'object' && body !== null ? body : {}),
+      ...validatedSong,
       updated_at: new Date().toISOString(),
     };
 
@@ -204,7 +212,14 @@ export async function updateSongHandler(
     }
 
     return { song, status: 200 };
-  } catch {
+  } catch (err) {
+    if (err instanceof ZodError) {
+      const fieldErrors = err.flatten().fieldErrors;
+      return {
+        error: `Validation failed: ${JSON.stringify(fieldErrors)}`,
+        status: 422,
+      };
+    }
     return { error: 'Internal server error', status: 500 };
   }
 }

@@ -157,12 +157,19 @@ export default function SongListTable({
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <Link
-                    href={`/dashboard/songs/${song.id}`}
-                    className="font-medium text-foreground hover:text-primary block truncate text-base"
-                  >
-                    {song.title ?? 'Untitled'}
-                  </Link>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Link
+                      href={`/dashboard/songs/${song.id}`}
+                      className="font-medium text-foreground hover:text-primary truncate text-base"
+                    >
+                      {song.title ?? 'Untitled'}
+                    </Link>
+                    {(song as Song & { is_draft?: boolean }).is_draft && (
+                      <Badge variant="outline" className="text-xs flex-shrink-0">
+                        Draft
+                      </Badge>
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground truncate">
                     {song.author || 'Unknown Artist'}
                   </p>
@@ -310,7 +317,14 @@ export default function SongListTable({
                           )}
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-foreground">{song.title ?? 'Untitled'}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-foreground">{song.title ?? 'Untitled'}</span>
+                            {(song as Song & { is_draft?: boolean }).is_draft && (
+                              <Badge variant="outline" className="text-xs">
+                                Draft
+                              </Badge>
+                            )}
+                          </div>
                           <span className="text-xs text-muted-foreground">{song.author}</span>
                         </div>
                       </div>
