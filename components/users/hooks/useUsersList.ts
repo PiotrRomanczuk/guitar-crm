@@ -26,8 +26,11 @@ interface UsersListResponse {
 export function useUsersList(
   search: string,
   roleFilter: '' | 'admin' | 'teacher' | 'student',
-  activeFilter: '' | 'true' | 'false'
+  activeFilter: '' | 'true' | 'false',
+  initialUsers?: UserProfile[]
 ) {
+  const hasFilters = search || roleFilter || activeFilter;
+
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['users', search, roleFilter, activeFilter],
     queryFn: async () => {
@@ -40,6 +43,7 @@ export function useUsersList(
       return response.data || [];
     },
     enabled: true,
+    initialData: !hasFilters && initialUsers ? initialUsers : undefined,
   });
 
   return {

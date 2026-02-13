@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
@@ -8,6 +9,7 @@ import { Database } from '@/database.types';
 import { LessonSongsList, LessonDetailsCard, LessonAssignmentsList } from '@/components/lessons';
 import { StudentLessonDetailPageClient } from '@/components/lessons/student/StudentLessonDetailPageClient';
 import { HistoryTimeline } from '@/components/shared/HistoryTimeline';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface LessonDetailPageProps {
   params: Promise<{ id: string }>;
@@ -124,31 +126,81 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <LessonDetailsCard
-            lesson={lesson}
-            canEdit={canEdit}
-            canDelete={canDelete}
-            onDelete={handleDeleteLesson.bind(null, id)}
-          />
+          <Suspense fallback={<DetailSkeleton />}>
+            <LessonDetailsCard
+              lesson={lesson}
+              canEdit={canEdit}
+              canDelete={canDelete}
+              onDelete={handleDeleteLesson.bind(null, id)}
+            />
+          </Suspense>
 
-          <LessonSongsList
-            lessonId={lesson.id!}
-            lessonSongs={lesson.lesson_songs}
-            canEdit={canEdit}
-          />
+          <Suspense fallback={<ListSkeleton title="Songs" />}>
+            <LessonSongsList
+              lessonId={lesson.id!}
+              lessonSongs={lesson.lesson_songs}
+              canEdit={canEdit}
+            />
+          </Suspense>
 
-          <LessonAssignmentsList
-            lessonId={lesson.id!}
-            studentId={lesson.student_id}
-            teacherId={lesson.teacher_id}
-            assignments={lesson.assignments}
-            canEdit={canEdit}
-          />
+          <Suspense fallback={<ListSkeleton title="Assignments" />}>
+            <LessonAssignmentsList
+              lessonId={lesson.id!}
+              studentId={lesson.student_id}
+              teacherId={lesson.teacher_id}
+              assignments={lesson.assignments}
+              canEdit={canEdit}
+            />
+          </Suspense>
         </div>
 
         <div className="lg:col-span-1">
-          <HistoryTimeline recordId={lesson.id!} recordType="lesson" title="Lesson History" />
+          <Suspense fallback={<HistorySkeleton />}>
+            <HistoryTimeline recordId={lesson.id!} recordType="lesson" title="Lesson History" />
+          </Suspense>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Skeleton components for progressive rendering
+function DetailSkeleton() {
+  return (
+    <div className="border rounded-lg p-6 space-y-4">
+      <Skeleton className="h-8 w-64" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
+    </div>
+  );
+}
+
+function ListSkeleton({ title }: { title: string }) {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-6 w-32" />
+      <div className="space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="border rounded-lg p-4">
+            <Skeleton className="h-5 w-full" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HistorySkeleton() {
+  return (
+    <div className="border rounded-lg p-6 space-y-4">
+      <Skeleton className="h-6 w-40" />
+      <div className="space-y-2">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-12 w-full" />
+        ))}
       </div>
     </div>
   );
