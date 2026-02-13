@@ -59,10 +59,10 @@ export function LessonStatsCharts() {
           <CardDescription>Number of lessons over the last 12 months</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px]">
+          <div className="h-[250px] sm:h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyData}>
-                <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                <XAxis dataKey="name" fontSize={11} tickLine={false} axisLine={false} interval="preserveStartEnd" />
                 <YAxis
                   fontSize={12}
                   tickLine={false}

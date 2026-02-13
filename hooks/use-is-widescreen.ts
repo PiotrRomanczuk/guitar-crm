@@ -1,41 +1,52 @@
 import * as React from 'react';
 
+type LayoutMode = 'widescreen' | 'tablet' | 'mobile';
+
 /**
- * Hook to detect widescreen displays (landscape orientation with sufficient width)
- * Returns true for widescreen (sidebar layout), false for vertical/narrow displays (top navbar)
+ * Hook to detect display layout mode for responsive navigation.
  *
  * Detection logic:
- * - Width >= 1024px AND aspect ratio >= 1.2 (landscape) = widescreen
- * - Otherwise = vertical/narrow display
+ * - Width >= 1024px AND aspect ratio >= 1.2 = widescreen (full sidebar)
+ * - Width >= 768px (tablet range, e.g. iPad portrait/landscape) = tablet (collapsed sidebar)
+ * - Otherwise = mobile (horizontal nav + bottom nav)
  */
-export function useIsWidescreen() {
-  const [isWidescreen, setIsWidescreen] = React.useState<boolean | undefined>(undefined);
+export function useLayoutMode(): LayoutMode {
+  const [mode, setMode] = React.useState<LayoutMode>('mobile');
 
   React.useEffect(() => {
-    const checkWidescreen = () => {
+    const check = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
       const aspectRatio = width / height;
 
-      // Widescreen: minimum width 1024px AND landscape orientation (aspect ratio > 1.2)
-      // This ensures vertical monitors (even if wide) show top navbar
-      const isWide = width >= 1024 && aspectRatio >= 1.2;
-
-      setIsWidescreen(isWide);
+      if (width >= 1024 && aspectRatio >= 1.2) {
+        setMode('widescreen');
+      } else if (width >= 768) {
+        setMode('tablet');
+      } else {
+        setMode('mobile');
+      }
     };
 
-    // Initial check
-    checkWidescreen();
+    check();
 
-    // Listen for resize and orientation changes
-    window.addEventListener('resize', checkWidescreen);
-    window.addEventListener('orientationchange', checkWidescreen);
+    window.addEventListener('resize', check);
+    window.addEventListener('orientationchange', check);
 
     return () => {
-      window.removeEventListener('resize', checkWidescreen);
-      window.removeEventListener('orientationchange', checkWidescreen);
+      window.removeEventListener('resize', check);
+      window.removeEventListener('orientationchange', check);
     };
   }, []);
 
-  return !!isWidescreen;
+  return mode;
+}
+
+/**
+ * @deprecated Use `useLayoutMode()` instead for finer-grained layout control.
+ * Kept for backward compatibility — returns true for widescreen OR tablet.
+ */
+export function useIsWidescreen() {
+  const mode = useLayoutMode();
+  return mode === 'widescreen' || mode === 'tablet';
 }

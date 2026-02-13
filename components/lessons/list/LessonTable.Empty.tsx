@@ -28,7 +28,7 @@ export default function LessonTableEmpty({ role }: Props) {
         transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         className="relative w-48 h-36 sm:w-64 sm:h-48 mb-4 sm:mb-6"
       >
-        <Image src={imageSrc} alt={altText} fill className="object-contain" />
+        <Image src={imageSrc} alt={altText} fill sizes="(max-width: 640px) 192px, 256px" className="object-contain" />
       </motion.div>
       <p className="text-base sm:text-lg font-medium text-foreground">No lessons found</p>
       <p className="text-xs sm:text-sm text-muted-foreground mt-1 px-4">

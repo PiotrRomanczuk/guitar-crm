@@ -37,7 +37,7 @@ export default async function SongPage({ params, searchParams }: SongPageProps) 
   const students = canViewStudents ? await getSongStudents(id) : [];
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8 space-y-4 sm:space-y-6 lg:space-y-8">
       <Breadcrumbs
         items={[
           { label: 'Dashboard', href: '/dashboard' },
@@ -46,7 +46,7 @@ export default async function SongPage({ params, searchParams }: SongPageProps) 
         ]}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
         <div className="lg:col-span-2 space-y-8">
           <SongDetail songId={id} isAdmin={isAdmin} isTeacher={isTeacher} />
 

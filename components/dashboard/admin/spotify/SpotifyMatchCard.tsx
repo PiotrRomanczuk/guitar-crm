@@ -16,9 +16,9 @@ export function SpotifyMatchCard({ match, status }: SpotifyMatchCardProps) {
   return (
     <Card className="bg-card rounded-lg border border-border shadow-sm">
       <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-        <div className="flex-1 space-y-1">
-          <h3 className="font-semibold text-base">{match.songs.title}</h3>
-          <p className="text-sm text-muted-foreground">
+        <div className="flex-1 min-w-0 space-y-1">
+          <h3 className="font-semibold text-base truncate">{match.songs.title}</h3>
+          <p className="text-sm text-muted-foreground truncate">
             {isApproved ? 'Matched to' : 'Rejected match'}: {match.spotify_track_name} by{' '}
             {match.spotify_artist_name}
           </p>

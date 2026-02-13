@@ -5,8 +5,11 @@ import Header from '@/components/navigation/Header';
 import { HorizontalNav } from '@/components/navigation/HorizontalNav';
 import { AppSidebar } from '@/components/navigation/AppSidebar';
 import { Toaster } from 'sonner';
+import { getSupabaseConfig } from '@/lib/supabase/config';
+import { MobileBottomNav } from '@/components/navigation/MobileBottomNav';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
-import { useIsWidescreen } from '@/hooks/use-is-widescreen';
+import { useLayoutMode } from '@/hooks/use-is-widescreen';
+import { useKeyboardViewport } from '@/hooks/use-keyboard-viewport';
 import { Separator } from '@/components/ui/separator';
 import { NotificationBell } from '@/components/notifications';
 
@@ -20,7 +23,8 @@ interface AppShellProps {
 
 export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppShellProps) {
   const pathname = usePathname();
-  const isWidescreen = useIsWidescreen();
+  const layoutMode = useLayoutMode();
+  useKeyboardViewport();
 
   // Hide sidebar on auth pages even if user data is present (e.g. stale state during logout)
   const isAuthPage = ['/sign-in', '/sign-up', '/auth/login', '/auth/register'].includes(
@@ -28,9 +32,18 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
   );
   const showNavigation = !!user && !isAuthPage;
 
-  // Use sidebar on widescreen displays, horizontal nav on vertical/narrow displays
-  const useSidebar = showNavigation && isWidescreen;
-  const useHorizontalNav = showNavigation && !isWidescreen;
+  const useSidebar = showNavigation && (layoutMode === 'widescreen' || layoutMode === 'tablet');
+  const useMobileNav = showNavigation && layoutMode === 'mobile';
+
+  const { isLocal } = getSupabaseConfig();
+  console.log('AppShell:', {
+    pathname,
+    hasUser: !!user,
+    isAuthPage,
+    showNavigation,
+    layoutMode,
+    db: isLocal ? 'local' : 'remote',
+  });
 
   // Auth pages - no navigation
   if (isAuthPage || !user) {
@@ -43,10 +56,10 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
     );
   }
 
-  // Widescreen displays with sidebar
+  // Widescreen and tablet displays with sidebar (collapsed by default on tablet)
   if (useSidebar) {
     return (
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={layoutMode === 'widescreen'}>
         <AppSidebar isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
         <SidebarInset className="overflow-x-hidden">
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -74,11 +87,12 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
     );
   }
 
-  // Vertical/narrow displays with top horizontal nav
+  // Mobile displays with top horizontal nav + bottom nav
   return (
     <>
       <HorizontalNav user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
-      <main className="pt-16 min-h-screen bg-background">{children}</main>
+      <main className="pt-16 pb-24 md:pb-0 min-h-screen bg-background">{children}</main>
+      <MobileBottomNav />
       <Toaster />
     </>
   );

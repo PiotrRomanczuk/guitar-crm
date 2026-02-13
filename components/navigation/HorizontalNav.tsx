@@ -20,10 +20,16 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ui/mode-toggle';
 import { DatabaseStatus } from '@/components/debug/DatabaseStatus';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,30 +50,12 @@ interface HorizontalNavProps {
 export function HorizontalNav({ user, isAdmin, isTeacher, isStudent }: HorizontalNavProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const handleSignOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     window.location.href = '/sign-in';
   };
-
-  // Close mobile menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
-        setMobileMenuOpen(false);
-      }
-    };
-
-    if (mobileMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [mobileMenuOpen]);
 
   if (!user) return null;
 
@@ -123,8 +111,18 @@ export function HorizontalNav({ user, isAdmin, isTeacher, isStudent }: Horizonta
 
   const menuItems = getMenuItems();
 
+  // Split into primary nav items (always visible) and secondary (in "More" dropdown on tablet)
+  const secondaryIds = new Set(['spotify-matches', 'song-stats', 'lesson-stats', 'logs']);
+  const primaryItems = menuItems.filter((item) => !secondaryIds.has(item.id));
+  const secondaryItems = menuItems.filter((item) => secondaryIds.has(item.id));
+  const hasSecondaryActive = secondaryItems.some(
+    (item) =>
+      pathname === item.path ||
+      (item.path !== '/dashboard' && pathname.startsWith(item.path))
+  );
+
   return (
-    <nav className="fixed top-0 left-0 right-0 h-16 bg-background border-b border-border z-50">
+    <nav className="fixed top-0 left-0 right-0 h-16 bg-background border-b border-border z-50 pt-[env(safe-area-inset-top)]">
       <div className="h-full px-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center gap-3 flex-shrink-0">
@@ -141,7 +139,7 @@ export function HorizontalNav({ user, isAdmin, isTeacher, isStudent }: Horizonta
 
         {/* Desktop Navigation */}
         <div className="hidden lg:flex items-center gap-1 flex-1 px-8">
-          {menuItems.map((item) => {
+          {primaryItems.map((item) => {
             const isActive =
               pathname === item.path ||
               (item.path !== '/dashboard' && pathname.startsWith(item.path));
@@ -161,6 +159,48 @@ export function HorizontalNav({ user, isAdmin, isTeacher, isStudent }: Horizonta
               </Link>
             );
           })}
+
+          {/* "More" dropdown for admin/secondary items */}
+          {secondaryItems.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                    hasSecondaryActive
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  )}
+                >
+                  <BarChart className="w-4 h-4" />
+                  <span className="hidden xl:inline">More</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuLabel>Admin Tools</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {secondaryItems.map((item) => {
+                  const isActive =
+                    pathname === item.path ||
+                    (item.path !== '/dashboard' && pathname.startsWith(item.path));
+                  return (
+                    <DropdownMenuItem key={item.id} asChild>
+                      <Link
+                        href={item.path}
+                        className={cn(
+                          'flex items-center gap-2 cursor-pointer',
+                          isActive && 'text-primary font-medium'
+                        )}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         {/* Right Side Actions */}
@@ -204,13 +244,13 @@ export function HorizontalNav({ user, isAdmin, isTeacher, isStudent }: Horizonta
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
-      {mobileMenuOpen && (
-        <div
-          ref={mobileMenuRef}
-          className="lg:hidden absolute top-16 left-0 right-0 bg-background border-b border-border shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto"
-        >
-          <div className="p-4 space-y-1">
+      {/* Mobile Menu Drawer (bottom sheet) */}
+      <Drawer open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <DrawerContent>
+          <DrawerHeader className="pb-2">
+            <DrawerTitle>Navigation</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-6 space-y-1">
             {menuItems.map((item) => {
               const isActive =
                 pathname === item.path ||
@@ -221,7 +261,7 @@ export function HorizontalNav({ user, isAdmin, isTeacher, isStudent }: Horizonta
                   href={item.path}
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors w-full',
+                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors w-full min-h-[44px]',
                     isActive
                       ? 'bg-primary/10 text-primary'
                       : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
@@ -233,8 +273,8 @@ export function HorizontalNav({ user, isAdmin, isTeacher, isStudent }: Horizonta
               );
             })}
           </div>
-        </div>
-      )}
+        </DrawerContent>
+      </Drawer>
     </nav>
   );
 }

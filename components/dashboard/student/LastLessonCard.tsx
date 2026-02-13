@@ -40,7 +40,7 @@ export function LastLessonCard({ lesson }: LastLessonCardProps) {
       </CardHeader>
       <CardContent className="flex-1 flex flex-col gap-4">
         <div className="space-y-2">
-          <h3 className="font-semibold text-lg">{lesson.title || 'Untitled Lesson'}</h3>
+          <h3 className="font-semibold text-lg truncate">{lesson.title || 'Untitled Lesson'}</h3>
           <div className="flex items-center text-sm text-muted-foreground gap-2">
             <Clock className="h-4 w-4" />
             <span>{format(new Date(lesson.scheduled_at), 'PPP p')}</span>

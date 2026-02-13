@@ -31,7 +31,7 @@ export function DashboardStatsGrid() {
   if (data?.role === 'admin') {
     const stats = data.stats as AdminStats;
     return (
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 ipad-landscape:grid-cols-3 lg:grid-cols-4">
         <StatsCard
           title="Total Users"
           value={stats.totalUsers}
@@ -68,7 +68,7 @@ export function DashboardStatsGrid() {
   if (data?.role === 'teacher') {
     const stats = data.stats as TeacherStats;
     return (
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 ipad-landscape:grid-cols-3 lg:grid-cols-4">
         <StatsCard
           title="My Students"
           value={stats.myStudents}
@@ -105,7 +105,7 @@ export function DashboardStatsGrid() {
   if (data?.role === 'student') {
     const stats = data.stats as StudentStats;
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 ipad-landscape:grid-cols-3 lg:grid-cols-4">
         <StatsCard
           title="Teachers"
           value={stats.myTeacher}
@@ -140,7 +140,7 @@ export function DashboardStatsGrid() {
 
   // Loading or no role
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-2 ipad-landscape:grid-cols-3 lg:grid-cols-4">
       <Skeleton className="h-32" />
       <Skeleton className="h-32" />
       <Skeleton className="h-32" />

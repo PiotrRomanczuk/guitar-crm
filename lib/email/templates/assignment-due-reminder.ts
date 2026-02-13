@@ -27,12 +27,12 @@ export function generateAssignmentDueReminderHtml(data: AssignmentDueReminderDat
 
     ${createCardSection(`
       <div style="margin-bottom: 16px;">
-        <h3 style="margin: 0 0 8px 0; color: #18181b; font-size: 18px; font-weight: 600;">
+        <h3 style="margin: 0 0 8px 0; color: #1c1917; font-size: 18px; font-weight: 600;">
           ${assignmentTitle}
         </h3>
         ${
           assignmentDescription
-            ? `<p style="margin: 0; color: #52525b; line-height: 1.6; font-size: 15px;">${assignmentDescription}</p>`
+            ? `<p style="margin: 0; color: #57534e; line-height: 1.6; font-size: 15px;">${assignmentDescription}</p>`
             : ''
         }
       </div>
@@ -42,7 +42,7 @@ export function generateAssignmentDueReminderHtml(data: AssignmentDueReminderDat
         `<span style="color: #f59e0b; font-weight: 600;">${dueDate}</span>`
       )}
 
-      <div style="margin-top: 16px; padding-top: 16px; border-top: 1px dashed #e4e4e7;">
+      <div style="margin-top: 16px; padding-top: 16px; border-top: 1px dashed #e8e0d8;">
         ${createStatusBadge('Due Soon', 'warning')}
       </div>
     `)}
