@@ -20,8 +20,23 @@ import {
 } from '@/components/ui/alert-dialog';
 import { TableSkeleton } from '@/components/ui/data-table';
 
+interface UserProfile {
+  id: string;
+  user_id: string | null;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  username: string | null;
+  isAdmin: boolean;
+  isTeacher: boolean | null;
+  isStudent: boolean | null;
+  isActive: boolean;
+  isRegistered: boolean;
+  created_at: string | null;
+}
+
 interface UsersListProps {
-  initialUsers?: any[];
+  initialUsers?: UserProfile[];
 }
 
 export default function UsersList({ initialUsers }: UsersListProps = {}) {
