@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, max-lines-per-function */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Lesson API [id] Route Tests
  * Tests for /api/lessons/[id] endpoints (GET, PUT, DELETE)
@@ -58,9 +58,9 @@ describe('Lesson API - [id] Route', () => {
     },
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let mockSupabaseClient: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let mockSupabaseQueryBuilder: any;
 
   beforeEach(() => {

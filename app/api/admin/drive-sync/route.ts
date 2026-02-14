@@ -61,9 +61,14 @@ export async function GET(request: NextRequest) {
       preview: true,
       totalFiles: result.totalFiles,
       matched: result.matched,
-      ambiguous: result.ambiguous,
+      reviewQueue: result.reviewQueue,
       unmatched: result.unmatched,
       skipped: result.skipped,
+      duplicates: result.duplicates?.map((d) => ({
+        filename: d.driveFile.name,
+        driveFileId: d.driveFile.id,
+        existingSongVideo: d.existingSongVideo,
+      })) || [],
       results: result.results.map((r) => ({
         filename: r.driveFile.name,
         driveFileId: r.driveFile.id,
@@ -100,7 +105,12 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/admin/drive-sync
- * Execute sync. Body can include { overrides: { driveFileId: songId } }.
+ * Execute sync with bulk actions support.
+ * Body can include:
+ * - { action: 'accept-selected', overrides: { driveFileId: songId } }
+ * - { action: 'accept-high-scores' }
+ * - { action: 'skip', driveFileIds: [id1, id2] }
+ * - Or default sync without action
  */
 export async function POST(request: NextRequest) {
   try {
@@ -108,11 +118,103 @@ export async function POST(request: NextRequest) {
     if (auth instanceof NextResponse) return auth;
 
     const body = await request.json().catch(() => ({}));
+    const action = (body.action as string) || undefined;
     const overrides = (body.overrides as Record<string, string>) || undefined;
+    const driveFileIds = (body.driveFileIds as string[]) || undefined;
     const folderName = (body.folder as string) || undefined;
     const folderId = (body.folderId as string) || undefined;
 
     const adminClient = createAdminClient();
+
+    // Handle specific actions
+    if (action === 'accept-selected' && overrides) {
+      // Accept selected videos with manual overrides
+      const result = await syncDriveVideosToSongs({
+        folderName,
+        folderId,
+        dryRun: false,
+        uploadedByUserId: auth.userId,
+        supabase: adminClient,
+        overrides,
+      });
+
+      log.info('Accepted selected videos', {
+        inserted: result.inserted,
+        count: Object.keys(overrides).length,
+      });
+
+      return NextResponse.json({
+        success: true,
+        inserted: result.inserted,
+        action: 'accept-selected',
+      });
+    }
+
+    if (action === 'accept-high-scores') {
+      // Run dry-run to get results
+      const dryRunResult = await syncDriveVideosToSongs({
+        folderName,
+        folderId,
+        dryRun: true,
+        uploadedByUserId: auth.userId,
+        supabase: adminClient,
+      });
+
+      // Filter high-score matches (70+)
+      const highScoreOverrides: Record<string, string> = {};
+      dryRunResult.results
+        .filter((r) => r.status === 'review_queue' && r.bestMatch && r.bestMatch.score >= 70)
+        .forEach((r) => {
+          if (r.bestMatch) {
+            highScoreOverrides[r.driveFile.id] = r.bestMatch.song.id;
+          }
+        });
+
+      if (Object.keys(highScoreOverrides).length === 0) {
+        return NextResponse.json({
+          success: true,
+          inserted: 0,
+          action: 'accept-high-scores',
+          message: 'No high-score videos to accept',
+        });
+      }
+
+      // Accept high-score matches
+      const result = await syncDriveVideosToSongs({
+        folderName,
+        folderId,
+        dryRun: false,
+        uploadedByUserId: auth.userId,
+        supabase: adminClient,
+        overrides: highScoreOverrides,
+      });
+
+      log.info('Accepted high-score videos', {
+        inserted: result.inserted,
+        count: Object.keys(highScoreOverrides).length,
+      });
+
+      return NextResponse.json({
+        success: true,
+        inserted: result.inserted,
+        action: 'accept-high-scores',
+      });
+    }
+
+    if (action === 'skip' && driveFileIds) {
+      // Skip videos (no-op for now, just acknowledge)
+      // In a more complete implementation, we could track skipped videos in a separate table
+      log.info('Skipped videos', { count: driveFileIds.length, driveFileIds });
+
+      return NextResponse.json({
+        success: true,
+        skipped: driveFileIds.length,
+        action: 'skip',
+        message: 'Videos marked as skipped',
+      });
+    }
+
+    // Default sync without action
     const result = await syncDriveVideosToSongs({
       folderName,
       folderId,
@@ -125,7 +227,7 @@ export async function POST(request: NextRequest) {
     log.info('Drive sync completed', {
       inserted: result.inserted,
       matched: result.matched,
-      ambiguous: result.ambiguous,
+      reviewQueue: result.reviewQueue,
       unmatched: result.unmatched,
     });
 
@@ -134,7 +236,7 @@ export async function POST(request: NextRequest) {
       totalFiles: result.totalFiles,
       matched: result.matched,
       inserted: result.inserted,
-      ambiguous: result.ambiguous,
+      reviewQueue: result.reviewQueue,
       unmatched: result.unmatched,
       skipped: result.skipped,
     });

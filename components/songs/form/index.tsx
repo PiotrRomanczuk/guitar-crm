@@ -18,11 +18,11 @@ export default function SongForm({ mode, song, onSuccess }: Props) {
     if (onSuccess) {
       onSuccess(songId);
     } else if (songId) {
+      // Navigate to song detail - router.push already refreshes the target page
       router.push(`/dashboard/songs/${songId}`);
-      router.refresh();
     } else {
+      // Navigate to songs list - router.push already refreshes the target page
       router.push('/dashboard/songs');
-      router.refresh();
     }
   };
 

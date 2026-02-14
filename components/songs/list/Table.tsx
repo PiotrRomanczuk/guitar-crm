@@ -130,7 +130,7 @@ export default function SongListTable({
       setSongToDelete(null);
       setDeletingSongId(null);
       onDeleteSuccess?.();
-      router.refresh();
+      // Note: Removed router.refresh() - parent component handles state updates
     } catch (error) {
       console.error('Delete failed:', error);
       setDeleteError(error instanceof Error ? error.message : 'Failed to delete song');
@@ -480,7 +480,7 @@ export default function SongListTable({
           onClose={() => setAssignDialogSong(null)}
           onSuccess={() => {
             setAssignDialogSong(null);
-            router.refresh();
+            // Note: Removed router.refresh() - dialog already shows success state
           }}
         />
       )}

@@ -26,8 +26,8 @@ export default function LessonDeleteButton({ lessonId }: Props) {
           throw new Error('Failed to delete lesson');
         }
 
+        // Navigate to lessons list - router.push already refreshes the target page
         router.push('/dashboard/lessons');
-        router.refresh();
       } catch (error) {
         console.error('Error deleting lesson:', error);
         alert('Failed to delete lesson');
