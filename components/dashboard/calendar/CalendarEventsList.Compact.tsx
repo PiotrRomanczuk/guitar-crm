@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar as CalendarIcon, ArrowRight, RefreshCw } from 'lucide-react';
-import { EventCard, type GoogleEvent } from './CalendarEventsList.EventCard';
+import { EventCard } from './CalendarEventsList.EventCard';
+import { type GoogleEvent } from '@/lib/calendar/calendar-utils';
 import { ShadowUserDialog, SyncAllDialog } from './CalendarEventsList.Dialogs';
 
 interface CompactEventsListProps {

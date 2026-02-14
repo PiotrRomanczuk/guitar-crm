@@ -3,7 +3,8 @@
 import { useMemo } from 'react';
 import { isSameDay, format } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
-import { EventCard, isGuitarLesson, type GoogleEvent } from './CalendarEventsList.EventCard';
+import { EventCard } from './CalendarEventsList.EventCard';
+import { isGuitarLesson, type GoogleEvent } from '@/lib/calendar/calendar-utils';
 
 interface CalendarDayEventsProps {
   events: GoogleEvent[];

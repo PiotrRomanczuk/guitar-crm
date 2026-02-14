@@ -1,35 +1,23 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 
 export async function GET() {
   try {
-    const supabase = await createClient();
-
-    // Get current user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // FIXES STRUMMY-262: Check auth FIRST, then create admin client
+    const { user, isAdmin } = await getUserWithRolesSSR();
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin via profiles table boolean flags
-    const adminClient = createAdminClient();
-    const { data: profile, error: profileError } = await adminClient
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single();
-
-    if (profileError) {
-      console.error('[SongStats] Error checking role:', profileError);
-    }
-
-    if (!profile?.is_admin) {
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
+
+    // Create admin client AFTER authorization check
+    const adminClient = createAdminClient();
 
     // Get total songs count
     const { count: totalSongs, error: countError } = await adminClient

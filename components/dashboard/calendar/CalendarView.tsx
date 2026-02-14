@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import { isGuitarLesson, type GoogleEvent } from './CalendarEventsList.EventCard';
+import { isGuitarLesson, type GoogleEvent } from '@/lib/calendar/calendar-utils';
 import type { DayButton } from 'react-day-picker';
 
 interface CalendarViewProps {

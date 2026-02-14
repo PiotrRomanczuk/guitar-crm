@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { CalendarEventsList } from '@/components/dashboard/calendar/CalendarEventsList';
 import { CalendarSkeleton } from '@/components/ui/skeleton-screens';
 import { getGoogleEvents } from '@/app/dashboard/calendar-actions';
-import { isGuitarLesson, type GoogleEvent } from '@/components/dashboard/calendar/CalendarEventsList.EventCard';
+import { isGuitarLesson, type GoogleEvent } from '@/lib/calendar/calendar-utils';
 
 export default async function CalendarPage() {
   // Fetch calendar events server-side

@@ -1,30 +1,20 @@
 import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { NextRequest, NextResponse } from 'next/server';
 import { LessonStatusEnum } from '@/schemas';
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { searchParams } = new URL(request.url);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // FIXES STRUMMY-262: Check auth FIRST using getUserWithRolesSSR
+    const { user, isAdmin } = await getUserWithRolesSSR();
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin via profiles table boolean flags
-    const adminClient = createAdminClient();
-    const { data: profile } = await adminClient
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single();
-
-    const isAdmin = profile?.is_admin === true;
+    // Create client AFTER authorization check
+    const supabase = await createClient();
+    const { searchParams } = new URL(request.url);
 
     const userId = searchParams.get('userId');
     const dateFrom = searchParams.get('dateFrom');

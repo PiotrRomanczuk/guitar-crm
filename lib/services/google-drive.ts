@@ -12,6 +12,52 @@ function getDriveClient(auth: Awaited<ReturnType<typeof getGoogleClient>>): driv
 }
 
 /**
+ * Create or find a folder in Google Drive.
+ * Returns the folder ID.
+ */
+export async function createFolderInDrive(
+  userId: string,
+  folderName: string,
+  parentFolderId?: string
+): Promise<string> {
+  const auth = await getGoogleClient(userId);
+  const drive = getDriveClient(auth);
+
+  // First, check if folder already exists
+  const searchQuery = parentFolderId
+    ? `name='${folderName}' and '${parentFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`
+    : `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+
+  const existing = await withRetry(async () => {
+    return drive.files.list({
+      q: searchQuery,
+      fields: 'files(id, name)',
+      spaces: 'drive',
+    });
+  }, AI_PROVIDER_RETRY_CONFIG);
+
+  if (existing.data.files && existing.data.files.length > 0) {
+    log.info('Found existing folder', { folderName, folderId: existing.data.files[0].id });
+    return existing.data.files[0].id!;
+  }
+
+  // Create new folder
+  const res = await withRetry(async () => {
+    return drive.files.create({
+      requestBody: {
+        name: folderName,
+        mimeType: 'application/vnd.google-apps.folder',
+        parents: parentFolderId ? [parentFolderId] : undefined,
+      },
+      fields: 'id',
+    });
+  }, AI_PROVIDER_RETRY_CONFIG);
+
+  log.info('Created new folder in Drive', { folderName, folderId: res.data.id });
+  return res.data.id!;
+}
+
+/**
  * Create a resumable upload URI for direct client-side upload to Google Drive.
  * Returns the URI that the client uses to PUT file bytes.
  */
@@ -158,3 +204,8 @@ export async function setFilePublicReadable(
     });
   }, AI_PROVIDER_RETRY_CONFIG);
 }
+
+// Generic file aliases (for broader use beyond just videos)
+export const getFileMetadata = getVideoMetadata;
+export const getFileStreamUrl = getVideoStreamUrl;
+export const deleteFileFromDrive = deleteVideoFromDrive;

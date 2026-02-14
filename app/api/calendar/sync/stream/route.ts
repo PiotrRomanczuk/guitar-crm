@@ -6,10 +6,10 @@ import { TablesInsert } from '@/types/database.types';
 import {
   generateMonthChunks,
   determineLessonStatus,
-  isGuitarLesson,
   extractStudentFromAttendees,
   findOrCreateStudent,
 } from '@/lib/services/calendar-bulk-import';
+import { isGuitarLesson } from '@/lib/calendar/calendar-utils';
 
 const activeSyncs = new Map<string, AbortController>();
 

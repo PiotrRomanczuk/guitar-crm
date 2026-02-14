@@ -6,6 +6,7 @@ import { getGoogleOAuth2Client } from '@/lib/google';
 import { google, calendar_v3 } from 'googleapis';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { createShadowUser } from './actions';
+import { isGuitarLesson } from '@/lib/calendar/calendar-utils';
 
 async function getAuthenticatedCalendarClient(userId: string) {
   const supabase = await createClient();
@@ -238,11 +239,6 @@ export async function syncAllLessonsFromCalendar() {
     console.error('Error syncing all lessons:', error);
     throw new Error('Failed to sync all lessons');
   }
-}
-
-function isGuitarLesson(event: { description?: string | null }): boolean {
-  if (!event.description) return false;
-  return event.description.includes('Powered by Calendly.com');
 }
 
 function isEventRelevant(event: calendar_v3.Schema$Event, studentEmail: string): boolean {

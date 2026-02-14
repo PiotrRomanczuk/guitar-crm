@@ -3,6 +3,8 @@ import * as z from 'zod';
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm'] as const;
 const MAX_FILE_SIZE_BYTES = 500 * 1024 * 1024; // 500MB
 
+export const MicTypeEnum = z.enum(['iphone', 'external']);
+
 export const SongVideoSchema = z.object({
   id: z.string().uuid(),
   song_id: z.string().uuid(),
@@ -16,6 +18,11 @@ export const SongVideoSchema = z.object({
   duration_seconds: z.number().nonnegative().nullable(),
   thumbnail_url: z.string().url().nullable(),
   display_order: z.number().int().nonnegative(),
+  is_recording_correct: z.boolean(),
+  is_well_lit: z.boolean(),
+  mic_type: MicTypeEnum.nullable(),
+  is_audio_mixed: z.boolean(),
+  is_video_edited: z.boolean(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
 });
@@ -36,6 +43,11 @@ export const UpdateSongVideoInputSchema = z.object({
   display_order: z.number().int().nonnegative().optional(),
   thumbnail_url: z.string().url().nullable().optional(),
   duration_seconds: z.number().nonnegative().nullable().optional(),
+  is_recording_correct: z.boolean().optional(),
+  is_well_lit: z.boolean().optional(),
+  mic_type: MicTypeEnum.nullable().optional(),
+  is_audio_mixed: z.boolean().optional(),
+  is_video_edited: z.boolean().optional(),
 });
 
 export const UploadUrlRequestSchema = z.object({
