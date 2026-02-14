@@ -43,7 +43,7 @@ export default function UsersList({ initialUsers }: UsersListProps = {}) {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'' | 'admin' | 'teacher' | 'student'>('');
   const [activeFilter, setActiveFilter] = useState<'' | 'true' | 'false'>('');
-  const [studentStatusFilter, setStudentStatusFilter] = useState<'' | 'active' | 'inactive' | 'lead' | 'trial' | 'churned'>('active');
+  const [studentStatusFilter, setStudentStatusFilter] = useState<'' | 'active' | 'inactive' | 'lead' | 'trial' | 'churned'>(''); // Empty = show all statuses
   const [userToDelete, setUserToDelete] = useState<{ id: string; email: string } | null>(null);
 
   const { users, loading, error, refetch } = useUsersList(search, roleFilter, activeFilter, studentStatusFilter, initialUsers);

@@ -90,13 +90,13 @@ export default function UsersListFilters({
         <div className="space-y-2">
           <Label>Student Status</Label>
           <Select
-            value={studentStatusFilter || 'active'}
+            value={studentStatusFilter || 'all'}
             onValueChange={(value) =>
               onStudentStatusFilterChange(value === 'all' ? '' : (value as typeof studentStatusFilter))
             }
           >
             <SelectTrigger data-testid="student-status-filter">
-              <SelectValue placeholder="Active Students" />
+              <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Statuses</SelectItem>
