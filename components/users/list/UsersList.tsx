@@ -43,9 +43,10 @@ export default function UsersList({ initialUsers }: UsersListProps = {}) {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'' | 'admin' | 'teacher' | 'student'>('');
   const [activeFilter, setActiveFilter] = useState<'' | 'true' | 'false'>('');
+  const [studentStatusFilter, setStudentStatusFilter] = useState<'' | 'active' | 'archived'>(''); // Empty = show all statuses
   const [userToDelete, setUserToDelete] = useState<{ id: string; email: string } | null>(null);
 
-  const { users, loading, error, refetch } = useUsersList(search, roleFilter, activeFilter, initialUsers);
+  const { users, loading, error, refetch } = useUsersList(search, roleFilter, activeFilter, studentStatusFilter, initialUsers);
 
   const handleDeleteClick = (userId: string, email: string) => {
     setUserToDelete({ id: userId, email });
@@ -69,6 +70,7 @@ export default function UsersList({ initialUsers }: UsersListProps = {}) {
     setSearch('');
     setRoleFilter('');
     setActiveFilter('');
+    setStudentStatusFilter('active'); // Reset to default: active students
   };
 
   return (
@@ -91,9 +93,11 @@ export default function UsersList({ initialUsers }: UsersListProps = {}) {
         search={search}
         roleFilter={roleFilter}
         activeFilter={activeFilter}
+        studentStatusFilter={studentStatusFilter}
         onSearchChange={setSearch}
         onRoleFilterChange={setRoleFilter}
         onActiveFilterChange={setActiveFilter}
+        onStudentStatusFilterChange={setStudentStatusFilter}
         onReset={handleReset}
       />
 

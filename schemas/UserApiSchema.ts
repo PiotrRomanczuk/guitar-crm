@@ -183,13 +183,13 @@ export const UserFilterSchema = z.object({
     .string()
     .optional()
     .transform((val) => (val ? parseInt(val, 10) : 50))
-    .pipe(z.number().int().positive().max(250, 'Limit cannot exceed 250').default(50)),
+    .pipe(z.number().int().positive().max(250, 'Limit cannot exceed 250')),
 
   offset: z
     .string()
     .optional()
     .transform((val) => (val ? parseInt(val, 10) : 0))
-    .pipe(z.number().int().nonnegative().default(0)),
+    .pipe(z.number().int().nonnegative()),
 });
 
 /**
@@ -248,7 +248,7 @@ export const UsersListResponseSchema = z.object({
  */
 export const ErrorResponseSchema = z.object({
   error: z.string(),
-  details: z.record(z.string()).optional(), // Field-level validation errors
+  details: z.record(z.string(), z.string()).optional(), // Field-level validation errors
 });
 
 // ============================================================================
@@ -300,11 +300,11 @@ export function safeValidateCreateUser(body: unknown) {
 
   // Format Zod errors into field-level messages
   const errors: Record<string, string> = {};
-  if (result.error && result.error.errors) {
-    result.error.errors.forEach((err) => {
-      const field = err.path.join('.');
-      errors[field] = err.message;
-    });
+  if (result.error && result.error.issues) {
+    for (const issue of result.error.issues) {
+      const field = issue.path.join('.');
+      errors[field] = issue.message;
+    }
   }
 
   return {
@@ -325,11 +325,11 @@ export function safeValidateUpdateUser(body: unknown) {
   }
 
   const errors: Record<string, string> = {};
-  if (result.error && result.error.errors) {
-    result.error.errors.forEach((err) => {
-      const field = err.path.join('.');
-      errors[field] = err.message;
-    });
+  if (result.error && result.error.issues) {
+    for (const issue of result.error.issues) {
+      const field = issue.path.join('.');
+      errors[field] = issue.message;
+    }
   }
 
   return {

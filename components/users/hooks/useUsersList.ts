@@ -27,17 +27,19 @@ export function useUsersList(
   search: string,
   roleFilter: '' | 'admin' | 'teacher' | 'student',
   activeFilter: '' | 'true' | 'false',
+  studentStatusFilter: '' | 'active' | 'archived',
   initialUsers?: UserProfile[]
 ) {
-  const hasFilters = search || roleFilter || activeFilter;
+  const hasFilters = search || roleFilter || activeFilter || studentStatusFilter;
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['users', search, roleFilter, activeFilter],
+    queryKey: ['users', search, roleFilter, activeFilter, studentStatusFilter],
     queryFn: async () => {
       const params: Record<string, string | number | boolean> = {};
       if (search) params.search = search;
       if (roleFilter) params.role = roleFilter;
       if (activeFilter) params.active = activeFilter;
+      if (studentStatusFilter) params.studentStatus = studentStatusFilter;
 
       const response = await apiClient.get<UsersListResponse>('/api/users', { params });
       return response.data || [];

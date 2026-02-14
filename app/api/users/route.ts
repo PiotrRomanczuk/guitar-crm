@@ -18,6 +18,7 @@ export async function GET(request: Request) {
     // Filtering parameters
     const searchQuery = url.searchParams.get('search');
     const roleFilter = url.searchParams.get('role');
+    const studentStatus = url.searchParams.get('studentStatus');
     const limit = parseInt(url.searchParams.get('limit') || '50');
     const offset = parseInt(url.searchParams.get('offset') || '0');
 
@@ -100,6 +101,11 @@ export async function GET(request: Request) {
       } else if (roleFilter === 'shadow') {
         query = query.eq('is_shadow', true);
       }
+    }
+
+    // Filter by student status (only applies to students)
+    if (studentStatus && studentStatus !== 'all') {
+      query = query.eq('student_status', studentStatus);
     }
 
     const { data, error, count } = await query
