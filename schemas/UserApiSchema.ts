@@ -46,15 +46,10 @@ export const NameField = z
 
 /**
  * Phone field validation
- * - Max 50 characters (database limit)
- * - Trims whitespace
- * - Optional
+ * Uses shared phone schema with regex validation
  */
-export const PhoneField = z
-  .string()
-  .trim()
-  .max(50, 'Phone cannot exceed 50 characters')
-  .optional();
+import { PhoneSchema } from './shared/phone';
+export const PhoneField = PhoneSchema;
 
 /**
  * Notes field validation with XSS prevention

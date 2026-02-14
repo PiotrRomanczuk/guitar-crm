@@ -29,9 +29,9 @@ interface PasswordRequirement {
 
 const requirements: PasswordRequirement[] = [
   { id: 'length', label: '8+ characters', test: (p) => p.length >= 8 },
+  { id: 'letter', label: '1 letter', test: (p) => /[a-zA-Z]/.test(p) },
   { id: 'number', label: '1 number', test: (p) => /[0-9]/.test(p) },
   { id: 'special', label: '1 special char', test: (p) => /[^A-Za-z0-9]/.test(p) },
-  { id: 'uppercase', label: 'Uppercase', test: (p) => /[A-Z]/.test(p) },
 ];
 
 function calculateStrength(password: string): {
