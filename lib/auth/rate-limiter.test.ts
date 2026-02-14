@@ -131,21 +131,27 @@ describe('Auth Rate Limiter (Supabase-backed)', () => {
       expect(result.remaining).toBe(1); // 5 - 3 - 1
     });
 
-    it('should fail open on RPC error', async () => {
+    it('should fail closed on RPC error', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
       mockRpc.mockResolvedValue({ data: null, error: { message: 'DB error' } });
 
       const result = await checkAuthRateLimit('test@example.com', 'passwordReset');
 
-      expect(result.allowed).toBe(true);
-      expect(result.remaining).toBe(5);
+      expect(result.allowed).toBe(false);
+      expect(result.remaining).toBe(0);
+      expect(result.retryAfter).toBe(60);
+      consoleSpy.mockRestore();
     });
 
-    it('should fail open on thrown exception', async () => {
+    it('should fail closed on thrown exception', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
       mockRpc.mockRejectedValue(new Error('Connection failed'));
 
       const result = await checkAuthRateLimit('test@example.com', 'passwordReset');
 
-      expect(result.allowed).toBe(true);
+      expect(result.allowed).toBe(false);
+      expect(result.remaining).toBe(0);
+      consoleSpy.mockRestore();
     });
 
     it('should treat null data as 0 count', async () => {

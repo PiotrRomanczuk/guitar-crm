@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { randomUUID } from 'crypto';
+import { maskShadowEmail } from '@/lib/auth/shadow-email';
 
 export async function GET(request: Request) {
   try {
@@ -36,9 +37,9 @@ export async function GET(request: Request) {
 
       const mapped = {
         id: data.id,
-        email: data.email,
-        firstName: data.full_name ? data.full_name.split(' ')[0] : '',
-        lastName: data.full_name ? data.full_name.split(' ').slice(1).join(' ') : '',
+        email: maskShadowEmail(data.email),
+        firstName: data.first_name || '',
+        lastName: data.last_name || '',
         full_name: data.full_name,
         isAdmin: data.is_admin,
         isTeacher: data.is_teacher,
@@ -173,10 +174,9 @@ export async function GET(request: Request) {
 
       return {
         id: profile.id,
-        email: profile.email,
-        // Split full_name into firstName/lastName
-        firstName: profile.full_name ? profile.full_name.split(' ')[0] : '',
-        lastName: profile.full_name ? profile.full_name.split(' ').slice(1).join(' ') : '',
+        email: maskShadowEmail(profile.email),
+        firstName: profile.first_name || '',
+        lastName: profile.last_name || '',
         full_name: profile.full_name,
         isAdmin: profile.is_admin,
         isTeacher: profile.is_teacher,

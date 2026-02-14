@@ -32,10 +32,9 @@ async function loadProfileFromDb(userId: string): Promise<ProfileEdit> {
 
   if (error) throw error;
 
-  // Split full_name into firstname and lastname
-  const nameParts = data.full_name ? data.full_name.split(' ') : ['', ''];
-  const firstname = nameParts[0] || '';
-  const lastname = nameParts.slice(1).join(' ') || '';
+  // Use first_name/last_name columns directly, fallback to full_name split
+  const firstname = data.first_name || (data.full_name ? data.full_name.split(' ')[0] : '') || '';
+  const lastname = data.last_name || (data.full_name ? data.full_name.split(' ').slice(1).join(' ') : '') || '';
 
   return {
     firstname,
@@ -48,9 +47,6 @@ async function loadProfileFromDb(userId: string): Promise<ProfileEdit> {
 async function saveProfileToDb(userId: string, profileData: ProfileEdit) {
   const validatedData = ProfileEditSchema.parse(profileData);
 
-  // Combine firstname and lastname into full_name
-  const fullName = `${validatedData.firstname} ${validatedData.lastname}`.trim();
-
   const supabase = createClient();
   const { data: existingProfile } = await supabase
     .from('profiles')
@@ -58,11 +54,13 @@ async function saveProfileToDb(userId: string, profileData: ProfileEdit) {
     .eq('id', userId)
     .single();
 
+  // Write first_name/last_name directly — trigger syncs full_name
   if (existingProfile) {
     const { error } = await supabase
       .from('profiles')
       .update({
-        full_name: fullName,
+        first_name: validatedData.firstname,
+        last_name: validatedData.lastname,
         username: validatedData.username,
         bio: validatedData.bio,
         updated_at: new Date().toISOString(),
@@ -72,7 +70,8 @@ async function saveProfileToDb(userId: string, profileData: ProfileEdit) {
   } else {
     const { error } = await supabase.from('profiles').insert({
       id: userId,
-      full_name: fullName,
+      first_name: validatedData.firstname,
+      last_name: validatedData.lastname,
       username: validatedData.username,
       bio: validatedData.bio,
     });

@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
@@ -10,7 +9,6 @@ export async function inviteUser(
   role: 'student' | 'teacher' | 'admin' = 'student',
   phone?: string
 ) {
-  // ✅ Authorization check - CRITICAL SECURITY FIX
   const supabase = await createClient();
   const {
     data: { user: currentUser },
@@ -20,7 +18,6 @@ export async function inviteUser(
     throw new Error('Unauthorized: Authentication required');
   }
 
-  // Check if current user is admin
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
@@ -66,102 +63,61 @@ export async function inviteUser(
   return { success: true, userId };
 }
 
-export async function createShadowUser(studentEmail: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error('Unauthorized');
-
-  // ✅ Authorization check - CRITICAL SECURITY FIX
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('is_admin, is_teacher')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile?.is_admin && !profile?.is_teacher) {
-    throw new Error('Unauthorized: Only teachers and admins can create shadow users');
-  }
-
-  const supabaseAdmin = createAdminClient();
-
-  // 1. Try to find existing auth user first (to avoid duplicate error)
-  let userId: string | undefined;
-
-  // Scan first few pages of users
+async function findOrCreateAuthUser(
+  supabaseAdmin: ReturnType<typeof createAdminClient>,
+  studentEmail: string
+): Promise<string> {
+  // 1. Search existing auth users
   let page = 1;
-  const MAX_PAGES = 5;
-
-  while (!userId && page <= MAX_PAGES) {
+  while (page <= 5) {
     const {
       data: { users },
-      error: listError,
-    } = await supabaseAdmin.auth.admin.listUsers({
-      page,
-      perPage: 100,
-    });
+      error,
+    } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 100 });
 
-    if (listError || !users || users.length === 0) break;
+    if (error || !users || users.length === 0) break;
 
     const found = users.find((u) => u.email?.toLowerCase() === studentEmail.toLowerCase());
-    if (found) {
-      userId = found.id;
-    }
+    if (found) return found.id;
     page++;
   }
 
-  // 2. If not found, try to get or create user via generateLink
-  if (!userId) {
-    try {
-      const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'magiclink',
-        email: studentEmail,
-        options: {
-          data: {
-            is_student: true,
-            full_name: studentEmail.split('@')[0],
-          },
-        },
-      });
+  // 2. Try generateLink, then createUser as fallback
+  const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+    type: 'magiclink',
+    email: studentEmail,
+    options: {
+      data: { is_student: true, full_name: studentEmail.split('@')[0] },
+    },
+  });
 
-      if (linkError) {
-        console.error('Generate link failed:', linkError);
-        const { data: newUser, error: createUserError } = await supabaseAdmin.auth.admin.createUser(
-          {
-            email: studentEmail,
-            email_confirm: true,
-            user_metadata: {
-              is_student: true,
-              full_name: studentEmail.split('@')[0],
-            },
-          }
-        );
+  if (linkError) {
+    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email: studentEmail,
+      email_confirm: true,
+      user_metadata: { is_student: true, full_name: studentEmail.split('@')[0] },
+    });
 
-        if (createUserError) {
-          throw new Error(`Failed to create/find user: ${createUserError.message}`);
-        }
-        userId = newUser.user.id;
-      } else if (linkData?.user) {
-        userId = linkData.user.id;
-        if (!linkData.user.email_confirmed_at) {
-          await supabaseAdmin.auth.admin.updateUserById(userId, { email_confirm: true });
-        }
-      }
-    } catch (err) {
-      console.error('Error in user creation flow:', err);
-      throw new Error(
-        `Failed to process shadow user: ${err instanceof Error ? err.message : 'Unknown error'}`
-      );
+    if (createError) throw new Error(`Failed to create/find user: ${createError.message}`);
+    return newUser.user.id;
+  }
+
+  if (linkData?.user) {
+    if (!linkData.user.email_confirmed_at) {
+      await supabaseAdmin.auth.admin.updateUserById(linkData.user.id, { email_confirm: true });
     }
+    return linkData.user.id;
   }
 
-  if (!userId) {
-    throw new Error('Could not obtain user ID for shadow user');
-  }
+  throw new Error('Could not obtain user ID for shadow user');
+}
 
-  // 3. Ensure profile exists and is correct (Upsert)
-  const { error: upsertProfileError } = await supabaseAdmin.from('profiles').upsert(
+async function upsertStudentProfile(
+  supabaseAdmin: ReturnType<typeof createAdminClient>,
+  userId: string,
+  studentEmail: string
+): Promise<void> {
+  const { error } = await supabaseAdmin.from('profiles').upsert(
     {
       id: userId,
       email: studentEmail,
@@ -175,82 +131,82 @@ export async function createShadowUser(studentEmail: string) {
     { onConflict: 'id' }
   );
 
-  if (upsertProfileError) {
-    // Handle duplicate email error (orphan profile cleanup)
-    if (
-      upsertProfileError.code === '23505' &&
-      upsertProfileError.message?.includes('profiles_email_key')
-    ) {
-      // 1. Find the orphan profile
-      const { data: orphanProfile } = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .eq('email', studentEmail)
-        .single();
+  if (!error) return;
 
-      if (orphanProfile && orphanProfile.id !== userId) {
-        // 2. Rename orphan profile email to free up the unique constraint
-        const tempEmail = `${studentEmail}_migrated_${Date.now()}`;
-        const { error: renameError } = await supabaseAdmin
-          .from('profiles')
-          .update({ email: tempEmail })
-          .eq('id', orphanProfile.id);
-
-        if (renameError) {
-          console.error('Failed to rename orphan profile:', renameError);
-          throw new Error('Failed to cleanup orphan profile');
-        }
-
-        // 3. Create the new profile
-        const { error: retryError } = await supabaseAdmin.from('profiles').upsert(
-          {
-            id: userId,
-            email: studentEmail,
-            full_name: studentEmail.split('@')[0],
-            is_student: true,
-            is_teacher: false,
-            is_admin: false,
-            is_development: false,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'id' }
-        );
-
-        if (retryError) {
-          throw new Error(`Failed to create profile after cleanup: ${retryError.message}`);
-        }
-
-        // 4. Migrate related data
-        // Lessons
-        await supabaseAdmin
-          .from('lessons')
-          .update({ student_id: userId })
-          .eq('student_id', orphanProfile.id);
-        await supabaseAdmin
-          .from('lessons')
-          .update({ teacher_id: userId })
-          .eq('teacher_id', orphanProfile.id);
-
-        // Assignments
-        await supabaseAdmin
-          .from('assignments')
-          .update({ student_id: userId })
-          .eq('student_id', orphanProfile.id);
-        await supabaseAdmin
-          .from('assignments')
-          .update({ teacher_id: userId })
-          .eq('teacher_id', orphanProfile.id);
-
-        // 5. Delete orphan profile
-        await supabaseAdmin.from('profiles').delete().eq('id', orphanProfile.id);
-
-        return { success: true, userId };
-      }
-    }
-
-    console.error('Failed to upsert shadow profile:', upsertProfileError);
-    throw new Error('Failed to ensure shadow profile exists');
+  // Handle duplicate email (orphan profile)
+  if (error.code === '23505' && error.message?.includes('email')) {
+    await cleanupOrphanProfiles(supabaseAdmin, userId, studentEmail);
+    return;
   }
+
+  console.error('Failed to upsert shadow profile:', error);
+  throw new Error('Failed to ensure shadow profile exists');
+}
+
+async function cleanupOrphanProfiles(
+  supabaseAdmin: ReturnType<typeof createAdminClient>,
+  userId: string,
+  studentEmail: string
+): Promise<void> {
+  const { data: orphan } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('email', studentEmail)
+    .single();
+
+  if (!orphan || orphan.id === userId) return;
+
+  // Rename orphan email to free constraint
+  const tempEmail = `${studentEmail}_migrated_${Date.now()}`;
+  await supabaseAdmin.from('profiles').update({ email: tempEmail }).eq('id', orphan.id);
+
+  // Create new profile
+  const { error } = await supabaseAdmin.from('profiles').upsert(
+    {
+      id: userId,
+      email: studentEmail,
+      full_name: studentEmail.split('@')[0],
+      is_student: true,
+      is_teacher: false,
+      is_admin: false,
+      is_development: false,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'id' }
+  );
+
+  if (error) throw new Error(`Failed to create profile after cleanup: ${error.message}`);
+
+  // Migrate related data
+  await supabaseAdmin.from('lessons').update({ student_id: userId }).eq('student_id', orphan.id);
+  await supabaseAdmin.from('lessons').update({ teacher_id: userId }).eq('teacher_id', orphan.id);
+  await supabaseAdmin.from('assignments').update({ student_id: userId }).eq('student_id', orphan.id);
+  await supabaseAdmin.from('assignments').update({ teacher_id: userId }).eq('teacher_id', orphan.id);
+
+  // Delete orphan
+  await supabaseAdmin.from('profiles').delete().eq('id', orphan.id);
+}
+
+export async function createShadowUser(studentEmail: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Unauthorized');
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin, is_teacher')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.is_admin && !profile?.is_teacher) {
+    throw new Error('Unauthorized: Only teachers and admins can create shadow users');
+  }
+
+  const supabaseAdmin = createAdminClient();
+  const userId = await findOrCreateAuthUser(supabaseAdmin, studentEmail);
+  await upsertStudentProfile(supabaseAdmin, userId, studentEmail);
 
   return { success: true, userId };
 }
@@ -265,7 +221,6 @@ export async function deleteUser(userId: string) {
     throw new Error('Unauthorized');
   }
 
-  // Check if requester is admin
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
@@ -278,24 +233,19 @@ export async function deleteUser(userId: string) {
 
   const supabaseAdmin = createAdminClient();
 
-  // Check if user exists in auth.users before trying to delete
   const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId);
 
-  // Delete from profiles first (to ensure clean state if no cascade)
   const { error: profileError } = await supabaseAdmin.from('profiles').delete().eq('id', userId);
 
   if (profileError) {
     console.error('Error deleting profile:', profileError);
-    // Continue anyway - profile might be already gone
   }
 
-  // Only delete from auth.users if user exists there
   if (authUser?.user) {
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (error) {
       console.error('Error deleting auth user:', error);
-      // If profile was already deleted successfully, don't fail completely
       if (!profileError) {
         return { success: true, warning: 'Profile deleted but auth user deletion failed' };
       }

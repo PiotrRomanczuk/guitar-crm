@@ -1,4 +1,5 @@
 export interface OnboardingData {
+  role?: 'student' | 'teacher';
   goals: string[];
   skillLevel: 'beginner' | 'intermediate' | 'advanced';
   learningStyle: string[];

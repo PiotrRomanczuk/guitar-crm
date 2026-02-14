@@ -22,18 +22,19 @@ export async function completeOnboarding(onboardingData: OnboardingData) {
   // Get existing user metadata
   const firstName = user.user_metadata?.first_name || '';
   const lastName = user.user_metadata?.last_name || '';
-  const fullName = user.user_metadata?.full_name || `${firstName} ${lastName}`.trim();
 
   try {
-    // 1. Update profile with onboarding data and assign student role via boolean flag
+    // 1. Update profile with onboarding data and assign role via boolean flag
+    // Write first_name/last_name directly — trigger syncs full_name
+    const role = onboardingData.role || 'student';
     const { error: profileError } = await adminClient
       .from('profiles')
       .update({
-        full_name: fullName,
-        is_student: true,
+        first_name: firstName,
+        last_name: lastName,
+        is_student: role === 'student',
+        is_teacher: role === 'teacher',
         updated_at: new Date().toISOString(),
-        // Store onboarding preferences in JSONB column if it exists
-        // Otherwise, these can be stored in a separate onboarding_data table
         onboarding_completed: true,
       })
       .eq('id', user.id);

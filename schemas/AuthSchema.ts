@@ -1,12 +1,21 @@
 import { z } from 'zod';
 
 /**
+ * Shared strong password schema: 8+ chars, at least one letter and one number
+ */
+export const StrongPasswordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .regex(/[a-zA-Z]/, 'Password must contain at least one letter')
+  .regex(/[0-9]/, 'Password must contain at least one number');
+
+/**
  * Schema for user sign-in form validation.
- * Validates email format and ensures password is provided.
+ * Validates email format and minimum password length.
  */
 export const SignInSchema = z.object({
   email: z.string().email('Valid email required'),
-  password: z.string().min(1, 'Password is required'),
+  password: z.string().min(6, 'Password is required'),
 });
 
 /**
@@ -17,7 +26,7 @@ export const SignUpSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(100, 'First name too long'),
   lastName: z.string().min(1, 'Last name is required').max(100, 'Last name too long'),
   email: z.string().email('Valid email required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: StrongPasswordSchema,
   confirmPassword: z.string(),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -37,7 +46,7 @@ export const ForgotPasswordSchema = z.object({
  * Validates new password requirements and ensures confirmation matches.
  */
 export const ResetPasswordSchema = z.object({
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: StrongPasswordSchema,
   confirmPassword: z.string(),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords don't match",

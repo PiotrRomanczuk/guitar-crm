@@ -1,8 +1,12 @@
 'use client';
 
 import { useState, FormEvent, useEffect } from 'react';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { createClient } from '@/lib/supabase/client';
 import { SignUpSchema } from '@/schemas/AuthSchema';
+import {
+	signUp as signUpAction,
+	resendVerificationEmail,
+} from '@/app/auth/actions';
 
 interface TouchedFields {
   email: boolean;
@@ -18,11 +22,6 @@ interface FieldErrors {
   confirmPassword?: string;
   firstName?: string;
   lastName?: string;
-}
-
-interface SignUpResponse {
-  data: { user: { identities?: unknown[] } | null };
-  error: { message: string } | null;
 }
 
 function getFieldErrors(
@@ -54,25 +53,6 @@ function getFieldErrors(
   return errors;
 }
 
-async function signUpUser(
-  email: string,
-  password: string,
-  firstName: string,
-  lastName: string
-): Promise<SignUpResponse> {
-  const supabase = getSupabaseBrowserClient();
-  return await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        first_name: firstName,
-        last_name: lastName,
-      },
-    },
-  });
-}
-
 function validateFormData(
   firstName: string,
   lastName: string,
@@ -88,10 +68,6 @@ function validateFormData(
     confirmPassword,
   });
   return result.success;
-}
-
-function checkIfEmailExists(user: { identities?: unknown[] } | null): boolean {
-  return (user?.identities?.length ?? 0) === 0;
 }
 
 export function useSignUpLogic(onSuccess?: () => void) {
@@ -154,31 +130,16 @@ export function useSignUpLogic(onSuccess?: () => void) {
     setError(null);
     setSuccess(false);
 
-    const response = await signUpUser(email, password, firstName, lastName);
+    const result = await signUpAction(firstName, lastName, email, password, confirmPassword);
 
     setLoading(false);
-    if (response.error) {
-      // Improve error messaging
-      const errorMessage = response.error.message;
-      if (errorMessage.includes('already registered') || errorMessage.includes('already been registered')) {
-        setError(
-          'This email is already registered. Please sign in or use the "Forgot Password" link to reset your password.'
-        );
-      } else {
-        setError(errorMessage);
-      }
+
+    if (result.error) {
+      setError(result.error);
       return;
     }
 
-    if (response.data.user && checkIfEmailExists(response.data.user)) {
-      // Shadow user - admin-created account without password
-      setError(
-        'This email is associated with an invitation. Please check your email for the invitation link, or use "Forgot Password" to claim your account.'
-      );
-      return;
-    }
-
-    if (response.data.user) {
+    if (result.success) {
       setSuccess(true);
       setCanResendEmail(false); // Will be enabled after 5 seconds
       if (onSuccess) onSuccess();
@@ -187,17 +148,13 @@ export function useSignUpLogic(onSuccess?: () => void) {
 
   const handleResendEmail = async () => {
     setResendLoading(true);
-    const supabase = getSupabaseBrowserClient();
 
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email: email,
-    });
+    const result = await resendVerificationEmail(email);
 
     setResendLoading(false);
 
-    if (error) {
-      setError(error.message);
+    if (result.error) {
+      setError(result.error);
     } else {
       // Start 60-second countdown
       setResendCountdown(60);
@@ -213,7 +170,7 @@ export function useSignUpLogic(onSuccess?: () => void) {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
-    const supabase = getSupabaseBrowserClient();
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {

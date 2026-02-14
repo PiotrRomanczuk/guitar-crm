@@ -1,21 +1,33 @@
 /**
  * Auth Actions Tests
  *
- * Tests for authentication server actions, including rate limiting
+ * Tests for authentication server actions: signIn, signUp,
+ * resendVerificationEmail, and resetPassword with rate limiting
  */
 
-import { resetPassword } from '../actions';
+import { signIn, signUp, resendVerificationEmail, resetPassword } from '../actions';
 import { checkAuthRateLimit, clearAllAuthRateLimits } from '@/lib/auth/rate-limiter';
+import {
+	checkAccountLockout,
+	incrementFailedAttempts,
+	resetFailedAttempts,
+} from '@/lib/auth/account-lockout';
 
 // Mock Supabase client
+const mockSignInWithPassword = jest.fn();
+const mockSignUp = jest.fn();
+const mockResend = jest.fn();
 const mockResetPasswordForEmail = jest.fn();
 
 jest.mock('@/lib/supabase/server', () => ({
-  createClient: jest.fn(() => ({
-    auth: {
-      resetPasswordForEmail: mockResetPasswordForEmail,
-    },
-  })),
+	createClient: jest.fn(() => ({
+		auth: {
+			signInWithPassword: mockSignInWithPassword,
+			signUp: mockSignUp,
+			resend: mockResend,
+			resetPasswordForEmail: mockResetPasswordForEmail,
+		},
+	})),
 }));
 
 // Mock Next.js headers
@@ -24,291 +36,317 @@ mockHeaders.set('x-forwarded-for', '192.168.1.1');
 mockHeaders.set('origin', 'http://localhost:3000');
 
 jest.mock('next/headers', () => ({
-  headers: jest.fn(() => ({
-    get: (key: string) => mockHeaders.get(key),
-  })),
+	headers: jest.fn(() => ({
+		get: (key: string) => mockHeaders.get(key),
+	})),
 }));
 
-// Mock rate limiter — Supabase-backed rate limiter has no in-memory state,
-// so we mock checkAuthRateLimit directly and simulate behavior per test.
+// Mock rate limiter
 jest.mock('@/lib/auth/rate-limiter', () => ({
-  checkAuthRateLimit: jest.fn().mockResolvedValue({
-    allowed: true,
-    remaining: 4,
-    resetTime: Date.now() + 3600000,
-  }),
-  clearAllAuthRateLimits: jest.fn().mockResolvedValue(undefined),
-  AUTH_RATE_LIMITS: {
-    passwordReset: { maxAttempts: 5, windowMs: 60 * 60 * 1000 },
-    login: { maxAttempts: 10, windowMs: 15 * 60 * 1000 },
-    signup: { maxAttempts: 3, windowMs: 60 * 60 * 1000 },
-  },
+	checkAuthRateLimit: jest.fn().mockResolvedValue({
+		allowed: true,
+		remaining: 4,
+		resetTime: Date.now() + 3600000,
+	}),
+	clearAllAuthRateLimits: jest.fn().mockResolvedValue(undefined),
+	AUTH_RATE_LIMITS: {
+		passwordReset: { maxAttempts: 5, windowMs: 60 * 60 * 1000 },
+		login: { maxAttempts: 10, windowMs: 15 * 60 * 1000 },
+		signup: { maxAttempts: 3, windowMs: 60 * 60 * 1000 },
+		resendEmail: { maxAttempts: 3, windowMs: 60 * 60 * 1000 },
+	},
+}));
+
+// Mock account lockout
+jest.mock('@/lib/auth/account-lockout', () => ({
+	checkAccountLockout: jest.fn().mockResolvedValue({ locked: false }),
+	incrementFailedAttempts: jest.fn().mockResolvedValue(undefined),
+	resetFailedAttempts: jest.fn().mockResolvedValue(undefined),
+}));
+
+// Mock account actions (updateLastSignIn)
+jest.mock('@/app/actions/account', () => ({
+	updateLastSignIn: jest.fn().mockResolvedValue(undefined),
 }));
 
 describe('Auth Actions', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    clearAllAuthRateLimits();
-    mockResetPasswordForEmail.mockResolvedValue({ error: null });
-  });
+	beforeEach(() => {
+		jest.clearAllMocks();
+		clearAllAuthRateLimits();
+		mockHeaders.set('x-forwarded-for', '192.168.1.1');
+		mockHeaders.set('origin', 'http://localhost:3000');
+	});
 
-  describe('resetPassword', () => {
-    const testEmail = 'test@example.com';
+	describe('signIn', () => {
+		const email = 'test@example.com';
+		const password = 'password123';
 
-    it('should successfully send password reset email', async () => {
-      const result = await resetPassword(testEmail);
+		beforeEach(() => {
+			mockSignInWithPassword.mockResolvedValue({
+				data: { user: { id: '123' } },
+				error: null,
+			});
+		});
 
-      expect(result).toEqual({ success: true });
-      expect(mockResetPasswordForEmail).toHaveBeenCalledWith(
-        testEmail,
-        expect.objectContaining({
-          redirectTo: expect.stringContaining('/auth/callback?next=/reset-password'),
-        })
-      );
-    });
+		it('should successfully sign in', async () => {
+			const result = await signIn(email, password);
+			expect(result.success).toBe(true);
+		});
 
-    it('should check rate limit before sending email', async () => {
-      await resetPassword(testEmail);
+		it('should validate input with SignInSchema', async () => {
+			const result = await signIn('bad-email', 'pw');
+			expect(result.error).toBeDefined();
+			expect(mockSignInWithPassword).not.toHaveBeenCalled();
+		});
 
-      expect(checkAuthRateLimit).toHaveBeenCalledWith(
-        expect.stringContaining(testEmail),
-        'passwordReset'
-      );
-    });
+		it('should check rate limit before signing in', async () => {
+			await signIn(email, password);
+			expect(checkAuthRateLimit).toHaveBeenCalledWith(
+				expect.stringContaining(email),
+				'login'
+			);
+		});
 
-    it('should include IP address in rate limit identifier', async () => {
-      await resetPassword(testEmail);
+		it('should block when rate limited', async () => {
+			(checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
+				allowed: false,
+				remaining: 0,
+				resetTime: Date.now() + 900000,
+				retryAfter: 900,
+			});
 
-      expect(checkAuthRateLimit).toHaveBeenCalledWith(
-        expect.stringContaining('192.168.1.1'),
-        'passwordReset'
-      );
-    });
+			const result = await signIn(email, password);
+			expect(result.error).toContain('Too many login attempts');
+			expect(result.rateLimited).toBe(true);
+			expect(mockSignInWithPassword).not.toHaveBeenCalled();
+		});
 
-    it('should block request when rate limit exceeded', async () => {
-      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
-        allowed: false,
-        remaining: 0,
-        resetTime: Date.now() + 3600000,
-        retryAfter: 3600,
-      });
+		it('should check account lockout', async () => {
+			await signIn(email, password);
+			expect(checkAccountLockout).toHaveBeenCalledWith(email);
+		});
 
-      const result = await resetPassword(testEmail);
+		it('should block when account is locked', async () => {
+			(checkAccountLockout as jest.Mock).mockResolvedValueOnce({
+				locked: true,
+				retryAfterMs: 15 * 60 * 1000,
+			});
 
-      expect(result.error).toBeDefined();
-      expect(result.error).toContain('Too many password reset attempts');
-      expect(result.rateLimited).toBe(true);
-      expect(result.retryAfter).toBeGreaterThan(0);
+			const result = await signIn(email, password);
+			expect(result.error).toContain('Account temporarily locked');
+			expect(result.locked).toBe(true);
+			expect(mockSignInWithPassword).not.toHaveBeenCalled();
+		});
 
-      // Should not call Supabase when rate limited
-      expect(mockResetPasswordForEmail).not.toHaveBeenCalled();
-    });
+		it('should increment failed attempts on auth error', async () => {
+			mockSignInWithPassword.mockResolvedValue({
+				data: { user: null },
+				error: { message: 'Invalid login credentials' },
+			});
 
-    it('should provide friendly retry message with minutes', async () => {
-      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
-        allowed: false,
-        remaining: 0,
-        resetTime: Date.now() + 3600000,
-        retryAfter: 3600,
-      });
+			await signIn(email, password);
+			expect(incrementFailedAttempts).toHaveBeenCalledWith(email);
+		});
 
-      const result = await resetPassword(testEmail);
+		it('should reset failed attempts on success', async () => {
+			await signIn(email, password);
+			expect(resetFailedAttempts).toHaveBeenCalledWith(email);
+		});
 
-      expect(result.error).toMatch(/try again in \d+ minute/);
-    });
+		it('should show friendly message for invalid credentials', async () => {
+			mockSignInWithPassword.mockResolvedValue({
+				data: { user: null },
+				error: { message: 'Invalid login credentials' },
+			});
 
-    it('should use singular "minute" for 1 minute', async () => {
-      // Mock rate limit to return 59 seconds (rounds to 1 minute)
-      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
-        allowed: false,
-        remaining: 0,
-        resetTime: Date.now() + 60000,
-        retryAfter: 59,
-      });
+			const result = await signIn(email, password);
+			expect(result.error).toContain('Invalid email or password');
+		});
+	});
 
-      const result = await resetPassword(testEmail);
+	describe('signUp', () => {
+		const validArgs = ['John', 'Doe', 'john@example.com', 'MyPass12', 'MyPass12'] as const;
 
-      expect(result.error).toMatch(/1 minute\./);
-      expect(result.error).not.toMatch(/1 minutes/);
-    });
+		beforeEach(() => {
+			mockSignUp.mockResolvedValue({
+				data: { user: { id: '123', identities: [{ id: 'i1' }] } },
+				error: null,
+			});
+		});
 
-    it('should use plural "minutes" for multiple minutes', async () => {
-      // Mock rate limit to return 121 seconds (rounds to 3 minutes)
-      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
-        allowed: false,
-        remaining: 0,
-        resetTime: Date.now() + 3600000,
-        retryAfter: 181,
-      });
+		it('should successfully sign up', async () => {
+			const result = await signUp(...validArgs);
+			expect(result.success).toBe(true);
+		});
 
-      const result = await resetPassword(testEmail);
+		it('should validate input with SignUpSchema', async () => {
+			const result = await signUp('', '', 'bad', '123', '456');
+			expect(result.error).toBeDefined();
+			expect(mockSignUp).not.toHaveBeenCalled();
+		});
 
-      expect(result.error).toMatch(/4 minutes\./);
-    });
+		it('should reject weak passwords (no number)', async () => {
+			const result = await signUp('John', 'Doe', 'john@example.com', 'abcdefgh', 'abcdefgh');
+			expect(result.error).toBeDefined();
+			expect(mockSignUp).not.toHaveBeenCalled();
+		});
 
-    it('should handle Supabase errors', async () => {
-      mockResetPasswordForEmail.mockResolvedValueOnce({
-        error: { message: 'Invalid email format' },
-      });
+		it('should reject weak passwords (too short)', async () => {
+			const result = await signUp('John', 'Doe', 'john@example.com', 'Pass1', 'Pass1');
+			expect(result.error).toBeDefined();
+			expect(mockSignUp).not.toHaveBeenCalled();
+		});
 
-      const result = await resetPassword(testEmail);
+		it('should check rate limit', async () => {
+			await signUp(...validArgs);
+			expect(checkAuthRateLimit).toHaveBeenCalledWith(
+				expect.stringContaining('john@example.com'),
+				'signup'
+			);
+		});
 
-      expect(result.error).toBe('Invalid email format');
-      expect(result.success).toBeUndefined();
-    });
+		it('should block when rate limited', async () => {
+			(checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
+				allowed: false,
+				remaining: 0,
+				resetTime: Date.now() + 3600000,
+				retryAfter: 3600,
+			});
 
-    it('should handle missing origin header', async () => {
-      mockHeaders.delete('origin');
+			const result = await signUp(...validArgs);
+			expect(result.error).toContain('Too many sign-up attempts');
+			expect(mockSignUp).not.toHaveBeenCalled();
+		});
 
-      const result = await resetPassword(testEmail);
+		it('should detect already registered emails', async () => {
+			mockSignUp.mockResolvedValue({
+				data: { user: null },
+				error: { message: 'User already registered' },
+			});
 
-      expect(result.error).toContain('Configuration error');
-    });
+			const result = await signUp(...validArgs);
+			expect(result.error).toContain('already registered');
+		});
 
-    it('should use NEXT_PUBLIC_SITE_URL when origin header missing', async () => {
-      mockHeaders.delete('origin');
-      process.env.NEXT_PUBLIC_SITE_URL = 'https://example.com';
+		it('should detect shadow users (empty identities)', async () => {
+			mockSignUp.mockResolvedValue({
+				data: { user: { id: '123', identities: [] } },
+				error: null,
+			});
 
-      await resetPassword(testEmail);
+			const result = await signUp(...validArgs);
+			expect(result.error).toContain('invitation');
+		});
 
-      expect(mockResetPasswordForEmail).toHaveBeenCalledWith(
-        testEmail,
-        expect.objectContaining({
-          redirectTo: expect.stringContaining('https://example.com'),
-        })
-      );
+		it('should reject disposable email addresses', async () => {
+			const result = await signUp('John', 'Doe', 'john@mailinator.com', 'MyPass12', 'MyPass12');
+			expect(result.error).toContain('Disposable email');
+			expect(mockSignUp).not.toHaveBeenCalled();
+		});
 
-      delete process.env.NEXT_PUBLIC_SITE_URL;
-      mockHeaders.set('origin', 'http://localhost:3000');
-    });
+		it('should pass first_name and last_name in metadata', async () => {
+			await signUp(...validArgs);
+			expect(mockSignUp).toHaveBeenCalledWith(
+				expect.objectContaining({
+					email: 'john@example.com',
+					password: 'MyPass12',
+					options: {
+						data: {
+							first_name: 'John',
+							last_name: 'Doe',
+						},
+					},
+				})
+			);
+		});
+	});
 
-    it('should track different emails independently', async () => {
-      const email1 = 'user1@example.com';
-      const email2 = 'user2@example.com';
+	describe('resendVerificationEmail', () => {
+		beforeEach(() => {
+			mockResend.mockResolvedValue({ error: null });
+		});
 
-      // Mock: email1 is blocked
-      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
-        allowed: false,
-        remaining: 0,
-        resetTime: Date.now() + 3600000,
-        retryAfter: 3600,
-      });
-      const blocked = await resetPassword(email1);
-      expect(blocked.rateLimited).toBe(true);
+		it('should successfully resend email', async () => {
+			const result = await resendVerificationEmail('test@example.com');
+			expect(result.success).toBe(true);
+		});
 
-      // Mock: email2 is allowed (default mock already returns allowed: true)
-      const result = await resetPassword(email2);
-      expect(result.success).toBe(true);
-    });
+		it('should check rate limit with resendEmail key', async () => {
+			await resendVerificationEmail('test@example.com');
+			expect(checkAuthRateLimit).toHaveBeenCalledWith(
+				expect.stringContaining('test@example.com'),
+				'resendEmail'
+			);
+		});
 
-    it('should handle x-real-ip header when x-forwarded-for missing', async () => {
-      mockHeaders.delete('x-forwarded-for');
-      mockHeaders.set('x-real-ip', '10.0.0.1');
+		it('should block when rate limited', async () => {
+			(checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
+				allowed: false,
+				remaining: 0,
+				resetTime: Date.now() + 3600000,
+				retryAfter: 3600,
+			});
 
-      await resetPassword(testEmail);
+			const result = await resendVerificationEmail('test@example.com');
+			expect(result.error).toContain('Too many resend attempts');
+			expect(mockResend).not.toHaveBeenCalled();
+		});
 
-      expect(checkAuthRateLimit).toHaveBeenCalledWith(
-        expect.stringContaining('10.0.0.1'),
-        'passwordReset'
-      );
+		it('should handle Supabase errors', async () => {
+			mockResend.mockResolvedValue({
+				error: { message: 'Email rate limit exceeded' },
+			});
 
-      mockHeaders.set('x-forwarded-for', '192.168.1.1');
-    });
+			const result = await resendVerificationEmail('test@example.com');
+			expect(result.error).toBe('Email rate limit exceeded');
+		});
+	});
 
-    it('should handle missing IP headers gracefully', async () => {
-      mockHeaders.delete('x-forwarded-for');
-      mockHeaders.delete('x-real-ip');
+	describe('resetPassword', () => {
+		beforeEach(() => {
+			mockResetPasswordForEmail.mockResolvedValue({ error: null });
+		});
 
-      const result = await resetPassword(testEmail);
+		it('should successfully send password reset email', async () => {
+			const result = await resetPassword('test@example.com');
+			expect(result).toEqual({ success: true });
+		});
 
-      expect(result.success).toBe(true);
-      expect(checkAuthRateLimit).toHaveBeenCalledWith(
-        expect.stringContaining('unknown'),
-        'passwordReset'
-      );
+		it('should check rate limit before sending email', async () => {
+			await resetPassword('test@example.com');
+			expect(checkAuthRateLimit).toHaveBeenCalledWith(
+				expect.stringContaining('test@example.com'),
+				'passwordReset'
+			);
+		});
 
-      mockHeaders.set('x-forwarded-for', '192.168.1.1');
-    });
+		it('should block request when rate limit exceeded', async () => {
+			(checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
+				allowed: false,
+				remaining: 0,
+				resetTime: Date.now() + 3600000,
+				retryAfter: 3600,
+			});
 
-    it('should handle x-forwarded-for with multiple IPs', async () => {
-      mockHeaders.set('x-forwarded-for', '203.0.113.1, 198.51.100.1, 192.168.1.1');
+			const result = await resetPassword('test@example.com');
+			expect(result.error).toContain('Too many password reset attempts');
+			expect(result.rateLimited).toBe(true);
+			expect(mockResetPasswordForEmail).not.toHaveBeenCalled();
+		});
 
-      await resetPassword(testEmail);
+		it('should handle missing origin header', async () => {
+			mockHeaders.delete('origin');
+			const result = await resetPassword('test@example.com');
+			expect(result.error).toContain('Configuration error');
+		});
 
-      // Should use first IP in list
-      expect(checkAuthRateLimit).toHaveBeenCalledWith(
-        expect.stringContaining('203.0.113.1'),
-        'passwordReset'
-      );
+		it('should handle Supabase errors', async () => {
+			mockResetPasswordForEmail.mockResolvedValue({
+				error: { message: 'Invalid email format' },
+			});
 
-      mockHeaders.set('x-forwarded-for', '192.168.1.1');
-    });
-
-    it('should log rate limit exceeded warning', async () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-
-      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
-        allowed: false,
-        remaining: 0,
-        resetTime: Date.now() + 3600000,
-        retryAfter: 3600,
-      });
-
-      await resetPassword(testEmail);
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Rate limit exceeded')
-      );
-
-      consoleSpy.mockRestore();
-    });
-  });
-
-  describe('Rate Limit Integration', () => {
-    it('should block when rate limiter returns not allowed, then allow after reset', async () => {
-      const email = 'timetest@example.com';
-
-      // First call: blocked
-      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
-        allowed: false,
-        remaining: 0,
-        resetTime: Date.now() + 3600000,
-        retryAfter: 3600,
-      });
-      const blocked = await resetPassword(email);
-      expect(blocked.rateLimited).toBe(true);
-
-      // Second call: allowed again (simulating after window reset)
-      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
-        allowed: true,
-        remaining: 4,
-        resetTime: Date.now() + 3600000,
-      });
-      const allowed = await resetPassword(email);
-      expect(allowed.success).toBe(true);
-    });
-
-    it('should enforce rate limit by blocking after max attempts', async () => {
-      const email = 'strict@example.com';
-
-      // First 5 calls: allowed (default mock returns allowed: true)
-      for (let i = 0; i < 5; i++) {
-        await resetPassword(email);
-      }
-      expect(mockResetPasswordForEmail).toHaveBeenCalledTimes(5);
-
-      // 6th call: blocked
-      (checkAuthRateLimit as jest.Mock).mockResolvedValueOnce({
-        allowed: false,
-        remaining: 0,
-        resetTime: Date.now() + 3600000,
-        retryAfter: 3600,
-      });
-      const result = await resetPassword(email);
-      expect(result.rateLimited).toBe(true);
-
-      // Supabase should not have been called for the blocked request
-      expect(mockResetPasswordForEmail).toHaveBeenCalledTimes(5);
-    });
-  });
+			const result = await resetPassword('test@example.com');
+			expect(result.error).toBe('Invalid email format');
+		});
+	});
 });

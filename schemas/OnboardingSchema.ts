@@ -5,6 +5,7 @@ import { z } from 'zod';
  * Validates user preferences and learning goals during first-time setup.
  */
 export const OnboardingSchema = z.object({
+  role: z.enum(['student', 'teacher']).optional().default('student'),
   goals: z
     .array(z.string())
     .min(1, 'Please select at least one goal'),

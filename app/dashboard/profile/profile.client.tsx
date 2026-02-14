@@ -6,18 +6,43 @@ import {
   ProfileAlert,
   ProfileLoadingState,
   ProfileForm,
+  SessionInfo,
+  EmailChangeForm,
+  AccountDeletionDialog,
+  MFASetup,
+  LinkedAccounts,
 } from '@/components/profile';
 import { redirect } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { createClient } from '@/lib/supabase/client';
 
 interface ProfilePageClientProps {
   userId: string;
+  userEmail?: string;
+  deletionScheduledFor?: string | null;
 }
 
-export default function ProfilePageClient({ userId }: ProfilePageClientProps) {
-  // Create a pseudo-user object for existing hook signature
+export default function ProfilePageClient({ userId, userEmail, deletionScheduledFor }: ProfilePageClientProps) {
   const { loading, saving, error, success, formData, validationErrors, setFormData, handleBlur, handleSubmit } = useProfileData({
     id: userId,
   });
+
+  const { data: profileExtra } = useQuery({
+    queryKey: ['profile-extra', userId],
+    queryFn: async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('profiles')
+        .select('email, deletion_scheduled_for')
+        .eq('id', userId)
+        .single();
+      return data;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const email = profileExtra?.email ?? userEmail;
+  const deletion = profileExtra?.deletion_scheduled_for ?? deletionScheduledFor;
 
   if (loading) {
     return <ProfileLoadingState loading={loading} />;
@@ -31,7 +56,7 @@ export default function ProfilePageClient({ userId }: ProfilePageClientProps) {
         {success && <ProfileAlert type="success" message="Profile updated successfully" />}
         <ProfileForm
           formData={formData}
-          userEmail={undefined}
+          userEmail={email}
           errors={validationErrors}
           saving={saving}
           onSubmit={handleSubmit}
@@ -39,6 +64,14 @@ export default function ProfilePageClient({ userId }: ProfilePageClientProps) {
           onBlur={handleBlur}
           onCancel={() => redirect('/dashboard')}
         />
+
+        <div className="mt-8 space-y-4">
+          <SessionInfo userId={userId} />
+          <EmailChangeForm currentEmail={email} />
+          <MFASetup />
+          <LinkedAccounts />
+          <AccountDeletionDialog deletionScheduledFor={deletion} />
+        </div>
       </div>
     </div>
   );

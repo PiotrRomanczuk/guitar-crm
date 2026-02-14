@@ -31,6 +31,10 @@ export const AUTH_RATE_LIMITS = {
     maxAttempts: 3,
     windowMs: 60 * 60 * 1000, // 3 attempts per hour
   },
+  resendEmail: {
+    maxAttempts: 3,
+    windowMs: 60 * 60 * 1000, // 3 attempts per hour
+  },
 } as const;
 
 /**
@@ -45,7 +49,7 @@ export interface RateLimitResult {
 
 /**
  * Check if a request should be rate limited, then record the attempt.
- * Fails open on DB errors (allows request rather than blocking).
+ * Fails closed on DB errors (blocks request on error for security).
  */
 export async function checkAuthRateLimit(
   identifier: string,
@@ -64,8 +68,9 @@ export async function checkAuthRateLimit(
     );
 
     if (countError) {
-      // Fail open
-      return { allowed: true, remaining: config.maxAttempts, resetTime: now + config.windowMs };
+      // Fail closed — block on DB error for security
+      console.error('[RateLimit] DB error during rate limit check:', countError.message);
+      return { allowed: false, remaining: 0, resetTime: now + config.windowMs, retryAfter: 60 };
     }
 
     const currentCount = (count as number) ?? 0;
@@ -90,9 +95,10 @@ export async function checkAuthRateLimit(
       remaining: config.maxAttempts - currentCount - 1,
       resetTime: now + config.windowMs,
     };
-  } catch {
-    // Fail open
-    return { allowed: true, remaining: config.maxAttempts, resetTime: now + config.windowMs };
+  } catch (err) {
+    // Fail closed — block on unexpected error for security
+    console.error('[RateLimit] Unexpected error during rate limit check:', err);
+    return { allowed: false, remaining: 0, resetTime: now + config.windowMs, retryAfter: 60 };
   }
 }
 

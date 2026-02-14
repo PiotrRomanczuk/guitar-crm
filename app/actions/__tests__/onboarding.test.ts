@@ -100,10 +100,11 @@ describe('completeOnboarding', () => {
     // Expect redirect to throw
     await expect(completeOnboarding(validOnboardingData)).rejects.toThrow('NEXT_REDIRECT');
 
-    // Verify profile was updated
+    // Verify profile was updated with first_name/last_name (trigger syncs full_name)
     expect(mockAdminUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
-        full_name: 'John Doe',
+        first_name: 'John',
+        last_name: 'Doe',
         is_student: true,
         onboarding_completed: true,
       })
@@ -136,7 +137,8 @@ describe('completeOnboarding', () => {
 
     expect(mockAdminUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
-        full_name: 'Jane',
+        first_name: 'Jane',
+        last_name: '',
         is_student: true,
       })
     );
@@ -159,7 +161,8 @@ describe('completeOnboarding', () => {
 
     expect(mockAdminUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
-        full_name: '',
+        first_name: '',
+        last_name: '',
         is_student: true,
       })
     );
