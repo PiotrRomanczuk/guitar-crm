@@ -13,6 +13,7 @@ import {
   LucideIcon,
   BarChart,
   FileText,
+  GraduationCap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -70,7 +71,8 @@ export function Sidebar({ user, isAdmin, isTeacher, isStudent }: SidebarProps) {
           icon: BarChart,
           path: '/dashboard/admin/stats/lessons',
         },
-        { id: 'logs', label: 'Activity Logs', icon: FileText, path: '/dashboard/logs' }
+        { id: 'logs', label: 'Activity Logs', icon: FileText, path: '/dashboard/logs' },
+        { id: 'theory', label: 'Theory', icon: GraduationCap, path: '/dashboard/theory' }
       );
     } else if (isStudent) {
       items.push(
@@ -82,7 +84,8 @@ export function Sidebar({ user, isAdmin, isTeacher, isStudent }: SidebarProps) {
           icon: ClipboardList,
           path: '/dashboard/assignments',
         },
-        { id: 'my-stats', label: 'My Stats', icon: BarChart, path: '/dashboard/stats' }
+        { id: 'my-stats', label: 'My Stats', icon: BarChart, path: '/dashboard/stats' },
+        { id: 'theory', label: 'Theory', icon: GraduationCap, path: '/dashboard/theory' }
       );
     }
     return items;
