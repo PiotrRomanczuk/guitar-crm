@@ -1,0 +1,71 @@
+import { type NoteName, formatNote } from '@/lib/music-theory';
+
+/** Fret markers (single dots and double dot at 12th) */
+export const FRET_MARKERS: Record<number, 'single' | 'double'> = {
+  3: 'single',
+  5: 'single',
+  7: 'single',
+  9: 'single',
+  12: 'double',
+  15: 'single',
+};
+
+/** String labels for standard tuning (thickest to thinnest) */
+export const STRING_LABELS = ['6th (E)', '5th (A)', '4th (D)', '3rd (G)', '2nd (B)', '1st (e)'];
+
+/** Color classes for scale degrees */
+const DEGREE_COLORS: Record<number, string> = {
+  0: 'bg-red-500 dark:bg-red-600 text-white',      // Root
+  1: 'bg-orange-400 dark:bg-orange-500 text-white', // 2nd
+  2: 'bg-yellow-400 dark:bg-yellow-500 text-black', // 3rd
+  3: 'bg-green-400 dark:bg-green-500 text-white',   // 4th
+  4: 'bg-cyan-400 dark:bg-cyan-500 text-black',     // 5th
+  5: 'bg-blue-400 dark:bg-blue-500 text-white',     // 6th
+  6: 'bg-purple-400 dark:bg-purple-500 text-white',  // 7th
+};
+
+/** Fallback color for notes not mapped to a degree */
+const DEFAULT_NOTE_COLOR = 'bg-muted-foreground/30 text-muted-foreground';
+
+/**
+ * Get the CSS class for a highlighted note based on its position in the
+ * highlighted set. Index 0 = root note (red).
+ */
+export function getNoteColor(
+  note: NoteName,
+  highlightedNotes: NoteName[],
+): string {
+  const index = highlightedNotes.indexOf(note);
+  if (index === -1) return DEFAULT_NOTE_COLOR;
+  return DEGREE_COLORS[index] ?? 'bg-indigo-400 dark:bg-indigo-500 text-white';
+}
+
+/**
+ * Format note text for display on the fretboard.
+ */
+export function formatNoteDisplay(
+  note: NoteName,
+  useFlats: boolean,
+): string {
+  return formatNote(note, useFlats);
+}
+
+/**
+ * Check if a note should be visually emphasized (is in the highlighted set).
+ */
+export function isHighlighted(
+  note: NoteName,
+  highlightedNotes: NoteName[],
+): boolean {
+  return highlightedNotes.includes(note);
+}
+
+/**
+ * Check if a note is the root note.
+ */
+export function isRoot(
+  note: NoteName,
+  highlightedNotes: NoteName[],
+): boolean {
+  return highlightedNotes.length > 0 && highlightedNotes[0] === note;
+}
