@@ -7,7 +7,7 @@ export interface ParsedFilename {
   raw: string;
 }
 
-export type MatchStatus = 'matched' | 'ambiguous' | 'unmatched';
+export type MatchStatus = 'matched' | 'review_queue' | 'unmatched' | 'skipped';
 
 export interface SongRecord {
   id: string;
@@ -23,8 +23,8 @@ export interface VideoMatchResult {
   status: MatchStatus;
 }
 
-const MATCHED_THRESHOLD = 75;
-const AMBIGUOUS_THRESHOLD = 60;
+const MATCHED_THRESHOLD = 70;
+const REVIEW_QUEUE_THRESHOLD = 40;
 const RUNNER_UP_GAP = 10;
 
 /**
@@ -110,12 +110,14 @@ export function matchVideoToSongs(
   if (best && best.score >= MATCHED_THRESHOLD) {
     // Check if runner-up is dangerously close
     if (second && best.score - second.score < RUNNER_UP_GAP) {
-      status = 'ambiguous';
+      status = 'review_queue';
     } else {
       status = 'matched';
     }
-  } else if (best && best.score >= AMBIGUOUS_THRESHOLD) {
-    status = 'ambiguous';
+  } else if (best && best.score >= REVIEW_QUEUE_THRESHOLD) {
+    status = 'review_queue';
+  } else if (best && best.score < REVIEW_QUEUE_THRESHOLD) {
+    status = 'skipped';
   }
 
   return {
@@ -136,8 +138,9 @@ export function matchAllVideosToSongs(
 ): VideoMatchResult[] {
   const statusOrder: Record<MatchStatus, number> = {
     matched: 0,
-    ambiguous: 1,
+    review_queue: 1,
     unmatched: 2,
+    skipped: 3,
   };
 
   return files

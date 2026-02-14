@@ -30,11 +30,22 @@ export interface SyncOptions {
 export interface SyncResult {
   totalFiles: number;
   matched: number;
-  ambiguous: number;
+  reviewQueue: number;
   unmatched: number;
   skipped: number;
   inserted: number;
   results: VideoMatchResult[];
+  duplicates?: DuplicateVideoInfo[];
+}
+
+export interface DuplicateVideoInfo {
+  driveFile: DriveFileInfo;
+  existingSongVideo: {
+    id: string;
+    songId: string;
+    songTitle: string;
+    uploadedAt: string;
+  };
 }
 
 /**
@@ -47,7 +58,6 @@ async function resolveFolderId(options: SyncOptions): Promise<string> {
     options.parentFolderId || process.env.GOOGLE_DRIVE_FOLDER_ID || '';
   // Strip URL query params that may be pasted from browser URLs
   const parentId = rawParentId.split('?')[0];
-  const folderName = options.folderName || '07_Guitar Videos';
 
   if (!parentId) {
     throw new Error(
@@ -55,10 +65,17 @@ async function resolveFolderId(options: SyncOptions): Promise<string> {
     );
   }
 
-  const id = await findFolderByName(parentId, folderName);
+  // If folderName is explicitly set to empty string, use parentId directly
+  // If folderName is undefined, also use parentId directly (videos are in the folder itself)
+  if (options.folderName === '' || options.folderName === undefined) {
+    return parentId;
+  }
+
+  // Otherwise, search for subfolder by name
+  const id = await findFolderByName(parentId, options.folderName);
   if (!id) {
     throw new Error(
-      `Folder "${folderName}" not found in parent folder ${parentId}`
+      `Folder "${options.folderName}" not found in parent folder ${parentId}`
     );
   }
   return id;
@@ -80,23 +97,53 @@ async function fetchAllSongs(
 }
 
 /**
- * Fetch existing song_videos drive file IDs to skip duplicates.
+ * Fetch existing song_videos with song details to track duplicates.
  */
-async function fetchExistingDriveFileIds(
+async function fetchExistingVideos(
   supabase: SupabaseClient
-): Promise<Set<string>> {
-  const { data, error } = await supabase
+): Promise<Map<string, { id: string; songId: string; songTitle: string; uploadedAt: string }>> {
+  // Fetch existing videos
+  const { data: videos, error: videosError } = await supabase
     .from('song_videos')
-    .select('google_drive_file_id');
+    .select('id, google_drive_file_id, song_id, created_at');
 
-  if (error) {
-    throw new Error(`Failed to fetch existing videos: ${error.message}`);
+  if (videosError) {
+    throw new Error(`Failed to fetch existing videos: ${videosError.message}`);
   }
-  return new Set(
-    (data || []).map(
-      (row: { google_drive_file_id: string }) => row.google_drive_file_id
-    )
-  );
+
+  // Fetch all songs for title lookup
+  const { data: songs, error: songsError } = await supabase
+    .from('songs')
+    .select('id, title');
+
+  if (songsError) {
+    throw new Error(`Failed to fetch songs for duplicates: ${songsError.message}`);
+  }
+
+  // Create song title lookup map
+  const songTitles = new Map<string, string>();
+  (songs || []).forEach((song: { id: string; title: string }) => {
+    songTitles.set(song.id, song.title);
+  });
+
+  // Build result map
+  const map = new Map<string, { id: string; songId: string; songTitle: string; uploadedAt: string }>();
+
+  (videos || []).forEach((row: {
+    id: string;
+    google_drive_file_id: string;
+    song_id: string;
+    created_at: string;
+  }) => {
+    map.set(row.google_drive_file_id, {
+      id: row.id,
+      songId: row.song_id,
+      songTitle: songTitles.get(row.song_id) || 'Unknown',
+      uploadedAt: row.created_at,
+    });
+  });
+
+  return map;
 }
 
 /**
@@ -108,13 +155,20 @@ export async function syncDriveVideosToSongs(
   const folderId = await resolveFolderId(options);
   const files = await listFilesInFolder(folderId, 'video/');
   const songs = await fetchAllSongs(options.supabase);
-  const existingIds = await fetchExistingDriveFileIds(options.supabase);
+  const existingVideos = await fetchExistingVideos(options.supabase);
 
-  // Filter out already-synced files
+  // Track duplicates and filter out already-synced files
   const newFiles: DriveFileInfo[] = [];
+  const duplicates: DuplicateVideoInfo[] = [];
   let skipped = 0;
+
   for (const f of files) {
-    if (existingIds.has(f.id)) {
+    const existing = existingVideos.get(f.id);
+    if (existing) {
+      duplicates.push({
+        driveFile: f,
+        existingSongVideo: existing,
+      });
       skipped++;
     } else {
       newFiles.push(f);
@@ -137,8 +191,9 @@ export async function syncDriveVideosToSongs(
   }
 
   const matched = results.filter((r) => r.status === 'matched');
-  const ambiguous = results.filter((r) => r.status === 'ambiguous');
+  const reviewQueue = results.filter((r) => r.status === 'review_queue');
   const unmatched = results.filter((r) => r.status === 'unmatched');
+  const statusSkipped = results.filter((r) => r.status === 'skipped');
   let inserted = 0;
 
   if (!options.dryRun && matched.length > 0) {
@@ -176,10 +231,11 @@ export async function syncDriveVideosToSongs(
   return {
     totalFiles: files.length,
     matched: matched.length,
-    ambiguous: ambiguous.length,
+    reviewQueue: reviewQueue.length,
     unmatched: unmatched.length,
-    skipped,
+    skipped: skipped + statusSkipped.length,
     inserted,
     results,
+    duplicates,
   };
 }

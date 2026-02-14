@@ -14,7 +14,7 @@ export interface ScanResult {
   filename: string;
   driveFileId: string;
   parsed: { title: string; author: string } | null;
-  status: 'matched' | 'ambiguous' | 'unmatched' | 'skipped';
+  status: 'matched' | 'review_queue' | 'unmatched' | 'skipped';
   bestMatch: {
     songId: string;
     title: string;
@@ -37,8 +37,8 @@ function getStatusBadge(status: ScanResult['status']) {
   switch (status) {
     case 'matched':
       return <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Matched</Badge>;
-    case 'ambiguous':
-      return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Ambiguous</Badge>;
+    case 'review_queue':
+      return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Review Queue</Badge>;
     case 'unmatched':
       return <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Unmatched</Badge>;
     case 'skipped':
