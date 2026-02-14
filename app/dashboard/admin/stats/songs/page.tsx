@@ -1,4 +1,4 @@
-import { SongStatsCharts } from '@/components/dashboard/stats/SongStatsCharts';
+import { SongStatsPage as SongStatsCharts } from '@/components/songs/stats';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { redirect } from 'next/navigation';
 import { getSongDatabaseStatistics } from '@/lib/services/song-analytics';

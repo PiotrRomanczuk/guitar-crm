@@ -21,35 +21,47 @@ export default function DriveFilePreview({ file, onClose }: DriveFilePreviewProp
     case 'pdf':
       return <PdfViewer file={file} onClose={onClose} />;
 
-    case 'video':
+    case 'video': {
       // Convert DriveFile to SongVideo format for existing VideoPlayer
       // TODO: Create a generic VideoPlayer that accepts DriveFile
+      const durationSeconds =
+        file.metadata && 'duration_seconds' in file.metadata &&
+        typeof file.metadata.duration_seconds === 'number'
+          ? file.metadata.duration_seconds
+          : null;
+      const thumbnailUrl =
+        file.metadata && 'thumbnail_url' in file.metadata &&
+        typeof file.metadata.thumbnail_url === 'string'
+          ? file.metadata.thumbnail_url
+          : null;
+
       return <VideoPlayer
         video={{
           id: file.id,
-          song_id: file.entity_id, // Assuming entity is song
+          song_id: file.entity_id,
           uploaded_by: file.uploaded_by,
           google_drive_file_id: file.google_drive_file_id,
-          google_drive_folder_id: file.google_drive_folder_id || undefined,
-          title: file.title,
+          google_drive_folder_id: file.google_drive_folder_id ?? null,
+          title: file.title ?? file.filename,
           filename: file.filename,
           mime_type: file.mime_type,
-          file_size_bytes: file.file_size_bytes || undefined,
-          duration_seconds:
-            file.metadata && 'duration_seconds' in file.metadata
-              ? file.metadata.duration_seconds
-              : undefined,
-          thumbnail_url:
-            file.metadata && 'thumbnail_url' in file.metadata
-              ? file.metadata.thumbnail_url
-              : undefined,
+          file_size_bytes: file.file_size_bytes ?? null,
+          duration_seconds: durationSeconds,
+          thumbnail_url: thumbnailUrl,
           display_order: file.display_order,
+          published_to_instagram: false,
+          published_to_tiktok: false,
+          published_to_youtube_shorts: false,
+          instagram_media_id: null,
+          tiktok_media_id: null,
+          youtube_shorts_id: null,
           created_at: file.created_at,
           updated_at: file.updated_at,
         }}
         songId={file.entity_id}
         onClose={onClose}
       />;
+    }
 
     case 'image':
       // TODO: Create ImageViewer component

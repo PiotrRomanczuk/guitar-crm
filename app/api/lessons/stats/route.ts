@@ -20,15 +20,9 @@ export async function GET(request: NextRequest) {
     const dateFrom = searchParams.get('dateFrom');
     const dateTo = searchParams.get('dateTo');
 
-    // Determine which client to use
-    let clientToUse = supabase;
-    if (isAdmin) {
-      clientToUse = adminClient;
-    }
-
-    // Helper to build query
+    // Helper to build query (RLS policies handle admin access)
     const buildQuery = () => {
-      let q = clientToUse.from('lessons').select('*', { count: 'exact', head: true });
+      let q = supabase.from('lessons').select('*', { count: 'exact', head: true });
       if (userId) {
         q = q.or(`student_id.eq.${userId},teacher_id.eq.${userId}`);
       }
@@ -79,7 +73,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get lessons with songs count
-    const { data: lessonsWithSongs, error: songsError } = await clientToUse
+    const { data: lessonsWithSongs, error: songsError } = await supabase
       .from('lesson_songs')
       .select('lesson_id');
 
@@ -90,7 +84,7 @@ export async function GET(request: NextRequest) {
     // Get average lessons per student (if userId not specified)
     let avgLessonsPerStudent = 0;
     if (!userId) {
-      const { data: studentStats, error: studentError } = await clientToUse
+      const { data: studentStats, error: studentError } = await supabase
         .from('lessons')
         .select('student_id');
 

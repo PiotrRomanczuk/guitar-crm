@@ -70,11 +70,12 @@ export default function DriveFileCard({
   const thumbnailUrl =
     (file.file_type === 'video' || file.file_type === 'image') &&
     file.metadata &&
-    'thumbnail_url' in file.metadata
+    'thumbnail_url' in file.metadata &&
+    typeof file.metadata.thumbnail_url === 'string'
       ? file.metadata.thumbnail_url
       : null;
 
-  const showThumbnail = thumbnailUrl && !imageError;
+  const showThumbnail = thumbnailUrl !== null && !imageError;
 
   const handleAction = () => {
     if (file.file_type === 'audio' || file.file_type === 'video') {
@@ -94,7 +95,8 @@ export default function DriveFileCard({
   const duration =
     (file.file_type === 'audio' || file.file_type === 'video') &&
     file.metadata &&
-    'duration_seconds' in file.metadata
+    'duration_seconds' in file.metadata &&
+    typeof file.metadata.duration_seconds === 'number'
       ? formatDuration(file.metadata.duration_seconds)
       : null;
 
