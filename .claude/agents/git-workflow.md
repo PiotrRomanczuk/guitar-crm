@@ -59,7 +59,7 @@ Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `perf`, `style`
 
 ---
 
-## Version Bumping (Automated)
+## Version Bumping & Release Documentation (Automated)
 
 Version bumping is handled automatically by a GitHub Action (`version-bump.yml`) that runs after each PR is merged to `main`. **Do not run `npm version` manually on feature branches.**
 
@@ -70,6 +70,32 @@ Version bumping is handled automatically by a GitHub Action (`version-bump.yml`)
 | Breaking change, major rewrite | major | Add `version:major` label to PR |
 
 Override with PR labels: `version:major`, `version:minor`, `version:patch`.
+
+### Automated Release Documentation
+
+**The version-bump workflow automatically creates:**
+
+1. **Enhanced Commit Message** with PR title and description
+2. **Annotated Git Tag** (e.g., `v0.84.0`) with PR title
+3. **GitHub Release** with full PR body as release notes
+
+**IMPORTANT for agents**: This is now automatic via GitHub Actions. You do NOT need to manually create tags or releases. The workflow handles:
+- ✅ Version bump in package.json
+- ✅ Git tag creation with PR context
+- ✅ GitHub Release with changelog links
+- ✅ Tag push to origin
+
+If working on a hotfix or manual release, follow the pattern:
+```bash
+# Create tag with descriptive message
+git tag -a v0.X.Y -m "Release v0.X.Y: <Feature description>"
+git push origin v0.X.Y
+
+# Create GitHub release
+gh release create v0.X.Y \
+  --title "v0.X.Y: <Feature description>" \
+  --notes "<Full description>"
+```
 
 ### CHANGELOG.md Format
 
