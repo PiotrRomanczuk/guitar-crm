@@ -93,7 +93,7 @@ export function LessonStatsCalendarHeatmap() {
                   <span className="text-xs font-medium">{day}</span>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded" style={{ backgroundColor: color }} />
-                    <span className="text-sm">{value} {value === 1 ? 'lesson' : 'lessons'}</span>
+                    <span className="text-sm">{value} {Number(value) === 1 ? 'lesson' : 'lessons'}</span>
                   </div>
                 </div>
               </div>

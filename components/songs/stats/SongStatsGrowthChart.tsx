@@ -152,10 +152,10 @@ export function SongStatsGrowthChart({ data }: Props) {
                   <div className="flex items-center gap-2">
                     <div
                       className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: point.serieColor }}
+                      style={{ backgroundColor: point.seriesColor }}
                     />
                     <span className="text-sm">
-                      {point.serieId}: {point.data.yFormatted}
+                      {point.seriesId}: {point.data.yFormatted}
                     </span>
                   </div>
                 </div>
