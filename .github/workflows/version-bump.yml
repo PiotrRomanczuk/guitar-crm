@@ -28,14 +28,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Detect bump type
+      - name: Detect bump type and extract PR details
         id: detect
         env:
           GH_TOKEN: ${{ github.token }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
           # Extract PR number from squash-merge commit message (e.g. "Some title (#123)")
-          PR_NUMBER=$(echo "$COMMIT_MSG" | grep -oP '\(#\K[0-9]+(?=\))' | tail -1)
+          PR_NUMBER=$(echo "$COMMIT_MSG" | sed -n 's/.*(#\([0-9]*\)).*/\1/p' | tail -1)
 
           if [ -z "$PR_NUMBER" ]; then
             echo "No PR number found in commit message — skipping version bump"
@@ -45,12 +45,17 @@ jobs:
 
           echo "PR #$PR_NUMBER detected"
 
-          # Get the source branch name from the PR
-          BRANCH=$(gh pr view "$PR_NUMBER" --json headRefName --jq '.headRefName')
+          # Get PR details for enhanced documentation
+          PR_DATA=$(gh pr view "$PR_NUMBER" --json headRefName,title,body,labels)
+          BRANCH=$(echo "$PR_DATA" | jq -r '.headRefName')
+          PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
+          PR_BODY=$(echo "$PR_DATA" | jq -r '.body // ""' | head -20)
+
           echo "Source branch: $BRANCH"
+          echo "PR title: $PR_TITLE"
 
           # Check for label overrides on the PR
-          LABELS=$(gh pr view "$PR_NUMBER" --json labels --jq '.labels[].name')
+          LABELS=$(echo "$PR_DATA" | jq -r '.labels[].name')
 
           if echo "$LABELS" | grep -q "version:major"; then
             BUMP_TYPE="major"
@@ -69,6 +74,14 @@ jobs:
           echo "bump_type=$BUMP_TYPE" >> "$GITHUB_OUTPUT"
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
+          # Save PR details for later steps
+          echo "pr_title=$PR_TITLE" >> "$GITHUB_OUTPUT"
+          {
+            echo "pr_body<<EOF"
+            echo "$PR_BODY"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Bump version
         if: steps.detect.outputs.skip != 'true'
         run: |
@@ -85,11 +98,48 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add package.json package-lock.json
-          git commit -m "chore: bump version $OLD_VERSION → $NEW_VERSION [PR #${{ steps.detect.outputs.pr_number }}]"
+
+          # Create enhanced commit message with PR title
+          cat > /tmp/commit_msg.txt << 'COMMIT_EOF'
+          chore: bump version ${{ env.OLD_VERSION }} → ${{ env.NEW_VERSION }}
+
+          ${{ steps.detect.outputs.pr_title }}
+
+          Merged PR #${{ steps.detect.outputs.pr_number }}
+          COMMIT_EOF
+
+          git commit -F /tmp/commit_msg.txt
           git push
 
       - name: Create and push git tag
         if: steps.detect.outputs.skip != 'true'
         run: |
-          git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
+          # Create annotated tag with PR title
+          git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION: ${{ steps.detect.outputs.pr_title }}"
           git push origin "v$NEW_VERSION"
+
+      - name: Create GitHub Release
+        if: steps.detect.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Extract summary from PR body (first section before ## or ---)
+          SUMMARY=$(echo "${{ steps.detect.outputs.pr_body }}" | sed '/^##/q' | sed '/^---/q')
+
+          # Create release notes
+          cat > /tmp/release_notes.md << 'RELEASE_EOF'
+          ## ${{ steps.detect.outputs.pr_title }}
+
+          ${{ steps.detect.outputs.pr_body }}
+
+          ---
+
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/v${{ env.OLD_VERSION }}...v${{ env.NEW_VERSION }}
+          **Merged PR**: #${{ steps.detect.outputs.pr_number }}
+          RELEASE_EOF
+
+          # Create GitHub release
+          gh release create "v$NEW_VERSION" \
+            --title "v$NEW_VERSION: ${{ steps.detect.outputs.pr_title }}" \
+            --notes-file /tmp/release_notes.md \
+            --verify-tag
