@@ -10,6 +10,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 
+type SupabaseClient = Awaited<ReturnType<typeof createClient>>;
+
 const INACTIVITY_DAYS = 28;
 
 interface StatusUpdateResult {
@@ -131,7 +133,7 @@ export async function updateStudentActivityStatus(): Promise<StatusUpdateResult>
  * Updates student status and logs to user_history
  */
 async function updateStudentStatus(
-  supabase: any,
+  supabase: SupabaseClient,
   studentId: string,
   previousStatus: string,
   newStatus: string,
