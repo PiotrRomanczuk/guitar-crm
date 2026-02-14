@@ -1,4 +1,4 @@
-import { LessonStatsPage as LessonStatsPageClient } from '@/components/lessons/stats';
+import { LessonStatsPageEnhanced as LessonStatsPageClient } from '@/components/lessons/stats';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { redirect } from 'next/navigation';
 
