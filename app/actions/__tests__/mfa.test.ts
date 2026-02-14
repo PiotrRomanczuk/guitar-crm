@@ -1,5 +1,8 @@
 import { enrollMFA, verifyMFAEnrollment, challengeMFA, verifyMFA, unenrollMFA, listMFAFactors } from '../mfa';
 
+// Test fixture: Not a real TOTP secret, just a mock value for testing
+const MOCK_TOTP_SECRET = 'TEST-MOCK-SECRET-NOT-REAL';
+
 const mockGetUser = jest.fn();
 const mockEnroll = jest.fn();
 const mockChallenge = jest.fn();
@@ -39,7 +42,7 @@ describe('enrollMFA', () => {
 		mockEnroll.mockResolvedValue({
 			data: {
 				id: 'factor-1',
-				totp: { qr_code: 'data:image/svg+xml;...', secret: 'ABCD1234', uri: 'otpauth://...' },
+				totp: { qr_code: 'data:image/svg+xml;...', secret: MOCK_TOTP_SECRET, uri: 'otpauth://...' },
 			},
 			error: null,
 		});
@@ -48,7 +51,7 @@ describe('enrollMFA', () => {
 		expect(result.success).toBe(true);
 		expect(result.factorId).toBe('factor-1');
 		expect(result.qrCode).toBe('data:image/svg+xml;...');
-		expect(result.secret).toBe('ABCD1234');
+		expect(result.secret).toBe(MOCK_TOTP_SECRET);
 	});
 
 	it('should return error on enroll failure', async () => {
