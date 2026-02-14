@@ -5,6 +5,8 @@ import { SCALE_DEFINITIONS } from '@/lib/music-theory/scales';
 import { CHORD_DEFINITIONS } from '@/lib/music-theory/chords';
 import { type DisplayMode } from './useFretboard';
 import { formatNoteDisplay } from './fretboard.helpers';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Button } from '@/components/ui/button';
 
 interface FretboardControlsProps {
   rootNote: NoteName;
@@ -73,31 +75,29 @@ function ModeButtons({
   onModeChange: (mode: DisplayMode) => void;
   onClear: () => void;
 }) {
-  const modes: { key: DisplayMode; label: string }[] = [
-    { key: 'scale', label: 'Scales' },
-    { key: 'chord', label: 'Chords' },
-  ];
   return (
-    <div className="flex items-center gap-1 rounded-lg border border-border p-1">
-      {modes.map(({ key, label }) => (
-        <button
-          key={key}
-          onClick={() => onModeChange(key)}
-          className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-            displayMode === key
-              ? 'bg-primary text-primary-foreground'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-          }`}
-        >
-          {label}
-        </button>
-      ))}
-      <button
+    <div className="flex items-center gap-2">
+      <ToggleGroup
+        type="single"
+        value={displayMode}
+        onValueChange={(value) => value && onModeChange(value as DisplayMode)}
+        variant="outline"
+      >
+        <ToggleGroupItem value="scale" aria-label="Show scales">
+          Scales
+        </ToggleGroupItem>
+        <ToggleGroupItem value="chord" aria-label="Show chords">
+          Chords
+        </ToggleGroupItem>
+      </ToggleGroup>
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={onClear}
-        className="rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted"
+        className="text-muted-foreground"
       >
         Clear
-      </button>
+      </Button>
     </div>
   );
 }
@@ -188,26 +188,20 @@ function ToggleButtons({
 }) {
   return (
     <div className="flex items-center gap-2 ml-auto">
-      <button
+      <Button
+        variant={useFlats ? 'default' : 'outline'}
+        size="sm"
         onClick={onToggleFlats}
-        className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
-          useFlats
-            ? 'border-primary bg-primary/10 text-primary'
-            : 'border-border text-muted-foreground hover:text-foreground'
-        }`}
       >
         {useFlats ? 'b Flats' : '# Sharps'}
-      </button>
-      <button
+      </Button>
+      <Button
+        variant={showAllNotes ? 'default' : 'outline'}
+        size="sm"
         onClick={onToggleAllNotes}
-        className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
-          showAllNotes
-            ? 'border-primary bg-primary/10 text-primary'
-            : 'border-border text-muted-foreground hover:text-foreground'
-        }`}
       >
         {showAllNotes ? 'All Notes' : 'Scale Only'}
-      </button>
+      </Button>
     </div>
   );
 }

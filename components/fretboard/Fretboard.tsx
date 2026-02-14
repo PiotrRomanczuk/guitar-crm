@@ -17,6 +17,9 @@ export function FretboardGrid({
   showAllNotes,
 }: FretboardGridProps) {
   const fretNumbers = Array.from({ length: TOTAL_FRETS + 1 }, (_, i) => i);
+  // Reverse strings to show 1st string (high e) at top, 6th string (low E) at bottom
+  const reversedFretboard = [...fretboard].reverse();
+  const reversedLabels = [...STRING_LABELS].reverse();
 
   return (
     <div className="rounded-lg border border-border bg-card overflow-x-auto">
@@ -25,10 +28,10 @@ export function FretboardGrid({
           <FretNumberRow fretNumbers={fretNumbers} />
         </thead>
         <tbody>
-          {fretboard.map((stringNotes, stringIndex) => (
+          {reversedFretboard.map((stringNotes, stringIndex) => (
             <tr key={stringIndex} className="border-b border-border/30 last:border-b-0">
               <td className="px-2 py-1 text-xs text-muted-foreground whitespace-nowrap font-mono w-16 text-right border-r-2 border-foreground/20">
-                {STRING_LABELS[stringIndex]}
+                {reversedLabels[stringIndex]}
               </td>
               {stringNotes.map((note, fret) => (
                 <NoteCell

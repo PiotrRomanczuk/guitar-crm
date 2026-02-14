@@ -13,15 +13,15 @@ export const FRET_MARKERS: Record<number, 'single' | 'double'> = {
 /** String labels for standard tuning (thickest to thinnest) */
 export const STRING_LABELS = ['6th (E)', '5th (A)', '4th (D)', '3rd (G)', '2nd (B)', '1st (e)'];
 
-/** Color classes for scale degrees */
+/** Color classes for scale degrees (reduced brightness) */
 const DEGREE_COLORS: Record<number, string> = {
-  0: 'bg-red-500 dark:bg-red-600 text-white',      // Root
-  1: 'bg-orange-400 dark:bg-orange-500 text-white', // 2nd
-  2: 'bg-yellow-400 dark:bg-yellow-500 text-black', // 3rd
-  3: 'bg-green-400 dark:bg-green-500 text-white',   // 4th
-  4: 'bg-cyan-400 dark:bg-cyan-500 text-black',     // 5th
-  5: 'bg-blue-400 dark:bg-blue-500 text-white',     // 6th
-  6: 'bg-purple-400 dark:bg-purple-500 text-white',  // 7th
+  0: 'bg-red-600 dark:bg-red-700 text-white',      // Root
+  1: 'bg-orange-600 dark:bg-orange-700 text-white', // 2nd
+  2: 'bg-yellow-600 dark:bg-yellow-700 text-white', // 3rd
+  3: 'bg-green-600 dark:bg-green-700 text-white',   // 4th
+  4: 'bg-cyan-600 dark:bg-cyan-700 text-white',     // 5th
+  5: 'bg-blue-600 dark:bg-blue-700 text-white',     // 6th
+  6: 'bg-purple-600 dark:bg-purple-700 text-white',  // 7th
 };
 
 /** Fallback color for notes not mapped to a degree */
