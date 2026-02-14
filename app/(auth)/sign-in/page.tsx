@@ -3,11 +3,12 @@
 import { useEffect, useState, useMemo, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { createClient } from '@/lib/supabase/client';
 import { SignInSchema } from '@/schemas/AuthSchema';
+import { signIn as signInAction } from '@/app/auth/actions';
 import { AuthLayout, AuthHeader, AuthDivider, GoogleAuthButton } from '@/components/auth';
 import { PasswordInput } from '@/components/auth/PasswordInput';
+import { MFAChallengeDialog } from '@/components/auth/MFAChallengeDialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,8 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState({ email: false, password: false });
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -59,30 +62,28 @@ export default function SignInPage() {
     e.preventDefault();
     setTouched({ email: true, password: true });
 
-    const result = SignInSchema.safeParse({ email, password });
-    if (!result.success) return;
+    const validation = SignInSchema.safeParse({ email, password });
+    if (!validation.success) return;
 
     setLoading(true);
     setError(null);
 
-    const supabase = getSupabaseBrowserClient();
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const signInResult = await signInAction(email, password);
 
     setLoading(false);
 
-    if (signInError) {
-      if (signInError.message === 'Invalid login credentials') {
-        setError('Invalid email or password. If you haven\'t set a password yet, please use "Forgot password?" to create one.');
-      } else {
-        setError(signInError.message);
-      }
+    if (signInResult.error) {
+      setError(signInResult.error);
       return;
     }
 
-    if (data.user) {
+    if (signInResult.success && signInResult.mfaRequired && signInResult.factorId) {
+      setMfaFactorId(signInResult.factorId);
+      setMfaRequired(true);
+      return;
+    }
+
+    if (signInResult.success) {
       router.refresh();
       router.push('/dashboard');
     }
@@ -91,7 +92,7 @@ export default function SignInPage() {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
-    const supabase = getSupabaseBrowserClient();
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -206,6 +207,23 @@ export default function SignInPage() {
           Create your account
         </Link>
       </div>
+
+      {/* MFA Challenge Dialog */}
+      {mfaFactorId && (
+        <MFAChallengeDialog
+          open={mfaRequired}
+          factorId={mfaFactorId}
+          onSuccess={() => {
+            setMfaRequired(false);
+            router.refresh();
+            router.push('/dashboard');
+          }}
+          onCancel={() => {
+            setMfaRequired(false);
+            setMfaFactorId(null);
+          }}
+        />
+      )}
 
       {/* Pro Tip Card - only visible on larger screens */}
       <div className="mt-8 rounded-xl overflow-hidden relative h-32 w-full group hidden sm:block">

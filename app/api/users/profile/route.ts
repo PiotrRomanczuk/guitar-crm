@@ -1,10 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { z } from 'zod';
+import { PhoneSchema } from '@/schemas/shared/phone';
 
 const ProfileUpdateSchema = z.object({
+  first_name: z.string().max(100).optional(),
+  last_name: z.string().max(100).optional(),
   full_name: z.string().max(255).optional(),
-  phone: z.string().max(50).optional(),
+  phone: PhoneSchema,
   avatar_url: z.string().url().optional().nullable(),
 });
 
@@ -20,7 +23,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, email, full_name, phone, avatar_url, is_admin, is_teacher, is_student, is_active, created_at, updated_at')
+      .select('id, email, first_name, last_name, full_name, phone, avatar_url, is_admin, is_teacher, is_student, is_active, last_sign_in_at, sign_in_count, deletion_requested_at, deletion_scheduled_for, created_at, updated_at')
       .eq('id', user.id)
       .single();
 
@@ -59,6 +62,8 @@ export async function PUT(request: Request) {
     }
 
     const updates: Record<string, unknown> = {};
+    if (parsed.data.first_name !== undefined) updates.first_name = parsed.data.first_name;
+    if (parsed.data.last_name !== undefined) updates.last_name = parsed.data.last_name;
     if (parsed.data.full_name !== undefined) updates.full_name = parsed.data.full_name;
     if (parsed.data.phone !== undefined) updates.phone = parsed.data.phone;
     if (parsed.data.avatar_url !== undefined) updates.avatar_url = parsed.data.avatar_url;
@@ -73,7 +78,7 @@ export async function PUT(request: Request) {
       .from('profiles')
       .update(updates)
       .eq('id', user.id)
-      .select('id, email, full_name, phone, avatar_url, is_admin, is_teacher, is_student, is_active, created_at, updated_at')
+      .select('id, email, first_name, last_name, full_name, phone, avatar_url, is_admin, is_teacher, is_student, is_active, last_sign_in_at, sign_in_count, deletion_requested_at, deletion_scheduled_for, created_at, updated_at')
       .single();
 
     if (error) {

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PhoneSchema } from './shared/phone';
 
 /**
  * Schema for user invitation form validation.
@@ -10,13 +11,7 @@ export const InviteUserSchema = z.object({
     .string()
     .min(1, 'Full name is required')
     .max(200, 'Full name too long'),
-  phone: z
-    .string()
-    .regex(/^(\+\d{1,3}[-.\s]?)?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/, {
-      message: 'Valid phone number required',
-    })
-    .optional()
-    .or(z.literal('')),
+  phone: PhoneSchema,
   role: z.enum(['student', 'teacher', 'admin'], {
     message: 'Please select a role',
   }),

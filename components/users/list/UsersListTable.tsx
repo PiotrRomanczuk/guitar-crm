@@ -89,7 +89,7 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                       ? `${user.firstName} ${user.lastName}`
                       : user.username || 'N/A'}
                   </p>
-                  <p className="text-xs text-muted-foreground truncate">{user.email || 'N/A'}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user.email || '(no email)'}</p>
                 </div>
               </div>
               <DropdownMenu>
@@ -184,7 +184,7 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                             : user.username || 'N/A'}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
-                          {user.email || 'N/A'}
+                          {user.email || '(no email)'}
                         </p>
                       </div>
                     </div>
