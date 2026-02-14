@@ -67,7 +67,7 @@ export async function getTheoryCourse(courseId: string) {
 export async function createTheoryCourse(input: unknown) {
   const parsed = TheoryCourseInputSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0]?.message ?? 'Invalid input' };
+    return { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' };
   }
 
   const supabase = await createClient();
@@ -109,7 +109,7 @@ export async function createTheoryCourse(input: unknown) {
 export async function updateTheoryCourse(courseId: string, input: unknown) {
   const parsed = TheoryCourseInputSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0]?.message ?? 'Invalid input' };
+    return { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' };
   }
 
   const supabase = await createClient();
@@ -192,7 +192,7 @@ export async function getTheoryLesson(lessonId: string) {
 export async function createTheoryLesson(courseId: string, input: unknown) {
   const parsed = TheoryLessonInputSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0]?.message ?? 'Invalid input' };
+    return { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' };
   }
 
   const supabase = await createClient();
@@ -232,7 +232,7 @@ export async function createTheoryLesson(courseId: string, input: unknown) {
 export async function updateTheoryLesson(lessonId: string, courseId: string, input: unknown) {
   const parsed = TheoryLessonInputSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0]?.message ?? 'Invalid input' };
+    return { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' };
   }
 
   const supabase = await createClient();
@@ -304,7 +304,15 @@ export async function getCourseAccess(courseId: string) {
     return [];
   }
 
-  return data ?? [];
+  // TypeScript workaround: Supabase infers user as array but it's a single object
+  return (data ?? []) as unknown as Array<{
+    id: string;
+    course_id: string;
+    user_id: string;
+    granted_by: string;
+    granted_at: string;
+    user: { id: string; full_name: string | null; email: string } | null;
+  }>;
 }
 
 export async function grantCourseAccess(courseId: string, userIds: string[]) {
