@@ -4,6 +4,8 @@
  * Tests for fail-closed behavior and configuration
  */
 
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { AUTH_RATE_LIMITS } from '../rate-limiter';
 
 // We test the exported config directly.
@@ -38,11 +40,8 @@ describe('Rate Limiter', () => {
 			// This test verifies the source code contains fail-closed comments
 			// The actual fail-closed logic is tested via integration tests
 			// and through the mock-based action tests above
-			const fs = require('fs');
-			const source = fs.readFileSync(
-				require.resolve('../rate-limiter'),
-				'utf-8'
-			);
+			const rateLimiterPath = join(__dirname, '..', 'rate-limiter.ts');
+			const source = readFileSync(rateLimiterPath, 'utf-8');
 
 			expect(source).toContain('Fail closed');
 			expect(source).not.toContain('Fail open');
