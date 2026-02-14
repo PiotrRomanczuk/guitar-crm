@@ -15,9 +15,11 @@ interface UsersListFiltersProps {
   search: string;
   roleFilter: '' | 'admin' | 'teacher' | 'student';
   activeFilter: '' | 'true' | 'false';
+  studentStatusFilter: '' | 'active' | 'inactive' | 'lead' | 'trial' | 'churned';
   onSearchChange: (value: string) => void;
   onRoleFilterChange: (value: '' | 'admin' | 'teacher' | 'student') => void;
   onActiveFilterChange: (value: '' | 'true' | 'false') => void;
+  onStudentStatusFilterChange: (value: '' | 'active' | 'inactive' | 'lead' | 'trial' | 'churned') => void;
   onReset: () => void;
 }
 
@@ -25,14 +27,16 @@ export default function UsersListFilters({
   search,
   roleFilter,
   activeFilter,
+  studentStatusFilter,
   onSearchChange,
   onRoleFilterChange,
   onActiveFilterChange,
+  onStudentStatusFilterChange,
   onReset,
 }: UsersListFiltersProps) {
   return (
     <div className="bg-card rounded-xl border shadow-sm p-4 space-y-4 animate-fade-in">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
         <div className="space-y-2">
           <Label>Search</Label>
           <Input
@@ -65,7 +69,7 @@ export default function UsersListFilters({
         </div>
 
         <div className="space-y-2">
-          <Label>Status</Label>
+          <Label>Account Status</Label>
           <Select
             value={activeFilter || 'all'}
             onValueChange={(value) =>
@@ -77,8 +81,30 @@ export default function UsersListFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Users</SelectItem>
-              <SelectItem value="true">Active</SelectItem>
-              <SelectItem value="false">Inactive</SelectItem>
+              <SelectItem value="true">Active Account</SelectItem>
+              <SelectItem value="false">Inactive Account</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Student Status</Label>
+          <Select
+            value={studentStatusFilter || 'active'}
+            onValueChange={(value) =>
+              onStudentStatusFilterChange(value === 'all' ? '' : (value as typeof studentStatusFilter))
+            }
+          >
+            <SelectTrigger data-testid="student-status-filter">
+              <SelectValue placeholder="Active Students" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+              <SelectItem value="lead">Lead</SelectItem>
+              <SelectItem value="trial">Trial</SelectItem>
+              <SelectItem value="churned">Churned</SelectItem>
             </SelectContent>
           </Select>
         </div>
