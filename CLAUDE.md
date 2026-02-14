@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Strummy is a student management system for guitar teachers built with Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, and Supabase (PostgreSQL, Auth, RLS).
 
-**Current Version**: 0.65.0
+**Current Version**: 0.83.0
 
 ## Commands
 
@@ -28,9 +28,11 @@ npx playwright test      # Run E2E tests (Playwright)
 npm run setup:db         # Set up Supabase database
 npm run seed             # Add sample data
 
-# Version Management (automated post-merge via GitHub Action)
+# Version Management & Releases (automated post-merge via GitHub Action)
 # Branch prefix determines bump type: feature/ → minor, fix/ → patch, etc.
 # Override with PR labels: version:major, version:minor, version:patch
+# Workflow automatically creates: git tags, GitHub releases, changelog links
+# PR descriptions become release notes - write comprehensive, user-facing content
 # Manual bump only needed for hotfixes to production branch
 ```
 
@@ -45,6 +47,23 @@ npm run seed             # Add sample data
 5. **Version bumps automatically on merge** -- patch (fix), minor (feature), major (label override)
 6. **Create PR** -- title `[STRUM-XXX] Description`, link Linear ticket
 7. **Squash and Merge** to `main` → verify on Preview → merge to `production`
+
+### Release Documentation (IMPORTANT)
+
+**PR descriptions become GitHub Release notes** -- when merged to main, the workflow automatically:
+- Creates annotated git tag (e.g., `v0.84.0`) with PR title
+- Generates GitHub Release with full PR body
+- Adds changelog links comparing versions
+
+**Therefore**: Write PR descriptions as **user-facing release notes**, not internal technical details. Include:
+- What features were added (in plain language)
+- What bugs were fixed
+- Breaking changes (if any)
+- Migration guides for schema/API changes
+- Screenshots for UI features
+
+**Tags & Releases**: https://github.com/PiotrRomanczuk/guitar-crm/tags
+**Current Release**: v0.83.0 (Auth Registration System: 23 Improvements)
 
 ## Architecture
 
