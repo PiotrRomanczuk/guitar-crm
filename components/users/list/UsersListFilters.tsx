@@ -15,11 +15,11 @@ interface UsersListFiltersProps {
   search: string;
   roleFilter: '' | 'admin' | 'teacher' | 'student';
   activeFilter: '' | 'true' | 'false';
-  studentStatusFilter: '' | 'active' | 'inactive' | 'lead' | 'trial' | 'churned';
+  studentStatusFilter: '' | 'active' | 'archived';
   onSearchChange: (value: string) => void;
   onRoleFilterChange: (value: '' | 'admin' | 'teacher' | 'student') => void;
   onActiveFilterChange: (value: '' | 'true' | 'false') => void;
-  onStudentStatusFilterChange: (value: '' | 'active' | 'inactive' | 'lead' | 'trial' | 'churned') => void;
+  onStudentStatusFilterChange: (value: '' | 'active' | 'archived') => void;
   onReset: () => void;
 }
 
@@ -101,10 +101,7 @@ export default function UsersListFilters({
             <SelectContent>
               <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-              <SelectItem value="lead">Lead</SelectItem>
-              <SelectItem value="trial">Trial</SelectItem>
-              <SelectItem value="churned">Churned</SelectItem>
+              <SelectItem value="archived">Archived</SelectItem>
             </SelectContent>
           </Select>
         </div>

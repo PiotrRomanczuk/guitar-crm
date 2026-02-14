@@ -27,7 +27,7 @@ export function useUsersList(
   search: string,
   roleFilter: '' | 'admin' | 'teacher' | 'student',
   activeFilter: '' | 'true' | 'false',
-  studentStatusFilter: '' | 'active' | 'inactive' | 'lead' | 'trial' | 'churned',
+  studentStatusFilter: '' | 'active' | 'archived',
   initialUsers?: UserProfile[]
 ) {
   const hasFilters = search || roleFilter || activeFilter || studentStatusFilter;

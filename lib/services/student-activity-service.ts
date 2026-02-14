@@ -38,12 +38,12 @@ export async function updateStudentActivityStatus(): Promise<StatusUpdateResult>
     deactivated: []
   };
 
-  // Get all students with 'active' or 'inactive' status
+  // Get all students with 'active' or 'archived' status
   const { data: students, error: studentsError } = await supabase
     .from('profiles')
     .select('id, email, full_name, student_status')
     .eq('is_student', true)
-    .in('student_status', ['active', 'inactive'])
+    .in('student_status', ['active', 'archived'])
     .is('deleted_at', null);
 
   if (studentsError) {
@@ -87,11 +87,11 @@ export async function updateStudentActivityStatus(): Promise<StatusUpdateResult>
     let newStatus = student.student_status;
 
     if (student.student_status === 'active') {
-      // Deactivate if no recent lessons AND no future lessons
+      // Archive if no recent lessons AND no future lessons
       if (!hasRecentLesson && !hasFutureLesson) {
-        newStatus = 'inactive';
+        newStatus = 'archived';
       }
-    } else if (student.student_status === 'inactive') {
+    } else if (student.student_status === 'archived') {
       // Reactivate if has recent lesson OR has future lesson
       if (hasRecentLesson || hasFutureLesson) {
         newStatus = 'active';

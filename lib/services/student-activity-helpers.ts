@@ -29,7 +29,7 @@ export async function updateSingleStudentStatus(studentId: string): Promise<{
     .select('id, email, student_status')
     .eq('id', studentId)
     .eq('is_student', true)
-    .in('student_status', ['active', 'inactive'])
+    .in('student_status', ['active', 'archived'])
     .single();
 
   if (studentError || !student) {
@@ -66,9 +66,9 @@ export async function updateSingleStudentStatus(studentId: string): Promise<{
 
   if (student.student_status === 'active') {
     if (!hasRecentLesson && !hasFutureLesson) {
-      newStatus = 'inactive';
+      newStatus = 'archived';
     }
-  } else if (student.student_status === 'inactive') {
+  } else if (student.student_status === 'archived') {
     if (hasRecentLesson || hasFutureLesson) {
       newStatus = 'active';
     }
