@@ -1,6 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/database.types';
 import { matchStudentByEmail, createShadowStudent } from '@/lib/services/import-utils';
+import { isGuitarLesson } from '@/lib/calendar/calendar-utils';
 
 export interface MonthChunk {
   start: Date;
@@ -37,14 +38,6 @@ export function generateMonthChunks(startDate: Date, endDate: Date): MonthChunk[
  */
 export function determineLessonStatus(eventStartTime: string): 'COMPLETED' | 'SCHEDULED' {
   return new Date(eventStartTime) < new Date() ? 'COMPLETED' : 'SCHEDULED';
-}
-
-/**
- * Check if a Google Calendar event is a Calendly-booked guitar lesson.
- */
-export function isGuitarLesson(event: { description?: string | null }): boolean {
-  if (!event.description) return false;
-  return event.description.includes('Powered by Calendly.com');
 }
 
 /**

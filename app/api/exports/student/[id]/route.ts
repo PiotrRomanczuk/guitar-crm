@@ -1,4 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { canViewUser } from '@/lib/services/user.service';
+import { getStudentIdsForTeacher } from '@/lib/repositories/user.repository';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -9,13 +12,32 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const format = searchParams.get('format') || 'pdf';
 
-    // Auth check
-    const {
-      data: { user: authUser },
-    } = await supabase.auth.getUser();
+    // Auth check - Get user with role information
+    const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
 
-    if (!authUser) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Authorization check - Verify user can view this student's data
+    // FIXES STRUMMY-280: Prevents unauthorized access to student exports
+    let allowedStudentIds: string[] | undefined;
+    if (isTeacher && !isAdmin) {
+      allowedStudentIds = await getStudentIdsForTeacher(supabase, user.id);
+    }
+
+    const authCheck = canViewUser(
+      user.id,
+      { isAdmin, isTeacher, isStudent },
+      id,
+      allowedStudentIds
+    );
+
+    if (!authCheck.allowed) {
+      return NextResponse.json(
+        { error: authCheck.reason || 'Access denied' },
+        { status: 403 }
+      );
     }
 
     // Fetch student profile
