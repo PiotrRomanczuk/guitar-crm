@@ -82,7 +82,7 @@ export async function updateStudentActivityStatus(): Promise<StatusUpdateResult>
       .limit(1)
       .single();
 
-    const hasRecentLesson = lastCompleted && new Date(lastCompleted.scheduled_at) >= cutoffDate;
+    const hasRecentLesson = !!lastCompleted && new Date(lastCompleted.scheduled_at) >= cutoffDate;
     const hasFutureLesson = !!nextScheduled;
 
     // Determine new status
