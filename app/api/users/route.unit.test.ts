@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-/* eslint-disable max-lines */
+ 
 import { GET, POST } from './route';
 import { NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';

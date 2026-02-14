@@ -1,5 +1,5 @@
 'use client';
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -128,7 +128,8 @@ export function AddAssignmentDialog({ lessonId, studentId, teacherId }: AddAssig
       setSelectedTemplate('');
       setSaveAsTemplate(false);
       setOpen(false);
-      router.refresh(); // Refresh to show the new assignment
+      // Note: Consider passing onSuccess callback instead of router.refresh()
+      // For now, removed to prevent table restart - new assignment will appear on next navigation
     } catch (err) {
       console.error('Error creating assignment:', err);
       alert('Failed to create assignment. Please try again.');

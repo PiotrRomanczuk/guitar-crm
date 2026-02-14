@@ -52,7 +52,7 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
       }
 
       // Get the URL from the client to display it
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const clientUrl = (supabase as any).supabaseUrl;
 
       // Test basic connectivity first
@@ -102,7 +102,7 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
         }
       })();
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const result = (await Promise.race([checkPromise, timeoutPromise])) as any;
       const { error } = result;
 

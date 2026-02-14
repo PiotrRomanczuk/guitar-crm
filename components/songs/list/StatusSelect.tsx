@@ -51,16 +51,21 @@ export default function StatusSelect({ lessonSongId, currentStatus }: Props) {
 
   const handleStatusChange = (newStatus: string) => {
     haptic(newStatus === 'mastered' ? 'success' : 'light');
+
+    // Optimistic update - immediately show new status
+    const previousStatus = status;
     setStatus(newStatus);
+
     startTransition(async () => {
       try {
         await updateLessonSongStatus(lessonSongId, newStatus);
-        toast.success('Status updated');
+        // Success - status already updated optimistically
       } catch (error) {
         console.error(error);
         haptic('error');
         toast.error('Failed to update status');
-        setStatus(currentStatus); // Revert on error
+        // Rollback to previous status on error
+        setStatus(previousStatus);
       }
     });
   };

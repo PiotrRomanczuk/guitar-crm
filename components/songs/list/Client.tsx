@@ -92,7 +92,9 @@ export function SongListClient({
   const songIds = sortedSongs.map((s) => s.id);
 
   const handleDeleteSuccess = () => {
-    router.refresh();
+    // Note: Removed router.refresh() to prevent table restart
+    // The table will update on next navigation or manual refresh
+    // Consider migrating to TanStack Query for real-time updates
   };
 
   const handleBulkDelete = async () => {
@@ -112,7 +114,8 @@ export function SongListClient({
 
       setBulkDeleteOpen(false);
       selection.clearSelection();
-      router.refresh();
+      // Note: Removed router.refresh() to prevent table restart
+      // Consider using optimistic updates or TanStack Query
     } catch {
       setBulkDeleteError('An unexpected error occurred');
     } finally {

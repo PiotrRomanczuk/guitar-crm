@@ -29,7 +29,8 @@ export function LessonListClient({
   const showSuccess = searchParams.get('created') === 'true';
 
   const handleDeleteSuccess = () => {
-    router.refresh();
+    // Note: Removed router.refresh() to prevent table restart
+    // The table will update on next navigation or manual refresh
   };
 
   return (
