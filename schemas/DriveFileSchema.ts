@@ -125,7 +125,7 @@ export const DriveFileSchema = z.object({
   description: z.string().nullable(),
   mime_type: z.string(),
   file_size_bytes: z.number().nullable(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
   visibility: VisibilitySchema.default('private'),
   display_order: z.number().default(0),
   created_at: z.string().datetime(),
@@ -149,7 +149,7 @@ export const CreateDriveFileInputSchema = z.object({
   description: z.string().max(1000).optional(),
   mime_type: z.string(),
   file_size_bytes: z.number().positive().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
   visibility: VisibilitySchema.default('private'),
   display_order: z.number().int().min(0).optional(),
 }).refine(
@@ -168,7 +168,7 @@ export type CreateDriveFileInput = z.infer<typeof CreateDriveFileInputSchema>;
 export const UpdateDriveFileInputSchema = z.object({
   title: z.string().max(255).optional(),
   description: z.string().max(1000).optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
   visibility: VisibilitySchema.optional(),
   display_order: z.number().int().min(0).optional(),
 }).strict();

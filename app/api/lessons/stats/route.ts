@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get lessons with songs count
-    const { data: lessonsWithSongs, error: songsError } = await clientToUse
+    const { data: lessonsWithSongs, error: songsError } = await supabase
       .from('lesson_songs')
       .select('lesson_id');
 
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
     // Get average lessons per student (if userId not specified)
     let avgLessonsPerStudent = 0;
     if (!userId) {
-      const { data: studentStats, error: studentError } = await clientToUse
+      const { data: studentStats, error: studentError } = await supabase
         .from('lessons')
         .select('student_id');
 
