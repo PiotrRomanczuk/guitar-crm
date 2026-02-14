@@ -65,8 +65,8 @@ export default function TemplateForm({ initialData, mode, userId }: TemplateForm
           teacher_id: userId,
         });
       }
+      // Navigate to templates list - router.push already refreshes the target page
       router.push('/dashboard/assignments/templates');
-      router.refresh();
     } catch (err) {
       console.error(err);
       setError('Failed to save template');

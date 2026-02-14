@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, max-lines */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 'use client';
 

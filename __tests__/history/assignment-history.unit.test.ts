@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { createClient } from '@/lib/supabase/client';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 

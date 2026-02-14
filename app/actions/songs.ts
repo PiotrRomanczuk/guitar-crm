@@ -30,7 +30,8 @@ export async function updateLessonSongStatus(lessonSongId: string, status: strin
     throw new Error('Failed to update status');
   }
 
-  revalidatePath('/dashboard/songs');
+  // Note: No revalidatePath needed - client handles optimistic updates
+  // This prevents unnecessary full-page refreshes
 }
 
 /**

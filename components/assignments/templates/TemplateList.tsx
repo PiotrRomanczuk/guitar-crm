@@ -15,7 +15,8 @@ export default function TemplateList({ templates }: TemplateListProps) {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this template?')) {
       await deleteAssignmentTemplate(id);
-      router.refresh();
+      // Note: Removed router.refresh() to prevent table restart
+      // Consider using optimistic updates or TanStack Query
     }
   };
 
