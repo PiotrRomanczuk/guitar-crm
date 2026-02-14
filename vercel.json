@@ -31,6 +31,10 @@
     {
       "path": "/api/cron/admin-monitoring",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/update-student-status",
+      "schedule": "30 2 * * *"
     }
   ]
 }
