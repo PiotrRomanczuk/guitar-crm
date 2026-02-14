@@ -14,7 +14,7 @@ interface Props {
 
 export default async function TheoryCourseDetailPage({ params }: Props) {
   const { courseId } = await params;
-  const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
+  const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
   if (!user) redirect('/sign-in');
 
   const isStaff = isAdmin || isTeacher;
