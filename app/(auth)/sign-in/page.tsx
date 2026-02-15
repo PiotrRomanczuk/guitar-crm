@@ -77,13 +77,13 @@ export default function SignInPage() {
       return;
     }
 
-    if (signInResult.success && signInResult.mfaRequired && signInResult.factorId) {
+    if ('mfaRequired' in signInResult && signInResult.mfaRequired && 'factorId' in signInResult && signInResult.factorId) {
       setMfaFactorId(signInResult.factorId);
       setMfaRequired(true);
       return;
     }
 
-    if (signInResult.success) {
+    if ('success' in signInResult && signInResult.success) {
       router.refresh();
       router.push('/dashboard');
     }
