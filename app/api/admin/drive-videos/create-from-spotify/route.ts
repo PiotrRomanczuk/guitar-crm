@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getTrack, getAudioFeatures } from '@/lib/spotify';
 import { createLogger } from '@/lib/logger';
 import { z } from 'zod';
+import type { Database } from '@/database.types';
 
 const log = createLogger('CreateFromSpotify');
 
@@ -136,8 +137,8 @@ export async function POST(request: NextRequest) {
     const songData = {
       title: trackData.name,
       author: trackData.artists.map((a) => a.name).join(', '),
-      level,
-      key: musicKey,
+      level: level as 'beginner',
+      key: musicKey as Database['public']['Enums']['music_key'],
       spotify_link_url: trackData.external_urls.spotify,
       cover_image_url: coverImage,
       release_year: releaseYear,
@@ -156,7 +157,7 @@ export async function POST(request: NextRequest) {
       .from('songs')
       .insert(songData)
       .select()
-      .single();
+      .single() as { data: any; error: any };
 
     if (songError) {
       log.error('Failed to create song', { error: songError });
@@ -188,7 +189,7 @@ export async function POST(request: NextRequest) {
       .from('song_videos')
       .insert(videoData)
       .select()
-      .single();
+      .single() as { data: any; error: any };
 
     if (videoError) {
       log.error('Failed to link video', { error: videoError });
