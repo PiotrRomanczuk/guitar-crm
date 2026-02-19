@@ -1141,6 +1141,8 @@ export type Database = {
           user_id: string | null;
           deletion_requested_at: string | null;
           deletion_scheduled_for: string | null;
+          locked_until: string | null;
+          failed_login_attempts: number | null;
         };
         Insert: {
           avatar_url?: string | null;
@@ -1164,6 +1166,8 @@ export type Database = {
           user_id?: string | null;
           deletion_requested_at?: string | null;
           deletion_scheduled_for?: string | null;
+          locked_until?: string | null;
+          failed_login_attempts?: number | null;
         };
         Update: {
           avatar_url?: string | null;
@@ -1187,6 +1191,8 @@ export type Database = {
           user_id?: string | null;
           deletion_requested_at?: string | null;
           deletion_scheduled_for?: string | null;
+          locked_until?: string | null;
+          failed_login_attempts?: number | null;
         };
         Relationships: [];
       };
