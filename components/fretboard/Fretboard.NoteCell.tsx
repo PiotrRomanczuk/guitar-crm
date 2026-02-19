@@ -7,7 +7,10 @@ import {
   formatNoteDisplay,
   isHighlighted,
   isRoot,
+  getNoteInterval,
 } from './fretboard.helpers';
+
+import { type NoteDisplayType } from './useFretboard';
 
 interface NoteCellProps {
   note: NoteName;
@@ -16,6 +19,11 @@ interface NoteCellProps {
   highlightedNotes: NoteName[];
   useFlats: boolean;
   showAllNotes: boolean;
+  noteDisplayType: NoteDisplayType;
+  showFunctionalColors: boolean;
+  rootNote: NoteName;
+  isActive?: boolean;
+  cagedLabel?: string;
   onNoteClick?: (stringIndex: number, fret: number, note: NoteName) => void;
 }
 
@@ -26,13 +34,22 @@ export function NoteCell({
   highlightedNotes,
   useFlats,
   showAllNotes,
+  noteDisplayType,
+  showFunctionalColors,
+  rootNote,
+  isActive,
+  cagedLabel,
   onNoteClick,
 }: NoteCellProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const highlighted = isHighlighted(note, highlightedNotes);
   const root = isRoot(note, highlightedNotes);
   const shouldShow = highlighted || showAllNotes || highlightedNotes.length === 0;
-  const noteText = formatNoteDisplay(note, useFlats);
+
+  const noteText =
+    noteDisplayType === 'interval' && highlighted
+      ? getNoteInterval(note, rootNote)
+      : formatNoteDisplay(note, useFlats);
 
   const handleClick = async () => {
     if (!onNoteClick) return;
@@ -46,9 +63,8 @@ export function NoteCell({
 
   return (
     <td
-      className={`relative h-10 border-r border-border/40 ${
-        fret === 0 ? 'bg-muted/50 dark:bg-muted/30 w-12' : 'w-16'
-      } ${onNoteClick ? 'cursor-pointer hover:bg-accent/20 transition-colors' : ''}`}
+      className={`relative h-10 border-r border-border/40 ${fret === 0 ? 'bg-muted/50 dark:bg-muted/30 w-12' : 'w-16'
+        } ${onNoteClick ? 'cursor-pointer hover:bg-accent/20 transition-colors' : ''}`}
       onClick={handleClick}
     >
       {/* String line */}
@@ -60,19 +76,23 @@ export function NoteCell({
       {shouldShow && (
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <div
-            className={`flex items-center justify-center rounded-full transition-all duration-200 ${
-              isPlaying ? 'scale-125' : 'scale-100'
-            } ${
-              highlighted
-                ? `${getNoteColor(note, highlightedNotes)} ${
-                    root ? 'w-8 h-8 font-bold ring-2 ring-white/50 shadow-lg' : 'w-7 h-7 font-medium'
-                  }`
+            className={`flex items-center justify-center rounded-full transition-all duration-200 ${isPlaying || isActive ? 'scale-125' : 'scale-100'
+              } ${isActive ? 'ring-4 ring-primary ring-offset-2 ring-offset-background z-20 shadow-[0_0_15px_rgba(var(--primary),0.5)]' : ''
+              } ${cagedLabel && !highlighted ? 'ring-2 ring-yellow-400 dark:ring-yellow-500 ring-offset-1 ring-offset-background z-10' : ''
+              } ${highlighted
+                ? `${getNoteColor(note, highlightedNotes, rootNote, showFunctionalColors)} ${root ? 'w-8 h-8 font-bold ring-2 ring-white/50 shadow-lg' : 'w-7 h-7 font-medium'
+                }`
                 : 'w-6 h-6 bg-muted text-muted-foreground text-[10px]'
-            }`}
+              }`}
           >
             <span className={highlighted ? 'text-xs' : 'text-[10px]'}>
               {noteText}
             </span>
+            {cagedLabel && !highlighted && (
+              <span className="absolute -top-1 -right-1 bg-yellow-400 dark:bg-yellow-500 text-[8px] font-bold text-black px-1 rounded-sm shadow-sm">
+                {cagedLabel}
+              </span>
+            )}
           </div>
         </div>
       )}

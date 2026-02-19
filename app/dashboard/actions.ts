@@ -255,3 +255,37 @@ export async function deleteUser(userId: string) {
 
   return { success: true };
 }
+
+export async function getAuditLogs(limit = 10) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('Unauthorized');
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.is_admin) {
+    throw new Error('Unauthorized: Admin access required');
+  }
+
+  const { data, error } = await supabase
+    .from('audit_log')
+    .select('*, profiles!actor_id(full_name, email)')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching audit logs:', error);
+    return [];
+  }
+
+  return data;
+}

@@ -1,4 +1,9 @@
-import { type NoteName, formatNote } from '@/lib/music-theory';
+import {
+  type NoteName,
+  formatNote,
+  getSemitoneDistance,
+  getIntervalName,
+} from '@/lib/music-theory';
 
 /** Fret markers (single dots and double dot at 12th) */
 export const FRET_MARKERS: Record<number, 'single' | 'double'> = {
@@ -28,16 +33,45 @@ const DEGREE_COLORS: Record<number, string> = {
 const DEFAULT_NOTE_COLOR = 'bg-muted-foreground/30 text-muted-foreground';
 
 /**
- * Get the CSS class for a highlighted note based on its position in the
- * highlighted set. Index 0 = root note (red).
+ * Get the CSS class for a highlighted note.
  */
 export function getNoteColor(
   note: NoteName,
   highlightedNotes: NoteName[],
+  rootNote?: NoteName,
+  showFunctionalColors: boolean = true,
 ): string {
   const index = highlightedNotes.indexOf(note);
   if (index === -1) return DEFAULT_NOTE_COLOR;
-  return DEGREE_COLORS[index] ?? 'bg-indigo-400 dark:bg-indigo-500 text-white';
+
+  if (showFunctionalColors && rootNote) {
+    const semitones = getSemitoneDistance(rootNote, note);
+    switch (semitones) {
+      case 0: // Root
+        return 'bg-red-600 dark:bg-red-700 text-white';
+      case 3:
+      case 4: // 3rd
+        return 'bg-blue-600 dark:bg-blue-700 text-white';
+      case 6:
+      case 7: // 5th
+        return 'bg-green-600 dark:bg-green-700 text-white';
+      case 10:
+      case 11: // 7th
+        return 'bg-amber-600 dark:bg-amber-700 text-white';
+      default:
+        return 'bg-slate-600 dark:bg-slate-700 text-white';
+    }
+  }
+
+  return 'bg-primary dark:bg-primary/80 text-primary-foreground';
+}
+
+/**
+ * Get the interval name for a note relative to a root.
+ */
+export function getNoteInterval(note: NoteName, rootNote: NoteName): string {
+  const semitones = getSemitoneDistance(rootNote, note);
+  return getIntervalName(semitones);
 }
 
 /**
