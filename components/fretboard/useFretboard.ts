@@ -8,6 +8,7 @@ import {
   getScaleNotes,
   getChordNotes,
 } from '@/lib/music-theory';
+import { useGuitarAudio } from './useGuitarAudio';
 
 export type DisplayMode = 'scale' | 'chord' | 'none';
 
@@ -18,6 +19,8 @@ export interface FretboardState {
   displayMode: DisplayMode;
   useFlats: boolean;
   showAllNotes: boolean;
+  audioEnabled: boolean;
+  volume: number;
   highlightedNotes: NoteName[];
   fretboard: NoteName[][];
 }
@@ -29,6 +32,8 @@ export interface FretboardActions {
   setDisplayMode: (mode: DisplayMode) => void;
   toggleFlats: () => void;
   toggleShowAllNotes: () => void;
+  toggleAudio: () => void;
+  setVolume: (volume: number) => void;
   clearSelection: () => void;
 }
 
@@ -39,6 +44,9 @@ export function useFretboard(): FretboardState & FretboardActions {
   const [displayMode, setDisplayMode] = useState<DisplayMode>('scale');
   const [useFlats, setUseFlats] = useState(false);
   const [showAllNotes, setShowAllNotes] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+
+  const { volume, setVolume: setAudioVolume } = useGuitarAudio();
 
   const fretboard = useMemo(() => buildFretboard(), []);
 
@@ -54,6 +62,7 @@ export function useFretboard(): FretboardState & FretboardActions {
 
   const toggleFlats = useCallback(() => setUseFlats((prev) => !prev), []);
   const toggleShowAllNotes = useCallback(() => setShowAllNotes((prev) => !prev), []);
+  const toggleAudio = useCallback(() => setAudioEnabled((prev) => !prev), []);
 
   const clearSelection = useCallback(() => {
     setDisplayMode('none');
@@ -66,6 +75,8 @@ export function useFretboard(): FretboardState & FretboardActions {
     displayMode,
     useFlats,
     showAllNotes,
+    audioEnabled,
+    volume,
     highlightedNotes,
     fretboard,
     setRootNote,
@@ -74,6 +85,8 @@ export function useFretboard(): FretboardState & FretboardActions {
     setDisplayMode,
     toggleFlats,
     toggleShowAllNotes,
+    toggleAudio,
+    setVolume: setAudioVolume,
     clearSelection,
   };
 }
