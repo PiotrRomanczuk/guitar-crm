@@ -268,6 +268,33 @@ export const searchTracks = async (query: string, retryCount = 0) => {
   }
 };
 
+export const searchArtists = async (query: string, retryCount = 0) => {
+  checkCircuitBreaker();
+
+  try {
+    const makeRequest = async () => {
+      const { access_token } = await getAccessToken();
+      return fetchWithTimeout(
+        `${SEARCH_ENDPOINT}?q=${encodeURIComponent(query)}&type=artist&limit=10`,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      );
+    };
+
+    const response = await makeRequest();
+    return handleApiResponse(response, 'Search', retryCount, makeRequest);
+  } catch (error) {
+    if (error instanceof SpotifyApiError) {
+      throw error;
+    }
+    console.error('Unexpected error searching artists:', error);
+    throw new Error(`Failed to search Spotify artists: ${(error as Error).message}`);
+  }
+};
+
 export const getTrack = async (trackId: string, retryCount = 0) => {
   checkCircuitBreaker();
 

@@ -22,3 +22,14 @@ export interface SpotifyApiTrack {
   };
   duration_ms: number;
 }
+
+export interface SpotifyApiArtist {
+  id: string;
+  name: string;
+  images: { url: string }[];
+  popularity: number;
+  genres: string[];
+  external_urls: {
+    spotify: string;
+  };
+}

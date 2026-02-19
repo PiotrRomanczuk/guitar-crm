@@ -23,7 +23,7 @@ import { withRetry, AI_PROVIDER_RETRY_CONFIG } from '../retry';
 const createDefaultConfig = (config?: Partial<AIProviderConfig>): AIProviderConfig => ({
   baseUrl: 'https://openrouter.ai/api/v1',
   apiKey: process.env.OPENROUTER_API_KEY,
-  timeout: 30000,
+  timeout: parseInt(process.env.AI_REQUEST_TIMEOUT || '60000', 10),
   maxRetries: 3,
   headers: {
     'HTTP-Referer': process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000',
@@ -52,9 +52,9 @@ const complete = async (
     return { error: 'OpenRouter API key is not configured.' };
   }
 
-  // Wrap the actual request in retry logic
-  return withRetry(async () => {
-    try {
+  try {
+    // Wrap the actual request in retry logic
+    return await withRetry(async () => {
       const response = await fetch(`${config.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
@@ -89,25 +89,25 @@ const complete = async (
         finishReason: data.choices?.[0]?.finish_reason,
         usage: data.usage
           ? {
-              promptTokens: data.usage.prompt_tokens || 0,
-              completionTokens: data.usage.completion_tokens || 0,
-              totalTokens: data.usage.total_tokens || 0,
-            }
+            promptTokens: data.usage.prompt_tokens || 0,
+            completionTokens: data.usage.completion_tokens || 0,
+            totalTokens: data.usage.total_tokens || 0,
+          }
           : undefined,
       };
-    } catch (error) {
-      console.error('[OpenRouter] Request failed:', error);
+    }, AI_PROVIDER_RETRY_CONFIG);
+  } catch (error) {
+    console.error('[OpenRouter] Request failed:', error);
 
-      if (error instanceof Error) {
-        return {
-          error: `Failed to connect to OpenRouter: ${error.message}`,
-          code: 'PROVIDER_ERROR',
-        };
-      }
-
-      return { error: 'Failed to connect to OpenRouter service.' };
+    if (error instanceof Error) {
+      return {
+        error: `Failed to connect to OpenRouter: ${error.message}`,
+        code: 'PROVIDER_ERROR',
+      };
     }
-  }, AI_PROVIDER_RETRY_CONFIG);
+
+    return { error: 'Failed to connect to OpenRouter service.' };
+  }
 };
 
 /**

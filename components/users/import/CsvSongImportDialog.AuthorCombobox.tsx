@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronsUpDown, Check } from 'lucide-react';
+import { ChevronsUpDown, Check, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,6 +26,7 @@ interface AuthorComboboxProps {
 
 export function AuthorCombobox({ value, authors, onChange }: AuthorComboboxProps) {
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -42,7 +43,12 @@ export function AuthorCombobox({ value, authors, onChange }: AuthorComboboxProps
       </PopoverTrigger>
       <PopoverContent className="w-48 p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search authors..." className="h-8 text-sm" />
+          <CommandInput
+            placeholder="Search authors..."
+            className="h-8 text-sm"
+            value={search}
+            onValueChange={setSearch}
+          />
           <CommandList className="max-h-48">
             <CommandEmpty className="py-3 text-xs">No match found.</CommandEmpty>
             <CommandGroup>
@@ -50,8 +56,8 @@ export function AuthorCombobox({ value, authors, onChange }: AuthorComboboxProps
                 <CommandItem
                   key={author}
                   value={author}
-                  onSelect={(selected) => {
-                    onChange(selected);
+                  onSelect={() => {
+                    onChange(author);
                     setOpen(false);
                   }}
                   className="text-sm"
@@ -66,6 +72,22 @@ export function AuthorCombobox({ value, authors, onChange }: AuthorComboboxProps
                 </CommandItem>
               ))}
             </CommandGroup>
+            {search && !authors.some((author) => author.toLowerCase() === search.toLowerCase()) && (
+              <CommandGroup>
+                <CommandItem
+                  value={`create:${search}`}
+                  onSelect={() => {
+                    onChange(search);
+                    setOpen(false);
+                    setSearch('');
+                  }}
+                  className="text-sm"
+                >
+                  <Plus className="mr-1.5 h-3 w-3" />
+                  Create "{search}"
+                </CommandItem>
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>
