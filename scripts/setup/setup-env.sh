@@ -33,7 +33,8 @@ if [ ! -f ".env.local" ]; then
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
-NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+# Service role key (server-side only - never use NEXT_PUBLIC_ prefix for secrets)
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 
 # App Configuration
 NEXT_PUBLIC_APP_NAME="Guitar CRM"

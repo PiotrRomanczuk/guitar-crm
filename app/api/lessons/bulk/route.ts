@@ -18,15 +18,11 @@ export async function POST(request: NextRequest) {
     // Check if user has permission to create lessons
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
-      .eq('user_id', user.id)
+      .select('is_admin, is_teacher')
+      .eq('id', user.id)
       .single();
 
-    if (
-      !profile ||
-      ((profile as { role: string }).role !== 'admin' &&
-        (profile as { role: string }).role !== 'teacher')
-    ) {
+    if (!profile || (!profile.is_admin && !profile.is_teacher)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -166,15 +162,11 @@ export async function PUT(request: NextRequest) {
     // Check if user has permission to update lessons
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
-      .eq('user_id', user.id)
+      .select('is_admin, is_teacher')
+      .eq('id', user.id)
       .single();
 
-    if (
-      !profile ||
-      ((profile as { role: string }).role !== 'admin' &&
-        (profile as { role: string }).role !== 'teacher')
-    ) {
+    if (!profile || (!profile.is_admin && !profile.is_teacher)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -298,15 +290,11 @@ export async function DELETE(request: NextRequest) {
     // Check if user has permission to delete lessons
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
-      .eq('user_id', user.id)
+      .select('is_admin, is_teacher')
+      .eq('id', user.id)
       .single();
 
-    if (
-      !profile ||
-      ((profile as { role: string }).role !== 'admin' &&
-        (profile as { role: string }).role !== 'teacher')
-    ) {
+    if (!profile || (!profile.is_admin && !profile.is_teacher)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -353,7 +341,10 @@ export async function DELETE(request: NextRequest) {
           continue;
         }
 
-        const { error } = await supabase.from('lessons').delete().eq('id', lessonId);
+        const { error } = await supabase
+          .from('lessons')
+          .update({ deleted_at: new Date().toISOString() })
+          .eq('id', lessonId);
 
         if (error) {
           results.errors.push({

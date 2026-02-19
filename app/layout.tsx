@@ -6,6 +6,9 @@ import { Providers } from '@/components/providers/QueryProvider';
 
 import './globals.css';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('Layout');
 
 export const dynamic = 'force-dynamic';
 
@@ -20,15 +23,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Guitar CRM - Student Management System',
-  description: 'Guitar teacher CRM for managing students, lessons, and progress tracking',
-  // viewport removed, now exported separately
+  title: 'Strummy - Guitar Teaching Studio',
+  description: 'The premium platform for guitar teachers to manage students, lessons, and track progress',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Strummy',
+  },
 };
 
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: 'cover' as const,
 };
 
 export default async function RootLayout({
@@ -36,9 +45,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log('[Layout] RootLayout rendering');
+  log.debug('RootLayout rendering');
   const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
-  // console.log(user, isAdmin, isTeacher, isStudent);
+  log.debug('User roles', { userId: user?.id, isAdmin, isTeacher, isStudent });
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>

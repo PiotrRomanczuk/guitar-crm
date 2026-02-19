@@ -1,6 +1,5 @@
 // Pure functions for lesson API business logic - testable without Next.js dependencies
 import { LessonInputSchema } from '../../../schemas/LessonSchema';
-import { sendLessonCompletedEmail } from '../../../lib/email/send-lesson-email';
 import { ZodError } from 'zod';
 import {
   transformLessonData,
@@ -8,6 +7,11 @@ import {
   addSongsToLesson,
   insertLessonRecord,
 } from './utils';
+import {
+  syncLessonCreation,
+  syncLessonUpdate,
+  syncLessonDeletion,
+} from '../../../lib/services/calendar-lesson-sync';
 
 export interface LessonQueryParams {
   userId?: string;
@@ -51,13 +55,17 @@ type SupabaseClient = Awaited<
 >;
 
 /**
- * Get teacher's student IDs
+ * Get teacher's student IDs from active (non-deleted) lessons only
  */
 async function getTeacherStudentIds(
   supabase: SupabaseClient,
   teacherId: string
 ): Promise<string[]> {
-  const { data } = await supabase.from('lessons').select('student_id').eq('teacher_id', teacherId);
+  const { data } = await supabase
+    .from('lessons')
+    .select('student_id')
+    .eq('teacher_id', teacherId)
+    .is('deleted_at', null);
 
   const studentIds = data?.map((l) => l.student_id) || [];
   const uniqueStudentIds = Array.from(new Set(studentIds));
@@ -189,7 +197,7 @@ export async function getLessonsHandler(
       assignments(title)
     `,
     { count: 'exact' }
-  );
+  ).is('deleted_at', null);
 
   // Apply role-based filtering
   const filteringResult = await applyRoleBasedFiltering(supabase, baseQuery, user, profile, {
@@ -246,6 +254,43 @@ export async function createLessonHandler(
     const validatedData = LessonInputSchema.parse(body);
     const { song_ids, ...lessonData } = validatedData;
 
+    // Validate that teacher_id references an existing teacher
+    if (lessonData.teacher_id) {
+      const { data: teacher, error: teacherError } = await supabase
+        .from('profiles')
+        .select('id, is_teacher')
+        .eq('id', lessonData.teacher_id)
+        .single();
+
+      if (teacherError || !teacher) {
+        return { error: 'Teacher not found', status: 400 };
+      }
+      if (!teacher.is_teacher && !profile?.isAdmin) {
+        return { error: 'Specified user is not a teacher', status: 400 };
+      }
+
+      // Non-admin teachers can only create lessons for themselves
+      if (!profile?.isAdmin && lessonData.teacher_id !== user!.id) {
+        return { error: 'Teachers can only create lessons for themselves', status: 403 };
+      }
+    }
+
+    // Validate that student_id references an existing student
+    if (lessonData.student_id) {
+      const { data: student, error: studentError } = await supabase
+        .from('profiles')
+        .select('id, is_student')
+        .eq('id', lessonData.student_id)
+        .single();
+
+      if (studentError || !student) {
+        return { error: 'Student not found', status: 400 };
+      }
+      if (!student.is_student) {
+        return { error: 'Specified user is not a student', status: 400 };
+      }
+    }
+
     const { data, error } = await insertLessonRecord(supabase, lessonData);
 
     if (error) {
@@ -257,11 +302,14 @@ export async function createLessonHandler(
       await addSongsToLesson(supabase, data.id, song_ids);
     }
 
+    // Sync to Google Calendar (non-blocking, errors are logged)
+    await syncLessonCreation(supabase, data);
+
     return { lesson: data, status: 201 };
   } catch (error) {
     if (error instanceof ZodError) {
       return {
-        error: `Validation error: ${error.errors.map((e) => e.message).join(', ')}`,
+        error: `Validation error: ${error.issues.map((e) => e.message).join(', ')}`,
         status: 400,
       };
     }
@@ -270,67 +318,6 @@ export async function createLessonHandler(
 }
 
 import { handleLessonSongsUpdate } from './utils';
-
-async function handleLessonCompletionEmail(supabase: SupabaseClient, lessonId: string) {
-  try {
-    const { data: lesson, error } = await supabase
-      .from('lessons')
-      .select(`
-        *,
-        student:profiles!lessons_student_id_fkey (
-          email,
-          full_name
-        ),
-        lesson_songs (
-          notes,
-          status,
-          song:songs (
-            title,
-            author
-          )
-        )
-      `)
-      .eq('id', lessonId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching lesson details for email:', error);
-      return;
-    }
-
-    if (!lesson || !lesson.student) {
-      console.error('Lesson or student not found for email');
-      return;
-    }
-
-    const studentEmail = lesson.student.email;
-    const studentName = lesson.student.full_name || 'Student';
-
-    if (!studentEmail) {
-      console.warn('Student has no email, skipping notification');
-      return;
-    }
-
-    // @ts-expect-error - Supabase types are complex with joins
-    const songs = lesson.lesson_songs?.map((ls) => ({
-      title: ls.song?.title || 'Unknown Song',
-      artist: ls.song?.author || 'Unknown Artist',
-      status: ls.status,
-      notes: ls.notes,
-    })) || [];
-
-    await sendLessonCompletedEmail({
-      studentEmail,
-      studentName,
-      lessonDate: new Date(lesson.scheduled_at).toLocaleDateString(),
-      lessonTitle: lesson.title,
-      notes: lesson.notes,
-      songs,
-    });
-  } catch (err) {
-    console.error('Error in handleLessonCompletionEmail:', err);
-  }
-}
 
 export async function updateLessonHandler(
   supabase: SupabaseClient,
@@ -355,9 +342,19 @@ export async function updateLessonHandler(
 
     const dbData = prepareLessonForDb(lessonData);
 
+    //  Build update object with only defined, allowed fields
+    // Filter to prevent Supabase JSONB operator errors
+    const allowedUpdateFields = ['student_id', 'teacher_id', 'title', 'notes', 'scheduled_at', 'status'];
+    const updateData = Object.keys(dbData)
+      .filter(key => allowedUpdateFields.includes(key) && dbData[key] !== undefined)
+      .reduce((obj, key) => {
+        obj[key] = dbData[key];
+        return obj;
+      }, {} as Record<string, unknown>);
+
     let data;
-    if (Object.keys(dbData).length > 0) {
-      const result = await supabase.from('lessons').update(dbData).eq('id', id).select().single();
+    if (Object.keys(updateData).length > 0) {
+      const result = await supabase.from('lessons').update(updateData).eq('id', id).select().single();
 
       if (result.error) {
         if (result.error.code === 'PGRST116') {
@@ -384,17 +381,23 @@ export async function updateLessonHandler(
       await handleLessonSongsUpdate(supabase, id, song_ids);
     }
 
-    // Check if status changed to COMPLETED and send email
-    if (dbData.status === 'COMPLETED') {
-      // Await to ensure email is sent before function terminates (important for serverless)
-      await handleLessonCompletionEmail(supabase, id);
+    // Sync to Google Calendar if relevant fields changed
+    if (updateData.title || updateData.scheduled_at || updateData.notes !== undefined) {
+      await syncLessonUpdate(supabase, data, {
+        title: updateData.title as string | undefined,
+        scheduled_at: updateData.scheduled_at as string | undefined,
+        notes: updateData.notes as string | null | undefined,
+      });
     }
+
+    // Lesson recap email is handled by DB trigger (tr_notify_lesson_completed)
+    // which queues it with a 30-minute delay for deduplication with manual sends
 
     return { lesson: data, status: 200 };
   } catch (error) {
     if (error instanceof ZodError) {
       return {
-        error: `Validation error: ${error.errors.map((e) => e.message).join(', ')}`,
+        error: `Validation error: ${error.issues.map((e) => e.message).join(', ')}`,
         status: 400,
       };
     }
@@ -418,7 +421,13 @@ export async function deleteLessonHandler(
     };
   }
 
-  const { error } = await supabase.from('lessons').delete().eq('id', id);
+  // Sync deletion to Google Calendar before soft-deleting from DB
+  await syncLessonDeletion(supabase, id);
+
+  const { error } = await supabase
+    .from('lessons')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id);
 
   if (error) {
     return { error: error.message, status: 500 };

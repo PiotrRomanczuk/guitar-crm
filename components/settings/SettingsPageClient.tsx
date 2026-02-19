@@ -12,21 +12,23 @@ import {
   PrivacySection,
 } from '@/components/settings/SettingsSections';
 import { IntegrationsSection } from '@/components/settings/IntegrationsSection';
+import { ApiKeysSection } from '@/components/settings/ApiKeysSection';
+import { BearerTokenCard } from '@/components/dashboard/BearerTokenCard';
 
 function SettingsAlert({ type, message }: { type: 'error' | 'success'; message: string }) {
   if (type === 'error') {
     return (
-      <div className="mb-6 rounded-lg border border-destructive bg-destructive/10 p-4">
-        <p className="font-semibold text-destructive text-sm sm:text-base">Error</p>
-        <p className="text-destructive mt-1 text-xs sm:text-sm">{message}</p>
+      <div className="mb-6 rounded-lg border border-destructive bg-destructive/10 p-4" role="alert">
+        <p className="font-semibold text-destructive text-sm">Error</p>
+        <p className="text-destructive mt-1 text-sm">{message}</p>
       </div>
     );
   }
 
   return (
-    <div className="mb-6 rounded-lg border border-green-600 bg-green-50 dark:bg-green-900/20 p-4">
-      <p className="font-semibold text-green-600 dark:text-green-400 text-sm sm:text-base">
-        ✓ {message}
+    <div className="mb-6 rounded-lg border border-green-500 bg-green-500/10 p-4" role="status">
+      <p className="font-semibold text-green-600 dark:text-green-400 text-sm">
+        {message}
       </p>
     </div>
   );
@@ -46,8 +48,13 @@ function SettingsActions({
   onCancel: () => void;
 }) {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 pt-4">
-      <Button onClick={onSave} disabled={!hasChanges || saving} className="w-full sm:w-auto">
+    <div className="flex flex-col sm:flex-row gap-3">
+      <Button
+        onClick={onSave}
+        disabled={!hasChanges || saving}
+        className="w-full sm:w-auto"
+        aria-live="polite"
+      >
         {saving ? (
           <>
             <Spinner size="sm" className="mr-2" />
@@ -81,8 +88,10 @@ function SettingsActions({
 
 export default function SettingsPageClient({
   isGoogleConnected = false,
+  bearerToken,
 }: {
   isGoogleConnected?: boolean;
+  bearerToken?: string;
 }) {
   const router = useRouter();
   const { loading, saving, settings, hasChanges, updateSetting, saveSettings, resetSettings } =
@@ -112,24 +121,38 @@ export default function SettingsPageClient({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-3xl">
+      <div className="container mx-auto px-4 py-8 max-w-3xl">
         <SettingsHeader />
 
         {error && <SettingsAlert type="error" message={error} />}
         {success && <SettingsAlert type="success" message="Settings saved successfully" />}
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 space-y-8">
+        <div className="bg-card rounded-lg shadow-sm border border-border p-6 space-y-8">
           <IntegrationsSection isGoogleConnected={isGoogleConnected} />
-          <div className="border-t pt-6">
+
+          <div className="border-t border-border pt-8">
             <NotificationsSection settings={settings} updateSetting={updateSetting} />
           </div>
-          <div className="border-t pt-6">
+
+          <div className="border-t border-border pt-8">
             <AppearanceSection settings={settings} updateSetting={updateSetting} />
           </div>
-          <div className="border-t pt-6">
+
+          <div className="border-t border-border pt-8">
             <PrivacySection settings={settings} updateSetting={updateSetting} />
           </div>
-          <div className="border-t pt-6">
+
+          <div className="border-t border-border pt-8">
+            <ApiKeysSection />
+          </div>
+
+          {bearerToken && (
+            <div className="border-t border-border pt-8">
+              <BearerTokenCard token={bearerToken} />
+            </div>
+          )}
+
+          <div className="border-t border-border pt-8">
             <SettingsActions
               hasChanges={hasChanges}
               saving={saving}

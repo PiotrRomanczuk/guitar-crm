@@ -7,6 +7,13 @@ import {
   updateAssignmentTemplate,
 } from '@/app/actions/assignment-templates';
 import { AssignmentTemplate } from '@/schemas';
+import { useTemplateForm } from './useTemplateForm';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 interface TemplateFormProps {
   initialData?: AssignmentTemplate;
@@ -19,15 +26,28 @@ export default function TemplateForm({ initialData, mode, userId }: TemplateForm
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState({
-    title: initialData?.title || '',
-    description: initialData?.description || '',
-  });
+  const {
+    formData,
+    fieldErrors,
+    handleFieldChange,
+    handleBlur,
+    validate,
+    setFieldErrors,
+  } = useTemplateForm(initialData?.title || '', initialData?.description || '');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Validate all fields
+    const errors = validate(userId);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setError('Please fix the validation errors');
+      setLoading(false);
+      return;
+    }
 
     try {
       if (mode === 'create') {
@@ -45,8 +65,8 @@ export default function TemplateForm({ initialData, mode, userId }: TemplateForm
           teacher_id: userId,
         });
       }
+      // Navigate to templates list - router.push already refreshes the target page
       router.push('/dashboard/assignments/templates');
-      router.refresh();
     } catch (err) {
       console.error(err);
       setError('Failed to save template');
@@ -57,50 +77,59 @@ export default function TemplateForm({ initialData, mode, userId }: TemplateForm
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-      {error && <div className="bg-red-50 text-red-500 p-4 rounded-md">{error}</div>}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       <div className="space-y-2">
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-          Title
-        </label>
-        <input
+        <Label htmlFor="title">
+          Title <span className="text-destructive">*</span>
+        </Label>
+        <Input
           type="text"
           id="title"
           required
           value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+          onChange={(e) => handleFieldChange('title', e.target.value)}
+          onBlur={() => handleBlur('title')}
+          placeholder="Template title"
+          aria-invalid={!!fieldErrors.title}
         />
+        {fieldErrors.title && (
+          <p className="text-sm text-destructive" role="alert">
+            {fieldErrors.title}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-          Description
-        </label>
-        <textarea
+        <Label htmlFor="description">Description</Label>
+        <Textarea
           id="description"
           rows={4}
           value={formData.description || ''}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+          onChange={(e) => handleFieldChange('description', e.target.value)}
+          onBlur={() => handleBlur('description')}
+          placeholder="Template description (optional)"
+          aria-invalid={!!fieldErrors.description}
         />
+        {fieldErrors.description && (
+          <p className="text-sm text-destructive" role="alert">
+            {fieldErrors.description}
+          </p>
+        )}
       </div>
 
-      <div className="flex justify-end space-x-4">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-        >
+      <div className="flex justify-end gap-4">
+        <Button type="button" variant="outline" onClick={() => router.back()}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50"
-        >
+        </Button>
+        <Button type="submit" disabled={loading}>
           {loading ? 'Saving...' : mode === 'create' ? 'Create Template' : 'Update Template'}
-        </button>
+        </Button>
       </div>
     </form>
   );

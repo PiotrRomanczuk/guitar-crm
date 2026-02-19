@@ -1,4 +1,7 @@
 'use client';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { ChevronRight } from 'lucide-react';
 import { SettingsSection, ToggleSetting, SelectSetting } from './SettingsComponents';
 import type { UserSettings } from '@/schemas/SettingsSchema';
 
@@ -34,6 +37,15 @@ export function NotificationsSection({ settings, updateSetting }: NotificationsS
         checked={settings.lessonReminders}
         onChange={(checked) => updateSetting('lessonReminders', checked)}
       />
+
+      <div className="pt-4">
+        <Link href="/dashboard/settings/notifications">
+          <Button variant="outline" className="w-full sm:w-auto">
+            Advanced Notification Settings
+            <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
     </SettingsSection>
   );
 }

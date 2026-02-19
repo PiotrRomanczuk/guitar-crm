@@ -11,11 +11,18 @@ type BadgeVariant =
   | 'green'
   | 'yellow'
   | 'red'
-  | 'purple';
+  | 'purple'
+  | 'active'
+  | 'inactive'
+  | 'registered'
+  | 'shadow';
+
+type BadgeSize = 'sm' | 'md' | 'lg';
 
 interface StatusBadgeProps {
   children: ReactNode;
   variant?: BadgeVariant;
+  size?: BadgeSize;
   className?: string;
   testId?: string;
 }
@@ -32,26 +39,37 @@ interface StatusBadgeProps {
 export default function StatusBadge({
   children,
   variant = 'default',
+  size = 'md',
   className = '',
   testId,
 }: StatusBadgeProps) {
   const variantClasses: Record<BadgeVariant, string> = {
-    default: 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200',
-    success: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200',
-    warning: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200',
-    danger: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200',
-    info: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200',
-    gray: 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200',
-    blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200',
-    green: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200',
-    yellow: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200',
-    red: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200',
-    purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200',
+    default: 'bg-muted text-muted-foreground',
+    success: 'bg-success/15 text-success dark:bg-success/20',
+    warning: 'bg-warning/15 text-warning dark:bg-warning/20',
+    danger: 'bg-destructive/15 text-destructive dark:bg-destructive/20',
+    info: 'bg-primary/15 text-primary dark:bg-primary/20',
+    gray: 'bg-muted text-muted-foreground',
+    blue: 'bg-primary/15 text-primary dark:bg-primary/20',
+    green: 'bg-success/15 text-success dark:bg-success/20',
+    yellow: 'bg-warning/15 text-warning dark:bg-warning/20',
+    red: 'bg-destructive/15 text-destructive dark:bg-destructive/20',
+    purple: 'bg-purple-500/15 text-purple-600 dark:text-purple-400 dark:bg-purple-500/20',
+    active: 'bg-success/15 text-success dark:bg-success/20',
+    inactive: 'bg-muted text-muted-foreground',
+    registered: 'bg-primary/15 text-primary dark:bg-primary/20',
+    shadow: 'bg-purple-500/15 text-purple-600 dark:text-purple-400 dark:bg-purple-500/20',
+  };
+
+  const sizeClasses: Record<BadgeSize, string> = {
+    sm: 'text-xs px-1.5 py-0.5',
+    md: 'text-xs px-2 sm:px-3 py-1',
+    lg: 'text-sm px-3 py-1.5',
   };
 
   return (
     <span
-      className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${variantClasses[variant]} ${className}`}
+      className={`inline-block rounded-full font-medium ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
       data-testid={testId}
     >
       {children}
@@ -87,6 +105,11 @@ export function getStatusVariant(status: string | null | undefined): BadgeVarian
     beginner: 'green',
     intermediate: 'yellow',
     advanced: 'red',
+    // User statuses
+    active: 'active',
+    inactive: 'inactive',
+    registered: 'registered',
+    shadow: 'shadow',
   };
 
   return statusMap[statusLower] || 'default';

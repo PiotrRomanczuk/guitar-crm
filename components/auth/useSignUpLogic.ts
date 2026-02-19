@@ -1,77 +1,79 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { useState, FormEvent, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { SignUpSchema } from '@/schemas/AuthSchema';
+import {
+	signUp as signUpAction,
+	resendVerificationEmail,
+} from '@/app/auth/actions';
 
 interface TouchedFields {
   email: boolean;
   password: boolean;
+  confirmPassword: boolean;
   firstName: boolean;
   lastName: boolean;
 }
 
-interface SignUpResponse {
-  data: { user: { identities?: unknown[] } | null };
-  error: { message: string } | null;
+interface FieldErrors {
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
-function getValidationError(
+function getFieldErrors(
   touched: TouchedFields,
-  email: string,
-  password: string,
-  firstName: string,
-  lastName: string
-): string | null {
-  if (touched.firstName && !firstName) return 'First name is required';
-  if (touched.lastName && !lastName) return 'Last name is required';
-  if (touched.email && email && !isValidEmail(email)) return 'Invalid email';
-  if (touched.password && password && password.length < 6)
-    return 'Password must be at least 6 characters';
-  return null;
-}
-
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-async function signUpUser(
-  email: string,
-  password: string,
-  firstName: string,
-  lastName: string
-): Promise<SignUpResponse> {
-  const supabase = getSupabaseBrowserClient();
-  return await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        first_name: firstName,
-        last_name: lastName,
-      },
-    },
-  });
-}
-
-function validateAndProcessSignUp(
   firstName: string,
   lastName: string,
   email: string,
-  password: string
-): boolean {
-  if (!firstName || !lastName || !email || password.length < 6) {
-    return false;
+  password: string,
+  confirmPassword: string
+): FieldErrors {
+  const errors: FieldErrors = {};
+  const result = SignUpSchema.safeParse({
+    firstName,
+    lastName,
+    email,
+    password,
+    confirmPassword,
+  });
+
+  if (!result.success) {
+    for (const issue of result.error.issues) {
+      const field = issue.path[0] as keyof FieldErrors;
+      if (touched[field] && !errors[field]) {
+        errors[field] = issue.message;
+      }
+    }
   }
-  return true;
+
+  return errors;
 }
 
-function checkIfEmailExists(user: { identities?: unknown[] } | null): boolean {
-  return (user?.identities?.length ?? 0) === 0;
+function validateFormData(
+  firstName: string,
+  lastName: string,
+  email: string,
+  password: string,
+  confirmPassword: string
+): boolean {
+  const result = SignUpSchema.safeParse({
+    firstName,
+    lastName,
+    email,
+    password,
+    confirmPassword,
+  });
+  return result.success;
 }
 
 export function useSignUpLogic(onSuccess?: () => void) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -80,9 +82,33 @@ export function useSignUpLogic(onSuccess?: () => void) {
   const [touched, setTouched] = useState<TouchedFields>({
     email: false,
     password: false,
+    confirmPassword: false,
     firstName: false,
     lastName: false,
   });
+  const [canResendEmail, setCanResendEmail] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
+
+  // Start countdown timer after successful registration
+  useEffect(() => {
+    if (success && !canResendEmail) {
+      const timer = setTimeout(() => {
+        setCanResendEmail(true);
+      }, 5000); // Allow resend after 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [success, canResendEmail]);
+
+  // Countdown timer for resend button
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(resendCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -90,12 +116,13 @@ export function useSignUpLogic(onSuccess?: () => void) {
     const newTouched = {
       email: true,
       password: true,
+      confirmPassword: true,
       firstName: true,
       lastName: true,
     };
     setTouched(newTouched);
 
-    if (!validateAndProcessSignUp(firstName, lastName, email, password)) {
+    if (!validateFormData(firstName, lastName, email, password, confirmPassword)) {
       return;
     }
 
@@ -103,34 +130,47 @@ export function useSignUpLogic(onSuccess?: () => void) {
     setError(null);
     setSuccess(false);
 
-    const response = await signUpUser(email, password, firstName, lastName);
+    const result = await signUpAction(firstName, lastName, email, password, confirmPassword);
 
     setLoading(false);
-    if (response.error) {
-      setError(response.error.message);
+
+    if (result.error) {
+      setError(result.error);
       return;
     }
 
-    if (response.data.user && checkIfEmailExists(response.data.user)) {
-      // If user exists but has no identities, it might be a shadow user.
-      // However, Supabase returns identities: [] if the user already exists when trying to sign up.
-      // BUT, if it's a shadow user (created by admin), they exist in Auth but have no password.
-      // We should probably allow them to "claim" the account or reset password.
-      // For now, let's guide them to sign in (where they can use "Forgot Password" to set a password).
-      setError('This email is already registered. Please sign in instead.');
-      return;
-    }
-
-    if (response.data.user) {
+    if (result.success) {
       setSuccess(true);
+      setCanResendEmail(false); // Will be enabled after 5 seconds
       if (onSuccess) onSuccess();
+    }
+  };
+
+  const handleResendEmail = async () => {
+    setResendLoading(true);
+
+    const result = await resendVerificationEmail(email);
+
+    setResendLoading(false);
+
+    if (result.error) {
+      setError(result.error);
+    } else {
+      // Start 60-second countdown
+      setResendCountdown(60);
+      setCanResendEmail(false);
+
+      // Re-enable after countdown
+      setTimeout(() => {
+        setCanResendEmail(true);
+      }, 60000);
     }
   };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
-    const supabase = getSupabaseBrowserClient();
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -149,6 +189,8 @@ export function useSignUpLogic(onSuccess?: () => void) {
     setEmail,
     password,
     setPassword,
+    confirmPassword,
+    setConfirmPassword,
     firstName,
     setFirstName,
     lastName,
@@ -158,8 +200,12 @@ export function useSignUpLogic(onSuccess?: () => void) {
     success,
     touched,
     setTouched,
-    validationError: getValidationError(touched, email, password, firstName, lastName),
+    fieldErrors: getFieldErrors(touched, firstName, lastName, email, password, confirmPassword),
     handleSubmit,
     handleGoogleSignIn,
+    handleResendEmail,
+    canResendEmail,
+    resendLoading,
+    resendCountdown,
   };
 }

@@ -1,8 +1,9 @@
 export const getSupabaseConfig = (options: { forceRemote?: boolean } = {}) => {
   const localUrl = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_URL;
   const localAnonKey = process.env.NEXT_PUBLIC_SUPABASE_LOCAL_ANON_KEY;
-  const remoteUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const remoteAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  const remoteUrl = process.env.NEXT_PUBLIC_SUPABASE_REMOTE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const remoteAnonKey = process.env.NEXT_PUBLIC_SUPABASE_REMOTE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   // console.log('[SupabaseConfig] Checking config:', { options, hasLocalUrl: !!localUrl, hasLocalKey: !!localAnonKey, hasRemoteUrl: !!remoteUrl });
 
@@ -37,8 +38,10 @@ export const getSupabaseAdminConfig = () => {
   // We assume if we are using local URL, we should use local service role key if available.
 
   const localServiceRoleKey = process.env.SUPABASE_LOCAL_SERVICE_ROLE_KEY;
+  // SECURITY: Never use NEXT_PUBLIC_ prefix for service role keys - they would be exposed to the client
   const remoteServiceRoleKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY; // Fallback for some setups
+    process.env.SUPABASE_REMOTE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (config.isLocal && localServiceRoleKey) {
     return {

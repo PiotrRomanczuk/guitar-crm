@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "driver.js/dist/driver.css";
+
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -48,6 +51,13 @@
   --animate-fade-in: fade-in 0.5s ease-out forwards;
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-shimmer: shimmer 2s ease-in-out infinite;
+  --animate-shimmer-slide: shimmer-slide 1.5s ease-in-out infinite;
+
+  /* Custom Breakpoints */
+  --breakpoint-xs: 475px;
+  --breakpoint-ultrawide: 2560px;
+  --breakpoint-portrait: 1080px;
 
   @keyframes fade-in {
     from {
@@ -73,6 +83,22 @@
     }
     to {
       height: 0;
+    }
+  }
+  @keyframes shimmer {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  @keyframes shimmer-slide {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
     }
   }
 }
@@ -161,11 +187,28 @@
 }
 
 @layer base {
-  * {
+  *,
+  *::before,
+  *::after {
     @apply border-border outline-ring/50;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease,
+      box-shadow 0.3s ease, fill 0.3s ease, stroke 0.3s ease;
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Prevent pull-to-refresh conflicts in PWA/standalone mode */
+  @media (display-mode: standalone) {
+    body {
+      overscroll-behavior-y: contain;
+    }
+  }
+
+  /* Prevent overscroll bounce in modal/drawer scroll containers */
+  [role="dialog"],
+  [data-state="open"] {
+    overscroll-behavior: contain;
   }
 }
 
@@ -181,5 +224,282 @@
   .gradient-text {
     @apply bg-clip-text text-transparent;
     background-image: var(--gradient-gold);
+  }
+
+  /* Safe area inset utilities for notched/Dynamic Island iPhones */
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pl-safe {
+    padding-left: env(safe-area-inset-left);
+  }
+  .pr-safe {
+    padding-right: env(safe-area-inset-right);
+  }
+  .px-safe {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Keyboard-aware bottom padding (uses --keyboard-height set by useKeyboardViewport hook) */
+  .pb-keyboard {
+    padding-bottom: var(--keyboard-height, 0px);
+  }
+}
+
+/* ===========================================
+   RESPONSIVE DESIGN SYSTEM
+   Target Devices:
+   - iPhone 12 (390x844)
+   - iPhone 17 Pro Max (430x932)
+   - iPad (768x1024 - 1024x1366)
+   - 1080p Landscape (1920x1080)
+   - 1080p Portrait/Vertical (1080x1920)
+   - QHD/2K (2560x1440)
+   =========================================== */
+
+/* Extra Small Screens (xs: 475px+) - Small phones landscape */
+@media (min-width: 475px) {
+  .xs\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .xs\:gap-4 {
+    gap: 1rem;
+  }
+}
+
+/* iPad & Tablet (768px+) */
+@media (min-width: 768px) {
+  .tablet\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tablet\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .tablet\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+  .tablet\:gap-5 {
+    gap: 1.25rem;
+  }
+}
+
+/* Portrait Display Optimization (1080px+ width in portrait mode) */
+@media (orientation: portrait) and (min-width: 1000px) {
+  /* For vertical 1080p displays - use 2 columns to maximize horizontal space */
+  .portrait\:grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .portrait\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .portrait\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .portrait\:col-span-1 {
+    grid-column: span 1 / span 1;
+  }
+
+  .portrait\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+
+  .portrait\:max-w-full {
+    max-width: 100%;
+  }
+
+  .portrait\:gap-5 {
+    gap: 1.25rem;
+  }
+
+  .portrait\:gap-6 {
+    gap: 1.5rem;
+  }
+
+  .portrait\:px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+/* Standard Desktop 1080p (1024px - 1919px) */
+@media (min-width: 1024px) and (max-width: 1919px) {
+  .desktop\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .desktop\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .desktop\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+}
+
+/* Large Desktop / 1080p Landscape (1920px+) */
+@media (min-width: 1920px) {
+  .fhd\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .fhd\:grid-cols-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .fhd\:col-span-3 {
+    grid-column: span 3 / span 3;
+  }
+  .fhd\:gap-6 {
+    gap: 1.5rem;
+  }
+}
+
+/* QHD Display (2560x1440) */
+@media (min-width: 2560px) {
+  .ultrawide\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .ultrawide\:grid-cols-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .ultrawide\:grid-cols-6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .ultrawide\:grid-cols-10 {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+  }
+
+  .ultrawide\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+
+  .ultrawide\:col-span-3 {
+    grid-column: span 3 / span 3;
+  }
+
+  .ultrawide\:col-span-4 {
+    grid-column: span 4 / span 4;
+  }
+
+  .ultrawide\:gap-8 {
+    gap: 2rem;
+  }
+
+  .ultrawide\:px-12 {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+
+  .ultrawide\:max-w-\[2400px\] {
+    max-width: 2400px;
+  }
+}
+
+/* Super Ultrawide Display (3440x1440 and wider) */
+@media (min-width: 3200px) {
+  .superwide\:grid-cols-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .superwide\:grid-cols-6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .superwide\:grid-cols-8 {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+
+  .superwide\:grid-cols-12 {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .superwide\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+
+  .superwide\:col-span-3 {
+    grid-column: span 3 / span 3;
+  }
+
+  .superwide\:col-span-4 {
+    grid-column: span 4 / span 4;
+  }
+
+  .superwide\:col-span-5 {
+    grid-column: span 5 / span 5;
+  }
+
+  .superwide\:gap-10 {
+    gap: 2.5rem;
+  }
+
+  .superwide\:px-16 {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+
+  .superwide\:max-w-\[3200px\] {
+    max-width: 3200px;
+  }
+}
+
+/* iPhone 12/13/14/15 (390px width) */
+@media (max-width: 390px) {
+  .iphone\:px-3 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  .iphone\:gap-3 {
+    gap: 0.75rem;
+  }
+  .iphone\:text-sm {
+    font-size: 0.875rem;
+  }
+}
+
+/* iPhone 17 Pro Max Optimization (430px width) */
+@media (max-width: 430px) {
+  .mobile\:space-y-3 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0.75rem;
+  }
+
+  .mobile\:px-3 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .mobile\:text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .mobile\:gap-3 {
+    gap: 0.75rem;
+  }
+}
+
+/* iPad Portrait (768px - 1024px in portrait) */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  .ipad-portrait\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ipad-portrait\:gap-4 {
+    gap: 1rem;
+  }
+}
+
+/* iPad Landscape (1024px - 1366px in landscape) */
+@media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+  .ipad-landscape\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .ipad-landscape\:col-span-2 {
+    grid-column: span 2 / span 2;
   }
 }

@@ -4,8 +4,8 @@ import { Label } from '@/components/ui/label';
 export function SettingsHeader() {
   return (
     <header className="mb-6 sm:mb-8">
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2">⚙️ Settings</h1>
-      <p className="text-xs sm:text-base lg:text-lg text-muted-foreground">
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">Settings</h1>
+      <p className="text-sm sm:text-base lg:text-lg text-muted-foreground">
         Manage your preferences and account settings
       </p>
     </header>
@@ -20,13 +20,13 @@ interface SettingsSectionProps {
 
 export function SettingsSection({ title, description, children }: SettingsSectionProps) {
   return (
-    <div className="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6 last:border-b-0">
+    <section>
       <div className="mb-4">
-        <h2 className="text-lg sm:text-xl font-semibold mb-1">{title}</h2>
-        {description && <p className="text-xs sm:text-sm text-muted-foreground">{description}</p>}
+        <h3 className="text-lg sm:text-xl font-semibold mb-2">{title}</h3>
+        {description && <p className="text-sm text-muted-foreground">{description}</p>}
       </div>
-      <div className="space-y-4">{children}</div>
-    </div>
+      <div className="space-y-6">{children}</div>
+    </section>
   );
 }
 
@@ -66,8 +66,8 @@ export function ToggleSetting({
         onClick={() => onChange(!checked)}
         className={`
 					relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-					focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2
-					${checked ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}
+					focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
+					${checked ? 'bg-primary' : 'bg-muted'}
 					${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
 				`}
       >
@@ -90,6 +90,7 @@ interface SelectSettingProps {
   options: { value: string; label: string }[];
   onChange: (value: string) => void;
   disabled?: boolean;
+  error?: string;
 }
 
 export function SelectSetting({
@@ -100,19 +101,24 @@ export function SelectSetting({
   options,
   onChange,
   disabled = false,
+  error,
 }: SelectSettingProps) {
   return (
     <div className="space-y-2">
-      <Label htmlFor={id} className="text-sm sm:text-base font-medium">
+      <Label htmlFor={id} className="text-sm font-medium">
         {label}
       </Label>
-      {description && <p className="text-xs sm:text-sm text-muted-foreground">{description}</p>}
+      {description && <p className="text-sm text-muted-foreground">{description}</p>}
       <select
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className="w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 bg-white rounded-lg shadow-sm transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-invalid={!!error}
+        aria-describedby={error ? `${id}-error` : undefined}
+        className={`w-full px-3 py-2 text-sm border bg-background text-foreground rounded-lg shadow-sm transition-all duration-200 hover:border-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed ${
+          error ? 'border-destructive' : 'border-border'
+        }`}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -120,6 +126,11 @@ export function SelectSetting({
           </option>
         ))}
       </select>
+      {error && (
+        <p id={`${id}-error`} className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

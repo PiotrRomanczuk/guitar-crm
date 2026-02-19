@@ -84,20 +84,9 @@ export async function insertLessonRecord(
 ) {
   const dbData = prepareLessonForDb(lessonData);
 
-  if (lessonData.teacher_id && lessonData.student_id) {
-    const nextNumber = await calculateNextLessonNumber(
-      supabase,
-      lessonData.teacher_id,
-      lessonData.student_id
-    );
-    console.log('Calculated next lesson number:', nextNumber);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (dbData as any).lesson_teacher_number = nextNumber;
-  } else {
-    console.log('Missing teacher_id or student_id in lessonData:', lessonData);
-  }
+  // Note: lesson_teacher_number is auto-set by database trigger (set_lesson_numbers)
+  // Do NOT manually set it here as it will conflict with the trigger
 
-  console.log('Inserting lesson with dbData:', dbData);
   return await supabase.from('lessons').insert(dbData).select().single();
 }
 
@@ -136,7 +125,7 @@ export function prepareLessonForDb(lessonData: Partial<LessonInput>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dbData: any = { ...lessonData };
 
-  // Combine date and start_time into scheduled_at
+  // Combine date and start_time into scheduled_at (if date is provided)
   if (lessonData.date) {
     const timeStr = lessonData.start_time || '00:00';
     // Create date object from date and time strings
@@ -150,6 +139,24 @@ export function prepareLessonForDb(lessonData: Partial<LessonInput>) {
   delete dbData.date;
   delete dbData.start_time;
   delete dbData.time;
+
+  // Remove song_ids if it exists (should be handled separately)
+  delete dbData.song_ids;
+
+  // Remove auto-generated fields that are set by database triggers
+  // lesson_number is auto-set by set_lesson_number() trigger
+  delete dbData.lesson_number;
+  delete dbData.lesson_teacher_number;
+
+  // Remove fields that don't exist in the actual database schema
+  delete dbData.creator_user_id;
+
+  // Filter out undefined values to prevent Supabase JSONB operator errors
+  Object.keys(dbData).forEach((key) => {
+    if (dbData[key] === undefined) {
+      delete dbData[key];
+    }
+  });
 
   return dbData;
 }

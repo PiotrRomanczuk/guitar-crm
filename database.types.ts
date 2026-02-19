@@ -28,9 +28,458 @@ export type Database = {
   };
   public: {
     Tables: {
+      agent_execution_logs: {
+        Row: {
+          agent_id: string;
+          created_at: string | null;
+          error_code: string | null;
+          execution_time: number;
+          id: string;
+          input_hash: string;
+          request_id: string;
+          successful: boolean;
+          timestamp: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          agent_id: string;
+          created_at?: string | null;
+          error_code?: string | null;
+          execution_time: number;
+          id?: string;
+          input_hash: string;
+          request_id: string;
+          successful: boolean;
+          timestamp?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          agent_id?: string;
+          created_at?: string | null;
+          error_code?: string | null;
+          execution_time?: number;
+          id?: string;
+          input_hash?: string;
+          request_id?: string;
+          successful?: boolean;
+          timestamp?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'agent_execution_logs_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'agent_execution_logs_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
+      ai_conversations: {
+        Row: {
+          context_id: string | null;
+          context_type: Database['public']['Enums']['ai_context_type'];
+          created_at: string;
+          id: string;
+          is_archived: boolean;
+          model_id: string;
+          title: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          context_id?: string | null;
+          context_type?: Database['public']['Enums']['ai_context_type'];
+          created_at?: string;
+          id?: string;
+          is_archived?: boolean;
+          model_id: string;
+          title?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          context_id?: string | null;
+          context_type?: Database['public']['Enums']['ai_context_type'];
+          created_at?: string;
+          id?: string;
+          is_archived?: boolean;
+          model_id?: string;
+          title?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'ai_conversations_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'ai_conversations_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
+      ai_generations: {
+        Row: {
+          agent_id: string | null;
+          context_entity_id: string | null;
+          context_entity_type: string | null;
+          created_at: string;
+          error_message: string | null;
+          generation_type: Database['public']['Enums']['ai_generation_type'];
+          id: string;
+          input_params: Json;
+          is_starred: boolean;
+          is_successful: boolean;
+          model_id: string | null;
+          output_content: string;
+          provider: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          agent_id?: string | null;
+          context_entity_id?: string | null;
+          context_entity_type?: string | null;
+          created_at?: string;
+          error_message?: string | null;
+          generation_type: Database['public']['Enums']['ai_generation_type'];
+          id?: string;
+          input_params: Json;
+          is_starred?: boolean;
+          is_successful?: boolean;
+          model_id?: string | null;
+          output_content: string;
+          provider?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          agent_id?: string | null;
+          context_entity_id?: string | null;
+          context_entity_type?: string | null;
+          created_at?: string;
+          error_message?: string | null;
+          generation_type?: Database['public']['Enums']['ai_generation_type'];
+          id?: string;
+          input_params?: Json;
+          is_starred?: boolean;
+          is_successful?: boolean;
+          model_id?: string | null;
+          output_content?: string;
+          provider?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'ai_generations_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'ai_generations_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
+      ai_messages: {
+        Row: {
+          content: string;
+          conversation_id: string;
+          created_at: string;
+          id: string;
+          is_helpful: boolean | null;
+          latency_ms: number | null;
+          model_id: string | null;
+          role: Database['public']['Enums']['ai_message_role'];
+          tokens_used: number | null;
+        };
+        Insert: {
+          content: string;
+          conversation_id: string;
+          created_at?: string;
+          id?: string;
+          is_helpful?: boolean | null;
+          latency_ms?: number | null;
+          model_id?: string | null;
+          role: Database['public']['Enums']['ai_message_role'];
+          tokens_used?: number | null;
+        };
+        Update: {
+          content?: string;
+          conversation_id?: string;
+          created_at?: string;
+          id?: string;
+          is_helpful?: boolean | null;
+          latency_ms?: number | null;
+          model_id?: string | null;
+          role?: Database['public']['Enums']['ai_message_role'];
+          tokens_used?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'ai_messages_conversation_id_fkey';
+            columns: ['conversation_id'];
+            isOneToOne: false;
+            referencedRelation: 'ai_conversations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      ai_prompt_templates: {
+        Row: {
+          category: Database['public']['Enums']['ai_prompt_category'];
+          created_at: string;
+          created_by: string | null;
+          description: string | null;
+          id: string;
+          is_active: boolean;
+          is_system: boolean;
+          name: string;
+          prompt_template: string;
+          updated_at: string;
+          variables: Json | null;
+        };
+        Insert: {
+          category?: Database['public']['Enums']['ai_prompt_category'];
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          is_system?: boolean;
+          name: string;
+          prompt_template: string;
+          updated_at?: string;
+          variables?: Json | null;
+        };
+        Update: {
+          category?: Database['public']['Enums']['ai_prompt_category'];
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          is_system?: boolean;
+          name?: string;
+          prompt_template?: string;
+          updated_at?: string;
+          variables?: Json | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'ai_prompt_templates_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'ai_prompt_templates_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
+      ai_usage_stats: {
+        Row: {
+          created_at: string;
+          date: string;
+          error_count: number;
+          id: string;
+          model_id: string;
+          request_count: number;
+          total_latency_ms: number;
+          total_tokens: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          date?: string;
+          error_count?: number;
+          id?: string;
+          model_id: string;
+          request_count?: number;
+          total_latency_ms?: number;
+          total_tokens?: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          date?: string;
+          error_count?: number;
+          id?: string;
+          model_id?: string;
+          request_count?: number;
+          total_latency_ms?: number;
+          total_tokens?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'ai_usage_stats_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'ai_usage_stats_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
+      api_keys: {
+        Row: {
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          key_hash: string;
+          last_used_at: string | null;
+          name: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          key_hash: string;
+          last_used_at?: string | null;
+          name: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          key_hash?: string;
+          last_used_at?: string | null;
+          name?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      assignment_history: {
+        Row: {
+          assignment_id: string;
+          change_type: string;
+          changed_at: string | null;
+          changed_by: string;
+          created_at: string | null;
+          id: string;
+          new_data: Json;
+          notes: string | null;
+          previous_data: Json | null;
+        };
+        Insert: {
+          assignment_id: string;
+          change_type: string;
+          changed_at?: string | null;
+          changed_by: string;
+          created_at?: string | null;
+          id?: string;
+          new_data: Json;
+          notes?: string | null;
+          previous_data?: Json | null;
+        };
+        Update: {
+          assignment_id?: string;
+          change_type?: string;
+          changed_at?: string | null;
+          changed_by?: string;
+          created_at?: string | null;
+          id?: string;
+          new_data?: Json;
+          notes?: string | null;
+          previous_data?: Json | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'assignment_history_assignment_id_fkey';
+            columns: ['assignment_id'];
+            isOneToOne: false;
+            referencedRelation: 'assignments';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      assignment_templates: {
+        Row: {
+          created_at: string | null;
+          description: string | null;
+          id: string;
+          teacher_id: string;
+          title: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          description?: string | null;
+          id?: string;
+          teacher_id: string;
+          title: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          description?: string | null;
+          id?: string;
+          teacher_id?: string;
+          title?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'assignment_templates_teacher_id_fkey';
+            columns: ['teacher_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'assignment_templates_teacher_id_fkey';
+            columns: ['teacher_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
       assignments: {
         Row: {
           created_at: string;
+          deleted_at: string | null;
           description: string | null;
           due_date: string | null;
           id: string;
@@ -43,6 +492,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          deleted_at?: string | null;
           description?: string | null;
           due_date?: string | null;
           id?: string;
@@ -55,6 +505,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          deleted_at?: string | null;
           description?: string | null;
           due_date?: string | null;
           id?: string;
@@ -100,42 +551,188 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
         ];
       };
-      assignment_templates: {
+      audit_log: {
         Row: {
+          action: Database['public']['Enums']['audit_action'];
+          actor_id: string | null;
+          changes: Json;
           created_at: string;
-          description: string | null;
+          entity_id: string;
+          entity_type: Database['public']['Enums']['audit_entity'];
           id: string;
-          teacher_id: string;
-          title: string;
-          updated_at: string;
+          metadata: Json | null;
         };
         Insert: {
+          action: Database['public']['Enums']['audit_action'];
+          actor_id?: string | null;
+          changes: Json;
           created_at?: string;
-          description?: string | null;
+          entity_id: string;
+          entity_type: Database['public']['Enums']['audit_entity'];
           id?: string;
-          teacher_id: string;
-          title: string;
-          updated_at?: string;
+          metadata?: Json | null;
         };
         Update: {
+          action?: Database['public']['Enums']['audit_action'];
+          actor_id?: string | null;
+          changes?: Json;
           created_at?: string;
-          description?: string | null;
+          entity_id?: string;
+          entity_type?: Database['public']['Enums']['audit_entity'];
           id?: string;
-          teacher_id?: string;
-          title?: string;
-          updated_at?: string;
+          metadata?: Json | null;
         };
         Relationships: [
           {
-            foreignKeyName: 'assignment_templates_teacher_id_fkey';
-            columns: ['teacher_id'];
+            foreignKeyName: 'audit_log_actor_id_fkey';
+            columns: ['actor_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'audit_log_actor_id_fkey';
+            columns: ['actor_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
+      auth_rate_limits: {
+        Row: {
+          attempted_at: string;
+          id: string;
+          identifier: string;
+          operation: string;
+        };
+        Insert: {
+          attempted_at?: string;
+          id?: string;
+          identifier: string;
+          operation: string;
+        };
+        Update: {
+          attempted_at?: string;
+          id?: string;
+          identifier?: string;
+          operation?: string;
+        };
+        Relationships: [];
+      };
+      in_app_notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          notification_type: Database['public']['Enums']['notification_type'];
+          title: string;
+          body: string;
+          icon: string | null;
+          variant: string | null;
+          is_read: boolean;
+          read_at: string | null;
+          action_url: string | null;
+          action_label: string | null;
+          entity_type: string | null;
+          entity_id: string | null;
+          priority: number;
+          created_at: string;
+          updated_at: string;
+          expires_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          notification_type: Database['public']['Enums']['notification_type'];
+          title: string;
+          body: string;
+          icon?: string | null;
+          variant?: string | null;
+          is_read?: boolean;
+          read_at?: string | null;
+          action_url?: string | null;
+          action_label?: string | null;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          priority?: number;
+          created_at?: string;
+          updated_at?: string;
+          expires_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          notification_type?: Database['public']['Enums']['notification_type'];
+          title?: string;
+          body?: string;
+          icon?: string | null;
+          variant?: string | null;
+          is_read?: boolean;
+          read_at?: string | null;
+          action_url?: string | null;
+          action_label?: string | null;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          priority?: number;
+          created_at?: string;
+          updated_at?: string;
+          expires_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'in_app_notifications_user_id_fkey';
+            columns: ['user_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
           }
+        ];
+      };
+      lesson_history: {
+        Row: {
+          change_type: string;
+          changed_at: string | null;
+          changed_by: string;
+          created_at: string | null;
+          id: string;
+          lesson_id: string;
+          new_data: Json;
+          notes: string | null;
+          previous_data: Json | null;
+        };
+        Insert: {
+          change_type: string;
+          changed_at?: string | null;
+          changed_by: string;
+          created_at?: string | null;
+          id?: string;
+          lesson_id: string;
+          new_data: Json;
+          notes?: string | null;
+          previous_data?: Json | null;
+        };
+        Update: {
+          change_type?: string;
+          changed_at?: string | null;
+          changed_by?: string;
+          created_at?: string | null;
+          id?: string;
+          lesson_id?: string;
+          new_data?: Json;
+          notes?: string | null;
+          previous_data?: Json | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'lesson_history_lesson_id_fkey';
+            columns: ['lesson_id'];
+            isOneToOne: false;
+            referencedRelation: 'lessons';
+            referencedColumns: ['id'];
+          },
         ];
       };
       lesson_songs: {
@@ -187,12 +784,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'songs';
             referencedColumns: ['id'];
-          }
+          },
         ];
       };
       lessons: {
         Row: {
           created_at: string;
+          deleted_at: string | null;
           google_event_id: string | null;
           id: string;
           lesson_teacher_number: number;
@@ -206,9 +804,10 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          deleted_at?: string | null;
           google_event_id?: string | null;
           id?: string;
-          lesson_teacher_number: number;
+          lesson_teacher_number?: number;
           notes?: string | null;
           scheduled_at: string;
           status?: Database['public']['Enums']['lesson_status'];
@@ -219,6 +818,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          deleted_at?: string | null;
           google_event_id?: string | null;
           id?: string;
           lesson_teacher_number?: number;
@@ -258,7 +858,264 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
+        ];
+      };
+      notification_log: {
+        Row: {
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string | null;
+          error_message: string | null;
+          id: string;
+          max_retries: number;
+          notification_type: string;
+          recipient_email: string;
+          recipient_user_id: string;
+          retry_count: number;
+          sent_at: string | null;
+          status: string;
+          subject: string;
+          template_data: Json | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          error_message?: string | null;
+          id?: string;
+          max_retries?: number;
+          notification_type: string;
+          recipient_email: string;
+          recipient_user_id: string;
+          retry_count?: number;
+          sent_at?: string | null;
+          status?: string;
+          subject: string;
+          template_data?: Json | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          error_message?: string | null;
+          id?: string;
+          max_retries?: number;
+          notification_type?: string;
+          recipient_email?: string;
+          recipient_user_id?: string;
+          retry_count?: number;
+          sent_at?: string | null;
+          status?: string;
+          subject?: string;
+          template_data?: Json | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_log_recipient_user_id_fkey';
+            columns: ['recipient_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      notification_preferences: {
+        Row: {
+          created_at: string;
+          enabled: boolean;
+          id: string;
+          notification_type: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          enabled?: boolean;
+          id?: string;
+          notification_type: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          enabled?: boolean;
+          id?: string;
+          notification_type?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_preferences_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      notification_queue: {
+        Row: {
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string | null;
+          id: string;
+          notification_type: string;
+          priority: number;
+          processed_at: string | null;
+          recipient_user_id: string;
+          scheduled_for: string;
+          status: string;
+          template_data: Json;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          id?: string;
+          notification_type: string;
+          priority?: number;
+          processed_at?: string | null;
+          recipient_user_id: string;
+          scheduled_for?: string;
+          status?: string;
+          template_data: Json;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          id?: string;
+          notification_type?: string;
+          priority?: number;
+          processed_at?: string | null;
+          recipient_user_id?: string;
+          scheduled_for?: string;
+          status?: string;
+          template_data?: Json;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_queue_recipient_user_id_fkey';
+            columns: ['recipient_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      pending_students: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          email: string;
+          full_name: string | null;
+          id: string;
+          notes: string | null;
+          phone: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          email: string;
+          full_name?: string | null;
+          id?: string;
+          notes?: string | null;
+          phone?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          email?: string;
+          full_name?: string | null;
+          id?: string;
+          notes?: string | null;
+          phone?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'pending_students_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'pending_students_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
+      practice_sessions: {
+        Row: {
+          created_at: string;
+          duration_minutes: number;
+          id: string;
+          notes: string | null;
+          song_id: string | null;
+          student_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          duration_minutes: number;
+          id?: string;
+          notes?: string | null;
+          song_id?: string | null;
+          student_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          duration_minutes?: number;
+          id?: string;
+          notes?: string | null;
+          song_id?: string | null;
+          student_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'practice_sessions_song_id_fkey';
+            columns: ['song_id'];
+            isOneToOne: false;
+            referencedRelation: 'song_usage_stats';
+            referencedColumns: ['song_id'];
+          },
+          {
+            foreignKeyName: 'practice_sessions_song_id_fkey';
+            columns: ['song_id'];
+            isOneToOne: false;
+            referencedRelation: 'songs';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'practice_sessions_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'practice_sessions_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
         ];
       };
       profiles: {
@@ -268,15 +1125,20 @@ export type Database = {
           email: string;
           full_name: string | null;
           id: string;
-          user_id: string | null;
+          is_active: boolean;
           is_admin: boolean;
           is_development: boolean;
-          is_shadow: boolean | null;
+          is_shadow: boolean;
           is_student: boolean;
           is_teacher: boolean;
+          lead_source: string | null;
           notes: string | null;
+          onboarding_completed: boolean;
           phone: string | null;
+          status_changed_at: string | null;
+          student_status: Database['public']['Enums']['student_pipeline_status'] | null;
           updated_at: string;
+          user_id: string | null;
         };
         Insert: {
           avatar_url?: string | null;
@@ -284,14 +1146,20 @@ export type Database = {
           email: string;
           full_name?: string | null;
           id?: string;
+          is_active?: boolean;
           is_admin?: boolean;
           is_development?: boolean;
-          is_shadow?: boolean | null;
+          is_shadow?: boolean;
           is_student?: boolean;
           is_teacher?: boolean;
+          lead_source?: string | null;
           notes?: string | null;
+          onboarding_completed?: boolean;
           phone?: string | null;
+          status_changed_at?: string | null;
+          student_status?: Database['public']['Enums']['student_pipeline_status'] | null;
           updated_at?: string;
+          user_id?: string | null;
         };
         Update: {
           avatar_url?: string | null;
@@ -299,73 +1167,512 @@ export type Database = {
           email?: string;
           full_name?: string | null;
           id?: string;
-          user_id?: string | null;
+          is_active?: boolean;
           is_admin?: boolean;
           is_development?: boolean;
-          is_shadow?: boolean | null;
+          is_shadow?: boolean;
           is_student?: boolean;
           is_teacher?: boolean;
+          lead_source?: string | null;
           notes?: string | null;
+          onboarding_completed?: boolean;
           phone?: string | null;
+          status_changed_at?: string | null;
+          student_status?: Database['public']['Enums']['student_pipeline_status'] | null;
           updated_at?: string;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
+      skills: {
+        Row: {
+          category: string;
+          created_at: string | null;
+          description: string | null;
+          id: string;
+          name: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          category: string;
+          created_at?: string | null;
+          description?: string | null;
+          id?: string;
+          name: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          category?: string;
+          created_at?: string | null;
+          description?: string | null;
+          id?: string;
+          name?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      song_status_history: {
+        Row: {
+          changed_at: string | null;
+          created_at: string | null;
+          id: string;
+          new_status: string;
+          notes: string | null;
+          previous_status: string | null;
+          song_id: string;
+          student_id: string;
+        };
+        Insert: {
+          changed_at?: string | null;
+          created_at?: string | null;
+          id?: string;
+          new_status: string;
+          notes?: string | null;
+          previous_status?: string | null;
+          song_id: string;
+          student_id: string;
+        };
+        Update: {
+          changed_at?: string | null;
+          created_at?: string | null;
+          id?: string;
+          new_status?: string;
+          notes?: string | null;
+          previous_status?: string | null;
+          song_id?: string;
+          student_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: 'profiles_user_id_fkey';
-            columns: ['user_id'];
-            isOneToOne: true;
-            referencedRelation: 'users';
+            foreignKeyName: 'song_status_history_song_id_fkey';
+            columns: ['song_id'];
+            isOneToOne: false;
+            referencedRelation: 'song_usage_stats';
+            referencedColumns: ['song_id'];
+          },
+          {
+            foreignKeyName: 'song_status_history_song_id_fkey';
+            columns: ['song_id'];
+            isOneToOne: false;
+            referencedRelation: 'songs';
             referencedColumns: ['id'];
-          }
+          },
         ];
       };
       songs: {
         Row: {
-          author: string;
+          audio_files: Json | null;
+          author: string | null;
+          capo_fret: number | null;
+          category: string | null;
           chords: string | null;
+          cover_image_url: string | null;
           created_at: string;
           deleted_at: string | null;
-          id: string;
-          key: Database['public']['Enums']['music_key'];
-          level: Database['public']['Enums']['difficulty_level'];
-          short_title: string | null;
-          title: string;
-          ultimate_guitar_link: string;
-          youtube_url: string | null;
+          duration_ms: number | null;
           gallery_images: string[] | null;
+          id: string;
+          key: Database['public']['Enums']['music_key'] | null;
+          level: Database['public']['Enums']['difficulty_level'] | null;
+          release_year: number | null;
+          search_vector: unknown;
+          short_title: string | null;
+          spotify_link_url: string | null;
+          strumming_pattern: string | null;
+          tempo: number | null;
+          tiktok_short_url: string | null;
+          time_signature: number | null;
+          title: string;
+          ultimate_guitar_link: string | null;
+          updated_at: string;
+          youtube_url: string | null;
+        };
+        Insert: {
+          audio_files?: Json | null;
+          author?: string | null;
+          capo_fret?: number | null;
+          category?: string | null;
+          chords?: string | null;
+          cover_image_url?: string | null;
+          created_at?: string;
+          deleted_at?: string | null;
+          duration_ms?: number | null;
+          gallery_images?: string[] | null;
+          id?: string;
+          key?: Database['public']['Enums']['music_key'] | null;
+          level?: Database['public']['Enums']['difficulty_level'] | null;
+          release_year?: number | null;
+          search_vector?: unknown;
+          short_title?: string | null;
+          spotify_link_url?: string | null;
+          strumming_pattern?: string | null;
+          tempo?: number | null;
+          tiktok_short_url?: string | null;
+          time_signature?: number | null;
+          title: string;
+          ultimate_guitar_link?: string | null;
+          updated_at?: string;
+          youtube_url?: string | null;
+        };
+        Update: {
+          audio_files?: Json | null;
+          author?: string | null;
+          capo_fret?: number | null;
+          category?: string | null;
+          chords?: string | null;
+          cover_image_url?: string | null;
+          created_at?: string;
+          deleted_at?: string | null;
+          duration_ms?: number | null;
+          gallery_images?: string[] | null;
+          id?: string;
+          key?: Database['public']['Enums']['music_key'] | null;
+          level?: Database['public']['Enums']['difficulty_level'] | null;
+          release_year?: number | null;
+          search_vector?: unknown;
+          short_title?: string | null;
+          spotify_link_url?: string | null;
+          strumming_pattern?: string | null;
+          tempo?: number | null;
+          tiktok_short_url?: string | null;
+          time_signature?: number | null;
+          title?: string;
+          ultimate_guitar_link?: string | null;
+          updated_at?: string;
+          youtube_url?: string | null;
+        };
+        Relationships: [];
+      };
+      spotify_matches: {
+        Row: {
+          ai_reasoning: string | null;
+          confidence_score: number;
+          created_at: string | null;
+          id: string;
+          match_reason: string | null;
+          review_notes: string | null;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          search_query: string;
+          song_id: string;
+          spotify_album_name: string | null;
+          spotify_artist_name: string;
+          spotify_cover_image_url: string | null;
+          spotify_duration_ms: number | null;
+          spotify_popularity: number | null;
+          spotify_preview_url: string | null;
+          spotify_release_date: string | null;
+          spotify_track_id: string;
+          spotify_track_name: string;
+          spotify_url: string;
+          status: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          ai_reasoning?: string | null;
+          confidence_score: number;
+          created_at?: string | null;
+          id?: string;
+          match_reason?: string | null;
+          review_notes?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          search_query: string;
+          song_id: string;
+          spotify_album_name?: string | null;
+          spotify_artist_name: string;
+          spotify_cover_image_url?: string | null;
+          spotify_duration_ms?: number | null;
+          spotify_popularity?: number | null;
+          spotify_preview_url?: string | null;
+          spotify_release_date?: string | null;
+          spotify_track_id: string;
+          spotify_track_name: string;
+          spotify_url: string;
+          status?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          ai_reasoning?: string | null;
+          confidence_score?: number;
+          created_at?: string | null;
+          id?: string;
+          match_reason?: string | null;
+          review_notes?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          search_query?: string;
+          song_id?: string;
+          spotify_album_name?: string | null;
+          spotify_artist_name?: string;
+          spotify_cover_image_url?: string | null;
+          spotify_duration_ms?: number | null;
+          spotify_popularity?: number | null;
+          spotify_preview_url?: string | null;
+          spotify_release_date?: string | null;
+          spotify_track_id?: string;
+          spotify_track_name?: string;
+          spotify_url?: string;
+          status?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'spotify_matches_song_id_fkey';
+            columns: ['song_id'];
+            isOneToOne: false;
+            referencedRelation: 'song_usage_stats';
+            referencedColumns: ['song_id'];
+          },
+          {
+            foreignKeyName: 'spotify_matches_song_id_fkey';
+            columns: ['song_id'];
+            isOneToOne: false;
+            referencedRelation: 'songs';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      student_skills: {
+        Row: {
+          created_at: string | null;
+          id: string;
+          last_assessed_at: string | null;
+          notes: string | null;
+          skill_id: string;
+          status: string;
+          student_id: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: string;
+          last_assessed_at?: string | null;
+          notes?: string | null;
+          skill_id: string;
+          status: string;
+          student_id: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          last_assessed_at?: string | null;
+          notes?: string | null;
+          skill_id?: string;
+          status?: string;
+          student_id?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'student_skills_skill_id_fkey';
+            columns: ['skill_id'];
+            isOneToOne: false;
+            referencedRelation: 'skills';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'student_skills_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'student_skills_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
+      student_song_progress: {
+        Row: {
+          created_at: string;
+          current_status: Database['public']['Enums']['lesson_song_status'];
+          difficulty_rating: number | null;
+          id: string;
+          last_practiced_at: string | null;
+          mastered_at: string | null;
+          practice_session_count: number | null;
+          song_id: string;
+          started_at: string | null;
+          student_id: string;
+          student_notes: string | null;
+          teacher_notes: string | null;
+          total_practice_time_minutes: number | null;
           updated_at: string;
         };
         Insert: {
-          author: string;
-          chords?: string | null;
           created_at?: string;
-          deleted_at?: string | null;
+          current_status?: Database['public']['Enums']['lesson_song_status'];
+          difficulty_rating?: number | null;
           id?: string;
-          key: Database['public']['Enums']['music_key'];
-          level: Database['public']['Enums']['difficulty_level'];
-          short_title?: string | null;
-          title: string;
-          ultimate_guitar_link: string;
-          youtube_url?: string | null;
-          gallery_images?: string[] | null;
+          last_practiced_at?: string | null;
+          mastered_at?: string | null;
+          practice_session_count?: number | null;
+          song_id: string;
+          started_at?: string | null;
+          student_id: string;
+          student_notes?: string | null;
+          teacher_notes?: string | null;
+          total_practice_time_minutes?: number | null;
           updated_at?: string;
         };
         Update: {
-          author?: string;
-          chords?: string | null;
           created_at?: string;
-          deleted_at?: string | null;
+          current_status?: Database['public']['Enums']['lesson_song_status'];
+          difficulty_rating?: number | null;
           id?: string;
-          key?: Database['public']['Enums']['music_key'];
-          level?: Database['public']['Enums']['difficulty_level'];
-          short_title?: string | null;
-          title?: string;
-          ultimate_guitar_link?: string;
-          youtube_url?: string | null;
-          gallery_images?: string[] | null;
+          last_practiced_at?: string | null;
+          mastered_at?: string | null;
+          practice_session_count?: number | null;
+          song_id?: string;
+          started_at?: string | null;
+          student_id?: string;
+          student_notes?: string | null;
+          teacher_notes?: string | null;
+          total_practice_time_minutes?: number | null;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'student_song_progress_song_id_fkey';
+            columns: ['song_id'];
+            isOneToOne: false;
+            referencedRelation: 'song_usage_stats';
+            referencedColumns: ['song_id'];
+          },
+          {
+            foreignKeyName: 'student_song_progress_song_id_fkey';
+            columns: ['song_id'];
+            isOneToOne: false;
+            referencedRelation: 'songs';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'student_song_progress_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'student_song_progress_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
+      sync_conflicts: {
+        Row: {
+          conflict_data: Json;
+          created_at: string;
+          google_event_id: string;
+          id: string;
+          lesson_id: string;
+          resolution: string | null;
+          resolved_at: string | null;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          conflict_data: Json;
+          created_at?: string;
+          google_event_id: string;
+          id?: string;
+          lesson_id: string;
+          resolution?: string | null;
+          resolved_at?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          conflict_data?: Json;
+          created_at?: string;
+          google_event_id?: string;
+          id?: string;
+          lesson_id?: string;
+          resolution?: string | null;
+          resolved_at?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'sync_conflicts_lesson_id_fkey';
+            columns: ['lesson_id'];
+            isOneToOne: false;
+            referencedRelation: 'lessons';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      user_history: {
+        Row: {
+          change_type: string;
+          changed_at: string;
+          changed_by: string | null;
+          id: string;
+          new_data: Json | null;
+          notes: string | null;
+          previous_data: Json | null;
+          user_id: string;
+        };
+        Insert: {
+          change_type: string;
+          changed_at?: string;
+          changed_by?: string | null;
+          id?: string;
+          new_data?: Json | null;
+          notes?: string | null;
+          previous_data?: Json | null;
+          user_id: string;
+        };
+        Update: {
+          change_type?: string;
+          changed_at?: string;
+          changed_by?: string | null;
+          id?: string;
+          new_data?: Json | null;
+          notes?: string | null;
+          previous_data?: Json | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'user_history_changed_by_fkey';
+            columns: ['changed_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'user_history_changed_by_fkey';
+            columns: ['changed_by'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+          {
+            foreignKeyName: 'user_history_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'user_history_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+        ];
       };
       user_integrations: {
         Row: {
@@ -430,8 +1737,41 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
         ];
+      };
+      webhook_subscriptions: {
+        Row: {
+          channel_id: string;
+          created_at: string;
+          expiration: number;
+          id: string;
+          provider: string;
+          resource_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          channel_id: string;
+          created_at?: string;
+          expiration: number;
+          id?: string;
+          provider: string;
+          resource_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          channel_id?: string;
+          created_at?: string;
+          expiration?: number;
+          id?: string;
+          provider?: string;
+          resource_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
       };
     };
     Views: {
@@ -454,7 +1794,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
         ];
       };
       lesson_counts_per_teacher: {
@@ -476,7 +1816,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'user_overview';
             referencedColumns: ['user_id'];
-          }
+          },
         ];
       };
       song_usage_stats: {
@@ -501,20 +1841,69 @@ export type Database = {
       };
     };
     Functions: {
+      check_auth_rate_limit: {
+        Args: { p_identifier: string; p_operation: string; p_window_ms: number };
+        Returns: number;
+      };
+      cleanup_auth_rate_limits: {
+        Args: Record<string, never>;
+        Returns: undefined;
+      };
       has_active_lesson_assignments: {
         Args: { song_uuid: string };
         Returns: boolean;
       };
-      is_admin: { Args: never; Returns: boolean };
-      is_student: { Args: never; Returns: boolean };
-      is_teacher: { Args: never; Returns: boolean };
+      has_role: {
+        Args: { _role: Database['public']['Enums']['user_role'] };
+        Returns: boolean;
+      };
+      is_admin: { Args: Record<string, never>; Returns: boolean };
+      is_admin_or_teacher: { Args: Record<string, never>; Returns: boolean };
+      is_student: { Args: Record<string, never>; Returns: boolean };
+      is_teacher: { Args: Record<string, never>; Returns: boolean };
+      show_limit: { Args: Record<string, never>; Returns: number };
+      show_trgm: { Args: { '': string }; Returns: string[] };
       soft_delete_song_with_cascade: {
         Args: { song_uuid: string; user_uuid: string };
         Returns: Json;
       };
     };
     Enums: {
-      assignment_status: 'not_started' | 'in_progress' | 'completed' | 'overdue' | 'cancelled';
+      ai_context_type: 'general' | 'student' | 'lesson' | 'song' | 'assignment' | 'practice';
+      ai_generation_type:
+        | 'lesson_notes'
+        | 'assignment'
+        | 'email_draft'
+        | 'post_lesson_summary'
+        | 'student_progress'
+        | 'admin_insights'
+        | 'chat';
+      ai_message_role: 'system' | 'user' | 'assistant';
+      ai_prompt_category:
+        | 'email'
+        | 'lesson_notes'
+        | 'practice_plan'
+        | 'progress_report'
+        | 'feedback'
+        | 'reminder'
+        | 'custom';
+      assignment_status:
+        | 'not_started'
+        | 'pending'
+        | 'in_progress'
+        | 'completed'
+        | 'overdue'
+        | 'cancelled';
+      audit_action:
+        | 'created'
+        | 'updated'
+        | 'deleted'
+        | 'status_changed'
+        | 'rescheduled'
+        | 'cancelled'
+        | 'completed'
+        | 'role_changed';
+      audit_entity: 'profile' | 'lesson' | 'assignment' | 'song' | 'song_progress';
       difficulty_level: 'beginner' | 'intermediate' | 'advanced';
       lesson_song_status: 'to_learn' | 'started' | 'remembered' | 'with_author' | 'mastered';
       lesson_status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'RESCHEDULED';
@@ -550,14 +1939,26 @@ export type Database = {
         | 'A#m'
         | 'Bbm'
         | 'Bm';
-      task_priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-      task_status:
-        | 'OPEN'
-        | 'IN_PROGRESS'
-        | 'PENDING_REVIEW'
-        | 'COMPLETED'
-        | 'CANCELLED'
-        | 'BLOCKED';
+      notification_type:
+        | 'lesson_reminder_24h'
+        | 'lesson_recap'
+        | 'lesson_cancelled'
+        | 'lesson_rescheduled'
+        | 'assignment_created'
+        | 'assignment_due_reminder'
+        | 'assignment_overdue_alert'
+        | 'assignment_completed'
+        | 'song_mastery_achievement'
+        | 'milestone_reached'
+        | 'student_welcome'
+        | 'trial_ending_reminder'
+        | 'teacher_daily_summary'
+        | 'weekly_progress_digest'
+        | 'calendar_conflict_alert'
+        | 'webhook_expiration_notice'
+        | 'admin_error_alert';
+      spotify_match_status: 'pending' | 'approved' | 'rejected' | 'auto_applied';
+      student_pipeline_status: 'lead' | 'trial' | 'active' | 'inactive' | 'churned';
       user_role: 'admin' | 'teacher' | 'student';
     };
     CompositeTypes: {
@@ -579,7 +1980,7 @@ export type Tables<
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
-    : never = never
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
@@ -590,12 +1991,12 @@ export type Tables<
     ? R
     : never
   : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
-  ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
-      Row: infer R;
-    }
-    ? R
-    : never
-  : never;
+    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R;
+      }
+      ? R
+      : never
+    : never;
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
@@ -605,7 +2006,7 @@ export type TablesInsert<
     schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
-    : never = never
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
@@ -615,12 +2016,12 @@ export type TablesInsert<
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-  ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
-      Insert: infer I;
-    }
-    ? I
-    : never
-  : never;
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I;
+      }
+      ? I
+      : never
+    : never;
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
@@ -630,7 +2031,7 @@ export type TablesUpdate<
     schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
-    : never = never
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
@@ -640,12 +2041,12 @@ export type TablesUpdate<
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-  ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
-      Update: infer U;
-    }
-    ? U
-    : never
-  : never;
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U;
+      }
+      ? U
+      : never
+    : never;
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
@@ -655,14 +2056,14 @@ export type Enums<
     schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
-    : never = never
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-  ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
-  : never;
+    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+    : never;
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
@@ -672,14 +2073,14 @@ export type CompositeTypes<
     schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
-    : never = never
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-  ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
-  : never;
+    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+    : never;
 
 export const Constants = {
   graphql_public: {
@@ -687,7 +2088,45 @@ export const Constants = {
   },
   public: {
     Enums: {
-      assignment_status: ['not_started', 'in_progress', 'completed', 'overdue', 'cancelled'],
+      ai_context_type: ['general', 'student', 'lesson', 'song', 'assignment', 'practice'],
+      ai_generation_type: [
+        'lesson_notes',
+        'assignment',
+        'email_draft',
+        'post_lesson_summary',
+        'student_progress',
+        'admin_insights',
+        'chat',
+      ],
+      ai_message_role: ['system', 'user', 'assistant'],
+      ai_prompt_category: [
+        'email',
+        'lesson_notes',
+        'practice_plan',
+        'progress_report',
+        'feedback',
+        'reminder',
+        'custom',
+      ],
+      assignment_status: [
+        'not_started',
+        'pending',
+        'in_progress',
+        'completed',
+        'overdue',
+        'cancelled',
+      ],
+      audit_action: [
+        'created',
+        'updated',
+        'deleted',
+        'status_changed',
+        'rescheduled',
+        'cancelled',
+        'completed',
+        'role_changed',
+      ],
+      audit_entity: ['profile', 'lesson', 'assignment', 'song', 'song_progress'],
       difficulty_level: ['beginner', 'intermediate', 'advanced'],
       lesson_song_status: ['to_learn', 'started', 'remembered', 'with_author', 'mastered'],
       lesson_status: ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'RESCHEDULED'],
@@ -724,8 +2163,8 @@ export const Constants = {
         'Bbm',
         'Bm',
       ],
-      task_priority: ['LOW', 'MEDIUM', 'HIGH', 'URGENT'],
-      task_status: ['OPEN', 'IN_PROGRESS', 'PENDING_REVIEW', 'COMPLETED', 'CANCELLED', 'BLOCKED'],
+      spotify_match_status: ['pending', 'approved', 'rejected', 'auto_applied'],
+      student_pipeline_status: ['lead', 'trial', 'active', 'inactive', 'churned'],
       user_role: ['admin', 'teacher', 'student'],
     },
   },

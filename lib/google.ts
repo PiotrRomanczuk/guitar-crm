@@ -1,6 +1,7 @@
 import { google } from 'googleapis';
 import { createClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
+import { withRetry, AI_PROVIDER_RETRY_CONFIG } from '@/lib/ai/retry';
 
 export const getGoogleOAuth2Client = (redirectUri?: string) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -18,8 +19,9 @@ export const getGoogleAuthUrl = (redirectUri?: string) => {
   const oauth2Client = getGoogleOAuth2Client(redirectUri);
 
   const scopes = [
-    'https://www.googleapis.com/auth/calendar.readonly',
+    'https://www.googleapis.com/auth/calendar',
     'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/drive.file',
   ];
 
   return oauth2Client.generateAuthUrl({
@@ -101,4 +103,153 @@ export async function watchCalendar(userId: string, webhookUrl: string) {
     resourceId: response.data.resourceId,
     expiration: response.data.expiration ? parseInt(response.data.expiration) : undefined,
   };
+}
+
+export async function stopCalendarWatch(
+  userId: string,
+  channelId: string,
+  resourceId: string
+): Promise<void> {
+  const client = await getGoogleClient(userId);
+  const calendar = google.calendar({ version: 'v3', auth: client });
+
+  await withRetry(async () => {
+    await calendar.channels.stop({
+      requestBody: {
+        id: channelId,
+        resourceId: resourceId,
+      },
+    });
+  }, AI_PROVIDER_RETRY_CONFIG);
+}
+
+/**
+ * Create a new Google Calendar event from a lesson
+ */
+export async function createGoogleCalendarEvent(
+  userId: string,
+  lesson: {
+    title: string;
+    scheduled_at: string;
+    notes?: string;
+    student_email: string;
+    duration_minutes?: number;
+  }
+): Promise<{ eventId: string }> {
+  const client = await getGoogleClient(userId);
+  const calendar = google.calendar({ version: 'v3', auth: client });
+
+  const startTime = new Date(lesson.scheduled_at);
+  const endTime = new Date(startTime.getTime() + (lesson.duration_minutes || 60) * 60 * 1000);
+
+  const event = await withRetry(async () => {
+    return calendar.events.insert({
+      calendarId: 'primary',
+      requestBody: {
+        summary: lesson.title,
+        description: lesson.notes,
+        start: {
+          dateTime: startTime.toISOString(),
+          timeZone: 'UTC',
+        },
+        end: {
+          dateTime: endTime.toISOString(),
+          timeZone: 'UTC',
+        },
+        attendees: [{ email: lesson.student_email }],
+        reminders: {
+          useDefault: false,
+          overrides: [
+            { method: 'email', minutes: 24 * 60 },
+            { method: 'popup', minutes: 30 },
+          ],
+        },
+      },
+    });
+  }, AI_PROVIDER_RETRY_CONFIG);
+
+  if (!event.data.id) {
+    throw new Error('Failed to create Google Calendar event: No event ID returned');
+  }
+
+  return { eventId: event.data.id };
+}
+
+/**
+ * Update an existing Google Calendar event
+ */
+export async function updateGoogleCalendarEvent(
+  userId: string,
+  googleEventId: string,
+  updates: {
+    title?: string;
+    scheduled_at?: string;
+    notes?: string;
+    duration_minutes?: number;
+  }
+): Promise<void> {
+  const client = await getGoogleClient(userId);
+  const calendar = google.calendar({ version: 'v3', auth: client });
+
+  const requestBody: Record<string, unknown> = {};
+
+  if (updates.title !== undefined) {
+    requestBody.summary = updates.title;
+  }
+
+  if (updates.notes !== undefined) {
+    requestBody.description = updates.notes;
+  }
+
+  if (updates.scheduled_at !== undefined) {
+    const startTime = new Date(updates.scheduled_at);
+    const endTime = new Date(
+      startTime.getTime() + (updates.duration_minutes || 60) * 60 * 1000
+    );
+
+    requestBody.start = {
+      dateTime: startTime.toISOString(),
+      timeZone: 'UTC',
+    };
+    requestBody.end = {
+      dateTime: endTime.toISOString(),
+      timeZone: 'UTC',
+    };
+  }
+
+  await withRetry(async () => {
+    await calendar.events.patch({
+      calendarId: 'primary',
+      eventId: googleEventId,
+      requestBody,
+    });
+  }, AI_PROVIDER_RETRY_CONFIG);
+}
+
+/**
+ * Delete a Google Calendar event
+ */
+export async function deleteGoogleCalendarEvent(
+  userId: string,
+  googleEventId: string
+): Promise<void> {
+  const client = await getGoogleClient(userId);
+  const calendar = google.calendar({ version: 'v3', auth: client });
+
+  await withRetry(
+    async () => {
+      await calendar.events.delete({
+        calendarId: 'primary',
+        eventId: googleEventId,
+      });
+    },
+    {
+      ...AI_PROVIDER_RETRY_CONFIG,
+      retryableErrors: [
+        ...(AI_PROVIDER_RETRY_CONFIG.retryableErrors || []),
+        '410', // Gone - event already deleted
+        '404', // Not found - event doesn't exist
+      ],
+    }
+  );
 }

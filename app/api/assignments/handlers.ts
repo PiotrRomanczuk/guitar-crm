@@ -1,5 +1,6 @@
 import { AssignmentFilterSchema, AssignmentSortSchema } from '@/schemas/AssignmentSchema';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { queueNotification } from '@/lib/services/notification-service';
 
 /**
  * Assignment API Handlers
@@ -38,12 +39,15 @@ type AssignmentInput = {
  * Build base query with role-based filters
  */
 function buildAssignmentQuery(supabase: SupabaseClient, userId: string, profile: Profile) {
-  const query = supabase.from('assignments').select(`
+  let query = supabase.from('assignments').select(`
       *,
       teacher_profile:profiles!assignments_teacher_id_fkey(id, email, full_name),
       student_profile:profiles!assignments_student_id_fkey(id, email, full_name),
       lesson:lessons(id, lesson_teacher_number, scheduled_at)
     `);
+
+  // Exclude soft-deleted assignments
+  query = query.is('deleted_at', null);
 
   // Apply role-based filters
   if (profile.isAdmin) return query; // Admins see all
@@ -238,6 +242,39 @@ export async function createAssignmentHandler(
     if (error) {
       console.error('Error creating assignment:', error);
       return { error: 'Failed to create assignment', status: 500 };
+    }
+
+    // Queue assignment created notification
+    try {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_APP_URL ||
+        process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE ||
+        'https://example.com';
+
+      await queueNotification({
+        type: 'assignment_created',
+        recipientUserId: input.student_id,
+        templateData: {
+          studentName: assignment.student_profile?.full_name || 'Student',
+          assignmentTitle: assignment.title,
+          dueDate: assignment.due_date
+            ? new Date(assignment.due_date).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })
+            : 'No due date',
+          assignmentDescription: assignment.description || '',
+          assignmentLink: `${baseUrl}/dashboard/assignments/${assignment.id}`,
+        },
+        entityType: 'assignment',
+        entityId: assignment.id,
+        priority: 6,
+      });
+    } catch (notificationError) {
+      console.error('Failed to queue assignment notification:', notificationError);
+      // Don't fail the assignment creation if notification fails
     }
 
     return { assignment, status: 201 };

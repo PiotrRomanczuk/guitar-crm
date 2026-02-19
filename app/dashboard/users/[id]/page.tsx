@@ -1,12 +1,12 @@
-import UserDetail from '@/components/users/UserDetail';
-import UserLessons from '@/components/users/UserLessons';
-import UserAssignments from '@/components/users/UserAssignments';
-import UserSongs from '@/components/users/UserSongs';
+import { UserDetail, UserLessons, UserAssignments, UserSongs } from '@/components/users';
 import { Breadcrumbs } from '@/components/shared';
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { notFound } from 'next/navigation';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('UserDetailPage');
 
 export const metadata = {
   title: 'User Detail',
@@ -66,13 +66,12 @@ async function fetchUserData(supabase: SupabaseClient, userId: string) {
   const { data: assignments } = await supabase
     .from('assignments')
     .select('*')
-    .eq('user_id', userId)
+    .eq('student_id', userId)
     .order('created_at', { ascending: false });
 
   // First, get all lessons for this user
   const userLessonIds = lessons?.map((l) => l.id) || [];
-  console.log('User lessons count:', lessons?.length);
-  console.log('User lesson IDs:', userLessonIds);
+  log.debug('User lessons fetched', { count: lessons?.length, lessonIds: userLessonIds });
 
   // Then fetch songs connected to those lessons - simplified query
   let lessonSongs: Array<{ song_id: string; status: string }> = [];
@@ -88,13 +87,14 @@ async function fetchUserData(supabase: SupabaseClient, userId: string) {
     songsError = error;
   }
 
-  console.log('Lesson songs query error:', songsError);
-  console.log('Lesson songs count:', lessonSongs?.length);
-  console.log('Lesson songs data:', JSON.stringify(lessonSongs, null, 2));
+  if (songsError) {
+    log.error('Lesson songs query error', { error: songsError });
+  }
+  log.debug('Lesson songs fetched', { count: lessonSongs?.length });
 
   // Now fetch the actual song details for unique song IDs
   const uniqueSongIds = [...new Set(lessonSongs.map((ls) => ls.song_id))];
-  console.log('Unique song IDs:', uniqueSongIds);
+  log.debug('Unique song IDs', { count: uniqueSongIds.length });
 
   let songs: Song[] = [];
   if (uniqueSongIds.length > 0) {
@@ -106,8 +106,7 @@ async function fetchUserData(supabase: SupabaseClient, userId: string) {
     songs = (songsData || []) as Song[];
   }
 
-  console.log('Final songs array:', songs);
-  console.log('Final songs count:', songs.length);
+  log.debug('Final songs fetched', { count: songs.length });
 
   return { lessons, assignments, songs };
 }

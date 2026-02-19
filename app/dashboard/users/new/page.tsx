@@ -1,4 +1,4 @@
-import UserForm from '@/components/users/UserForm';
+import { UserForm } from '@/components/users';
 
 export const metadata = {
   title: 'Create User',

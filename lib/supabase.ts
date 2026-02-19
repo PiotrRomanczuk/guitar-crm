@@ -2,8 +2,18 @@
 // This file re-exports the browser client with the 'supabase' name
 import { createClient } from './supabase/client';
 
-// Export as named export for components expecting { supabase }
-export const supabase = createClient();
+// Lazy singleton - avoids calling createClient() at module evaluation time,
+// which crashes during Vercel build when env vars are unavailable.
+let _supabase: ReturnType<typeof createClient> | null = null;
+
+export const supabase = new Proxy({} as ReturnType<typeof createClient>, {
+  get(_target, prop, receiver) {
+    if (!_supabase) {
+      _supabase = createClient();
+    }
+    return Reflect.get(_supabase, prop, receiver);
+  },
+});
 
 // Also export the factory function
 export { createClient };

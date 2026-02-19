@@ -21,14 +21,10 @@
 - **FUTURE SEPARATION**: Later, we will create a separate teacher dashboard with reduced features. For now, treat teacher role as having full admin access to the dashboard.
 - **Implementation**: See `app/dashboard/page.tsx` where `isAdmin || isTeacher` condition shows admin view for both roles.
 
-### 4. Deployment Workflow
+### 4. Code Quality & Commits
 
-- **Main Branch (`main`)**: Deploys to **Preview** environment. Use for testing and staging.
-- **Production Branch (`production`)**: Deploys to **Production** environment. Use for live releases.
-- **Release Process**:
-  1. Merge features into `main`.
-  2. Verify on Preview deployment.
-  3. Merge `main` into `production` to release.
+- **RUN CHECKS BEFORE COMMIT**: Always run `npm run lint` and `npx tsc --noEmit` to check for linting and type errors before committing any changes.
+- **FIX ERRORS**: Resolve all reported errors and warnings before proceeding with the commit.
 
 ## Project Standards
 

@@ -19,8 +19,8 @@ function NavLink({ href, label, icon }: NavLinkProps) {
       href={href}
       className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 text-xs sm:text-sm whitespace-nowrap font-medium ${
         isActive
-          ? 'bg-white dark:bg-blue-800 text-blue-600 dark:text-blue-100 shadow-md'
-          : 'text-blue-50 hover:bg-blue-500 dark:hover:bg-blue-700 dark:text-blue-100'
+          ? 'bg-background text-primary shadow-md'
+          : 'text-primary-foreground/90 hover:bg-primary/80 dark:hover:bg-primary/70'
       }`}
     >
       {icon && <span className="hidden sm:inline">{icon}</span>}
@@ -59,7 +59,8 @@ export function RoleBasedNav({
       { href: '/dashboard', label: 'Dashboard', icon: '👨‍🎓' },
       { href: '/dashboard/songs', label: 'My Songs', icon: '🎵' },
       { href: '/dashboard/lessons', label: 'My Lessons', icon: '📖' },
-      { href: '/dashboard/assignments', label: 'My Assignments', icon: '📋' }
+      { href: '/dashboard/assignments', label: 'My Assignments', icon: '📋' },
+      { href: '/dashboard/stats', label: 'My Stats', icon: '📊' }
     );
   }
 

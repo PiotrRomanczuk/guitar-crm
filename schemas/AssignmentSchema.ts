@@ -106,6 +106,41 @@ export const calculateAssignmentStatus = (
   return currentStatus || 'not_started';
 };
 
+// Valid status transitions (state machine)
+export const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
+  not_started: ['in_progress', 'cancelled'],
+  in_progress: ['completed', 'cancelled'],
+  overdue: ['in_progress', 'completed', 'cancelled'],
+  completed: [], // terminal state
+  cancelled: [], // terminal state
+};
+
+/**
+ * Validate that a status transition is allowed
+ */
+export function validateStatusTransition(
+  currentStatus: string,
+  newStatus: string
+): { valid: boolean; error?: string } {
+  if (currentStatus === newStatus) {
+    return { valid: true }; // No-op transition is always allowed
+  }
+
+  const allowedTransitions = VALID_STATUS_TRANSITIONS[currentStatus];
+  if (!allowedTransitions) {
+    return { valid: false, error: `Unknown current status: ${currentStatus}` };
+  }
+
+  if (!allowedTransitions.includes(newStatus)) {
+    return {
+      valid: false,
+      error: `Invalid status transition: ${currentStatus} → ${newStatus}. Allowed: ${allowedTransitions.join(', ') || 'none (terminal state)'}`,
+    };
+  }
+
+  return { valid: true };
+}
+
 // Types
 export type Assignment = z.infer<typeof AssignmentSchema>;
 export type AssignmentInput = z.infer<typeof AssignmentInputSchema>;

@@ -121,17 +121,17 @@ export function ApiKeyManager() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">API Keys</h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <h2 className="text-2xl font-bold text-foreground">API Keys</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
           Manage your API keys for programmatic access to the Guitar CRM API.
         </p>
       </div>
 
       {error && (
-        <div className="rounded-md bg-red-50 p-4">
+        <div className="rounded-md bg-destructive/10 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-5 w-5 text-destructive" viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fillRule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -140,17 +140,17 @@ export function ApiKeyManager() {
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-red-800">{error}</p>
+              <p className="text-sm font-medium text-destructive">{error}</p>
             </div>
           </div>
         </div>
       )}
 
       {success && (
-        <div className="rounded-md bg-green-50 p-4">
+        <div className="rounded-md bg-success/10 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-5 w-5 text-success" viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fillRule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -159,19 +159,19 @@ export function ApiKeyManager() {
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-green-800">{success}</p>
+              <p className="text-sm font-medium text-success">{success}</p>
             </div>
           </div>
         </div>
       )}
 
       {showNewKey && (
-        <div className="rounded-md bg-blue-50 p-4">
+        <div className="rounded-md bg-primary/10 p-4">
           <div>
-            <h3 className="text-sm font-medium text-blue-900">API Key Created</h3>
-            <p className="mt-1 text-sm text-blue-700">{showNewKey.warning}</p>
-            <div className="mt-4 p-3 bg-white rounded border border-blue-200">
-              <p className="text-xs text-gray-600 mb-1">Key:</p>
+            <h3 className="text-sm font-medium text-foreground">API Key Created</h3>
+            <p className="mt-1 text-sm text-muted-foreground">{showNewKey.warning}</p>
+            <div className="mt-4 p-3 bg-background rounded border border-border">
+              <p className="text-xs text-muted-foreground mb-1">Key:</p>
               <code className="text-sm font-mono break-all">{showNewKey.key}</code>
             </div>
             <div className="mt-4 flex gap-2">
@@ -180,13 +180,13 @@ export function ApiKeyManager() {
                   navigator.clipboard.writeText(showNewKey.key);
                   setSuccess('Key copied to clipboard');
                 }}
-                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90"
               >
                 Copy Key
               </button>
               <button
                 onClick={() => setShowNewKey(null)}
-                className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                className="px-3 py-1 text-sm bg-muted text-muted-foreground rounded hover:bg-muted/80"
               >
                 Close
               </button>
@@ -195,11 +195,11 @@ export function ApiKeyManager() {
         </div>
       )}
 
-      <div className="rounded-lg border border-gray-300 bg-white p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New API Key</h3>
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Create New API Key</h3>
         <form onSubmit={createApiKey} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="name" className="block text-sm font-medium text-muted-foreground">
               Key Name
             </label>
             <input
@@ -208,69 +208,69 @@ export function ApiKeyManager() {
               value={newKeyName}
               onChange={(e) => setNewKeyName(e.target.value)}
               placeholder="e.g., Mobile App, Integration Service"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-border px-3 py-2 text-foreground placeholder-muted-foreground bg-background focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               disabled={creating}
             />
           </div>
           <button
             type="submit"
             disabled={creating}
-            className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+            className="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50"
           >
             {creating ? 'Creating...' : 'Create API Key'}
           </button>
         </form>
       </div>
 
-      <div className="rounded-lg border border-gray-300 bg-white overflow-hidden">
-        <h3 className="text-lg font-semibold text-gray-900 p-6 border-b border-gray-200">
+      <div className="rounded-lg border border-border bg-card overflow-hidden">
+        <h3 className="text-lg font-semibold text-foreground p-6 border-b border-border">
           Your API Keys
         </h3>
 
         {loading ? (
-          <div className="p-6 text-center text-gray-500">Loading...</div>
+          <div className="p-6 text-center text-muted-foreground">Loading...</div>
         ) : apiKeys.length === 0 ? (
-          <div className="p-6 text-center text-gray-500">No API keys yet. Create one above.</div>
+          <div className="p-6 text-center text-muted-foreground">No API keys yet. Create one above.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-muted">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Created
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Last Used
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-card divide-y divide-border">
                 {apiKeys.map((key) => (
-                  <tr key={key.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <tr key={key.id} className="hover:bg-muted/50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
                       {key.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                       {formatDate(key.created_at)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                       {formatDate(key.last_used_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           key.is_active
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
+                            ? 'bg-success/10 text-success'
+                            : 'bg-muted text-muted-foreground'
                         }`}
                       >
                         {key.is_active ? 'Active' : 'Inactive'}
@@ -279,7 +279,7 @@ export function ApiKeyManager() {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => deleteApiKey(key.id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-destructive hover:text-destructive/80"
                       >
                         Delete
                       </button>

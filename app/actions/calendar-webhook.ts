@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { watchCalendar } from '@/lib/google';
+import { getAppConfig } from '@/lib/config';
 
 export async function enableCalendarWebhook() {
   const { user, isTeacher } = await getUserWithRolesSSR();
@@ -11,8 +12,8 @@ export async function enableCalendarWebhook() {
     return { success: false, error: 'Unauthorized' };
   }
 
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '');
+  const { apiUrl } = getAppConfig();
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || apiUrl?.replace(/\/$/, '');
 
   if (!appUrl) {
     console.error('Missing NEXT_PUBLIC_APP_URL or NEXT_PUBLIC_API_BASE_URL');

@@ -1,3 +1,4 @@
+console.log('Jest setup starting...');
 import '@testing-library/jest-dom';
 
 // Polyfill for encoding APIs
@@ -20,9 +21,26 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
 if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key';
 }
-if (!process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY && !process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY) {
+  // Use server-side env var name (SUPABASE_SERVICE_ROLE_KEY, not NEXT_PUBLIC_)
+  process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
 }
+
+// Mock Supabase client methods to prevent database calls in tests
+jest.mock('@/lib/supabase-browser', () => ({
+  supabase: {
+    from: jest.fn(() => ({
+      select: jest.fn(() => ({
+        limit: jest.fn(() => Promise.resolve({ data: [], error: null })),
+      })),
+    })),
+    auth: {
+      getUser: jest.fn(() => Promise.resolve({ data: { user: null }, error: null })),
+      signInWithPassword: jest.fn(),
+      signOut: jest.fn(),
+    },
+  },
+}));
 
 // Fix for Console Ninja instrumentation in tests
 // The instrumentation adds calls to a global function `oo_oo` which might be missing or broken in the test environment.
@@ -39,11 +57,11 @@ if (typeof global.oo_tx === 'undefined') {
 }
 
 // Mock console to avoid issues with instrumentation
-global.console.log = (...args) => {};
-global.console.error = (...args) => {};
-global.console.warn = (...args) => {};
-global.console.info = (...args) => {};
-global.console.debug = (...args) => {};
+// global.console.log = (...args) => {};
+// global.console.error = (...args) => {};
+// global.console.warn = (...args) => {};
+// global.console.info = (...args) => {};
+// global.console.debug = (...args) => {};
 
 // Provide a minimal default fetch for relative API routes used by component tests.
 // Delegates to existing fetch if present; otherwise returns a harmless default for '/api/*'.
@@ -139,19 +157,21 @@ jest.mock('@/lib/supabase/client', () => ({
 }));
 
 // Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // Deprecated
-    removeListener: jest.fn(), // Deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-});
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: jest.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(), // Deprecated
+      removeListener: jest.fn(), // Deprecated
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
+}
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
@@ -242,3 +262,5 @@ global.testUtils = {
 // These functions are injected into the code during test execution but not defined in the global scope
 global.oo_tx = (id, ...args) => args;
 global.oo_oo = (id, ...args) => args;
+
+console.log('Jest setup finished.');

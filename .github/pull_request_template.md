@@ -1,30 +1,96 @@
-# Description
+## Linear Ticket
+<!-- Link the Linear ticket this PR addresses. Use "Closes" to auto-close the ticket when merged. -->
+Closes STRUM-XXX
 
-Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change.
+## Summary
+<!-- Provide a clear and concise description of the changes. What problem does this solve? -->
 
-Fixes # (issue)
 
-## Type of change
+## Changes
+<!-- List the main changes made in this PR -->
+-
+-
+-
 
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] This change requires a documentation update
+## Type of Change
+<!-- Check all that apply -->
+- [ ] Bug fix (non-breaking change that fixes an issue)
+- [ ] New feature (non-breaking change that adds functionality)
+- [ ] Breaking change (fix or feature that breaks existing functionality)
+- [ ] Refactoring (no functional changes, code improvements)
+- [ ] Documentation update
+- [ ] Test improvements
+- [ ] Performance improvement
+- [ ] Chore (dependencies, config, etc.)
 
-## How Has This Been Tested?
+## Testing
+<!-- Describe how you tested these changes -->
+- [ ] Unit tests added and passing (`npm test`)
+- [ ] E2E tests added and passing (`npm run test:smoke`)
+- [ ] Manually tested on local environment
+- [ ] Tested on mobile devices (if applicable)
+- [ ] All existing tests pass
+- [ ] Test coverage maintained at 70%+
 
-Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration
+### Test Evidence
+<!-- Add screenshots, test outputs, or describe manual testing steps -->
 
-- [ ] Test A
-- [ ] Test B
 
-## Checklist:
+## Version
+<!-- Document version changes -->
+- **Previous version**: 0.X.X
+- **New version**: 0.X.X
+- **Bump type**: patch | minor | major
+- [ ] `package.json` version updated
+- [ ] `CHANGELOG.md` updated with changes
 
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my own code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] Any dependent changes have been merged and published in downstream modules
+## Screenshots
+<!-- If this PR includes UI changes, add before/after screenshots -->
+<!-- Delete this section if not applicable -->
+
+
+## Dependencies
+<!-- List any new dependencies or environment variable changes -->
+- [ ] No new dependencies
+- [ ] New dependencies added (list below)
+- [ ] Environment variables changed (documented in `.env.example`)
+
+## Database Changes
+<!-- Check if applicable -->
+- [ ] No database changes
+- [ ] New migration added
+- [ ] Migration tested locally
+- [ ] Migration tested on staging
+
+## Deployment Notes
+<!-- Any special considerations for deployment? -->
+- [ ] No special deployment steps required
+- [ ] Requires manual steps (describe below)
+
+## Code Quality Checklist
+- [ ] Code follows project style guidelines (`npm run lint` passes)
+- [ ] Self-review completed
+- [ ] Code is commented for complex logic
+- [ ] Documentation updated (if needed)
+- [ ] No new warnings generated
+- [ ] Size limits respected (components < 200 LOC, hooks < 150 LOC)
+- [ ] Mobile-first responsive design (if applicable)
+- [ ] Dark mode variants included (if applicable)
+
+## Pre-Merge Checklist
+- [ ] Branch follows naming convention (`feature/STRUM-XXX-description`)
+- [ ] Commits follow format (`type(scope): description [STRUM-XXX]`)
+- [ ] Linear ticket updated to "In Review"
+- [ ] CI checks passing
+- [ ] Approved by at least one reviewer
+- [ ] Merge conflicts resolved
+- [ ] Ready to merge
+
+## Reviewer Notes
+<!-- Any specific areas you want reviewers to focus on? -->
+
+
+---
+<!-- DO NOT EDIT BELOW THIS LINE -->
+**Merge Strategy**: Squash and Merge
+**Target Branch**: main → production (for releases)

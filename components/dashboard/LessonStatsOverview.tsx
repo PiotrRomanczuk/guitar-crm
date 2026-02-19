@@ -3,15 +3,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLessonStats, LessonStatsFilters } from '@/hooks/useLessonStats';
-import { BarChart, Calendar, CheckCircle2, Clock } from 'lucide-react';
+import { BarChart, CalendarDays, CheckCircle2, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface LessonStatsOverviewProps {
   filters?: LessonStatsFilters;
 }
 
-export function LessonStatsOverview({ filters }: LessonStatsOverviewProps) {
-  const { data, isLoading, error } = useLessonStats(filters);
+export function LessonStatsOverview({ filters: initialFilters }: LessonStatsOverviewProps) {
+  const { data, isLoading, error } = useLessonStats(initialFilters);
 
   if (error) {
     return (
@@ -49,47 +49,43 @@ export function LessonStatsOverview({ filters }: LessonStatsOverviewProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BarChart className="h-5 w-5" />
-          Lesson Statistics
-        </CardTitle>
-        <CardDescription>
-          Overview of lesson activity and progress
-          {filters?.dateFrom && filters?.dateTo && (
-            <span className="ml-2">
-              from {new Date(filters.dateFrom).toLocaleDateString()} to{' '}
-              {new Date(filters.dateTo).toLocaleDateString()}
-            </span>
-          )}
-        </CardDescription>
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart className="h-5 w-5" />
+            Lesson Statistics
+          </CardTitle>
+          <CardDescription>Overview of lesson activity and progress</CardDescription>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 sm:space-y-6">
         {/* Overview metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 ultrawide:grid-cols-8 gap-3 sm:gap-4">
           <div className="space-y-1">
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Calendar className="h-4 w-4 mr-1" />
+            <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+              <CalendarDays className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
               Total Lessons
             </div>
-            <div className="text-2xl font-bold">{data.total}</div>
+            <div className="text-xl sm:text-2xl font-bold">{data.total}</div>
           </div>
           <div className="space-y-1">
-            <div className="flex items-center text-sm text-muted-foreground">
-              <CheckCircle2 className="h-4 w-4 mr-1" />
+            <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+              <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
               This Month
             </div>
-            <div className="text-2xl font-bold">{data.completedThisMonth}</div>
+            <div className="text-xl sm:text-2xl font-bold">{data.completedThisMonth}</div>
           </div>
           <div className="space-y-1">
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Clock className="h-4 w-4 mr-1" />
+            <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
               Upcoming
             </div>
-            <div className="text-2xl font-bold">{data.upcoming}</div>
+            <div className="text-xl sm:text-2xl font-bold">{data.upcoming}</div>
           </div>
           <div className="space-y-1">
-            <div className="flex items-center text-sm text-muted-foreground">With Songs</div>
-            <div className="text-2xl font-bold">{data.lessonsWithSongs}</div>
+            <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+              With Songs
+            </div>
+            <div className="text-xl sm:text-2xl font-bold">{data.lessonsWithSongs}</div>
           </div>
         </div>
 

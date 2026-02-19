@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import UserForm from '@/components/users/UserForm';
+import { UserForm } from '@/components/users';
 
 export const metadata = {
   title: 'Edit User',
@@ -19,7 +19,7 @@ export default async function EditUserPage({ params }: EditUserPageProps) {
 
   if (error || !user) {
     return (
-      <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-800 dark:text-red-300 px-4 py-3 rounded-lg">
+      <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
         {id}
         User not found
       </div>
@@ -31,8 +31,8 @@ export default async function EditUserPage({ params }: EditUserPageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Edit User</h1>
-        <p className="text-gray-600 dark:text-gray-400">Update user information</p>
+        <h1 className="text-3xl font-bold text-foreground">Edit User</h1>
+        <p className="text-muted-foreground">Update user information</p>
       </div>
       <UserForm initialData={transformedUser} isEdit={true} />
     </div>

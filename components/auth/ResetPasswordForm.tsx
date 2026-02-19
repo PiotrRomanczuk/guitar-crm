@@ -2,225 +2,207 @@
 
 import { useState, FormEvent } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
-import { Eye, EyeOff, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import FormAlert from '@/components/shared/FormAlert';
+import { Eye, EyeOff } from 'lucide-react';
+import { ResetPasswordSchema } from '@/schemas/AuthSchema';
+
+interface FieldErrors {
+  password?: string;
+  confirmPassword?: string;
+}
 
 interface ResetPasswordFormProps {
-	onSuccess?: () => void;
+  onSuccess?: () => void;
 }
 
 export default function ResetPasswordForm({
-	onSuccess,
+  onSuccess,
 }: ResetPasswordFormProps) {
-	const router = useRouter();
-	const [newPassword, setNewPassword] = useState('');
-	const [confirmPassword, setConfirmPassword] = useState('');
-	const [showNewPassword, setShowNewPassword] = useState(false);
-	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const [success, setSuccess] = useState(false);
-	const [touched, setTouched] = useState({
-		newPassword: false,
-		confirmPassword: false,
-	});
+  const router = useRouter();
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [touched, setTouched] = useState({
+    password: false,
+    confirmPassword: false,
+  });
 
-	const validate = () => {
-		if (touched.newPassword && !newPassword) return 'Password is required';
-		if (touched.confirmPassword && !confirmPassword)
-			return 'Please confirm your password';
-		if (touched.newPassword && newPassword && newPassword.length < 6)
-			return 'Password must be at least 6 characters';
-		return null;
-	};
+  const getFieldErrors = (): FieldErrors => {
+    const errors: FieldErrors = {};
+    const result = ResetPasswordSchema.safeParse({
+      password: newPassword,
+      confirmPassword,
+    });
 
-	const validationError = validate();
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as 'password' | 'confirmPassword';
+        if (touched[field] && !errors[field]) {
+          errors[field] = issue.message;
+        }
+      }
+    }
 
-	const handleSubmit = async (e: FormEvent) => {
-		e.preventDefault();
+    return errors;
+  };
 
-		// Mark all fields as touched
-		setTouched({
-			newPassword: true,
-			confirmPassword: true,
-		});
+  const fieldErrors = getFieldErrors();
 
-		// Validate before submission
-		if (!newPassword || !confirmPassword) {
-			return;
-		}
+  const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewPassword(e.target.value);
+    setError(null);
+  };
 
-		setLoading(true);
-		setError(null);
-		setSuccess(false);
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassword(e.target.value);
+    setError(null);
+  };
 
-		// Validate passwords match
-		if (newPassword !== confirmPassword) {
-			setError('Passwords do not match');
-			setLoading(false);
-			return;
-		}
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
 
-		// Validate minimum length
-		if (newPassword.length < 6) {
-			setError('Password must be at least 6 characters');
-			setLoading(false);
-			return;
-		}
+    // Mark all fields as touched
+    setTouched({
+      password: true,
+      confirmPassword: true,
+    });
 
-		const supabase = getSupabaseBrowserClient();
-		const { error: updateError } = await supabase.auth.updateUser({
-			password: newPassword,
-		});
+    const result = ResetPasswordSchema.safeParse({
+      password: newPassword,
+      confirmPassword,
+    });
 
-		setLoading(false);
+    if (!result.success) {
+      return;
+    }
 
-		if (updateError) {
-			setError(updateError.message);
-			return;
-		}
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
 
-		setSuccess(true);
-		if (onSuccess) {
-			onSuccess();
-		} else {
-			// Default behavior: redirect to dashboard after a short delay
-			setTimeout(() => {
-				router.push('/dashboard');
-			}, 2000);
-		}
-	};
+    const supabase = getSupabaseBrowserClient();
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
 
-	if (success) {
-		return (
-			<div className="rounded-md bg-green-50 p-4">
-				<div className="flex">
-					<div className="flex-shrink-0">
-						<CheckCircle className="h-5 w-5 text-green-400" aria-hidden="true" />
-					</div>
-					<div className="ml-3">
-						<h3 className="text-sm font-medium text-green-800">
-							Password reset successfully
-						</h3>
-						<div className="mt-2 text-sm text-green-700">
-							<p>Redirecting to dashboard...</p>
-						</div>
-					</div>
-				</div>
-			</div>
-		);
-	}
+    setLoading(false);
 
-	return (
-		<form onSubmit={handleSubmit} className="space-y-6">
-			<div>
-				<label htmlFor='newPassword' className="block text-sm font-medium text-gray-700">
-					New Password
-				</label>
-				<div className="mt-1 relative rounded-md shadow-sm">
-					<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-						<Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
-					</div>
-					<input
-						id='newPassword'
-						name='newPassword'
-						type={showNewPassword ? 'text' : 'password'}
-						value={newPassword}
-						onChange={(e) => setNewPassword(e.target.value)}
-						onBlur={() => setTouched({ ...touched, newPassword: true })}
-						required
-						minLength={6}
-						className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-10 sm:text-sm border-gray-300 rounded-md py-2"
-						placeholder="••••••••"
-					/>
-					<button
-						type='button'
-						onClick={() => setShowNewPassword(!showNewPassword)}
-						className="absolute inset-y-0 right-0 pr-3 flex items-center"
-						aria-label={showNewPassword ? 'Hide password' : 'Show password'}
-					>
-						{showNewPassword ? (
-							<EyeOff className="h-5 w-5 text-gray-400" aria-hidden="true" />
-						) : (
-							<Eye className="h-5 w-5 text-gray-400" aria-hidden="true" />
-						)}
-					</button>
-				</div>
-				<p className="mt-2 text-xs text-gray-500">Minimum 6 characters</p>
-			</div>
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
 
-			<div>
-				<label htmlFor='confirmPassword' className="block text-sm font-medium text-gray-700">
-					Confirm Password
-				</label>
-				<div className="mt-1 relative rounded-md shadow-sm">
-					<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-						<Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
-					</div>
-					<input
-						id='confirmPassword'
-						name='confirmPassword'
-						type={showConfirmPassword ? 'text' : 'password'}
-						value={confirmPassword}
-						onChange={(e) => setConfirmPassword(e.target.value)}
-						onBlur={() => setTouched({ ...touched, confirmPassword: true })}
-						required
-						minLength={6}
-						className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-10 sm:text-sm border-gray-300 rounded-md py-2"
-						placeholder="••••••••"
-					/>
-					<button
-						type='button'
-						onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-						className="absolute inset-y-0 right-0 pr-3 flex items-center"
-						aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-					>
-						{showConfirmPassword ? (
-							<EyeOff className="h-5 w-5 text-gray-400" aria-hidden="true" />
-						) : (
-							<Eye className="h-5 w-5 text-gray-400" aria-hidden="true" />
-						)}
-					</button>
-				</div>
-			</div>
+    setSuccess(true);
+    if (onSuccess) {
+      onSuccess();
+    } else {
+      // Default behavior: redirect to dashboard after a short delay
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 2000);
+    }
+  };
 
-			{validationError && (
-				<div className="rounded-md bg-red-50 p-4">
-					<div className="flex">
-						<div className="flex-shrink-0">
-							<AlertCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
-						</div>
-						<div className="ml-3">
-							<h3 className="text-sm font-medium text-red-800">
-								{validationError}
-							</h3>
-						</div>
-					</div>
-				</div>
-			)}
+  if (success) {
+    return (
+      <FormAlert
+        type="success"
+        title="Password reset successfully"
+        message="Redirecting to dashboard..."
+      />
+    );
+  }
 
-			{error && (
-				<div className="rounded-md bg-red-50 p-4">
-					<div className="flex">
-						<div className="flex-shrink-0">
-							<AlertCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
-						</div>
-						<div className="ml-3">
-							<h3 className="text-sm font-medium text-red-800">
-								{error}
-							</h3>
-						</div>
-					</div>
-				</div>
-			)}
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="newPassword">New Password</Label>
+        <div className="relative">
+          <Input
+            id="newPassword"
+            name="newPassword"
+            type={showNewPassword ? 'text' : 'password'}
+            value={newPassword}
+            onChange={handleNewPasswordChange}
+            onBlur={() => setTouched({ ...touched, password: true })}
+            required
+            minLength={6}
+            className={fieldErrors.password ? 'pr-10 border-destructive' : 'pr-10'}
+            placeholder="Enter new password"
+            aria-invalid={!!fieldErrors.password}
+          />
+          <button
+            type="button"
+            onClick={() => setShowNewPassword(!showNewPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+          >
+            {showNewPassword ? (
+              <EyeOff className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <Eye className="h-4 w-4" aria-hidden="true" />
+            )}
+          </button>
+        </div>
+        {fieldErrors.password && (
+          <p className="text-sm text-destructive" role="alert">
+            {fieldErrors.password}
+          </p>
+        )}
+        {!fieldErrors.password && (
+          <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
+        )}
+      </div>
 
-			<button
-				type='submit'
-				disabled={loading}
-				className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-			>
-				{loading ? 'Resetting...' : 'Reset Password'}
-			</button>
-		</form>
-	);
+      <div className="space-y-2">
+        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <div className="relative">
+          <Input
+            id="confirmPassword"
+            name="confirmPassword"
+            type={showConfirmPassword ? 'text' : 'password'}
+            value={confirmPassword}
+            onChange={handleConfirmPasswordChange}
+            onBlur={() => setTouched({ ...touched, confirmPassword: true })}
+            required
+            minLength={6}
+            className={fieldErrors.confirmPassword ? 'pr-10 border-destructive' : 'pr-10'}
+            placeholder="Confirm new password"
+            aria-invalid={!!fieldErrors.confirmPassword}
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+          >
+            {showConfirmPassword ? (
+              <EyeOff className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <Eye className="h-4 w-4" aria-hidden="true" />
+            )}
+          </button>
+        </div>
+        {fieldErrors.confirmPassword && (
+          <p className="text-sm text-destructive" role="alert">
+            {fieldErrors.confirmPassword}
+          </p>
+        )}
+      </div>
+
+      {error && <FormAlert type="error" message={error} />}
+
+      <Button type="submit" disabled={loading} className="w-full">
+        {loading ? 'Resetting...' : 'Reset Password'}
+      </Button>
+    </form>
+  );
 }
