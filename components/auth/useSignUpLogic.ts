@@ -4,8 +4,8 @@ import { useState, FormEvent, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { SignUpSchema } from '@/schemas/AuthSchema';
 import {
-	signUp as signUpAction,
-	resendVerificationEmail,
+  signUp as signUpAction,
+  resendVerificationEmail,
 } from '@/app/auth/actions';
 
 interface TouchedFields {
@@ -139,7 +139,7 @@ export function useSignUpLogic(onSuccess?: () => void) {
       return;
     }
 
-    if (result.success) {
+    if ('success' in result && result.success) {
       setSuccess(true);
       setCanResendEmail(false); // Will be enabled after 5 seconds
       if (onSuccess) onSuccess();

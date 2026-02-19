@@ -16,6 +16,7 @@ import { NeedsAttentionCard } from '@/components/dashboard/NeedsAttentionCard';
 import { StudentPipeline } from '@/components/dashboard/pipeline/StudentPipeline';
 import { HealthAlertsBanner } from '@/components/dashboard/health/HealthAlertsBanner';
 import { HealthSummaryWidget } from '@/components/dashboard/health/HealthSummaryWidget';
+import { OpenRouterStatusWidget } from '@/components/dashboard/admin/OpenRouterStatusWidget';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
 import { TeacherPerformance } from '@/components/dashboard/teacher/Performance';
 import { Users, BookOpen, Music, Shield, Settings } from 'lucide-react';
@@ -131,8 +132,9 @@ export function TeacherDashboardClient({
             <div className="ultrawide:col-span-2 min-w-0">
               <WeeklySummaryCard />
             </div>
-            <div className="sm:col-span-2 md:col-span-1 ultrawide:col-span-2 min-w-0">
+            <div className="sm:col-span-2 md:col-span-1 ultrawide:col-span-2 min-w-0 space-y-4">
               <HealthSummaryWidget />
+              {isAdmin && <OpenRouterStatusWidget />}
             </div>
           </div>
         </DashboardSection>

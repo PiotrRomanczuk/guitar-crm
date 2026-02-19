@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 export interface ScanResult {
   filename: string;
   driveFileId: string;
-  parsed: { title: string; author: string } | null;
+  parsed: { title: string; artist: string | null } | null;
   status: 'matched' | 'review_queue' | 'unmatched' | 'skipped';
   bestMatch: {
     songId: string;
@@ -77,7 +77,7 @@ export function DriveScanTable({ results }: DriveScanTableProps) {
                   {result.parsed ? (
                     <div className="space-y-0.5">
                       <div className="text-sm">{result.parsed.title}</div>
-                      <div className="text-xs text-muted-foreground">{result.parsed.author}</div>
+                      <div className="text-xs text-muted-foreground">{result.parsed.artist}</div>
                     </div>
                   ) : (
                     <span className="text-xs text-muted-foreground italic">Could not parse</span>
@@ -119,7 +119,7 @@ export function DriveScanTable({ results }: DriveScanTableProps) {
             </div>
             {result.parsed && (
               <div className="text-sm">
-                {result.parsed.title} <span className="text-muted-foreground">by {result.parsed.author}</span>
+                {result.parsed.title} <span className="text-muted-foreground">by {result.parsed.artist}</span>
               </div>
             )}
             {result.bestMatch && (

@@ -103,3 +103,4 @@ landing.html
 
 # Playwright MCP
 .playwright-mcp/
+.env*.local
