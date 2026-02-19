@@ -15,6 +15,8 @@ export default function FretboardPage() {
     displayMode,
     useFlats,
     showAllNotes,
+    audioEnabled,
+    volume,
     highlightedNotes,
     fretboard,
     setRootNote,
@@ -23,6 +25,8 @@ export default function FretboardPage() {
     setDisplayMode,
     toggleFlats,
     toggleShowAllNotes,
+    toggleAudio,
+    setVolume,
     clearSelection,
   } = useFretboard();
 
@@ -31,7 +35,7 @@ export default function FretboardPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Guitar Fretboard</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Explore scales, chords, and notes across the fretboard.
+          Explore scales, chords, and notes across the fretboard. Click any note to hear it played!
         </p>
       </div>
 
@@ -42,12 +46,16 @@ export default function FretboardPage() {
         displayMode={displayMode}
         useFlats={useFlats}
         showAllNotes={showAllNotes}
+        audioEnabled={audioEnabled}
+        volume={volume}
         onRootChange={setRootNote}
         onScaleChange={setScaleKey}
         onChordChange={setChordKey}
         onModeChange={setDisplayMode}
         onToggleFlats={toggleFlats}
         onToggleAllNotes={toggleShowAllNotes}
+        onToggleAudio={toggleAudio}
+        onVolumeChange={setVolume}
         onClear={clearSelection}
       />
 
@@ -56,6 +64,7 @@ export default function FretboardPage() {
         highlightedNotes={highlightedNotes}
         useFlats={useFlats}
         showAllNotes={showAllNotes}
+        audioEnabled={audioEnabled}
       />
 
       <FretboardInfo

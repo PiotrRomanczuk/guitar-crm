@@ -1,25 +1,38 @@
 'use client';
 
-import { TOTAL_FRETS } from '@/lib/music-theory';
+import { TOTAL_FRETS, type NoteName } from '@/lib/music-theory';
 import { NoteCell } from './Fretboard.NoteCell';
 import { FRET_MARKERS, STRING_LABELS } from './fretboard.helpers';
 import { type FretboardState } from './useFretboard';
+import { useGuitarAudio } from './useGuitarAudio';
 
 type FretboardGridProps = Pick<
   FretboardState,
   'fretboard' | 'highlightedNotes' | 'useFlats' | 'showAllNotes'
->;
+> & {
+  audioEnabled?: boolean;
+};
 
 export function FretboardGrid({
   fretboard,
   highlightedNotes,
   useFlats,
   showAllNotes,
+  audioEnabled = true,
 }: FretboardGridProps) {
+  const { playNote, isReady } = useGuitarAudio();
   const fretNumbers = Array.from({ length: TOTAL_FRETS + 1 }, (_, i) => i);
   // Reverse strings to show 1st string (high e) at top, 6th string (low E) at bottom
   const reversedFretboard = [...fretboard].reverse();
   const reversedLabels = [...STRING_LABELS].reverse();
+
+  const handleNoteClick = async (displayStringIndex: number, fret: number, note: NoteName) => {
+    if (!audioEnabled || !isReady) return;
+
+    // Convert reversed display index back to original string index (0 = low E, 5 = high e)
+    const actualStringIndex = 5 - displayStringIndex;
+    await playNote(actualStringIndex, fret, note);
+  };
 
   return (
     <div className="rounded-lg border border-border bg-card overflow-x-auto">
@@ -28,19 +41,21 @@ export function FretboardGrid({
           <FretNumberRow fretNumbers={fretNumbers} />
         </thead>
         <tbody>
-          {reversedFretboard.map((stringNotes, stringIndex) => (
-            <tr key={stringIndex} className="border-b border-border/30 last:border-b-0">
+          {reversedFretboard.map((stringNotes, displayStringIndex) => (
+            <tr key={displayStringIndex} className="border-b border-border/30 last:border-b-0">
               <td className="px-2 py-1 text-xs text-muted-foreground whitespace-nowrap font-mono w-16 text-right border-r-2 border-foreground/20">
-                {reversedLabels[stringIndex]}
+                {reversedLabels[displayStringIndex]}
               </td>
               {stringNotes.map((note, fret) => (
                 <NoteCell
-                  key={`${stringIndex}-${fret}`}
+                  key={`${displayStringIndex}-${fret}`}
                   note={note}
                   fret={fret}
+                  stringIndex={displayStringIndex}
                   highlightedNotes={highlightedNotes}
                   useFlats={useFlats}
                   showAllNotes={showAllNotes}
+                  onNoteClick={audioEnabled ? handleNoteClick : undefined}
                 />
               ))}
             </tr>
