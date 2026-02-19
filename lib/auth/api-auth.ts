@@ -63,8 +63,7 @@ async function validateApiKey(apiKey: string): Promise<AuthResult> {
     .eq('key_hash', keyHash)
     .then(() => {
       // Silent update - don't block request
-    })
-    .catch((err) => {
+    }, (err) => {
       console.error('Failed to update API key last_used_at:', err);
     });
 

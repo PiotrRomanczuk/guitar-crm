@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { searchTracks } from '@/lib/spotify';
-import { SpotifyApiTrack } from '@/types/spotify';
+import { searchTracks, searchArtists } from '@/lib/spotify';
+import { SpotifyApiTrack, SpotifyApiArtist } from '@/types/spotify';
 import { createClient } from '@/lib/supabase/server';
 
 export async function GET(request: Request) {
@@ -14,32 +14,56 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('q');
 
+  const type = searchParams.get('type') || 'track';
+
   if (!query) {
     return NextResponse.json({ error: 'Query parameter "q" is required' }, { status: 400 });
   }
 
   try {
-    const data = await searchTracks(query) as {
-      error?: { message: string; status: number };
-      tracks: { items: SpotifyApiTrack[] };
-    };
+    if (type === 'artist') {
+      const data = await searchArtists(query) as {
+        error?: { message: string; status: number };
+        artists: { items: SpotifyApiArtist[] };
+      };
 
-    if (data.error) {
-      return NextResponse.json({ error: data.error.message }, { status: data.error.status });
+      if (data.error) {
+        return NextResponse.json({ error: data.error.message }, { status: data.error.status });
+      }
+
+      const results = data.artists.items.map((artist: SpotifyApiArtist) => ({
+        id: artist.id,
+        name: artist.name,
+        image: artist.images[0]?.url,
+        popularity: artist.popularity,
+        genres: artist.genres,
+        url: artist.external_urls.spotify,
+      }));
+
+      return NextResponse.json({ results });
+    } else {
+      const data = await searchTracks(query) as {
+        error?: { message: string; status: number };
+        tracks: { items: SpotifyApiTrack[] };
+      };
+
+      if (data.error) {
+        return NextResponse.json({ error: data.error.message }, { status: data.error.status });
+      }
+
+      const results = data.tracks.items.map((track: SpotifyApiTrack) => ({
+        id: track.id,
+        name: track.name,
+        artist: track.artists[0].name,
+        album: track.album.name,
+        url: track.external_urls.spotify,
+        coverUrl: track.album.images[0]?.url,
+        duration_ms: track.duration_ms,
+        release_date: track.album.release_date,
+      }));
+
+      return NextResponse.json({ results });
     }
-
-    const results = data.tracks.items.map((track: SpotifyApiTrack) => ({
-      id: track.id,
-      name: track.name,
-      artist: track.artists[0].name,
-      album: track.album.name,
-      url: track.external_urls.spotify,
-      coverUrl: track.album.images[0]?.url,
-      duration_ms: track.duration_ms,
-      release_date: track.album.release_date,
-    }));
-
-    return NextResponse.json({ results });
   } catch (error) {
     console.error('Spotify Search Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

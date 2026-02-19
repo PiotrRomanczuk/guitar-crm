@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 
 import { AppShell } from '@/components/layout/AppShell';
 import { Providers } from '@/components/providers/QueryProvider';
@@ -21,6 +21,8 @@ const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
 });
+
+const plusJakartaSans = Plus_Jakarta_Sans({ variable: '--font-plus-jakarta-sans', subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Strummy - Guitar Teaching Studio',
@@ -49,8 +51,8 @@ export default async function RootLayout({
   const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
   log.debug('User roles', { userId: user?.id, isAdmin, isTeacher, isStudent });
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${plusJakartaSans.variable}`} suppressHydrationWarning>
+      <body className={`antialiased font-sans`}>
         <Providers>
           <AppShell user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent}>
             {children}
