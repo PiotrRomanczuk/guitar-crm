@@ -7,7 +7,7 @@ import { Song } from '@/schemas/SongSchema';
 export function parseZodErrors(error: unknown): Record<string, string> {
   if (error instanceof ZodError) {
     const fieldErrors: Record<string, string> = {};
-    error.errors.forEach((err) => {
+    error.issues.forEach((err) => {
       const field = err.path[0] as string;
       fieldErrors[field] = err.message;
     });

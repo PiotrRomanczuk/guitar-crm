@@ -93,6 +93,9 @@ export default async function SongList({ searchParams }: SongListProps) {
       isAdmin={isAdmin || isTeacher}
       students={students}
       selectedStudentId={studentId}
+      totalPages={1}
+      currentPage={1}
+      pageSize={songs.length > 0 ? songs.length : 10}
     />
   );
 }

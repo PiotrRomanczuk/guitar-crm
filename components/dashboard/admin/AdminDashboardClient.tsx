@@ -11,6 +11,7 @@ import { NotificationsAlertsSection } from '@/components/dashboard/Notifications
 import { HealthSummaryWidget } from '@/components/dashboard/health/HealthSummaryWidget';
 import { GlobalSearch } from '@/components/dashboard/GlobalSearch';
 import { AuditLogSection } from '@/components/dashboard/admin/AuditLogSection';
+import { OpenRouterStatusWidget } from '@/components/dashboard/admin/OpenRouterStatusWidget';
 import { staggerContainer } from '@/lib/animations';
 import { Users, BookOpen, Music, Shield, Activity, Database, Lock, Settings, FileText } from 'lucide-react';
 import Link from 'next/link';
@@ -77,8 +78,9 @@ export function AdminDashboardClient({ stats, user, profile, viewMode }: AdminDa
           <div className="lg:col-span-2">
             <NotificationsAlertsSection />
           </div>
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-6">
             <HealthSummaryWidget />
+            <OpenRouterStatusWidget />
           </div>
         </div>
 

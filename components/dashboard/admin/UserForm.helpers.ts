@@ -5,14 +5,10 @@ export interface ValidationError {
   message: string;
 }
 
-export interface ZodIssue {
-  path: (string | number)[];
-  message: string;
-}
 
 export const extractValidationErrors = (error: z.ZodError): Record<string, string> => {
   const validationErrors: Record<string, string> = {};
-  error.issues.forEach((issue: ZodIssue) => {
+  error.issues.forEach((issue) => {
     validationErrors[issue.path[0] as string] = issue.message;
   });
   return validationErrors;
