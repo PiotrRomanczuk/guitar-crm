@@ -20,8 +20,9 @@ const eslintConfig = defineConfig([
     '*.js',
     // History/backup files
     'scripts/history/**',
-    // Source project for migration
-    'guitar-mastery-hub/**',
+    // Test infrastructure dirs
+    'tests/**',
+    'cypress/**',
   ]),
   // Project-wide rules and overrides
   {
@@ -38,7 +39,7 @@ const eslintConfig = defineConfig([
   // Do not apply size rules to generated types, migrations, or tests
   {
     name: 'project/size-rules-exceptions',
-    files: ['types/**/*.ts', 'supabase/**/*.{ts,sql}', '__tests__/**/*.{ts,tsx}'],
+    files: ['types/**/*.ts', 'supabase/**/*.{ts,sql}', '__tests__/**/*.{ts,tsx}', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
     rules: {
       'max-lines': 'off',
       'max-lines-per-function': 'off',

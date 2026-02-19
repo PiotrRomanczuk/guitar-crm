@@ -7,7 +7,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/database.types.generated';
+import { getSupabaseConfig } from '@/lib/supabase/config';
 import {
   getSongsHandler,
   createSongHandler,
@@ -15,12 +17,13 @@ import {
   deleteSongHandler,
 } from './handlers';
 
+type SupabaseServerClient = SupabaseClient<Database>;
+
 /**
  * Helper to get or create user profile
  */
 async function getOrCreateProfile(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any,
+  supabase: SupabaseServerClient,
   userId: string,
   email: string
 ) {
@@ -92,24 +95,21 @@ function parseQueryParams(searchParams: URLSearchParams) {
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll: () => cookieStore.getAll(),
-          setAll: (cookiesToSet) => {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // Ignored
-            }
-          },
+    const config = getSupabaseConfig();
+    const supabase = createServerClient<Database>(config.url, config.anonKey, {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Ignored
+          }
         },
-      }
-    );
+      },
+    });
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -157,76 +157,61 @@ export async function GET(request: NextRequest) {
  * Create a new song (requires teacher or admin role)
  */
 export async function POST(request: NextRequest) {
-  console.log('🎵 [BACKEND] POST /api/song - Request received');
-
   try {
     const cookieStore = await cookies();
-    console.log('🎵 [BACKEND] Cookies retrieved, count:', cookieStore.getAll().length);
 
-    const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll: () => cookieStore.getAll(),
-          setAll: (cookiesToSet) => {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // Ignored
-            }
-          },
+    let config;
+    try {
+      config = getSupabaseConfig();
+    } catch (configError) {
+      console.error('[API/Songs] Supabase config error:', configError);
+      return NextResponse.json({ error: 'Database configuration error' }, { status: 500 });
+    }
+
+    const supabase = createServerClient<Database>(config.url, config.anonKey, {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Ignored
+          }
         },
-      }
-    );
-    console.log('🎵 [BACKEND] Supabase client created');
+      },
+    });
 
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    console.log('🎵 [BACKEND] User retrieved:', user ? { id: user.id, email: user.email } : 'null');
 
     if (!user) {
-      console.error('🎵 [BACKEND] No user - returning 401');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const profile = await getOrCreateProfile(supabase, user.id, user.email || '');
-    console.log('🎵 [BACKEND] Profile retrieved:', profile);
 
     if (!profile) {
-      console.error('🎵 [BACKEND] Failed to get/create profile');
       return NextResponse.json({ error: 'Error creating user profile' }, { status: 500 });
     }
 
     const body = await request.json();
-    console.log('🎵 [BACKEND] Request body:', body);
 
     const result = await createSongHandler(supabase, user, profile, body);
-    console.log('🎵 [BACKEND] Handler result:', {
-      status: result.status,
-      hasError: !!result.error,
-      hasSong: !!result.song,
-    });
 
     if (result.error) {
-      console.error('🎵 [BACKEND] createSongHandler returned error:', result.error);
       return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
-    console.log('🎵 [BACKEND] Success! Returning song');
     return NextResponse.json(result.song, { status: result.status });
   } catch (error) {
-    console.error('🎵 [BACKEND] POST /api/song error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    const errorStack = error instanceof Error ? error.stack : '';
-    console.error('🎵 [BACKEND] Error details:', { message: errorMessage, stack: errorStack });
+    console.error('[API/Songs] POST /api/song error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'Unknown error') : undefined,
       },
       { status: 500 }
     );
@@ -247,24 +232,21 @@ export async function PUT(request: NextRequest) {
     }
 
     const cookieStore = await cookies();
-    const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll: () => cookieStore.getAll(),
-          setAll: (cookiesToSet) => {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // Ignored
-            }
-          },
+    const config = getSupabaseConfig();
+    const supabase = createServerClient<Database>(config.url, config.anonKey, {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Ignored
+          }
         },
-      }
-    );
+      },
+    });
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -297,55 +279,46 @@ export async function PUT(request: NextRequest) {
  * Delete a song (requires teacher or admin role)
  */
 export async function DELETE(request: NextRequest) {
-  console.log('[API] DELETE /api/song - Request received');
   try {
     const { searchParams } = new URL(request.url);
     const songId = searchParams.get('id');
-    console.log('[API] DELETE /api/song - Song ID:', songId);
 
     if (!songId) {
       return NextResponse.json({ error: 'Song ID is required' }, { status: 400 });
     }
 
     const cookieStore = await cookies();
-    console.log('[API] DELETE /api/song - Cookies count:', cookieStore.getAll().length);
 
-    const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll: () => cookieStore.getAll(),
-          setAll: (cookiesToSet) => {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // Ignored
-            }
-          },
+    const config = getSupabaseConfig();
+    const supabase = createServerClient<Database>(config.url, config.anonKey, {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Ignored
+          }
         },
-      }
-    );
+      },
+    });
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    console.log('[API] DELETE /api/song - User:', user?.id);
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const profile = await getOrCreateProfile(supabase, user.id, user.email || '');
-    console.log('[API] DELETE /api/song - Profile found:', !!profile);
 
     if (!profile) {
       return NextResponse.json({ error: 'Error creating user profile' }, { status: 500 });
     }
 
     const result = await deleteSongHandler(supabase, user, profile, songId);
-    console.log('[API] DELETE /api/song - Handler result:', result);
 
     if (result.error) {
       return NextResponse.json({ error: result.error }, { status: result.status });

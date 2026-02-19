@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getPotentialCustomerEvents } from '@/app/dashboard/actions';
+import { getPotentialCustomerEvents } from '@/app/dashboard/calendar-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Mail, Phone } from 'lucide-react';
 import { InviteUserModal } from '../InviteUserModal';
@@ -97,7 +97,7 @@ export function PotentialUsersList() {
                       {user.name === 'Unknown' && (
                         <Badge
                           variant="secondary"
-                          className="w-fit text-xs bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+                          className="w-fit text-xs bg-warning/10 text-warning hover:bg-warning/10"
                         >
                           Check Details
                         </Badge>
@@ -105,10 +105,10 @@ export function PotentialUsersList() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+                    <div className="flex flex-col gap-1 text-sm text-muted-foreground max-w-[200px]">
                       {user.email && (
-                        <div className="flex items-center gap-2">
-                          <Mail className="w-3 h-3" /> {user.email}
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Mail className="w-3 h-3 shrink-0" /> <span className="truncate">{user.email}</span>
                         </div>
                       )}
                       {user.phone && (

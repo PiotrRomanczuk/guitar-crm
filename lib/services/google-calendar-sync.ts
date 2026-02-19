@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { matchStudentByEmail, createShadowStudent } from '@/lib/services/import-utils';
 import { TablesInsert } from '@/types/database.types';
 import { getCalendarEventsInRange } from '@/lib/google';
+import { isGuitarLesson } from '@/lib/calendar/calendar-utils';
 
 export interface ImportEvent {
   googleEventId: string;
@@ -66,10 +67,9 @@ export async function syncGoogleEventsForUser(userId: string, events: ImportEven
     const lessonData: TablesInsert<'lessons'> = {
       student_id: studentId,
       teacher_id: userId,
-      creator_user_id: userId,
       title: event.title || 'Lesson',
       notes: event.notes,
-      start_time: event.startTime,
+      scheduled_at: event.startTime,
       google_event_id: event.googleEventId,
       status: 'SCHEDULED',
     };
@@ -98,7 +98,7 @@ export async function fetchAndSyncRecentEvents(userId: string) {
     const googleEvents = await getCalendarEventsInRange(userId, startDate, endDate);
 
     const importEvents: ImportEvent[] = googleEvents
-      .filter((e) => e.attendees && e.attendees.length > 0 && e.attendees[0].email)
+      .filter((e) => isGuitarLesson(e) && e.attendees && e.attendees.length > 0 && e.attendees[0].email)
       .map((e) => ({
         googleEventId: e.id,
         title: e.summary,

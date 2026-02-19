@@ -3,24 +3,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getLessonsHandler, createLessonHandler } from '../../lessons/handlers';
 
 /**
- * Helper to get user profile with roles
+ * Helper to get user profile with roles from profiles table boolean flags
  */
 async function getUserProfile(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
-  const { data: roles, error } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', userId);
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('is_admin, is_teacher, is_student')
+    .eq('id', userId)
+    .single();
 
-  if (error) {
+  if (error || !profile) {
     return null;
   }
 
-  const userRoles = roles?.map((r) => r.role) || [];
-
   return {
-    isAdmin: userRoles.includes('admin'),
-    isTeacher: userRoles.includes('teacher'),
-    isStudent: userRoles.includes('student'),
+    isAdmin: profile.is_admin ?? false,
+    isTeacher: profile.is_teacher ?? false,
+    isStudent: profile.is_student ?? false,
   };
 }
 

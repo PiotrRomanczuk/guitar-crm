@@ -1,4 +1,4 @@
-import { NewLandingPage } from '@/components/home/NewLandingPage';
+import { LandingPage } from '@/components/landing/LandingPage';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { redirect } from 'next/navigation';
 
@@ -11,7 +11,7 @@ export default async function Home() {
   if (!user) {
     return (
       <>
-        <NewLandingPage />
+        <LandingPage />
       </>
     );
   }

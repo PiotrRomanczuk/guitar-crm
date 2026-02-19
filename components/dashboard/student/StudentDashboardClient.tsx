@@ -1,19 +1,25 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { StudentDashboardData } from '@/app/actions/student/dashboard';
-import { RecentActivity } from '@/components/student/dashboard/RecentActivity';
-// import { ProgressChart } from '@/components/student/dashboard/ProgressChart';
-import { SongLibrary } from '@/components/student/songs/SongLibrary';
-import { AssignmentList } from '@/components/student/assignments/AssignmentList';
+import { RecentActivity } from '@/components/dashboard/student/RecentActivity';
+import { SongLibrary } from '@/components/songs/student/SongLibrary';
+import { AssignmentList } from '@/components/assignments/student/AssignmentList';
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
-import { NextLessonCard } from '@/components/student/dashboard/NextLessonCard';
+import { NextLessonCard } from '@/components/dashboard/student/NextLessonCard';
+import { LastLessonCard } from '@/components/dashboard/student/LastLessonCard';
+import { ProgressChart } from '@/components/dashboard/student/ProgressChart';
+import { PracticeTimerCard } from '@/components/dashboard/student/PracticeTimerCard';
+import { BearerTokenCard } from '@/components/dashboard/BearerTokenCard';
+import { staggerContainer, listItem } from '@/lib/animations';
 
 interface StudentDashboardClientProps {
   data: StudentDashboardData;
   email?: string;
+  token?: string;
 }
 
-export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
+export function StudentDashboardClient({ data, token }: StudentDashboardClientProps) {
   // Transform data for components
   const activities = [
     ...(data.lastLesson
@@ -34,17 +40,40 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
     })),
   ].slice(0, 5);
 
-  /*
+  // Create weekly chart data based on student's data
   const chartData = [
-    { name: 'Mon', lessons: 1, assignments: 1 },
-    { name: 'Tue', lessons: 2, assignments: 0 },
-    { name: 'Wed', lessons: 1, assignments: 2 },
-    { name: 'Thu', lessons: 0, assignments: 1 },
-    { name: 'Fri', lessons: 3, assignments: 2 },
-    { name: 'Sat', lessons: 4, assignments: 3 },
-    { name: 'Sun', lessons: 2, assignments: 1 },
+    {
+      name: 'Mon',
+      lessons: data.stats.completedLessons > 0 ? 1 : 0,
+      assignments: data.assignments.length > 0 ? 1 : 0,
+    },
+    {
+      name: 'Tue',
+      lessons: data.stats.completedLessons > 1 ? 1 : 0,
+      assignments: data.assignments.length > 1 ? 1 : 0,
+    },
+    {
+      name: 'Wed',
+      lessons: data.stats.completedLessons > 2 ? 1 : 0,
+      assignments: data.assignments.length > 2 ? 2 : 0,
+    },
+    { name: 'Thu', lessons: 0, assignments: data.assignments.length > 3 ? 1 : 0 },
+    {
+      name: 'Fri',
+      lessons: data.stats.completedLessons > 3 ? 2 : 0,
+      assignments: data.assignments.length > 4 ? 2 : 0,
+    },
+    {
+      name: 'Sat',
+      lessons: data.stats.completedLessons > 4 ? 3 : 0,
+      assignments: Math.min(data.assignments.length, 3),
+    },
+    {
+      name: 'Sun',
+      lessons: data.stats.completedLessons > 5 ? 2 : 0,
+      assignments: Math.min(data.assignments.length, 2),
+    },
   ];
-  */
 
   const songs = data.recentSongs.map((s) => ({
     id: s.id,
@@ -68,29 +97,62 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
   }));
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-2 opacity-0 animate-fade-in">
-        <h1 className="text-3xl font-bold tracking-tight">Welcome back, Student!</h1>
-        <p className="text-muted-foreground">
-          Here&apos;s what&apos;s happening with your guitar journey.
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6 sm:space-y-8"
+    >
+      {/* Header */}
+      <motion.div variants={listItem} className="flex flex-col gap-2">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+          Welcome back, {data.studentName || 'Student'}!
+        </h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
+          {data.stats.completedLessons > 0
+            ? `You've completed ${data.stats.completedLessons} lesson${
+                data.stats.completedLessons === 1 ? '' : 's'
+              }. Keep up the great work!`
+            : "Here's what's happening with your guitar journey."}
         </p>
-      </div>
+      </motion.div>
 
       {/* API-driven stats */}
-      <DashboardStatsGrid />
+      <motion.div variants={listItem}>
+        <DashboardStatsGrid />
+      </motion.div>
 
-      <NextLessonCard lesson={data.nextLesson} />
+      <motion.div variants={listItem}>
+        <NextLessonCard lesson={data.nextLesson} />
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          {/* <ProgressChart data={chartData} /> */}
+      {data.lastLesson && (
+        <motion.div variants={listItem}>
+          <LastLessonCard lesson={data.lastLesson} />
+        </motion.div>
+      )}
+
+      {/* Main content grid */}
+      <motion.div
+        variants={listItem}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8"
+      >
+        <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+          <ProgressChart data={chartData} />
           <SongLibrary songs={songs} />
         </div>
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
+          <PracticeTimerCard songs={data.allSongs} />
           <RecentActivity activities={activities} />
           <AssignmentList assignments={assignments} />
         </div>
-      </div>
-    </div>
+      </motion.div>
+
+      {token && (
+        <motion.div variants={listItem} className="pt-6 sm:pt-8 border-t">
+          <BearerTokenCard token={token} />
+        </motion.div>
+      )}
+    </motion.div>
   );
 }

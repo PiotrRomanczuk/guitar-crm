@@ -1,21 +1,8 @@
 {
-  "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
+  "crons": [
+    {
+      "path": "/api/cron/drive-video-scan",
+      "schedule": "0 3 * * *"
     }
-  },
-  "functions": {
-    "app/**": {
-      "maxDuration": 30
-    }
-  },
-  "regions": ["iad1"],
-  "github": {
-    "enabled": true,
-    "autoAlias": true
-  }
+  ]
 }

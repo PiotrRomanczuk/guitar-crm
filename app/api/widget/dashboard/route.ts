@@ -26,19 +26,15 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
 
-    // Check user roles to determine what data to show
-    const { data: userWithRoles } = await supabase
-      .from('users')
-      .select('*, user_roles(role)')
+    // Check user roles from profiles table boolean flags
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('is_teacher, is_student')
       .eq('id', userId)
       .single();
 
-    const isTeacher = userWithRoles?.user_roles?.some(
-      (ur: { role: string }) => ur.role === 'teacher'
-    );
-    const isStudent = userWithRoles?.user_roles?.some(
-      (ur: { role: string }) => ur.role === 'student'
-    );
+    const isTeacher = userProfile?.is_teacher === true;
+    const isStudent = userProfile?.is_student === true;
 
     // Fetch upcoming lessons (next 7 days)
     const today = new Date().toISOString().split('T')[0];

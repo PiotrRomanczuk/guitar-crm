@@ -1,7 +1,7 @@
 // Pure functions for song API business logic - testable without Next.js dependencies
 
 import { Song } from '@/types/Song';
-import { SongInputSchema } from '@/schemas/SongSchema';
+import { SongInputSchema, SongDraftSchema } from '@/schemas/SongSchema';
 import { ZodError } from 'zod';
 
 export interface SongQueryParams {
@@ -129,18 +129,11 @@ export async function createSongHandler(
   profile: { isAdmin?: boolean; isTeacher?: boolean } | null,
   body: unknown
 ): Promise<{ song?: Song; error?: string; status: number }> {
-  console.log('=== createSongHandler START ===');
-  console.log('User:', JSON.stringify(user));
-  console.log('Profile:', JSON.stringify(profile));
-  console.log('Body:', JSON.stringify(body));
-
   if (!user) {
-    console.log('ERROR: No user');
     return { error: 'Unauthorized', status: 401 };
   }
 
   if (!validateMutationPermission(profile)) {
-    console.log('ERROR: Permission denied');
     return {
       error: 'Forbidden: Only teachers and admins can create songs',
       status: 403,
@@ -148,30 +141,28 @@ export async function createSongHandler(
   }
 
   try {
-    const validatedSong = SongInputSchema.parse(body);
-    console.log('=== Validated song:', JSON.stringify(validatedSong));
+    // Check if this is a draft and use appropriate schema
+    const isDraft = (body as { is_draft?: boolean })?.is_draft === true;
+    const schema = isDraft ? SongDraftSchema : SongInputSchema;
+    const validatedSong = schema.parse(body);
 
-    console.log('=== Calling Supabase insert...');
     const { data: song, error } = await supabase
       .from('songs')
       .insert(validatedSong)
       .select()
       .single();
 
-    console.log('=== Supabase insert complete');
-    console.log('=== Has error?', !!error);
-    console.log('=== Has data?', !!song);
-
     if (error) {
-      console.error('=== Supabase error object:', JSON.stringify(error, null, 2));
-      console.error('=== Error code:', error.code);
-      console.error('=== Error message:', error.message);
-      console.error('=== Error details:', error.details);
-      console.error('=== Error hint:', error.hint);
+      if (error.code === '23505') {
+        return {
+          error: 'A song with this title and author already exists',
+          status: 409,
+        };
+      }
+      console.error('Supabase insert error:', error.message);
       return { error: error.message, status: 500 };
     }
 
-    console.log('=== Success! Created song:', JSON.stringify(song));
     return { song, status: 201 };
   } catch (err) {
     if (err instanceof ZodError) {
@@ -205,8 +196,13 @@ export async function updateSongHandler(
   }
 
   try {
+    // Check if this is a draft and use appropriate schema
+    const isDraft = (body as { is_draft?: boolean })?.is_draft === true;
+    const schema = isDraft ? SongDraftSchema : SongInputSchema;
+    const validatedSong = schema.parse(body);
+
     const updateData = {
-      ...(typeof body === 'object' && body !== null ? body : {}),
+      ...validatedSong,
       updated_at: new Date().toISOString(),
     };
 
@@ -222,7 +218,14 @@ export async function updateSongHandler(
     }
 
     return { song, status: 200 };
-  } catch {
+  } catch (err) {
+    if (err instanceof ZodError) {
+      const fieldErrors = err.flatten().fieldErrors;
+      return {
+        error: `Validation failed: ${JSON.stringify(fieldErrors)}`,
+        status: 422,
+      };
+    }
     return { error: 'Internal server error', status: 500 };
   }
 }

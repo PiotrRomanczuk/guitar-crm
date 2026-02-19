@@ -22,13 +22,19 @@ export const LessonSchema = z.object({
 
 // Lesson input schema for creating/updating lessons
 export const LessonInputSchema = z.object({
-  student_id: z.string().uuid('Student ID is required'),
-  teacher_id: z.string().uuid('Teacher ID is required'),
+  student_id: z
+    .string()
+    .min(1, 'Please select a student')
+    .uuid('Student must be a valid user'),
+  teacher_id: z
+    .string()
+    .min(1, 'Please select a teacher')
+    .uuid('Teacher must be a valid user'),
   title: z.string().min(1, 'Title is required').optional(),
   notes: z.string().optional(),
   date: z.string().optional(), // Date string (YYYY-MM-DD) - optional if scheduled_at is provided
   start_time: z.string().optional(), // time (HH:mm)
-  scheduled_at: z.string().optional(), // ISO date string
+  scheduled_at: z.string().min(1, 'Scheduled date & time is required'), // ISO date string or datetime-local format
   status: LessonStatusEnum.optional(),
   song_ids: z.array(z.string().uuid()).optional(),
 });

@@ -22,15 +22,14 @@ export function extractBearerToken(authHeader?: string): string | null {
  * Authenticate a request using bearer token
  * Returns the user ID and profile if authentication succeeds
  * @param bearerToken The bearer token from the Authorization header
- * @returns {Promise<{userId: string, profile: any} | null>} User info or null if authentication fails
+ * @returns User info or null if authentication fails
  */
 export async function authenticateWithBearerToken(bearerToken: string) {
   try {
     const supabase = createAdminClient();
     const keyHash = hashApiKey(bearerToken);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: apiKey, error } = await (supabase as unknown as any)
+    const { data: apiKey, error } = await supabase
       .from('api_keys')
       .select('user_id, is_active')
       .eq('key_hash', keyHash)
@@ -42,8 +41,7 @@ export async function authenticateWithBearerToken(bearerToken: string) {
     }
 
     // Update last_used_at (fire and forget)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    void (supabase as unknown as any)
+    void supabase
       .from('api_keys')
       .update({ last_used_at: new Date().toISOString() })
       .eq('key_hash', keyHash);

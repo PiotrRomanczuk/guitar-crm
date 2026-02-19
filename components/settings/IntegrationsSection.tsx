@@ -39,7 +39,7 @@ export function IntegrationsSection({ isGoogleConnected }: IntegrationsSectionPr
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               {isGoogleConnected ? (
                 <>
@@ -55,11 +55,11 @@ export function IntegrationsSection({ isGoogleConnected }: IntegrationsSectionPr
             </div>
 
             {isGoogleConnected ? (
-              <Button variant="outline" disabled>
+              <Button variant="outline" disabled className="w-full sm:w-auto">
                 Connected
               </Button>
             ) : (
-              <Button onClick={handleConnect} disabled={loading}>
+              <Button onClick={handleConnect} disabled={loading} className="w-full sm:w-auto">
                 {loading ? 'Connecting...' : 'Connect Google Calendar'}
               </Button>
             )}

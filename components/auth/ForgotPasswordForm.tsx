@@ -2,124 +2,108 @@
 
 import { useState, FormEvent } from 'react';
 import { resetPassword } from '@/app/auth/actions';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import FormAlert from '@/components/shared/FormAlert';
+import { ForgotPasswordSchema } from '@/schemas/AuthSchema';
 
 interface ForgotPasswordFormProps {
-	onSuccess?: () => void;
+  onSuccess?: () => void;
 }
 
 export default function ForgotPasswordForm({
-	onSuccess,
+  onSuccess,
 }: ForgotPasswordFormProps) {
-	const [email, setEmail] = useState('');
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const [success, setSuccess] = useState(false);
-	const [touched, setTouched] = useState(false);
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [touched, setTouched] = useState(false);
 
-	const validate = () => {
-		if (touched && !email) return 'Email is required';
-		if (touched && email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-			return 'Invalid email';
-		return null;
-	};
+  const getFieldError = (): string | null => {
+    if (!touched) return null;
 
-	const validationError = validate();
+    const result = ForgotPasswordSchema.safeParse({ email });
+    if (result.success) return null;
 
-	const handleSubmit = async (e: FormEvent) => {
-		e.preventDefault();
-		setTouched(true);
+    return result.error.issues[0]?.message || 'Invalid email';
+  };
 
-		// Validate before submission
-		if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-			return;
-		}
+  const fieldError = getFieldError();
 
-		setLoading(true);
-		setError(null);
-		setSuccess(false);
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    setError(null); // Clear form-level error
+  };
 
-		const result = await resetPassword(email);
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setTouched(true);
 
-		setLoading(false);
+    const result = ForgotPasswordSchema.safeParse({ email });
+    if (!result.success) {
+      return;
+    }
 
-		if (result.error) {
-			setError(result.error);
-			return;
-		}
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
 
-		setSuccess(true);
-		if (onSuccess) {
-			onSuccess();
-		}
-	};
+    const resetResult = await resetPassword(email);
 
-	return (
-		<form onSubmit={handleSubmit} className='space-y-4 sm:space-y-6'>
-			<p className='text-xs sm:text-sm text-gray-700 dark:text-gray-300 text-center'>
-				Enter your email and we&apos;ll send you a reset link
-			</p>
+    setLoading(false);
 
-			<div className='space-y-1 sm:space-y-2'>
-				<label
-					htmlFor='email'
-					className='block text-xs sm:text-sm font-medium text-gray-900 dark:text-white'
-				>
-					Email
-				</label>
-				<input
-					id='email'
-					name='email'
-					type='email'
-					value={email}
-					onChange={(e) => setEmail(e.target.value)}
-					onBlur={() => setTouched(true)}
-					required
-					className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500'
-				/>
-			</div>
+    if (resetResult.error) {
+      setError(resetResult.error);
+      return;
+    }
 
-			{validationError && (
-				<div
-					role='alert'
-					className='p-2 sm:p-3 text-xs sm:text-sm bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-200 rounded-lg border border-red-200 dark:border-red-800'
-				>
-					{validationError}
-				</div>
-			)}
-			{error && (
-				<div
-					role='alert'
-					className='p-2 sm:p-3 text-xs sm:text-sm bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-200 rounded-lg border border-red-200 dark:border-red-800'
-				>
-					{error}
-				</div>
-			)}
+    setSuccess(true);
+    if (onSuccess) {
+      onSuccess();
+    }
+  };
 
-			{success && (
-				<div
-					role='status'
-					className='p-2 sm:p-3 text-xs sm:text-sm bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-200 rounded-lg border border-green-200 dark:border-green-800'
-				>
-					Check your email for the reset link
-				</div>
-			)}
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <p className="text-sm text-muted-foreground text-center">
+        Enter your email and we&apos;ll send you a reset link
+      </p>
 
-			<button
-				type='submit'
-				disabled={loading}
-				className='w-full px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors'
-			>
-				{loading ? 'Sending...' : 'Send Reset Link'}
-			</button>
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          value={email}
+          onChange={handleEmailChange}
+          onBlur={() => setTouched(true)}
+          required
+          placeholder="you@example.com"
+          aria-invalid={!!fieldError}
+          className={fieldError ? 'border-destructive' : ''}
+        />
+        {fieldError && (
+          <p className="text-sm text-destructive" role="alert">
+            {fieldError}
+          </p>
+        )}
+      </div>
 
-			<p className='text-center text-xs sm:text-sm'>
-				<a
-					href='/sign-in'
-					className='text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300'
-				>
-					Back to sign in
-				</a>
-			</p>
-		</form>
-	);
+      {error && <FormAlert type="error" message={error} />}
+      {success && <FormAlert type="success" message="Check your email for the reset link" />}
+
+      <Button type="submit" disabled={loading} className="w-full">
+        {loading ? 'Sending...' : 'Send Reset Link'}
+      </Button>
+
+      <p className="text-center text-sm text-muted-foreground">
+        <a href="/sign-in" className="text-primary hover:underline font-medium">
+          Back to sign in
+        </a>
+      </p>
+    </form>
+  );
 }

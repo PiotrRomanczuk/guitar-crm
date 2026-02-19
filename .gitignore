@@ -13,6 +13,7 @@
 
 # testing
 /coverage
+.jest-cache/
 
 # next.js
 /.next/
@@ -59,6 +60,9 @@ supabase/tables\ information/
 lighthouse-reports/
 lighthouse-results.json
 lighthouse-simple.html
+lighthouse-report.json
+lighthouse-signin.html
+lighthouse-ci-results.json
 
 # Scripts history
 scripts/history/
@@ -68,18 +72,34 @@ scripts/history/all_executions.md
 cypress/videos/
 cypress/screenshots/
 
+# Playwright test artifacts
+/test-results/
+/playwright-report/
+/tests/.auth/
+
 # Claude Code Agents
 CODE-AGENTS/
 
 # Local dev files
 .vscode/mcp.json
+.mcp.json
 server.log
 *.log
+logs/
+temp/
+
+# Backup files
+*.bak
+*.old
 
 .LEGACY_DATA
 
-/guitar-mastery-hubmcp-server-dash/
-/guitar-mastery-hub
-
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Design reference files
+stitch/
+landing.html
+
+# Playwright MCP
+.playwright-mcp/

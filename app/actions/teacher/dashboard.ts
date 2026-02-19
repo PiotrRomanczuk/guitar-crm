@@ -47,6 +47,31 @@ export type TeacherDashboardData = {
   };
 };
 
+const DIFFICULTY_MAP: Record<string, 'Easy' | 'Medium' | 'Hard'> = {
+  beginner: 'Easy',
+  intermediate: 'Medium',
+  advanced: 'Hard',
+};
+
+const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function getLevelFromLessonCount(count: number): 'Beginner' | 'Intermediate' | 'Advanced' {
+  if (count >= 20) return 'Advanced';
+  if (count >= 5) return 'Intermediate';
+  return 'Beginner';
+}
+
+function getWeekBounds(): { weekStart: string; weekEnd: string } {
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const start = new Date(now);
+  start.setDate(now.getDate() - dayOfWeek);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 7);
+  return { weekStart: start.toISOString(), weekEnd: end.toISOString() };
+}
+
 export async function getTeacherDashboardData(): Promise<TeacherDashboardData> {
   const { user, isTeacher, isAdmin } = await getUserWithRolesSSR();
 
@@ -56,22 +81,15 @@ export async function getTeacherDashboardData(): Promise<TeacherDashboardData> {
 
   const supabase = await createClient();
 
-  // Fetch students
-  const { data: studentsData } = await supabase
-    .from('user_roles')
-    .select('user_id, role')
-    .eq('role', 'student');
-
-  const studentIds = studentsData?.map((s) => s.user_id) || [];
-
-  const { data: profiles } = await supabase
+  // Fetch students using profiles table boolean flags
+  const { data: studentProfiles } = await supabase
     .from('profiles')
     .select('id, full_name, avatar_url')
-    .in('id', studentIds);
+    .eq('is_student', true);
 
   // Fetch stats for each student
   const students = await Promise.all(
-    profiles?.map(async (profile) => {
+    studentProfiles?.map(async (profile) => {
       const { count: lessonsCompleted } = await supabase
         .from('lessons')
         .select('*', { count: 'exact', head: true })
@@ -87,11 +105,13 @@ export async function getTeacherDashboardData(): Promise<TeacherDashboardData> {
         .limit(1)
         .single();
 
+      const completedCount = lessonsCompleted || 0;
+
       return {
         id: profile.id,
         name: profile.full_name || 'Unknown',
-        level: 'Intermediate' as const, // Mocked
-        lessonsCompleted: lessonsCompleted || 0,
+        level: getLevelFromLessonCount(completedCount),
+        lessonsCompleted: completedCount,
         nextLesson: nextLesson
           ? new Date(nextLesson.scheduled_at).toLocaleDateString()
           : 'No upcoming lessons',
@@ -100,117 +120,64 @@ export async function getTeacherDashboardData(): Promise<TeacherDashboardData> {
     }) || []
   );
 
-  // Mock Data for other components (to match guitar-mastery-hub for now)
-  // In a real app, these would be complex queries
-  const activities = [
-    {
-      id: '1',
-      type: 'lesson_completed' as const,
-      message: "Alex Thompson completed 'Blues Basics' lesson",
-      time: '2 hours ago',
-    },
-    {
-      id: '2',
-      type: 'assignment_submitted' as const,
-      message: "Sarah Chen submitted 'G Major Scale' practice",
-      time: '4 hours ago',
-    },
-    {
-      id: '3',
-      type: 'song_added' as const,
-      message: "New song added: 'Hotel California' by Eagles",
-      time: 'Yesterday',
-    },
-    {
-      id: '4',
-      type: 'assignment_due' as const,
-      message: '3 assignments due tomorrow',
-      time: 'Reminder',
-    },
-    {
-      id: '5',
-      type: 'lesson_completed' as const,
-      message: "Marcus Williams completed 'Jazz Voicings'",
-      time: 'Yesterday',
-    },
-  ];
+  // Activities: no real backend yet, return empty array
+  const activities: TeacherDashboardData['activities'] = [];
 
-  const chartData = [
-    { name: 'Mon', lessons: 4, assignments: 2 },
-    { name: 'Tue', lessons: 6, assignments: 4 },
-    { name: 'Wed', lessons: 8, assignments: 3 },
-    { name: 'Thu', lessons: 5, assignments: 5 },
-    { name: 'Fri', lessons: 9, assignments: 6 },
-    { name: 'Sat', lessons: 12, assignments: 8 },
-    { name: 'Sun', lessons: 7, assignments: 4 },
-  ];
+  // Chart data: real lesson counts per day of current week
+  const { weekStart, weekEnd } = getWeekBounds();
+  const { data: weekLessons } = await supabase
+    .from('lessons')
+    .select('scheduled_at')
+    .gte('scheduled_at', weekStart)
+    .lt('scheduled_at', weekEnd);
 
-  const songs = [
-    {
-      id: '1',
-      title: 'Wonderwall',
-      artist: 'Oasis',
-      difficulty: 'Easy' as const,
-      duration: '4:18',
-      studentsLearning: 8,
-    },
-    {
-      id: '2',
-      title: 'Hotel California',
-      artist: 'Eagles',
-      difficulty: 'Hard' as const,
-      duration: '6:30',
-      studentsLearning: 3,
-    },
-    {
-      id: '3',
-      title: 'Blackbird',
-      artist: 'The Beatles',
-      difficulty: 'Medium' as const,
-      duration: '2:18',
-      studentsLearning: 5,
-    },
-    {
-      id: '4',
-      title: 'Tears in Heaven',
-      artist: 'Eric Clapton',
-      difficulty: 'Medium' as const,
-      duration: '4:33',
-      studentsLearning: 4,
-    },
-  ];
+  const lessonsByDay = new Map<number, number>();
+  const weekLessonsList = Array.isArray(weekLessons) ? weekLessons : [];
+  for (const lesson of weekLessonsList) {
+    const day = new Date(lesson.scheduled_at).getDay();
+    lessonsByDay.set(day, (lessonsByDay.get(day) || 0) + 1);
+  }
 
-  const assignments = [
-    {
-      id: '1',
-      title: 'Practice G Major Scale',
-      studentName: 'Sarah Chen',
-      dueDate: 'Dec 12',
-      status: 'pending' as const,
-    },
-    {
-      id: '2',
-      title: 'Learn Intro Riff',
-      studentName: 'Alex Thompson',
-      dueDate: 'Dec 11',
-      status: 'submitted' as const,
-      songTitle: 'Smoke on the Water',
-    },
-    {
-      id: '3',
-      title: 'Chord Transitions Exercise',
-      studentName: 'Emma Rodriguez',
-      dueDate: 'Dec 10',
-      status: 'overdue' as const,
-    },
-    {
-      id: '4',
-      title: 'Fingerpicking Pattern #3',
-      studentName: 'Marcus Williams',
-      dueDate: 'Dec 8',
-      status: 'completed' as const,
-    },
-  ];
+  const chartData: TeacherDashboardData['chartData'] = DAY_NAMES.map((name, index) => ({
+    name,
+    lessons: lessonsByDay.get(index) || 0,
+    assignments: 0,
+  }));
+
+  // Songs: query real songs from the songs table
+  const { data: songRows } = await supabase
+    .from('songs')
+    .select('id, title, author, level')
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  const songs: TeacherDashboardData['songs'] = (songRows || []).map((song) => ({
+    id: song.id,
+    title: song.title,
+    artist: song.author,
+    difficulty: DIFFICULTY_MAP[song.level] || 'Medium',
+    duration: '',
+    studentsLearning: 0,
+  }));
+
+  // Assignments: no real dashboard-format backend yet, return empty array
+  const assignments: TeacherDashboardData['assignments'] = [];
+
+  // Real stats from Supabase
+  const { count: songsCount } = await supabase
+    .from('songs')
+    .select('*', { count: 'exact', head: true });
+
+  const { count: lessonsThisWeekCount } = await supabase
+    .from('lessons')
+    .select('*', { count: 'exact', head: true })
+    .gte('scheduled_at', weekStart)
+    .lt('scheduled_at', weekEnd);
+
+  const { count: pendingAssignmentsCount } = await supabase
+    .from('assignments')
+    .select('*', { count: 'exact', head: true })
+    .in('status', ['OPEN', 'IN_PROGRESS']);
 
   return {
     students,
@@ -220,9 +187,9 @@ export async function getTeacherDashboardData(): Promise<TeacherDashboardData> {
     assignments,
     stats: {
       totalStudents: students.length,
-      songsInLibrary: 48, // Mocked
-      lessonsThisWeek: 32, // Mocked
-      pendingAssignments: 8, // Mocked
+      songsInLibrary: songsCount || 0,
+      lessonsThisWeek: lessonsThisWeekCount || 0,
+      pendingAssignments: pendingAssignmentsCount || 0,
     },
   };
 }

@@ -1,79 +1,49 @@
-# Guitar CRM Documentation
+# Strummy Documentation
 
-Welcome to the Guitar CRM documentation. This folder contains all the necessary information to understand, develop, and deploy the application.
+Documentation for the Strummy guitar lesson management system.
 
-## 📚 Core Documentation
+## Core Documentation
 
-We have consolidated our documentation into 4 key files for easier navigation:
+| File | Description |
+|------|-------------|
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | System design, tech stack, database schema, RBAC |
+| [DATABASE.md](./DATABASE.md) | Database schema and relationships |
+| [DATABASE_LAYER.md](./DATABASE_LAYER.md) | Data access layer implementation |
+| [DEVELOPMENT.md](./DEVELOPMENT.md) | Setup guide, Git workflow, CI/CD |
 
-### 1. [ARCHITECTURE.md](./ARCHITECTURE.md)
+## Features & API
 
-#### For Architects & Lead Devs
+| File | Description |
+|------|-------------|
+| [FEATURES.md](./FEATURES.md) | Feature overview and implementation details |
+| [API_REFERENCE.md](./API_REFERENCE.md) | REST API endpoints and usage |
+| [AI_SYSTEM.md](./AI_SYSTEM.md) | AI integration (OpenRouter, Ollama) |
+| [EXTERNAL_API_SYSTEM.md](./EXTERNAL_API_SYSTEM.md) | External database API routing |
+| [BEARER_TOKEN.md](./BEARER_TOKEN.md) | API key authentication |
 
-- High-level system design.
-- Tech stack details (Next.js 16, Supabase, etc.).
-- Database schema and relationships.
-- Role-Based Access Control (RBAC) matrix.
-- State management patterns.
+## UI & Design
 
-### 2. [DEVELOPMENT.md](./DEVELOPMENT.md)
+| File | Description |
+|------|-------------|
+| [UI_STANDARDS.md](./UI_STANDARDS.md) | Design system, components, patterns |
+| [NAVIGATION.md](./NAVIGATION.md) | Navigation architecture |
+| [RESPONSIVE_DESIGN.md](./RESPONSIVE_DESIGN.md) | Mobile-first responsive patterns |
+| [RESPONSIVE_VISUAL_GUIDE.md](./RESPONSIVE_VISUAL_GUIDE.md) | Visual breakpoint reference |
 
-#### For Developers
+## Operations
 
-- Environment setup guide.
-- Git workflow and branching strategy.
-- Testing standards (Jest, Cypress).
-- CI/CD pipeline details.
-- Code style and linting rules.
-- **AI Agents Workflow & Implementation**.
+| File | Description |
+|------|-------------|
+| [TESTING.md](./TESTING.md) | Testing strategy (Jest, Cypress) |
+| [PRODUCTION_REQUIREMENTS.md](./PRODUCTION_REQUIREMENTS.md) | Production deployment checklist |
+| [USER_GUIDES.md](./USER_GUIDES.md) | End-user documentation |
 
-### 3. [FEATURES.md](./FEATURES.md)
+## Quick Start
 
-#### For Product Owners & Devs
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
 
-- Detailed implementation plans for core features.
-- Authentication flows.
-- Lesson management logic.
-- Admin dashboard specifications.
-- Assignment and song library features.
-
-### 4. [ROADMAP.md](./ROADMAP.md)
-
-#### For Everyone
-
-- Immediate next steps and priorities.
-- Short-term goals (v1.0 release).
-- Long-term vision (v2.0+).
-- Tracking of known issues and completed milestones.
-
----
-
-## 🚀 Quick Start
-
-1. **Clone the repo**:
-
-   ```bash
-   git clone <repo-url>
-   ```
-
-2. **Install dependencies**:
-
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**:
-
-   Copy `.env.example` to `.env.local` and fill in your Supabase credentials.
-
-4. **Run the development server**:
-
-   ```bash
-   npm run dev
-   ```
-
----
-
-## 🤝 Contributing
-
-Please read [DEVELOPMENT.md](./DEVELOPMENT.md) for details on our code of conduct and the process for submitting pull requests.
+See [DEVELOPMENT.md](./DEVELOPMENT.md) for detailed setup instructions.

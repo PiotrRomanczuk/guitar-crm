@@ -21,8 +21,8 @@ interface LessonWithDetails {
 
 const statusColors: Record<string, string> = {
   SCHEDULED: 'bg-primary/10 text-primary border-primary/20',
-  IN_PROGRESS: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-  COMPLETED: 'bg-green-500/10 text-green-500 border-green-500/20',
+  IN_PROGRESS: 'bg-warning/10 text-warning border-warning/20',
+  COMPLETED: 'bg-success/10 text-success border-success/20',
   CANCELLED: 'bg-destructive/10 text-destructive border-destructive/20',
   RESCHEDULED: 'bg-muted text-muted-foreground border-border',
 };

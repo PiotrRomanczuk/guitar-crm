@@ -51,20 +51,20 @@ export default function RelatedItemsSection({
 }: RelatedItemsSectionProps) {
   return (
     <div
-      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 ${className}`}
+      className={`bg-card rounded-lg shadow-md p-4 sm:p-6 ${className}`}
       data-testid={testId}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          {icon && <span className="text-gray-600 dark:text-gray-400">{icon}</span>}
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+          {icon && <span className="text-muted-foreground">{icon}</span>}
+          <h2 className="text-lg sm:text-xl font-bold text-foreground">
             {title} {!loading && `(${items.length})`}
           </h2>
         </div>
         {createAction && (
           <Link
             href={createAction.href}
-            className="text-xs sm:text-sm px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="text-xs sm:text-sm px-3 py-1.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
           >
             {createAction.label}
           </Link>
@@ -76,20 +76,20 @@ export default function RelatedItemsSection({
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 animate-pulse"
+              className="border border-border rounded-lg p-4 animate-pulse"
             >
-              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-2" />
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+              <div className="h-6 bg-muted rounded w-2/3 mb-2" />
+              <div className="h-4 bg-muted rounded w-1/2" />
             </div>
           ))}
         </div>
       ) : items.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-600 dark:text-gray-400 mb-4">{emptyMessage}</p>
+          <p className="text-muted-foreground mb-4">{emptyMessage}</p>
           {createAction && (
             <Link
               href={createAction.href}
-              className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-block px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
             >
               {createAction.label}
             </Link>

@@ -14,39 +14,30 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: roles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+    // Check admin status from profiles table boolean flags
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
 
-    const userRoles = roles?.map((r) => r.role) || [];
-    const isAdmin = userRoles.includes('admin');
+    const isAdmin = profile?.is_admin === true;
 
     if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Get all users
+    // Get all users with their role flags directly from profiles
     const { data: users, error: usersError } = await supabase
       .from('profiles')
-      .select('id, full_name')
+      .select('id, full_name, is_admin, is_teacher, is_student')
       .order('full_name');
 
     if (usersError) {
       return NextResponse.json({ error: usersError.message }, { status: 500 });
     }
 
-    // Get all roles to map back to legacy format
-    const { data: allRoles } = await supabase.from('user_roles').select('*');
-
-    const usersWithRoles = users?.map((u) => {
-      const uRoles = allRoles?.filter((r) => r.user_id === u.id).map((r) => r.role) || [];
-      return {
-        ...u,
-        is_teacher: uRoles.includes('teacher'),
-        is_student: uRoles.includes('student'),
-        is_admin: uRoles.includes('admin'),
-      };
-    });
-
-    return NextResponse.json({ users: usersWithRoles || [] });
+    return NextResponse.json({ users: users || [] });
   } catch (error) {
     console.error('Error fetching users:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

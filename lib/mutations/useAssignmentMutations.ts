@@ -21,12 +21,12 @@ interface CreateAssignmentPayload {
 }
 
 interface UpdateAssignmentPayload {
-  id: number;
+  id: string;
   data: z.infer<typeof AssignmentUpdateSchema>;
 }
 
 interface DeleteAssignmentPayload {
-  id: number;
+  id: string | number;
 }
 
 async function createAssignment(payload: CreateAssignmentPayload): Promise<Assignment> {
@@ -34,7 +34,7 @@ async function createAssignment(payload: CreateAssignmentPayload): Promise<Assig
 }
 
 async function updateAssignment(payload: UpdateAssignmentPayload): Promise<Assignment> {
-  return await apiClient.put<Assignment>(`/api/assignments/${payload.id}`, payload.data);
+  return await apiClient.patch<Assignment>(`/api/assignments/${payload.id}`, payload.data);
 }
 
 async function deleteAssignment(payload: DeleteAssignmentPayload): Promise<DeleteResult> {

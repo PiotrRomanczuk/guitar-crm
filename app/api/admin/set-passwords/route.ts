@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const SERVICE_ROLE_KEY = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+// Use server-side only env var (never NEXT_PUBLIC_ for secrets)
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 
 export async function POST(req: NextRequest) {

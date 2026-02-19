@@ -1,36 +1,47 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import Link from 'next/link';
-import { getGoogleEvents, createShadowUser, syncAllLessonsFromCalendar } from '@/app/dashboard/actions';
+import { createShadowUser } from '@/app/dashboard/actions';
+import {
+  getGoogleEvents,
+  syncAllLessonsFromCalendar,
+} from '@/app/dashboard/calendar-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, MapPin, ArrowRight, UserPlus, RefreshCw } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Calendar as CalendarIcon, RefreshCw, List, LayoutGrid } from 'lucide-react';
 import { ConnectGoogleButton } from './ConnectGoogleButton';
-
-interface GoogleEvent {
-  id: string;
-  summary: string;
-  description?: string;
-  location?: string;
-  start: { dateTime?: string; date?: string };
-  end: { dateTime?: string; date?: string };
-  htmlLink: string;
-  attendees?: { email: string; responseStatus?: string }[];
-}
+import { EventCard } from './CalendarEventsList.EventCard';
+import { isGuitarLesson, type GoogleEvent } from '@/lib/calendar/calendar-utils';
+import { ShadowUserDialog, SyncAllDialog } from './CalendarEventsList.Dialogs';
+import { CompactEventsList } from './CalendarEventsList.Compact';
+import { CalendarView } from './CalendarView';
+import { CalendarDayEvents } from './CalendarDayEvents';
+import { toast } from 'sonner';
 
 interface CalendarEventsListProps {
   limit?: number;
+  initialEvents?: GoogleEvent[] | null;
+  isConnected?: boolean;
 }
 
-export function CalendarEventsList({ limit }: CalendarEventsListProps) {
-  const [events, setEvents] = useState<GoogleEvent[] | null>(null);
-  const [loading, setLoading] = useState(true);
+export function CalendarEventsList({ limit, initialEvents, isConnected: initialIsConnected }: CalendarEventsListProps) {
+  const [events, setEvents] = useState<GoogleEvent[] | null>(initialEvents ?? null);
+  const [loading, setLoading] = useState(initialEvents === undefined);
   const [error, setError] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(initialIsConnected ?? false);
   const [isPending, startTransition] = useTransition();
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [shadowUserDialog, setShadowUserDialog] = useState<{ open: boolean; email: string }>({
+    open: false,
+    email: '',
+  });
+  const [syncAllDialog, setSyncAllDialog] = useState(false);
 
   useEffect(() => {
+    // Only fetch if initialEvents not provided (e.g., when used in dashboard widget)
+    if (initialEvents !== undefined) return;
+
     async function fetchEvents() {
       try {
         const data = await getGoogleEvents();
@@ -38,10 +49,9 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
           setIsConnected(false);
         } else {
           setIsConnected(true);
-          setEvents(data as GoogleEvent[]);
+          setEvents((data as GoogleEvent[]).filter(isGuitarLesson));
         }
-      } catch (err) {
-        console.error(err);
+      } catch {
         setError('Failed to load calendar events');
       } finally {
         setLoading(false);
@@ -49,36 +59,43 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
     }
 
     fetchEvents();
-  }, []);
+  }, [initialEvents]);
 
-  const handleCreateShadowUser = (email: string) => {
-    if (!confirm(`Create shadow user for ${email}?`)) return;
+  const handleCreateShadowUserClick = (email: string) => {
+    setShadowUserDialog({ open: true, email });
+  };
+
+  const confirmCreateShadowUser = () => {
+    const email = shadowUserDialog.email;
+    setShadowUserDialog({ open: false, email: '' });
 
     startTransition(async () => {
       try {
         const result = await createShadowUser(email);
         if (result.success) {
-          alert(`Successfully created shadow user for ${email}`);
+          toast.success(`Successfully created shadow user for ${email}`);
         }
-      } catch (error) {
-        console.error(error);
-        alert(error instanceof Error ? error.message : 'Failed to create shadow user');
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Failed to create shadow user');
       }
     });
   };
 
-  const handleSyncAll = () => {
-    if (!confirm('Sync all lessons from calendar? This will create shadow users for any new students found.')) return;
+  const handleSyncAllClick = () => {
+    setSyncAllDialog(true);
+  };
+
+  const confirmSyncAll = () => {
+    setSyncAllDialog(false);
 
     startTransition(async () => {
       try {
         const result = await syncAllLessonsFromCalendar();
         if (result.success) {
-          alert(`Successfully synced ${result.count} lessons across all users.`);
+          toast.success(`Successfully synced ${result.count} lessons across all users.`);
         }
-      } catch (error) {
-        console.error(error);
-        alert(error instanceof Error ? error.message : 'Failed to sync all lessons');
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Failed to sync all lessons');
       }
     });
   };
@@ -92,7 +109,7 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
+            <CalendarIcon className="w-5 h-5" />
             Google Calendar
           </CardTitle>
         </CardHeader>
@@ -114,122 +131,116 @@ export function CalendarEventsList({ limit }: CalendarEventsListProps) {
     );
   }
 
+  if (limit) {
+    return (
+      <CompactEventsList
+        events={events}
+        limit={limit}
+        isPending={isPending}
+        onCreateShadowUser={handleCreateShadowUserClick}
+        onSyncAll={handleSyncAllClick}
+        shadowUserDialog={shadowUserDialog}
+        onDismissShadowDialog={() => setShadowUserDialog({ open: false, email: '' })}
+        onConfirmShadowUser={confirmCreateShadowUser}
+        syncAllDialog={syncAllDialog}
+        onSyncAllDialogChange={setSyncAllDialog}
+        onConfirmSyncAll={confirmSyncAll}
+      />
+    );
+  }
+
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div className="flex items-center gap-2">
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
-            Upcoming Events
-          </CardTitle>
-          <div className="text-xs text-muted-foreground hidden sm:block">Connected to Google Calendar</div>
+    <>
+      <Tabs defaultValue="calendar">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="calendar" className="flex-1 sm:flex-initial min-h-[44px] sm:min-h-0">
+              <LayoutGrid className="size-4 mr-1.5" />
+              Calendar
+            </TabsTrigger>
+            <TabsTrigger value="list" className="flex-1 sm:flex-initial min-h-[44px] sm:min-h-0">
+              <List className="size-4 mr-1.5" />
+              List
+            </TabsTrigger>
+          </TabsList>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="min-h-[44px] sm:min-h-0"
+            onClick={handleSyncAllClick}
+            disabled={isPending}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isPending ? 'animate-spin' : ''}`} />
+            Sync All
+          </Button>
         </div>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleSyncAll} 
-          disabled={isPending}
-          title="Sync all lessons"
-        >
-          <RefreshCw className={`w-4 h-4 mr-2 ${isPending ? 'animate-spin' : ''}`} />
-          Sync All
-        </Button>
-      </CardHeader>
-      <CardContent>
-        {events && events.length > 0 ? (
-          <div className="space-y-4">
-            {(limit ? events.slice(0, limit) : events).map((event) => (
-              <div
-                key={event.id}
-                className="flex flex-col gap-1 p-3 border rounded-lg hover:bg-accent/50 transition-colors"
-              >
-                <div className="font-medium">{event.summary}</div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {formatEventTime(event.start, event.end)}
-                  </div>
-                  {event.location && (
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
-                      <span className="truncate max-w-[200px]">{event.location}</span>
-                    </div>
-                  )}
+
+        <TabsContent value="calendar">
+          {events && events.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6">
+              <CalendarView
+                events={events}
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+              />
+              <Card>
+                <CardContent className="p-4">
+                  <CalendarDayEvents
+                    events={events}
+                    selectedDate={selectedDate}
+                    isPending={isPending}
+                    onCreateShadowUser={handleCreateShadowUserClick}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="text-center py-8 text-muted-foreground">
+                No upcoming events found.
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="list">
+          <Card>
+            <CardContent className="p-4">
+              {events && events.length > 0 ? (
+                <div className="space-y-4">
+                  {events.map((event) => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      showAttendees
+                      isPending={isPending}
+                      onCreateShadowUser={handleCreateShadowUserClick}
+                    />
+                  ))}
                 </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No upcoming events found.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
-                {/* Attendees Section - Only show if not limited (full view) or if explicitly needed */}
-                {!limit && event.attendees && event.attendees.length > 0 && (
-                  <div className="mt-2 pt-2 border-t flex flex-wrap gap-2">
-                    {event.attendees.map((attendee) => (
-                      <div
-                        key={attendee.email}
-                        className="flex items-center gap-2 text-xs bg-secondary/50 p-1.5 rounded-md"
-                      >
-                        <span className="text-muted-foreground">{attendee.email}</span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-5 w-5 hover:bg-primary/10 hover:text-primary"
-                          title="Create Shadow User & Sync"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleCreateShadowUser(attendee.email);
-                          }}
-                          disabled={isPending}
-                        >
-                          <UserPlus className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+      <ShadowUserDialog
+        open={shadowUserDialog.open}
+        email={shadowUserDialog.email}
+        onOpenChange={(open) => !open && setShadowUserDialog({ open: false, email: '' })}
+        onConfirm={confirmCreateShadowUser}
+      />
 
-            {limit && events.length > limit && (
-              <div className="pt-2">
-                <Button variant="outline" className="w-full" asChild>
-                  <Link href="/dashboard/calendar">
-                    View all events <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </Button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">No upcoming events found.</div>
-        )}
-      </CardContent>
-    </Card>
+      <SyncAllDialog
+        open={syncAllDialog}
+        onOpenChange={setSyncAllDialog}
+        onConfirm={confirmSyncAll}
+      />
+    </>
   );
-}
-
-function formatEventTime(
-  start: { dateTime?: string; date?: string },
-  end: { dateTime?: string; date?: string }
-) {
-  if (start.date) {
-    return new Date(start.date).toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-    });
-  }
-
-  if (start.dateTime && end.dateTime) {
-    const startDate = new Date(start.dateTime);
-    const endDate = new Date(end.dateTime);
-
-    return `${startDate.toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-    })} • ${startDate.toLocaleTimeString(undefined, {
-      hour: 'numeric',
-      minute: '2-digit',
-    })} - ${endDate.toLocaleTimeString(undefined, {
-      hour: 'numeric',
-      minute: '2-digit',
-    })}`;
-  }
-
-  return '';
 }

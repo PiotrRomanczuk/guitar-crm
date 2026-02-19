@@ -1,5 +1,8 @@
-import { GoogleEventImporter } from '@/components/lessons/GoogleEventImporter';
-import { CalendarWebhookControl } from '@/components/lessons/CalendarWebhookControl';
+import {
+  GoogleEventImporter,
+  CalendarWebhookControl,
+  HistoricalCalendarSync,
+} from '@/components/lessons';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { redirect } from 'next/navigation';
 
@@ -11,8 +14,9 @@ export default async function ImportLessonsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-4">Import Lessons from Google Calendar</h1>
+    <div className="container mx-auto py-8 space-y-8">
+      <h1 className="text-2xl font-bold">Import Lessons from Google Calendar</h1>
+      <HistoricalCalendarSync />
       <CalendarWebhookControl />
       <GoogleEventImporter userEmail={user.email || ''} />
     </div>
