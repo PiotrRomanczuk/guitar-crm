@@ -18,7 +18,8 @@ import { HealthAlertsBanner } from '@/components/dashboard/health/HealthAlertsBa
 import { HealthSummaryWidget } from '@/components/dashboard/health/HealthSummaryWidget';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
 import { TeacherPerformance } from '@/components/dashboard/teacher/Performance';
-import { Users, BookOpen, Music, Shield } from 'lucide-react';
+import { Users, BookOpen, Music, Shield, Settings } from 'lucide-react';
+import Link from 'next/link';
 
 // Section wrapper for consistent spacing and optional titles
 function DashboardSection({
@@ -52,6 +53,7 @@ interface TeacherDashboardClientProps {
   email?: string;
   fullName?: string | null;
   adminStats?: AdminStats;
+  isAdmin?: boolean;
 }
 
 export function TeacherDashboardClient({
@@ -59,6 +61,7 @@ export function TeacherDashboardClient({
   email,
   fullName,
   adminStats,
+  isAdmin,
 }: TeacherDashboardClientProps) {
   const { data: dashboardData } = useDashboardStats();
   const apiAdminStats =
@@ -72,16 +75,28 @@ export function TeacherDashboardClient({
       <div className="space-y-5 sm:space-y-6 lg:space-y-8 ultrawide:space-y-10 w-full max-w-full">
         {/* Welcome Header */}
         <DashboardSection className="opacity-0 animate-fade-in">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight">
-              Welcome back,{' '}
-              <span className="text-primary">
-                {fullName || email || (displayAdminStats ? 'Admin' : 'Coach')}
-              </span>
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
-              Here&apos;s what&apos;s happening with your guitar students today.
-            </p>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight">
+                Welcome back,{' '}
+                <span className="text-primary">
+                  {fullName || email || (displayAdminStats ? 'Admin' : 'Coach')}
+                </span>
+              </h1>
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
+                Here&apos;s what&apos;s happening with your guitar students today.
+              </p>
+            </div>
+            {isAdmin && (
+              <Link
+                href="/dashboard?view=admin"
+                className="flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors text-sm font-medium text-primary whitespace-nowrap"
+              >
+                <Shield className="h-4 w-4" />
+                <span className="hidden sm:inline">Admin Control Center</span>
+                <span className="sm:hidden">Admin</span>
+              </Link>
+            )}
           </div>
         </DashboardSection>
 
@@ -102,7 +117,7 @@ export function TeacherDashboardClient({
               <LessonStatsOverview />
             </div>
             <div data-tour="todays-agenda" className="min-w-0">
-              <TodaysAgenda items={[]} />
+              <TodaysAgenda items={data.agenda} />
             </div>
           </div>
         </DashboardSection>

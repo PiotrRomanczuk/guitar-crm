@@ -65,3 +65,25 @@ export function formatNote(note: NoteName, useFlats: boolean = false): string {
   }
   return note;
 }
+
+export const INTERVAL_NAMES = [
+  'R', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7',
+] as const;
+
+export type IntervalName = (typeof INTERVAL_NAMES)[number];
+
+/**
+ * Get the interval name based on semitone distance from root.
+ */
+export function getIntervalName(semitones: number): IntervalName {
+  return INTERVAL_NAMES[((semitones % 12) + 12) % 12];
+}
+
+/**
+ * Get the semitone distance between two notes.
+ */
+export function getSemitoneDistance(root: NoteName, note: NoteName): number {
+  const rootIndex = getNoteIndex(root);
+  const noteIndex = getNoteIndex(note);
+  return (noteIndex - rootIndex + 12) % 12;
+}

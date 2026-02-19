@@ -9,6 +9,10 @@ export {
   noteFromIndex,
   formatNote,
   type NoteName,
+  INTERVAL_NAMES,
+  type IntervalName,
+  getIntervalName,
+  getSemitoneDistance,
 } from './notes';
 
 export {

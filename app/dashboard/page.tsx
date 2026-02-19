@@ -1,12 +1,18 @@
 import { createClient } from '@/lib/supabase/server';
 import { DashboardPageContent } from '@/components/dashboard/Dashboard';
+import { AdminDashboardClient } from '@/components/dashboard/admin/AdminDashboardClient';
 import { StudentDashboardClient } from '@/components/dashboard/student/StudentDashboardClient';
 import { TeacherDashboardClient } from '@/components/dashboard/teacher/TeacherDashboardClient';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { getStudentDashboardData } from '@/app/actions/student/dashboard';
 import { getTeacherDashboardData } from '@/app/actions/teacher/dashboard';
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const { view } = await searchParams;
   const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
 
   if (!user) {
@@ -21,13 +27,8 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single();
 
-  // Show admin dashboard for admin users AND teachers (for now, same view)
-  if (isAdmin || isTeacher) {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    // Fetch Admin Stats
+  // Admin View (Explicitly requested)
+  if (isAdmin && view === 'admin') {
     const [
       { count: totalUsers },
       { count: totalTeachers },
@@ -54,10 +55,21 @@ export default async function DashboardPage() {
       totalStudents: totalStudents || 0,
       totalSongs: totalSongs || 0,
       totalLessons: totalLessons || 0,
-      recentUsers: recentUsers || [],
+      recentUsers: (recentUsers as any) || [],
     };
 
-    // Fetch Teacher Dashboard Data (for the main UI)
+    return (
+      <AdminDashboardClient
+        stats={adminStats}
+        user={user}
+        profile={profile}
+        viewMode="admin"
+      />
+    );
+  }
+
+  // Teacher View (Default for teachers AND admins)
+  if (isTeacher || isAdmin) {
     const teacherData = await getTeacherDashboardData();
 
     return (
@@ -65,13 +77,13 @@ export default async function DashboardPage() {
         data={teacherData}
         email={user.email}
         fullName={profile?.full_name}
-        adminStats={adminStats}
+        isAdmin={isAdmin}
       />
     );
   }
 
-  // Show student dashboard for student users (or default users without specific roles)
-  if (!isAdmin && !isTeacher) {
+  // Student Dashboard
+  if (isStudent) {
     const {
       data: { session },
     } = await supabase.auth.getSession();
