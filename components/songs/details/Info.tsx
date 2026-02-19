@@ -34,53 +34,7 @@ function formatDuration(ms: number): string {
 export default function SongDetailInfo({ song }: Props) {
   return (
     <div className="space-y-6">
-      {song.cover_image_url && (
-        <div className="relative w-full max-w-md aspect-square mx-auto rounded-xl overflow-hidden shadow-lg mb-6">
-          <Image
-            src={song.cover_image_url}
-            alt={`${song.title} cover`}
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
-      )}
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {song.level && (
-          <Card className="bg-card border-border/50 shadow-sm">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Signal className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Difficulty</p>
-                <Badge
-                  variant="secondary"
-                  className={`mt-1 capitalize ${
-                    difficultyColors[song.level as keyof typeof difficultyColors] || ''
-                  }`}
-                >
-                  {song.level}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {song.key && (
-          <Card className="bg-card border-border/50 shadow-sm">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Music2 className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Key</p>
-                <p className="text-lg font-semibold mt-0.5">{song.key}</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {song.tempo && (
           <Card className="bg-card border-border/50 shadow-sm">
@@ -229,49 +183,54 @@ export default function SongDetailInfo({ song }: Props) {
         </Card>
       )}
 
-      <div className="flex flex-wrap gap-4">
-        {song.ultimate_guitar_link && (
-          <Button variant="outline" asChild className="w-full sm:w-auto">
-            <a
-              href={song.ultimate_guitar_link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2"
-            >
-              <ExternalLink className="w-4 h-4" />
-              View on Ultimate Guitar
-            </a>
-          </Button>
-        )}
+      {(song.ultimate_guitar_link || song.spotify_link_url || song.tiktok_short_url) && (
+        <div className="pt-2">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">External Resources</h3>
+          <div className="flex flex-wrap gap-4">
+            {song.ultimate_guitar_link && (
+              <Button variant="outline" asChild className="w-full sm:w-auto">
+                <a
+                  href={song.ultimate_guitar_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  View on Ultimate Guitar
+                </a>
+              </Button>
+            )}
 
-        {song.spotify_link_url && (
-          <Button variant="outline" asChild className="w-full sm:w-auto">
-            <a
-              href={song.spotify_link_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Listen on Spotify
-            </a>
-          </Button>
-        )}
+            {song.spotify_link_url && (
+              <Button variant="outline" asChild className="w-full sm:w-auto">
+                <a
+                  href={song.spotify_link_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Listen on Spotify
+                </a>
+              </Button>
+            )}
 
-        {song.tiktok_short_url && (
-          <Button variant="outline" asChild className="w-full sm:w-auto">
-            <a
-              href={song.tiktok_short_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Open in TikTok
-            </a>
-          </Button>
-        )}
-      </div>
+            {song.tiktok_short_url && (
+              <Button variant="outline" asChild className="w-full sm:w-auto">
+                <a
+                  href={song.tiktok_short_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Open in TikTok
+                </a>
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

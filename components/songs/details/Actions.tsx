@@ -12,9 +12,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Pencil, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Pencil, Trash2, MoreVertical } from 'lucide-react';
 import { SyncSpotifyButton } from './SyncSpotifyButton';
 import { toast } from 'sonner';
 
@@ -62,23 +67,41 @@ export default function SongDetailActions({
   }
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex items-center gap-2">
       <SyncSpotifyButton songId={songId} songTitle={songTitle} hasSpotifyData={hasSpotifyData} />
 
-      <Button asChild variant="outline">
+      <Button asChild variant="outline" className="hidden sm:flex">
         <Link href={`/dashboard/songs/${songId}/edit`}>
           <Pencil className="w-4 h-4 mr-2" />
-          Edit Song
+          Edit
         </Link>
       </Button>
 
-      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <AlertDialogTrigger asChild>
-          <Button variant="destructive" disabled={deleting}>
-            <Trash2 className="w-4 h-4 mr-2" />
-            {deleting ? 'Deleting...' : 'Delete Song'}
+      <Button asChild variant="outline" size="icon" className="sm:hidden">
+        <Link href={`/dashboard/songs/${songId}/edit`}>
+          <Pencil className="w-4 h-4" />
+        </Link>
+      </Button>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground hover:text-foreground">
+            <MoreVertical className="w-5 h-5" />
+            <span className="sr-only">More options</span>
           </Button>
-        </AlertDialogTrigger>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuItem
+            className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+            onSelect={() => setDialogOpen(true)}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Song
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Song</AlertDialogTitle>
@@ -88,8 +111,8 @@ export default function SongDetailActions({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90" disabled={deleting}>
+              {deleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

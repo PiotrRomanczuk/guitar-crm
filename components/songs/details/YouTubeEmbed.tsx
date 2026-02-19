@@ -38,14 +38,14 @@ export default function YouTubeEmbed({ url }: Props) {
             />
           </div>
         ) : (
-          <div className="aspect-video bg-muted rounded-lg flex items-center justify-center border border-border/50">
-            <div className="text-center p-6">
-              <Youtube className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-              <p className="text-muted-foreground font-medium">No video tutorial available</p>
-              <p className="text-sm text-muted-foreground/70 mt-1">
-                Video tutorials will appear here once added to the song.
-              </p>
+          <div className="bg-muted/30 rounded-lg flex flex-col items-center justify-center border border-dashed border-border/60 py-10 px-6 text-center">
+            <div className="p-3 bg-primary/5 rounded-full mb-3">
+              <Youtube className="w-8 h-8 text-muted-foreground/60" />
             </div>
+            <p className="text-base font-medium text-foreground mb-1">No video tutorial</p>
+            <p className="text-sm text-muted-foreground max-w-[280px]">
+              Add a YouTube link in the Edit page to show a playable tutorial here.
+            </p>
           </div>
         )}
       </CardContent>

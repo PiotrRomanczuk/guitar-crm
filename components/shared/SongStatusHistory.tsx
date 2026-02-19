@@ -115,12 +115,21 @@ export function SongStatusHistory({ songId, studentId, title }: SongStatusHistor
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">{title || 'Song Status History'}</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Music2 className="h-5 w-5" />
+            {title || 'Song Status History'}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground text-center py-8">
-            No status changes recorded
-          </p>
+          <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+            <div className="h-12 w-12 rounded-full bg-primary/5 flex items-center justify-center mb-4 ring-1 ring-primary/10">
+              <Clock className="h-6 w-6 text-primary/60" />
+            </div>
+            <p className="text-base font-medium text-foreground mb-1">No progress yet</p>
+            <p className="text-sm text-muted-foreground max-w-[200px]">
+              Start practicing this song to record your status changes here.
+            </p>
+          </div>
         </CardContent>
       </Card>
     );

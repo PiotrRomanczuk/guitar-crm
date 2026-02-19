@@ -23,6 +23,7 @@ import VideoUpload from './VideoUpload';
 interface VideoGalleryProps {
   songId: string;
   isTeacher: boolean;
+  initialVideos?: SongVideo[];
 }
 
 async function fetchVideos(songId: string): Promise<SongVideo[]> {
@@ -40,7 +41,7 @@ async function deleteVideo(songId: string, videoId: string) {
   }
 }
 
-export default function VideoGallery({ songId, isTeacher }: VideoGalleryProps) {
+export default function VideoGallery({ songId, isTeacher, initialVideos = [] }: VideoGalleryProps) {
   const queryClient = useQueryClient();
   const [activeVideo, setActiveVideo] = useState<SongVideo | null>(null);
   const [videoToDelete, setVideoToDelete] = useState<SongVideo | null>(null);
@@ -48,6 +49,7 @@ export default function VideoGallery({ songId, isTeacher }: VideoGalleryProps) {
   const { data: videos = [], isLoading } = useQuery({
     queryKey: ['song-videos', songId],
     queryFn: () => fetchVideos(songId),
+    initialData: initialVideos.length > 0 ? initialVideos : undefined,
   });
 
   const deleteMutation = useMutation({

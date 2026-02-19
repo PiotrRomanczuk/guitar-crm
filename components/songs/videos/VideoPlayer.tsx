@@ -3,7 +3,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Loader2 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import type { SongVideo } from '@/types/SongVideo';
+
+const ReactPlayer = dynamic(() => import('react-player'), { ssr: false }) as any;
 
 interface VideoPlayerProps {
   video: SongVideo | null;
@@ -74,15 +77,14 @@ export default function VideoPlayer({ video, songId, onClose }: VideoPlayerProps
           )}
 
           {streamUrl && !isLoading && !error && (
-            <video
-              src={streamUrl}
+            <ReactPlayer
+              url={streamUrl}
               controls
-              autoPlay
-              className="w-full h-full"
-              playsInline
-            >
-              <track kind="captions" />
-            </video>
+              playing
+              width="100%"
+              height="100%"
+              playsinline
+            />
           )}
         </div>
 
