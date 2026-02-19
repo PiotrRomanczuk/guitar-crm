@@ -22,6 +22,10 @@ interface FretboardControlsProps {
   onToggleFlats: () => void;
   onToggleAllNotes: () => void;
   onClear: () => void;
+  volume?: number;
+  onVolumeChange?: (volume: number) => void;
+  audioEnabled?: boolean;
+  onToggleAudio?: () => void;
 }
 
 export function FretboardControls({
@@ -38,6 +42,10 @@ export function FretboardControls({
   onToggleFlats,
   onToggleAllNotes,
   onClear,
+  volume,
+  onVolumeChange,
+  audioEnabled,
+  onToggleAudio,
 }: FretboardControlsProps) {
   return (
     <div className="space-y-4">
@@ -62,6 +70,24 @@ export function FretboardControls({
           onToggleAllNotes={onToggleAllNotes}
         />
       </div>
+
+      {/* Audio controls */}
+      {(volume !== undefined || audioEnabled !== undefined) && (
+        <div className="flex flex-wrap items-center gap-3 border-t border-border pt-3">
+          {onToggleAudio !== undefined && audioEnabled !== undefined && (
+            <Button
+              variant={audioEnabled ? 'default' : 'outline'}
+              size="sm"
+              onClick={onToggleAudio}
+            >
+              {audioEnabled ? '🔊 Audio On' : '🔇 Audio Off'}
+            </Button>
+          )}
+          {volume !== undefined && onVolumeChange && (
+            <VolumeControl volume={volume} onChange={onVolumeChange} />
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -202,6 +228,39 @@ function ToggleButtons({
       >
         {showAllNotes ? 'All Notes' : 'Scale Only'}
       </Button>
+    </div>
+  );
+}
+
+function VolumeControl({
+  volume,
+  onChange,
+}: {
+  volume: number;
+  onChange: (volume: number) => void;
+}) {
+  // Convert dB to percentage for display (0 to 100)
+  const volumePercent = Math.round(((volume + 60) / 60) * 100);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Convert percentage back to dB (-60 to 0)
+    const percent = parseInt(e.target.value);
+    const dB = (percent / 100) * 60 - 60;
+    onChange(dB);
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <label className="text-sm font-medium text-muted-foreground">Volume:</label>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        value={volumePercent}
+        onChange={handleChange}
+        className="w-32 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+      />
+      <span className="text-xs text-muted-foreground w-10 text-right">{volumePercent}%</span>
     </div>
   );
 }
