@@ -1,18 +1,19 @@
 'use client';
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { AdminStatCard } from '@/components/dashboard/admin/AdminStatCard';
-import { AdminActionCard } from '@/components/dashboard/admin/AdminActionCard';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { StatsCard } from '@/components/dashboard/StatsCard';
 import { RecentActivity } from '@/components/dashboard/admin/RecentActivity';
 import { CalendarEventsList } from '@/components/dashboard/calendar/CalendarEventsList';
 import { PotentialUsersList } from '@/components/dashboard/admin/PotentialUsersList';
 import { BearerTokenDisplay } from '@/components/dashboard/BearerTokenDisplay';
-import { staggerContainer, listItem, cardEntrance } from '@/lib/animations';
-
-type DebugView = 'admin' | 'teacher' | 'student';
+import { NotificationsAlertsSection } from '@/components/dashboard/NotificationsAlertsSection';
+import { HealthSummaryWidget } from '@/components/dashboard/health/HealthSummaryWidget';
+import { GlobalSearch } from '@/components/dashboard/GlobalSearch';
+import { AuditLogSection } from '@/components/dashboard/admin/AuditLogSection';
+import { staggerContainer } from '@/lib/animations';
+import { Users, BookOpen, Music, Shield, Activity, Database, Lock, Settings, FileText } from 'lucide-react';
+import Link from 'next/link';
 
 interface RecentUser {
   id: string;
@@ -30,302 +31,173 @@ interface AdminDashboardClientProps {
     totalLessons: number;
     recentUsers: RecentUser[];
   };
+  user: any;
+  profile: any;
+  viewMode?: 'admin' | 'teacher';
 }
 
-export function AdminDashboardClient({ stats }: AdminDashboardClientProps) {
-  const [debugView, setDebugView] = useState<DebugView>('admin');
-
-  const getBackgroundColor = () => {
-    switch (debugView) {
-      case 'teacher':
-        return 'from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800';
-      case 'student':
-        return 'from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800';
-      default:
-        return 'from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800';
-    }
-  };
-
-  const getHeader = () => {
-    switch (debugView) {
-      case 'teacher':
-        return {
-          icon: '👨‍🏫',
-          title: 'Teacher Dashboard Preview',
-          description: 'Preview of teacher dashboard (debug mode)',
-        };
-      case 'student':
-        return {
-          icon: '👨‍🎓',
-          title: 'Student Dashboard Preview',
-          description: 'Preview of student dashboard (debug mode)',
-        };
-      default:
-        return {
-          icon: '⚙️',
-          title: 'Admin Dashboard',
-          description: 'System administration and user management',
-        };
-    }
-  };
-
-  const header = getHeader();
-
+export function AdminDashboardClient({ stats, user, profile, viewMode }: AdminDashboardClientProps) {
   return (
-    <div className={`min-h-screen bg-linear-to-br ${getBackgroundColor()}`}>
-      <motion.main
-        variants={staggerContainer}
-        initial="hidden"
-        animate="visible"
-        className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-7xl"
-      >
-        <DebugViewBanner debugView={debugView} onReset={() => setDebugView('admin')} />
+    <div className="w-full max-w-full overflow-x-hidden min-w-0 px-1 sm:px-0">
+      <div className="space-y-6 sm:space-y-8 lg:space-y-10 w-full max-w-full">
+        {/* Header */}
+        <motion.section
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        >
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+              Admin <span className="text-primary">Control Center</span>
+            </h1>
+            <div className="flex items-center gap-2">
+              <p className="text-sm sm:text-base text-muted-foreground">
+                System-wide oversight for {profile?.full_name || user?.email}
+              </p>
+              {viewMode === 'admin' && (
+                <Link
+                  href="/dashboard"
+                  className="text-xs text-primary hover:underline flex items-center gap-1 ml-2"
+                >
+                  <Users className="h-3 w-3" />
+                  Teacher View
+                </Link>
+              )}
+            </div>
+          </div>
 
-        <BearerTokenDisplay />
+          <div className="flex items-center gap-2">
+            <GlobalSearch />
+          </div>
+        </motion.section>
 
-        <motion.header variants={listItem} className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            {header.icon} {header.title}
-          </h1>
-          <p className="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-300">
-            {header.description}
-          </p>
-        </motion.header>
+        {/* System Notifications & Health */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <NotificationsAlertsSection />
+          </div>
+          <div className="lg:col-span-1">
+            <HealthSummaryWidget />
+          </div>
+        </div>
 
-        <motion.div variants={listItem}>
-          <QuickStats
-            debugView={debugView}
-            totalUsers={stats.totalUsers}
-            totalTeachers={stats.totalTeachers}
-            totalStudents={stats.totalStudents}
-            totalSongs={stats.totalSongs}
-          />
-        </motion.div>
+        {/* Global Stats */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 px-1">
+            <Activity className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold">System Metrics</h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <StatsCard
+              title="Total Users"
+              value={stats.totalUsers}
+              icon={Users}
+              variant="gradient"
+              href="/dashboard/users"
+              delay={100}
+            />
+            <StatsCard
+              title="Active Teachers"
+              value={stats.totalTeachers}
+              icon={Shield}
+              variant="gradient"
+              delay={150}
+              iconColor="text-indigo-500"
+              iconBgColor="bg-indigo-500/10"
+            />
+            <StatsCard
+              title="Active Students"
+              value={stats.totalStudents}
+              icon={Users}
+              variant="gradient"
+              delay={200}
+              iconColor="text-emerald-500"
+              iconBgColor="bg-emerald-500/10"
+            />
+            <StatsCard
+              title="Total Songs"
+              value={stats.totalSongs}
+              icon={Music}
+              variant="gradient"
+              href="/dashboard/songs"
+              delay={250}
+              iconColor="text-amber-500"
+              iconBgColor="bg-amber-500/10"
+            />
+            <StatsCard
+              title="Total Lessons"
+              value={stats.totalLessons}
+              icon={BookOpen}
+              variant="gradient"
+              delay={300}
+              iconColor="text-rose-500"
+              iconBgColor="bg-rose-500/10"
+            />
+          </div>
+        </section>
 
-        {debugView === 'admin' && (
-          <motion.div variants={listItem}>
-            <AdminActions />
-          </motion.div>
-        )}
+        {/* Admin Tools Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Audit Logs */}
+          <div className="lg:col-span-2">
+            <AuditLogSection />
+          </div>
 
-        {debugView === 'admin' && (
-          <motion.div variants={listItem} className="mb-6 sm:mb-8">
-            <CalendarEventsList limit={7} />
-          </motion.div>
-        )}
+          {/* Quick Admin Actions */}
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="text-lg">Administrative Actions</CardTitle>
+              <CardDescription>Direct access to system modules</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 gap-2">
+              <AdminActionLink href="/dashboard/users" icon={Users} label="User Management" />
+              <AdminActionLink href="/dashboard/settings" icon={Settings} label="System Settings" comingSoon />
+              <AdminActionLink href="/admin/logs" icon={FileText} label="Audit Logs" comingSoon />
+              <AdminActionLink href="/admin/database" icon={Database} label="Database Explorer" comingSoon />
+              <AdminActionLink href="/admin/security" icon={Lock} label="Security Policies" comingSoon />
+            </CardContent>
+          </Card>
+        </div>
 
-        {debugView === 'admin' && (
-          <motion.div variants={listItem} className="mb-6 sm:mb-8">
-            <PotentialUsersList />
-          </motion.div>
-        )}
+        {/* Lower Sections */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RecentActivity recentUsers={stats.recentUsers} />
+          <PotentialUsersList />
+        </div>
 
-        {debugView === 'admin' && (
-          <motion.div variants={listItem}>
-            <RecentActivity recentUsers={stats.recentUsers} />
-          </motion.div>
-        )}
-
-        {debugView === 'admin' && (
-          <motion.div variants={listItem}>
-            <DebugViewSelector currentView={debugView} onViewChange={setDebugView} />
-          </motion.div>
-        )}
-      </motion.main>
+        {/* Bottom Sections */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-10">
+          <CalendarEventsList limit={5} />
+          <BearerTokenDisplay />
+        </div>
+      </div>
     </div>
   );
 }
 
-function DebugViewBanner({ debugView, onReset }: { debugView: DebugView; onReset: () => void }) {
-  if (debugView === 'admin') return null;
+function AdminActionLink({ href, icon: Icon, label, comingSoon }: { href: string, icon: any, label: string, comingSoon?: boolean }) {
+  if (comingSoon) {
+    return (
+      <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30 opacity-60 cursor-not-allowed">
+        <div className="flex items-center gap-3">
+          <Icon className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">{label}</span>
+        </div>
+        <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground px-1.5 py-0.5 rounded bg-muted">Soon</span>
+      </div>
+    );
+  }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="mb-4 p-4 bg-amber-100 dark:bg-amber-900 border border-amber-300 dark:border-amber-700 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-    >
-      <p className="text-amber-800 dark:text-amber-200 font-medium">
-        🔧 Debug Mode: Viewing as{' '}
-        <span className="font-bold">{debugView === 'teacher' ? 'Teacher' : 'Student'}</span>
-      </p>
-      <Button
-        onClick={onReset}
-        variant="default"
-        className="bg-amber-600 hover:bg-amber-700 text-white border-none min-h-[44px]"
-      >
-        Back to Admin View
-      </Button>
-    </motion.div>
-  );
-}
-
-function DebugViewSelector({
-  currentView,
-  onViewChange,
-}: {
-  currentView: DebugView;
-  onViewChange: (view: DebugView) => void;
-}) {
-  return (
-    <motion.div variants={cardEntrance}>
-      <Card className="mt-8 bg-muted/50">
-        <CardContent className="p-4 sm:p-6">
-          <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <span>🔧</span> Debug: Preview Dashboards
-          </h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Switch between dashboard views to test different user role perspectives:
-          </p>
-          <div className="flex flex-wrap gap-3">
-            {(['admin', 'teacher', 'student'] as const).map((view) => (
-              <motion.div key={view} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button
-                  onClick={() => onViewChange(view)}
-                  variant={currentView === view ? 'default' : 'outline'}
-                  className={`min-h-[44px] ${currentView === view ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
-                >
-                  {view === 'admin' ? '⚙️ Admin' : view === 'teacher' ? '👨‍🏫 Teacher' : '👨‍🎓 Student'} View
-                </Button>
-              </motion.div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-}
-
-function QuickStats({
-  debugView,
-  totalUsers,
-  totalTeachers,
-  totalStudents,
-  totalSongs,
-}: {
-  debugView: DebugView;
-  totalUsers: number;
-  totalTeachers: number;
-  totalStudents: number;
-  totalSongs: number;
-}) {
-  const getStats = () => {
-    switch (debugView) {
-      case 'teacher':
-        return [
-          { icon: '👨‍🎓', value: '0', label: 'My Students' },
-          { icon: '🎯', value: '0', label: 'Active Lessons' },
-          { icon: '🎵', value: totalSongs.toString(), label: 'Songs Library' },
-          { icon: '📊', value: '0', label: 'Student Progress' },
-        ];
-      case 'student':
-        return [
-          { icon: '👨‍🏫', value: '0', label: 'My Teacher' },
-          { icon: '📅', value: '0', label: 'Lessons Done' },
-          { icon: '🎵', value: '0', label: 'Songs Learning' },
-          { icon: '⭐', value: '0%', label: 'Progress' },
-        ];
-      default:
-        return [
-          { icon: '👥', value: totalUsers.toString(), label: 'Total Users' },
-          { icon: '👨‍🏫', value: totalTeachers.toString(), label: 'Teachers' },
-          { icon: '👨‍🎓', value: totalStudents.toString(), label: 'Students' },
-          { icon: '🎵', value: totalSongs.toString(), label: 'Songs' },
-        ];
-    }
-  };
-
-  const statsConfig = getStats();
-
-  return (
-    <motion.div
-      variants={staggerContainer}
-      initial="hidden"
-      animate="visible"
-      className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8"
-      data-tour="stats"
-    >
-      {statsConfig.map((stat, index) => (
-        <motion.div key={stat.label} variants={listItem} custom={index}>
-          <AdminStatCard icon={stat.icon} value={stat.value} label={stat.label} />
-        </motion.div>
-      ))}
-    </motion.div>
-  );
-}
-
-function AdminActions() {
-  const actions = [
-    {
-      href: '/dashboard/users',
-      icon: '👥',
-      title: 'User Management',
-      description: 'Create, edit, and manage user accounts and roles',
-      linkText: 'Manage Users',
-      comingSoon: false,
-    },
-    {
-      href: '/dashboard/settings',
-      icon: '⚙️',
-      title: 'System Settings',
-      description: 'Configure system-wide settings and preferences',
-      linkText: 'Open Settings',
-      comingSoon: true,
-    },
-    {
-      href: '/admin/reports',
-      icon: '📊',
-      title: 'Reports & Analytics',
-      description: 'View system usage and performance metrics',
-      linkText: 'View Reports',
-      comingSoon: true,
-    },
-    {
-      href: '/admin/database',
-      icon: '💾',
-      title: 'Database Management',
-      description: 'Backup, restore, and maintain database',
-      linkText: 'Manage Database',
-      comingSoon: true,
-    },
-    {
-      href: '/admin/logs',
-      icon: '📝',
-      title: 'Activity Logs',
-      description: 'Monitor system activity and user actions',
-      linkText: 'View Logs',
-      comingSoon: true,
-    },
-    {
-      href: '/admin/security',
-      icon: '🔒',
-      title: 'Security & Permissions',
-      description: 'Manage RLS policies and access control',
-      linkText: 'Security Settings',
-      comingSoon: true,
-    },
-  ];
-
-  return (
-    <motion.div
-      variants={staggerContainer}
-      initial="hidden"
-      animate="visible"
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8"
-      data-tour="quick-actions"
-    >
-      {actions.map((action, index) => (
-        <motion.div
-          key={action.href}
-          variants={listItem}
-          custom={index}
-          whileHover={{ y: -4, scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <AdminActionCard {...action} />
-        </motion.div>
-      ))}
-    </motion.div>
+    <Link href={href} className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group">
+      <div className="flex items-center gap-3">
+        <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+        <span className="text-sm font-medium group-hover:text-primary transition-colors">{label}</span>
+      </div>
+      <motion.div whileHover={{ x: 3 }}>
+        <Shield className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+      </motion.div>
+    </Link>
   );
 }

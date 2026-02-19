@@ -5,12 +5,23 @@ import { NoteCell } from './Fretboard.NoteCell';
 import { FRET_MARKERS, STRING_LABELS } from './fretboard.helpers';
 import { type FretboardState } from './useFretboard';
 import { useGuitarAudio } from './useGuitarAudio';
+import { type CAGEDActiveShape } from './caged.helpers';
 
 type FretboardGridProps = Pick<
   FretboardState,
-  'fretboard' | 'highlightedNotes' | 'useFlats' | 'showAllNotes'
+  | 'fretboard'
+  | 'highlightedNotes'
+  | 'useFlats'
+  | 'showAllNotes'
+  | 'noteDisplayType'
+  | 'showFunctionalColors'
+  | 'rootNote'
+  | 'activeNoteIndex'
 > & {
   audioEnabled?: boolean;
+  isTraining?: boolean;
+  onSubmitNote?: (note: NoteName) => void;
+  activeCAGEDShapes?: CAGEDActiveShape[];
 };
 
 export function FretboardGrid({
@@ -18,7 +29,14 @@ export function FretboardGrid({
   highlightedNotes,
   useFlats,
   showAllNotes,
+  noteDisplayType,
+  showFunctionalColors,
+  rootNote,
+  activeNoteIndex,
   audioEnabled = true,
+  isTraining = false,
+  onSubmitNote,
+  activeCAGEDShapes = [],
 }: FretboardGridProps) {
   const { playNote, isReady } = useGuitarAudio();
   const fretNumbers = Array.from({ length: TOTAL_FRETS + 1 }, (_, i) => i);
@@ -27,6 +45,10 @@ export function FretboardGrid({
   const reversedLabels = [...STRING_LABELS].reverse();
 
   const handleNoteClick = async (displayStringIndex: number, fret: number, note: NoteName) => {
+    if (onSubmitNote) {
+      onSubmitNote(note);
+    }
+
     if (!audioEnabled || !isReady) return;
 
     // Convert reversed display index back to original string index (0 = low E, 5 = high e)
@@ -55,6 +77,16 @@ export function FretboardGrid({
                   highlightedNotes={highlightedNotes}
                   useFlats={useFlats}
                   showAllNotes={showAllNotes}
+                  noteDisplayType={noteDisplayType}
+                  showFunctionalColors={showFunctionalColors}
+                  rootNote={rootNote}
+                  isActive={activeNoteIndex !== null && highlightedNotes[activeNoteIndex] === note}
+                  cagedLabel={activeCAGEDShapes
+                    .filter((shape) =>
+                      shape.cells.some((cell) => cell.stringIndex === displayStringIndex && cell.fret === fret)
+                    )
+                    .map((shape) => shape.name)
+                    .join('/')}
                   onNoteClick={audioEnabled ? handleNoteClick : undefined}
                 />
               ))}
@@ -76,11 +108,10 @@ function FretNumberRow({ fretNumbers }: { fretNumbers: number[] }) {
       {fretNumbers.map((fret) => (
         <th
           key={fret}
-          className={`text-center text-xs font-medium py-2 ${
-            fret === 0
-              ? 'text-foreground bg-muted/50 dark:bg-muted/30 w-12'
-              : 'text-muted-foreground w-16'
-          }`}
+          className={`text-center text-xs font-medium py-2 ${fret === 0
+            ? 'text-foreground bg-muted/50 dark:bg-muted/30 w-12'
+            : 'text-muted-foreground w-16'
+            }`}
         >
           {fret === 0 ? 'Open' : fret}
         </th>
