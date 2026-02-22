@@ -24,6 +24,14 @@ const eslintConfig = defineConfig([
     'tests/**',
     'cypress/**',
   ]),
+  // Fix: eslint-plugin-react (bundled by eslint-config-next) uses context.getFilename()
+  // which was removed in ESLint 10. Pinning react.version bypasses auto-detection.
+  {
+    name: 'project/react-version-fix',
+    settings: {
+      react: { version: '19.0.0' },
+    },
+  },
   // Project-wide rules and overrides
   {
     name: 'project/component-size-rules',
