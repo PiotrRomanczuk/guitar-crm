@@ -157,11 +157,11 @@ export async function POST(request: NextRequest) {
       .from('songs')
       .insert(songData)
       .select()
-      .single() as { data: any; error: any };
+      .single() as { data: { id: string; title: string; author: string; level: string; spotify_link_url: string } | null; error: { message: string } | null };
 
-    if (songError) {
+    if (songError || !song) {
       log.error('Failed to create song', { error: songError });
-      throw new Error(`Failed to create song: ${songError.message}`);
+      throw new Error(`Failed to create song: ${songError?.message ?? 'No data returned'}`);
     }
 
     // Get Drive folder ID (from env or scan data)
@@ -189,13 +189,13 @@ export async function POST(request: NextRequest) {
       .from('song_videos')
       .insert(videoData)
       .select()
-      .single() as { data: any; error: any };
+      .single() as { data: { id: string; filename: string } | null; error: { message: string } | null };
 
-    if (videoError) {
+    if (videoError || !video) {
       log.error('Failed to link video', { error: videoError });
       // Roll back song creation
       await adminClient.from('songs').delete().eq('id', song.id);
-      throw new Error(`Failed to link video: ${videoError.message}`);
+      throw new Error(`Failed to link video: ${videoError?.message ?? 'No data returned'}`);
     }
 
     log.info('Successfully created song from Spotify and linked video', {

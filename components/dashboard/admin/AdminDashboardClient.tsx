@@ -32,8 +32,8 @@ interface AdminDashboardClientProps {
     totalLessons: number;
     recentUsers: RecentUser[];
   };
-  user: any;
-  profile: any;
+  user: { id: string; email?: string };
+  profile: { full_name?: string } | null;
   viewMode?: 'admin' | 'teacher';
 }
 
@@ -178,7 +178,7 @@ export function AdminDashboardClient({ stats, user, profile, viewMode }: AdminDa
   );
 }
 
-function AdminActionLink({ href, icon: Icon, label, comingSoon }: { href: string, icon: any, label: string, comingSoon?: boolean }) {
+function AdminActionLink({ href, icon: Icon, label, comingSoon }: { href: string, icon: React.ComponentType<{ className?: string }>, label: string, comingSoon?: boolean }) {
   if (comingSoon) {
     return (
       <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30 opacity-60 cursor-not-allowed">

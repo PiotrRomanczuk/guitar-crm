@@ -84,7 +84,7 @@ export function AuthorCombobox({ value, authors, onChange }: AuthorComboboxProps
                   className="text-sm"
                 >
                   <Plus className="mr-1.5 h-3 w-3" />
-                  Create "{search}"
+                  Create &quot;{search}&quot;
                 </CommandItem>
               </CommandGroup>
             )}

@@ -6,7 +6,17 @@ import { Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import type { SongVideo } from '@/types/SongVideo';
 
-const ReactPlayer = dynamic(() => import('react-player'), { ssr: false }) as any;
+const ReactPlayer = dynamic(() => import('react-player'), { ssr: false }) as React.ComponentType<{
+  url: string;
+  playing?: boolean;
+  controls?: boolean;
+  width?: string | number;
+  height?: string | number;
+  onReady?: () => void;
+  onError?: (error: unknown) => void;
+  playsinline?: boolean;
+  [key: string]: unknown;
+}>;
 
 interface VideoPlayerProps {
   video: SongVideo | null;
