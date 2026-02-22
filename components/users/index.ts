@@ -17,6 +17,9 @@ export { default as UserFormActions } from './form/UserFormActions';
 export { default as UserLessons } from './details/UserLessons';
 export { default as UserAssignments } from './details/UserAssignments';
 export { default as UserSongs } from './details/UserSongs';
+export { default as UserOverviewTab } from './details/UserOverviewTab';
+export { default as UserRepertoireTab } from './details/UserRepertoireTab';
+export { UserDetailTabs } from './details/UserDetailTabs';
 export { StudentAssignments } from './details/StudentAssignments';
 export { StudentRepertoire } from './details/StudentRepertoire';
 
