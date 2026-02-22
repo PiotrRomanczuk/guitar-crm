@@ -49,9 +49,44 @@ export async function addSongsToLesson(
 ) {
   if (!songIds || songIds.length === 0) return;
 
+  // Get the lesson to find the student_id and teacher_id
+  const { data: lesson } = await supabase
+    .from('lessons')
+    .select('student_id, teacher_id')
+    .eq('id', lessonId)
+    .single();
+
+  // Auto-create student_repertoire entries for songs not already in repertoire
+  if (lesson?.student_id) {
+    const repertoireEntries = songIds.map((songId) => ({
+      student_id: lesson.student_id,
+      song_id: songId,
+      assigned_by: lesson.teacher_id,
+      current_status: 'to_learn' as const,
+    }));
+
+    // Use upsert with ON CONFLICT DO NOTHING to skip existing entries
+    await supabase
+      .from('student_repertoire')
+      .upsert(repertoireEntries, { onConflict: 'student_id,song_id', ignoreDuplicates: true });
+  }
+
+  // Now get repertoire_ids for the lesson_songs links
+  let repertoireMap = new Map<string, string>();
+  if (lesson?.student_id) {
+    const { data: repertoireData } = await supabase
+      .from('student_repertoire')
+      .select('id, song_id')
+      .eq('student_id', lesson.student_id)
+      .in('song_id', songIds);
+
+    repertoireMap = new Map((repertoireData || []).map((r) => [r.song_id, r.id]));
+  }
+
   const lessonSongs = songIds.map((songId) => ({
     lesson_id: lessonId,
     song_id: songId,
+    repertoire_id: repertoireMap.get(songId) || null,
   }));
 
   const { error: songsError } = await supabase.from('lesson_songs').insert(lessonSongs);

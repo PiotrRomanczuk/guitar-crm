@@ -3,8 +3,12 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { Database } from '@/database.types';
+import { z } from 'zod';
 
 import { sendNotification, cancelPendingQueueEntries } from '@/lib/services/notification-service';
+
+const songIdsSchema = z.array(z.string().uuid());
+const lessonSongStatusSchema = z.enum(['to_learn', 'started', 'remembered', 'with_author', 'mastered']);
 
 export async function sendLessonSummaryEmail(lessonId: string) {
   console.log(`[sendLessonSummaryEmail] Starting for lessonId: ${lessonId}`);
@@ -98,6 +102,12 @@ export async function getAvailableSongs() {
 }
 
 export async function updateLessonSongs(lessonId: string, songIds: string[]) {
+  const parsedLessonId = z.string().uuid().safeParse(lessonId);
+  const parsedSongIds = songIdsSchema.safeParse(songIds);
+  if (!parsedLessonId.success || !parsedSongIds.success) {
+    throw new Error('Invalid lesson or song IDs');
+  }
+
   const supabase = await createClient();
 
   // Get current songs to calculate diff
@@ -154,6 +164,15 @@ export async function updateLessonSongStatus(
   songId: string,
   status: Database['public']['Enums']['lesson_song_status']
 ) {
+  const parsed = z.object({
+    lessonId: z.string().uuid(),
+    songId: z.string().uuid(),
+    status: lessonSongStatusSchema,
+  }).safeParse({ lessonId, songId, status });
+  if (!parsed.success) {
+    throw new Error('Invalid lesson song status input');
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -166,6 +185,9 @@ export async function updateLessonSongStatus(
     console.error('Error updating lesson song status:', error);
     throw new Error('Failed to update lesson song status');
   }
+
+  // Cascade to student_repertoire is handled by the DB trigger
+  // fn_sync_lesson_song_to_repertoire (migration 20260222000001).
 
   revalidatePath(`/dashboard/lessons/${lessonId}`);
 }
