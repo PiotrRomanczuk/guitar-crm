@@ -62,7 +62,7 @@ describe('OpenRouter Provider', () => {
 
       expect(config.baseUrl).toBe('https://openrouter.ai/api/v1');
       expect(config.apiKey).toBe('test-api-key');
-      expect(config.timeout).toBe(30000);
+      expect(config.timeout).toBe(60000);
       expect(config.maxRetries).toBe(3);
     });
 

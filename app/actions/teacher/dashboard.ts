@@ -56,6 +56,26 @@ export type TeacherDashboardData = {
   };
 };
 
+type AssignmentStatus = 'pending' | 'submitted' | 'overdue' | 'completed';
+
+interface AssignmentRow {
+  id: string;
+  title: string;
+  status: string;
+  due_date: string;
+  created_at?: string;
+  songs?: { title: string } | null;
+  profiles?: { full_name: string } | null;
+}
+
+interface LessonRow {
+  id: string;
+  scheduled_at: string;
+  profiles?: { full_name: string } | null;
+}
+
+const VALID_ASSIGNMENT_STATUSES: AssignmentStatus[] = ['pending', 'submitted', 'overdue', 'completed'];
+
 const DIFFICULTY_MAP: Record<string, 'Easy' | 'Medium' | 'Hard'> = {
   beginner: 'Easy',
   intermediate: 'Medium',
@@ -175,14 +195,20 @@ export async function getTeacherDashboardData(): Promise<TeacherDashboardData> {
     .order('due_date', { ascending: true })
     .limit(10);
 
-  const assignments: TeacherDashboardData['assignments'] = (assignmentRows || []).map((asgn: any) => ({
-    id: asgn.id,
-    title: asgn.title,
-    studentName: asgn.profiles?.full_name || 'Unknown',
-    dueDate: asgn.due_date,
-    status: asgn.status.toLowerCase() as any,
-    songTitle: asgn.songs?.title,
-  }));
+  const assignments: TeacherDashboardData['assignments'] = (assignmentRows || []).map((asgn: AssignmentRow) => {
+    const lowered = asgn.status.toLowerCase();
+    const status: AssignmentStatus = VALID_ASSIGNMENT_STATUSES.includes(lowered as AssignmentStatus)
+      ? (lowered as AssignmentStatus)
+      : 'pending';
+    return {
+      id: asgn.id,
+      title: asgn.title,
+      studentName: asgn.profiles?.full_name || 'Unknown',
+      dueDate: asgn.due_date,
+      status,
+      songTitle: asgn.songs?.title,
+    };
+  });
 
   // Agenda: Combining today's lessons and pending assignments
   const today = new Date();
@@ -197,7 +223,7 @@ export async function getTeacherDashboardData(): Promise<TeacherDashboardData> {
     .lt('scheduled_at', tomorrow.toISOString());
 
   const agenda: TeacherDashboardData['agenda'] = [
-    ...(todayLessons || []).map((l: any) => ({
+    ...(todayLessons || []).map((l: LessonRow) => ({
       id: l.id,
       type: 'lesson' as const,
       title: `Lesson with ${l.profiles?.full_name}`,
@@ -218,13 +244,13 @@ export async function getTeacherDashboardData(): Promise<TeacherDashboardData> {
 
   // Activities: populating some real-ish activities based on data
   const activities: TeacherDashboardData['activities'] = [
-    ...(todayLessons || []).slice(0, 3).map((l: any) => ({
+    ...(todayLessons || []).slice(0, 3).map((l: LessonRow) => ({
       id: `act-l-${l.id}`,
       type: 'lesson_completed' as const,
       message: `Lesson with ${l.profiles?.full_name} scheduled`,
       time: new Date(l.scheduled_at).toLocaleTimeString(),
     })),
-    ...(assignmentRows || []).slice(0, 2).map((a: any) => ({
+    ...(assignmentRows || []).slice(0, 2).map((a: AssignmentRow) => ({
       id: `act-a-${a.id}`,
       type: 'assignment_submitted' as const,
       message: `Assignment "${a.title}" for ${a.profiles?.full_name}`,

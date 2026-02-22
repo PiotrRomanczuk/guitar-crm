@@ -126,7 +126,7 @@ describe('getTeacherDashboardData', () => {
             }
             // Could be next-lesson query or chart-data query (gte)
             return chainable({
-              data: { scheduled_at: '2026-02-15T10:00:00Z' },
+              data: [],
             });
           },
         };
@@ -150,7 +150,12 @@ describe('getTeacherDashboardData', () => {
       if (table === 'assignments') {
         return {
           select: (fields: string, options: any) => {
-            return chainable({ count: 3 });
+            if (options?.count === 'exact') {
+              return chainable({ count: 3 });
+            }
+            return chainable({
+              data: [],
+            });
           },
         };
       }
@@ -408,7 +413,12 @@ describe('getTeacherDashboardData', () => {
       if (table === 'assignments') {
         return {
           select: (fields: string, options: any) => {
-            return chainable({ count: 4 });
+            if (options?.count === 'exact') {
+              return chainable({ count: 4 });
+            }
+            return chainable({
+              data: [],
+            });
           },
         };
       }

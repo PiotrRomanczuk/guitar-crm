@@ -130,7 +130,8 @@ export function useFretboard(): FretboardState & FretboardActions {
 
       playNextNote();
     } else {
-      setActiveNoteIndex(null);
+      // Use queueMicrotask to avoid synchronous setState in effect body
+      queueMicrotask(() => setActiveNoteIndex(null));
     }
 
     return () => {

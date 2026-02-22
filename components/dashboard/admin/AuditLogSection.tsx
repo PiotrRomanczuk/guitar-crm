@@ -9,6 +9,15 @@ import { FileText, User, Clock, ShieldAlert } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { getAuditLogs } from '@/app/dashboard/actions';
 
+interface AuditLogEntry {
+  id: string;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  created_at: string;
+  profiles?: { full_name: string; email: string } | null;
+}
+
 export function AuditLogSection() {
     const { data: logs, isLoading, error } = useQuery({
         queryKey: ['admin', 'audit-logs'],
@@ -65,7 +74,7 @@ export function AuditLogSection() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {logs.map((log: any) => (
+                                {logs.map((log: AuditLogEntry) => (
                                     <TableRow key={log.id}>
                                         <TableCell>
                                             <Badge variant="outline" className="capitalize">

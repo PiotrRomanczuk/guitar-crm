@@ -120,8 +120,8 @@ describe('SongStatusHistory Component', () => {
     render(<SongStatusHistory songId="test-song-id" />);
 
     await waitFor(() => {
-      // Component shows "No status changes recorded" for empty state
-      expect(screen.getByText('No status changes recorded')).toBeInTheDocument();
+      // Component shows "No progress yet" for empty state
+      expect(screen.getByText('No progress yet')).toBeInTheDocument();
     });
   });
 
