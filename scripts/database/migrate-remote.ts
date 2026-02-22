@@ -86,20 +86,22 @@ async function migrate() {
                 await client.query('INSERT INTO supabase_migrations.schema_migrations (version, name) VALUES ($1, $2)', [version, file]);
                 await client.query('COMMIT');
                 console.log(`✅ Successfully applied (or already existed): ${file}`);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 await client.query('ROLLBACK');
+
+                const pgErr = err as { code?: string; message?: string };
 
                 // Error code 42P07: relation already exists
                 // Error code 42710: extension already exists / type already exists
                 // Error code 42723: function already exists
-                if (err.code === '42P07' || err.code === '42710' || err.code === '42723') {
+                if (pgErr.code === '42P07' || pgErr.code === '42710' || pgErr.code === '42723') {
                     console.log(`⚠️ Skipping ${file} - some objects already exist. Marking as applied.`);
                     await client.query('INSERT INTO supabase_migrations.schema_migrations (version, name) VALUES ($1, $2) ON CONFLICT (version) DO NOTHING', [version, file]);
                     continue;
                 }
 
-                console.error(`❌ Error applying migration ${file}:`, err.message);
-                console.error(`Code: ${err.code}`);
+                console.error(`❌ Error applying migration ${file}:`, pgErr.message);
+                console.error(`Code: ${pgErr.code}`);
                 // If it's a real error, we stop.
                 process.exit(1);
             }

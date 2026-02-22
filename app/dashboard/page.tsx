@@ -55,7 +55,7 @@ export default async function DashboardPage({
       totalStudents: totalStudents || 0,
       totalSongs: totalSongs || 0,
       totalLessons: totalLessons || 0,
-      recentUsers: (recentUsers as any) || [],
+      recentUsers: (recentUsers as { id: string; full_name: string; email: string; created_at: string }[] | null) || [],
     };
 
     return (

@@ -393,7 +393,7 @@ function CagedSelector({
       <ToggleGroup
         type="single"
         value={value}
-        onValueChange={(val) => val && onChange(val as any)}
+        onValueChange={(val) => val && onChange(val as CAGEDShape | 'all' | 'none')}
         variant="outline"
         size="sm"
       >
