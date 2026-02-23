@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getTrack } from '@/lib/spotify';
 import type { SpotifyApiTrack } from '@/types/spotify';
+import { z } from 'zod';
+
+const ActionSchema = z.object({
+  matchId: z.string().uuid(),
+  action: z.enum(['approve', 'reject']),
+  overrideSpotifyId: z.string().optional(),
+});
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -28,18 +35,11 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { matchId, action, overrideSpotifyId } = body;
-
-    if (!matchId || !action) {
-      return NextResponse.json({ error: 'Missing matchId or action' }, { status: 400 });
+    const parsed = ActionSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
     }
-
-    if (!['approve', 'reject'].includes(action)) {
-      return NextResponse.json(
-        { error: 'Action must be either "approve" or "reject"' },
-        { status: 400 }
-      );
-    }
+    const { matchId, action, overrideSpotifyId } = parsed.data;
 
     // Get the match with song details
     const { data: match, error: fetchError } = await supabase

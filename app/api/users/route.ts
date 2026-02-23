@@ -3,6 +3,20 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { randomUUID } from 'crypto';
 import { maskShadowEmail } from '@/lib/auth/shadow-email';
+import { z } from 'zod';
+
+const CreateUserSchema = z.object({
+  email: z.string().email().optional().or(z.literal('')),
+  firstName: z.string().max(255).optional(),
+  lastName: z.string().max(255).optional(),
+  full_name: z.string().max(255).optional(),
+  phone: z.string().max(50).optional(),
+  notes: z.string().max(5000).optional(),
+  isAdmin: z.boolean().optional(),
+  isTeacher: z.boolean().optional(),
+  isStudent: z.boolean().optional(),
+  isShadow: z.boolean().optional(),
+});
 
 export async function GET(request: Request) {
   try {
@@ -114,7 +128,7 @@ export async function GET(request: Request) {
       .range(offset, offset + limit - 1);
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      return Response.json({ error: 'Internal server error' }, { status: 500 });
     }
 
     // Optimize: Fetch all auth users in a single query instead of N+1 individual queries
@@ -212,16 +226,21 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    let body;
+    let rawBody;
     try {
       const text = await request.text();
       if (!text) {
         return Response.json({ error: 'Empty request body' }, { status: 400 });
       }
-      body = JSON.parse(text);
+      rawBody = JSON.parse(text);
     } catch (e) {
       console.error('Error parsing JSON body:', e);
       return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+
+    const parsed = CreateUserSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      return Response.json({ error: parsed.error.issues[0].message }, { status: 400 });
     }
 
     const {
@@ -234,8 +253,7 @@ export async function POST(request: Request) {
       isAdmin: reqIsAdmin,
       isTeacher: reqIsTeacher,
       isStudent: reqIsStudent,
-      isShadow: _reqIsShadow, // Accept explicit isShadow flag
-    } = body;
+    } = parsed.data;
 
     // Permission Check
     if (!isAdmin && isTeacher) {
@@ -285,7 +303,7 @@ export async function POST(request: Request) {
         .single();
 
       if (profileError) {
-        return Response.json({ error: profileError.message }, { status: 500 });
+        return Response.json({ error: 'Internal server error' }, { status: 500 });
       }
 
       return Response.json(profileData, { status: 201 });
