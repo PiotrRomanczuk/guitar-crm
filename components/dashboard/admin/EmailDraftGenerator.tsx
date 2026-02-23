@@ -49,7 +49,7 @@ export function EmailDraftGenerator({ students }: Props) {
   // Streaming action wrapper
   const streamAction = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async function* (params: any, signal?: AbortSignal) {
+    async function* (params: any, _signal?: AbortSignal) {
       yield* generateEmailDraftStream(params);
     },
     []

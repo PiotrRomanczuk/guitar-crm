@@ -126,7 +126,7 @@ export function SongStatusHistory({ songId, className }: SongStatusHistoryProps)
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {history.map((change, index) => (
+          {history.map((change, _index) => (
             <div
               key={change.id}
               className="flex items-start gap-4 pb-4 border-b last:border-b-0 last:pb-0"

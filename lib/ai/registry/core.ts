@@ -38,7 +38,7 @@ const AGENT_FALLBACK_TEMPLATES: Record<string, string> = {
 function hashInput(input: Record<string, any>): string {
   try {
     return Buffer.from(JSON.stringify(input)).toString('base64').substr(0, 16);
-  } catch (error) {
+  } catch {
     return 'hash_error';
   }
 }
@@ -207,7 +207,7 @@ export function getAgent(agentId: string): AgentSpecification | undefined {
 /**
  * Get agents filtered by user role and context
  */
-export function getAvailableAgents(userRole: string, context?: string): AgentSpecification[] {
+export function getAvailableAgents(userRole: string, _context?: string): AgentSpecification[] {
   return getAllAgents().filter((agent) => {
     // Check if user has permission
     if (!agent.targetUsers.includes(userRole as any)) {

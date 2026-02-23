@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import SendEmailButton from '../actions/SendEmailButton';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Pencil, Trash2, ArrowLeft } from 'lucide-react';

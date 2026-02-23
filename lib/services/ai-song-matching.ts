@@ -220,7 +220,7 @@ function normalizeArtistSimple(artist: string): string {
 /**
  * Extract information from AI text response when JSON parsing fails
  */
-function extractInfoFromText(content: string, originalSong: DatabaseSong): AIAnalysisResult {
+function _extractInfoFromText(content: string, originalSong: DatabaseSong): AIAnalysisResult {
   const lines = content.toLowerCase().split('\n');
 
   let normalizedTitle = originalSong.title;

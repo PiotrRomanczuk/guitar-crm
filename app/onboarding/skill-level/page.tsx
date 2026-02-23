@@ -25,7 +25,7 @@ export default function OnboardingSkillLevelPage() {
 
     // Get previously stored goals
     const goalsJson = sessionStorage.getItem('onboarding_goals');
-    const goals = goalsJson ? JSON.parse(goalsJson) : [];
+    const _goals = goalsJson ? JSON.parse(goalsJson) : [];
 
     // TODO: Save onboarding data to user profile via API
     // await saveOnboardingData({ goals, skillLevel: selectedLevel });

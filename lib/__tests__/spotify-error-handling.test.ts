@@ -6,8 +6,6 @@ import {
   searchTracks,
   getTrack,
   getAudioFeatures,
-  isRateLimitError,
-  getRetryAfter,
   resetCircuitBreaker,
   clearTokenCache,
 } from '../spotify';

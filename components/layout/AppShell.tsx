@@ -32,7 +32,7 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
   const showNavigation = !!user && !isAuthPage;
 
   const useSidebar = showNavigation && (layoutMode === 'widescreen' || layoutMode === 'tablet');
-  const useMobileNav = showNavigation && layoutMode === 'mobile';
+  const _useMobileNav = showNavigation && layoutMode === 'mobile';
 
   const { isLocal } = getSupabaseConfig();
   console.log('AppShell:', {

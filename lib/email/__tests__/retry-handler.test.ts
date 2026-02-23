@@ -12,7 +12,6 @@ import {
   BACKOFF_SCHEDULE_MINUTES,
   DEAD_LETTER_STATUS,
 } from '../retry-handler';
-import type { NotificationLog } from '@/types/notifications';
 
 describe('retry-handler', () => {
   // ============================================================================

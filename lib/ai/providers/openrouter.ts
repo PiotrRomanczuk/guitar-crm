@@ -170,7 +170,6 @@ async function* completeStream(
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-    let fullContent = '';
     let fullReasoning = '';
     let usage: AIStreamChunk['usage'] | undefined;
 
@@ -224,10 +223,7 @@ async function* completeStream(
               const contentDelta = delta?.content || '';
               const reasoningDelta = delta?.reasoning_content || '';
 
-              // Accumulate content
-              if (contentDelta) {
-                fullContent += contentDelta;
-              }
+              // Accumulate reasoning
               if (reasoningDelta) {
                 fullReasoning += reasoningDelta;
               }

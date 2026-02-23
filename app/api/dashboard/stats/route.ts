@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * GET /api/dashboard/stats
  * Returns dashboard statistics based on user role
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createClient();
 
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user profile to check roles
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile } = await supabase
       .from('profiles')
       .select('is_admin, is_teacher, is_student')
       .eq('id', user.id)

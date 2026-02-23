@@ -44,7 +44,7 @@ export async function searchSongWithAI(
   const {
     maxQueries = 8,
     minConfidenceScore = 70,
-    includePartialMatches = true,
+    includePartialMatches: _includePartialMatches = true,
     enableAIAnalysis = true,
   } = options;
 
@@ -211,13 +211,6 @@ export async function searchSongsWithAI(
     // Longer delay between songs to be nice to APIs
     await new Promise((resolve) => setTimeout(resolve, 300));
   }
-
-  // Generate summary
-  const successful = results.filter(
-    (r) => r.match.confidence >= (options.minConfidenceScore || 70)
-  );
-  const totalQueries = results.reduce((sum, r) => sum + r.queriesUsed, 0);
-  const totalTime = results.reduce((sum, r) => sum + r.executionTime, 0);
 
   return results;
 }

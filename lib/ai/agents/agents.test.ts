@@ -33,7 +33,7 @@ import {
   executeAgent,
 } from '../registry';
 
-import type { AgentSpecification, AgentContext } from '../registry';
+import type { AgentContext } from '../registry';
 
 // Mock the AI provider to avoid actual API calls
 jest.mock('../provider-factory', () => ({

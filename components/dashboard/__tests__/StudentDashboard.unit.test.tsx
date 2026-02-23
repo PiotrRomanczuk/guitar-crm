@@ -10,7 +10,7 @@ jest.mock('framer-motion', () => ({
     div: ({
       children,
       className,
-      ...rest
+      ..._rest
     }: {
       children?: React.ReactNode;
       className?: string;

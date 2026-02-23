@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { AIStatus, checkOpenRouterStatus } from '@/app/actions/admin/ai-check';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +25,7 @@ export function OpenRouterStatusWidget() {
             } else {
                 setStatus(result);
             }
-        } catch (e) {
+        } catch {
             setError('Failed to check status');
         } finally {
             setLoading(false);

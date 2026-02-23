@@ -40,7 +40,7 @@ export async function checkAgentAvailability(agentId: string): Promise<{
     }
 
     return { available: true };
-  } catch (error) {
+  } catch {
     return { available: false, reason: 'System error' };
   }
 }

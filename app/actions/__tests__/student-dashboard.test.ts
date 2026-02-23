@@ -40,7 +40,7 @@ const createDefaultTableMock = () => ({
 });
 
 // Mock Supabase client - mockFrom controls actual behavior
-const mockFrom = jest.fn((table: string) => createDefaultTableMock());
+const mockFrom = jest.fn((_table: string) => createDefaultTableMock());
 
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(() =>
@@ -52,7 +52,7 @@ jest.mock('@/lib/supabase/server', () => ({
 
 describe('getStudentDashboardData', () => {
   const studentId = '123e4567-e89b-12d3-a456-426614174000';
-  const now = new Date().toISOString();
+  const _now = new Date().toISOString();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -81,7 +81,7 @@ describe('getStudentDashboardData', () => {
 
       if (table === 'lessons') {
         return {
-          select: (fields: string) => ({
+          select: (_fields: string) => ({
             eq: () => ({
               gte: () => ({
                 order: () => ({
@@ -118,7 +118,7 @@ describe('getStudentDashboardData', () => {
       if (table === 'assignments') {
         return {
           select: () => ({
-            eq: (field: string, value: string) => {
+            eq: (field: string, _value: string) => {
               if (field === 'student_id') {
                 return {
                   eq: () => ({

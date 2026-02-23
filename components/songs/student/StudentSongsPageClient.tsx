@@ -39,12 +39,275 @@ import {
   statusLabels,
 } from './StudentSongs.constants';
 
+interface SongFilterControlsProps {
+  searchQuery: string;
+  onSearchChange: (v: string) => void;
+  difficultyFilter: string;
+  onDifficultyChange: (v: string) => void;
+  statusFilter: string;
+  onStatusChange: (v: string) => void;
+  sortBy: string;
+  onSortChange: (v: string) => void;
+  filteredCount: number;
+  totalCount: number;
+}
+
+function SongFilterControls({
+  searchQuery,
+  onSearchChange,
+  difficultyFilter,
+  onDifficultyChange,
+  statusFilter,
+  onStatusChange,
+  sortBy,
+  onSortChange,
+  filteredCount,
+  totalCount,
+}: SongFilterControlsProps) {
+  return (
+    <div
+      className="mb-6 sm:mb-8 space-y-4 opacity-0 animate-fade-in"
+      style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
+    >
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          placeholder="Search songs or artists..."
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex items-center gap-2 flex-1">
+          <Filter className="w-4 h-4 text-muted-foreground" />
+          <Select value={difficultyFilter} onValueChange={onDifficultyChange}>
+            <SelectTrigger className="flex-1">
+              <SelectValue placeholder="All Difficulties" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Difficulties</SelectItem>
+              <SelectItem value="beginner">Beginner</SelectItem>
+              <SelectItem value="intermediate">Intermediate</SelectItem>
+              <SelectItem value="advanced">Advanced</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-2 flex-1">
+          <TrendingUp className="w-4 h-4 text-muted-foreground" />
+          <Select value={statusFilter} onValueChange={onStatusChange}>
+            <SelectTrigger className="flex-1">
+              <SelectValue placeholder="All Statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="to_learn">📝 To Learn</SelectItem>
+              <SelectItem value="learning">🎵 Learning</SelectItem>
+              <SelectItem value="practicing">🎸 Practicing</SelectItem>
+              <SelectItem value="improving">📈 Improving</SelectItem>
+              <SelectItem value="mastered">🏆 Mastered</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-2 flex-1">
+          <SortAsc className="w-4 h-4 text-muted-foreground" />
+          <Select value={sortBy} onValueChange={onSortChange}>
+            <SelectTrigger className="flex-1">
+              <SelectValue placeholder="Sort by..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="name">Song Name</SelectItem>
+              <SelectItem value="author">Author</SelectItem>
+              <SelectItem value="difficulty">Difficulty</SelectItem>
+              <SelectItem value="status">Learning Status</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {(searchQuery || difficultyFilter !== 'all' || statusFilter !== 'all') && (
+        <div className="text-sm text-muted-foreground">
+          Showing {filteredCount} of {totalCount} songs
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface SongCardProps {
+  song: Song;
+  index: number;
+  updatingStatus: string | null;
+  onStatusChange: (songId: string, newStatus: string) => void;
+}
+
+function SongCard({ song, index, updatingStatus, onStatusChange }: SongCardProps) {
+  return (
+    <div
+      className="group bg-card rounded-xl border border-border overflow-hidden hover:border-primary/30 transition-all duration-300 opacity-0 animate-fade-in"
+      style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
+    >
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden relative">
+            {song.cover_image_url ? (
+              <Image
+                src={song.cover_image_url}
+                alt={song.title}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <Music2 className="w-6 h-6 text-primary" />
+            )}
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <Badge
+              variant="outline"
+              className={cn('capitalize', difficultyColors[song.level || 'beginner'])}
+            >
+              {difficultyLabels[song.level || 'beginner']}
+            </Badge>
+            {song.status && (
+              <Badge
+                variant="outline"
+                className={cn(
+                  'capitalize',
+                  statusColors[song.status] || 'bg-muted text-muted-foreground'
+                )}
+              >
+                {statusLabels[song.status] || song.status.replace('_', ' ')}
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
+          {song.title}
+        </h3>
+        <p className="text-muted-foreground text-sm mb-4">{song.author}</p>
+
+        <div className="space-y-2 mb-6">
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Guitar className="w-4 h-4 mr-2" />
+            Key: {song.key}
+          </div>
+          {song.chords && (
+            <div className="flex items-center text-sm text-muted-foreground">
+              <Music2 className="w-4 h-4 mr-2" />
+              Chords: {song.chords}
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-3 mb-4">
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-muted-foreground">Learning Progress</label>
+            <Select
+              value={song.status || 'to_learn'}
+              onValueChange={(newStatus) => onStatusChange(song.id, newStatus)}
+              disabled={updatingStatus === song.id}
+            >
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="to_learn">📝 To Learn</SelectItem>
+                <SelectItem value="learning">🎵 Learning</SelectItem>
+                <SelectItem value="practicing">🎸 Practicing</SelectItem>
+                <SelectItem value="improving">📈 Improving</SelectItem>
+                <SelectItem value="mastered">🏆 Mastered</SelectItem>
+              </SelectContent>
+            </Select>
+            {updatingStatus === song.id && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Updating...
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground mb-2">Quick Resources</h4>
+            <div className="grid grid-cols-2 gap-2">
+              {song.youtube_url && (
+                <a
+                  href={song.youtube_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
+                >
+                  <Youtube className="w-4 h-4" />
+                  YouTube
+                </a>
+              )}
+              {song.ultimate_guitar_link && (
+                <a
+                  href={song.ultimate_guitar_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-warning text-warning-foreground rounded-md hover:bg-warning/90 transition-colors"
+                >
+                  <FileText className="w-4 h-4" />
+                  Tabs
+                </a>
+              )}
+              {song.spotify_link_url && (
+                <a
+                  href={song.spotify_link_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-success text-success-foreground rounded-md hover:bg-success/90 transition-colors"
+                >
+                  <Play className="w-4 h-4" />
+                  Spotify
+                </a>
+              )}
+              {song.audio_files && (
+                <a
+                  href={Object.values(song.audio_files)[0] ?? '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  <Music2 className="w-4 h-4" />
+                  Audio
+                </a>
+              )}
+            </div>
+            {!song.youtube_url &&
+              !song.ultimate_guitar_link &&
+              !song.spotify_link_url &&
+              !song.audio_files && (
+                <div className="text-xs text-muted-foreground text-center py-2">
+                  No resources available yet
+                </div>
+              )}
+          </div>
+
+          <Link
+            href={`/dashboard/songs/${song.id}`}
+            className="w-full inline-flex items-center justify-center h-9 px-4 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors"
+          >
+            View Full Details
+            <ExternalLink className="w-4 h-4 ml-2" />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function StudentSongsPageClient() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
-  // Filter and sort states
   const [searchQuery, setSearchQuery] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -52,25 +315,17 @@ export function StudentSongsPageClient() {
 
   const supabase = createClient();
 
-  // Update song status
   const updateSongStatus = async (songId: string, newStatus: string) => {
     setUpdatingStatus(songId);
-
     try {
       const {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Find the lesson_song record to update
       const { data: lessonSong } = await supabase
         .from('lesson_songs')
-        .select(
-          `
-          id,
-          lessons!inner (student_id)
-        `
-        )
+        .select(`id, lessons!inner (student_id)`)
         .eq('song_id', songId)
         .eq('lessons.student_id', user.id)
         .single();
@@ -86,11 +341,9 @@ export function StudentSongsPageClient() {
 
       if (error) throw error;
 
-      // Update local state
       setSongs(
         songs.map((song) => (song.id === songId ? { ...song, status: newStatus as any } : song))
       );
-
       toast.success(`Song status updated to ${statusLabels[newStatus] || newStatus}!`);
     } catch (error) {
       console.error('Error updating song status:', error);
@@ -100,11 +353,9 @@ export function StudentSongsPageClient() {
     }
   };
 
-  // Filter and sort songs
   const filteredSongs = useMemo(() => {
     let filtered = songs;
 
-    // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       filtered = filtered.filter(
@@ -113,41 +364,34 @@ export function StudentSongsPageClient() {
       );
     }
 
-    // Apply difficulty filter
     if (difficultyFilter !== 'all') {
       filtered = filtered.filter((song) => song.level === difficultyFilter);
     }
 
-    // Apply status filter
     if (statusFilter !== 'all') {
       filtered = filtered.filter((song) => song.status === statusFilter);
     }
 
-    // Apply sorting
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'name':
           return a.title.localeCompare(b.title);
         case 'author':
           return a.author.localeCompare(b.author);
-        case 'difficulty':
+        case 'difficulty': {
           const difficultyOrder = { beginner: 0, intermediate: 1, advanced: 2 };
           return (
             difficultyOrder[a.level as keyof typeof difficultyOrder] -
             difficultyOrder[b.level as keyof typeof difficultyOrder]
           );
-        case 'status':
-          const statusOrder = {
-            to_learn: 0,
-            learning: 1,
-            practicing: 2,
-            improving: 3,
-            mastered: 4,
-          };
+        }
+        case 'status': {
+          const statusOrder = { to_learn: 0, learning: 1, practicing: 2, improving: 3, mastered: 4 };
           return (
             statusOrder[a.status as keyof typeof statusOrder] -
             statusOrder[b.status as keyof typeof statusOrder]
           );
+        }
         default:
           return 0;
       }
@@ -188,15 +432,10 @@ export function StudentSongsPageClient() {
         if (error) throw error;
 
         const processedSongsMap = new Map<string, Song>();
-
         data?.forEach((lessonSong) => {
           const song = Array.isArray(lessonSong.songs) ? lessonSong.songs[0] : lessonSong.songs;
           if (!song || processedSongsMap.has(song.id)) return;
-
-          processedSongsMap.set(song.id, {
-            ...song,
-            status: lessonSong.status,
-          } as Song);
+          processedSongsMap.set(song.id, { ...song, status: lessonSong.status } as Song);
         });
 
         setSongs(Array.from(processedSongsMap.values()));
@@ -231,90 +470,28 @@ export function StudentSongsPageClient() {
       </div>
 
       {songs.length > 0 && (
-        <div
-          className="mb-6 sm:mb-8 space-y-4 opacity-0 animate-fade-in"
-          style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
-        >
-          {/* Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search songs or artists..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          {/* Filter Controls */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Difficulty Filter */}
-            <div className="flex items-center gap-2 flex-1">
-              <Filter className="w-4 h-4 text-muted-foreground" />
-              <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="All Difficulties" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Difficulties</SelectItem>
-                  <SelectItem value="beginner">Beginner</SelectItem>
-                  <SelectItem value="intermediate">Intermediate</SelectItem>
-                  <SelectItem value="advanced">Advanced</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Status Filter */}
-            <div className="flex items-center gap-2 flex-1">
-              <TrendingUp className="w-4 h-4 text-muted-foreground" />
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="All Statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="to_learn">📝 To Learn</SelectItem>
-                  <SelectItem value="learning">🎵 Learning</SelectItem>
-                  <SelectItem value="practicing">🎸 Practicing</SelectItem>
-                  <SelectItem value="improving">📈 Improving</SelectItem>
-                  <SelectItem value="mastered">🏆 Mastered</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Sort By */}
-            <div className="flex items-center gap-2 flex-1">
-              <SortAsc className="w-4 h-4 text-muted-foreground" />
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Sort by..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="name">Song Name</SelectItem>
-                  <SelectItem value="author">Author</SelectItem>
-                  <SelectItem value="difficulty">Difficulty</SelectItem>
-                  <SelectItem value="status">Learning Status</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Results Count */}
-          {(searchQuery || difficultyFilter !== 'all' || statusFilter !== 'all') && (
-            <div className="text-sm text-muted-foreground">
-              Showing {filteredSongs.length} of {songs.length} songs
-            </div>
-          )}
-        </div>
+        <SongFilterControls
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          difficultyFilter={difficultyFilter}
+          onDifficultyChange={setDifficultyFilter}
+          statusFilter={statusFilter}
+          onStatusChange={setStatusFilter}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          filteredCount={filteredSongs.length}
+          totalCount={songs.length}
+        />
       )}
 
       {songs.length === 0 ? (
         <div className="text-center py-12">
           <div className="relative w-64 h-48 mx-auto mb-6">
-            <img
+            <Image
               src="/illustrations/no-upcoming-lessons--future-focused---a-forward-lo.png"
               alt="No songs assigned"
-              className="w-full h-full object-contain"
+              fill
+              className="object-contain"
             />
           </div>
           <h3 className="text-lg font-medium mb-2">No songs assigned yet</h3>
@@ -349,175 +526,13 @@ export function StudentSongsPageClient() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredSongs.map((song, index) => (
-            <div
+            <SongCard
               key={song.id}
-              className="group bg-card rounded-xl border border-border overflow-hidden hover:border-primary/30 transition-all duration-300 opacity-0 animate-fade-in"
-              style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
-            >
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden relative">
-                    {song.cover_image_url ? (
-                      <Image
-                        src={song.cover_image_url}
-                        alt={song.title}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <Music2 className="w-6 h-6 text-primary" />
-                    )}
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <Badge
-                      variant="outline"
-                      className={cn('capitalize', difficultyColors[song.level || 'beginner'])}
-                    >
-                      {difficultyLabels[song.level || 'beginner']}
-                    </Badge>
-                    {song.status && (
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          'capitalize',
-                          statusColors[song.status] || 'bg-muted text-muted-foreground'
-                        )}
-                      >
-                        {statusLabels[song.status] || song.status.replace('_', ' ')}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-
-                <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
-                  {song.title}
-                </h3>
-                <p className="text-muted-foreground text-sm mb-4">{song.author}</p>
-
-                <div className="space-y-2 mb-6">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Guitar className="w-4 h-4 mr-2" />
-                    Key: {song.key}
-                  </div>
-                  {song.chords && (
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Music2 className="w-4 h-4 mr-2" />
-                      Chords: {song.chords}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-3 mb-4">
-                  {/* Status Update */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground">
-                      Learning Progress
-                    </label>
-                    <Select
-                      value={song.status || 'to_learn'}
-                      onValueChange={(newStatus) => updateSongStatus(song.id, newStatus)}
-                      disabled={updatingStatus === song.id}
-                    >
-                      <SelectTrigger className="h-8 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="to_learn">📝 To Learn</SelectItem>
-                        <SelectItem value="learning">🎵 Learning</SelectItem>
-                        <SelectItem value="practicing">🎸 Practicing</SelectItem>
-                        <SelectItem value="improving">📈 Improving</SelectItem>
-                        <SelectItem value="mastered">🏆 Mastered</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {updatingStatus === song.id && (
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        Updating...
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  {/* Quick Resource Access */}
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-medium text-muted-foreground mb-2">
-                      Quick Resources
-                    </h4>
-
-                    {/* Primary Resource Buttons */}
-                    <div className="grid grid-cols-2 gap-2">
-                      {song.youtube_url && (
-                        <a
-                          href={song.youtube_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
-                        >
-                          <Youtube className="w-4 h-4" />
-                          YouTube
-                        </a>
-                      )}
-
-                      {song.ultimate_guitar_link && (
-                        <a
-                          href={song.ultimate_guitar_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-warning text-warning-foreground rounded-md hover:bg-warning/90 transition-colors"
-                        >
-                          <FileText className="w-4 h-4" />
-                          Tabs
-                        </a>
-                      )}
-
-                      {song.spotify_link_url && (
-                        <a
-                          href={song.spotify_link_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-success text-success-foreground rounded-md hover:bg-success/90 transition-colors"
-                        >
-                          <Play className="w-4 h-4" />
-                          Spotify
-                        </a>
-                      )}
-
-                      {song.audio_files && (
-                        <a
-                          href={Object.values(song.audio_files)[0] ?? '#'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-                        >
-                          <Music2 className="w-4 h-4" />
-                          Audio
-                        </a>
-                      )}
-                    </div>
-
-                    {/* Resource availability indicator */}
-                    {!song.youtube_url &&
-                      !song.ultimate_guitar_link &&
-                      !song.spotify_link_url &&
-                      !song.audio_files && (
-                        <div className="text-xs text-muted-foreground text-center py-2">
-                          No resources available yet
-                        </div>
-                      )}
-                  </div>
-
-                  {/* View Details Button */}
-                  <Link
-                    href={`/dashboard/songs/${song.id}`}
-                    className="w-full inline-flex items-center justify-center h-9 px-4 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors"
-                  >
-                    View Full Details
-                    <ExternalLink className="w-4 h-4 ml-2" />
-                  </Link>
-                </div>
-              </div>
-            </div>
+              song={song}
+              index={index}
+              updatingStatus={updatingStatus}
+              onStatusChange={updateSongStatus}
+            />
           ))}
         </div>
       )}

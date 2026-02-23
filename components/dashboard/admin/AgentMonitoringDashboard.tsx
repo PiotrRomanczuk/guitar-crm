@@ -18,7 +18,6 @@ import {
   Activity,
   BarChart3,
   Clock,
-  Users,
   Zap,
   AlertTriangle,
   CheckCircle,

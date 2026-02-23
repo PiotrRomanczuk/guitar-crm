@@ -1,7 +1,6 @@
 'use server';
 
 import { getAvailableModels } from '@/app/actions/ai';
-import { requireAIAuth } from '@/lib/ai/auth';
 import { createClient } from '@/lib/supabase/server';
 
 export interface AIStatus {

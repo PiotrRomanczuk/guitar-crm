@@ -162,10 +162,10 @@ describe('Sync All Lessons', () => {
         if (table === 'lessons') {
             return {
                 select: () => ({
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     eq: (_field: any, _val: any) => ({
                         single: mockSelectLesson, // for checking existing lesson
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         eq: (_f2: any, _v2: any) => ({ // for finding last lesson number
                              order: () => ({
                                  limit: () => ({

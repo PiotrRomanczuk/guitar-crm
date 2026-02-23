@@ -42,7 +42,7 @@ function buildMockSupabase(mainBuilder: ReturnType<typeof createMockQueryBuilder
  * on the table. For createAssignment we need `profiles` to return a valid
  * student and `assignments` to return the created row.
  */
-function buildMultiTableSupabase(
+function _buildMultiTableSupabase(
   tables: Record<string, ReturnType<typeof createMockQueryBuilder>>
 ) {
   return {

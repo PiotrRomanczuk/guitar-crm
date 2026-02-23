@@ -81,7 +81,7 @@ export function getAnalytics(agentId?: string): AgentAnalytics {
 export async function logExecution(
   response: AgentResponse,
   request: AgentRequest,
-  agent?: AgentSpecification
+  _agent?: AgentSpecification
 ): Promise<void> {
   // Add to in-memory log
   addToExecutionLog(response);

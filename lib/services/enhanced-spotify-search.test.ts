@@ -9,7 +9,6 @@ import {
   searchSongWithAI,
   searchSongsWithAI,
   type EnhancedSearchOptions,
-  type SearchResult,
 } from '@/lib/services/enhanced-spotify-search';
 import { searchTracks } from '@/lib/spotify';
 import {

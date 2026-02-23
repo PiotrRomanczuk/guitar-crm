@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   type NoteName,
   CHROMATIC_NOTES,
@@ -79,7 +79,7 @@ export function useFretboard(): FretboardState & FretboardActions {
 
   const [cagedShape, setCagedShape] = useState<CAGEDShape | 'all' | 'none'>('none');
 
-  const { volume, setVolume: setAudioVolume, playNote, isReady } = useGuitarAudio();
+  const { volume, setVolume: setAudioVolume, playNote } = useGuitarAudio();
 
   const fretboard = useMemo(() => buildFretboard(), []);
 

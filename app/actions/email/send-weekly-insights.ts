@@ -55,7 +55,7 @@ export async function sendWeeklyInsights(): Promise<SendWeeklyInsightsResult> {
         const html = generateWeeklyInsightsHtml(insightsData);
 
         // Send email
-        const info = await transporter.sendMail({
+        await transporter.sendMail({
           from: `"Guitar CRM" <${process.env.GMAIL_USER}>`,
           to: teacher.email,
           subject: `📊 Your Weekly Insights - ${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} to ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,

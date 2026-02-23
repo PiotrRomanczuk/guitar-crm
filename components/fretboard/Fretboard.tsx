@@ -34,7 +34,7 @@ export function FretboardGrid({
   rootNote,
   activeNoteIndex,
   audioEnabled = true,
-  isTraining = false,
+  isTraining: _isTraining = false,
   onSubmitNote,
   activeCAGEDShapes = [],
 }: FretboardGridProps) {
