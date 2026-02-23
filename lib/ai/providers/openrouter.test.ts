@@ -6,7 +6,7 @@
  */
 
 import { createOpenRouterProvider, OpenRouterProvider } from './openrouter';
-import type { AICompletionRequest, AIModelInfo, AIResult } from '../types';
+import type { AICompletionRequest } from '../types';
 
 // Mock the retry module
 jest.mock('../retry', () => ({

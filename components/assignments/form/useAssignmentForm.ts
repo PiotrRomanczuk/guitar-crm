@@ -36,7 +36,7 @@ interface UseAssignmentFormProps {
   userId?: string;
 }
 
-export function useAssignmentForm({ initialData, mode, userId }: UseAssignmentFormProps) {
+export function useAssignmentForm({ initialData, mode: _mode, userId }: UseAssignmentFormProps) {
   const [formData, setFormData] = useState<AssignmentFormData>({
     title: initialData?.title || '',
     description: initialData?.description || '',

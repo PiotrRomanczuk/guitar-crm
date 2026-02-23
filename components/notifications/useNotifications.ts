@@ -61,6 +61,7 @@ export function useNotifications(userId?: string, options: UseNotificationsOptio
     return () => {
       supabase.removeChannel(channel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: supabase client is stable; fetchNotifications/handleRealtimeUpdate are non-memoized helpers; adding them would cause infinite loops
   }, [userId, limit, unreadOnly]);
 
   async function fetchNotifications() {

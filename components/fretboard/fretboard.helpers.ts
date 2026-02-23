@@ -19,7 +19,7 @@ export const FRET_MARKERS: Record<number, 'single' | 'double'> = {
 export const STRING_LABELS = ['6th (E)', '5th (A)', '4th (D)', '3rd (G)', '2nd (B)', '1st (e)'];
 
 /** Color classes for scale degrees (reduced brightness) */
-const DEGREE_COLORS: Record<number, string> = {
+const _DEGREE_COLORS: Record<number, string> = {
   0: 'bg-red-600 dark:bg-red-700 text-white',      // Root
   1: 'bg-orange-600 dark:bg-orange-700 text-white', // 2nd
   2: 'bg-yellow-600 dark:bg-yellow-700 text-white', // 3rd

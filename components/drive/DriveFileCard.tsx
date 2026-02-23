@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -110,10 +111,11 @@ export default function DriveFileCard({
         onClick={handleAction}
       >
         {showThumbnail ? (
-          <img
+          <Image
             src={thumbnailUrl}
             alt={file.title || file.filename}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
             onError={() => setImageError(true)}
           />
         ) : (

@@ -102,7 +102,7 @@ export async function POST(request: Request) {
         updated_at: new Date().toISOString(),
       };
 
-      const { data: updatedSong, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('songs')
         .update(updateData)
         .eq('id', match.song_id)
@@ -130,7 +130,7 @@ export async function POST(request: Request) {
         // Continue anyway - this is not critical
       }
 
-      const { data: approvedMatch, error: approveError } = await supabase
+      const { error: approveError } = await supabase
         .from('spotify_matches')
         .update({
           status: 'approved',
@@ -156,7 +156,7 @@ export async function POST(request: Request) {
       });
     } else if (action === 'reject') {
       // Mark match as rejected
-      const { data: rejectedMatch, error: rejectError } = await supabase
+      const { error: rejectError } = await supabase
         .from('spotify_matches')
         .update({
           status: 'rejected',

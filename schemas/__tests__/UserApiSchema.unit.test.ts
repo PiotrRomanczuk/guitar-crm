@@ -16,7 +16,6 @@ import {
   UserFilterSchema,
   UserIdParamSchema,
   validateCreateUserRequest,
-  validateUpdateUserRequest,
   validateUserFilters,
   validateUserId,
   safeValidateCreateUser,

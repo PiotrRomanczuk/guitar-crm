@@ -60,7 +60,7 @@ export function AIStreamingStatus({
   reasoning,
   estimatedTotal,
   progress: providedProgress,
-  queuePosition,
+  queuePosition: _queuePosition,
   queueMessage,
   error,
   onCancel,

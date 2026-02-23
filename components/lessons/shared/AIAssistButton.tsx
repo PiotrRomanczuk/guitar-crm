@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { Sparkles, X, Loader2 } from 'lucide-react';
+import { Sparkles, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { AIStreamStatus } from '@/hooks/useAIStream';
 

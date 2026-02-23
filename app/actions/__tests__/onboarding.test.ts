@@ -29,7 +29,7 @@ jest.mock('@/lib/supabase/server', () => ({
 const mockAdminUpdate = jest.fn();
 const mockAdminInsert = jest.fn();
 const mockAdminEq = jest.fn();
-const mockAdminFrom = jest.fn((table: string) => {
+const mockAdminFrom = jest.fn((_table: string) => {
   // Default behavior
   return {
     update: (data: unknown) => {
@@ -211,15 +211,15 @@ describe('completeOnboarding', () => {
     mockAdminFrom.mockImplementationOnce((table: string) => {
       if (table === 'profiles') {
         return {
-          update: (data: unknown) => ({
-            eq: (field: string, value: string) =>
+          update: (_data: unknown) => ({
+            eq: (_field: string, _value: string) =>
               Promise.resolve({ error: { message: 'Database error' } }),
           }),
         };
       }
       // Won't reach user_roles due to early return
       return {
-        insert: (data: unknown) => Promise.resolve({ error: null }),
+        insert: (_data: unknown) => Promise.resolve({ error: null }),
       };
     });
 
@@ -248,22 +248,22 @@ describe('completeOnboarding', () => {
       callCount++;
       if (table === 'profiles' && callCount === 1) {
         return {
-          update: (data: unknown) => ({
-            eq: (field: string, value: string) => Promise.resolve({ error: null }),
+          update: (_data: unknown) => ({
+            eq: (_field: string, _value: string) => Promise.resolve({ error: null }),
           }),
         };
       }
       if (table === 'user_roles' && callCount === 2) {
         return {
-          insert: (data: unknown) =>
+          insert: (_data: unknown) =>
             Promise.resolve({ error: { code: '23505', message: 'Duplicate key' } }),
         };
       }
       // Fallback
       return {
-        insert: (data: unknown) => Promise.resolve({ error: null }),
-        update: (data: unknown) => ({
-          eq: (field: string, value: string) => Promise.resolve({ error: null }),
+        insert: (_data: unknown) => Promise.resolve({ error: null }),
+        update: (_data: unknown) => ({
+          eq: (_field: string, _value: string) => Promise.resolve({ error: null }),
         }),
       };
     });
@@ -288,7 +288,7 @@ describe('completeOnboarding', () => {
     });
 
     // Reset mockAdminFrom to default behavior (may have been overridden by previous test)
-    mockAdminFrom.mockImplementation((table: string) => {
+    mockAdminFrom.mockImplementation((_table: string) => {
       return {
         update: (data: unknown) => {
           mockAdminUpdate(data);

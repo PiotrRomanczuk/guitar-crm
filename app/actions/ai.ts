@@ -6,21 +6,11 @@ import { getAIProvider, isAIError, type AIMessage, type AIModelInfo } from '@/li
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
 import { executeAgent } from '@/lib/ai/registry';
 import { mapToOllamaModel } from '@/lib/ai/model-mappings';
-import { requireAIAuth, AIAuthError } from '@/lib/ai/auth';
+import { requireAIAuth } from '@/lib/ai/auth';
 import { checkRateLimit } from '@/lib/ai/rate-limiter';
 import { createClient } from '@/lib/supabase/server';
 import type { AIGenerationType } from '@/types/ai-generation';
 import { getConversation, saveConversationMessages, trackAIUsage } from './ai-conversations';
-
-/**
- * Safely handle auth/rate-limit errors and return a user-friendly message.
- */
-function handleAuthError(error: unknown): string {
-  if (error instanceof AIAuthError) {
-    return error.message;
-  }
-  return 'An unexpected error occurred.';
-}
 
 /**
  * Enforce rate limits for a given user and agent.
@@ -118,7 +108,6 @@ async function* createAIStreamFromProvider(
   if (provider.completeStream && typeof provider.completeStream === 'function') {
     // Use true SSE streaming
     let fullContent = '';
-    let fullReasoning = '';
 
     try {
       for await (const chunk of provider.completeStream(request, signal)) {
@@ -126,11 +115,6 @@ async function* createAIStreamFromProvider(
         if (chunk.content) {
           fullContent += chunk.content;
           yield fullContent; // Yield accumulated content
-        }
-
-        // Accumulate reasoning (for models like DeepSeek R1)
-        if (chunk.reasoning) {
-          fullReasoning += chunk.reasoning;
         }
 
         // If stream is done, break

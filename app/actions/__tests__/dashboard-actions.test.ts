@@ -68,7 +68,7 @@ jest.mock('@/lib/supabase/admin', () => ({
           mockAdminUpdateUserById(userId, data),
       },
     },
-    from: (table: string) => ({
+    from: (_table: string) => ({
       update: (data: unknown) => {
         mockAdminUpdate(data);
         return {
@@ -82,8 +82,8 @@ jest.mock('@/lib/supabase/admin', () => ({
         mockAdminUpsert(data, options);
         return Promise.resolve({ error: null });
       },
-      select: (fields: string) => ({
-        eq: (field: string, value: string) => ({
+      select: (_fields: string) => ({
+        eq: (_field: string, _value: string) => ({
           single: () => Promise.resolve({ data: null }),
         }),
       }),

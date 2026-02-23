@@ -1,7 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/database.types';
 import { matchStudentByEmail, createShadowStudent } from '@/lib/services/import-utils';
-import { isGuitarLesson } from '@/lib/calendar/calendar-utils';
 
 export interface MonthChunk {
   start: Date;

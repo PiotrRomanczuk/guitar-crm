@@ -130,7 +130,7 @@ export function useAcceptDatabaseMatch() {
 
       return res.json();
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, _variables) => {
       toast.success(`Accepted database match`);
       // Invalidate scan data to refresh the list
       queryClient.invalidateQueries({ queryKey: driveVideosKeys.scan() });

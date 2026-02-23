@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import {
   Select,
@@ -128,10 +129,11 @@ export function StudentAssignmentsPageClient() {
       {assignments.length === 0 ? (
         <div className="text-center py-12">
           <div className="relative w-64 h-48 mx-auto mb-6">
-            <img
+            <Image
               src="/illustrations/no-upcoming-lessons--future-focused---a-forward-lo.png"
               alt="No assignments"
-              className="w-full h-full object-contain"
+              fill
+              className="object-contain"
             />
           </div>
           <h3 className="text-lg font-medium mb-2">No assignments yet</h3>

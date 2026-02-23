@@ -7,14 +7,12 @@ import {
     Search,
     Users,
     Music,
-    Calendar,
     Settings,
     Shield,
     BookOpen,
     Plus,
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
 
 export function GlobalSearch() {
     const [open, setOpen] = React.useState(false);

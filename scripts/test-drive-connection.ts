@@ -40,7 +40,7 @@ async function testConnection() {
   // Test 2: Initialize Drive client
   console.log('\n2️⃣ Initializing Google Drive client...');
   try {
-    const drive = getServiceAccountDriveClient();
+    const _drive = getServiceAccountDriveClient();
     console.log('   ✅ Drive client initialized successfully');
   } catch (error) {
     console.error('   ❌ Failed to initialize Drive client:', error);

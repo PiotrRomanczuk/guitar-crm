@@ -19,7 +19,7 @@ import { HealthSummaryWidget } from '@/components/dashboard/health/HealthSummary
 import { OpenRouterStatusWidget } from '@/components/dashboard/admin/OpenRouterStatusWidget';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
 import { TeacherPerformance } from '@/components/dashboard/teacher/Performance';
-import { Users, BookOpen, Music, Shield, Settings } from 'lucide-react';
+import { Users, BookOpen, Music, Shield } from 'lucide-react';
 import Link from 'next/link';
 
 // Section wrapper for consistent spacing and optional titles

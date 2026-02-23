@@ -22,7 +22,7 @@ jest.mock('@/lib/getUserWithRolesSSR', () => ({
 
 // Mock Supabase client
 const mockInsert = jest.fn();
-const mockFrom = jest.fn((table: string) => {
+const mockFrom = jest.fn((_table: string) => {
   // Default behavior
   return {
     select: () => ({

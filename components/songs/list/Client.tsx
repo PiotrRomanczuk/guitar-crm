@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { Song } from '../types';
 import SongListFilter from './Filter';
@@ -34,7 +33,7 @@ export function SongListClient({
   categories,
   authors,
 }: Props) {
-  const router = useRouter();
+  const _router = useRouter();
   const [sortBy, setSortBy] = useState<SortField>('updated_at');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 

@@ -22,7 +22,7 @@ export function LessonListClient({
   students,
   teachers,
 }: LessonListClientProps) {
-  const router = useRouter();
+  const _router = useRouter();
   const searchParams = useSearchParams();
 
   // Check if we should show success message

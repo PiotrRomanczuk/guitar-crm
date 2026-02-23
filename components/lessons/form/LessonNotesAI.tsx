@@ -24,15 +24,15 @@ export function LessonNotesAI({
   studentId,
   songsCovered,
   lessonTopic,
-  duration,
+  duration: _duration,
   teacherNotes,
-  previousNotes,
+  previousNotes: _previousNotes,
   onNotesGenerated,
   disabled = false,
 }: Props) {
   // Streaming action wrapper
   const streamAction = useCallback(
-    async function* (params: any, signal?: AbortSignal) {
+    async function* (params: any, _signal?: AbortSignal) {
       yield* generateLessonNotesStream(params);
     },
     []

@@ -9,8 +9,8 @@ jest.mock('@/lib/getUserWithRolesSSR');
 
 const mockSelect = jest.fn();
 const mockUpdate = jest.fn();
-const mockEq = jest.fn();
-const mockSingle = jest.fn();
+const _mockEq = jest.fn();
+const _mockSingle = jest.fn();
 
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn().mockResolvedValue({

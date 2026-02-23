@@ -108,7 +108,7 @@ describe('POST /api/spotify/matches/reject', () => {
     let callCount = 0;
     let capturedUpdate: any;
 
-    mockSupabase.from = jest.fn((table) => {
+    mockSupabase.from = jest.fn((_table) => {
       callCount++;
       if (callCount === 1) {
         // user_overview
@@ -165,7 +165,7 @@ describe('POST /api/spotify/matches/reject', () => {
     });
 
     let callCount = 0;
-    mockSupabase.from = jest.fn((table) => {
+    mockSupabase.from = jest.fn((_table) => {
       callCount++;
       if (callCount === 1) {
         return {
@@ -213,7 +213,7 @@ describe('POST /api/spotify/matches/reject', () => {
     });
 
     let callCount = 0;
-    mockSupabase.from = jest.fn((table) => {
+    mockSupabase.from = jest.fn((_table) => {
       callCount++;
       if (callCount === 1) {
         return {
@@ -255,7 +255,7 @@ describe('POST /api/spotify/matches/reject', () => {
     });
 
     let callCount = 0;
-    mockSupabase.from = jest.fn((table) => {
+    mockSupabase.from = jest.fn((_table) => {
       callCount++;
       if (callCount === 1) {
         return {

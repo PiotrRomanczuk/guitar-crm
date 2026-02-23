@@ -31,7 +31,7 @@ export function PostLessonSummaryAI({
   newTechniques = [],
   struggles = [],
   successes = [],
-  teacherNotes = '',
+  teacherNotes: _teacherNotes = '',
   onSummaryGenerated,
 }: Props) {
   const [summary, setSummary] = useState('');
@@ -39,7 +39,7 @@ export function PostLessonSummaryAI({
 
   // Streaming action wrapper
   const streamAction = useCallback(
-    async function* (params: any, signal?: AbortSignal) {
+    async function* (params: any, _signal?: AbortSignal) {
       yield* generatePostLessonSummaryStream(params);
     },
     []

@@ -9,7 +9,7 @@ import { type NoteName } from '@/lib/music-theory';
  * String 6 (low E) = E2, String 5 (A) = A2, String 4 (D) = D3,
  * String 3 (G) = G3, String 2 (B) = B3, String 1 (high E) = E4
  */
-const STRING_BASE_NOTES = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
+const _STRING_BASE_NOTES = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
 
 /**
  * Convert a NoteName and octave to Tone.js format (e.g., "C4")
@@ -91,6 +91,7 @@ export function useGuitarAudio(): GuitarAudioControls {
         synthRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: run only on mount; volume is handled by a separate effect
   }, []);
 
   // Update volume when it changes

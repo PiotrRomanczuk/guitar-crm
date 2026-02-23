@@ -8,7 +8,7 @@
 import { getAIProvider } from '../provider-factory';
 import type { AIMessage } from '../types';
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
-import type { AgentSpecification, AgentRequest, AgentResponse, AgentContext } from './types';
+import type { AgentSpecification, AgentRequest } from './types';
 import { fetchContextData } from './context-fetcher';
 import { mapToOllamaModel } from '../model-mappings';
 
@@ -172,7 +172,7 @@ export function generateRequestId(): string {
 export function hashInput(input: Record<string, any>): string {
   try {
     return Buffer.from(JSON.stringify(input)).toString('base64').substr(0, 16);
-  } catch (error) {
+  } catch {
     return 'hash_error';
   }
 }

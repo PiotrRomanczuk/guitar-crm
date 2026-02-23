@@ -25,7 +25,7 @@ export async function buildAgentContext(
   entityType?: string,
   additionalContext?: Record<string, any>
 ): Promise<AgentExecutionContext> {
-  const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
+  const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
 
   if (!user) {
     throw new Error('User not authenticated');

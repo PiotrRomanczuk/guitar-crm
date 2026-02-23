@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { Calendar, Clock, Check, X, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, Check, X } from 'lucide-react';
 
 type LessonStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 

@@ -57,7 +57,7 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
 
       // Test basic connectivity first
       try {
-        const testResponse = await fetch(`${clientUrl}/rest/v1/`, {
+        await fetch(`${clientUrl}/rest/v1/`, {
           method: 'HEAD',
           headers: {
             apikey: (supabase as any).supabaseKey,
@@ -77,7 +77,7 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
           setConnectionStatus('connected');
           return;
         }
-      } catch (fetchError) {
+      } catch {
         setConnectionStatus('error');
         toast.error(`Cannot reach ${clientUrl}`);
         return;

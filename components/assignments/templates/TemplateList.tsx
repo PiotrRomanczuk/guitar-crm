@@ -10,7 +10,7 @@ interface TemplateListProps {
 }
 
 export default function TemplateList({ templates }: TemplateListProps) {
-  const router = useRouter();
+  const _router = useRouter();
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this template?')) {

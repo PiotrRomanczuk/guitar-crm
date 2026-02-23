@@ -155,7 +155,7 @@ export const testUtils = {
       try {
         await callback();
         return;
-      } catch (error) {
+      } catch {
         await new Promise((resolve) => setTimeout(resolve, 10));
       }
     }

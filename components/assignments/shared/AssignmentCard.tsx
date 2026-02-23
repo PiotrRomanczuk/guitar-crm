@@ -26,7 +26,7 @@ interface AssignmentCardProps {
 function AssignmentCard({
   id,
   title,
-  description,
+  description: _description,
   studentName,
   dueDate,
   status,

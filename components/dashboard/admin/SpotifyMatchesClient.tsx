@@ -38,6 +38,161 @@ import {
 } from './spotify';
 import { staggerContainer, listItem, cardEntrance } from '@/lib/animations';
 
+type PendingMatchesTableProps = {
+  matches: SpotifyMatch[];
+  sortField: SortField;
+  sortOrder: SortOrder;
+  onSort: (field: SortField) => void;
+  actionLoading: string | null;
+  loading: boolean;
+  pagination: PaginationInfo;
+  activeTab: string;
+  onAction: (matchId: string, action: 'approve' | 'reject') => void;
+  onOpenSearch: (match: SpotifyMatch) => void;
+  onFetch: (status: string, page: number) => void;
+};
+
+function PendingMatchesTable({
+  matches,
+  sortField,
+  sortOrder,
+  onSort,
+  actionLoading,
+  loading,
+  pagination,
+  activeTab,
+  onAction,
+  onOpenSearch,
+  onFetch,
+}: PendingMatchesTableProps) {
+  return (
+    <>
+      <div className="rounded-lg border border-border overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <TableHead className="w-[50px]"></TableHead>
+              <TableHead><SortButton field="original" sortField={sortField} sortOrder={sortOrder} onSort={onSort}>Original Song</SortButton></TableHead>
+              <TableHead><SortButton field="spotify" sortField={sortField} sortOrder={sortOrder} onSort={onSort}>Spotify Match</SortButton></TableHead>
+              <TableHead className="w-[90px]"><SortButton field="confidence" sortField={sortField} sortOrder={sortOrder} onSort={onSort}>Score</SortButton></TableHead>
+              <TableHead className="w-[220px] text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {matches.map((match) => (
+              <TableRow key={match.id} className="hover:bg-muted/50">
+                <TableCell className="align-top p-2">
+                  <div className="flex flex-col gap-1">
+                    {match.songs.cover_image_url && (
+                      <Image src={match.songs.cover_image_url} alt={match.songs.title} width={48} height={48} className="rounded shrink-0" />
+                    )}
+                    {match.spotify_cover_image_url && (
+                      <Image src={match.spotify_cover_image_url} alt={match.spotify_track_name} width={48} height={48} className="rounded shrink-0" />
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="align-top">
+                  <div className="space-y-0.5">
+                    <div className="font-medium text-sm line-clamp-1">{match.songs.title}</div>
+                    <div className="text-xs text-muted-foreground line-clamp-1">{match.songs.author}</div>
+                  </div>
+                </TableCell>
+                <TableCell className="align-top">
+                  <div className="space-y-0.5">
+                    <div className="font-medium text-sm line-clamp-1">{match.spotify_track_name}</div>
+                    <div className="text-xs text-muted-foreground line-clamp-1">{match.spotify_artist_name}</div>
+                    <div className="text-xs text-muted-foreground/70 flex items-center gap-2">
+                      <span>{formatDuration(match.spotify_duration_ms)}</span>
+                      <span>•</span>
+                      <span>{match.spotify_release_date?.split('-')[0]}</span>
+                      <Button size="sm" variant="ghost" className="h-5 px-1 -ml-1" asChild>
+                        <a href={match.spotify_url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="align-top">{getConfidenceBadge(match.confidence_score)}</TableCell>
+                <TableCell className="align-top text-right">
+                  <div className="flex gap-2 justify-end">
+                    <Button size="sm" onClick={() => onAction(match.id, 'approve')} disabled={actionLoading === match.id} title="Approve">
+                      {actionLoading === match.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                    </Button>
+                    <Button size="sm" onClick={() => onOpenSearch(match)} disabled={actionLoading === match.id} variant="outline" title="Search">
+                      <Search className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" onClick={() => onAction(match.id, 'reject')} disabled={actionLoading === match.id} variant="outline" title="Reject">
+                      {actionLoading === match.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3 h-3" />}
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      {(pagination.hasNext || pagination.hasPrev) && (
+        <div className="flex items-center justify-between pt-4">
+          <Button variant="outline" onClick={() => onFetch(activeTab, pagination.page - 1)} disabled={!pagination.hasPrev || loading}>Previous</Button>
+          <span className="text-sm text-muted-foreground">Page {pagination.page} of {Math.ceil(pagination.total / pagination.limit)}</span>
+          <Button variant="outline" onClick={() => onFetch(activeTab, pagination.page + 1)} disabled={!pagination.hasNext || loading}>Next</Button>
+        </div>
+      )}
+    </>
+  );
+}
+
+function SortButton({
+  field,
+  sortField,
+  sortOrder,
+  onSort,
+  children,
+}: {
+  field: SortField;
+  sortField: SortField;
+  sortOrder: SortOrder;
+  onSort: (field: SortField) => void;
+  children: React.ReactNode;
+}) {
+  const isActive = sortField === field;
+  return (
+    <button
+      onClick={() => onSort(field)}
+      className="flex items-center gap-1 hover:text-foreground transition-colors"
+    >
+      {children}
+      {isActive ? (
+        sortOrder === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+      ) : (
+        <ArrowUpDown className="w-3 h-3 opacity-50" />
+      )}
+    </button>
+  );
+}
+
+function EmptyState({ icon, title, message }: { icon: React.ReactNode; title: string; message: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="flex flex-col items-center justify-center py-12 sm:py-16 text-center space-y-4 border-2 border-dashed border-border rounded-xl bg-muted/10"
+    >
+      <motion.div
+        animate={{ y: [0, -8, 0] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        {icon}
+      </motion.div>
+      <div className="space-y-1">
+        <h3 className="font-semibold text-lg">{title}</h3>
+        <p className="text-sm text-muted-foreground max-w-sm">{message}</p>
+      </div>
+    </motion.div>
+  );
+}
+
 export function SpotifyMatchesClient() {
   const [matches, setMatches] = useState<SpotifyMatch[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,22 +261,6 @@ export function SpotifyMatchesClient() {
     });
   };
 
-  const SortButton = ({ field, children }: { field: SortField; children: React.ReactNode }) => {
-    const isActive = sortField === field;
-    return (
-      <button
-        onClick={() => handleSort(field)}
-        className="flex items-center gap-1 hover:text-foreground transition-colors"
-      >
-        {children}
-        {isActive ? (
-          sortOrder === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-        ) : (
-          <ArrowUpDown className="w-3 h-3 opacity-50" />
-        )}
-      </button>
-    );
-  };
 
   const handleAction = async (matchId: string, action: 'approve' | 'reject') => {
     setActionLoading(matchId);
@@ -194,101 +333,7 @@ export function SpotifyMatchesClient() {
     setSearchResults([]);
   };
 
-  const renderEmptyState = (icon: React.ReactNode, title: string, message: string) => (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="flex flex-col items-center justify-center py-12 sm:py-16 text-center space-y-4 border-2 border-dashed border-border rounded-xl bg-muted/10"
-    >
-      <motion.div
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        {icon}
-      </motion.div>
-      <div className="space-y-1">
-        <h3 className="font-semibold text-lg">{title}</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">{message}</p>
-      </div>
-    </motion.div>
-  );
 
-  const renderPendingTable = () => (
-    <>
-      <div className="rounded-lg border border-border overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="w-[50px]"></TableHead>
-              <TableHead><SortButton field="original">Original Song</SortButton></TableHead>
-              <TableHead><SortButton field="spotify">Spotify Match</SortButton></TableHead>
-              <TableHead className="w-[90px]"><SortButton field="confidence">Score</SortButton></TableHead>
-              <TableHead className="w-[220px] text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {getSortedMatches().map((match) => (
-              <TableRow key={match.id} className="hover:bg-muted/50">
-                <TableCell className="align-top p-2">
-                  <div className="flex flex-col gap-1">
-                    {match.songs.cover_image_url && (
-                      <Image src={match.songs.cover_image_url} alt={match.songs.title} width={48} height={48} className="rounded shrink-0" />
-                    )}
-                    {match.spotify_cover_image_url && (
-                      <Image src={match.spotify_cover_image_url} alt={match.spotify_track_name} width={48} height={48} className="rounded shrink-0" />
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="align-top">
-                  <div className="space-y-0.5">
-                    <div className="font-medium text-sm line-clamp-1">{match.songs.title}</div>
-                    <div className="text-xs text-muted-foreground line-clamp-1">{match.songs.author}</div>
-                  </div>
-                </TableCell>
-                <TableCell className="align-top">
-                  <div className="space-y-0.5">
-                    <div className="font-medium text-sm line-clamp-1">{match.spotify_track_name}</div>
-                    <div className="text-xs text-muted-foreground line-clamp-1">{match.spotify_artist_name}</div>
-                    <div className="text-xs text-muted-foreground/70 flex items-center gap-2">
-                      <span>{formatDuration(match.spotify_duration_ms)}</span>
-                      <span>•</span>
-                      <span>{match.spotify_release_date?.split('-')[0]}</span>
-                      <Button size="sm" variant="ghost" className="h-5 px-1 -ml-1" asChild>
-                        <a href={match.spotify_url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="align-top">{getConfidenceBadge(match.confidence_score)}</TableCell>
-                <TableCell className="align-top text-right">
-                  <div className="flex gap-2 justify-end">
-                    <Button size="sm" onClick={() => handleAction(match.id, 'approve')} disabled={actionLoading === match.id} title="Approve">
-                      {actionLoading === match.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
-                    </Button>
-                    <Button size="sm" onClick={() => openSearchDialog(match)} disabled={actionLoading === match.id} variant="outline" title="Search">
-                      <Search className="w-3 h-3" />
-                    </Button>
-                    <Button size="sm" onClick={() => handleAction(match.id, 'reject')} disabled={actionLoading === match.id} variant="outline" title="Reject">
-                      {actionLoading === match.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3 h-3" />}
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      {(pagination.hasNext || pagination.hasPrev) && (
-        <div className="flex items-center justify-between pt-4">
-          <Button variant="outline" onClick={() => fetchMatches(activeTab, pagination.page - 1)} disabled={!pagination.hasPrev || loading}>Previous</Button>
-          <span className="text-sm text-muted-foreground">Page {pagination.page} of {Math.ceil(pagination.total / pagination.limit)}</span>
-          <Button variant="outline" onClick={() => fetchMatches(activeTab, pagination.page + 1)} disabled={!pagination.hasNext || loading}>Next</Button>
-        </div>
-      )}
-    </>
-  );
 
   return (
     <motion.div
@@ -327,7 +372,7 @@ export function SpotifyMatchesClient() {
                 <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
               </motion.div>
             ) : matches.length === 0 ? (
-              renderEmptyState(<CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" />, 'All caught up!', 'No pending Spotify matches to review.')
+              <EmptyState icon={<CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" />} title="All caught up!" message="No pending Spotify matches to review." />
             ) : (
               <motion.div
                 key="table"
@@ -335,7 +380,19 @@ export function SpotifyMatchesClient() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
               >
-                {renderPendingTable()}
+                <PendingMatchesTable
+                  matches={getSortedMatches()}
+                  sortField={sortField}
+                  sortOrder={sortOrder}
+                  onSort={handleSort}
+                  actionLoading={actionLoading}
+                  loading={loading}
+                  pagination={pagination}
+                  activeTab={activeTab}
+                  onAction={handleAction}
+                  onOpenSearch={openSearchDialog}
+                  onFetch={fetchMatches}
+                />
               </motion.div>
             )}
           </AnimatePresence>
@@ -354,7 +411,7 @@ export function SpotifyMatchesClient() {
                 <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
               </motion.div>
             ) : matches.length === 0 ? (
-              renderEmptyState(<CheckCircle2 className="w-12 h-12 text-muted-foreground/50" />, 'No approved matches', 'Approved matches will appear here.')
+              <EmptyState icon={<CheckCircle2 className="w-12 h-12 text-muted-foreground/50" />} title="No approved matches" message="Approved matches will appear here." />
             ) : (
               <motion.div
                 variants={staggerContainer}
@@ -385,7 +442,7 @@ export function SpotifyMatchesClient() {
                 <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
               </motion.div>
             ) : matches.length === 0 ? (
-              renderEmptyState(<XCircle className="w-12 h-12 text-muted-foreground/50" />, 'No rejected matches', 'Rejected matches will appear here.')
+              <EmptyState icon={<XCircle className="w-12 h-12 text-muted-foreground/50" />} title="No rejected matches" message="Rejected matches will appear here." />
             ) : (
               <motion.div
                 variants={staggerContainer}
