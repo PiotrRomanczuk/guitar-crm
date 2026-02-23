@@ -32,6 +32,21 @@ const eslintConfig = defineConfig([
       react: { version: '19.0.0' },
     },
   },
+  // Allow _-prefixed identifiers to be unused (intentional no-ops)
+  {
+    name: 'project/underscore-ignore-pattern',
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
   // Project-wide rules and overrides
   {
     name: 'project/component-size-rules',

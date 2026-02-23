@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, TrendingUp, Loader2, Users, DollarSign, Calendar, Music } from 'lucide-react';
+import { BarChart3, TrendingUp, Loader2, Users, Calendar, Music } from 'lucide-react';
 import { generateAdminInsightsStream } from '@/app/actions/ai';
 
 interface AdminStats {

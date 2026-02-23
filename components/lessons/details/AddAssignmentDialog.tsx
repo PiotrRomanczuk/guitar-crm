@@ -41,7 +41,7 @@ interface AddAssignmentDialogProps {
 }
 
 export function AddAssignmentDialog({ lessonId, studentId, teacherId }: AddAssignmentDialogProps) {
-  const router = useRouter();
+  const _router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -59,6 +59,7 @@ export function AddAssignmentDialog({ lessonId, studentId, teacherId }: AddAssig
     if (open) {
       loadTemplates();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: loadTemplates is defined below; re-running on each reference change would be incorrect
   }, [open]);
 
   const loadTemplates = async () => {

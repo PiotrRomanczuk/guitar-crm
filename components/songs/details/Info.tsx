@@ -1,10 +1,8 @@
 import type { Song } from '../types';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   ExternalLink,
   Music2,
-  Signal,
   Mic2,
   Waves,
   Tag,
@@ -13,17 +11,10 @@ import {
   Timer,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
 
 interface Props {
   song: Song;
 }
-
-const difficultyColors = {
-  beginner: 'bg-success/15 text-success border-0',
-  intermediate: 'bg-primary/10 text-primary border-0',
-  advanced: 'bg-destructive/10 text-destructive border-0',
-};
 
 function formatDuration(ms: number): string {
   const minutes = Math.floor(ms / 60000);

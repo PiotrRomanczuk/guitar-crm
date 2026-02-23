@@ -6,7 +6,7 @@ import { LessonStatusEnum } from '@/schemas';
 export async function GET(request: NextRequest) {
   try {
     // FIXES STRUMMY-262: Check auth FIRST using getUserWithRolesSSR
-    const { user, isAdmin } = await getUserWithRolesSSR();
+    const { user } = await getUserWithRolesSSR();
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

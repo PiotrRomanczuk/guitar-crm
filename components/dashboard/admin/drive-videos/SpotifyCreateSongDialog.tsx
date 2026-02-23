@@ -43,6 +43,7 @@ export function SpotifyCreateSongDialog({
       setQuery(searchQuery);
       handleSearch(searchQuery);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: only run when dialog opens, not on every handleSearch/videoItem reference change
   }, [open]);
 
   const handleSearch = async (searchQuery?: string) => {

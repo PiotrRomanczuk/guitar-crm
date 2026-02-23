@@ -334,7 +334,6 @@ export async function updateAssignmentHandler(
   userId: string,
   profile: Profile,
   input: UpdateInput,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _body: unknown // kept for signature compatibility if needed
 ) {
   try {

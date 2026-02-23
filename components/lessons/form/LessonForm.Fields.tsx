@@ -36,7 +36,7 @@ export function LessonFormFields({
   studentName,
   studentId,
   selectedSongs = [],
-  previousNotes,
+  previousNotes: _previousNotes,
 }: Props) {
   const handleNotesGenerated = (generatedNotes: string) => {
     // Create a synthetic event to update the notes field

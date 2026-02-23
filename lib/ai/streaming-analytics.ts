@@ -232,7 +232,7 @@ const MAX_STORED_SESSIONS = 100;
 /**
  * Store completed session for aggregate stats
  */
-function storeCompletedSession(metrics: StreamingMetrics, summary: PerformanceSummary): void {
+function _storeCompletedSession(metrics: StreamingMetrics, summary: PerformanceSummary): void {
   completedSessions.push({ metrics, summary });
 
   // Keep only last MAX_STORED_SESSIONS

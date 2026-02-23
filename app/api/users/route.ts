@@ -234,7 +234,7 @@ export async function POST(request: Request) {
       isAdmin: reqIsAdmin,
       isTeacher: reqIsTeacher,
       isStudent: reqIsStudent,
-      isShadow: reqIsShadow, // Accept explicit isShadow flag
+      isShadow: _reqIsShadow, // Accept explicit isShadow flag
     } = body;
 
     // Permission Check
@@ -247,8 +247,6 @@ export async function POST(request: Request) {
 
     const supabase = await createClient();
     const supabaseAdmin = createAdminClient();
-
-    let isShadow = reqIsShadow || false;
 
     // Construct full_name
     let finalFullName = full_name;
@@ -265,7 +263,6 @@ export async function POST(request: Request) {
 
     if (!email || email.trim() === '') {
       // Shadow User Creation - profile only, no auth user
-      isShadow = true;
       const newId = randomUUID();
       finalEmail = `shadow_${newId}@placeholder.com`;
 

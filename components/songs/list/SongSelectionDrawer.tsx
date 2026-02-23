@@ -50,10 +50,12 @@ export function SongSelectionDrawer({ open, onClose, onConfirm }: SongSelectionD
       setSelectedIds(new Set());
       setSearchQuery('');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: loadSongs is defined below; only run when open state changes
   }, [open]);
 
   useEffect(() => {
     filterSongs();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: filterSongs is defined below; deps are the actual filter inputs
   }, [songs, searchQuery, showOnlyMissing]);
 
   const loadSongs = async () => {

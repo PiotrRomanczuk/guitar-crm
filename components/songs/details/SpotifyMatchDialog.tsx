@@ -46,6 +46,136 @@ interface SpotifyMatchDialogProps {
   matchData: SpotifyMatchData | null;
 }
 
+function formatDuration(ms: number): string {
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function getConfidenceColor(confidence: number): string {
+  if (confidence >= 85) return 'text-success bg-success/10 border-success/20';
+  if (confidence >= 70) return 'text-primary bg-primary/10 border-primary/20';
+  if (confidence >= 50) return 'text-warning bg-warning/10 border-warning/20';
+  return 'text-destructive bg-destructive/10 border-destructive/20';
+}
+
+function SpotifyTrackCard({
+  selectedTrack,
+  matchData,
+}: {
+  selectedTrack: any | null;
+  matchData: SpotifyMatchData;
+}) {
+  const track = selectedTrack;
+  const suggested = matchData.spotifyTrack;
+  return (
+    <Card className="p-4 border-primary/50">
+      <div className="text-sm font-medium text-muted-foreground mb-3">
+        {track ? 'Selected Match (Manual)' : 'Suggested Spotify Match (AI)'}
+      </div>
+      <div className="flex gap-4">
+        <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-muted border border-border">
+          {track?.album?.images?.[0]?.url || suggested.coverImage ? (
+            <Image
+              src={track?.album?.images?.[0]?.url || suggested.coverImage}
+              alt={track?.name || suggested.name}
+              width={96}
+              height={96}
+              className="object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Music className="w-8 h-8 text-muted-foreground" />
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0 space-y-2">
+          <div>
+            <div className="font-semibold text-lg truncate">{track?.name || suggested.name}</div>
+            <div className="text-sm text-muted-foreground truncate">
+              {track?.artists?.[0]?.name || suggested.artist}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div><span className="text-muted-foreground">Album:</span><div className="truncate">{track?.album?.name || suggested.album}</div></div>
+            <div><span className="text-muted-foreground">Duration:</span><div>{formatDuration(track?.duration_ms || suggested.duration)}</div></div>
+            <div><span className="text-muted-foreground">Released:</span><div>{track?.album?.release_date || suggested.releaseDate}</div></div>
+            <div><span className="text-muted-foreground">Popularity:</span><div>{track?.popularity || suggested.popularity}/100</div></div>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <Button variant="outline" size="sm" asChild className="gap-1">
+              <a href={track?.external_urls?.spotify || suggested.url} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="w-3 h-3" />
+                Open in Spotify
+              </a>
+            </Button>
+            {(track?.preview_url || suggested.previewUrl) && (
+              <Button variant="outline" size="sm" asChild className="gap-1">
+                <a href={track?.preview_url || suggested.previewUrl} target="_blank" rel="noopener noreferrer">
+                  <Music className="w-3 h-3" />
+                  Preview
+                </a>
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function SearchResultList({
+  results,
+  selectedTrackId,
+  onSelect,
+}: {
+  results: any[];
+  selectedTrackId: string | undefined;
+  onSelect: (track: any) => void;
+}) {
+  if (results.length === 0) return null;
+  return (
+    <div className="space-y-2 max-h-60 overflow-y-auto">
+      {results.map((track) => (
+        <Card
+          key={track.id}
+          className={`p-3 cursor-pointer transition-all hover:bg-accent ${
+            selectedTrackId === track.id ? 'border-primary bg-primary/5' : ''
+          }`}
+          onClick={() => onSelect(track)}
+        >
+          <div className="flex gap-3 items-center">
+            <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-muted">
+              {track.album?.images?.[0]?.url ? (
+                <Image
+                  src={track.album.images[0].url}
+                  alt={track.name}
+                  width={48}
+                  height={48}
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Music className="w-4 h-4 text-muted-foreground" />
+                </div>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-sm truncate">{track.name}</div>
+              <div className="text-xs text-muted-foreground truncate">
+                {track.artists?.[0]?.name} • {track.album?.name}
+              </div>
+            </div>
+            {selectedTrackId === track.id && (
+              <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+            )}
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
 export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDialogProps) {
   const [processing, setProcessing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -188,19 +318,6 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
     }
   };
 
-  const formatDuration = (ms: number) => {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 85) return 'text-success bg-success/10 border-success/20';
-    if (confidence >= 70) return 'text-primary bg-primary/10 border-primary/20';
-    if (confidence >= 50) return 'text-warning bg-warning/10 border-warning/20';
-    return 'text-destructive bg-destructive/10 border-destructive/20';
-  };
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -234,98 +351,7 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
           </div>
 
           {/* Spotify Match */}
-          <Card className="p-4 border-primary/50">
-            <div className="text-sm font-medium text-muted-foreground mb-3">
-              {selectedTrack ? 'Selected Match (Manual)' : 'Suggested Spotify Match (AI)'}
-            </div>
-
-            <div className="flex gap-4">
-              {/* Album Cover */}
-              <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-muted border border-border">
-                {selectedTrack?.album?.images?.[0]?.url || matchData.spotifyTrack.coverImage ? (
-                  <Image
-                    src={
-                      selectedTrack?.album?.images?.[0]?.url || matchData.spotifyTrack.coverImage
-                    }
-                    alt={selectedTrack?.name || matchData.spotifyTrack.name}
-                    width={96}
-                    height={96}
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Music className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
-
-              {/* Track Details */}
-              <div className="flex-1 min-w-0 space-y-2">
-                <div>
-                  <div className="font-semibold text-lg truncate">
-                    {selectedTrack?.name || matchData.spotifyTrack.name}
-                  </div>
-                  <div className="text-sm text-muted-foreground truncate">
-                    {selectedTrack?.artists?.[0]?.name || matchData.spotifyTrack.artist}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <span className="text-muted-foreground">Album:</span>
-                    <div className="truncate">
-                      {selectedTrack?.album?.name || matchData.spotifyTrack.album}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Duration:</span>
-                    <div>
-                      {formatDuration(
-                        selectedTrack?.duration_ms || matchData.spotifyTrack.duration
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Released:</span>
-                    <div>
-                      {selectedTrack?.album?.release_date || matchData.spotifyTrack.releaseDate}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Popularity:</span>
-                    <div>{selectedTrack?.popularity || matchData.spotifyTrack.popularity}/100</div>
-                  </div>
-                </div>
-
-                {/* Action Links */}
-                <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" asChild className="gap-1">
-                    <a
-                      href={selectedTrack?.external_urls?.spotify || matchData.spotifyTrack.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      Open in Spotify
-                    </a>
-                  </Button>
-
-                  {(selectedTrack?.preview_url || matchData.spotifyTrack.previewUrl) && (
-                    <Button variant="outline" size="sm" asChild className="gap-1">
-                      <a
-                        href={selectedTrack?.preview_url || matchData.spotifyTrack.previewUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Music className="w-3 h-3" />
-                        Preview
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </Card>
+          <SpotifyTrackCard selectedTrack={selectedTrack} matchData={matchData} />
 
           {/* Manual Search Section */}
           <Card className="p-4 bg-muted/30 border-dashed">
@@ -347,46 +373,11 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
             </div>
 
             {/* Search Results */}
-            {searchResults.length > 0 && (
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {searchResults.map((track) => (
-                  <Card
-                    key={track.id}
-                    className={`p-3 cursor-pointer transition-all hover:bg-accent ${
-                      selectedTrack?.id === track.id ? 'border-primary bg-primary/5' : ''
-                    }`}
-                    onClick={() => handleSelectTrack(track)}
-                  >
-                    <div className="flex gap-3 items-center">
-                      <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-muted">
-                        {track.album?.images?.[0]?.url ? (
-                          <Image
-                            src={track.album.images[0].url}
-                            alt={track.name}
-                            width={48}
-                            height={48}
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Music className="w-4 h-4 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm truncate">{track.name}</div>
-                        <div className="text-xs text-muted-foreground truncate">
-                          {track.artists?.[0]?.name} • {track.album?.name}
-                        </div>
-                      </div>
-                      {selectedTrack?.id === track.id && (
-                        <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                      )}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
+            <SearchResultList
+              results={searchResults}
+              selectedTrackId={selectedTrack?.id}
+              onSelect={handleSelectTrack}
+            />
           </Card>
 
           {/* Match Reason */}

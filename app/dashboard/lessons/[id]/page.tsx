@@ -178,7 +178,7 @@ function DetailSkeleton() {
   );
 }
 
-function ListSkeleton({ title }: { title: string }) {
+function ListSkeleton({ title: _title }: { title: string }) {
   return (
     <div className="space-y-4">
       <Skeleton className="h-6 w-32" />

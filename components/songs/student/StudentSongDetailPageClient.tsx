@@ -44,6 +44,186 @@ import {
   formatDuration,
 } from './StudentSongs.constants';
 
+function SongDetailsGrid({ song }: { song: Song }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <Card className="bg-card border-border/50 shadow-sm">
+        <CardContent className="p-6 flex items-center gap-4">
+          <div className="p-3 bg-primary/10 rounded-full">
+            <Signal className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Difficulty</p>
+            <Badge
+              variant="secondary"
+              className={cn('mt-1 capitalize', difficultyColors[song.level || 'beginner'])}
+            >
+              {difficultyLabels[song.level || 'beginner']}
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-card border-border/50 shadow-sm">
+        <CardContent className="p-6 flex items-center gap-4">
+          <div className="p-3 bg-primary/10 rounded-full">
+            <Music2 className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Key</p>
+            <p className="text-lg font-semibold mt-0.5">{song.key}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {song.tempo && (
+        <Card className="bg-card border-border/50 shadow-sm">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-full">
+              <Timer className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Tempo</p>
+              <p className="text-lg font-semibold mt-0.5">{song.tempo} BPM</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {song.time_signature && (
+        <Card className="bg-card border-border/50 shadow-sm">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-full">
+              <Clock className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Time Sig.</p>
+              <p className="text-lg font-semibold mt-0.5">{song.time_signature}/4</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {song.duration_ms && (
+        <Card className="bg-card border-border/50 shadow-sm">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-full">
+              <Clock className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Duration</p>
+              <p className="text-lg font-semibold mt-0.5">{formatDuration(song.duration_ms)}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {song.release_year && (
+        <Card className="bg-card border-border/50 shadow-sm">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-full">
+              <Calendar className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Released</p>
+              <p className="text-lg font-semibold mt-0.5">{song.release_year}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {song.capo_fret !== null && song.capo_fret !== undefined && (
+        <Card className="bg-card border-border/50 shadow-sm">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-full">
+              <Mic2 className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Capo</p>
+              <p className="text-lg font-semibold mt-0.5">
+                {song.capo_fret === 0 ? 'No Capo' : `Fret ${song.capo_fret}`}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {song.category && (
+        <Card className="bg-card border-border/50 shadow-sm">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-full">
+              <Tag className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Category</p>
+              <p className="text-lg font-semibold mt-0.5">{song.category}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function SongResourceLinks({ song }: { song: Song }) {
+  const hasResources =
+    song.youtube_url || song.ultimate_guitar_link || song.spotify_link_url || song.audio_files;
+
+  return (
+    <Card className="bg-card border-border/50 shadow-sm">
+      <CardContent className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-primary/10 rounded-full">
+            <ExternalLink className="w-5 h-5 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold">Learning Resources</h3>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {song.youtube_url && (
+            <Button variant="outline" asChild className="h-12">
+              <a href={song.youtube_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                <Youtube className="w-4 h-4" />
+                YouTube
+              </a>
+            </Button>
+          )}
+          {song.ultimate_guitar_link && (
+            <Button variant="outline" asChild className="h-12">
+              <a href={song.ultimate_guitar_link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Tabs
+              </a>
+            </Button>
+          )}
+          {song.spotify_link_url && (
+            <Button variant="outline" asChild className="h-12">
+              <a href={song.spotify_link_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                <Play className="w-4 h-4" />
+                Spotify
+              </a>
+            </Button>
+          )}
+          {song.audio_files && (
+            <Button variant="outline" asChild className="h-12">
+              <a href={Object.values(song.audio_files)[0] ?? '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                <Music2 className="w-4 h-4" />
+                Audio
+              </a>
+            </Button>
+          )}
+        </div>
+
+        {!hasResources && (
+          <div className="text-sm text-muted-foreground italic text-center py-4">
+            No additional resources available yet
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function StudentSongDetailPageClient() {
   const params = useParams();
   const id = params?.id as string;
@@ -53,21 +233,15 @@ export function StudentSongDetailPageClient() {
   const [historyKey, setHistoryKey] = useState(0);
   const supabase = createClient();
 
-  // Update song status
   const updateSongStatus = async (newStatus: string) => {
     if (!song?.id) return;
-
     const previousStatus = song.status;
-
     try {
       setUpdatingStatus(true);
       setSong({ ...song, status: newStatus as any });
-
       const response = await fetch('/api/student/song-status', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           songId: song.id,
           status: newStatus,
@@ -76,18 +250,13 @@ export function StudentSongDetailPageClient() {
           } to ${statusLabels[newStatus] || newStatus}`,
         }),
       });
-
       if (!response.ok) {
         throw new Error('Failed to update status');
       }
-
-      // Trigger a refresh of the status history
       setHistoryKey((prev) => prev + 1);
-
       toast.success(`Song status updated to ${statusLabels[newStatus] || newStatus}!`);
     } catch (error) {
       console.error('Error updating status:', error);
-      // Revert on error
       setSong({ ...song, status: previousStatus });
       toast.error('Failed to update song status. Please try again.');
     } finally {
@@ -98,15 +267,12 @@ export function StudentSongDetailPageClient() {
   useEffect(() => {
     async function fetchSong() {
       if (!id) return;
-
       try {
         const {
           data: { user },
         } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Fetch song details and status
-        // We use maybeSingle() because RLS might return no rows if access is denied
         const { data, error } = await supabase
           .from('songs')
           .select(
@@ -127,16 +293,11 @@ export function StudentSongDetailPageClient() {
         if (error) throw error;
 
         if (data) {
-          // Extract status from the first matching lesson_song
           const userLessonSongs = (
             data.lesson_songs as unknown as { status: string; lessons: { student_id: string } }[]
           ).filter((ls) => ls.lessons.student_id === user.id);
           const status = userLessonSongs.length > 0 ? userLessonSongs[0].status : undefined;
-
-          setSong({
-            ...data,
-            status,
-          });
+          setSong({ ...data, status });
         } else {
           setSong(null);
         }
@@ -175,7 +336,6 @@ export function StudentSongDetailPageClient() {
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8">
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Breadcrumb */}
         <Link
           href="/dashboard/songs"
           className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
@@ -184,7 +344,6 @@ export function StudentSongDetailPageClient() {
           Back to My Songs
         </Link>
 
-        {/* Header Section */}
         <div className="space-y-8 animate-fade-in">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div>
@@ -192,7 +351,6 @@ export function StudentSongDetailPageClient() {
               <p className="text-xl text-muted-foreground">{song.author}</p>
             </div>
 
-            {/* Status Update Controls */}
             <div className="flex flex-col gap-4 md:items-end">
               <div className="space-y-2 min-w-48">
                 <label className="text-sm font-medium text-muted-foreground">
@@ -224,7 +382,6 @@ export function StudentSongDetailPageClient() {
             </div>
           </div>
 
-          {/* Cover Image */}
           {song.cover_image_url && (
             <div className="relative w-full max-w-md aspect-square mx-auto rounded-xl overflow-hidden shadow-lg">
               <Image
@@ -238,127 +395,8 @@ export function StudentSongDetailPageClient() {
             </div>
           )}
 
-          {/* Song Details Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-card border-border/50 shadow-sm">
-              <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-primary/10 rounded-full">
-                  <Signal className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Difficulty</p>
-                  <Badge
-                    variant="secondary"
-                    className={cn('mt-1 capitalize', difficultyColors[song.level || 'beginner'])}
-                  >
-                    {difficultyLabels[song.level || 'beginner']}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
+          <SongDetailsGrid song={song} />
 
-            <Card className="bg-card border-border/50 shadow-sm">
-              <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-primary/10 rounded-full">
-                  <Music2 className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Key</p>
-                  <p className="text-lg font-semibold mt-0.5">{song.key}</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {song.tempo && (
-              <Card className="bg-card border-border/50 shadow-sm">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-primary/10 rounded-full">
-                    <Timer className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Tempo</p>
-                    <p className="text-lg font-semibold mt-0.5">{song.tempo} BPM</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {song.time_signature && (
-              <Card className="bg-card border-border/50 shadow-sm">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-primary/10 rounded-full">
-                    <Clock className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Time Sig.</p>
-                    <p className="text-lg font-semibold mt-0.5">{song.time_signature}/4</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {song.duration_ms && (
-              <Card className="bg-card border-border/50 shadow-sm">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-primary/10 rounded-full">
-                    <Clock className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Duration</p>
-                    <p className="text-lg font-semibold mt-0.5">
-                      {formatDuration(song.duration_ms)}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {song.release_year && (
-              <Card className="bg-card border-border/50 shadow-sm">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-primary/10 rounded-full">
-                    <Calendar className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Released</p>
-                    <p className="text-lg font-semibold mt-0.5">{song.release_year}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {song.capo_fret !== null && song.capo_fret !== undefined && (
-              <Card className="bg-card border-border/50 shadow-sm">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-primary/10 rounded-full">
-                    <Mic2 className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Capo</p>
-                    <p className="text-lg font-semibold mt-0.5">
-                      {song.capo_fret === 0 ? 'No Capo' : `Fret ${song.capo_fret}`}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {song.category && (
-              <Card className="bg-card border-border/50 shadow-sm">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-primary/10 rounded-full">
-                    <Tag className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Category</p>
-                    <p className="text-lg font-semibold mt-0.5">{song.category}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Strumming Pattern */}
           {song.strumming_pattern && (
             <Card className="bg-card border-border/50 shadow-sm">
               <CardContent className="p-6">
@@ -375,7 +413,6 @@ export function StudentSongDetailPageClient() {
             </Card>
           )}
 
-          {/* Chords */}
           {song.chords && (
             <Card className="bg-card border-border/50 shadow-sm">
               <CardContent className="p-6">
@@ -392,7 +429,6 @@ export function StudentSongDetailPageClient() {
             </Card>
           )}
 
-          {/* YouTube Video */}
           {song.youtube_url && (
             <Card className="bg-card border-border/50 shadow-sm">
               <CardContent className="p-6">
@@ -415,86 +451,8 @@ export function StudentSongDetailPageClient() {
             </Card>
           )}
 
-          {/* Resource Links */}
-          <Card className="bg-card border-border/50 shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-primary/10 rounded-full">
-                  <ExternalLink className="w-5 h-5 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold">Learning Resources</h3>
-              </div>
+          <SongResourceLinks song={song} />
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {song.youtube_url && (
-                  <Button variant="outline" asChild className="h-12">
-                    <a
-                      href={song.youtube_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2"
-                    >
-                      <Youtube className="w-4 h-4" />
-                      YouTube
-                    </a>
-                  </Button>
-                )}
-
-                {song.ultimate_guitar_link && (
-                  <Button variant="outline" asChild className="h-12">
-                    <a
-                      href={song.ultimate_guitar_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2"
-                    >
-                      <FileText className="w-4 h-4" />
-                      Tabs
-                    </a>
-                  </Button>
-                )}
-
-                {song.spotify_link_url && (
-                  <Button variant="outline" asChild className="h-12">
-                    <a
-                      href={song.spotify_link_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2"
-                    >
-                      <Play className="w-4 h-4" />
-                      Spotify
-                    </a>
-                  </Button>
-                )}
-
-                {song.audio_files && (
-                  <Button variant="outline" asChild className="h-12">
-                    <a
-                      href={Object.values(song.audio_files)[0] ?? '#'}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2"
-                    >
-                      <Music2 className="w-4 h-4" />
-                      Audio
-                    </a>
-                  </Button>
-                )}
-              </div>
-
-              {!song.youtube_url &&
-                !song.ultimate_guitar_link &&
-                !song.spotify_link_url &&
-                !song.audio_files && (
-                  <div className="text-sm text-muted-foreground italic text-center py-4">
-                    No additional resources available yet
-                  </div>
-                )}
-            </CardContent>
-          </Card>
-
-          {/* Image Gallery */}
           {song.gallery_images && song.gallery_images.length > 0 && (
             <Card className="bg-card border-border/50 shadow-sm">
               <CardContent className="p-6">
@@ -516,7 +474,6 @@ export function StudentSongDetailPageClient() {
             </Card>
           )}
 
-          {/* Comments/Notes section if available */}
           {song.comments && (
             <Card className="bg-card border-border/50 shadow-sm">
               <CardContent className="p-6">
@@ -528,7 +485,6 @@ export function StudentSongDetailPageClient() {
             </Card>
           )}
 
-          {/* Status History */}
           <SongStatusHistory
             key={historyKey}
             songId={song.id}

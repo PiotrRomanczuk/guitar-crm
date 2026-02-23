@@ -9,7 +9,6 @@ import {
   Settings,
   LogOut,
   Guitar,
-  LucideIcon,
   BarChart,
   FileText,
   Menu,

@@ -44,7 +44,7 @@ interface ReviewQueueTableProps {
   onRefresh: () => void;
 }
 
-function getScoreColor(score: number): string {
+function _getScoreColor(score: number): string {
   if (score >= 70) return 'text-green-600 dark:text-green-400 font-bold';
   if (score >= 50) return 'text-yellow-600 dark:text-yellow-400 font-semibold';
   if (score >= 40) return 'text-orange-600 dark:text-orange-400';

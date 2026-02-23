@@ -433,7 +433,7 @@ describe('Users API - GET endpoint', () => {
       const response = await GET(req);
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      await response.json();
 
       expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
     });

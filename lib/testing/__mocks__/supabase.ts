@@ -48,7 +48,9 @@ export const createMockClient = () => ({
 
 export const createClient = jest.fn(createMockClient);
 
-export default {
+const supabaseMock = {
   createClient,
   createMockClient,
 };
+
+export default supabaseMock;

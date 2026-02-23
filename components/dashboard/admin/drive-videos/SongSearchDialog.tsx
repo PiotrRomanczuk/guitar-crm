@@ -44,6 +44,7 @@ export function SongSearchDialog({ open, onOpenChange, videoItem }: SongSearchDi
       setQuery(videoItem.parsed.title);
       handleSearch(videoItem.parsed.title);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: only run when dialog opens, not on every handleSearch/videoItem reference change
   }, [open]);
 
   const handleSearch = async (searchQuery?: string) => {
@@ -64,7 +65,7 @@ export function SongSearchDialog({ open, onOpenChange, videoItem }: SongSearchDi
       if (data.songs?.length === 0) {
         toast.info('No songs found. Try a different search term.');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to search songs');
       setResults([]);
     } finally {

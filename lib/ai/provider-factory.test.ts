@@ -5,7 +5,7 @@
  * Tests for the provider factory that manages AI provider selection and caching.
  */
 
-import { AIProviderFactory, createProviderFactory, getAIProvider, ProviderType } from './provider-factory';
+import { AIProviderFactory, createProviderFactory, getAIProvider } from './provider-factory';
 import type { AIProvider, AIProviderConfig, AIModelInfo, AIResult } from './types';
 
 // Mock the provider modules

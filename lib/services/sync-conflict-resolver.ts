@@ -71,7 +71,7 @@ export const DEFAULT_CONFLICT_CONFIG: ConflictConfig = {
 export function detectConflict(
   lesson: LessonData,
   event: GoogleEventData,
-  config: ConflictConfig = DEFAULT_CONFLICT_CONFIG
+  _config: ConflictConfig = DEFAULT_CONFLICT_CONFIG
 ): ConflictInfo | null {
   const lessonUpdated = new Date(lesson.updated_at);
   const eventUpdated = new Date(event.updated);

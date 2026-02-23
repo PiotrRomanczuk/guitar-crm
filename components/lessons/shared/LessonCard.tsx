@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StatusBadge, type LessonStatus } from './StatusBadge';
 import { Calendar, Clock, ChevronRight, CalendarX } from 'lucide-react';
-import { formatDistanceToNow, format } from 'date-fns';
+import { format } from 'date-fns';
 
 interface LessonCardProps {
   id: string;
