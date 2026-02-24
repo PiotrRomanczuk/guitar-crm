@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { fetchAndSyncRecentEvents } from '@/lib/services/google-calendar-sync';
 
+function validateToken(req: NextRequest): boolean {
+  const secret = process.env.GOOGLE_CALENDAR_WEBHOOK_SECRET;
+  if (!secret) {
+    // If no secret is configured, skip validation (development only)
+    return true;
+  }
+  const token = req.headers.get('x-goog-channel-token');
+  return token === secret;
+}
+
 export async function POST(req: NextRequest) {
   const channelId = req.headers.get('x-goog-channel-id');
   const resourceId = req.headers.get('x-goog-resource-id');
@@ -9,6 +19,11 @@ export async function POST(req: NextRequest) {
 
   if (!channelId || !resourceId) {
     return NextResponse.json({ error: 'Missing headers' }, { status: 400 });
+  }
+
+  // Validate webhook secret token to prevent spoofed notifications
+  if (!validateToken(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   // Handle sync verification

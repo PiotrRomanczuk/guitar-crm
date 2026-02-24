@@ -89,12 +89,15 @@ export async function watchCalendar(userId: string, webhookUrl: string) {
 
   const channelId = crypto.randomUUID();
 
+  const webhookSecret = process.env.GOOGLE_CALENDAR_WEBHOOK_SECRET;
+
   const response = await calendar.events.watch({
     calendarId: 'primary',
     requestBody: {
       id: channelId,
       type: 'web_hook',
       address: webhookUrl,
+      ...(webhookSecret && { token: webhookSecret }),
     },
   });
 
