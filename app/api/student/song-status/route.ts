@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { z } from 'zod';
+import { SongStatusEnum } from '@/schemas';
+
+const SongStatusUpdateSchema = z.object({
+  songId: z.string().uuid('songId must be a valid UUID'),
+  status: SongStatusEnum,
+  notes: z.string().max(1000).optional().nullable(),
+});
 
 export async function PUT(request: NextRequest) {
   try {
@@ -15,11 +23,22 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { songId, status, notes } = await request.json();
-
-    if (!songId || !status) {
-      return NextResponse.json({ error: 'Song ID and status are required' }, { status: 400 });
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
+
+    const parsed = SongStatusUpdateSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
+    const { songId, status, notes } = parsed.data;
 
     // Get current status for logging
     const { data: currentRecord } = await supabase

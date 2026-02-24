@@ -1,5 +1,18 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+const TeacherAvailabilityInputSchema = z.object({
+	teacher_id: z.string().uuid('teacher_id must be a valid UUID'),
+	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format'),
+	start_time: z
+		.string()
+		.regex(/^\d{2}:\d{2}(:\d{2})?$/, 'start_time must be in HH:MM or HH:MM:SS format'),
+	end_time: z
+		.string()
+		.regex(/^\d{2}:\d{2}(:\d{2})?$/, 'end_time must be in HH:MM or HH:MM:SS format'),
+	is_available: z.boolean().optional().default(true),
+});
 
 export async function GET(request: NextRequest) {
 	try {
@@ -96,7 +109,6 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
 	try {
 		const supabase = await createClient();
-		const body = await request.json();
 
 		const {
 			data: { user },
@@ -121,14 +133,22 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 		}
 
-		const { teacher_id, date, start_time, end_time, is_available } = body;
+		let body: unknown;
+		try {
+			body = await request.json();
+		} catch {
+			return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+		}
 
-		if (!teacher_id || !date || !start_time || !end_time) {
+		const parsed = TeacherAvailabilityInputSchema.safeParse(body);
+		if (!parsed.success) {
 			return NextResponse.json(
-				{ error: 'Teacher ID, date, start_time, and end_time are required' },
+				{ error: 'Validation failed', details: parsed.error.flatten().fieldErrors },
 				{ status: 400 }
 			);
 		}
+
+		const { teacher_id, date, start_time, end_time, is_available } = parsed.data;
 
 		// Check for conflicts with existing availability
 		// Note: Time overlap check would need custom logic or database function
@@ -160,7 +180,7 @@ export async function POST(request: NextRequest) {
 				date,
 				start_time,
 				end_time,
-				is_available: is_available !== false, // Default to true
+				is_available,
 				created_by: user.id,
 			})
 			.select()
