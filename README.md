@@ -16,33 +16,43 @@
 
 ### Dashboard & Analytics
 
-Stats cards, student pipeline, weekly progress chart, performance metrics, and real-time notifications — all in one place.
+A comprehensive overview for teachers with notifications, lesson statistics (total, upcoming, completed, cancelled), today's agenda, students needing attention, weekly activity feed, and student health indicators. Includes a student pipeline funnel, conversion rate metrics, performance chart tracking over time, a students overview with quick-access cards, song library summary, recent activity log, assignments panel, weekly progress graph, and system overview stats.
 
-<img src="./public/screenshots/dashboard.png" alt="Dashboard with analytics and student overview" width="100%" />
+<img src="./public/screenshots/dashboard.png" alt="Dashboard with analytics, student pipeline, and performance metrics" width="100%" />
 
 ### Song Library
 
-Spotify-enriched song library with album art, difficulty levels, key/chord metadata, and search & filter.
+Spotify-enriched song library with album art, artist names, difficulty level badges (beginner, intermediate), musical key metadata, and per-student filtering. Export your library, sync with Spotify for album art and metadata, or add songs manually. Search by title or artist and filter by level, key, or student.
 
-<img src="./public/screenshots/songs.png" alt="Song library with Spotify integration" width="100%" />
+<img src="./public/screenshots/songs.png" alt="Song library with Spotify sync, level badges, and key metadata" width="100%" />
 
 ### Lesson Management
 
-Schedule, track, import/export lessons. Filter by status, student, or teacher. Full CRUD with notes and status tracking.
+Full lesson management with searchable, sortable table showing title, student, teacher, date, time, and status. Filter by lesson status, student, or teacher. Import and export lesson data in bulk. Create new lessons with one click.
 
-<img src="./public/screenshots/lessons.png" alt="Lesson management table" width="100%" />
+<img src="./public/screenshots/lessons.png" alt="Lesson management table with filters and bulk import/export" width="100%" />
 
 ### Calendar & Scheduling
 
-Google Calendar sync with event indicators, daily agenda view, and per-lesson detail panel.
+Monthly calendar view with color-coded event indicators showing lesson density per day. Click any date to see a daily agenda with lesson details including time, location, and participant emails. Toggle between calendar and list views. Sync all lessons with Google Calendar.
 
-<img src="./public/screenshots/calendar.png" alt="Calendar with lesson schedule" width="100%" />
+<img src="./public/screenshots/calendar.png" alt="Calendar with monthly view, daily agenda, and lesson details" width="100%" />
 
 ### Student Profiles
 
-Per-student view with lessons, assignments, song repertoire, and progress tracking. Export student data as PDF or Excel.
+Per-student detail page with name, email, registration status badge, role tags (Student, Teacher, Admin), and editable notes. Quick actions to edit profile, import songs, export student data (PDF/Excel), or delete the student. Below the profile card, view the student's full lesson history.
 
-<img src="./public/screenshots/student-profile.png" alt="Student profile with lessons and assignments" width="100%" />
+<img src="./public/screenshots/student-profile.png" alt="Student profile with status, roles, notes, and action buttons" width="100%" />
+
+### Profile & Account Security
+
+Full profile editor with personal information (name, username, bio), session activity tracking (last sign-in, total sign-ins), email change with confirmation flow, two-factor authentication via TOTP authenticator app, linked accounts (Google OAuth), and account deletion with a 30-day grace period.
+
+<img src="./public/screenshots/profile.png" alt="Profile page with 2FA, session activity, and account management" width="100%" />
+
+### Admin Tools
+
+A dedicated sidebar section for admin users with tools for Spotify match management, Drive video linking, song statistics, lesson statistics, activity logs, system health monitoring, and AI conversation history.
 
 ### AI Assistant
 
