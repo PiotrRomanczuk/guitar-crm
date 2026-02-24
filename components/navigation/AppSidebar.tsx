@@ -106,6 +106,7 @@ export function AppSidebar({ isAdmin, isTeacher, isStudent }: AppSidebarProps) {
         main: [
           { id: 'home', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
           { id: 'my-songs', label: 'My Songs', icon: Music, path: '/dashboard/songs' },
+          { id: 'repertoire', label: 'Repertoire', icon: Guitar, path: '/dashboard/repertoire' },
           { id: 'my-lessons', label: 'My Lessons', icon: BookOpen, path: '/dashboard/lessons' },
           {
             id: 'my-assignments',

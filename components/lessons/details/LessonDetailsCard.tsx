@@ -139,14 +139,26 @@ function LessonInfoGrid({ lesson }: { lesson: LessonDetailsCardProps['lesson'] }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-      <InfoItem
-        label="Student"
-        value={lesson.profile?.full_name || lesson.profile?.email || 'Unknown'}
-      />
-      <InfoItem
-        label="Teacher"
-        value={lesson.teacher_profile?.full_name || lesson.teacher_profile?.email || 'Unknown'}
-      />
+      <div>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2">Student</h2>
+        {lesson.profile?.id ? (
+          <Link href={`/dashboard/users/${lesson.profile.id}`} className="text-lg text-primary hover:underline">
+            {lesson.profile.full_name || lesson.profile.email || 'Unknown'}
+          </Link>
+        ) : (
+          <p className="text-lg text-foreground">Unknown</p>
+        )}
+      </div>
+      <div>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase mb-2">Teacher</h2>
+        {lesson.teacher_profile?.id ? (
+          <Link href={`/dashboard/users/${lesson.teacher_profile.id}`} className="text-lg text-primary hover:underline">
+            {lesson.teacher_profile.full_name || lesson.teacher_profile.email || 'Unknown'}
+          </Link>
+        ) : (
+          <p className="text-lg text-foreground">Unknown</p>
+        )}
+      </div>
       <InfoItem label="Date" value={formatDate(displayDate)} />
       <InfoItem label="Time" value={formatTime(displayTime)} />
       <InfoItem

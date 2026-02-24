@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import Link from 'next/link';
 import { Music, Search, Plus, Settings, Keyboard, ChevronRight, CalendarPlus, Loader2 } from 'lucide-react';
 import type { StudentRepertoireWithSong } from '@/types/StudentRepertoire';
 import { AddSongToRepertoireDialog } from './AddSongToRepertoireDialog';
@@ -204,7 +205,9 @@ function RepertoireCard({
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h4 className="font-semibold text-sm truncate">{item.song.title}</h4>
+                <Link href={`/dashboard/songs/${item.song_id}`} className="font-semibold text-sm truncate hover:text-primary transition-colors">
+                  {item.song.title}
+                </Link>
                 <Badge className={`text-[10px] ${STATUS_COLORS[item.current_status] || ''}`}>
                   {item.current_status.replace('_', ' ')}
                 </Badge>
@@ -257,7 +260,9 @@ function RepertoireCard({
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onEditConfig} title="Edit configuration">
               <Settings className="h-4 w-4" />
             </Button>
-            <ChevronRight className="h-4 w-4 text-muted-foreground/30" />
+            <Link href={`/dashboard/songs/${item.song_id}`}>
+              <ChevronRight className="h-4 w-4 text-muted-foreground/30 hover:text-primary transition-colors" />
+            </Link>
           </div>
         </div>
       </CardContent>
