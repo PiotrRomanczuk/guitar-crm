@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 		// Get teacher availability
 		let availabilityQuery = supabase
 			.from('teacher_availability')
-			.select('*')
+			.select('id, teacher_id, date, start_time, end_time, is_available')
 			.eq('teacher_id', teacherId);
 
 		if (dateFrom) {
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
 		// Note: Time overlap check would need custom logic or database function
 		const { data: existingAvailability, error: conflictError } = await supabase
 			.from('teacher_availability')
-			.select('*')
+			.select('id')
 			.eq('teacher_id', teacher_id)
 			.eq('date', date);
 

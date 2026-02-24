@@ -56,7 +56,7 @@ export async function GET() {
 	// 3. Get all songs from songs table for these song IDs
 	const { data: songs, error: songsError } = await supabase
 		.from('songs')
-		.select('*')
+		.select('id, title, author, level, key, chords, youtube_url, ultimate_guitar_link, gallery_images, created_at, updated_at')
 		.in('id', songIds);
 	if (songsError) {
 		return NextResponse.json(

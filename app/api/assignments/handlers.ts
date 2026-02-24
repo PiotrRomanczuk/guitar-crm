@@ -340,7 +340,7 @@ export async function updateAssignmentHandler(
     // Get existing assignment
     const { data: existingAssignment, error: fetchError } = await supabase
       .from('assignments')
-      .select('*')
+      .select('id, teacher_id, student_id, lesson_id, status')
       .eq('id', assignmentId)
       .single();
 

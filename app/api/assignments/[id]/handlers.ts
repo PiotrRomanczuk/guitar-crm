@@ -143,7 +143,7 @@ export async function updateAssignmentHandler(
   // Fetch existing assignment (exclude soft-deleted)
   const { data: existingAssignment, error: fetchError } = await supabase
     .from('assignments')
-    .select('*')
+    .select('id, teacher_id, student_id, lesson_id, status')
     .eq('id', assignmentId)
     .is('deleted_at', null)
     .single();

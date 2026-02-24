@@ -180,7 +180,7 @@ export async function getWeeklyInsightsData(
       .filter((song) => song.studentName && song.songTitle) || [];
 
   // Get at-risk students (health score < 40)
-  // Note: This requires student health calculation - simplified version here
+  // Fetch all teacher's students with a single query
   const { data: teacherStudents } = await supabase
     .from('lessons')
     .select('student_id, profiles!lessons_student_id_fkey (id, full_name, email)')
@@ -200,43 +200,65 @@ export async function getWeeklyInsightsData(
     overdueAssignments: number;
   }> = [];
 
-  // For each student, calculate a simple health score based on recent activity
-  for (const studentId of uniqueStudentIds) {
+  if (uniqueStudentIds.length > 0) {
+    // Batch query: fetch recent lesson counts for all students in one query
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const { count: recentLessons } = await supabase
+    const { data: recentLessonRows } = await supabase
       .from('lessons')
-      .select('*', { count: 'exact', head: true })
-      .eq('student_id', studentId)
+      .select('student_id')
+      .in('student_id', uniqueStudentIds)
       .gte('created_at', thirtyDaysAgo.toISOString());
 
-    const { data: overdueAssignmentsData } = await supabase
+    // Batch query: fetch overdue assignments for all students in one query
+    const { data: overdueRows } = await supabase
       .from('assignments')
-      .select('*')
-      .eq('student_id', studentId)
+      .select('student_id')
+      .in('student_id', uniqueStudentIds)
       .eq('status', 'pending')
       .lt('due_date', new Date().toISOString());
 
-    const overdueCount = overdueAssignmentsData?.length || 0;
-
-    // Simple health score: 100 if recent activity, penalty for overdue
-    const healthScore = Math.max(0, 100 - (recentLessons || 0) * 20 + overdueCount * 15);
-
-    if (healthScore < 40) {
-      const student = (teacherStudents as StudentLessonData[] | null)?.find(
-        (l) => l.student_id === studentId
+    // Build lookup maps from batched results
+    const recentLessonCountByStudent = new Map<string, number>();
+    for (const row of recentLessonRows || []) {
+      recentLessonCountByStudent.set(
+        row.student_id,
+        (recentLessonCountByStudent.get(row.student_id) || 0) + 1
       );
-      const profile = student?.profiles;
+    }
 
-      if (profile) {
-        atRiskStudents.push({
-          id: profile.id,
-          name: profile.full_name || profile.email || 'Unknown Student',
-          email: profile.email || '',
-          healthScore,
-          overdueAssignments: overdueCount,
-        });
+    const overdueCountByStudent = new Map<string, number>();
+    for (const row of overdueRows || []) {
+      overdueCountByStudent.set(
+        row.student_id,
+        (overdueCountByStudent.get(row.student_id) || 0) + 1
+      );
+    }
+
+    // Calculate health scores using the pre-fetched maps
+    for (const studentId of uniqueStudentIds) {
+      const recentLessons = recentLessonCountByStudent.get(studentId) || 0;
+      const overdueCount = overdueCountByStudent.get(studentId) || 0;
+
+      // Simple health score: penalty for inactivity and overdue assignments
+      const healthScore = Math.max(0, 100 - recentLessons * 20 + overdueCount * 15);
+
+      if (healthScore < 40) {
+        const student = (teacherStudents as StudentLessonData[] | null)?.find(
+          (l) => l.student_id === studentId
+        );
+        const profile = student?.profiles;
+
+        if (profile) {
+          atRiskStudents.push({
+            id: profile.id,
+            name: profile.full_name || profile.email || 'Unknown Student',
+            email: profile.email || '',
+            healthScore,
+            overdueAssignments: overdueCount,
+          });
+        }
       }
     }
   }

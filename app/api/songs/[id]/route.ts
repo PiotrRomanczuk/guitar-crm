@@ -39,7 +39,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const { data, error } = await supabase
       .from('songs')
-      .select('*')
+      .select('id, title, author, level, key, chords, youtube_url, ultimate_guitar_link, gallery_images, created_at, updated_at')
       .eq('id', id)
       .is('deleted_at', null)
       .single();

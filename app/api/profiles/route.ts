@@ -11,10 +11,10 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch all profiles - using * to get all columns
+    // Fetch all profiles with explicit column selection
     const { data: profiles, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, email, full_name, is_admin, is_teacher, is_student, is_shadow, is_active, student_status, created_at, updated_at')
       .order('full_name', { ascending: true });
 
     if (error) {

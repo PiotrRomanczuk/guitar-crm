@@ -110,7 +110,12 @@ export function buildUserQuery(
   profile: Profile,
   allowedStudentIds?: string[]
 ) {
-  const query = supabase.from('profiles').select('*', { count: 'exact' });
+  const query = supabase
+    .from('profiles')
+    .select(
+      'id, email, full_name, phone, avatar_url, is_admin, is_teacher, is_student, is_shadow, is_active, is_development, student_status, status_changed_at, lead_source, notes, created_at, updated_at',
+      { count: 'exact' }
+    );
 
   // Apply role-based filters
   if (profile.isAdmin) {
@@ -229,7 +234,7 @@ export async function getUserById(
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, email, full_name, phone, avatar_url, is_admin, is_teacher, is_student, is_shadow, is_active, is_development, student_status, status_changed_at, lead_source, notes, created_at, updated_at')
     .eq('id', userId)
     .single();
 
@@ -443,7 +448,7 @@ export async function getUserByEmail(
 ): Promise<{ data: UserRow | null; error: string | null }> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, email, full_name, phone, avatar_url, is_admin, is_teacher, is_student, is_shadow, is_active, is_development, student_status, status_changed_at, lead_source, notes, created_at, updated_at')
     .eq('email', email)
     .maybeSingle();
 

@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     }
 
     // 2. Fetch all songs (teachers and admins can see all)
-    let query = supabase.from('songs').select('*');
+    let query = supabase.from('songs').select('id, title, author, level, key, chords, youtube_url, ultimate_guitar_link, gallery_images, created_at, updated_at');
 
     if (level) {
       query = query.eq('level', level as 'beginner' | 'intermediate' | 'advanced');
