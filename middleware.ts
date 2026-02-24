@@ -4,6 +4,31 @@ import { createServerClient } from '@supabase/ssr';
 import { getSupabaseConfig } from '@/lib/supabase/config';
 import { middlewareLogger as log } from '@/lib/logger';
 
+// Content Security Policy directives
+// 'unsafe-inline' for style-src is required by Tailwind CSS v4
+// 'unsafe-eval' is intentionally omitted — no eval usage in production
+const CSP_HEADER = [
+  "default-src 'self'",
+  // Scripts: self + Next.js inline bootstrap
+  "script-src 'self' 'unsafe-inline'",
+  // Styles: self + Tailwind requires unsafe-inline for runtime styles
+  "style-src 'self' 'unsafe-inline'",
+  // Images: self, data URIs, Supabase storage, Spotify CDN
+  "img-src 'self' data: https://*.supabase.co https://i.scdn.co",
+  // Fonts: self only
+  "font-src 'self'",
+  // API connections: self, Supabase REST + realtime (WSS), Google OAuth, Sentry
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://sentry.io https://*.sentry.io",
+  // Frames: deny all (also enforced via X-Frame-Options)
+  "frame-src 'none'",
+  // Workers: self only (Next.js service worker)
+  "worker-src 'self' blob:",
+  // Form submissions: self only
+  "form-action 'self'",
+  // Prevent mixed content (HTTP resources on HTTPS pages)
+  'upgrade-insecure-requests',
+].join('; ');
+
 export async function middleware(request: NextRequest) {
   log.info(`${request.method} ${request.nextUrl.pathname}`);
   log.debug('Request cookies', {
@@ -124,6 +149,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Security headers
+  response.headers.set('Content-Security-Policy', CSP_HEADER);
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
