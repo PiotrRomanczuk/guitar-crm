@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     const dateTo = searchParams.get('dateTo');
 
     // Build base query for lessons
-    let baseQuery = supabase.from('lessons').select('*');
+    let baseQuery = supabase.from('lessons').select('id, status, date, time, teacher_id, student_id');
 
     // Role-based filtering: teachers see only their own, students see only their own
     if (profile.is_admin) {
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     // Get average lesson duration
     const { data: lessonDurations, error: durationError } = await supabase
       .from('lesson_durations')
-      .select('*');
+      .select('duration');
 
     let avgDuration = 0;
     if (!durationError && lessonDurations) {
