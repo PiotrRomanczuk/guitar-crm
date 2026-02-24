@@ -44,7 +44,7 @@ export default function UserRepertoireTab({ userId, repertoire }: UserRepertoire
     const matchesSearch =
       !search ||
       item.song.title.toLowerCase().includes(search.toLowerCase()) ||
-      item.song.author.toLowerCase().includes(search.toLowerCase());
+      (item.song.author ?? '').toLowerCase().includes(search.toLowerCase());
     const matchesStatus = filterStatus === 'all' || item.current_status === filterStatus;
     return matchesSearch && matchesStatus;
   });

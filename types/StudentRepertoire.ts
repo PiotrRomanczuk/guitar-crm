@@ -1,4 +1,4 @@
-import type { Song } from './Song';
+import type { Song } from '@/components/songs/types';
 
 export type RepertoirePriority = 'high' | 'normal' | 'low' | 'archived';
 export type SongProgressStatus = 'to_learn' | 'started' | 'remembered' | 'with_author' | 'mastered';

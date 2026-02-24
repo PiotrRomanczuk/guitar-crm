@@ -1,4 +1,4 @@
-import { Song } from "./Song";
+import type { Song } from "@/components/songs/types";
 import { User } from "./User";
 
 export interface Lesson {

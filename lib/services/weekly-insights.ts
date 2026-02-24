@@ -150,13 +150,13 @@ export async function getWeeklyInsightsData(
 
   // Get songs mastered this week
   const { data: masteredSongs } = await supabase
-    .from('student_song_progress')
+    .from('student_repertoire')
     .select(
       `
       song_id,
       mastered_at,
       student_id,
-      profiles!student_song_progress_student_id_fkey (
+      profiles!student_repertoire_student_id_fkey (
         full_name,
         email
       ),

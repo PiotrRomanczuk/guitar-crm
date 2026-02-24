@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Guitar, Music2, ExternalLink, Calendar, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Song } from '@/types/Song';
+import type { SongWithStatus as Song } from '@/components/songs/types';
 import { createClient } from '@/lib/supabase/client';
 
 const difficultyColors = {
