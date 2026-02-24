@@ -76,10 +76,12 @@ async function fetchUserData(supabase: any, userId: string) {
   }
 
   // Map the joined song data to the expected shape
-  const mappedRepertoire: StudentRepertoireWithSong[] = (repertoire || []).map((row) => ({
-    ...row,
-    song: Array.isArray(row.song) ? row.song[0] : row.song,
-  })) as StudentRepertoireWithSong[];
+  const mappedRepertoire: StudentRepertoireWithSong[] = (repertoire || []).map(
+    (row: Record<string, unknown>) => ({
+      ...row,
+      song: Array.isArray(row.song) ? row.song[0] : row.song,
+    })
+  ) as StudentRepertoireWithSong[];
 
   log.debug('User data fetched', {
     lessons: lessons?.length,
