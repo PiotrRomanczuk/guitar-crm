@@ -1,3 +1,15 @@
+-- ⚠️  WARNING: DANGER ZONE — DO NOT RUN ON PRODUCTION ⚠️
+-- =========================================================
+-- This script DROPS the entire public schema for Strummy.
+-- Running this against production will cause TOTAL DATA LOSS.
+--
+-- Purpose: Local development reset only.
+-- Usage:   psql $LOCAL_DB_URL -f scripts/danger/drop_all_DANGER.sql
+--
+-- This file was deliberately moved OUT of supabase/migrations/ to
+-- prevent it from being applied by `supabase db push` or any
+-- automated migration runner.
+-- =========================================================
 
 -- Only drop custom tables in public schema. Do NOT drop any tables in the auth schema.
 DROP TABLE IF EXISTS public.lesson_songs CASCADE;
@@ -27,4 +39,3 @@ END $$;
 DROP TYPE IF EXISTS difficulty_level;
 DROP TYPE IF EXISTS music_key;
 DROP TYPE IF EXISTS lesson_song_status;
-
