@@ -11,6 +11,9 @@ export type SongStatus = 'to_learn' | 'started' | 'remembered' | 'with_author' |
 export type SongWithStatus = Song & {
   status?: SongStatus;
   lesson_song_id?: string;
+  /** @deprecated Field does not exist in DB — rendered as "Notes" in student views but always undefined. Remove when student components are cleaned up. */
+  comments?: string;
+  is_favorite?: boolean;
 };
 
 export type SongLevel = 'beginner' | 'intermediate' | 'advanced';

@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Signal, Music2, Timer, Clock, Calendar, Mic2, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Song } from '@/types/Song';
+import type { Song } from '@/components/songs/types';
 import { getStatusBadgeClasses } from '@/lib/utils/status-colors';
 
 interface Props {

@@ -203,11 +203,11 @@ describe('Cohort Analytics Service', () => {
     it('should calculate mastery rate correctly', () => {
       const studentIds = ['1', '2'];
       const songProgress = [
-        { student_id: '1', current_status: 'mastered', mastered_at: '2024-01-20', assigned_at: '2024-01-01' },
-        { student_id: '1', current_status: 'learning', mastered_at: null, assigned_at: '2024-01-15' },
-        { student_id: '2', current_status: 'mastered', mastered_at: '2024-02-01', assigned_at: '2024-01-20' },
-        { student_id: '2', current_status: 'mastered', mastered_at: '2024-02-10', assigned_at: '2024-01-25' },
-        { student_id: '3', current_status: 'mastered', mastered_at: '2024-02-15', assigned_at: '2024-02-01' },
+        { student_id: '1', current_status: 'mastered', mastered_at: '2024-01-20', created_at: '2024-01-01' },
+        { student_id: '1', current_status: 'learning', mastered_at: null, created_at: '2024-01-15' },
+        { student_id: '2', current_status: 'mastered', mastered_at: '2024-02-01', created_at: '2024-01-20' },
+        { student_id: '2', current_status: 'mastered', mastered_at: '2024-02-10', created_at: '2024-01-25' },
+        { student_id: '3', current_status: 'mastered', mastered_at: '2024-02-15', created_at: '2024-02-01' },
       ];
 
       const result = calculateCohortMasteryRate(studentIds, songProgress);
@@ -293,19 +293,19 @@ describe('Cohort Analytics Service', () => {
           student_id: '1',
           current_status: 'mastered',
           mastered_at: '2024-01-30T00:00:00Z',
-          assigned_at: '2024-01-01T00:00:00Z',
+          created_at: '2024-01-01T00:00:00Z',
         },
         {
           student_id: '2',
           current_status: 'mastered',
           mastered_at: '2024-02-10T00:00:00Z',
-          assigned_at: '2024-02-01T00:00:00Z',
+          created_at: '2024-02-01T00:00:00Z',
         },
         {
           student_id: '2',
           current_status: 'learning',
           mastered_at: null,
-          assigned_at: '2024-02-15T00:00:00Z',
+          created_at: '2024-02-15T00:00:00Z',
         },
       ];
 
@@ -321,7 +321,7 @@ describe('Cohort Analytics Service', () => {
           student_id: '1',
           current_status: 'learning',
           mastered_at: null,
-          assigned_at: '2024-01-01T00:00:00Z',
+          created_at: '2024-01-01T00:00:00Z',
         },
       ];
 
@@ -335,7 +335,7 @@ describe('Cohort Analytics Service', () => {
           student_id: '1',
           current_status: 'mastered',
           mastered_at: null,
-          assigned_at: '2024-01-01T00:00:00Z',
+          created_at: '2024-01-01T00:00:00Z',
         },
       ];
 

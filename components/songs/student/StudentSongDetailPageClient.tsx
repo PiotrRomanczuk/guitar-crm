@@ -33,7 +33,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Song } from '@/types/Song';
+import type { SongWithStatus as Song } from '@/components/songs/types';
 import { createClient } from '@/lib/supabase/client';
 import { SongStatusHistory } from './SongStatusHistory';
 import { toast } from 'sonner';
