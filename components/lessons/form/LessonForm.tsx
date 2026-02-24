@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import useLessonForm, { UseLessonFormProps } from '../hooks/useLessonForm';
 import { useSongs } from '../hooks/useSongs';
@@ -11,6 +11,8 @@ import { LessonFormActions } from './LessonForm.Actions';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
+import { useFormErrorFocus } from '@/hooks/use-form-error-focus';
+import { toast } from 'sonner';
 
 export default function LessonForm(props: UseLessonFormProps) {
   const router = useRouter();
@@ -30,6 +32,8 @@ export default function LessonForm(props: UseLessonFormProps) {
   const { songs } = useSongs();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  useFormErrorFocus(validationErrors, formRef);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,8 +43,10 @@ export default function LessonForm(props: UseLessonFormProps) {
       const result = await handleSubmit();
       if (result.success) {
         if (props.lessonId) {
+          toast.success('Lesson updated successfully');
           router.push(`/dashboard/lessons/${props.lessonId}`);
         } else {
+          toast.success('Lesson created successfully');
           router.push('/dashboard/lessons?created=true');
         }
       }
@@ -72,7 +78,7 @@ export default function LessonForm(props: UseLessonFormProps) {
   return (
     <Card>
       <CardContent className="p-4 sm:p-6 lg:p-8">
-        <form onSubmit={onSubmit} className="space-y-4 sm:space-y-6">
+        <form ref={formRef} onSubmit={onSubmit} className="space-y-4 sm:space-y-6">
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />

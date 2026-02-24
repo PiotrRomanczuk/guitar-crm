@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { Dispatch, SetStateAction } from 'react';
 import { AssignmentFormFields } from './AssignmentForm.Fields';
@@ -9,6 +9,8 @@ import { AssignmentFormActions } from './AssignmentForm.Actions';
 import { useAssignmentForm } from './useAssignmentForm';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { useFormErrorFocus } from '@/hooks/use-form-error-focus';
+import { toast } from 'sonner';
 
 interface Student {
   id: string;
@@ -50,6 +52,9 @@ export default function AssignmentForm({
     setFieldErrors,
   } = useAssignmentForm({ initialData, mode, userId });
 
+  const formRef = useRef<HTMLFormElement>(null);
+  useFormErrorFocus(fieldErrors, formRef);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -79,7 +84,7 @@ export default function AssignmentForm({
           {mode === 'create' ? 'Create Assignment' : 'Edit Assignment'}
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -137,6 +142,7 @@ async function submitAssignment(
     }
 
     const data = await response.json();
+    toast.success(mode === 'create' ? 'Assignment created successfully' : 'Assignment updated successfully');
     router.push(`/dashboard/assignments/${data.id}`);
   } catch (err) {
     setError(err instanceof Error ? err.message : 'An error occurred');
