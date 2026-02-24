@@ -1,7 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { } from "@/schemas/SongSchema";
 import { PaginationSchema } from "@/schemas/CommonSchema";
+
+/**
+ * Sanitizes a search string for safe use in PostgREST filter expressions.
+ *
+ * PostgREST's `.or()` filter parses comma-separated clauses and uses `.` as a
+ * field/operator separator. If user input contains these characters it can
+ * alter the filter structure and leak or manipulate query results.
+ *
+ * We strip the characters that carry structural meaning inside a PostgREST
+ * filter string: `,` `.` `:` `(` `)`.
+ * The `%` wildcard is also removed because we add our own wildcards around the
+ * sanitized value — keeping a user-supplied `%` would produce double wildcards
+ * and is redundant.
+ */
+export function sanitizePostgrestFilter(input: string): string {
+  return input.replace(/[,.:()%]/g, "");
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -39,9 +55,15 @@ export async function GET(req: NextRequest) {
     // Build query
     let query = supabase.from("songs").select("*", { count: "exact" });
 
-    // Apply search filter
+    // Apply search filter — sanitize input before interpolating into the
+    // PostgREST filter expression to prevent filter injection via special chars.
     if (searchQuery) {
-      query = query.or(`title.ilike.%${searchQuery}%,author.ilike.%${searchQuery}%,chords.ilike.%${searchQuery}%`);
+      const safe = sanitizePostgrestFilter(searchQuery);
+      if (safe.length > 0) {
+        query = query.or(
+          `title.ilike.%${safe}%,author.ilike.%${safe}%,chords.ilike.%${safe}%`
+        );
+      }
     }
 
     // Apply filters
@@ -87,4 +109,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
