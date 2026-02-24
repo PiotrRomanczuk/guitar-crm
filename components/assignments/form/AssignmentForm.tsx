@@ -53,7 +53,7 @@ export default function AssignmentForm({
   } = useAssignmentForm({ initialData, mode, userId });
 
   const formRef = useRef<HTMLFormElement>(null);
-  useFormErrorFocus(fieldErrors, formRef);
+  useFormErrorFocus(fieldErrors as Record<string, string | undefined>, formRef);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
