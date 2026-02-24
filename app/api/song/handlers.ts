@@ -1,6 +1,6 @@
 // Pure functions for song API business logic - testable without Next.js dependencies
 
-import { Song } from '@/types/Song';
+import type { Song } from '@/components/songs/types';
 import { SongInputSchema, SongDraftSchema } from '@/schemas/SongSchema';
 import { ZodError } from 'zod';
 

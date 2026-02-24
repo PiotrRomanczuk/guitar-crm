@@ -8,7 +8,7 @@ type Props = {
 };
 
 import { createClient } from '@supabase/supabase-js';
-import { Song } from '@/types/Song';
+import type { Song } from '@/components/songs/types';
 
 export default async function SongsPage(props: Props) {
   const searchParams = await props.searchParams;

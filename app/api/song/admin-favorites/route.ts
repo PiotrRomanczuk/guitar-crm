@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { Song } from "@/types/Song";
+import type { Song } from "@/components/songs/types";
 
 export async function GET() {
   const supabase = await createClient();

@@ -29,7 +29,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Song } from '@/types/Song';
+import type { SongWithStatus as Song } from '@/components/songs/types';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import {
@@ -360,7 +360,7 @@ export function StudentSongsPageClient() {
       const query = searchQuery.toLowerCase().trim();
       filtered = filtered.filter(
         (song) =>
-          song.title.toLowerCase().includes(query) || song.author.toLowerCase().includes(query)
+          song.title.toLowerCase().includes(query) || (song.author ?? '').toLowerCase().includes(query)
       );
     }
 
@@ -377,7 +377,7 @@ export function StudentSongsPageClient() {
         case 'name':
           return a.title.localeCompare(b.title);
         case 'author':
-          return a.author.localeCompare(b.author);
+          return (a.author ?? '').localeCompare(b.author ?? '');
         case 'difficulty': {
           const difficultyOrder = { beginner: 0, intermediate: 1, advanced: 2 };
           return (

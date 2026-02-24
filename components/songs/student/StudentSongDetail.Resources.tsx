@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Youtube, FileText, Play, Music2, Waves } from 'lucide-react';
-import { Song } from '@/types/Song';
+import type { SongWithStatus as Song } from '@/components/songs/types';
 
 interface Props {
   song: Song;

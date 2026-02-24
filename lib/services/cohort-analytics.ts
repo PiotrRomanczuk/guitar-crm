@@ -48,7 +48,7 @@ interface SongProgressData {
   student_id: string;
   current_status: string;
   mastered_at: string | null;
-  assigned_at: string;
+  created_at: string;
 }
 
 /**
@@ -272,7 +272,7 @@ export function calculateAvgTimeToMaster(
   if (masteredSongs.length === 0) return 0;
 
   const totalDays = masteredSongs.reduce((sum, sp) => {
-    const assigned = new Date(sp.assigned_at);
+    const assigned = new Date(sp.created_at);
     const mastered = new Date(sp.mastered_at!);
     const days = Math.floor((mastered.getTime() - assigned.getTime()) / (24 * 60 * 60 * 1000));
     return sum + days;
@@ -326,8 +326,8 @@ export async function getCohortAnalytics(
 
   // Fetch song progress
   const { data: songProgress } = await supabase
-    .from('student_song_progress')
-    .select('student_id, current_status, mastered_at, assigned_at')
+    .from('student_repertoire')
+    .select('student_id, current_status, mastered_at, created_at')
     .in('student_id', studentIds);
 
   // Group students by dimension

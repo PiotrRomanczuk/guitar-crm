@@ -21,7 +21,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Song } from '@/types/Song';
+import type { SongWithStatus as Song } from '@/components/songs/types';
 import { getStatusBadgeClasses } from '@/lib/utils/status-colors';
 import { cardEntrance } from '@/lib/animations';
 import { useHaptic } from '@/hooks/use-haptic';
