@@ -9,9 +9,6 @@ export default async function SettingsPage() {
   const { user } = await getUserWithRolesSSR();
   let isGoogleConnected = false;
   const supabase = await createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
 
   if (user) {
     const { data } = await supabase
@@ -27,7 +24,7 @@ export default async function SettingsPage() {
   }
 
   return (
-    <SettingsPageClient isGoogleConnected={isGoogleConnected} bearerToken={session?.access_token} />
+    <SettingsPageClient isGoogleConnected={isGoogleConnected} />
   );
 }
 

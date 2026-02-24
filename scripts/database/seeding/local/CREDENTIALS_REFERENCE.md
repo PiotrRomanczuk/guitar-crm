@@ -195,7 +195,7 @@ Expected: Admin AND teacher features available
 ### Users not created?
 
 - Ensure Supabase is running: `curl http://localhost:54321/health`
-- Check env variables: `.env.local` must have `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY`
+- Check env variables: `.env.local` must have `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
 
 ### Can't login?
 

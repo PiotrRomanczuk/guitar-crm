@@ -13,7 +13,6 @@ import {
 } from '@/components/settings/SettingsSections';
 import { IntegrationsSection } from '@/components/settings/IntegrationsSection';
 import { ApiKeysSection } from '@/components/settings/ApiKeysSection';
-import { BearerTokenCard } from '@/components/dashboard/BearerTokenCard';
 
 function SettingsAlert({ type, message }: { type: 'error' | 'success'; message: string }) {
   if (type === 'error') {
@@ -88,10 +87,8 @@ function SettingsActions({
 
 export default function SettingsPageClient({
   isGoogleConnected = false,
-  bearerToken,
 }: {
   isGoogleConnected?: boolean;
-  bearerToken?: string;
 }) {
   const router = useRouter();
   const { loading, saving, settings, hasChanges, updateSetting, saveSettings, resetSettings } =
@@ -145,12 +142,6 @@ export default function SettingsPageClient({
           <div className="border-t border-border pt-8">
             <ApiKeysSection />
           </div>
-
-          {bearerToken && (
-            <div className="border-t border-border pt-8">
-              <BearerTokenCard token={bearerToken} />
-            </div>
-          )}
 
           <div className="border-t border-border pt-8">
             <SettingsActions

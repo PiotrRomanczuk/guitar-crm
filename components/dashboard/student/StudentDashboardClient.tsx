@@ -10,16 +10,14 @@ import { NextLessonCard } from '@/components/dashboard/student/NextLessonCard';
 import { LastLessonCard } from '@/components/dashboard/student/LastLessonCard';
 import { ProgressChart } from '@/components/dashboard/student/ProgressChart';
 import { PracticeTimerCard } from '@/components/dashboard/student/PracticeTimerCard';
-import { BearerTokenCard } from '@/components/dashboard/BearerTokenCard';
 import { staggerContainer, listItem } from '@/lib/animations';
 
 interface StudentDashboardClientProps {
   data: StudentDashboardData;
   email?: string;
-  token?: string;
 }
 
-export function StudentDashboardClient({ data, token }: StudentDashboardClientProps) {
+export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
   // Transform data for components
   const activities = [
     ...(data.lastLesson
@@ -148,11 +146,6 @@ export function StudentDashboardClient({ data, token }: StudentDashboardClientPr
         </div>
       </motion.div>
 
-      {token && (
-        <motion.div variants={listItem} className="pt-6 sm:pt-8 border-t">
-          <BearerTokenCard token={token} />
-        </motion.div>
-      )}
     </motion.div>
   );
 }
