@@ -38,6 +38,14 @@ class SpotifyApiError extends Error {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+export function getSpotifyCircuitState() {
+  return {
+    isOpen: circuitBreakerOpen,
+    consecutiveFailures,
+    resetTime: circuitBreakerResetTime,
+  };
+}
+
 const checkCircuitBreaker = () => {
   if (circuitBreakerOpen) {
     const now = Date.now();
