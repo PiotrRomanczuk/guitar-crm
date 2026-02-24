@@ -294,6 +294,13 @@ export function getAggregateStats(agentId?: string): AggregateStats {
 }
 
 /**
+ * Get count of active streaming sessions
+ */
+export function getActiveStreamCount(): number {
+  return activeStreams.size;
+}
+
+/**
  * Clear all analytics data (useful for testing)
  */
 export function clearAnalytics(): void {

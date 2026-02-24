@@ -154,6 +154,13 @@ export function cleanupExpiredEntries(): void {
   }
 }
 
+/**
+ * Get rate limit stats for monitoring
+ */
+export function getRateLimitStats() {
+  return { limits: DEFAULT_RATE_LIMITS, activeBuckets: rateLimitStore.size };
+}
+
 // Run cleanup every 5 minutes
 if (typeof setInterval !== 'undefined') {
   setInterval(cleanupExpiredEntries, 5 * 60 * 1000);

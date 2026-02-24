@@ -338,6 +338,17 @@ export function cleanupExpiredRequests(): void {
   }
 }
 
+/**
+ * Get global queue statistics across all users
+ */
+export function getGlobalQueueStats() {
+  return {
+    totalActiveRequests: [...activeRequests.values()].reduce((s, a) => s + a.length, 0),
+    totalQueuedRequests: [...queues.values()].reduce((s, q) => s + q.length, 0),
+    config: DEFAULT_CONFIG,
+  };
+}
+
 // Run cleanup every minute
 if (typeof setInterval !== 'undefined') {
   setInterval(cleanupExpiredRequests, 60000);

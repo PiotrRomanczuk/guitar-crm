@@ -221,3 +221,14 @@ export class AIProviderFactory {
 export async function getAIProvider(): Promise<AIProvider> {
   return getProvider();
 }
+
+/**
+ * Get a snapshot of the current provider factory configuration for monitoring
+ */
+export function getFactoryConfigSnapshot() {
+  return {
+    configuredProvider: factoryConfig.provider,
+    preferLocal: factoryConfig.preferLocal ?? true,
+    providers: [] as Array<{ name: string; available: boolean }>,
+  };
+}

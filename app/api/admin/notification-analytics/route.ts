@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
     // Count by notification type
     const sentByType: Record<NotificationType, number> = totalLogs.reduce(
       (acc, log) => {
-        acc[log.notification_type] = (acc[log.notification_type] || 0) + 1;
+        acc[log.notification_type as NotificationType] = (acc[log.notification_type as NotificationType] || 0) + 1;
         return acc;
       },
       {} as Record<NotificationType, number>

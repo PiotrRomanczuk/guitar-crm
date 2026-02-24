@@ -191,7 +191,7 @@ export async function getUserNotifications(
 
     let query = supabase
       .from('in_app_notifications')
-      .select('id, user_id, notification_type, title, body, icon, variant, action_url, action_label, entity_type, entity_id, priority, is_read, read_at, created_at')
+      .select('id, user_id, notification_type, title, body, icon, variant, action_url, action_label, entity_type, entity_id, priority, is_read, read_at, created_at, updated_at, expires_at')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(limit);
