@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_admin, is_teacher')
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .single();
 
     if (!profile || (!profile.is_admin && !profile.is_teacher)) {
@@ -186,7 +186,7 @@ export async function DELETE(request: NextRequest) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_admin')
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .single();
 
     if (!profile || !profile.is_admin) {
