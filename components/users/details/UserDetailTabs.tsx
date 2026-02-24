@@ -105,6 +105,17 @@ export function UserDetailTabs({
       </TabsContent>
 
       <TabsContent value="assignments" className="mt-4">
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-sm text-muted-foreground">
+            {assignments.length} assignment{assignments.length !== 1 ? 's' : ''}
+          </span>
+          <Button asChild size="sm" className="gap-1.5">
+            <Link href={`/dashboard/assignments/new?studentId=${userId}`}>
+              <Plus className="h-4 w-4" />
+              New Assignment
+            </Link>
+          </Button>
+        </div>
         <UserAssignments assignments={assignments} />
       </TabsContent>
     </Tabs>

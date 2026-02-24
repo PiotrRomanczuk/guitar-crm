@@ -36,6 +36,7 @@ import { cn } from '@/lib/utils';
 import type { SongWithStatus as Song } from '@/components/songs/types';
 import { createClient } from '@/lib/supabase/client';
 import { SongStatusHistory } from './SongStatusHistory';
+import { StudentSongDetailLessons, type SongLesson } from './StudentSongDetail.Lessons';
 import { toast } from 'sonner';
 import {
   difficultyColors,
@@ -228,6 +229,7 @@ export function StudentSongDetailPageClient() {
   const params = useParams();
   const id = params?.id as string;
   const [song, setSong] = useState<Song | null>(null);
+  const [lessons, setLessons] = useState<SongLesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [historyKey, setHistoryKey] = useState(0);
@@ -298,6 +300,20 @@ export function StudentSongDetailPageClient() {
           ).filter((ls) => ls.lessons.student_id === user.id);
           const status = userLessonSongs.length > 0 ? userLessonSongs[0].status : undefined;
           setSong({ ...data, status });
+
+          // Fetch related lessons for this song
+          const { data: lessonData } = await supabase
+            .from('lesson_songs')
+            .select('lessons!inner(id, lesson_teacher_number, scheduled_at, status)')
+            .eq('song_id', id)
+            .eq('lessons.student_id', user.id);
+
+          if (lessonData) {
+            const uniqueLessons = lessonData
+              .map((ls: any) => ls.lessons)
+              .filter((l: any): l is SongLesson => l !== null);
+            setLessons(uniqueLessons);
+          }
         } else {
           setSong(null);
         }
@@ -452,6 +468,8 @@ export function StudentSongDetailPageClient() {
           )}
 
           <SongResourceLinks song={song} />
+
+          <StudentSongDetailLessons lessons={lessons} />
 
           {song.gallery_images && song.gallery_images.length > 0 && (
             <Card className="bg-card border-border/50 shadow-sm">

@@ -5,11 +5,12 @@ import { redirect } from 'next/navigation';
 interface NewAssignmentPageProps {
   searchParams: Promise<{
     templateId?: string;
+    studentId?: string;
   }>;
 }
 
 export default async function NewAssignmentPage({ searchParams }: NewAssignmentPageProps) {
-  const { templateId } = await searchParams;
+  const { templateId, studentId } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -49,6 +50,18 @@ export default async function NewAssignmentPage({ searchParams }: NewAssignmentP
         id: '', // New assignment
       };
     }
+  }
+
+  if (!initialData && studentId) {
+    initialData = {
+      title: '',
+      description: null,
+      due_date: null,
+      status: 'not_started' as const,
+      teacher_id: user.id,
+      student_id: studentId,
+      id: '',
+    };
   }
 
   return (

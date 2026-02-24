@@ -1,9 +1,11 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
-import StatusBadge, { getStatusVariant, formatStatus } from '@/components/shared/StatusBadge';
 import { Assignment } from '@/components/assignments/hooks/useAssignment';
 import { HistoryTimeline } from '@/components/shared/HistoryTimeline';
+import { AssignmentStatusSelect } from '@/components/assignments/AssignmentStatusSelect';
+import { Button } from '@/components/ui/button';
+import { Pencil, Trash2 } from 'lucide-react';
 
 /**
  * Format date for display
@@ -22,7 +24,17 @@ function formatDate(dateString: string | null): string {
 /**
  * Assignment header component
  */
-function AssignmentHeader({ title, status }: { title: string; status: string }) {
+function AssignmentHeader({
+  title,
+  status,
+  assignmentId,
+  canEdit,
+}: {
+  title: string;
+  status: string;
+  assignmentId: string;
+  canEdit: boolean;
+}) {
   return (
     <div
       className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-start
@@ -35,7 +47,11 @@ function AssignmentHeader({ title, status }: { title: string; status: string }) 
         >
           {title}
         </h1>
-        <StatusBadge variant={getStatusVariant(status)}>{formatStatus(status)}</StatusBadge>
+        <AssignmentStatusSelect
+          assignmentId={assignmentId}
+          currentStatus={status}
+          canEdit={canEdit}
+        />
       </div>
     </div>
   );
@@ -275,6 +291,20 @@ export default async function AssignmentDetailPage({ params, searchParams }: Pag
     );
   }
 
+  const canEdit = !!(
+    profile?.is_admin ||
+    profile?.is_teacher ||
+    (profile?.is_student && assignment.student_id === user.id)
+  );
+  const canManage = !!(profile?.is_admin || profile?.is_teacher);
+
+  async function deleteAssignment() {
+    'use server';
+    const supabaseServer = await createClient();
+    await supabaseServer.from('assignments').delete().eq('id', id);
+    redirect('/dashboard/assignments');
+  }
+
   return (
     <div className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
       <div className="mb-4 sm:mb-6">
@@ -286,12 +316,34 @@ export default async function AssignmentDetailPage({ params, searchParams }: Pag
         </Link>
       </div>
 
+      {canManage && (
+        <div className="flex gap-3 mb-4">
+          <Button asChild size="sm">
+            <Link href={`/dashboard/assignments/${assignment.id}/edit`}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit
+            </Link>
+          </Button>
+          <form action={deleteAssignment}>
+            <Button type="submit" variant="destructive" size="sm">
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
+          </form>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div
             className="bg-card rounded-lg shadow-sm border border-border p-4 sm:p-6"
           >
-            <AssignmentHeader title={assignment.title} status={assignment.status} />
+            <AssignmentHeader
+              title={assignment.title}
+              status={assignment.status}
+              assignmentId={assignment.id}
+              canEdit={canEdit}
+            />
             <AssignmentInfo assignment={assignment as unknown as ExtendedAssignment} />
           </div>
         </div>

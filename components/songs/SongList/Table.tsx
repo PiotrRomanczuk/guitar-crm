@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2 } from 'lucide-react';
+import { Trash2, BookOpen } from 'lucide-react';
 import StatusSelect from './StatusSelect';
 
 import { cn } from '@/lib/utils';
@@ -54,6 +54,7 @@ export default function SongListTable({
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [assignmentCount, setAssignmentCount] = useState<number>(0);
   const [checkingId, setCheckingId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const handleDeleteClick = async (song: Song) => {
     console.log('🎸 [FRONTEND] handleDeleteClick called for song:', song.id);
@@ -134,6 +135,28 @@ export default function SongListTable({
 
   return (
     <>
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg mb-3">
+          <span className="text-sm font-medium">
+            {selectedIds.size} song{selectedIds.size !== 1 ? 's' : ''} selected
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              const songIds = Array.from(selectedIds).join(',');
+              window.location.href = `/dashboard/lessons/new?song=${songIds}`;
+            }}
+          >
+            <BookOpen className="h-4 w-4 mr-1" />
+            Add to New Lesson
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>
+            Clear
+          </Button>
+        </div>
+      )}
+
       <div
         className="bg-card rounded-xl border border-border overflow-hidden"
         data-testid="song-table"
@@ -142,6 +165,20 @@ export default function SongListTable({
           <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow className="hover:bg-transparent border-border">
+                <TableHead className="w-10">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.size === songs.length && songs.length > 0}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedIds(new Set(songs.map((s) => s.id)));
+                      } else {
+                        setSelectedIds(new Set());
+                      }
+                    }}
+                    className="rounded border-border"
+                  />
+                </TableHead>
                 <TableHead className="text-muted-foreground">Title</TableHead>
                 <TableHead className="text-muted-foreground">Author</TableHead>
                 <TableHead className="text-muted-foreground">
@@ -157,7 +194,7 @@ export default function SongListTable({
               {songs.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={canDelete ? 5 : 4}
+                    colSpan={canDelete ? 6 : 5}
                     className="h-24 text-center text-muted-foreground"
                   >
                     No songs found.
@@ -170,6 +207,22 @@ export default function SongListTable({
                     data-testid="song-row"
                     className="hover:bg-secondary/50 border-border transition-colors"
                   >
+                    <TableCell className="w-10">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(song.id)}
+                        onChange={(e) => {
+                          const newSet = new Set(selectedIds);
+                          if (e.target.checked) {
+                            newSet.add(song.id);
+                          } else {
+                            newSet.delete(song.id);
+                          }
+                          setSelectedIds(newSet);
+                        }}
+                        className="rounded border-border"
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">
                       <Link
                         href={`/dashboard/songs/${song.id}`}

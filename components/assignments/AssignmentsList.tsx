@@ -30,6 +30,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { VALID_STATUS_TRANSITIONS } from '@/schemas/AssignmentSchema';
 
 interface Assignment {
   id: string;
@@ -88,6 +89,24 @@ export default function AssignmentsList() {
     setAssignmentToDelete(id);
   };
 
+  const handleStatusChange = async (assignmentId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/assignments/${assignmentId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!response.ok) throw new Error('Failed to update status');
+      setAssignments((prev) =>
+        prev.map((a) =>
+          a.id === assignmentId ? { ...a, status: newStatus as Assignment['status'] } : a
+        )
+      );
+    } catch (err) {
+      console.error('Failed to update status:', err);
+    }
+  };
+
   const handleConfirmDelete = async () => {
     if (!assignmentToDelete) return;
 
@@ -118,7 +137,7 @@ export default function AssignmentsList() {
       ) : assignments.length === 0 ? (
         <AssignmentsEmpty />
       ) : (
-        <AssignmentsTable assignments={assignments} onDelete={handleDeleteClick} />
+        <AssignmentsTable assignments={assignments} onDelete={handleDeleteClick} onStatusChange={handleStatusChange} />
       )}
 
       <AlertDialog
@@ -218,9 +237,10 @@ function AssignmentsEmpty() {
 interface TableProps {
   assignments: Assignment[];
   onDelete: (id: string) => void;
+  onStatusChange: (id: string, newStatus: string) => void;
 }
 
-function AssignmentsTable({ assignments, onDelete }: TableProps) {
+function AssignmentsTable({ assignments, onDelete, onStatusChange }: TableProps) {
   const statusColors: Record<string, string> = {
     OPEN: 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300',
     IN_PROGRESS: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
@@ -280,12 +300,39 @@ function AssignmentsTable({ assignments, onDelete }: TableProps) {
                 {formatDate(assignment.due_date)}
               </TableCell>
               <TableCell>
-                <Badge
-                  variant="secondary"
-                  className={`${statusColors[assignment.status]} border-0`}
-                >
-                  {assignment.status.replace(/_/g, ' ')}
-                </Badge>
+                {(() => {
+                  const transitions = VALID_STATUS_TRANSITIONS[assignment.status] || [];
+                  if (transitions.length === 0) {
+                    return (
+                      <Badge
+                        variant="secondary"
+                        className={`${statusColors[assignment.status]} border-0`}
+                      >
+                        {assignment.status.replace(/_/g, ' ')}
+                      </Badge>
+                    );
+                  }
+                  return (
+                    <Select
+                      value={assignment.status}
+                      onValueChange={(value) => onStatusChange(assignment.id, value)}
+                    >
+                      <SelectTrigger className="w-[140px] h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={assignment.status}>
+                          {assignment.status.replace(/_/g, ' ')} (current)
+                        </SelectItem>
+                        {transitions.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {status.replace(/_/g, ' ')}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  );
+                })()}
               </TableCell>
               <TableCell>
                 <div className="flex gap-2">
