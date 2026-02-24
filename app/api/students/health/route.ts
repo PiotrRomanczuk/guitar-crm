@@ -64,7 +64,7 @@ export async function GET() {
       // Get lessons from last 30 days
       const { data: recentLessons } = await supabase
         .from('lessons')
-        .select('*')
+        .select('id')
         .eq('student_id', profile.id)
         .gte('created_at', thirtyDaysAgo.toISOString());
 

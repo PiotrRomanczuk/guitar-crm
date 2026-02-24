@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
     // Fetch all notification logs within date range
     const { data: logs, error: logsError } = await supabase
       .from('notification_log')
-      .select('*')
+      .select('id, status, notification_type, created_at')
       .gte('created_at', startDate.toISOString());
 
     if (logsError) {

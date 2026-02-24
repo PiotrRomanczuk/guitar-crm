@@ -12,7 +12,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const supabase = await createClient();
 
-    const { data, error } = await supabase.from('profiles').select('*').eq('id', id).single();
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, email, full_name, first_name, last_name, phone, notes, is_admin, is_teacher, is_student, is_shadow, is_active, student_status, created_at, updated_at')
+      .eq('id', id)
+      .single();
 
     if (error || !data) {
       return Response.json({ error: 'User not found' }, { status: 404 });

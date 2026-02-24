@@ -46,7 +46,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const { data: lesson, error } = await supabase
       .from('lessons')
-      .select('*')
+      .select('id, teacher_id, student_id, status, date, time, lesson_teacher_number, scheduled_at, notes, created_at, updated_at')
       .eq('id', id)
       .single();
 

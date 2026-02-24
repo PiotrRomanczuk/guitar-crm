@@ -143,7 +143,10 @@ describe('buildUserQuery', () => {
     buildUserQuery(mockSupabase as unknown as SupabaseClient, 'admin-id', adminProfile);
 
     expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
-    expect(mockQuery.select).toHaveBeenCalledWith('*', { count: 'exact' });
+    expect(mockQuery.select).toHaveBeenCalledWith(
+      'id, email, full_name, phone, avatar_url, is_admin, is_teacher, is_student, is_shadow, is_active, is_development, student_status, status_changed_at, lead_source, notes, created_at, updated_at',
+      { count: 'exact' }
+    );
   });
 
   it('should restrict teachers to their students', () => {
