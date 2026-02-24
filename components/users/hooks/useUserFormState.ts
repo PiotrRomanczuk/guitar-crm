@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserInputSchema } from '@/schemas/UserSchema';
 import { ZodError } from 'zod';
+import { toast } from 'sonner';
 
 export interface FormData {
   firstName: string;
@@ -115,8 +116,8 @@ export function useUserFormState(
   } = useMutation({
     mutationFn: (payload: SaveUserPayload) => saveUserToApi(payload),
     onSuccess: () => {
-      // Invalidate users list so it refetches with updated user
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success(isEdit ? 'User updated successfully' : 'User created successfully');
       router.push('/dashboard/users');
     },
     onError: (err) => {
