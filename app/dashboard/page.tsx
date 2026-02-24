@@ -84,12 +84,9 @@ export default async function DashboardPage({
 
   // Student Dashboard
   if (isStudent) {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
     const studentData = await getStudentDashboardData();
     return (
-      <StudentDashboardClient data={studentData} email={user.email} token={session?.access_token} />
+      <StudentDashboardClient data={studentData} email={user.email} />
     );
   }
 
