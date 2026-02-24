@@ -1,7 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
-import { 
-} from "@/schemas";
+import { z } from "zod";
+
+const LessonTemplateInputSchema = z.object({
+  name: z.string().min(1, "Name is required").max(200),
+  description: z.string().max(1000).optional().nullable(),
+  category: z.string().min(1, "Category is required").max(100),
+  duration: z.number().int().positive().max(480).optional().default(60),
+  structure: z.string().max(5000).optional().nullable(),
+  teacher_id: z.string().uuid("teacher_id must be a valid UUID"),
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -56,7 +64,6 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const body = await request.json();
 
     const {
       data: { user },
@@ -77,24 +84,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Validate template data
-    const { name, description, category, duration, structure, teacher_id } = body;
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
 
-    if (!name || !category || !teacher_id) {
+    const parsed = LessonTemplateInputSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Name, category, and teacher_id are required" },
+        { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
+
+    const { name, description, category, duration, structure, teacher_id } = parsed.data;
 
     const { data: template, error } = await supabase
       .from("lesson_templates")
       .insert({
         name,
-        description: description || null,
+        description: description ?? null,
         category,
-        duration: duration || 60,
-        structure: structure || null,
+        duration: duration ?? 60,
+        structure: structure ?? null,
         teacher_id,
         created_by: user.id,
       })
@@ -114,4 +128,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

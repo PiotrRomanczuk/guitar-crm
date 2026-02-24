@@ -87,11 +87,12 @@ const config: Config = {
     },
   },
 
-  // Ignore patterns - Exclude integration tests
+  // Ignore patterns - Exclude integration tests and agent worktrees
   testPathIgnorePatterns: [
     '/node_modules/',
     '/.next/',
     '/cypress/',
+    '/.claude/',
     '.integration.test.',
     '.e2e.test.',
     '__tests__/auth/credentials.test.ts',

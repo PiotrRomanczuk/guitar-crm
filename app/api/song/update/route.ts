@@ -1,61 +1,74 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import { SongUpdateSchema } from "@/schemas/SongSchema";
 
 export async function PUT(request: NextRequest) {
-  const supabase = await createClient();
-  const body = await request.json();
+  try {
+    const supabase = await createClient();
 
-  // First check if the song exists
-  const { data: existingData } = await supabase
-    .from("songs")
-    .select()
-    .eq("id", body.id)
-    .single();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  // 
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  if (!existingData) {
-    console.error(`Song with ID ${body.id} not found in database`);
-    return NextResponse.json(
-      { error: "No song found with the specified ID" },
-      { status: 404 },
-    );
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_admin, is_teacher")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile?.is_admin && !profile?.is_teacher) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
+    const parsed = SongUpdateSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
+    const { id, ...updateFields } = parsed.data;
+
+    const { data: existingData } = await supabase
+      .from("songs")
+      .select("id")
+      .eq("id", id)
+      .single();
+
+    if (!existingData) {
+      return NextResponse.json(
+        { error: "No song found with the specified ID" },
+        { status: 404 },
+      );
+    }
+
+    const { data: updatedSong, error } = await supabase
+      .from("songs")
+      .update({ ...updateFields, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating song", error);
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ data: updatedSong }, { status: 200 });
+  } catch (error) {
+    console.error("Unexpected error in song update API:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  // 
-
-  // Create a clean update object with only the fields we want to update
-  const updateData = {
-    title: body.title,
-    author: body.author,
-    level: body.level,
-    key: body.key,
-    chords: body.chords,
-    updated_at: new Date().toISOString(),
-  };
-
-  // 
-
-  const { data, error } = await supabase
-    .from("songs")
-    .update(updateData)
-    .eq("id", body.id)
-    .select();
-
-  if (error) {
-    console.error("Error updating song", error);
-    return NextResponse.json({ error: error.message }, { status: 400 });
-  }
-
-  // Check if we got any data back (data will be an array)
-  if (!data || data.length === 0) {
-    console.error("No song was updated. ID:", body.id);
-    return NextResponse.json({ error: "No song was updated" }, { status: 404 });
-  }
-
-  const updatedSong = data[0]; // Get the first (and should be only) updated song
-  // 
-
-  // 
-  return NextResponse.json({ data: updatedSong }, { status: 200 });
 }

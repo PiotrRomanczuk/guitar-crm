@@ -1,10 +1,20 @@
 /**
  * GET /api/api-keys - List all API keys for the current user
+ * POST /api/api-keys - Create a new API key
  * DELETE /api/api-keys/[id] - Delete a specific API key
  */
 
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+const CreateApiKeySchema = z.object({
+  name: z
+    .string()
+    .min(1, 'API key name is required')
+    .max(100, 'API key name must not exceed 100 characters')
+    .trim(),
+});
 
 export async function GET() {
   try {
@@ -51,11 +61,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { name } = await request.json();
-
-    if (!name || typeof name !== 'string' || name.trim().length === 0) {
-      return NextResponse.json({ error: 'API key name is required' }, { status: 400 });
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
+
+    const parsed = CreateApiKeySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
+    const { name } = parsed.data;
 
     const { generateApiKey, hashApiKey } = await import('@/lib/api-keys');
 
@@ -67,7 +88,7 @@ export async function POST(request: NextRequest) {
       .from('api_keys')
       .insert({
         user_id: user.id,
-        name: name.trim(),
+        name,
         key_hash: keyHash,
       })
       .select('id, name, created_at')
