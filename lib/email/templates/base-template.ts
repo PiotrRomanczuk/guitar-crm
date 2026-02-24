@@ -11,6 +11,8 @@
  * - Borders: #e8e0d8 (warm) / #2e2926 (dark)
  */
 
+import { generateUnsubscribeToken } from '@/lib/notifications/unsubscribe-token';
+
 export interface BaseEmailTemplateOptions {
   subject: string;
   preheader?: string;
@@ -42,8 +44,8 @@ function getBaseUrl(): string {
 }
 
 /**
- * Generate unsubscribe link
- * Uses userId + notificationType to create direct unsubscribe link
+ * Generate a signed unsubscribe link using HMAC token (prevents IDOR).
+ * Falls back to the settings page if token generation fails or params are missing.
  */
 function getUnsubscribeLink(
   recipientUserId?: string,
@@ -52,8 +54,12 @@ function getUnsubscribeLink(
   const baseUrl = getBaseUrl();
 
   if (recipientUserId && notificationType) {
-    // Direct unsubscribe API route
-    return `${baseUrl}/api/notifications/unsubscribe?userId=${encodeURIComponent(recipientUserId)}&type=${encodeURIComponent(notificationType)}`;
+    try {
+      const token = generateUnsubscribeToken(recipientUserId, notificationType);
+      return `${baseUrl}/api/notifications/unsubscribe?token=${encodeURIComponent(token)}`;
+    } catch (err) {
+      console.warn('[base-template] Could not generate signed unsubscribe token:', err);
+    }
   }
 
   // Fallback to settings page
