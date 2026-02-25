@@ -27,6 +27,13 @@ import {
 import type { NotificationType } from '@/types/notifications';
 import { sendNotification } from './notification-service';
 
+/**
+ * Check if student emails are enabled via environment variable.
+ */
+function isStudentEmailEnabled(): boolean {
+  return process.env.STUDENT_EMAILS_ENABLED === 'true';
+}
+
 interface QueuedNotification {
   id: string;
   notification_type: string;
@@ -196,14 +203,22 @@ export async function retryFailedNotifications(): Promise<{ retried: number; fai
           continue;
         }
 
-        // Get recipient info
+        // Get recipient info (include role for student email kill switch)
         const { data: recipient } = await supabase
           .from('profiles')
-          .select('id, email, full_name')
+          .select('id, email, full_name, role')
           .eq('id', notification.recipient_user_id)
           .single();
 
         if (!recipient) {
+          continue;
+        }
+
+        // Student email kill switch: skip retry for students when emails disabled
+        if (recipient.role === 'student' && !isStudentEmailEnabled()) {
+          logInfo(`Skipping retry for student notification ${notification.id} — student emails disabled`);
+          await updateNotificationRetry(notification.id, 'failed', notification.retry_count + 1, 'Student emails disabled');
+          failed++;
           continue;
         }
 
