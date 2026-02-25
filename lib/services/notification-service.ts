@@ -39,6 +39,19 @@ import type {
 import type { Json } from '@/database.types';
 
 // ============================================================================
+// STUDENT EMAIL KILL SWITCH
+// ============================================================================
+
+/**
+ * Check if student emails are enabled via environment variable.
+ * When STUDENT_EMAILS_ENABLED is not 'true', all student emails are blocked
+ * but in-app notifications still work.
+ */
+function isStudentEmailEnabled(): boolean {
+  return process.env.STUDENT_EMAILS_ENABLED === 'true';
+}
+
+// ============================================================================
 // MAIN NOTIFICATION FUNCTIONS
 // ============================================================================
 
@@ -60,10 +73,10 @@ export async function sendNotification(
   try {
     const supabase = createAdminClient();
 
-    // 1. Get recipient info
+    // 1. Get recipient info (include role for student email kill switch)
     const { data: recipient, error: recipientError } = await supabase
       .from('profiles')
-      .select('id, email, full_name')
+      .select('id, email, full_name, role')
       .eq('id', recipientUserId)
       .single();
 
@@ -114,7 +127,21 @@ export async function sendNotification(
     }
 
     // 3. Get delivery channel (email, in-app, or both)
-    const deliveryChannel = await getDeliveryChannel(recipientUserId, type);
+    let deliveryChannel = await getDeliveryChannel(recipientUserId, type);
+
+    // Student email kill switch: force in-app only for students when emails disabled
+    if (recipient.role === 'student' && !isStudentEmailEnabled()) {
+      if (deliveryChannel === 'email' || deliveryChannel === 'both') {
+        const originalChannel = deliveryChannel;
+        deliveryChannel = 'in_app';
+        logNotificationSkipped(recipientUserId, type, 'Student emails disabled (STUDENT_EMAILS_ENABLED != true)', {
+          recipient_email: recipient.email,
+          entity_type: entityType,
+          entity_id: entityId,
+          original_channel: originalChannel,
+        });
+      }
+    }
 
     const results: { email: boolean | null; inApp: boolean | null } = {
       email: null,
