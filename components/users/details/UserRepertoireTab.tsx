@@ -21,9 +21,10 @@ import { groupRepertoireItems } from './repertoire.helpers';
 interface UserRepertoireTabProps {
   userId: string;
   repertoire: StudentRepertoireWithSong[];
+  viewMode?: 'teacher' | 'student';
 }
 
-export default function UserRepertoireTab({ userId, repertoire }: UserRepertoireTabProps) {
+export default function UserRepertoireTab({ userId, repertoire, viewMode = 'teacher' }: UserRepertoireTabProps) {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [groupBy, setGroupBy] = useState<string>('priority');
@@ -119,6 +120,7 @@ export default function UserRepertoireTab({ userId, repertoire }: UserRepertoire
                   item={item}
                   studentId={userId}
                   onEditConfig={() => setEditingItem(item)}
+                  viewMode={viewMode}
                 />
               ))}
             </div>

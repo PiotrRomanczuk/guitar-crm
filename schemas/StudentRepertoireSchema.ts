@@ -20,6 +20,9 @@ export const StudentRepertoireSchema = z.object({
   mastered_at: z.string().nullable().optional(),
   difficulty_rating: z.number().int().min(1).max(5).nullable().optional(),
 
+  self_rating: z.number().int().min(1).max(5).nullable().optional(),
+  self_rating_updated_at: z.string().nullable().optional(),
+
   total_practice_minutes: z.number().int().min(0).default(0),
   practice_session_count: z.number().int().min(0).default(0),
   last_practiced_at: z.string().nullable().optional(),
