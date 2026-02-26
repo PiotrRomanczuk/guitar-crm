@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     if (!canCreate) {
       return NextResponse.json(
-        { error: 'Forbidden', debug: { user, roles, rolesError } },
+        { error: 'Forbidden' },
         { status: 403 }
       );
     }
