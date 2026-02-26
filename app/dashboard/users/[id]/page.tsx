@@ -112,6 +112,8 @@ async function fetchUserData(supabase: SupabaseClient<any>, userId: string) {
       is_active: true,
       priority: 'normal' as const,
       total_practice_minutes: (row.total_practice_time_minutes as number) ?? 0,
+      self_rating: null,
+      self_rating_updated_at: null,
     })
   ) as StudentRepertoireWithSong[];
 

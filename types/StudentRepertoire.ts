@@ -21,6 +21,10 @@ export interface StudentRepertoire {
   mastered_at: string | null;
   difficulty_rating: number | null;
 
+  // Student self-assessment (1-5 confidence scale)
+  self_rating: number | null;
+  self_rating_updated_at: string | null;
+
   // Practice metrics
   total_practice_minutes: number;
   practice_session_count: number;
