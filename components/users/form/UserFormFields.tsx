@@ -154,6 +154,17 @@ export default function UserFormFields({ formData, errors = {}, onChange, onBlur
               Student
             </Label>
           </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="isParent"
+              checked={formData.isParent}
+              onCheckedChange={handleCheckboxChange('isParent')}
+              data-testid="isParent-checkbox"
+            />
+            <Label htmlFor="isParent" className="font-normal cursor-pointer">
+              Parent / Guardian
+            </Label>
+          </div>
         </div>
       </div>
 

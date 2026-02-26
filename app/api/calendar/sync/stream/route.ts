@@ -6,7 +6,7 @@ import { TablesInsert } from '@/types/database.types';
 import {
   generateMonthChunks,
   determineLessonStatus,
-  extractStudentFromAttendees,
+  resolveStudentAttendee,
   findOrCreateStudent,
 } from '@/lib/services/calendar-bulk-import';
 import { isGuitarLesson } from '@/lib/calendar/calendar-utils';
@@ -108,9 +108,10 @@ export async function POST(request: Request) {
                 continue;
               }
 
-              const student = extractStudentFromAttendees(
+              const student = await resolveStudentAttendee(
                 event.attendees as Array<{ email: string; displayName?: string }>,
-                teacherEmail
+                teacherEmail,
+                adminClient
               );
 
               if (!student) {
@@ -217,11 +218,25 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  }
+
   const url = new URL(request.url);
   const syncId = url.searchParams.get('syncId');
 
   if (!syncId) {
     return new Response(JSON.stringify({ error: 'syncId required' }), { status: 400 });
+  }
+
+  // syncId is formatted as `${user.id}-${timestamp}` — verify ownership
+  if (!syncId.startsWith(user.id)) {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
   }
 
   const controller = activeSyncs.get(syncId);

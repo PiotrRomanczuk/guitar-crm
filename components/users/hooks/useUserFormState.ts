@@ -15,6 +15,7 @@ export interface FormData {
   isAdmin: boolean;
   isTeacher: boolean;
   isStudent: boolean;
+  isParent: boolean;
   isActive: boolean;
   isShadow: boolean;
 }
@@ -28,6 +29,7 @@ interface InitialData {
   isAdmin: boolean;
   isTeacher: boolean | null;
   isStudent: boolean | null;
+  isParent?: boolean | null;
   isActive: boolean;
   isShadow?: boolean | null;
 }
@@ -47,6 +49,7 @@ const createInitialData = (initial: InitialData | undefined): FormData => {
     isAdmin: false,
     isTeacher: false,
     isStudent: false,
+    isParent: false,
     isActive: true,
     isShadow: false,
   };
@@ -61,6 +64,7 @@ const createInitialData = (initial: InitialData | undefined): FormData => {
     isAdmin: initial.isAdmin || defaultData.isAdmin,
     isTeacher: initial.isTeacher || defaultData.isTeacher,
     isStudent: initial.isStudent || defaultData.isStudent,
+    isParent: initial.isParent || defaultData.isParent,
     isActive: initial.isActive !== false,
     isShadow: initial.isShadow || defaultData.isShadow,
   };

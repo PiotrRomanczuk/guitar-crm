@@ -1131,6 +1131,8 @@ export type Database = {
           is_shadow: boolean;
           is_student: boolean;
           is_teacher: boolean;
+          is_parent: boolean;
+          parent_id: string | null;
           lead_source: string | null;
           notes: string | null;
           onboarding_completed: boolean;
@@ -1156,6 +1158,8 @@ export type Database = {
           is_shadow?: boolean;
           is_student?: boolean;
           is_teacher?: boolean;
+          is_parent?: boolean;
+          parent_id?: string | null;
           lead_source?: string | null;
           notes?: string | null;
           onboarding_completed?: boolean;
@@ -1181,6 +1185,8 @@ export type Database = {
           is_shadow?: boolean;
           is_student?: boolean;
           is_teacher?: boolean;
+          is_parent?: boolean;
+          parent_id?: string | null;
           lead_source?: string | null;
           notes?: string | null;
           onboarding_completed?: boolean;
