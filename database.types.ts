@@ -1868,6 +1868,54 @@ export type Database = {
         };
         Relationships: [];
       };
+      user_preferences: {
+        Row: {
+          id: string;
+          user_id: string;
+          goals: string[];
+          skill_level: string;
+          learning_style: string[];
+          instrument_preference: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          goals?: string[];
+          skill_level?: string;
+          learning_style?: string[];
+          instrument_preference?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          goals?: string[];
+          skill_level?: string;
+          learning_style?: string[];
+          instrument_preference?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'user_preferences_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: true;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'user_preferences_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: true;
+            referencedRelation: 'user_overview';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
     };
     Views: {
       lesson_counts_per_student: {

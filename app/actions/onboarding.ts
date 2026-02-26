@@ -44,14 +44,22 @@ export async function completeOnboarding(onboardingData: OnboardingData) {
       return { error: 'Failed to update profile' };
     }
 
-    // TODO: Store in user_preferences table
-    // await adminClient.from('user_preferences').insert({
-    //   user_id: user.id,
-    //   goals: onboardingData.goals,
-    //   skill_level: onboardingData.skillLevel,
-    //   learning_style: onboardingData.learningStyle,
-    //   instrument_preference: onboardingData.instrumentPreference,
-    // });
+    // 2. Persist onboarding preferences
+    const { error: prefsError } = await adminClient
+      .from('user_preferences')
+      .upsert({
+        user_id: user.id,
+        goals: onboardingData.goals,
+        skill_level: onboardingData.skillLevel,
+        learning_style: onboardingData.learningStyle || [],
+        instrument_preference: onboardingData.instrumentPreference || [],
+      }, { onConflict: 'user_id' });
+
+    if (prefsError) {
+      console.error('Error saving preferences:', prefsError);
+      // Non-fatal: profile was updated, preferences failed
+      // User can still proceed — preferences can be set later in settings
+    }
   } catch (error) {
     console.error('Onboarding error:', error);
     return { error: 'An unexpected error occurred' };
