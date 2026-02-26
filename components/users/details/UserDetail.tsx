@@ -29,6 +29,7 @@ import {
 import { ExportButton } from '@/components/users/actions/ExportButton';
 import { CsvSongImportButton } from '@/components/users/import';
 import { MoreVertical, Edit, Trash2, User, FileText } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface UserDetailProps {
   user: {
@@ -56,7 +57,7 @@ export default function UserDetail({ user }: UserDetailProps) {
       if (!res.ok) throw new Error('Failed to delete');
       router.push('/dashboard/users');
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error deleting user');
+      toast.error(err instanceof Error ? err.message : 'Error deleting user');
     } finally {
       setLoading(false);
       setShowDeleteDialog(false);
@@ -83,21 +84,21 @@ export default function UserDetail({ user }: UserDetailProps) {
 
   return (
     <Card className="max-w-4xl mx-auto overflow-hidden">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-b p-6">
+      <div className="bg-gradient-to-r from-primary/5 to-primary/10 border-b p-6">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-          <Avatar className="h-24 w-24 border-4 border-white dark:border-gray-800 shadow-lg shrink-0">
+          <Avatar className="h-24 w-24 border-4 border-background shadow-lg shrink-0">
             <AvatarImage src={user.avatar_url || ''} />
-            <AvatarFallback className="text-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">
+            <AvatarFallback className="text-2xl bg-primary/10 text-primary">
               {initials}
             </AvatarFallback>
           </Avatar>
 
           <div className="flex-1 text-center md:text-left space-y-2">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-3xl font-bold text-foreground">
                 {user.full_name || 'User Profile'}
               </h1>
-              <p className="text-gray-500 dark:text-gray-400 font-medium">{user.email}</p>
+              <p className="text-muted-foreground font-medium">{user.email}</p>
             </div>
 
             <div className="flex flex-wrap gap-2 justify-center md:justify-start mt-2">
@@ -105,8 +106,8 @@ export default function UserDetail({ user }: UserDetailProps) {
                 variant={isRegistered ? "default" : "secondary"}
                 className={
                   isRegistered
-                    ? 'bg-green-100 text-green-800 hover:bg-green-200 border-green-200 dark:bg-green-900/40 dark:text-green-300'
-                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-200 dark:bg-gray-800 dark:text-gray-400'
+                    ? 'bg-success/10 text-success hover:bg-success/20 border-success/30'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }
               >
                 {isRegistered ? 'Active Account' : 'Shadow Account'}
@@ -115,7 +116,7 @@ export default function UserDetail({ user }: UserDetailProps) {
                 <Badge
                   key={role}
                   variant="outline"
-                  className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800"
+                  className="bg-primary/5 text-primary border-primary/20"
                 >
                   {role}
                 </Badge>
@@ -167,19 +168,19 @@ export default function UserDetail({ user }: UserDetailProps) {
           {/* Left Column: Details */}
           <div className="md:col-span-1 space-y-6">
             <div>
-              <Label className="text-gray-500 text-xs uppercase tracking-wider font-semibold">Contact</Label>
+              <Label className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">Contact</Label>
               <div className="mt-2 flex items-center gap-2 text-sm">
-                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full">
-                  <User className="h-4 w-4 text-gray-500" />
+                <div className="p-2 bg-muted rounded-full">
+                  <User className="h-4 w-4 text-muted-foreground" />
                 </div>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{user.email}</span>
+                <span className="font-medium text-foreground">{user.email}</span>
               </div>
             </div>
 
             {/* Mobile only actions */}
             {user.is_student && (
               <div className="sm:hidden space-y-3 pt-4 border-t">
-                <Label className="text-gray-500 text-xs uppercase tracking-wider font-semibold">Quick Actions</Label>
+                <Label className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">Quick Actions</Label>
                 <div className="flex flex-col gap-2">
                   <div className="w-full">
                     <CsvSongImportButton studentId={user.id} />
@@ -195,8 +196,8 @@ export default function UserDetail({ user }: UserDetailProps) {
           {/* Right Column: Notes */}
           <div className="md:col-span-2">
             <div className="flex items-center justify-between mb-2">
-              <Label className="text-gray-500 text-xs uppercase tracking-wider font-semibold">Teacher Notes</Label>
-              <Link href={`/dashboard/users/${user.id}/edit`} className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+              <Label className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">Teacher Notes</Label>
+              <Link href={`/dashboard/users/${user.id}/edit`} className="text-xs text-primary hover:text-primary/80 font-medium">
                 Edit Notes
               </Link>
             </div>
@@ -208,19 +209,19 @@ export default function UserDetail({ user }: UserDetailProps) {
                 p-6 min-h-[120px] 
                 transition-all duration-200
                 ${user.notes
-                  ? 'border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/50 dark:bg-gray-800/50 dark:border-gray-700'
-                  : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50 flex items-center justify-center text-center'
+                  ? 'border-border bg-muted/30 hover:border-primary/40 hover:bg-primary/5'
+                  : 'border-border bg-muted/30 hover:border-primary/50 hover:bg-primary/5 flex items-center justify-center text-center'
                 }
               `}>
                 {user.notes ? (
-                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+                  <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
                     {user.notes}
                   </p>
                 ) : (
                   <div className="space-y-1">
-                    <FileText className="h-8 w-8 text-gray-400 mx-auto group-hover:text-blue-500 transition-colors" />
-                    <p className="text-sm font-medium text-gray-600 group-hover:text-blue-700">No notes yet</p>
-                    <p className="text-xs text-gray-400">Click to add private notes about this student</p>
+                    <FileText className="h-8 w-8 text-muted-foreground/50 mx-auto group-hover:text-primary transition-colors" />
+                    <p className="text-sm font-medium text-muted-foreground group-hover:text-primary">No notes yet</p>
+                    <p className="text-xs text-muted-foreground/70">Click to add private notes about this student</p>
                   </div>
                 )}
               </div>

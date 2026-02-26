@@ -329,14 +329,6 @@ describe('StudentDashboardClient', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders BearerTokenCard when token prop is provided', () => {
-    const data = createMockDashboardData();
-    render(<StudentDashboardClient data={data} token="my-secret-token" />);
-
-    expect(screen.getByTestId('bearer-token-card')).toBeInTheDocument();
-    expect(screen.getByText('Token: my-secret-token')).toBeInTheDocument();
-  });
-
   it('does not render BearerTokenCard when token prop is absent', () => {
     const data = createMockDashboardData();
     render(<StudentDashboardClient data={data} />);

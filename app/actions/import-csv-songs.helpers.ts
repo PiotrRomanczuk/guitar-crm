@@ -1,4 +1,5 @@
-import type { CsvSongRow } from '@/schemas/CsvSongImportSchema';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { CsvSongRow, SimilarSong } from '@/schemas/CsvSongImportSchema';
 
 /**
  * Return today's date as DD.MM.YYYY (UTC).
@@ -55,4 +56,91 @@ export function groupRowsByDate(rows: CsvSongRow[]): Map<string, CsvSongRow[]> {
     groups.set(row.date, existing);
   }
   return groups;
+}
+
+export type SongMatchResult = {
+  songId?: string;
+  matchStatus: 'matched' | 'low_confidence' | 'new';
+  matchedTitle?: string;
+  matchScore?: number;
+  songCreated: boolean;
+  error?: string;
+};
+
+type SongCacheEntry = {
+  id: string;
+  matchStatus: 'matched' | 'low_confidence' | 'new';
+  matchedTitle?: string;
+  score?: number;
+};
+
+/**
+ * Find or create a song by fuzzy matching. Uses a cache to avoid re-querying.
+ */
+export async function findOrCreateSong(
+  supabase: SupabaseClient,
+  title: string,
+  author: string,
+  validateOnly: boolean,
+  songCache: Map<string, SongCacheEntry>,
+  counters: { songsMatched: number; songsCreated: number },
+): Promise<SongMatchResult> {
+  const titleLower = title.toLowerCase().trim();
+
+  const cached = songCache.get(titleLower);
+  if (cached) {
+    return {
+      songId: cached.id,
+      matchStatus: cached.matchStatus,
+      matchedTitle: cached.matchedTitle,
+      matchScore: cached.score,
+      songCreated: false,
+    };
+  }
+
+  let songId: string | undefined;
+  let matchStatus: 'matched' | 'low_confidence' | 'new' = 'new';
+  let matchedTitle: string | undefined;
+  let matchScore: number | undefined;
+  let songCreated = false;
+
+  const { data: similar } = await supabase.rpc('find_similar_songs', {
+    search_title: title,
+    threshold: 0.3,
+    max_results: 1,
+  }) as { data: SimilarSong[] | null };
+
+  if (similar && similar.length > 0) {
+    const best = similar[0];
+    songId = best.id;
+    matchScore = best.similarity;
+    matchedTitle = best.title;
+    matchStatus = best.similarity >= 0.6 ? 'matched' : 'low_confidence';
+    if (matchStatus === 'matched') counters.songsMatched++;
+  }
+
+  if (!songId && !validateOnly) {
+    const { data: newSong, error: songError } = await supabase
+      .from('songs')
+      .insert({ title, author })
+      .select('id')
+      .single();
+
+    if (songError || !newSong) {
+      return {
+        matchStatus: 'new',
+        songCreated: false,
+        error: `Failed to create song: ${songError?.message}`,
+      };
+    }
+    songId = newSong.id;
+    songCreated = true;
+    counters.songsCreated++;
+  }
+
+  if (songId) {
+    songCache.set(titleLower, { id: songId, matchStatus, matchedTitle, score: matchScore });
+  }
+
+  return { songId, matchStatus, matchedTitle, matchScore, songCreated };
 }

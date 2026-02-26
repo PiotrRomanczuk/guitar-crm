@@ -57,7 +57,7 @@ export function SongStatusHistory({ songId, studentId, title }: SongStatusHistor
         .select(
           `
           *,
-          student:profiles!song_status_history_student_id_fkey(full_name, email),
+          student:profiles!song_status_history_student_id_profiles_fkey(full_name, email),
           song:songs(title, author)
         `
         )

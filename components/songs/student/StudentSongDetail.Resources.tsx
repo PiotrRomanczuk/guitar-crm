@@ -3,8 +3,9 @@
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Youtube, FileText, Play, Music2, Waves } from 'lucide-react';
+import { ExternalLink, Youtube, FileText, Play, Music2 } from 'lucide-react';
 import type { SongWithStatus as Song } from '@/components/songs/types';
+import { StrummingPatternDisplay } from '@/components/songs/strumming/StrummingPatternDisplay';
 
 interface Props {
   song: Song;
@@ -13,21 +14,7 @@ interface Props {
 export function SongStrummingCard({ song }: Props) {
   if (!song.strumming_pattern) return null;
 
-  return (
-    <Card className="bg-card border-border/50 shadow-sm">
-      <CardContent className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-primary/10 rounded-full">
-            <Waves className="w-5 h-5 text-primary" />
-          </div>
-          <h3 className="text-lg font-semibold">Strumming Pattern</h3>
-        </div>
-        <div className="p-4 bg-muted/50 rounded-lg font-mono text-lg tracking-wider">
-          {song.strumming_pattern}
-        </div>
-      </CardContent>
-    </Card>
-  );
+  return <StrummingPatternDisplay pattern={song.strumming_pattern} />;
 }
 
 export function SongChordsCard({ song }: Props) {

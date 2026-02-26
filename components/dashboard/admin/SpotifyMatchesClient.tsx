@@ -205,6 +205,7 @@ export function SpotifyMatchesClient() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SpotifySearchResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const [pagination, setPagination] = useState<PaginationInfo>({
     page: 1,
     limit: 20,
@@ -272,7 +273,8 @@ export function SpotifyMatchesClient() {
       });
       if (!response.ok) throw new Error('Failed to process action');
       toast.success(`Match ${action === 'approve' ? 'approved' : 'rejected'} successfully`);
-      fetchMatches(activeTab, pagination.page);
+      setMatches((prev) => prev.filter((m) => m.id !== matchId));
+      setPagination((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));
     } catch {
       toast.error(`Failed to ${action} match`);
     } finally {
@@ -291,6 +293,7 @@ export function SpotifyMatchesClient() {
       if (!response.ok) throw new Error('Failed to search Spotify');
       const data = await response.json();
       setSearchResults(data.results || []);
+      setHasSearched(true);
     } catch {
       toast.error('Failed to search Spotify');
       setSearchResults([]);
@@ -315,10 +318,11 @@ export function SpotifyMatchesClient() {
       if (!response.ok) throw new Error('Failed to approve alternative match');
       toast.success('Alternative match approved successfully');
       setSearchDialogOpen(false);
+      setMatches((prev) => prev.filter((m) => m.id !== currentMatch.id));
+      setPagination((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));
       setCurrentMatch(null);
       setSearchQuery('');
       setSearchResults([]);
-      fetchMatches(activeTab, pagination.page);
     } catch {
       toast.error('Failed to approve alternative match');
     } finally {
@@ -331,6 +335,7 @@ export function SpotifyMatchesClient() {
     setSearchQuery(`${match.songs.title} ${match.songs.author}`);
     setSearchDialogOpen(true);
     setSearchResults([]);
+    setHasSearched(false);
   };
 
 
@@ -469,6 +474,7 @@ export function SpotifyMatchesClient() {
         onSearchQueryChange={setSearchQuery}
         searchResults={searchResults}
         searching={searching}
+        hasSearched={hasSearched}
         onSearch={handleSearchSpotify}
         onSelectAlternative={handleSelectAlternative}
         actionLoading={actionLoading}

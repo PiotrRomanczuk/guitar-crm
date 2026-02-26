@@ -1,5 +1,5 @@
 'use client';
-/* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/rules-of-hooks, react/no-unescaped-entities */
+/* eslint-disable @typescript-eslint/no-explicit-any, react/no-unescaped-entities */
 
 import { useState, useEffect, useCallback } from 'react';
 import {
@@ -146,9 +146,9 @@ function SearchResultList({
         >
           <div className="flex gap-3 items-center">
             <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-muted">
-              {track.album?.images?.[0]?.url ? (
+              {track.coverUrl ? (
                 <Image
-                  src={track.album.images[0].url}
+                  src={track.coverUrl}
                   alt={track.name}
                   width={48}
                   height={48}
@@ -163,7 +163,7 @@ function SearchResultList({
             <div className="flex-1 min-w-0">
               <div className="font-medium text-sm truncate">{track.name}</div>
               <div className="text-xs text-muted-foreground truncate">
-                {track.artists?.[0]?.name} • {track.album?.name}
+                {track.artist} • {track.album}
               </div>
             </div>
             {selectedTrackId === track.id && (
@@ -184,8 +184,6 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
   const [selectedTrack, setSelectedTrack] = useState<any | null>(null);
   const router = useRouter();
 
-  if (!matchData) return null;
-
   // Debounced auto-fetch for Spotify search
   const performSearch = useCallback(async (query: string) => {
     if (!query.trim()) {
@@ -204,7 +202,7 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
       }
 
       const data = await response.json();
-      setSearchResults(data.tracks?.items || []);
+      setSearchResults(data.results || []);
     } catch (error) {
       console.error('Search error:', error);
       setSearchResults([]);
@@ -221,10 +219,12 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
       } else {
         setSearchResults([]);
       }
-    }, 500); // 500ms debounce
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [searchQuery, performSearch]);
+
+  if (!matchData) return null;
 
   const handleSelectTrack = (track: any) => {
     setSelectedTrack(track);

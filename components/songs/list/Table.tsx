@@ -1,17 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import DeleteConfirmationDialog from '../actions/DeleteConfirmationDialog';
 import QuickAssignDialog from './QuickAssignDialog';
 import type { Song, SongWithStatus } from '@/components/songs/types';
-import {
-  Table,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Music } from 'lucide-react';
 import EmptyState from '@/components/shared/EmptyState';
@@ -50,7 +43,6 @@ export default function SongListTable({
   sortDirection = 'desc',
   onSort,
 }: Props) {
-  const router = useRouter();
   const [deletingSongId, setDeletingSongId] = useState<string | null>(null);
   const [songToDelete, setSongToDelete] = useState<Song | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -143,31 +135,37 @@ export default function SongListTable({
           ) : (
             <>
               <div className="overflow-x-auto border-b border-border">
-                <Table className="min-w-[600px]">
-                  <TableHeader>
-                    <TableRow className="hover:bg-transparent border-border">
-                      {canDelete && onToggleSelectAll && (
-                        <TableHead className="w-12">
-                          <Checkbox
-                            checked={isAllSelected || (isIndeterminate ? 'indeterminate' : false)}
-                            onCheckedChange={() => onToggleSelectAll(songs.map((s) => s.id))}
-                            aria-label="Select all songs"
-                          />
-                        </TableHead>
-                      )}
-                      <SortableHeader field="title" sortBy={sortBy} sortDirection={sortDirection} onSort={onSort}>Song</SortableHeader>
-                      <SortableHeader field="author" sortBy={sortBy} sortDirection={sortDirection} onSort={onSort}>Author</SortableHeader>
-                      <SortableHeader field="level" sortBy={sortBy} sortDirection={sortDirection} onSort={onSort}>{selectedStudentId ? 'Status' : 'Level'}</SortableHeader>
-                      <SortableHeader field="key" sortBy={sortBy} sortDirection={sortDirection} onSort={onSort}>Key</SortableHeader>
-                      {canDelete && <TableHead className="w-24 text-right text-muted-foreground">Actions</TableHead>}
-                    </TableRow>
-                  </TableHeader>
-                </Table>
+                <div className="flex items-center min-w-[600px] px-0 py-2 text-sm text-muted-foreground">
+                  {canDelete && onToggleSelectAll ? (
+                    <div className="w-12 flex items-center justify-center">
+                      <Checkbox
+                        checked={isAllSelected || (isIndeterminate ? 'indeterminate' : false)}
+                        onCheckedChange={() => onToggleSelectAll(songs.map((s) => s.id))}
+                        aria-label="Select all songs"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-12" />
+                  )}
+                  <div className="flex-1 px-4">
+                    <SortableHeader field="title" sortBy={sortBy} sortDirection={sortDirection} onSort={onSort}>Song</SortableHeader>
+                  </div>
+                  <div className="w-48 px-4">
+                    <SortableHeader field="author" sortBy={sortBy} sortDirection={sortDirection} onSort={onSort}>Author</SortableHeader>
+                  </div>
+                  <div className="w-32 px-4">
+                    <SortableHeader field="level" sortBy={sortBy} sortDirection={sortDirection} onSort={onSort}>{selectedStudentId ? 'Status' : 'Level'}</SortableHeader>
+                  </div>
+                  <div className="w-20 px-4">
+                    <SortableHeader field="key" sortBy={sortBy} sortDirection={sortDirection} onSort={onSort}>Key</SortableHeader>
+                  </div>
+                  <div className="w-24 px-4 text-right">{canDelete ? 'Actions' : ''}</div>
+                </div>
               </div>
               <div className="overflow-x-auto">
                 <div className="min-w-[600px]">
                   {songs.map((song) => (
-                    <SongDesktopRow key={song.id} song={song} {...sharedRowProps} onRowClick={(id) => router.push(`/dashboard/songs/${id}`)} />
+                    <SongDesktopRow key={song.id} song={song} {...sharedRowProps} />
                   ))}
                 </div>
               </div>

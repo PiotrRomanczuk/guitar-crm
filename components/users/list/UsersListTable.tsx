@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   Table,
   TableBody,
@@ -27,6 +26,7 @@ interface UserProfile {
   id: string;
   user_id: string | null;
   email: string | null;
+  full_name: string | null;
   firstName: string | null;
   lastName: string | null;
   username: string | null;
@@ -51,13 +51,30 @@ function getRoleDisplay(user: UserProfile): string {
   return roles.length > 0 ? roles.join(', ') : 'No Role';
 }
 
-function getInitials(firstName: string | null, lastName: string | null): string {
-  return ((firstName?.[0] || '') + (lastName?.[0] || '')).toUpperCase() || '?';
+function getDisplayName(user: UserProfile): string {
+  // Prefer separate first/last name fields
+  const name = [user.firstName, user.lastName].filter(Boolean).join(' ');
+  if (name) return name;
+  // Fall back to full_name (single column, e.g. "Jan Kowalski")
+  if (user.full_name) return user.full_name;
+  if (user.username) return user.username;
+  // Last resort: local part of the email
+  return user.email?.split('@')[0] ?? 'Unknown';
+}
+
+function getInitials(user: UserProfile): string {
+  const parts = [user.firstName, user.lastName].filter(Boolean);
+  if (parts.length > 0) {
+    return parts.map((p) => p![0]).join('').toUpperCase();
+  }
+  if (user.full_name) {
+    const words = user.full_name.trim().split(/\s+/);
+    return words.map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+  }
+  return (user.email?.[0] ?? '?').toUpperCase();
 }
 
 export default function UsersListTable({ users, onDelete }: UsersListTableProps) {
-  const router = useRouter();
-
   if (users.length === 0) {
     return (
       <EmptyState
@@ -80,16 +97,16 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
               <div className="flex items-center gap-3 min-w-0">
                 <Avatar className="h-8 w-8 flex-shrink-0">
                   <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
-                    {getInitials(user.firstName, user.lastName)}
+                    {getInitials(user)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
                   <p className="font-medium text-sm truncate">
-                    {user.firstName && user.lastName
-                      ? `${user.firstName} ${user.lastName}`
-                      : user.username || 'N/A'}
+                    {getDisplayName(user)}
                   </p>
-                  <p className="text-xs text-muted-foreground truncate">{user.email || '(no email)'}</p>
+                  {(user.firstName || user.lastName || user.full_name || user.username) && (
+                    <p className="text-xs text-muted-foreground truncate">{user.email || '(no email)'}</p>
+                  )}
                 </div>
               </div>
               <DropdownMenu>
@@ -167,14 +184,18 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                 <TableRow
                   key={user.id}
                   data-testid={`user-row-${user.id}`}
-                  className="hover:bg-muted/50 transition-colors cursor-pointer"
-                  onClick={() => router.push(`/dashboard/users/${user.id}`)}
+                  className="relative hover:bg-muted/50 transition-colors"
                 >
-                  <TableCell>
+                  <TableCell className="relative">
+                    <Link
+                      href={`/dashboard/users/${user.id}`}
+                      className="absolute inset-0 z-0"
+                      aria-label={`View ${getDisplayName(user)}`}
+                    />
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
                         <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
-                          {getInitials(user.firstName, user.lastName)}
+                          {getInitials(user)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
@@ -207,7 +228,7 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                       )}
                     </div>
                   </TableCell>
-                  <TableCell onClick={(e) => e.stopPropagation()}>
+                  <TableCell className="relative z-10" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-11 w-11 sm:h-8 sm:w-8">

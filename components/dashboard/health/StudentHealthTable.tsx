@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Mail, Users, User, Clock, BookOpen } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import EmptyState from '@/components/shared/EmptyState';
 import { getHealthStatusColor, HealthStatus } from '@/lib/utils/studentHealth';
 import { formatDistanceToNow } from 'date-fns';
@@ -35,8 +34,6 @@ interface StudentHealthTableProps {
 }
 
 export function StudentHealthTable({ students, onSendMessage }: StudentHealthTableProps) {
-  const router = useRouter();
-
   if (students.length === 0) {
     return (
       <EmptyState
@@ -158,10 +155,14 @@ export function StudentHealthTable({ students, onSendMessage }: StudentHealthTab
               return (
                 <TableRow
                   key={student.id}
-                  className="hover:bg-muted/50 transition-colors cursor-pointer"
-                  onClick={() => router.push(`/dashboard/users/${student.id}`)}
+                  className="relative hover:bg-muted/50 transition-colors"
                 >
-                  <TableCell className="font-medium">
+                  <TableCell className="relative font-medium">
+                    <Link
+                      href={`/dashboard/users/${student.id}`}
+                      className="absolute inset-0 z-0"
+                      aria-label={`View ${student.name}`}
+                    />
                     <div>
                       <div className="text-foreground">{student.name}</div>
                       <div className="text-xs text-muted-foreground">{student.email}</div>
@@ -197,7 +198,7 @@ export function StudentHealthTable({ students, onSendMessage }: StudentHealthTab
                       <span className="text-xs text-muted-foreground">None</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                  <TableCell className="relative z-10 text-right" onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-end gap-1">
                       <Link href={`/dashboard/lessons?student=${student.id}`}>
                         <Button

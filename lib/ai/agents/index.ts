@@ -12,6 +12,7 @@ import { lessonNotesAgent, assignmentGeneratorAgent, postLessonSummaryAgent } fr
 import { progressInsightsAgent, adminInsightsAgent } from './analytics';
 import { songNormalizationAgent } from './song-normalization';
 import { chatAssistantAgent } from './chat';
+import { songNotesAgent } from './song-notes';
 
 // Register all agents
 export function registerAllAgents(): void {
@@ -32,6 +33,9 @@ export function registerAllAgents(): void {
 
   // Assistant agents
   registerAgent(chatAssistantAgent);
+
+  // Song content agents
+  registerAgent(songNotesAgent);
 
   // All agents registered
 }
@@ -55,6 +59,9 @@ export {
 
   // Assistant
   chatAssistantAgent,
+
+  // Song content
+  songNotesAgent,
 };
 
 // Export agent categories for organized access

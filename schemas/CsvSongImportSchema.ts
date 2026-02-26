@@ -20,6 +20,7 @@ export const CsvSongImportRequestSchema = z.object({
   studentId: z.string().uuid('Student ID must be a valid UUID'),
   rows: z.array(CsvSongRowSchema).min(1, 'At least one row is required'),
   validateOnly: z.boolean().default(false),
+  repertoireOnly: z.boolean().default(false),
 });
 
 export type CsvSongImportRequest = z.infer<typeof CsvSongImportRequestSchema>;

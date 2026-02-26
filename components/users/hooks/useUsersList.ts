@@ -5,6 +5,7 @@ interface UserProfile {
   id: string;
   user_id: string | null;
   email: string | null;
+  full_name: string | null;
   firstName: string | null;
   lastName: string | null;
   username: string | null;
