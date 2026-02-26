@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { queryClient } from '@/lib/query-client';
+import { getUserSettings, saveUserSettings } from '@/app/actions/settings';
 import type { UserSettings } from '@/schemas/SettingsSchema';
 
 const DEFAULT_SETTINGS: UserSettings = {
@@ -18,44 +19,42 @@ const DEFAULT_SETTINGS: UserSettings = {
   showLastSeen: true,
 };
 
-async function loadSettingsFromStorage(userId: string): Promise<UserSettings> {
-  try {
-    const stored = localStorage.getItem(`settings_${userId}`);
-    if (stored) {
-      return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
-    }
-  } catch (err) {
-    console.error('Failed to load settings from localStorage:', err);
+async function fetchSettingsFromServer(userId: string): Promise<UserSettings> {
+  const result = await getUserSettings(userId);
+  if (!result.success || !result.settings) {
+    console.error('Failed to fetch settings from server:', result.error);
+    return DEFAULT_SETTINGS;
   }
-  return DEFAULT_SETTINGS;
+  return result.settings;
 }
 
-async function saveSettingsToStorage(userId: string, settings: UserSettings): Promise<void> {
-  try {
-    localStorage.setItem(`settings_${userId}`, JSON.stringify(settings));
-  } catch (err) {
-    console.error('Failed to save settings to localStorage:', err);
-    throw err;
+async function persistSettingsToServer(settings: UserSettings): Promise<void> {
+  const result = await saveUserSettings(settings);
+  if (!result.success) {
+    throw new Error(result.error ?? 'Failed to save settings');
   }
 }
 
-export function useSettings() {
+export function useSettings(initialSettings?: UserSettings) {
   const { user } = useAuth();
   const [hasChanges, setHasChanges] = useState(false);
-  const [currentSettings, setCurrentSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
+  const [currentSettings, setCurrentSettings] = useState<UserSettings>(
+    initialSettings ?? DEFAULT_SETTINGS
+  );
 
-  // Fetch settings from localStorage on mount
-  const { data: settings = DEFAULT_SETTINGS, isLoading } = useQuery({
+  // Fetch settings from database on mount; use server-provided initialData when available
+  const { data: settings = initialSettings ?? DEFAULT_SETTINGS, isLoading } = useQuery({
     queryKey: ['settings', user?.id],
-    queryFn: () => (user ? loadSettingsFromStorage(user.id) : Promise.resolve(DEFAULT_SETTINGS)),
+    queryFn: () => (user ? fetchSettingsFromServer(user.id) : Promise.resolve(DEFAULT_SETTINGS)),
     enabled: !!user?.id,
     staleTime: Infinity, // Settings don't get stale; only invalidate on save
+    initialData: initialSettings,
   });
 
-  // Mutation for saving settings
+  // Mutation for saving settings to database
   const { mutate: saveSettings, isPending: saving } = useMutation({
     mutationFn: (data: UserSettings) =>
-      user ? saveSettingsToStorage(user.id, data) : Promise.reject(),
+      user ? persistSettingsToServer(data) : Promise.reject(new Error('No user')),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings', user?.id] });
       setHasChanges(false);

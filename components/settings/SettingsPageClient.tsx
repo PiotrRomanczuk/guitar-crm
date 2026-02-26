@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useSettings } from '@/components/settings/useSettings';
+import type { UserSettings } from '@/schemas/SettingsSchema';
 import { SettingsHeader } from '@/components/settings/SettingsComponents';
 import {
   NotificationsSection,
@@ -87,12 +88,14 @@ function SettingsActions({
 
 export default function SettingsPageClient({
   isGoogleConnected = false,
+  initialSettings,
 }: {
   isGoogleConnected?: boolean;
+  initialSettings?: UserSettings;
 }) {
   const router = useRouter();
   const { loading, saving, settings, hasChanges, updateSetting, saveSettings, resetSettings } =
-    useSettings();
+    useSettings(initialSettings);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -157,5 +160,3 @@ export default function SettingsPageClient({
     </div>
   );
 }
-
-// TODO: Replace localStorage persistence with a Supabase `user_settings` table; hydrate initial settings via server component props.
