@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   Music2,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -72,6 +73,8 @@ export function HorizontalNav({ user, isAdmin, isTeacher, isStudent }: Horizonta
           path: '/dashboard/assignments',
         },
         { id: 'users', label: 'Users', icon: Users, path: '/dashboard/users' },
+        { id: 'skills', label: 'Skills', icon: Zap, path: '/dashboard/skills' },
+        { id: 'cohorts', label: 'Cohorts', icon: Users, path: '/dashboard/cohorts' },
         {
           id: 'spotify-matches',
           label: 'Spotify Matches',
@@ -111,7 +114,7 @@ export function HorizontalNav({ user, isAdmin, isTeacher, isStudent }: Horizonta
   const menuItems = getMenuItems();
 
   // Split into primary nav items (always visible) and secondary (in "More" dropdown on tablet)
-  const secondaryIds = new Set(['spotify-matches', 'song-stats', 'lesson-stats', 'logs']);
+  const secondaryIds = new Set(['skills', 'cohorts', 'spotify-matches', 'song-stats', 'lesson-stats', 'logs']);
   const primaryItems = menuItems.filter((item) => !secondaryIds.has(item.id));
   const secondaryItems = menuItems.filter((item) => secondaryIds.has(item.id));
   const hasSecondaryActive = secondaryItems.some(
