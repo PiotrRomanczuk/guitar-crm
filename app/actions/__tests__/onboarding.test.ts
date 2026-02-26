@@ -28,6 +28,7 @@ jest.mock('@/lib/supabase/server', () => ({
 // Mock Admin client
 const mockAdminUpdate = jest.fn();
 const mockAdminInsert = jest.fn();
+const mockAdminUpsert = jest.fn();
 const mockAdminEq = jest.fn();
 const mockAdminFrom = jest.fn((_table: string) => {
   // Default behavior
@@ -43,6 +44,10 @@ const mockAdminFrom = jest.fn((_table: string) => {
     },
     insert: (data: unknown) => {
       mockAdminInsert(data);
+      return Promise.resolve({ error: null });
+    },
+    upsert: (data: unknown, _options?: unknown) => {
+      mockAdminUpsert(data);
       return Promise.resolve({ error: null });
     },
   };
@@ -107,6 +112,18 @@ describe('completeOnboarding', () => {
         last_name: 'Doe',
         is_student: true,
         onboarding_completed: true,
+      })
+    );
+
+    // Verify preferences were persisted
+    expect(mockAdminFrom).toHaveBeenCalledWith('user_preferences');
+    expect(mockAdminUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user_id: userId,
+        goals: validOnboardingData.goals,
+        skill_level: validOnboardingData.skillLevel,
+        learning_style: validOnboardingData.learningStyle,
+        instrument_preference: validOnboardingData.instrumentPreference,
       })
     );
 
@@ -178,7 +195,7 @@ describe('completeOnboarding', () => {
 
     expect(result).toEqual({ error: 'Unauthorized' });
     expect(mockAdminUpdate).not.toHaveBeenCalled();
-    expect(mockAdminInsert).not.toHaveBeenCalled();
+    expect(mockAdminUpsert).not.toHaveBeenCalled();
     expect(mockRedirect).not.toHaveBeenCalled();
   });
 
@@ -217,9 +234,9 @@ describe('completeOnboarding', () => {
           }),
         };
       }
-      // Won't reach user_roles due to early return
       return {
         insert: (_data: unknown) => Promise.resolve({ error: null }),
+        upsert: (_data: unknown) => Promise.resolve({ error: null }),
       };
     });
 
@@ -259,9 +276,10 @@ describe('completeOnboarding', () => {
             Promise.resolve({ error: { code: '23505', message: 'Duplicate key' } }),
         };
       }
-      // Fallback
+      // Fallback (includes user_preferences)
       return {
         insert: (_data: unknown) => Promise.resolve({ error: null }),
+        upsert: (_data: unknown) => Promise.resolve({ error: null }),
         update: (_data: unknown) => ({
           eq: (_field: string, _value: string) => Promise.resolve({ error: null }),
         }),
@@ -301,6 +319,10 @@ describe('completeOnboarding', () => {
         },
         insert: (data: unknown) => {
           mockAdminInsert(data);
+          return Promise.resolve({ error: null });
+        },
+        upsert: (data: unknown, _options?: unknown) => {
+          mockAdminUpsert(data);
           return Promise.resolve({ error: null });
         },
       };
@@ -365,7 +387,16 @@ describe('completeOnboarding', () => {
 
     await expect(completeOnboarding(customOnboardingData)).rejects.toThrow('NEXT_REDIRECT');
 
-    // Verify the profile update was called with onboarding_completed flag
-    expect(mockAdminFrom).toHaveBeenCalled();
+    // Verify preferences were persisted with correct data
+    expect(mockAdminFrom).toHaveBeenCalledWith('user_preferences');
+    expect(mockAdminUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user_id: userId,
+        goals: ['Master fingerpicking', 'Write songs'],
+        skill_level: 'intermediate',
+        learning_style: ['audio', 'practice'],
+        instrument_preference: ['electric-guitar', 'bass'],
+      })
+    );
   });
 });
