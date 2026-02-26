@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user has permission to create lessons (using user_roles)
-    const { data: roles, error: rolesError } = await supabase
+    const { data: roles, error: _rolesError } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id);
