@@ -16,7 +16,7 @@ interface Props {
   lessons: LessonWithProfiles[];
   role: 'admin' | 'teacher' | 'student';
   baseUrl?: string; // e.g., '/dashboard/lessons', '/teacher/lessons', '/student/lessons'
-  onDeleteSuccess?: () => void;
+  onDeleteSuccess?: (deletedId: string) => void;
 }
 
 export default function LessonTable({

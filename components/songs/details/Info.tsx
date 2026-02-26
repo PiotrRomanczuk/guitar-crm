@@ -1,15 +1,17 @@
+import Link from 'next/link';
 import type { Song } from '../types';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   ExternalLink,
+  Guitar,
   Music2,
   Mic2,
   Tag,
   Clock,
   Calendar,
   Timer,
+  Waves,
 } from 'lucide-react';
-import { StrummingPatternDisplay } from '@/components/songs/strumming/StrummingPatternDisplay';
 import { Button } from '@/components/ui/button';
 
 interface Props {
@@ -116,13 +118,33 @@ export default function SongDetailInfo({ song }: Props) {
       </div>
 
       {song.strumming_pattern && (
-        <StrummingPatternDisplay pattern={song.strumming_pattern} />
+        <Card className="bg-card border-border/50 shadow-sm">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-full">
+              <Waves className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Strumming</p>
+              <p className="text-lg font-semibold mt-0.5">{song.strumming_pattern}</p>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {song.chords && (
         <Card className="bg-card border-border/50 shadow-sm">
           <CardContent className="p-6">
-            <p className="font-medium mb-3 text-muted-foreground">Chords</p>
+            <div className="flex items-center justify-between mb-3">
+              <p className="font-medium text-muted-foreground">Chords</p>
+              {song.key && (
+                <Link href={`/dashboard/fretboard?key=${encodeURIComponent(song.key)}`}>
+                  <Button variant="outline" size="sm">
+                    <Guitar className="w-4 h-4 mr-2" />
+                    View on Fretboard
+                  </Button>
+                </Link>
+              )}
+            </div>
             <div className="p-4 bg-muted/50 rounded-lg font-mono text-sm">{song.chords}</div>
           </CardContent>
         </Card>

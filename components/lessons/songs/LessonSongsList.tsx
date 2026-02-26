@@ -1,7 +1,10 @@
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 import { LessonSongSelector } from './LessonSongSelector';
 import { LessonSongStatusSelect } from './LessonSongStatusSelect';
 import { Database } from '@/database.types';
+
+type LessonSongStatus = Database['public']['Enums']['lesson_song_status'];
 
 interface Song {
   id: string;
@@ -11,7 +14,7 @@ interface Song {
 
 interface LessonSong {
   id: string;
-  status: Database['public']['Enums']['lesson_song_status'];
+  status: LessonSongStatus;
   song: Song | null;
 }
 
@@ -19,6 +22,43 @@ interface LessonSongsListProps {
   lessonId: string;
   lessonSongs: LessonSong[];
   canEdit: boolean;
+}
+
+const statusConfig: Record<LessonSongStatus, { label: string; className: string }> = {
+  to_learn: {
+    label: 'To Learn',
+    className: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+  },
+  started: {
+    label: 'Started',
+    className: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+  },
+  remembered: {
+    label: 'Remembered',
+    className: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
+  },
+  with_author: {
+    label: 'With Author',
+    className: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+  },
+  mastered: {
+    label: 'Mastered',
+    className: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+  },
+};
+
+function SongStatusBadge({ status }: { status: LessonSongStatus }) {
+  const config = statusConfig[status] || statusConfig.to_learn;
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
+        config.className
+      )}
+    >
+      {config.label}
+    </span>
+  );
 }
 
 export function LessonSongsList({ lessonId, lessonSongs, canEdit }: LessonSongsListProps) {
@@ -44,13 +84,15 @@ export function LessonSongsList({ lessonId, lessonSongs, canEdit }: LessonSongsL
                   <p className="font-medium text-foreground truncate">{ls.song.title}</p>
                   <p className="text-sm text-muted-foreground truncate">{ls.song.author}</p>
                 </div>
-                <div className="flex items-center gap-4">
-                  {canEdit && (
+                <div className="flex items-center gap-2 sm:gap-4">
+                  {canEdit ? (
                     <LessonSongStatusSelect
                       lessonId={lessonId}
                       songId={ls.song.id}
                       currentStatus={ls.status}
                     />
+                  ) : (
+                    <SongStatusBadge status={ls.status} />
                   )}
                   <Link
                     href={`/dashboard/songs/${ls.song.id}`}
