@@ -41,7 +41,7 @@ export async function GET(request: Request) {
     if (isStudent && !isAdmin && !isTeacher) {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, email, full_name, first_name, last_name, is_admin, is_teacher, is_student, is_shadow, is_active, student_status, created_at, updated_at')
+        .select('id, email, full_name, is_admin, is_teacher, is_student, is_shadow, is_active, student_status, created_at, updated_at')
         .eq('id', user.id)
         .single();
 
@@ -52,8 +52,8 @@ export async function GET(request: Request) {
       const mapped = {
         id: data.id,
         email: maskShadowEmail(data.email),
-        firstName: data.first_name || '',
-        lastName: data.last_name || '',
+        firstName: null,
+        lastName: null,
         full_name: data.full_name,
         isAdmin: data.is_admin,
         isTeacher: data.is_teacher,
@@ -97,7 +97,7 @@ export async function GET(request: Request) {
     // Build query
     let query = supabase
       .from('profiles')
-      .select('id, email, full_name, first_name, last_name, is_admin, is_teacher, is_student, is_shadow, is_active, student_status, created_at, updated_at', { count: 'exact' });
+      .select('id, email, full_name, is_admin, is_teacher, is_student, is_shadow, is_active, student_status, created_at, updated_at', { count: 'exact' });
 
     // For teachers, restrict to their students only
     if (allowedStudentIds !== null) {
@@ -191,8 +191,8 @@ export async function GET(request: Request) {
       return {
         id: profile.id,
         email: maskShadowEmail(profile.email),
-        firstName: profile.first_name || '',
-        lastName: profile.last_name || '',
+        firstName: null,
+        lastName: null,
         full_name: profile.full_name,
         isAdmin: profile.is_admin,
         isTeacher: profile.is_teacher,

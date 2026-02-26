@@ -49,6 +49,7 @@ export type SongFormData = {
   time_signature: number | null;
   duration_ms: number | null;
   release_year: number | null;
+  notes: string;
 };
 
 const FORM_DEFAULTS: SongFormData = {
@@ -71,6 +72,7 @@ const FORM_DEFAULTS: SongFormData = {
   time_signature: null,
   duration_ms: null,
   release_year: null,
+  notes: '',
 };
 
 /**
@@ -98,5 +100,6 @@ export function createFormData(song?: Song | null): SongFormData {
     time_signature: song?.time_signature ?? null,
     duration_ms: song?.duration_ms ?? null,
     release_year: song?.release_year ?? null,
+    notes: song?.notes || '',
   };
 }

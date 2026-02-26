@@ -23,6 +23,7 @@ export const SongSchema = z.object({
   duration_ms: z.number().int().min(0).optional().nullable(),
   release_year: z.number().int().min(1500).max(2100).optional().nullable(),
   short_title: z.string().max(50, 'Short title too long').optional(),
+  notes: z.string().optional().nullable(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
 });
@@ -48,6 +49,7 @@ export const SongInputSchema = z.object({
   duration_ms: z.number().int().min(0).optional().nullable(),
   release_year: z.number().int().min(1500).max(2100).optional().nullable(),
   short_title: z.string().max(50, 'Short title too long').optional(),
+  notes: z.string().optional().nullable(),
 });
 
 // Song draft schema (minimal validation for quick capture)

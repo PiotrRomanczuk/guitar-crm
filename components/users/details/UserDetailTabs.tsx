@@ -11,7 +11,7 @@ import UserAssignments from './UserAssignments';
 import UserRepertoireTab from './UserRepertoireTab';
 import type { StudentRepertoireWithSong } from '@/types/StudentRepertoire';
 
-interface Lesson {
+export interface Lesson {
   id: string;
   lesson_teacher_number: number | null;
   lesson_number: number | null;
@@ -21,7 +21,7 @@ interface Lesson {
   teacher: { full_name: string } | null;
 }
 
-interface Assignment {
+export interface Assignment {
   id: string;
   title: string | null;
   description: string | null;

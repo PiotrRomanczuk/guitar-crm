@@ -18,6 +18,7 @@ interface PreviewStepProps {
   results: CsvSongImportRowResult[];
   isLoading: boolean;
   error: string | null;
+  repertoireOnly?: boolean;
   onImport: () => void;
   onBack: () => void;
 }
@@ -54,7 +55,7 @@ function MatchBadge({ status, score, matchedTitle }: {
   }
 }
 
-export function PreviewStep({ results, isLoading, error, onImport, onBack }: PreviewStepProps) {
+export function PreviewStep({ results, isLoading, error, repertoireOnly, onImport, onBack }: PreviewStepProps) {
   const matched = results.filter((r) => r.matchStatus === 'matched').length;
   const lowConf = results.filter((r) => r.matchStatus === 'low_confidence').length;
   const newSongs = results.filter((r) => r.matchStatus === 'new').length;
@@ -84,7 +85,9 @@ export function PreviewStep({ results, isLoading, error, onImport, onBack }: Pre
               <TableRow key={i} className={!row.success ? 'bg-destructive/5' : ''}>
                 <TableCell className="text-sm">
                   {row.date || (
-                    <span>{getTodayEuropeanDate()} <span className="text-muted-foreground">(today)</span></span>
+                    repertoireOnly
+                      ? <span className="text-muted-foreground italic">Repertoire</span>
+                      : <span>{getTodayEuropeanDate()} <span className="text-muted-foreground">(today)</span></span>
                   )}
                 </TableCell>
                 <TableCell className="font-medium text-sm">{row.title}</TableCell>

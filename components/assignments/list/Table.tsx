@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import type { Assignment } from '@/components/assignments/hooks';
 import {
   AssignmentCard,
@@ -105,12 +105,7 @@ function groupAssignments(assignments: Assignment[]) {
  * Assignment list with card view for mobile and table view for desktop
  */
 export function Table({ assignments }: TableProps) {
-  const router = useRouter();
   const grouped = useMemo(() => groupAssignments(assignments), [assignments]);
-
-  const handleRowClick = (id: string) => {
-    router.push(`/dashboard/assignments/${id}`);
-  };
 
   return (
     <>
@@ -224,10 +219,14 @@ export function Table({ assignments }: TableProps) {
             {assignments.map((assignment) => (
               <TableRow
                 key={assignment.id}
-                onClick={() => handleRowClick(assignment.id)}
-                className="cursor-pointer hover:bg-muted/50 transition-colors"
+                className="relative hover:bg-muted/50 transition-colors"
               >
-                <TableCell>
+                <TableCell className="relative">
+                  <Link
+                    href={`/dashboard/assignments/${assignment.id}`}
+                    className="absolute inset-0 z-0"
+                    aria-label={`View ${assignment.title}`}
+                  />
                   <div className="flex flex-col">
                     <span className="font-medium">{assignment.title}</span>
                     {assignment.description && (

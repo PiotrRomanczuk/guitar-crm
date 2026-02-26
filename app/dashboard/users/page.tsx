@@ -9,6 +9,39 @@ export const metadata = {
   description: 'Manage users in the system',
 };
 
+interface ProfileRow {
+  id: string;
+  email: string | null;
+  full_name: string | null;
+  is_admin: boolean;
+  is_teacher: boolean;
+  is_student: boolean;
+  is_active: boolean | null;
+  is_shadow: boolean | null;
+  created_at: string | null;
+}
+
+function toUserProfile(row: ProfileRow) {
+  return {
+    id: row.id,
+    user_id: null,
+    email: row.email,
+    full_name: row.full_name ?? null,
+    firstName: null,
+    lastName: null,
+    username: null,
+    isAdmin: row.is_admin ?? false,
+    isTeacher: row.is_teacher ?? false,
+    isStudent: row.is_student ?? false,
+    isActive: row.is_active ?? true,
+    isRegistered: !row.is_shadow,
+    created_at: row.created_at,
+  };
+}
+
+const PROFILE_FIELDS =
+  'id, email, full_name, is_admin, is_teacher, is_student, is_active, is_shadow, created_at';
+
 async function fetchInitialUsers() {
   const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
 
@@ -22,14 +55,14 @@ async function fetchInitialUsers() {
   if (isStudent && !isAdmin && !isTeacher) {
     const { data } = await supabase
       .from('profiles')
-      .select('*')
+      .select(PROFILE_FIELDS)
       .eq('id', user.id)
       .single();
-    return data ? [data] : [];
+    return data ? [toUserProfile(data as ProfileRow)] : [];
   }
 
   // Teacher: see students from active lessons
-  let query = supabase.from('profiles').select('*');
+  let query = supabase.from('profiles').select(PROFILE_FIELDS);
 
   if (isTeacher && !isAdmin) {
     const { data: lessonData } = await supabase
@@ -49,10 +82,9 @@ async function fetchInitialUsers() {
     query = query.in('id', allowedStudentIds);
   }
 
-  // Fetch initial users (first 50, no filters)
   const { data } = await query.limit(50);
 
-  return data || [];
+  return (data ?? []).map((row) => toUserProfile(row as ProfileRow));
 }
 
 export default async function UsersPage() {

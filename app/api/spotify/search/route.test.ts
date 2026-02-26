@@ -62,13 +62,15 @@ describe('Spotify Search API', () => {
     expect(response.status).toBe(200);
     const data = await response.json();
 
-    expect(data.tracks).toHaveLength(1);
-    expect(data.tracks[0]).toEqual({
+    expect(data.results).toHaveLength(1);
+    expect(data.results[0]).toEqual({
       id: 'track1',
       name: 'Wonderwall',
       artist: 'Oasis',
       album: "(What's The Story) Morning Glory?",
-      image: 'image-url',
+      url: 'spotify-url',
+      coverUrl: 'image-url',
+      duration_ms: 258000,
       release_date: '1995-10-02',
     });
   });

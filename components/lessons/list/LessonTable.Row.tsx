@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import { formatDate, formatTime } from './LessonTable.helpers';
 import { TableCell, TableRow } from '@/components/ui/table';
@@ -17,7 +16,6 @@ interface Props {
 }
 
 export default function LessonTableRow({ lesson, showTeacherColumn, showActions, baseUrl }: Props) {
-  const router = useRouter();
   const songs = lesson.lesson_songs?.map((ls) => ls.song?.title).filter(Boolean) || [];
   const assignments = lesson.assignments?.map((a) => a.title) || [];
   const hasContent = songs.length > 0 || assignments.length > 0;
@@ -30,11 +28,15 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
 
   return (
     <TableRow
-      className="group hover:bg-secondary/50 border-border transition-colors cursor-pointer"
+      className="relative group hover:bg-secondary/50 border-border transition-colors"
       data-testid="lesson-row"
-      onClick={() => router.push(`${baseUrl}/${lesson.id}`)}
     >
       <TableCell className="relative font-medium">
+        <Link
+          href={`${baseUrl}/${lesson.id}`}
+          className="absolute inset-0 z-0"
+          aria-label={`View ${lesson.title || 'lesson'}`}
+        />
         <div className="text-foreground">
           {lesson.title || 'Untitled Lesson'}
         </div>
@@ -96,7 +98,7 @@ export default function LessonTableRow({ lesson, showTeacherColumn, showActions,
         </StatusBadge>
       </TableCell>
       {showActions && (
-        <TableCell onClick={(e) => e.stopPropagation()}>
+        <TableCell className="relative z-10" onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="sm" asChild>
             <Link href={`${baseUrl}/${lesson.id}`}>
               <Eye className="h-4 w-4 mr-1" />

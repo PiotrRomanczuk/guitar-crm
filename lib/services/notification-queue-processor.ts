@@ -203,10 +203,10 @@ export async function retryFailedNotifications(): Promise<{ retried: number; fai
           continue;
         }
 
-        // Get recipient info (include role for student email kill switch)
+        // Get recipient info (include is_student for student email kill switch)
         const { data: recipient } = await supabase
           .from('profiles')
-          .select('id, email, full_name, role')
+          .select('id, email, full_name, is_student')
           .eq('id', notification.recipient_user_id)
           .single();
 
@@ -215,7 +215,7 @@ export async function retryFailedNotifications(): Promise<{ retried: number; fai
         }
 
         // Student email kill switch: skip retry for students when emails disabled
-        if (recipient.role === 'student' && !isStudentEmailEnabled()) {
+        if (recipient.is_student && !isStudentEmailEnabled()) {
           logInfo(`Skipping retry for student notification ${notification.id} — student emails disabled`);
           await updateNotificationRetry(notification.id, 'failed', notification.retry_count + 1, 'Student emails disabled');
           failed++;
