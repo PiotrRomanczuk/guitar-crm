@@ -29,12 +29,19 @@ export interface Assignment {
   status: string | null;
 }
 
+interface ParentInfo {
+  id: string;
+  full_name: string | null;
+  email: string;
+}
+
 interface UserDetailTabsProps {
   userId: string;
   activeTab: string;
   lessons: Lesson[];
   assignments: Assignment[];
   repertoire: StudentRepertoireWithSong[];
+  parentProfile?: ParentInfo | null;
 }
 
 const TAB_CONFIG = [
@@ -50,6 +57,7 @@ export function UserDetailTabs({
   lessons,
   assignments,
   repertoire,
+  parentProfile,
 }: UserDetailTabsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -82,6 +90,7 @@ export function UserDetailTabs({
           lessons={lessons}
           repertoire={repertoire}
           assignments={assignments}
+          parentProfile={parentProfile}
         />
       </TabsContent>
 

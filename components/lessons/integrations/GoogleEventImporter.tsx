@@ -66,10 +66,10 @@ export function GoogleEventImporter({ userEmail }: GoogleEventImporterProps) {
     const toImport: ImportEvent[] = events
       .filter((e) => selected.has(e.id))
       .map((e) => {
-        // Find the attendee that is NOT the user (teacher)
-        // If multiple attendees, prefer the one that isn't the current user
-        const studentAttendee = e.attendees?.find(a => a.email.toLowerCase() !== userEmail.toLowerCase()) || e.attendees?.[0];
+        const nonTeacherAttendees =
+          e.attendees?.filter((a) => a.email.toLowerCase() !== userEmail.toLowerCase()) ?? [];
 
+        const primaryAttendee = nonTeacherAttendees[0] ?? e.attendees?.[0];
         const cleanName = (name: string) => name.replace(/\$\$\$\s*/g, '').trim();
 
         return {
@@ -77,8 +77,9 @@ export function GoogleEventImporter({ userEmail }: GoogleEventImporterProps) {
           title: e.summary,
           notes: e.description,
           startTime: e.start.dateTime,
-          attendeeEmail: studentAttendee?.email || '',
-          attendeeName: studentAttendee?.displayName ? cleanName(studentAttendee.displayName) : '',
+          attendeeEmail: primaryAttendee?.email || '',
+          allAttendeeEmails: nonTeacherAttendees.map((a) => a.email),
+          attendeeName: primaryAttendee?.displayName ? cleanName(primaryAttendee.displayName) : '',
         };
       })
       .filter((e) => e.attendeeEmail); // Only import if email exists
@@ -168,7 +169,10 @@ export function GoogleEventImporter({ userEmail }: GoogleEventImporterProps) {
             </TableHeader>
             <TableBody>
               {events.map((event) => {
-                const attendee = event.attendees?.[0];
+                const attendee =
+                  event.attendees?.find(
+                    (a) => a.email.toLowerCase() !== userEmail.toLowerCase()
+                  ) ?? event.attendees?.[0];
                 const hasAttendee = !!attendee?.email;
 
                 return (
