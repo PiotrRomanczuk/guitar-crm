@@ -2,6 +2,8 @@ import { SongList } from '@/components/songs';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { redirect } from 'next/navigation';
 import { StudentSongsPageClient } from '@/components/songs/student/StudentSongsPageClient';
+import { SongRequestButton } from '@/components/songs/requests/SongRequestButton';
+import { SongRequestQueue } from '@/components/songs/requests/SongRequestQueue';
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -24,7 +26,7 @@ export default async function SongsPage(props: Props) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
-    
+
     const { data: lessonSongs, error } = await supabaseAdmin
       .from('lesson_songs')
       .select(
@@ -75,13 +77,21 @@ export default async function SongsPage(props: Props) {
         status: lessonSong.status,
         } as Song);
     });
-    
-    return <StudentSongsPageClient />;
+
+    return (
+      <div>
+        <StudentSongsPageClient />
+        <div className="px-4 sm:px-8 pb-8">
+          <SongRequestButton />
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-7xl">
+    <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-7xl space-y-8">
       <SongList searchParams={searchParams} />
+      <SongRequestQueue />
     </div>
   );
 }
