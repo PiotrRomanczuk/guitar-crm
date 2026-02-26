@@ -83,10 +83,19 @@ export function useAssignmentList(filters?: AssignmentListFilters) {
     }
   };
 
+  /**
+   * Optimistically remove an assignment from local state by ID.
+   * Call this after a successful delete API call for instant UI update.
+   */
+  const removeAssignment = (deletedId: string) => {
+    setAssignments((prev) => prev.filter((a) => a.id !== deletedId));
+  };
+
   return {
     assignments,
     isLoading,
     error,
     refresh,
+    removeAssignment,
   };
 }

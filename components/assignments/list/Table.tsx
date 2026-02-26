@@ -20,6 +20,7 @@ import { isThisWeek, isPast, startOfToday } from 'date-fns';
 
 interface TableProps {
   assignments: Assignment[];
+  onDeleteSuccess?: (deletedId: string) => void;
 }
 
 /**
@@ -104,7 +105,7 @@ function groupAssignments(assignments: Assignment[]) {
 /**
  * Assignment list with card view for mobile and table view for desktop
  */
-export function Table({ assignments }: TableProps) {
+export function Table({ assignments, onDeleteSuccess: _onDeleteSuccess }: TableProps) {
   const grouped = useMemo(() => groupAssignments(assignments), [assignments]);
 
   return (

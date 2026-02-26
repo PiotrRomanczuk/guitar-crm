@@ -25,11 +25,16 @@ export default function AssignmentList({ canCreate = false }: AssignmentListProp
   const status = searchParams.get('status') || '';
   const studentId = searchParams.get('studentId') || '';
 
-  const { assignments, isLoading, error } = useAssignmentList({
+  const { assignments, isLoading, error, removeAssignment } = useAssignmentList({
     search,
     status,
     student_id: studentId,
   });
+
+  // Handler for optimistic delete -- call removeAssignment(id) after successful API delete
+  const handleDeleteSuccess = (deletedId: string) => {
+    removeAssignment(deletedId);
+  };
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -95,7 +100,7 @@ export default function AssignmentList({ canCreate = false }: AssignmentListProp
       ) : assignments.length === 0 ? (
         <Empty />
       ) : (
-        <Table assignments={assignments} />
+        <Table assignments={assignments} onDeleteSuccess={handleDeleteSuccess} />
       )}
     </div>
   );

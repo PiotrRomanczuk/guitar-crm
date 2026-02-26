@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import Header from '@/components/navigation/Header';
 import { HorizontalNav } from '@/components/navigation/HorizontalNav';
@@ -7,6 +8,7 @@ import { AppSidebar } from '@/components/navigation/AppSidebar';
 import { Toaster } from 'sonner';
 import { getSupabaseConfig } from '@/lib/supabase/config';
 import { MobileBottomNav } from '@/components/navigation/MobileBottomNav';
+import { MobileMoreMenu } from '@/components/navigation/MobileMoreMenu';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { useLayoutMode } from '@/hooks/use-is-widescreen';
 import { useKeyboardViewport } from '@/hooks/use-keyboard-viewport';
@@ -24,6 +26,8 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
   const pathname = usePathname();
   const layoutMode = useLayoutMode();
   useKeyboardViewport();
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const openMoreMenu = useCallback(() => setMoreMenuOpen(true), []);
 
   // Hide sidebar on auth pages even if user data is present (e.g. stale state during logout)
   const isAuthPage = ['/sign-in', '/sign-up', '/auth/login', '/auth/register'].includes(
@@ -100,8 +104,20 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
   return (
     <>
       <HorizontalNav user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
-      <main className="pt-16 pb-24 md:pb-0 min-h-screen bg-background">{children}</main>
-      <MobileBottomNav />
+      <main className="pt-16 pb-16 md:pb-0 min-h-screen bg-background">{children}</main>
+      <MobileBottomNav
+        isAdmin={isAdmin}
+        isTeacher={isTeacher}
+        isStudent={isStudent}
+        onOpenSidebar={openMoreMenu}
+      />
+      <MobileMoreMenu
+        open={moreMenuOpen}
+        onOpenChange={setMoreMenuOpen}
+        isAdmin={isAdmin}
+        isTeacher={isTeacher}
+        isStudent={isStudent}
+      />
       <Toaster />
     </>
   );

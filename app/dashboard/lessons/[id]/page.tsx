@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import { Database } from '@/database.types';
 
-import { LessonSongsList, LessonDetailsCard, LessonAssignmentsList } from '@/components/lessons';
+import { LessonSongsList, LessonDetailsCard, LessonAssignmentsList, PostLessonPrompt } from '@/components/lessons';
 import { StudentLessonDetailPageClient } from '@/components/lessons/student/StudentLessonDetailPageClient';
 import { HistoryTimeline } from '@/components/shared/HistoryTimeline';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -152,6 +152,23 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
               canEdit={canEdit}
             />
           </Suspense>
+
+          {lesson.status === 'COMPLETED' && lesson.lesson_songs.length > 0 && (
+            <PostLessonPrompt
+              lessonId={lesson.id!}
+              studentId={lesson.student_id}
+              studentName={
+                lesson.profile?.full_name || lesson.profile?.email || 'Student'
+              }
+              songs={lesson.lesson_songs
+                .filter((ls) => ls.song !== null)
+                .map((ls) => ({
+                  id: ls.song!.id,
+                  title: ls.song!.title,
+                  status: ls.status || 'to_learn',
+                }))}
+            />
+          )}
         </div>
 
         <div className="lg:col-span-1">

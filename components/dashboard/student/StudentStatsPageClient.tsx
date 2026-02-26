@@ -15,8 +15,10 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import { BookOpen, Music, ClipboardList, TrendingUp, Calendar, Award, Target } from 'lucide-react';
+import { BookOpen, Music, ClipboardList, TrendingUp, Calendar, Target } from 'lucide-react';
 import { format } from 'date-fns';
+import { EmptyState } from '@/components/ui/empty-state';
+import { AchievementsCard } from './AchievementsCard';
 
 interface StudentStatsPageClientProps {
   stats: {
@@ -61,23 +63,18 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
     value: count,
   }));
 
-  // Weekly lesson activity (mock data based on recent lessons)
+  // Weekly lesson activity (real data only)
   const weeklyActivity = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (6 - i));
     const dayName = format(date, 'EEE');
 
-    // Check if there are lessons on this day
     const lessonsOnDay = stats.recentLessons.filter((lesson) => {
       const lessonDate = new Date(lesson.scheduled_at);
       return lessonDate.toDateString() === date.toDateString();
     }).length;
 
-    return {
-      name: dayName,
-      lessons: lessonsOnDay,
-      practice: 45 + (i % 4) * 5, // Deterministic mock practice minutes (45-60)
-    };
+    return { name: dayName, lessons: lessonsOnDay };
   });
 
   return (
@@ -182,7 +179,6 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="lessons" fill="#8884d8" name="Lessons" />
-                  <Bar dataKey="practice" fill="#82ca9d" name="Practice (min)" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -224,8 +220,13 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                <p>No song progress data available yet</p>
+              <div className="h-[300px] flex items-center justify-center">
+                <EmptyState
+                  icon={Music}
+                  title="No song progress yet"
+                  message="Songs from your lessons will appear here as you learn them"
+                  className="py-0"
+                />
               </div>
             )}
           </CardContent>
@@ -276,45 +277,12 @@ export function StudentStatsPageClient({ stats }: StudentStatsPageClientProps) {
         </Card>
       </div>
 
-      {/* Achievement Preview */}
-      <Card
-        className="mt-8 opacity-0 animate-fade-in"
-        style={{ animationDelay: '800ms', animationFillMode: 'forwards' }}
-      >
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Award className="w-5 h-5" />
-            Achievements
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="text-center p-4 rounded-lg bg-muted/50">
-              <div className="text-2xl mb-2">🎸</div>
-              <p className="font-medium">First Strum</p>
-              <p className="text-sm text-muted-foreground">
-                {stats.completedLessons > 0 ? 'Completed!' : 'Complete your first lesson'}
-              </p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-muted/50">
-              <div className="text-2xl mb-2">📚</div>
-              <p className="font-medium">Song Collector</p>
-              <p className="text-sm text-muted-foreground">
-                {stats.totalSongs >= 10 ? 'Completed!' : `${stats.totalSongs}/10 songs`}
-              </p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-muted/50">
-              <div className="text-2xl mb-2">⭐</div>
-              <p className="font-medium">Star Student</p>
-              <p className="text-sm text-muted-foreground">
-                {stats.assignmentCompletionRate === 100
-                  ? 'Completed!'
-                  : `${stats.assignmentCompletionRate}% completion`}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <AchievementsCard
+        completedLessons={stats.completedLessons}
+        totalSongs={stats.totalSongs}
+        assignmentCompletionRate={stats.assignmentCompletionRate}
+        recentLessons={stats.recentLessons}
+      />
     </div>
   );
 }

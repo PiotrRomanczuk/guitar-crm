@@ -1,6 +1,7 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { CheckCircle2 } from 'lucide-react';
 import LessonListHeader from './LessonList.Header';
 import LessonTable from './LessonTable';
@@ -22,16 +23,22 @@ export function LessonListClient({
   students,
   teachers,
 }: LessonListClientProps) {
-  const _router = useRouter();
   const searchParams = useSearchParams();
+
+  // Local state for optimistic updates (instant UI response on delete)
+  const [lessons, setLessons] = useState(initialLessons);
+
+  // Sync local state when server props change (e.g., after filtering/navigation)
+  useEffect(() => {
+    setLessons(initialLessons);
+  }, [initialLessons]);
 
   // Check if we should show success message
   const showSuccess = searchParams.get('created') === 'true';
 
-  const handleDeleteSuccess = () => {
-    // Note: Removed router.refresh() to prevent table restart
-    // The table will update on next navigation or manual refresh
-  };
+  const handleDeleteSuccess = useCallback((deletedId: string) => {
+    setLessons((prev) => prev.filter((lesson) => lesson.id !== deletedId));
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -53,7 +60,7 @@ export function LessonListClient({
       />
 
       <LessonTable
-        lessons={initialLessons}
+        lessons={lessons}
         role={role}
         baseUrl="/dashboard/lessons"
         onDeleteSuccess={handleDeleteSuccess}

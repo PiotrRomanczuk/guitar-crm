@@ -116,7 +116,7 @@ export default function AssignmentsList() {
       });
 
       if (!response.ok) throw new Error('Failed to delete');
-      setAssignments(assignments.filter((a) => a.id !== assignmentToDelete));
+      setAssignments((prev) => prev.filter((a) => a.id !== assignmentToDelete));
       setAssignmentToDelete(null);
     } catch (err) {
       console.error(err);

@@ -19,14 +19,14 @@ export function QuickActionsSection({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {(isTeacher || isAdmin) && (
             <>
-              <Link href="/dashboard/lessons">
+              <Link href="/dashboard/lessons/new">
                 <QuickActionButton
                   emoji={<Calendar className="w-5 h-5 mr-2" />}
                   title="Schedule Lesson"
                   description="Create a new lesson with a student"
                 />
               </Link>
-              <Link href="/dashboard/users">
+              <Link href="/dashboard/users/new">
                 <QuickActionButton
                   emoji={<UserPlus className="w-5 h-5 mr-2" />}
                   title="Add Student"
@@ -35,7 +35,7 @@ export function QuickActionsSection({
               </Link>
             </>
           )}
-          <Link href="/dashboard/songs">
+          <Link href="/dashboard/songs/new">
             <QuickActionButton
               emoji={<Music className="w-5 h-5 mr-2" />}
               title="Add Song"

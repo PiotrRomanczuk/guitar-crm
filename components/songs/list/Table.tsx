@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import DeleteConfirmationDialog from '../actions/DeleteConfirmationDialog';
 import QuickAssignDialog from './QuickAssignDialog';
@@ -17,7 +18,7 @@ type SortDirection = 'asc' | 'desc';
 interface Props {
   songs: (Song | SongWithStatus)[];
   canDelete?: boolean;
-  onDeleteSuccess?: () => void;
+  onDeleteSuccess?: (deletedSongId: string) => void;
   selectedStudentId?: string;
   selectedIds?: Set<string>;
   onToggleSelect?: (id: string) => void;
@@ -43,6 +44,7 @@ export default function SongListTable({
   sortDirection = 'desc',
   onSort,
 }: Props) {
+  const router = useRouter();
   const [deletingSongId, setDeletingSongId] = useState<string | null>(null);
   const [songToDelete, setSongToDelete] = useState<Song | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -92,9 +94,10 @@ export default function SongListTable({
       if (!result.success) {
         throw new Error(result.error || 'Failed to delete song');
       }
+      const deletedId = songToDelete.id;
       setSongToDelete(null);
       setDeletingSongId(null);
-      onDeleteSuccess?.();
+      onDeleteSuccess?.(deletedId);
     } catch (error) {
       console.error('Delete failed:', error);
       setDeleteError(error instanceof Error ? error.message : 'Failed to delete song');
@@ -108,7 +111,8 @@ export default function SongListTable({
     setDeleteError(null);
   };
 
-  const sharedRowProps = { canDelete, selectedStudentId, selectedIds, onToggleSelect, deletingSongId, checkingId, onDeleteClick: handleDeleteClick, onAssignClick: setAssignDialogSong };
+  const handleRowClick = (id: string) => router.push(`/dashboard/songs/${id}`);
+  const sharedRowProps = { canDelete, selectedStudentId, selectedIds, onToggleSelect, deletingSongId, checkingId, onDeleteClick: handleDeleteClick, onAssignClick: setAssignDialogSong, onRowClick: handleRowClick };
 
   return (
     <>

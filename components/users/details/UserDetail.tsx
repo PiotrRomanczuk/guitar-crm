@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { ExportButton } from '@/components/users/actions/ExportButton';
 import { CsvSongImportButton } from '@/components/users/import';
-import { MoreVertical, Edit, Trash2, User, FileText } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, User, FileText, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface UserDetailProps {
@@ -131,6 +131,13 @@ export default function UserDetail({ user }: UserDetailProps) {
                 <ExportButton userId={user.id} userName={user.full_name || user.email} />
               </div>
             )}
+
+            <Link href="/dashboard/ai">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <Sparkles className="h-4 w-4" />
+                <span className="hidden sm:inline">AI Suggestions</span>
+              </Button>
+            </Link>
 
             <Link href={`/dashboard/users/${user.id}/edit`}>
               <Button className="gap-2 shadow-sm">

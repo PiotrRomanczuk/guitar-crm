@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Users,
-  Music,
-  BookOpen,
-  ClipboardList,
-  LayoutDashboard,
-  Settings,
-  LogOut,
-  Guitar,
-  Menu,
-  LucideIcon,
-  BarChart,
-  FileText,
-  GraduationCap,
-} from 'lucide-react';
+import { Settings, LogOut, Guitar, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -24,6 +10,13 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ui/mode-toggle';
 import { DatabaseStatus } from '@/components/debug/DatabaseStatus';
+import {
+  HOME_ITEM,
+  NOTIFICATION_ITEM,
+  getMenuGroups,
+  type MenuItem,
+  type MenuGroup,
+} from './menuConfig';
 
 interface SidebarProps {
   user: { email?: string } | null;
@@ -39,66 +32,19 @@ export function Sidebar({ user, isAdmin, isTeacher, isStudent }: SidebarProps) {
   const handleSignOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    // Force a full page reload to clear all client-side state and cookies
     window.location.href = '/sign-in';
   };
 
   if (!user) return null;
 
-  const getMenuItems = () => {
-    const items = [{ id: 'home', label: 'Home', icon: LayoutDashboard, path: '/dashboard' }];
-
-    if (isAdmin || isTeacher) {
-      items.push(
-        { id: 'songs', label: 'Songs', icon: Music, path: '/dashboard/songs' },
-        { id: 'lessons', label: 'Lessons', icon: BookOpen, path: '/dashboard/lessons' },
-        {
-          id: 'assignments',
-          label: 'Assignments',
-          icon: ClipboardList,
-          path: '/dashboard/assignments',
-        },
-        { id: 'users', label: 'Users', icon: Users, path: '/dashboard/users' },
-        {
-          id: 'song-stats',
-          label: 'Song Stats',
-          icon: BarChart,
-          path: '/dashboard/admin/stats/songs',
-        },
-        {
-          id: 'lesson-stats',
-          label: 'Lesson Stats',
-          icon: BarChart,
-          path: '/dashboard/admin/stats/lessons',
-        },
-        { id: 'logs', label: 'Activity Logs', icon: FileText, path: '/dashboard/logs' },
-        { id: 'theory', label: 'Theory', icon: GraduationCap, path: '/dashboard/theory' }
-      );
-    } else if (isStudent) {
-      items.push(
-        { id: 'my-songs', label: 'My Songs', icon: Music, path: '/dashboard/songs' },
-        { id: 'my-lessons', label: 'My Lessons', icon: BookOpen, path: '/dashboard/lessons' },
-        {
-          id: 'my-assignments',
-          label: 'My Assignments',
-          icon: ClipboardList,
-          path: '/dashboard/assignments',
-        },
-        { id: 'my-stats', label: 'My Stats', icon: BarChart, path: '/dashboard/stats' },
-        { id: 'theory', label: 'Theory', icon: GraduationCap, path: '/dashboard/theory' }
-      );
-    }
-    return items;
-  };
-
-  const menuItems = getMenuItems();
+  const menuGroups = getMenuGroups({ isAdmin, isTeacher, isStudent });
 
   return (
     <>
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex fixed left-0 top-0 h-screen w-64 flex-col z-30">
         <SidebarContent
-          menuItems={menuItems}
+          menuGroups={menuGroups}
           pathname={pathname}
           setIsOpen={setIsOpen}
           handleSignOut={handleSignOut}
@@ -118,7 +64,7 @@ export function Sidebar({ user, isAdmin, isTeacher, isStudent }: SidebarProps) {
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-64">
             <SidebarContent
-              menuItems={menuItems}
+              menuGroups={menuGroups}
               pathname={pathname}
               setIsOpen={setIsOpen}
               handleSignOut={handleSignOut}
@@ -133,8 +79,11 @@ export function Sidebar({ user, isAdmin, isTeacher, isStudent }: SidebarProps) {
   );
 }
 
+const FOOTER_LINK =
+  'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors';
+
 interface SidebarContentProps {
-  menuItems: { id: string; label: string; icon: LucideIcon; path: string }[];
+  menuGroups: MenuGroup[];
   pathname: string;
   setIsOpen: (open: boolean) => void;
   handleSignOut: () => void;
@@ -143,15 +92,12 @@ interface SidebarContentProps {
   isStudent: boolean;
 }
 
-function SidebarContent({
-  menuItems,
-  pathname,
-  setIsOpen,
-  handleSignOut,
-  isAdmin,
-  isTeacher,
-  isStudent,
-}: SidebarContentProps) {
+function SidebarContent(props: SidebarContentProps) {
+  const { menuGroups, pathname, setIsOpen, handleSignOut, isAdmin, isTeacher, isStudent } = props;
+  let animIndex = 0;
+  const close = () => setIsOpen(false);
+  const roleLabel = isAdmin ? 'Admin' : isTeacher ? 'Teacher' : isStudent ? 'Student' : 'User';
+
   return (
     <div className="flex flex-col h-full bg-sidebar border-r border-sidebar-border">
       {/* Logo */}
@@ -162,37 +108,26 @@ function SidebarContent({
           </div>
           <div>
             <h1 className="font-semibold text-foreground">GuitarStudio</h1>
-            <p className="text-xs text-muted-foreground">
-              {isAdmin ? 'Admin' : isTeacher ? 'Teacher' : isStudent ? 'Student' : 'User'} Dashboard
-            </p>
+            <p className="text-xs text-muted-foreground">{roleLabel} Dashboard</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
-        {menuItems.map((item, index) => {
-          const isActive =
-            pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
-          return (
-            <Link
-              key={item.id}
-              href={item.path}
-              onClick={() => setIsOpen(false)}
-              className={cn(
-                'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200',
-                'opacity-0 animate-fade-in',
-                isActive
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-              )}
-              style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
-            >
-              <item.icon className="w-5 h-5" />
-              {item.label}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 overflow-y-auto p-4">
+        <NavItem item={HOME_ITEM} pathname={pathname} setIsOpen={setIsOpen} index={animIndex++} />
+        {menuGroups.map((group) => (
+          <div key={group.label} className="mt-4">
+            <p className="px-4 mb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {group.label}
+            </p>
+            <div className="space-y-0.5">
+              {group.items.map((item) => (
+                <NavItem key={item.id} item={item} pathname={pathname} setIsOpen={setIsOpen} index={animIndex++} />
+              ))}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* Footer */}
@@ -204,11 +139,14 @@ function SidebarContent({
           <span className="text-sm font-medium text-muted-foreground">Theme</span>
           <ModeToggle />
         </div>
-        <Link
-          href="/dashboard/settings"
-          onClick={() => setIsOpen(false)}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-        >
+        <Link href={NOTIFICATION_ITEM.path} onClick={close} className={FOOTER_LINK}>
+          <div className="relative">
+            <NOTIFICATION_ITEM.icon className="w-5 h-5" />
+            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-destructive" />
+          </div>
+          {NOTIFICATION_ITEM.label}
+        </Link>
+        <Link href="/dashboard/settings" onClick={close} className={FOOTER_LINK}>
           <Settings className="w-5 h-5" />
           Settings
         </Link>
@@ -221,5 +159,35 @@ function SidebarContent({
         </button>
       </div>
     </div>
+  );
+}
+
+interface NavItemProps {
+  item: MenuItem;
+  pathname: string;
+  setIsOpen: (open: boolean) => void;
+  index: number;
+}
+
+function NavItem({ item, pathname, setIsOpen, index }: NavItemProps) {
+  const isActive =
+    pathname === item.path || (item.path !== '/dashboard' && pathname.startsWith(item.path));
+
+  return (
+    <Link
+      href={item.path}
+      onClick={() => setIsOpen(false)}
+      className={cn(
+        'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200',
+        'opacity-0 animate-fade-in',
+        isActive
+          ? 'bg-primary/10 text-primary'
+          : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+      )}
+      style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
+    >
+      <item.icon className="w-5 h-5" />
+      {item.label}
+    </Link>
   );
 }
