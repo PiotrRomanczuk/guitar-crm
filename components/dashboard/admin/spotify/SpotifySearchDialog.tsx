@@ -30,6 +30,7 @@ interface SpotifySearchDialogProps {
   onSearchQueryChange: (query: string) => void;
   searchResults: SpotifySearchResult[];
   searching: boolean;
+  hasSearched: boolean;
   onSearch: () => void;
   onSelectAlternative: (result: SpotifySearchResult) => void;
   actionLoading: string | null;
@@ -43,6 +44,7 @@ export function SpotifySearchDialog({
   onSearchQueryChange,
   searchResults,
   searching,
+  hasSearched,
   onSearch,
   onSelectAlternative,
   actionLoading,
@@ -203,7 +205,7 @@ export function SpotifySearchDialog({
             </div>
           )}
 
-          {searchResults.length === 0 && searchQuery && !searching && (
+          {searchResults.length === 0 && hasSearched && !searching && (
             <div className="text-center py-8 text-sm text-muted-foreground">
               No results found. Try a different search query.
             </div>

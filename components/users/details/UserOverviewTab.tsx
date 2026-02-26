@@ -101,7 +101,7 @@ export default function UserOverviewTab({ userId, lessons, repertoire, assignmen
                           : 'No date'}
                       </span>
                     </div>
-                    <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+                    <Badge variant="outline" className="text-xs bg-primary/5 text-primary">
                       Scheduled
                     </Badge>
                   </Link>

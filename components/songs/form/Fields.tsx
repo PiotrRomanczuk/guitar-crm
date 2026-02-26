@@ -2,12 +2,15 @@ import SongFormFieldText from './FieldText';
 import SongFormFieldSelect from './FieldSelect';
 import ImageUpload from '@/components/shared/ImageUpload';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { MUSIC_KEY_OPTIONS, LEVEL_OPTIONS } from './options';
 import { SongFormData } from './helpers';
 import SpotifySearch from './SpotifySearch';
 import { SpotifyTrack } from '@/types/spotify';
 import FieldGroup from './FieldGroup';
 import CategoryCombobox from './CategoryCombobox';
+import { SongNotesAI } from './SongNotesAI';
+import { StrummingPatternEditor } from '@/components/songs/strumming/StrummingPatternEditor';
 
 interface Props {
   formData: SongFormData;
@@ -18,8 +21,9 @@ interface Props {
   sectionsState: {
     resources: boolean;
     musical: boolean;
+    notes: boolean;
   };
-  onToggleSection: (section: 'resources' | 'musical') => void;
+  onToggleSection: (section: 'resources' | 'musical' | 'notes') => void;
 }
 
 export default function SongFormFields({
@@ -227,14 +231,11 @@ export default function SongFormFields({
           />
         </div>
 
-        <SongFormFieldText
-          label="Strumming Pattern"
-          id="strumming_pattern"
+        <StrummingPatternEditor
           value={formData.strumming_pattern}
-          error={errors.strumming_pattern}
           onChange={(value) => onChange('strumming_pattern', value)}
           onBlur={() => onBlur('strumming_pattern')}
-          placeholder="D DU UDU"
+          error={errors.strumming_pattern}
         />
 
         <SongFormFieldText
@@ -256,6 +257,38 @@ export default function SongFormFields({
           onBlur={() => onBlur('short_title')}
           placeholder="Brief title"
         />
+      </FieldGroup>
+
+      {/* Section 4: Teaching Notes (Collapsible) */}
+      <FieldGroup
+        title="Teaching Notes"
+        description="AI-generated teaching tips and practice suggestions"
+        isOpen={sectionsState.notes}
+        onToggle={() => onToggleSection('notes')}
+        fieldCount={1}
+      >
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="notes">Notes</Label>
+            <SongNotesAI
+              songData={formData}
+              currentNotes={formData.notes}
+              onNotesGenerated={(notes) => onChange('notes', notes)}
+            />
+          </div>
+          <Textarea
+            id="notes"
+            value={formData.notes}
+            onChange={(e) => onChange('notes', e.target.value)}
+            onBlur={() => onBlur('notes')}
+            placeholder="Teaching tips, practice suggestions, common mistakes..."
+            rows={6}
+            className="resize-y"
+          />
+          {errors.notes && (
+            <p className="text-xs text-destructive">{errors.notes}</p>
+          )}
+        </div>
       </FieldGroup>
     </div>
   );

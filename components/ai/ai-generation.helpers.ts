@@ -36,6 +36,7 @@ export function getGenerationTypeColor(type: AIGenerationType): string {
     post_lesson_summary: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300',
     student_progress: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300',
     admin_insights: 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-300',
+    song_notes: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
     chat: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
   };
   return colors[type];

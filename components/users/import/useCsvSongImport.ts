@@ -18,6 +18,7 @@ export function useCsvSongImport(studentId: string) {
   const [importResult, setImportResult] = useState<CsvSongImportResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [repertoireOnly, setRepertoireOnly] = useState(false);
   const { authors, resolveAllAuthors } = useAuthorMatching();
 
   const handleCsvParse = useCallback((text: string) => {
@@ -56,6 +57,7 @@ export function useCsvSongImport(studentId: string) {
         studentId,
         rows,
         validateOnly: true,
+        repertoireOnly,
       });
       if (result.success && result.results) {
         setPreviewResults(result.results);
@@ -66,7 +68,7 @@ export function useCsvSongImport(studentId: string) {
     } finally {
       setIsLoading(false);
     }
-  }, [studentId, rows]);
+  }, [studentId, rows, repertoireOnly]);
 
   const runImport = useCallback(async () => {
     if (rows.length === 0) return;
@@ -77,13 +79,14 @@ export function useCsvSongImport(studentId: string) {
         studentId,
         rows,
         validateOnly: false,
+        repertoireOnly,
       });
       setImportResult(result);
       setStep('results');
     } finally {
       setIsLoading(false);
     }
-  }, [studentId, rows]);
+  }, [studentId, rows, repertoireOnly]);
 
   const reset = useCallback(() => {
     setStep('upload');
@@ -93,6 +96,7 @@ export function useCsvSongImport(studentId: string) {
     setImportResult(null);
     setIsLoading(false);
     setError(null);
+    setRepertoireOnly(false);
   }, []);
 
   return {
@@ -104,6 +108,8 @@ export function useCsvSongImport(studentId: string) {
     isLoading,
     error,
     authors,
+    repertoireOnly,
+    setRepertoireOnly,
     handleCsvParse,
     handleAiParse,
     goToPreview,

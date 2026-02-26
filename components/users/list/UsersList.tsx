@@ -19,11 +19,13 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { TableSkeleton } from '@/components/ui/data-table';
+import { toast } from 'sonner';
 
 interface UserProfile {
   id: string;
   user_id: string | null;
   email: string | null;
+  full_name: string | null;
   firstName: string | null;
   lastName: string | null;
   username: string | null;
@@ -45,6 +47,7 @@ export default function UsersList({ initialUsers }: UsersListProps = {}) {
   const [activeFilter, setActiveFilter] = useState<'' | 'true' | 'false'>('');
   const [studentStatusFilter, setStudentStatusFilter] = useState<'' | 'active' | 'archived'>(''); // Empty = show all statuses
   const [userToDelete, setUserToDelete] = useState<{ id: string; email: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { users, loading, error, refetch } = useUsersList(search, roleFilter, activeFilter, studentStatusFilter, initialUsers);
 
@@ -53,15 +56,17 @@ export default function UsersList({ initialUsers }: UsersListProps = {}) {
   };
 
   const handleConfirmDelete = async () => {
-    if (!userToDelete) return;
+    if (!userToDelete || isDeleting) return;
 
+    setIsDeleting(true);
     try {
       await deleteUser(userToDelete.id);
+      toast.success('User deleted successfully');
       refetch();
     } catch (err) {
-      console.error('Failed to delete user:', err);
-      // Ideally use a toast here
+      toast.error(err instanceof Error ? err.message : 'Failed to delete user');
     } finally {
+      setIsDeleting(false);
       setUserToDelete(null);
     }
   };
@@ -131,9 +136,10 @@ export default function UsersList({ initialUsers }: UsersListProps = {}) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
+              disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

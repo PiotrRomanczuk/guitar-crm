@@ -73,10 +73,10 @@ export async function sendNotification(
   try {
     const supabase = createAdminClient();
 
-    // 1. Get recipient info (include role for student email kill switch)
+    // 1. Get recipient info (include is_student for student email kill switch)
     const { data: recipient, error: recipientError } = await supabase
       .from('profiles')
-      .select('id, email, full_name, role')
+      .select('id, email, full_name, is_student')
       .eq('id', recipientUserId)
       .single();
 
@@ -130,7 +130,7 @@ export async function sendNotification(
     let deliveryChannel = await getDeliveryChannel(recipientUserId, type);
 
     // Student email kill switch: force in-app only for students when emails disabled
-    if (recipient.role === 'student' && !isStudentEmailEnabled()) {
+    if (recipient.is_student && !isStudentEmailEnabled()) {
       if (deliveryChannel === 'email' || deliveryChannel === 'both') {
         const originalChannel = deliveryChannel;
         deliveryChannel = 'in_app';

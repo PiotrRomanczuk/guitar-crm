@@ -4,12 +4,12 @@ import {
   ExternalLink,
   Music2,
   Mic2,
-  Waves,
   Tag,
   Clock,
   Calendar,
   Timer,
 } from 'lucide-react';
+import { StrummingPatternDisplay } from '@/components/songs/strumming/StrummingPatternDisplay';
 import { Button } from '@/components/ui/button';
 
 interface Props {
@@ -113,33 +113,10 @@ export default function SongDetailInfo({ song }: Props) {
           </Card>
         )}
 
-        {song.strumming_pattern && (
-          <Card className="bg-card border-border/50 shadow-sm">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Waves className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Strumming</p>
-                <p className="text-lg font-semibold mt-0.5">{song.strumming_pattern}</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
 
       {song.strumming_pattern && (
-        <Card className="bg-card border-border/50 shadow-sm">
-          <CardContent className="p-6 flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <Waves className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Strumming Pattern</p>
-              <p className="text-lg font-semibold mt-0.5 font-mono">{song.strumming_pattern}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <StrummingPatternDisplay pattern={song.strumming_pattern} />
       )}
 
       {song.chords && (

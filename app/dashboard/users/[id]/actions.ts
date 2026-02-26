@@ -1,14 +1,17 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { createLogger } from '@/lib/logger';
 import { Database } from '@/database.types';
+
+const log = createLogger('UserActions');
 
 export type RepertoireItem = {
   songId: string;
   title: string;
   author: string;
   status: Database['public']['Enums']['lesson_song_status'];
-  lastPlayed: string; // date of the lesson
+  lastPlayed: string;
 };
 
 export type AssignmentItem = {
@@ -18,6 +21,13 @@ export type AssignmentItem = {
   status: Database['public']['Enums']['assignment_status'];
   dueDate: string | null;
   createdAt: string;
+};
+
+type LessonSongRow = {
+  status: Database['public']['Enums']['lesson_song_status'];
+  created_at: string;
+  songs: { id: string; title: string; author: string } | { id: string; title: string; author: string }[] | null;
+  lessons: { student_id: string; scheduled_at: string } | { student_id: string; scheduled_at: string }[] | null;
 };
 
 export async function getStudentRepertoire(studentId: string): Promise<RepertoireItem[]> {
@@ -44,25 +54,21 @@ export async function getStudentRepertoire(studentId: string): Promise<Repertoir
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching student repertoire:', error);
+    log.error('Error fetching student repertoire', { studentId, error });
     throw new Error('Failed to fetch student repertoire');
   }
 
-  // Process to get unique songs with their latest status
   const songMap = new Map<string, RepertoireItem>();
 
-  data.forEach((item) => {
+  (data as LessonSongRow[]).forEach((item) => {
     if (!item.songs) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const song = Array.isArray(item.songs) ? item.songs[0] : (item.songs as any);
+    const song = Array.isArray(item.songs) ? item.songs[0] : item.songs;
     if (!song) return;
 
     const songId = song.id;
-    // Since we ordered by created_at desc, the first time we see a song is the latest one
     if (!songMap.has(songId)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const lesson = Array.isArray(item.lessons) ? item.lessons[0] : (item.lessons as any);
+      const lesson = Array.isArray(item.lessons) ? item.lessons[0] : item.lessons;
 
       songMap.set(songId, {
         songId: song.id,
@@ -82,12 +88,12 @@ export async function getStudentAssignments(studentId: string): Promise<Assignme
 
   const { data, error } = await supabase
     .from('assignments')
-    .select('*')
+    .select('id, title, description, status, due_date, created_at')
     .eq('student_id', studentId)
     .order('due_date', { ascending: true });
 
   if (error) {
-    console.error('Error fetching student assignments:', error);
+    log.error('Error fetching student assignments', { studentId, error });
     throw new Error('Failed to fetch student assignments');
   }
 

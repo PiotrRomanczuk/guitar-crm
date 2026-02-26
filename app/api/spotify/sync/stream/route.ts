@@ -133,7 +133,7 @@ export async function POST(request: Request) {
               type: 'progress',
               completed: progress.completed,
               total: progress.total,
-              currentSong: progress.current?.song,
+              currentSong: progress.current?.song?.title,
               percentage: Math.round((progress.completed / progress.total) * 100),
             });
           }

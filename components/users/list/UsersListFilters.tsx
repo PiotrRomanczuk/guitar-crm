@@ -40,11 +40,12 @@ export default function UsersListFilters({
         <div className="space-y-2">
           <Label>Search</Label>
           <Input
-            type="text"
+            type="search"
             placeholder="Search by email, name..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             data-testid="search-input"
+            aria-label="Search users"
           />
         </div>
 

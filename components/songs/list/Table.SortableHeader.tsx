@@ -1,4 +1,3 @@
-import { TableHead } from '@/components/ui/table';
 import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 
 type SortField = 'title' | 'author' | 'level' | 'key' | 'updated_at';
@@ -23,14 +22,13 @@ export default function SortableHeader({
   const Icon = isActive ? (sortDirection === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown;
 
   return (
-    <TableHead
-      className="text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
+    <button
+      type="button"
+      className="flex items-center gap-2 text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors text-sm font-medium"
       onClick={() => onSort?.(field)}
     >
-      <div className="flex items-center gap-2">
-        {children}
-        <Icon className={`h-4 w-4 ${isActive ? 'text-foreground' : 'text-muted-foreground/40'}`} />
-      </div>
-    </TableHead>
+      {children}
+      <Icon className={`h-4 w-4 ${isActive ? 'text-foreground' : 'text-muted-foreground/40'}`} />
+    </button>
   );
 }

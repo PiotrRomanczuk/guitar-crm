@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Loader2, Upload, Sparkles, FileText } from 'lucide-react';
 import type { CsvSongRow } from '@/schemas/CsvSongImportSchema';
 import { EditableSongList } from './CsvSongImportDialog.EditableSongList';
@@ -15,6 +17,8 @@ interface UploadStepProps {
   isLoading: boolean;
   error: string | null;
   authors?: string[];
+  repertoireOnly: boolean;
+  onRepertoireOnlyChange: (value: boolean) => void;
   onCsvParse: (text: string) => { rows: CsvSongRow[]; errors: Array<{ line: number; message: string }> };
   onAiParse: (text: string) => Promise<{ rows: CsvSongRow[]; errors: Array<{ line: number; message: string }> }>;
   onRowsChange: (rows: CsvSongRow[]) => void;
@@ -27,11 +31,14 @@ export function UploadStep({
   isLoading,
   error,
   authors,
+  repertoireOnly,
+  onRepertoireOnlyChange,
   onCsvParse,
   onAiParse,
   onRowsChange,
   onNext,
 }: UploadStepProps) {
+  const hasNoDates = rows.length > 0 && !rows.some((r) => r.date);
   const [freeText, setFreeText] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -160,10 +167,31 @@ export function UploadStep({
               <Badge variant="outline">{new Set(rows.filter((r) => r.date).map((r) => r.date)).size} dates</Badge>
             ) : (
               <Badge variant="outline" className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
-                No dates — will use today
+                No dates detected
               </Badge>
             )}
           </div>
+
+          {hasNoDates && (
+            <div className="flex items-center gap-3 rounded-md border p-3 bg-muted/40">
+              <Switch
+                id="repertoire-only"
+                checked={repertoireOnly}
+                onCheckedChange={onRepertoireOnlyChange}
+              />
+              <div>
+                <Label htmlFor="repertoire-only" className="cursor-pointer font-medium">
+                  Add to repertoire only
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  {repertoireOnly
+                    ? 'Songs will be added to the student\'s repertoire without creating any lessons.'
+                    : 'Songs will be linked to a lesson created for today\'s date.'}
+                </p>
+              </div>
+            </div>
+          )}
+
           <EditableSongList rows={rows} onRowsChange={onRowsChange} authors={authors} />
           <Button onClick={onNext} disabled={isLoading}>
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
