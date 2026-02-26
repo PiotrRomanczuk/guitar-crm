@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Music, BookOpen, CheckCircle2, Calendar, Plus } from 'lucide-react';
+import { Music, BookOpen, CheckCircle2, Calendar, Plus, Users } from 'lucide-react';
 import type { StudentRepertoireWithSong } from '@/types/StudentRepertoire';
 
 interface Lesson {
@@ -21,11 +21,18 @@ interface Assignment {
   due_date: string | null;
 }
 
+interface ParentInfo {
+  id: string;
+  full_name: string | null;
+  email: string;
+}
+
 interface UserOverviewTabProps {
   userId: string;
   lessons: Lesson[];
   repertoire: StudentRepertoireWithSong[];
   assignments: Assignment[];
+  parentProfile?: ParentInfo | null;
 }
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
@@ -42,7 +49,7 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
   );
 }
 
-export default function UserOverviewTab({ userId, lessons, repertoire, assignments }: UserOverviewTabProps) {
+export default function UserOverviewTab({ userId, lessons, repertoire, assignments, parentProfile }: UserOverviewTabProps) {
   const totalLessons = lessons.length;
   const totalSongs = repertoire.length;
   const masteredSongs = repertoire.filter((r) => r.current_status === 'mastered').length;
@@ -178,6 +185,29 @@ export default function UserOverviewTab({ userId, lessons, repertoire, assignmen
                   </Badge>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Parent / Guardian card */}
+      {parentProfile && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              Parent / Guardian
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+              <div>
+                <p className="text-sm font-medium">{parentProfile.full_name || parentProfile.email}</p>
+                <p className="text-xs text-muted-foreground">{parentProfile.email}</p>
+              </div>
+              <Link href={`/dashboard/users/${parentProfile.id}`}>
+                <Button variant="ghost" size="sm" className="text-xs">View Profile</Button>
+              </Link>
             </div>
           </CardContent>
         </Card>

@@ -20,6 +20,7 @@ interface ProfileRow {
   is_admin: boolean;
   is_teacher: boolean;
   is_student: boolean;
+  is_parent: boolean;
   is_active: boolean | null;
   is_shadow: boolean | null;
 }
@@ -29,7 +30,7 @@ export default async function EditUserPage({ params }: EditUserPageProps) {
   const supabase = await createClient();
   const { data: user, error } = await supabase
     .from('profiles')
-    .select('id, email, full_name, username, is_admin, is_teacher, is_student, is_active, is_shadow')
+    .select('id, email, full_name, username, is_admin, is_teacher, is_student, is_parent, is_active, is_shadow')
     .eq('id', id)
     .single();
 
@@ -66,6 +67,7 @@ function transformUser(user: ProfileRow) {
     isAdmin: user.is_admin ?? false,
     isTeacher: user.is_teacher ?? false,
     isStudent: user.is_student ?? false,
+    isParent: user.is_parent ?? false,
     isActive: user.is_active ?? true,
   };
 }

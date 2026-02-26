@@ -1,5 +1,17 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { z } from 'zod';
+
+const UpdateUserSchema = z.object({
+  full_name: z.string().optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  isAdmin: z.boolean().optional(),
+  isTeacher: z.boolean().optional(),
+  isStudent: z.boolean().optional(),
+  isParent: z.boolean().optional(),
+  isActive: z.boolean().optional(),
+});
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -39,13 +51,18 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     const { id } = await params;
 
-    let body;
+    let body: z.infer<typeof UpdateUserSchema>;
     try {
       const text = await request.text();
       if (!text) {
         return Response.json({ error: 'Empty request body' }, { status: 400 });
       }
-      body = JSON.parse(text);
+      const parsed = JSON.parse(text);
+      const result = UpdateUserSchema.safeParse(parsed);
+      if (!result.success) {
+        return Response.json({ error: 'Invalid request body', details: result.error.issues }, { status: 400 });
+      }
+      body = result.data;
     } catch (e) {
       console.error('Error parsing JSON body:', e);
       return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
@@ -65,6 +82,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         is_admin: body.isAdmin,
         is_teacher: body.isTeacher,
         is_student: body.isStudent,
+        is_parent: body.isParent,
         is_active: body.isActive,
         updated_at: new Date().toISOString(),
       })

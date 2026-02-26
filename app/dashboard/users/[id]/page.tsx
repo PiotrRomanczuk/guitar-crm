@@ -41,22 +41,36 @@ interface UserProfile {
   is_teacher: boolean;
   is_student: boolean;
   is_shadow: boolean | null;
+  is_parent: boolean;
+  parent_id: string | null;
+}
+
+interface ParentProfile {
+  id: string;
+  full_name: string | null;
+  email: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchUserData(supabase: SupabaseClient<any>, userId: string) {
-  // Fetch lessons
-  const { data: lessons } = await supabase
+  // Fetch lessons (map scheduled_at → date for UI compatibility)
+  const { data: rawLessons } = await supabase
     .from('lessons')
     .select(
       `
-      id, lesson_teacher_number, lesson_number, status, date, scheduled_at, created_at,
+      id, lesson_teacher_number, status, scheduled_at, created_at,
       student:profiles!lessons_student_id_fkey(id, full_name, email),
       teacher:profiles!lessons_teacher_id_fkey(id, full_name, email)
     `
     )
     .or(`student_id.eq.${userId},teacher_id.eq.${userId}`)
     .order('created_at', { ascending: false });
+
+  const lessons = (rawLessons || []).map((l) => ({
+    ...l,
+    lesson_number: null,
+    date: l.scheduled_at ?? null,
+  }));
 
   // Fetch assignments
   const { data: assignments } = await supabase
@@ -65,30 +79,39 @@ async function fetchUserData(supabase: SupabaseClient<any>, userId: string) {
     .eq('student_id', userId)
     .order('created_at', { ascending: false });
 
-  // Fetch repertoire directly from student_repertoire with joined song data
+  // Fetch repertoire from student_song_progress with joined song data
   const { data: repertoire, error: repertoireError } = await supabase
-    .from('student_repertoire')
+    .from('student_song_progress')
     .select(
       `
-      *,
+      id, student_id, song_id, current_status, started_at, mastered_at,
+      difficulty_rating, total_practice_time_minutes, practice_session_count,
+      last_practiced_at, teacher_notes, student_notes, created_at, updated_at,
       song:songs!inner (
         id, title, author, level, key, capo_fret, strumming_pattern
       )
     `
     )
     .eq('student_id', userId)
-    .order('priority', { ascending: true })
-    .order('sort_order', { ascending: true });
+    .order('current_status', { ascending: true });
 
   if (repertoireError) {
     log.error('Repertoire fetch error', { error: repertoireError });
   }
 
-  // Map the joined song data to the expected shape
+  // Map to StudentRepertoireWithSong shape (fill in fields not in student_song_progress)
   const mappedRepertoire: StudentRepertoireWithSong[] = (repertoire || []).map(
     (row: Record<string, unknown>) => ({
       ...row,
       song: Array.isArray(row.song) ? row.song[0] : row.song,
+      // Fields not in student_song_progress — provide defaults
+      preferred_key: null,
+      custom_strumming: null,
+      assigned_by: null,
+      sort_order: 0,
+      is_active: true,
+      priority: 'normal' as const,
+      total_practice_minutes: (row.total_practice_time_minutes as number) ?? 0,
     })
   ) as StudentRepertoireWithSong[];
 
@@ -98,7 +121,7 @@ async function fetchUserData(supabase: SupabaseClient<any>, userId: string) {
     repertoire: mappedRepertoire.length,
   });
 
-  return { lessons, assignments, repertoire: mappedRepertoire };
+  return { lessons: lessons ?? [], assignments, repertoire: mappedRepertoire };
 }
 
 export default async function UserDetailPage({ params, searchParams }: UserDetailPageProps) {
@@ -116,7 +139,7 @@ export default async function UserDetailPage({ params, searchParams }: UserDetai
 
   const { data: user, error } = await supabase
     .from('profiles')
-    .select('id, email, full_name, avatar_url, notes, created_at, updated_at, is_development, is_admin, is_teacher, is_student, is_shadow')
+    .select('id, email, full_name, avatar_url, notes, created_at, updated_at, is_development, is_admin, is_teacher, is_student, is_shadow, is_parent, parent_id')
     .eq('id', userId)
     .single();
 
@@ -124,7 +147,29 @@ export default async function UserDetailPage({ params, searchParams }: UserDetai
     notFound();
   }
 
-  const { lessons, assignments, repertoire } = await fetchUserData(supabase, userId);
+  // Fetch parent profile if this is a student with a linked parent
+  const parentFetch =
+    user.parent_id
+      ? supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .eq('id', user.parent_id)
+          .single()
+      : Promise.resolve({ data: null });
+
+  // Fetch linked students if this is a parent profile
+  const linkedStudentsFetch =
+    user.is_parent
+      ? supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .eq('parent_id', user.id)
+          .eq('is_student', true)
+      : Promise.resolve({ data: [] });
+
+  const [{ data: parentProfile }, { data: linkedStudents }, { lessons, assignments, repertoire }] =
+    await Promise.all([parentFetch, linkedStudentsFetch, fetchUserData(supabase, userId)]);
+
   const userName = user.full_name || user.email || 'User';
 
   return (
@@ -137,14 +182,19 @@ export default async function UserDetailPage({ params, searchParams }: UserDetai
         ]}
       />
 
-      <UserDetail user={user as UserProfile} />
+      <UserDetail
+        user={user as UserProfile}
+        parentProfile={parentProfile as ParentProfile | null}
+        linkedStudents={(linkedStudents ?? []) as ParentProfile[]}
+      />
 
       <UserDetailTabs
         userId={userId}
         activeTab={activeTab}
-        lessons={(lessons || []) as unknown as Lesson[]}
+        lessons={lessons as unknown as Lesson[]}
         assignments={assignments || []}
         repertoire={repertoire}
+        parentProfile={parentProfile as { id: string; full_name: string | null; email: string } | null}
       />
     </div>
   );

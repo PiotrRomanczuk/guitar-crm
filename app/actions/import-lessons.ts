@@ -13,7 +13,8 @@ export interface ImportEvent {
   title: string;
   notes?: string;
   startTime: string;
-  attendeeEmail: string;
+  attendeeEmail: string;       // pre-selected primary attendee (kept for compat)
+  allAttendeeEmails?: string[]; // all non-teacher emails for smarter resolution
   attendeeName?: string;
   manualStudentId?: string; // For manual override
 }
@@ -41,10 +42,36 @@ export async function importLessonsFromGoogle(events: ImportEvent[]) {
   
   for (const event of events) {
     let studentId = event.manualStudentId;
-    
+
     // If no manual override, try to match or create
     if (!studentId) {
-      const match = await matchStudentByEmail(event.attendeeEmail);
+      // When multiple attendees present, try to find the actual student
+      let resolvedEmail = event.attendeeEmail;
+      if (event.allAttendeeEmails && event.allAttendeeEmails.length > 1) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, email, is_student, is_parent')
+          .in('email', event.allAttendeeEmails);
+        if (profiles && profiles.length > 0) {
+          const studentProfile = profiles.find((p) => p.is_student);
+          if (studentProfile?.email) {
+            resolvedEmail = studentProfile.email;
+          } else {
+            const parentProfile = profiles.find((p) => p.is_parent);
+            if (parentProfile) {
+              const { data: child } = await supabase
+                .from('profiles')
+                .select('email')
+                .eq('parent_id', parentProfile.id)
+                .eq('is_student', true)
+                .single();
+              if (child?.email) resolvedEmail = child.email;
+            }
+          }
+        }
+      }
+
+      const match = await matchStudentByEmail(resolvedEmail);
       
       if (match.status === 'MATCHED') {
         studentId = match.candidates[0].id.toString();
@@ -62,16 +89,16 @@ export async function importLessonsFromGoogle(events: ImportEvent[]) {
           lastName = parts.slice(1).join(' ') || '';
         } else {
           // Fallback to email if name is missing
-          const namePart = event.attendeeEmail.split('@')[0];
+          const namePart = resolvedEmail.split('@')[0];
           const parts = namePart.split(/[._]/);
           firstName = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
           if (parts.length > 1) {
             lastName = parts.slice(1).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
           }
         }
-        
+
         const createResult = await createShadowStudent(
-          event.attendeeEmail,
+          resolvedEmail,
           firstName,
           lastName
         );

@@ -28,8 +28,14 @@ import {
 } from '@/components/ui/alert-dialog';
 import { ExportButton } from '@/components/users/actions/ExportButton';
 import { CsvSongImportButton } from '@/components/users/import';
-import { MoreVertical, Edit, Trash2, User, FileText, Sparkles } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, User, FileText, Sparkles, Users } from 'lucide-react';
 import { toast } from 'sonner';
+
+interface RelatedProfile {
+  id: string;
+  full_name: string | null;
+  email: string;
+}
 
 interface UserDetailProps {
   user: {
@@ -40,12 +46,15 @@ interface UserDetailProps {
     is_teacher: boolean;
     is_student: boolean;
     is_shadow: boolean | null;
+    is_parent: boolean;
     avatar_url: string | null;
     notes: string | null;
   };
+  parentProfile?: RelatedProfile | null;
+  linkedStudents?: RelatedProfile[];
 }
 
-export default function UserDetail({ user }: UserDetailProps) {
+export default function UserDetail({ user, parentProfile, linkedStudents = [] }: UserDetailProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -69,6 +78,7 @@ export default function UserDetail({ user }: UserDetailProps) {
     if (user.is_admin) roles.push('Admin');
     if (user.is_teacher) roles.push('Teacher');
     if (user.is_student) roles.push('Student');
+    if (user.is_parent) roles.push('Parent');
     return roles.length ? roles : ['No Role'];
   };
 
@@ -211,9 +221,9 @@ export default function UserDetail({ user }: UserDetailProps) {
 
             <Link href={`/dashboard/users/${user.id}/edit`}>
               <div className={`
-                relative group cursor-pointer 
-                rounded-xl border-2 border-dashed 
-                p-6 min-h-[120px] 
+                relative group cursor-pointer
+                rounded-xl border-2 border-dashed
+                p-6 min-h-[120px]
                 transition-all duration-200
                 ${user.notes
                   ? 'border-border bg-muted/30 hover:border-primary/40 hover:bg-primary/5'
@@ -235,6 +245,50 @@ export default function UserDetail({ user }: UserDetailProps) {
             </Link>
           </div>
         </div>
+
+        {/* Parent / Guardian section (shown for students with a linked parent) */}
+        {parentProfile && (
+          <div className="pt-4 border-t">
+            <Label className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">Parent / Guardian</Label>
+            <div className="mt-2 flex items-center gap-3 p-3 rounded-lg bg-muted/40">
+              <div className="p-2 bg-muted rounded-full">
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{parentProfile.full_name || parentProfile.email}</p>
+                <p className="text-xs text-muted-foreground truncate">{parentProfile.email}</p>
+              </div>
+              <Link href={`/dashboard/users/${parentProfile.id}`}>
+                <Button variant="ghost" size="sm" className="text-xs shrink-0">View</Button>
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Linked students section (shown for parent profiles) */}
+        {user.is_parent && linkedStudents.length > 0 && (
+          <div className="pt-4 border-t">
+            <Label className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+              Students
+            </Label>
+            <div className="mt-2 space-y-2">
+              {linkedStudents.map((student) => (
+                <div key={student.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/40">
+                  <div className="p-2 bg-muted rounded-full">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{student.full_name || student.email}</p>
+                    <p className="text-xs text-muted-foreground truncate">{student.email}</p>
+                  </div>
+                  <Link href={`/dashboard/users/${student.id}`}>
+                    <Button variant="ghost" size="sm" className="text-xs shrink-0">View</Button>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
