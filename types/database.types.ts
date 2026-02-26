@@ -1364,6 +1364,73 @@ export type Database = {
         };
         Relationships: [];
       };
+      song_requests: {
+        Row: {
+          id: string;
+          student_id: string;
+          title: string;
+          artist: string | null;
+          notes: string | null;
+          url: string | null;
+          status: string;
+          reviewed_by: string | null;
+          review_notes: string | null;
+          song_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          student_id: string;
+          title: string;
+          artist?: string | null;
+          notes?: string | null;
+          url?: string | null;
+          status?: string;
+          reviewed_by?: string | null;
+          review_notes?: string | null;
+          song_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          student_id?: string;
+          title?: string;
+          artist?: string | null;
+          notes?: string | null;
+          url?: string | null;
+          status?: string;
+          reviewed_by?: string | null;
+          review_notes?: string | null;
+          song_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'song_requests_student_id_fkey';
+            columns: ['student_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'song_requests_reviewed_by_fkey';
+            columns: ['reviewed_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'song_requests_song_id_fkey';
+            columns: ['song_id'];
+            isOneToOne: false;
+            referencedRelation: 'songs';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       spotify_matches: {
         Row: {
           ai_reasoning: string | null;
