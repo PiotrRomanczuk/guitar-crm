@@ -10,20 +10,15 @@
 
 import { NextResponse } from 'next/server';
 import { updateStudentActivityStatus } from '@/lib/services/student-activity-service';
+import { verifyCronSecret } from '@/lib/auth/cron-auth';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    // Verify the request is from Vercel Cron (in production)
-    const authHeader = request.headers.get('authorization');
-
-    if (process.env.NODE_ENV === 'production') {
-      if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-    }
+    const authError = verifyCronSecret(request);
+    if (authError) return authError;
 
     const result = await updateStudentActivityStatus();
 
@@ -38,7 +33,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: 'Internal server error'
       },
       { status: 500 }
     );
