@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import {
   ClipboardList, Calendar, Settings, LogOut, BarChart,
-  FileText, GraduationCap, Grid3X3, type LucideIcon,
+  FileText, GraduationCap, Grid3X3, Zap, Users, type LucideIcon,
 } from 'lucide-react';
 import {
   Drawer, DrawerContent, DrawerHeader, DrawerTitle,
@@ -32,6 +32,8 @@ function getMenuItems(isAdmin: boolean, isTeacher: boolean): MenuItem[] {
   ];
   if (isAdmin || isTeacher) {
     items.splice(4, 0,
+      { id: 'skills', label: 'Skills', icon: Zap, path: '/dashboard/skills' },
+      { id: 'cohorts', label: 'Cohorts', icon: Users, path: '/dashboard/cohorts' },
       { id: 'song-stats', label: 'Song Stats', icon: BarChart, path: '/dashboard/admin/stats/songs' },
       { id: 'lesson-stats', label: 'Lesson Stats', icon: BarChart, path: '/dashboard/admin/stats/lessons' },
       { id: 'logs', label: 'Activity Logs', icon: FileText, path: '/dashboard/logs' },

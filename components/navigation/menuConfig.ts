@@ -13,6 +13,7 @@ import {
   Sparkles,
   ListMusic,
   Bell,
+  Zap,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -62,6 +63,7 @@ function getTeacherGroups(): MenuGroup[] {
       label: 'Students',
       items: [
         { id: 'students', label: 'Students', icon: Users, path: '/dashboard/users' },
+        { id: 'skills', label: 'Skills', icon: Zap, path: '/dashboard/skills' },
         { id: 'health', label: 'Health Monitor', icon: HeartPulse, path: '/dashboard/health' },
       ],
     },
@@ -70,6 +72,7 @@ function getTeacherGroups(): MenuGroup[] {
       items: [
         { id: 'song-stats', label: 'Song Stats', icon: BarChart, path: '/dashboard/admin/stats/songs' },
         { id: 'lesson-stats', label: 'Lesson Stats', icon: BarChart, path: '/dashboard/admin/stats/lessons' },
+        { id: 'cohorts', label: 'Cohorts', icon: Users, path: '/dashboard/cohorts' },
         { id: 'logs', label: 'Activity Logs', icon: FileText, path: '/dashboard/logs' },
       ],
     },

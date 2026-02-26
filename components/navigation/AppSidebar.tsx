@@ -17,6 +17,7 @@ import {
   Video,
   Grid3X3,
   GraduationCap,
+  Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -68,6 +69,7 @@ export function AppSidebar({ isAdmin, isTeacher, isStudent }: AppSidebarProps) {
           },
           { id: 'calendar', label: 'Calendar', icon: Calendar, path: '/dashboard/calendar' },
           { id: 'users', label: 'Users', icon: Users, path: '/dashboard/users' },
+          { id: 'skills', label: 'Skills', icon: Zap, path: '/dashboard/skills' },
           { id: 'theory', label: 'Theory', icon: GraduationCap, path: '/dashboard/theory' },
           { id: 'fretboard', label: 'Fretboard', icon: Grid3X3, path: '/dashboard/fretboard' },
         ],
@@ -96,6 +98,7 @@ export function AppSidebar({ isAdmin, isTeacher, isStudent }: AppSidebarProps) {
             icon: BarChart,
             path: '/dashboard/admin/stats/lessons',
           },
+          { id: 'cohorts', label: 'Cohorts', icon: Users, path: '/dashboard/cohorts' },
           { id: 'logs', label: 'Activity Logs', icon: FileText, path: '/dashboard/logs' },
           { id: 'health', label: 'Health', icon: Activity, path: '/dashboard/health' },
           { id: 'ai-history', label: 'AI History', icon: Sparkles, path: '/dashboard/ai/history' },
