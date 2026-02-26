@@ -1,13 +1,16 @@
 import SettingsPageClient from '@/components/settings/SettingsPageClient';
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { getUserSettings } from '@/app/actions/settings';
+import type { UserSettings } from '@/schemas/SettingsSchema';
 
 // Server Component wrapper for Settings page.
 // Fetches authenticated user (SSR) and redirects if unauthenticated.
-// Interactive logic is delegated to a client component boundary.
+// Hydrates initial settings from the database to avoid a loading flash.
 export default async function SettingsPage() {
   const { user } = await getUserWithRolesSSR();
   let isGoogleConnected = false;
+  let initialSettings: UserSettings | undefined;
   const supabase = await createClient();
 
   if (user) {
@@ -21,12 +24,18 @@ export default async function SettingsPage() {
     if (data) {
       isGoogleConnected = true;
     }
+
+    // Hydrate initial settings from database
+    const settingsResult = await getUserSettings(user.id);
+    if (settingsResult.success && settingsResult.settings) {
+      initialSettings = settingsResult.settings;
+    }
   }
 
   return (
-    <SettingsPageClient isGoogleConnected={isGoogleConnected} />
+    <SettingsPageClient
+      isGoogleConnected={isGoogleConnected}
+      initialSettings={initialSettings}
+    />
   );
 }
-
-// TODO: When settings persistence moves to the database, hydrate initial settings here
-//       by querying a `user_settings` table and pass as prop to client component.

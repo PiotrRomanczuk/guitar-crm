@@ -2,13 +2,35 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useSettings } from '@/components/settings/useSettings';
 import { QueryWrapper } from '@/lib/testing/query-client-test-utils';
 import type { User } from '@supabase/supabase-js';
+import type { UserSettings } from '@/schemas/SettingsSchema';
 
 const mockUser: Partial<User> = {
   id: 'test-user-id',
   email: 'test@example.com',
 };
 
-// Mock the useAuth hook directly since we don't need the full AuthProvider for this test
+const DEFAULT_SETTINGS: UserSettings = {
+  emailNotifications: true,
+  pushNotifications: false,
+  lessonReminders: true,
+  theme: 'system',
+  language: 'en',
+  timezone: 'UTC',
+  profileVisibility: 'public',
+  showEmail: false,
+  showLastSeen: true,
+};
+
+// Mock the server actions
+const mockGetUserSettings = jest.fn();
+const mockSaveUserSettings = jest.fn();
+
+jest.mock('@/app/actions/settings', () => ({
+  getUserSettings: (...args: unknown[]) => mockGetUserSettings(...args),
+  saveUserSettings: (...args: unknown[]) => mockSaveUserSettings(...args),
+}));
+
+// Mock the useAuth hook
 jest.mock('@/components/auth/AuthProvider', () => ({
   useAuth: () => ({
     user: mockUser,
@@ -22,7 +44,15 @@ jest.mock('@/components/auth/AuthProvider', () => ({
 
 describe('useSettings', () => {
   beforeEach(() => {
-    localStorage.clear();
+    jest.clearAllMocks();
+    mockGetUserSettings.mockResolvedValue({
+      success: true,
+      settings: DEFAULT_SETTINGS,
+    });
+    mockSaveUserSettings.mockResolvedValue({
+      success: true,
+      settings: DEFAULT_SETTINGS,
+    });
   });
 
   it('should initialize with default settings', async () => {
@@ -51,7 +81,9 @@ describe('useSettings', () => {
     expect(result.current.hasChanges).toBe(true);
   });
 
-  it('should save settings to localStorage', async () => {
+  it('should save settings via server action', async () => {
+    mockSaveUserSettings.mockResolvedValue({ success: true });
+
     const { result } = renderHook(() => useSettings(), { wrapper: QueryWrapper });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -65,34 +97,33 @@ describe('useSettings', () => {
     });
 
     await waitFor(() => expect(result.current.hasChanges).toBe(false));
-
-    const stored = localStorage.getItem(`settings_${mockUser.id}`);
-    expect(stored).toBeTruthy();
-
-    const parsed = JSON.parse(stored!);
-    expect(parsed.theme).toBe('dark');
+    expect(mockSaveUserSettings).toHaveBeenCalled();
   });
 
-  it('should load settings from localStorage', async () => {
-    const savedSettings = {
+  it('should load settings from server action', async () => {
+    const savedSettings: UserSettings = {
       emailNotifications: false,
       pushNotifications: true,
-      theme: 'light' as const,
-      language: 'es' as const,
+      theme: 'light',
+      language: 'es',
       lessonReminders: true,
       timezone: 'UTC',
-      profileVisibility: 'public' as const,
+      profileVisibility: 'public',
       showEmail: false,
       showLastSeen: true,
     };
 
-    localStorage.setItem(`settings_${mockUser.id}`, JSON.stringify(savedSettings));
+    mockGetUserSettings.mockResolvedValue({
+      success: true,
+      settings: savedSettings,
+    });
 
     const { result } = renderHook(() => useSettings(), { wrapper: QueryWrapper });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     expect(result.current.settings).toMatchObject(savedSettings);
+    expect(mockGetUserSettings).toHaveBeenCalledWith('test-user-id');
   });
 
   it('should reset settings to defaults', async () => {
@@ -110,5 +141,26 @@ describe('useSettings', () => {
 
     expect(result.current.settings.theme).toBe('system');
     expect(result.current.hasChanges).toBe(true);
+  });
+
+  it('should use initialSettings when provided', async () => {
+    const initialSettings: UserSettings = {
+      emailNotifications: true,
+      pushNotifications: false,
+      lessonReminders: true,
+      theme: 'dark',
+      language: 'pl',
+      timezone: 'Europe/Warsaw',
+      profileVisibility: 'private',
+      showEmail: true,
+      showLastSeen: false,
+    };
+
+    const { result } = renderHook(() => useSettings(initialSettings), {
+      wrapper: QueryWrapper,
+    });
+
+    // initialSettings are available immediately, no loading state
+    expect(result.current.settings).toMatchObject(initialSettings);
   });
 });
