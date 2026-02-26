@@ -58,10 +58,8 @@ export const studentRoutes: RouteEntry[] = [
 	},
 ];
 
-// Development-only helpers (can be used for diagnostics in E2E if needed)
-export const devOnlyRoutes: RouteEntry[] = [
-	{ path: '/debug-auth', name: 'Debug Auth' },
-];
+// Development-only helpers (debug routes have been removed for security)
+export const devOnlyRoutes: RouteEntry[] = [];
 
 const routes = {
 	authRoutes,
