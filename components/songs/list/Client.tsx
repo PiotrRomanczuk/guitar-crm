@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import type { Song } from '../types';
 import SongListFilter from './Filter';
@@ -33,9 +32,14 @@ export function SongListClient({
   categories,
   authors,
 }: Props) {
-  const _router = useRouter();
+  const [songs, setSongs] = useState<Song[]>(initialSongs);
   const [sortBy, setSortBy] = useState<SortField>('updated_at');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  // Sync local state when server data changes (e.g., navigation)
+  useEffect(() => {
+    setSongs(initialSongs);
+  }, [initialSongs]);
 
   const selection = useSongSelection();
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
@@ -43,7 +47,7 @@ export function SongListClient({
   const [bulkDeleteError, setBulkDeleteError] = useState<string | null>(null);
 
   // Sort songs
-  const sortedSongs = [...initialSongs].sort((a, b) => {
+  const sortedSongs = [...songs].sort((a, b) => {
     let aValue: string | number | null | undefined;
     let bValue: string | number | null | undefined;
 
@@ -90,10 +94,8 @@ export function SongListClient({
 
   const songIds = sortedSongs.map((s) => s.id);
 
-  const handleDeleteSuccess = () => {
-    // Note: Removed router.refresh() to prevent table restart
-    // The table will update on next navigation or manual refresh
-    // Consider migrating to TanStack Query for real-time updates
+  const handleDeleteSuccess = (deletedSongId: string) => {
+    setSongs((prev) => prev.filter((s) => s.id !== deletedSongId));
   };
 
   const handleBulkDelete = async () => {
@@ -111,10 +113,16 @@ export function SongListClient({
         toast.error(`Failed to delete ${result.errors.length} ${result.errors.length === 1 ? 'song' : 'songs'}`);
       }
 
+      // Remove deleted songs from local state
+      // On partial failure, remove all selected since we can't determine which failed
+      // Server data will reconcile on next navigation
+      if (result.deletedCount > 0) {
+        const idsToRemove = new Set(selection.selectedIds);
+        setSongs((prev) => prev.filter((s) => !idsToRemove.has(s.id)));
+      }
+
       setBulkDeleteOpen(false);
       selection.clearSelection();
-      // Note: Removed router.refresh() to prevent table restart
-      // Consider using optimistic updates or TanStack Query
     } catch {
       setBulkDeleteError('An unexpected error occurred');
     } finally {
@@ -140,7 +148,7 @@ export function SongListClient({
         />
       )}
 
-      {initialSongs.length === 0 ? (
+      {songs.length === 0 ? (
         <SongListEmpty />
       ) : (
         <>

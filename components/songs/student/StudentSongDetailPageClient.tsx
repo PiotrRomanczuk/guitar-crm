@@ -492,17 +492,6 @@ export function StudentSongDetailPageClient() {
             </Card>
           )}
 
-          {song.comments && (
-            <Card className="bg-card border-border/50 shadow-sm">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Notes</h3>
-                <div className="prose prose-sm max-w-none">
-                  <p className="text-muted-foreground">{song.comments}</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           <SongStatusHistory
             key={historyKey}
             songId={song.id}

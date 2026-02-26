@@ -19,6 +19,10 @@ import { HealthSummaryWidget } from '@/components/dashboard/health/HealthSummary
 import { OpenRouterStatusWidget } from '@/components/dashboard/admin/OpenRouterStatusWidget';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
 import { TeacherPerformance } from '@/components/dashboard/teacher/Performance';
+import {
+  TeacherDashboardAlerts,
+  type DashboardAlert,
+} from '@/components/dashboard/teacher/TeacherDashboardAlerts';
 import { Users, BookOpen, Music, Shield } from 'lucide-react';
 import Link from 'next/link';
 
@@ -55,6 +59,7 @@ interface TeacherDashboardClientProps {
   fullName?: string | null;
   adminStats?: AdminStats;
   isAdmin?: boolean;
+  alerts?: DashboardAlert[];
 }
 
 export function TeacherDashboardClient({
@@ -63,6 +68,7 @@ export function TeacherDashboardClient({
   fullName,
   adminStats,
   isAdmin,
+  alerts = [],
 }: TeacherDashboardClientProps) {
   const { data: dashboardData } = useDashboardStats();
   const apiAdminStats =
@@ -110,6 +116,13 @@ export function TeacherDashboardClient({
         <DashboardSection>
           <HealthAlertsBanner />
         </DashboardSection>
+
+        {/* Teacher Dashboard Alerts */}
+        {alerts.length > 0 && (
+          <DashboardSection>
+            <TeacherDashboardAlerts alerts={alerts} />
+          </DashboardSection>
+        )}
 
         {/* Stats Grid - Lesson Statistics and Today's Agenda */}
         <DashboardSection>

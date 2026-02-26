@@ -10,6 +10,8 @@ import { NextLessonCard } from '@/components/dashboard/student/NextLessonCard';
 import { LastLessonCard } from '@/components/dashboard/student/LastLessonCard';
 import { ProgressChart } from '@/components/dashboard/student/ProgressChart';
 import { PracticeTimerCard } from '@/components/dashboard/student/PracticeTimerCard';
+import { PracticeToday } from '@/components/dashboard/student/PracticeToday';
+import type { PracticeTodaySong } from '@/components/dashboard/student/PracticeToday';
 import { staggerContainer, listItem } from '@/lib/animations';
 
 interface StudentDashboardClientProps {
@@ -94,6 +96,17 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
       : 'pending') as 'pending' | 'completed' | 'overdue',
   }));
 
+  // TODO: Add song_status to getStudentDashboardData recentSongs query
+  // (select song_status from lesson_songs) so real statuses display here.
+  // Currently defaulting to 'started' since the dashboard action doesn't fetch statuses.
+  const practiceSongs: PracticeTodaySong[] = data.recentSongs.map((s) => ({
+    id: s.id,
+    title: s.title,
+    artist: s.artist,
+    status: 'started' as const,
+    lastLessonDate: s.last_played,
+  }));
+
   return (
     <motion.div
       variants={staggerContainer}
@@ -113,6 +126,11 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
               }. Keep up the great work!`
             : "Here's what's happening with your guitar journey."}
         </p>
+      </motion.div>
+
+      {/* Practice focus - first thing students see after greeting */}
+      <motion.div variants={listItem}>
+        <PracticeToday songs={practiceSongs} />
       </motion.div>
 
       {/* API-driven stats */}

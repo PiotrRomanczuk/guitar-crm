@@ -1,453 +1,24 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Music2,
-  Guitar,
-  ExternalLink,
-  Loader2,
-  TrendingUp,
-  Search,
-  Filter,
-  SortAsc,
-  Youtube,
-  Play,
-  FileText,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { SongWithStatus as Song } from '@/components/songs/types';
-import { createClient } from '@/lib/supabase/client';
-import { toast } from 'sonner';
-import {
-  difficultyColors,
-  difficultyLabels,
-  statusColors,
-  statusLabels,
-} from './StudentSongs.constants';
-
-interface SongFilterControlsProps {
-  searchQuery: string;
-  onSearchChange: (v: string) => void;
-  difficultyFilter: string;
-  onDifficultyChange: (v: string) => void;
-  statusFilter: string;
-  onStatusChange: (v: string) => void;
-  sortBy: string;
-  onSortChange: (v: string) => void;
-  filteredCount: number;
-  totalCount: number;
-}
-
-function SongFilterControls({
-  searchQuery,
-  onSearchChange,
-  difficultyFilter,
-  onDifficultyChange,
-  statusFilter,
-  onStatusChange,
-  sortBy,
-  onSortChange,
-  filteredCount,
-  totalCount,
-}: SongFilterControlsProps) {
-  return (
-    <div
-      className="mb-6 sm:mb-8 space-y-4 opacity-0 animate-fade-in"
-      style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
-    >
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="Search songs or artists..."
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10"
-        />
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex items-center gap-2 flex-1">
-          <Filter className="w-4 h-4 text-muted-foreground" />
-          <Select value={difficultyFilter} onValueChange={onDifficultyChange}>
-            <SelectTrigger className="flex-1">
-              <SelectValue placeholder="All Difficulties" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Difficulties</SelectItem>
-              <SelectItem value="beginner">Beginner</SelectItem>
-              <SelectItem value="intermediate">Intermediate</SelectItem>
-              <SelectItem value="advanced">Advanced</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center gap-2 flex-1">
-          <TrendingUp className="w-4 h-4 text-muted-foreground" />
-          <Select value={statusFilter} onValueChange={onStatusChange}>
-            <SelectTrigger className="flex-1">
-              <SelectValue placeholder="All Statuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="to_learn">📝 To Learn</SelectItem>
-              <SelectItem value="learning">🎵 Learning</SelectItem>
-              <SelectItem value="practicing">🎸 Practicing</SelectItem>
-              <SelectItem value="improving">📈 Improving</SelectItem>
-              <SelectItem value="mastered">🏆 Mastered</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center gap-2 flex-1">
-          <SortAsc className="w-4 h-4 text-muted-foreground" />
-          <Select value={sortBy} onValueChange={onSortChange}>
-            <SelectTrigger className="flex-1">
-              <SelectValue placeholder="Sort by..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="name">Song Name</SelectItem>
-              <SelectItem value="author">Author</SelectItem>
-              <SelectItem value="difficulty">Difficulty</SelectItem>
-              <SelectItem value="status">Learning Status</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {(searchQuery || difficultyFilter !== 'all' || statusFilter !== 'all') && (
-        <div className="text-sm text-muted-foreground">
-          Showing {filteredCount} of {totalCount} songs
-        </div>
-      )}
-    </div>
-  );
-}
-
-interface SongCardProps {
-  song: Song;
-  index: number;
-  updatingStatus: string | null;
-  onStatusChange: (songId: string, newStatus: string) => void;
-}
-
-function SongCard({ song, index, updatingStatus, onStatusChange }: SongCardProps) {
-  return (
-    <div
-      className="group bg-card rounded-xl border border-border overflow-hidden hover:border-primary/30 transition-all duration-300 opacity-0 animate-fade-in"
-      style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
-    >
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden relative">
-            {song.cover_image_url ? (
-              <Image
-                src={song.cover_image_url}
-                alt={song.title}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <Music2 className="w-6 h-6 text-primary" />
-            )}
-          </div>
-          <div className="flex flex-col items-end gap-2">
-            <Badge
-              variant="outline"
-              className={cn('capitalize', difficultyColors[song.level || 'beginner'])}
-            >
-              {difficultyLabels[song.level || 'beginner']}
-            </Badge>
-            {song.status && (
-              <Badge
-                variant="outline"
-                className={cn(
-                  'capitalize',
-                  statusColors[song.status] || 'bg-muted text-muted-foreground'
-                )}
-              >
-                {statusLabels[song.status] || song.status.replace('_', ' ')}
-              </Badge>
-            )}
-          </div>
-        </div>
-
-        <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
-          {song.title}
-        </h3>
-        <p className="text-muted-foreground text-sm mb-4">{song.author}</p>
-
-        <div className="space-y-2 mb-6">
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Guitar className="w-4 h-4 mr-2" />
-            Key: {song.key}
-          </div>
-          {song.chords && (
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Music2 className="w-4 h-4 mr-2" />
-              Chords: {song.chords}
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-3 mb-4">
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">Learning Progress</label>
-            <Select
-              value={song.status || 'to_learn'}
-              onValueChange={(newStatus) => onStatusChange(song.id, newStatus)}
-              disabled={updatingStatus === song.id}
-            >
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="to_learn">📝 To Learn</SelectItem>
-                <SelectItem value="learning">🎵 Learning</SelectItem>
-                <SelectItem value="practicing">🎸 Practicing</SelectItem>
-                <SelectItem value="improving">📈 Improving</SelectItem>
-                <SelectItem value="mastered">🏆 Mastered</SelectItem>
-              </SelectContent>
-            </Select>
-            {updatingStatus === song.id && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Loader2 className="w-3 h-3 animate-spin" />
-                Updating...
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <div className="space-y-2">
-            <h4 className="text-xs font-medium text-muted-foreground mb-2">Quick Resources</h4>
-            <div className="grid grid-cols-2 gap-2">
-              {song.youtube_url && (
-                <a
-                  href={song.youtube_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
-                >
-                  <Youtube className="w-4 h-4" />
-                  YouTube
-                </a>
-              )}
-              {song.ultimate_guitar_link && (
-                <a
-                  href={song.ultimate_guitar_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-warning text-warning-foreground rounded-md hover:bg-warning/90 transition-colors"
-                >
-                  <FileText className="w-4 h-4" />
-                  Tabs
-                </a>
-              )}
-              {song.spotify_link_url && (
-                <a
-                  href={song.spotify_link_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-success text-success-foreground rounded-md hover:bg-success/90 transition-colors"
-                >
-                  <Play className="w-4 h-4" />
-                  Spotify
-                </a>
-              )}
-              {song.audio_files && (
-                <a
-                  href={Object.values(song.audio_files)[0] ?? '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 h-9 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-                >
-                  <Music2 className="w-4 h-4" />
-                  Audio
-                </a>
-              )}
-            </div>
-            {!song.youtube_url &&
-              !song.ultimate_guitar_link &&
-              !song.spotify_link_url &&
-              !song.audio_files && (
-                <div className="text-xs text-muted-foreground text-center py-2">
-                  No resources available yet
-                </div>
-              )}
-          </div>
-
-          <Link
-            href={`/dashboard/songs/${song.id}`}
-            className="w-full inline-flex items-center justify-center h-9 px-4 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors"
-          >
-            View Full Details
-            <ExternalLink className="w-4 h-4 ml-2" />
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
+import { Music2, Loader2 } from 'lucide-react';
+import { useStudentSongs } from './useStudentSongs';
+import { StudentSongFilterControls } from './StudentSongFilterControls';
+import { StudentSongCard } from './StudentSongCard';
 
 export function StudentSongsPageClient() {
-  const [songs, setSongs] = useState<Song[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<string>('name');
-
-  const supabase = createClient();
-
-  const updateSongStatus = async (songId: string, newStatus: string) => {
-    setUpdatingStatus(songId);
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { data: lessonSong } = await supabase
-        .from('lesson_songs')
-        .select(`id, lessons!inner (student_id)`)
-        .eq('song_id', songId)
-        .eq('lessons.student_id', user.id)
-        .single();
-
-      if (!lessonSong) {
-        throw new Error('No lesson found for this song. Please contact your instructor.');
-      }
-
-      const { error } = await supabase
-        .from('lesson_songs')
-        .update({ status: newStatus })
-        .eq('id', lessonSong.id);
-
-      if (error) throw error;
-
-      setSongs(
-        songs.map((song) => (song.id === songId ? { ...song, status: newStatus as any } : song))
-      );
-      toast.success(`Song status updated to ${statusLabels[newStatus] || newStatus}!`);
-    } catch (error) {
-      console.error('Error updating song status:', error);
-      toast.error('Failed to update song status. Please try again.');
-    } finally {
-      setUpdatingStatus(null);
-    }
-  };
-
-  const filteredSongs = useMemo(() => {
-    let filtered = songs;
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(
-        (song) =>
-          song.title.toLowerCase().includes(query) || (song.author ?? '').toLowerCase().includes(query)
-      );
-    }
-
-    if (difficultyFilter !== 'all') {
-      filtered = filtered.filter((song) => song.level === difficultyFilter);
-    }
-
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter((song) => song.status === statusFilter);
-    }
-
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.title.localeCompare(b.title);
-        case 'author':
-          return (a.author ?? '').localeCompare(b.author ?? '');
-        case 'difficulty': {
-          const difficultyOrder = { beginner: 0, intermediate: 1, advanced: 2 };
-          return (
-            difficultyOrder[a.level as keyof typeof difficultyOrder] -
-            difficultyOrder[b.level as keyof typeof difficultyOrder]
-          );
-        }
-        case 'status': {
-          const statusOrder = { to_learn: 0, learning: 1, practicing: 2, improving: 3, mastered: 4 };
-          return (
-            statusOrder[a.status as keyof typeof statusOrder] -
-            statusOrder[b.status as keyof typeof statusOrder]
-          );
-        }
-        default:
-          return 0;
-      }
-    });
-
-    return filtered;
-  }, [songs, searchQuery, difficultyFilter, statusFilter, sortBy]);
-
-  useEffect(() => {
-    async function fetchSongs() {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data, error } = await supabase
-          .from('lesson_songs')
-          .select(
-            `
-            id,
-            status,
-            lessons!inner (student_id),
-            songs!inner (
-              id,
-              title,
-              author,
-              level,
-              key,
-              chords,
-              ultimate_guitar_link,
-              cover_image_url
-            )
-          `
-          )
-          .eq('lessons.student_id', user.id);
-
-        if (error) throw error;
-
-        const processedSongsMap = new Map<string, Song>();
-        data?.forEach((lessonSong) => {
-          const song = Array.isArray(lessonSong.songs) ? lessonSong.songs[0] : lessonSong.songs;
-          if (!song || processedSongsMap.has(song.id)) return;
-          processedSongsMap.set(song.id, { ...song, status: lessonSong.status } as Song);
-        });
-
-        setSongs(Array.from(processedSongsMap.values()));
-      } catch (error) {
-        console.error('Error fetching songs:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchSongs();
-  }, [supabase]);
+  const {
+    songs,
+    loading,
+    updatingStatus,
+    filters,
+    updateFilter,
+    clearFilters,
+    updateSongStatus,
+    filteredSongs,
+    hasActiveFilters,
+  } = useStudentSongs();
 
   if (loading) {
     return (
@@ -470,72 +41,77 @@ export function StudentSongsPageClient() {
       </div>
 
       {songs.length > 0 && (
-        <SongFilterControls
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          difficultyFilter={difficultyFilter}
-          onDifficultyChange={setDifficultyFilter}
-          statusFilter={statusFilter}
-          onStatusChange={setStatusFilter}
-          sortBy={sortBy}
-          onSortChange={setSortBy}
+        <StudentSongFilterControls
+          searchQuery={filters.searchQuery}
+          onSearchChange={(v) => updateFilter('searchQuery', v)}
+          difficultyFilter={filters.difficultyFilter}
+          onDifficultyChange={(v) => updateFilter('difficultyFilter', v)}
+          statusFilter={filters.statusFilter}
+          onStatusChange={(v) => updateFilter('statusFilter', v)}
+          sortBy={filters.sortBy}
+          onSortChange={(v) => updateFilter('sortBy', v as 'name' | 'author' | 'difficulty' | 'status')}
           filteredCount={filteredSongs.length}
           totalCount={songs.length}
+          hasActiveFilters={hasActiveFilters}
         />
       )}
 
       {songs.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="relative w-64 h-48 mx-auto mb-6">
-            <Image
-              src="/illustrations/no-upcoming-lessons--future-focused---a-forward-lo.png"
-              alt="No songs assigned"
-              fill
-              className="object-contain"
-            />
-          </div>
-          <h3 className="text-lg font-medium mb-2">No songs assigned yet</h3>
-          <p className="text-muted-foreground mb-4">
-            You haven&apos;t been assigned any songs yet. Your teacher will add songs as you
-            progress through your lessons.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Have questions? Contact your teacher for guidance on what to practice next.
-          </p>
-        </div>
+        <StudentSongsEmptyState />
       ) : filteredSongs.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="relative w-64 h-48 mx-auto mb-6">
-            <Music2 className="w-24 h-24 text-muted-foreground/30 mx-auto" />
-          </div>
-          <h3 className="text-lg font-medium mb-2">No songs match your filters</h3>
-          <p className="text-muted-foreground mb-4">
-            Try adjusting your search or filter criteria to see more songs.
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setSearchQuery('');
-              setDifficultyFilter('all');
-              setStatusFilter('all');
-            }}
-          >
-            Clear Filters
-          </Button>
-        </div>
+        <StudentSongsNoResults onClearFilters={clearFilters} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {filteredSongs.map((song, index) => (
-            <SongCard
+          {filteredSongs.map((song) => (
+            <StudentSongCard
               key={song.id}
               song={song}
-              index={index}
-              updatingStatus={updatingStatus}
               onStatusChange={updateSongStatus}
+              isUpdating={updatingStatus === song.id}
             />
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function StudentSongsEmptyState() {
+  return (
+    <div className="text-center py-12">
+      <div className="relative w-64 h-48 mx-auto mb-6">
+        <Image
+          src="/illustrations/no-upcoming-lessons--future-focused---a-forward-lo.png"
+          alt="No songs assigned"
+          fill
+          className="object-contain"
+        />
+      </div>
+      <h3 className="text-lg font-medium mb-2">No songs assigned yet</h3>
+      <p className="text-muted-foreground mb-4">
+        You haven&apos;t been assigned any songs yet. Your teacher will add songs as you
+        progress through your lessons.
+      </p>
+      <p className="text-sm text-muted-foreground">
+        Have questions? Contact your teacher for guidance on what to practice next.
+      </p>
+    </div>
+  );
+}
+
+function StudentSongsNoResults({ onClearFilters }: { onClearFilters: () => void }) {
+  return (
+    <div className="text-center py-12">
+      <div className="relative w-64 h-48 mx-auto mb-6">
+        <Music2 className="w-24 h-24 text-muted-foreground/30 mx-auto" />
+      </div>
+      <h3 className="text-lg font-medium mb-2">No songs match your filters</h3>
+      <p className="text-muted-foreground mb-4">
+        Try adjusting your search or filter criteria to see more songs.
+      </p>
+      <Button variant="outline" onClick={onClearFilters}>
+        Clear Filters
+      </Button>
     </div>
   );
 }

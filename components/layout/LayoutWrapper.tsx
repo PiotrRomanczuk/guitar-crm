@@ -1,10 +1,12 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { ReactNode } from 'react';
 import { AppSidebar } from '@/components/navigation/AppSidebar';
 import { HorizontalNav } from '@/components/navigation/HorizontalNav';
 import { MobileBottomNav } from '@/components/navigation/MobileBottomNav';
+import { MobileMoreMenu } from '@/components/navigation/MobileMoreMenu';
 import { NotificationBell } from '@/components/notifications';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { Toaster } from 'sonner';
@@ -32,6 +34,8 @@ export function LayoutWrapper({ children, user, isAdmin, isTeacher, isStudent }:
   const pathname = usePathname();
   const layoutMode = useLayoutMode();
   useKeyboardViewport();
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const openMoreMenu = useCallback(() => setMoreMenuOpen(true), []);
 
   // Determine layout type
   const isAuthPage = ['/sign-in', '/sign-up', '/auth/login', '/auth/register'].includes(
@@ -94,8 +98,20 @@ export function LayoutWrapper({ children, user, isAdmin, isTeacher, isStudent }:
     return (
       <>
         <HorizontalNav user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
-        <main className="pt-16 pb-24 md:pb-0 min-h-screen bg-background">{children}</main>
-        <MobileBottomNav />
+        <main className="pt-16 pb-16 md:pb-0 min-h-screen bg-background">{children}</main>
+        <MobileBottomNav
+          isAdmin={isAdmin}
+          isTeacher={isTeacher}
+          isStudent={isStudent}
+          onOpenSidebar={openMoreMenu}
+        />
+        <MobileMoreMenu
+          open={moreMenuOpen}
+          onOpenChange={setMoreMenuOpen}
+          isAdmin={isAdmin}
+          isTeacher={isTeacher}
+          isStudent={isStudent}
+        />
         <Toaster />
       </>
     );

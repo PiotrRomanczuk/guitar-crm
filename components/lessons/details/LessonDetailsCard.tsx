@@ -4,7 +4,7 @@ import SendEmailButton from '../actions/SendEmailButton';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Trash2, ArrowLeft } from 'lucide-react';
+import { Pencil, Trash2, ArrowLeft, Play } from 'lucide-react';
 
 type LessonDetail = LessonWithProfiles & {
   lesson_songs: {
@@ -73,17 +73,31 @@ function InfoItem({ label, value }: { label: string; value: string }) {
 
 function ActionButtons({
   lessonId,
+  lessonStatus,
   canEdit,
   canDelete,
   onDelete,
 }: {
   lessonId: string;
+  lessonStatus: string | null | undefined;
   canEdit: boolean;
   canDelete: boolean;
   onDelete: (formData: FormData) => void;
 }) {
+  const isCancelled = lessonStatus === 'CANCELLED';
+  const isCompleted = lessonStatus === 'COMPLETED';
+
   return (
     <div className="flex gap-3 mt-8 flex-wrap">
+      {canEdit && !isCancelled && (
+        <Button size="lg" className="gap-2" asChild data-testid="lesson-live-button">
+          <Link href={`/dashboard/lessons/${lessonId}/live`}>
+            <Play className="h-5 w-5" />
+            {isCompleted ? 'Review Lesson' : 'Start Lesson'}
+          </Link>
+        </Button>
+      )}
+
       {canEdit && (
         <Button asChild data-testid="lesson-edit-button">
           <Link href={`/dashboard/lessons/${lessonId}/edit`}>
@@ -197,6 +211,7 @@ export function LessonDetailsCard({
 
         <ActionButtons
           lessonId={lesson.id || ''}
+          lessonStatus={lesson.status}
           canEdit={canEdit}
           canDelete={canDelete}
           onDelete={onDelete}

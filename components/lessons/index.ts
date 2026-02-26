@@ -14,6 +14,7 @@ export { default as LessonSongs } from './songs/LessonSongs';
 export { LessonSongsList } from './songs/LessonSongsList';
 export { LessonDetailsCard } from './details/LessonDetailsCard';
 export { LessonAssignmentsList } from './details/LessonAssignmentsList';
+export { PostLessonPrompt } from './details/PostLessonPrompt';
 export { default as useLessonList } from './hooks/useLessonList';
 export { default as useLessonForm } from './hooks/useLessonForm';
 export { useProfiles } from './hooks/useProfiles';
