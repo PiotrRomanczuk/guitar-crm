@@ -35,6 +35,8 @@ export default async function RepertoirePage() {
       custom_strumming,
       teacher_notes,
       last_practiced_at,
+      self_rating,
+      self_rating_updated_at,
       song:songs!inner(id, title, author, key, level)
     `
     )
@@ -47,12 +49,13 @@ export default async function RepertoirePage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">My Repertoire</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            All songs in your learning collection
+            All songs in your learning collection. Rate each song to track your confidence level.
           </p>
         </div>
         <UserRepertoireTab
           userId={user.id}
           repertoire={(repertoire as unknown as StudentRepertoireWithSong[]) || []}
+          viewMode="student"
         />
       </div>
     </main>

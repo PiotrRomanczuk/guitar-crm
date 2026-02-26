@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { Music, Settings, Keyboard, ChevronRight, CalendarPlus, Loader2 } from 'lucide-react';
 import type { StudentRepertoireWithSong } from '@/types/StudentRepertoire';
 import { addSongToNextLessonAction } from '@/app/actions/repertoire';
+import { AssessmentComparison } from '@/components/repertoire/AssessmentComparison';
+import { SelfRatingStars } from '@/components/repertoire/SelfRatingStars';
 import { toast } from 'sonner';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -67,13 +69,16 @@ function AddToNextLessonButton({
   );
 }
 
+type ViewMode = 'teacher' | 'student';
+
 interface RepertoireCardProps {
   item: StudentRepertoireWithSong;
   studentId: string;
   onEditConfig: () => void;
+  viewMode?: ViewMode;
 }
 
-export function RepertoireCard({ item, studentId, onEditConfig }: RepertoireCardProps) {
+export function RepertoireCard({ item, studentId, onEditConfig, viewMode = 'teacher' }: RepertoireCardProps) {
   const hasOverrides = item.preferred_key || item.capo_fret !== null || item.custom_strumming;
 
   return (
@@ -128,6 +133,22 @@ export function RepertoireCard({ item, studentId, onEditConfig }: RepertoireCard
                   {item.teacher_notes}
                 </p>
               )}
+
+              <div className="mt-1.5">
+                {viewMode === 'student' ? (
+                  <SelfRatingStars
+                    repertoireId={item.id}
+                    currentRating={item.self_rating}
+                    updatedAt={item.self_rating_updated_at}
+                  />
+                ) : (
+                  <AssessmentComparison
+                    teacherStatus={item.current_status}
+                    selfRating={item.self_rating}
+                    selfRatingUpdatedAt={item.self_rating_updated_at}
+                  />
+                )}
+              </div>
 
               {item.last_practiced_at && (
                 <p className="text-[10px] text-muted-foreground/70 mt-1">
