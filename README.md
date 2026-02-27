@@ -6,7 +6,9 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![Deploy](https://img.shields.io/badge/Live-strummy.app-black?style=for-the-badge&logo=vercel)](https://strummy.app)
 
-A production SaaS platform for independent guitar teachers — student management, AI-generated lesson content, Spotify-enriched song library, Google Calendar sync, and automated notification pipelines. Built solo over 4 months with **1,150+ commits**, **100 merged PRs**, **30 tagged releases**, and **124 database migrations**.
+**This is not a portfolio project.** Strummy is a production SaaS platform actively used by a guitar teacher and their students for daily lesson management, scheduling, and progress tracking. Real lessons are booked through it, real notifications are sent, real Spotify data enriches the song library, and real Google Calendar events stay in sync.
+
+Built solo over 4 months with **1,150+ commits**, **100 merged PRs**, **30 tagged releases**, and **124 database migrations** — and still shipping features weekly to real users at [strummy.app](https://strummy.app).
 
 <p align="center">
   <img src="./public/screenshots/dashboard.png" alt="Strummy Dashboard" width="100%" />
@@ -18,6 +20,7 @@ A production SaaS platform for independent guitar teachers — student managemen
 
 | Metric | Value |
 |:---|:---|
+| **Status** | **Live in production** — used daily by a guitar teacher and students at [strummy.app](https://strummy.app) |
 | **Codebase** | ~254,000 lines of TypeScript across 6,900+ source files |
 | **API Surface** | 107 REST endpoints + 30 Server Actions |
 | **Database** | 124 SQL migrations, 50+ RLS policies, 15+ tables, 13 custom enum types |
@@ -80,7 +83,7 @@ DB Triggers  -->  notification_queue table  -->  Cron processor  -->  Dual-chann
 ```
 
 1. **PL/pgSQL triggers** fire on lesson/assignment/progress events, building JSONB payloads and inserting into `notification_queue`
-2. **Priority queue** with `scheduled_for`, `max_retries`, and `retry_count` fields
+2. **Priority queue** with `scheduled_for`, `max_retries`, and `retry_count` fields — drained using `FOR UPDATE SKIP LOCKED` to prevent concurrent cron workers from processing the same row
 3. **Cron processor** drains the queue on schedule, routing each notification through user preference checks
 4. **Dual-channel delivery** — email (18 Nodemailer HTML templates) or in-app (Supabase Realtime)
 5. **Exponential backoff retry** with dead letter queue after max retries
@@ -135,7 +138,7 @@ DB Triggers  -->  notification_queue table  -->  Cron processor  -->  Dual-chann
 
 | Vulnerability | Fix |
 |:---|:---|
-| IDOR in email unsubscribe links | Replaced plain `userId` with HMAC-signed tokens |
+| IDOR in email unsubscribe links | Replaced plain `userId` with HMAC-signed tokens verified via `timingSafeEqual` (constant-time comparison to prevent timing side-channel attacks) |
 | PostgREST filter injection in song search | Parameterized all filter inputs |
 | `getSession()` used in middleware (client-forgeable) | Migrated to `getUser()` (server-verified) |
 | Service role key exposed via `NEXT_PUBLIC_` prefix | Moved to server-side only env vars |
@@ -144,8 +147,26 @@ DB Triggers  -->  notification_queue table  -->  Cron processor  -->  Dual-chann
 | Unauthenticated debug routes in production | Gated behind admin role check |
 | Missing webhook token validation | Added `X-Goog-Channel-Token` verification |
 | N+1 queries in admin analytics | Replaced `select('*')` with explicit column lists |
+| Rate limit TOCTOU race condition | Replaced two-step check-then-insert with atomic `INSERT` + `COUNT` in a single function — prevents concurrent requests from bypassing limits |
 
-**Key files:** Security audit migrations (`supabase/migrations/20260224_*`), `middleware.ts` (CSP + security headers), `lib/auth/cron-auth.ts`
+**Key files:** Security audit migrations (`supabase/migrations/20260224_*`), `middleware.ts` (CSP + security headers), `lib/auth/cron-auth.ts`, `lib/notifications/unsubscribe-token.ts`
+
+---
+
+### 7. Interactive Fretboard with CAGED System & Audio Synthesis
+
+**Problem:** Guitar teachers need an interactive fretboard that visualizes scales, highlights intervals, overlays the CAGED position system, and plays correct audio — all computed client-side in real time. This requires music theory encoded as algorithms, not just data.
+
+**Solution:**
+- **Scale engine** — generates any scale on any root note by applying interval formulas. Notes are computed from chromatic pitch math, not hardcoded lookup tables
+- **CAGED overlay** — the five guitar chord shapes (C, A, G, E, D) are mapped as fret offset patterns relative to root position. A function walks the fretboard grid to find where each shape lands for the selected root note, enabling visualization of all five shapes simultaneously
+- **Tone.js audio** — a `PolySynth` with guitar-like parameters. The tricky part is octave arithmetic: given a string index (0–5) and fret number, the correct pitch must be computed by tracking semitone distance from each string's open note and adjusting the octave when the chromatic index wraps past B
+- **Scale positions** — five-position box patterns (positions 1–5) that segment the fretboard into practice-sized regions, each with a defined fret range per string
+- **Note quiz mode** — randomized note identification training with correct/wrong feedback and auto-advance
+
+**The tricky part:** Getting the octave calculation right across all 6 strings and 24 frets. String 6 starts at E2, string 1 at E4 — a fret on string 4 at fret 10 needs to resolve to the correct octave by computing `baseOctave + floor((baseNoteIndex + fret) / 12)` and handling the wrap-around when the chromatic index crosses from B to C.
+
+**Key files:** `components/fretboard/useFretboard.ts`, `components/fretboard/useGuitarAudio.ts`, `components/fretboard/caged.helpers.ts`, `components/fretboard/positions.helpers.ts`, `lib/music-theory.ts`
 
 ---
 
@@ -163,6 +184,8 @@ This project pushed my abilities across multiple engineering disciplines:
 | **Testing Strategy** | 1,021 test files, 3-layer pyramid (unit/integration/E2E), MSW for API mocking, Playwright across 7 device profiles | Writing meaningful E2E tests (user journeys, not UI snapshots); mocking Supabase at the right layer; integration test infrastructure design |
 | **DevOps & CI/CD** | 11-job pipeline, automated semantic versioning from branch names, preview deployments per PR, database migration deployment | Building CI that catches real issues (security audit + DB schema check as blocking gates) vs. CI that just runs tests |
 | **Real-Time Systems** | SSE streaming for calendar/Spotify sync, Supabase Realtime for notifications, cancellable long-running operations | Managing streaming lifecycle (cleanup on disconnect, explicit cancel, error); module-level state for tracking active streams |
+| **Domain Modeling** | CAGED position system, interval-based scale engine, octave arithmetic for audio synthesis, guitar tuning models | Encoding domain expertise as algorithms — the fretboard isn't a UI widget, it's a music theory engine with computed chromatic math |
+| **Operational Engineering** | 11 cron jobs (reminders, digests, queue drain, webhook renewal, drive scanner, status updates, monitoring), health dashboard, streaming analytics | Building systems that run unattended — dead letter queues, idempotent retries, distributed locking via `FOR UPDATE SKIP LOCKED`, cron registry with health checks |
 
 ---
 
@@ -367,4 +390,4 @@ Push/PR
 
 ---
 
-*Solo-built over 4 months. 1,150+ commits. 100 PRs. 30 releases. Still shipping.*
+*Solo-built over 4 months. 1,150+ commits. 100 PRs. 30 releases. Used daily by real teachers and students. Still shipping.*
