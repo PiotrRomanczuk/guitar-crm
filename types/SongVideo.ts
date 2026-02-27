@@ -1,6 +1,8 @@
+export type VideoType = 'tutorial' | 'short';
+
 export interface SongVideo {
   id: string;
-  song_id: string;
+  song_id: string | null;
   uploaded_by: string;
   google_drive_file_id: string;
   google_drive_folder_id: string | null;
@@ -11,6 +13,7 @@ export interface SongVideo {
   duration_seconds: number | null;
   thumbnail_url: string | null;
   display_order: number;
+  video_type: VideoType;
   published_to_instagram: boolean;
   published_to_tiktok: boolean;
   published_to_youtube_shorts: boolean;
@@ -23,9 +26,9 @@ export interface SongVideo {
 
 export type CreateSongVideoDTO = Pick<
   SongVideo,
-  'song_id' | 'google_drive_file_id' | 'google_drive_folder_id' | 'title' | 'filename' | 'mime_type'
+  'google_drive_file_id' | 'google_drive_folder_id' | 'title' | 'filename' | 'mime_type'
 > &
-  Partial<Pick<SongVideo, 'file_size_bytes' | 'duration_seconds' | 'thumbnail_url' | 'display_order'>>;
+  Partial<Pick<SongVideo, 'song_id' | 'file_size_bytes' | 'duration_seconds' | 'thumbnail_url' | 'display_order' | 'video_type'>>;
 
 export type UpdateSongVideoDTO = Partial<
   Pick<SongVideo, 'title' | 'display_order' | 'thumbnail_url' | 'duration_seconds'>

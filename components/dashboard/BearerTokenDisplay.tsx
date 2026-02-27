@@ -54,7 +54,7 @@ export function BearerTokenDisplay() {
       }
 
       const data = await response.json();
-      setToken(data.token);
+      setToken(data.key);
       setCopied(false);
     } catch (error) {
       console.error('Failed to create token:', error);

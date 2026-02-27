@@ -96,28 +96,22 @@ describe('groupRowsByDate', () => {
     expect(group[0].author).toBe('Artist');
   });
 
-  it('assigns today to rows with empty date', () => {
-    const today = getTodayEuropeanDate();
+  it('skips rows with empty date (routed to repertoire)', () => {
     const rows: CsvSongRow[] = [
       { date: '', title: 'Song A', author: '' },
       { date: '', title: 'Song B', author: '' },
     ];
     const groups = groupRowsByDate(rows);
-    expect(groups.size).toBe(1);
-    expect(groups.get(today)).toHaveLength(2);
-    expect(rows[0].date).toBe(today);
-    expect(rows[1].date).toBe(today);
+    expect(groups.size).toBe(0);
   });
 
-  it('groups empty-date rows separately from dated rows', () => {
-    const today = getTodayEuropeanDate();
+  it('only includes dated rows, skipping empty-date rows', () => {
     const rows: CsvSongRow[] = [
       { date: '01.01.2024', title: 'Song A', author: '' },
       { date: '', title: 'Song B', author: '' },
     ];
     const groups = groupRowsByDate(rows);
-    expect(groups.size).toBe(2);
+    expect(groups.size).toBe(1);
     expect(groups.get('01.01.2024')).toHaveLength(1);
-    expect(groups.get(today)).toHaveLength(1);
   });
 });

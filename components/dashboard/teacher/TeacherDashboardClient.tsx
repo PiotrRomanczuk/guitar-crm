@@ -23,6 +23,8 @@ import {
   TeacherDashboardAlerts,
   type DashboardAlert,
 } from '@/components/dashboard/teacher/TeacherDashboardAlerts';
+import { SongOfTheWeekCard } from '@/components/song-of-the-week';
+import type { SongOfTheWeekWithSong } from '@/types/SongOfTheWeek';
 import { Users, BookOpen, Music, Shield } from 'lucide-react';
 import Link from 'next/link';
 
@@ -60,6 +62,7 @@ interface TeacherDashboardClientProps {
   adminStats?: AdminStats;
   isAdmin?: boolean;
   alerts?: DashboardAlert[];
+  sotw?: SongOfTheWeekWithSong | null;
 }
 
 export function TeacherDashboardClient({
@@ -69,6 +72,7 @@ export function TeacherDashboardClient({
   adminStats,
   isAdmin,
   alerts = [],
+  sotw,
 }: TeacherDashboardClientProps) {
   const { data: dashboardData } = useDashboardStats();
   const apiAdminStats =
@@ -150,6 +154,11 @@ export function TeacherDashboardClient({
               {isAdmin && <ServicesStatusWidget />}
             </div>
           </div>
+        </DashboardSection>
+
+        {/* Song of the Week */}
+        <DashboardSection>
+          <SongOfTheWeekCard sotw={sotw ?? null} isAdmin={isAdmin} />
         </DashboardSection>
 
         {/* Student Pipeline */}

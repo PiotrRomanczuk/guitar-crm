@@ -12,14 +12,18 @@ import { ProgressChart } from '@/components/dashboard/student/ProgressChart';
 import { PracticeTimerCard } from '@/components/dashboard/student/PracticeTimerCard';
 import { PracticeToday } from '@/components/dashboard/student/PracticeToday';
 import type { PracticeTodaySong } from '@/components/dashboard/student/PracticeToday';
+import { SongOfTheWeekCard } from '@/components/song-of-the-week';
+import type { SongOfTheWeekWithSong } from '@/types/SongOfTheWeek';
 import { staggerContainer, listItem } from '@/lib/animations';
 
 interface StudentDashboardClientProps {
   data: StudentDashboardData;
   email?: string;
+  sotw?: SongOfTheWeekWithSong | null;
+  sotwInRepertoire?: boolean;
 }
 
-export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
+export function StudentDashboardClient({ data, sotw, sotwInRepertoire = false }: StudentDashboardClientProps) {
   // Transform data for components
   const activities = [
     ...(data.lastLesson
@@ -127,6 +131,17 @@ export function StudentDashboardClient({ data }: StudentDashboardClientProps) {
             : "Here's what's happening with your guitar journey."}
         </p>
       </motion.div>
+
+      {/* Song of the Week - featured spotlight */}
+      {sotw && (
+        <motion.div variants={listItem}>
+          <SongOfTheWeekCard
+            sotw={sotw}
+            sotwInRepertoire={sotwInRepertoire}
+            isStudent
+          />
+        </motion.div>
+      )}
 
       {/* Practice focus - first thing students see after greeting */}
       <motion.div variants={listItem}>

@@ -41,6 +41,7 @@ export const CsvSongImportRowResultSchema = z.object({
   lessonId: z.string().uuid().optional(),
   lessonCreated: z.boolean().default(false),
   songCreated: z.boolean().default(false),
+  isRepertoire: z.boolean().default(false),
 });
 
 export type CsvSongImportRowResult = z.infer<typeof CsvSongImportRowResultSchema>;
@@ -56,6 +57,7 @@ export const CsvSongImportResultSchema = z.object({
       songsCreated: z.number(),
       lessonsCreated: z.number(),
       lessonsExisting: z.number(),
+      repertoireAdded: z.number().default(0),
       errors: z.number(),
     })
     .optional(),

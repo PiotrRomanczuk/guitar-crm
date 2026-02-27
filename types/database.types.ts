@@ -1209,7 +1209,7 @@ export type Database = {
       song_videos: {
         Row: {
           id: string;
-          song_id: string;
+          song_id: string | null;
           uploaded_by: string;
           google_drive_file_id: string;
           google_drive_folder_id: string | null;
@@ -1220,6 +1220,7 @@ export type Database = {
           duration_seconds: number | null;
           thumbnail_url: string | null;
           display_order: number;
+          video_type: Database['public']['Enums']['video_type'];
           published_to_instagram: boolean;
           published_to_tiktok: boolean;
           published_to_youtube_shorts: boolean;
@@ -1231,7 +1232,7 @@ export type Database = {
         };
         Insert: {
           id?: string;
-          song_id: string;
+          song_id?: string | null;
           uploaded_by: string;
           google_drive_file_id: string;
           google_drive_folder_id?: string | null;
@@ -1242,6 +1243,7 @@ export type Database = {
           duration_seconds?: number | null;
           thumbnail_url?: string | null;
           display_order?: number;
+          video_type?: Database['public']['Enums']['video_type'];
           published_to_instagram?: boolean;
           published_to_tiktok?: boolean;
           published_to_youtube_shorts?: boolean;
@@ -1253,7 +1255,7 @@ export type Database = {
         };
         Update: {
           id?: string;
-          song_id?: string;
+          song_id?: string | null;
           uploaded_by?: string;
           google_drive_file_id?: string;
           google_drive_folder_id?: string | null;
@@ -1264,6 +1266,7 @@ export type Database = {
           duration_seconds?: number | null;
           thumbnail_url?: string | null;
           display_order?: number;
+          video_type?: Database['public']['Enums']['video_type'];
           published_to_instagram?: boolean;
           published_to_tiktok?: boolean;
           published_to_youtube_shorts?: boolean;
@@ -2086,6 +2089,7 @@ export type Database = {
       spotify_match_status: 'pending' | 'approved' | 'rejected' | 'auto_applied';
       student_pipeline_status: 'lead' | 'trial' | 'active' | 'inactive' | 'churned';
       user_role: 'admin' | 'teacher' | 'student';
+      video_type: 'tutorial' | 'short';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -2292,6 +2296,7 @@ export const Constants = {
       spotify_match_status: ['pending', 'approved', 'rejected', 'auto_applied'],
       student_pipeline_status: ['lead', 'trial', 'active', 'inactive', 'churned'],
       user_role: ['admin', 'teacher', 'student'],
+      video_type: ['tutorial', 'short'],
     },
   },
 } as const;

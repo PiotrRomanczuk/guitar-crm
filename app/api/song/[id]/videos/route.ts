@@ -116,6 +116,7 @@ export async function POST(
         duration_seconds: input.duration_seconds || null,
         thumbnail_url: thumbnailUrl || null,
         display_order: displayOrder,
+        video_type: input.video_type,
       })
       .select()
       .single();

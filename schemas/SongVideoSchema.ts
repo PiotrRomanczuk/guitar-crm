@@ -4,10 +4,11 @@ const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm'] as co
 const MAX_FILE_SIZE_BYTES = 500 * 1024 * 1024; // 500MB
 
 export const MicTypeEnum = z.enum(['iphone', 'external']);
+export const VideoTypeEnum = z.enum(['tutorial', 'short']);
 
 export const SongVideoSchema = z.object({
   id: z.string().uuid(),
-  song_id: z.string().uuid(),
+  song_id: z.string().uuid().nullable(),
   uploaded_by: z.string().uuid(),
   google_drive_file_id: z.string().min(1),
   google_drive_folder_id: z.string().nullable(),
@@ -18,6 +19,7 @@ export const SongVideoSchema = z.object({
   duration_seconds: z.number().nonnegative().nullable(),
   thumbnail_url: z.string().url().nullable(),
   display_order: z.number().int().nonnegative(),
+  video_type: VideoTypeEnum,
   is_recording_correct: z.boolean(),
   is_well_lit: z.boolean(),
   mic_type: MicTypeEnum.nullable(),
@@ -36,6 +38,8 @@ export const CreateSongVideoInputSchema = z.object({
   duration_seconds: z.number().nonnegative().optional(),
   thumbnail_url: z.string().url().optional(),
   display_order: z.number().int().nonnegative().optional(),
+  video_type: VideoTypeEnum.default('tutorial'),
+  song_id: z.string().uuid().optional(),
 });
 
 export const UpdateSongVideoInputSchema = z.object({

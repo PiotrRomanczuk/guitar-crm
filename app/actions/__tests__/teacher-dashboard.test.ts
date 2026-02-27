@@ -47,6 +47,12 @@ jest.mock('@/lib/supabase/server', () => ({
   ),
 }));
 
+// Mock getTeacherStudentIds
+const mockGetTeacherStudentIds = jest.fn();
+jest.mock('@/lib/queries/teacher-students', () => ({
+  getTeacherStudentIds: (...args: any[]) => mockGetTeacherStudentIds(...args),
+}));
+
 /**
  * Creates a standard mock implementation for all tables.
  * Override specific tables by passing overrides.
@@ -100,13 +106,15 @@ describe('getTeacherDashboardData', () => {
       isStudent: false,
     });
 
+    mockGetTeacherStudentIds.mockResolvedValue(['student-1', 'student-2']);
+
     let lessonsCallIndex = 0;
 
     mockFrom.mockImplementation((table: string) => {
       if (table === 'profiles') {
         return {
           select: () => ({
-            eq: () => Promise.resolve({
+            in: () => Promise.resolve({
               data: [
                 { id: 'student-1', full_name: 'John Doe', avatar_url: 'https://example.com/avatar1.jpg' },
                 { id: 'student-2', full_name: 'Jane Smith', avatar_url: null },
@@ -197,11 +205,13 @@ describe('getTeacherDashboardData', () => {
       isStudent: false,
     });
 
+    mockGetTeacherStudentIds.mockResolvedValue([]);
+
     mockFrom.mockImplementation((table: string) => {
       if (table === 'profiles') {
         return {
           select: () => ({
-            eq: () => Promise.resolve({ data: [] }),
+            in: () => Promise.resolve({ data: [] }),
           }),
         };
       }
@@ -248,19 +258,17 @@ describe('getTeacherDashboardData', () => {
       isStudent: false,
     });
 
-    let profilesCallCount = 0;
+    mockGetTeacherStudentIds.mockResolvedValue(['student-1']);
+
     mockFrom.mockImplementation((table: string) => {
       if (table === 'profiles') {
-        profilesCallCount++;
-        if (profilesCallCount === 1) {
-          return {
-            select: () => ({
-              eq: () => Promise.resolve({
-                data: [{ id: 'student-1', full_name: 'New Student', avatar_url: null }],
-              }),
+        return {
+          select: () => ({
+            in: () => Promise.resolve({
+              data: [{ id: 'student-1', full_name: 'New Student', avatar_url: null }],
             }),
-          };
-        }
+          }),
+        };
       }
 
       if (table === 'lessons') {
@@ -294,19 +302,17 @@ describe('getTeacherDashboardData', () => {
       isStudent: false,
     });
 
-    let profilesCallCount2 = 0;
+    mockGetTeacherStudentIds.mockResolvedValue(['student-1']);
+
     mockFrom.mockImplementation((table: string) => {
       if (table === 'profiles') {
-        profilesCallCount2++;
-        if (profilesCallCount2 === 1) {
-          return {
-            select: () => ({
-              eq: () => Promise.resolve({
-                data: [{ id: 'student-1', full_name: null, avatar_url: null }],
-              }),
+        return {
+          select: () => ({
+            in: () => Promise.resolve({
+              data: [{ id: 'student-1', full_name: null, avatar_url: null }],
             }),
-          };
-        }
+          }),
+        };
       }
 
       if (table === 'lessons') {
@@ -337,11 +343,13 @@ describe('getTeacherDashboardData', () => {
       isStudent: false,
     });
 
+    mockGetTeacherStudentIds.mockResolvedValue([]);
+
     mockFrom.mockImplementation((table: string) => {
       if (table === 'profiles') {
         return {
           select: () => ({
-            eq: () => Promise.resolve({ data: [] }),
+            in: () => Promise.resolve({ data: [] }),
           }),
         };
       }
@@ -373,11 +381,13 @@ describe('getTeacherDashboardData', () => {
       isStudent: false,
     });
 
+    mockGetTeacherStudentIds.mockResolvedValue(['student-1', 'student-2', 'student-3']);
+
     mockFrom.mockImplementation((table: string) => {
       if (table === 'profiles') {
         return {
           select: () => ({
-            eq: () => Promise.resolve({
+            in: () => Promise.resolve({
               data: [
                 { id: 'student-1', full_name: 'Student 1', avatar_url: null },
                 { id: 'student-2', full_name: 'Student 2', avatar_url: null },
@@ -444,6 +454,8 @@ describe('getTeacherDashboardData', () => {
       isStudent: false,
     });
 
+    mockGetTeacherStudentIds.mockResolvedValue(['beginner', 'intermediate', 'advanced']);
+
     // Return three students; each will get the same lesson count from our mock
     // We test the boundary logic by checking specific counts
     const studentCounts = [0, 5, 20];
@@ -453,7 +465,7 @@ describe('getTeacherDashboardData', () => {
       if (table === 'profiles') {
         return {
           select: () => ({
-            eq: () => Promise.resolve({
+            in: () => Promise.resolve({
               data: [
                 { id: 'beginner', full_name: 'Beginner Student', avatar_url: null },
                 { id: 'intermediate', full_name: 'Intermediate Student', avatar_url: null },
@@ -496,11 +508,13 @@ describe('getTeacherDashboardData', () => {
       isStudent: false,
     });
 
+    mockGetTeacherStudentIds.mockResolvedValue([]);
+
     mockFrom.mockImplementation((table: string) => {
       if (table === 'profiles') {
         return {
           select: () => ({
-            eq: () => Promise.resolve({ data: [] }),
+            in: () => Promise.resolve({ data: [] }),
           }),
         };
       }

@@ -29,22 +29,55 @@ export async function importCsvSongs(
   const songCache = new Map<string, { id: string; matchStatus: 'matched' | 'low_confidence' | 'new'; matchedTitle?: string; score?: number }>();
 
   if (repertoireOnly) {
-    return importRepertoireOnly(supabase, rows, studentId, validateOnly, songCache, counters);
+    return importRepertoireOnly(supabase, rows, studentId, user.id, validateOnly, songCache, counters);
   }
 
-  return importWithLessons(supabase, rows, studentId, user.id, validateOnly, songCache, counters);
+  // Auto-route: split rows by date presence
+  const rowsWithDates = rows.filter((r) => r.date);
+  const rowsWithoutDates = rows.filter((r) => !r.date);
+
+  let lessonResult: CsvSongImportResult = { success: true, results: [], summary: undefined };
+  let repertoireResult: CsvSongImportResult = { success: true, results: [], summary: undefined };
+
+  if (rowsWithDates.length > 0) {
+    lessonResult = await importWithLessons(supabase, rowsWithDates, studentId, user.id, validateOnly, songCache, counters);
+  }
+  if (rowsWithoutDates.length > 0) {
+    repertoireResult = await importRepertoireOnly(supabase, rowsWithoutDates, studentId, user.id, validateOnly, songCache, counters);
+  }
+
+  // If only one path ran, return it directly
+  if (rowsWithoutDates.length === 0) return lessonResult;
+  if (rowsWithDates.length === 0) return repertoireResult;
+
+  // Merge results from both paths
+  return {
+    success: lessonResult.success && repertoireResult.success,
+    results: [...(lessonResult.results || []), ...(repertoireResult.results || [])],
+    summary: {
+      totalRows: rows.length,
+      songsMatched: counters.songsMatched,
+      songsCreated: counters.songsCreated,
+      lessonsCreated: lessonResult.summary?.lessonsCreated || 0,
+      lessonsExisting: lessonResult.summary?.lessonsExisting || 0,
+      repertoireAdded: repertoireResult.summary?.repertoireAdded || 0,
+      errors: (lessonResult.summary?.errors || 0) + (repertoireResult.summary?.errors || 0),
+    },
+  };
 }
 
 async function importRepertoireOnly(
   supabase: Awaited<ReturnType<typeof createClient>>,
   rows: CsvSongRow[],
   studentId: string,
+  teacherId: string,
   validateOnly: boolean,
   songCache: Map<string, { id: string; matchStatus: 'matched' | 'low_confidence' | 'new'; matchedTitle?: string; score?: number }>,
   counters: { songsMatched: number; songsCreated: number },
 ): Promise<CsvSongImportResult> {
   const results: CsvSongImportRowResult[] = [];
   let errorCount = 0;
+  let repertoireAdded = 0;
 
   for (const row of rows) {
     const rowIndex = rows.indexOf(row);
@@ -57,19 +90,29 @@ async function importRepertoireOnly(
         results.push({
           rowIndex, date: '', title: row.title, author,
           success: false, error: match.error,
-          matchStatus: 'new', lessonCreated: false, songCreated: false,
+          matchStatus: 'new', lessonCreated: false, songCreated: false, isRepertoire: true,
         });
         errorCount++;
         continue;
       }
 
       if (!validateOnly && match.songId) {
-        await supabase
-          .from('student_songs')
+        const { error: upsertError } = await supabase
+          .from('student_repertoire')
           .upsert(
-            { student_id: studentId, song_id: match.songId, status: 'to_learn' },
+            {
+              student_id: studentId,
+              song_id: match.songId,
+              current_status: 'to_learn',
+              assigned_by: teacherId,
+              is_active: true,
+              priority: 'normal',
+            },
             { onConflict: 'student_id,song_id' }
           );
+        if (!upsertError) repertoireAdded++;
+      } else if (validateOnly) {
+        repertoireAdded++;
       }
 
       results.push({
@@ -77,14 +120,14 @@ async function importRepertoireOnly(
         success: true,
         matchStatus: match.matchStatus, matchedSongTitle: match.matchedTitle,
         matchScore: match.matchScore, songId: match.songId,
-        lessonCreated: false, songCreated: match.songCreated,
+        lessonCreated: false, songCreated: match.songCreated, isRepertoire: true,
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       results.push({
         rowIndex, date: '', title: row.title, author,
         success: false, error: message,
-        matchStatus: 'new', lessonCreated: false, songCreated: false,
+        matchStatus: 'new', lessonCreated: false, songCreated: false, isRepertoire: true,
       });
       errorCount++;
     }
@@ -99,6 +142,7 @@ async function importRepertoireOnly(
       songsCreated: counters.songsCreated,
       lessonsCreated: 0,
       lessonsExisting: 0,
+      repertoireAdded,
       errors: errorCount,
     },
   };
@@ -128,7 +172,7 @@ async function importWithLessons(
           rowIndex: rows.indexOf(row), date: dateStr, title: row.title,
           author: row.author || '', success: false,
           error: `Invalid date: ${dateStr}`,
-          matchStatus: 'new', lessonCreated: false, songCreated: false,
+          matchStatus: 'new', lessonCreated: false, songCreated: false, isRepertoire: false,
         });
         errorCount++;
       }
@@ -141,7 +185,7 @@ async function importWithLessons(
         results.push({
           rowIndex: rows.indexOf(row), date: dateStr, title: row.title,
           author: row.author || '', success: false, error: lesson.error,
-          matchStatus: 'new', lessonCreated: false, songCreated: false,
+          matchStatus: 'new', lessonCreated: false, songCreated: false, isRepertoire: false,
         });
         errorCount++;
       }
@@ -162,7 +206,7 @@ async function importWithLessons(
           results.push({
             rowIndex, date: dateStr, title: row.title, author,
             success: false, error: match.error,
-            matchStatus: 'new', lessonCreated: lesson.created, songCreated: false,
+            matchStatus: 'new', lessonCreated: lesson.created, songCreated: false, isRepertoire: false,
           });
           errorCount++;
           continue;
@@ -183,14 +227,14 @@ async function importWithLessons(
           matchStatus: match.matchStatus, matchedSongTitle: match.matchedTitle,
           matchScore: match.matchScore, songId: match.songId,
           lessonId: lesson.id, lessonCreated: lesson.created,
-          songCreated: match.songCreated,
+          songCreated: match.songCreated, isRepertoire: false,
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error';
         results.push({
           rowIndex, date: dateStr, title: row.title, author,
           success: false, error: message,
-          matchStatus: 'new', lessonCreated: lesson.created, songCreated: false,
+          matchStatus: 'new', lessonCreated: lesson.created, songCreated: false, isRepertoire: false,
         });
         errorCount++;
       }
@@ -206,6 +250,7 @@ async function importWithLessons(
       songsCreated: counters.songsCreated,
       lessonsCreated,
       lessonsExisting,
+      repertoireAdded: 0,
       errors: errorCount,
     },
   };
