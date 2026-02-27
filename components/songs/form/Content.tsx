@@ -55,6 +55,7 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
   const [sectionsState, setSectionsState] = useState({
     resources: false,
     musical: false,
+    lyrics: false,
     notes: false,
   });
 
@@ -65,7 +66,7 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
     }
   };
 
-  const handleToggleSection = (section: 'resources' | 'musical' | 'notes') => {
+  const handleToggleSection = (section: 'resources' | 'musical' | 'lyrics' | 'notes') => {
     setSectionsState((prev) => ({
       ...prev,
       [section]: !prev[section],

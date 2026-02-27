@@ -1295,6 +1295,7 @@ export type Database = {
           id: string;
           key: Database['public']['Enums']['music_key'] | null;
           level: Database['public']['Enums']['difficulty_level'] | null;
+          lyrics_with_chords: string | null;
           release_year: number | null;
           search_vector: unknown;
           short_title: string | null;
@@ -1322,6 +1323,7 @@ export type Database = {
           id?: string;
           key?: Database['public']['Enums']['music_key'] | null;
           level?: Database['public']['Enums']['difficulty_level'] | null;
+          lyrics_with_chords?: string | null;
           release_year?: number | null;
           search_vector?: unknown;
           short_title?: string | null;
@@ -1349,6 +1351,7 @@ export type Database = {
           id?: string;
           key?: Database['public']['Enums']['music_key'] | null;
           level?: Database['public']['Enums']['difficulty_level'] | null;
+          lyrics_with_chords?: string | null;
           release_year?: number | null;
           search_vector?: unknown;
           short_title?: string | null;
