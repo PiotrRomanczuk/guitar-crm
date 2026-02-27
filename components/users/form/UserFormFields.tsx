@@ -28,7 +28,7 @@ export default function UserFormFields({ formData, errors = {}, onChange, onBlur
       {/* Name Fields */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="firstName">First Name</Label>
+          <Label htmlFor="firstName">First Name *</Label>
           <Input
             id="firstName"
             name="firstName"

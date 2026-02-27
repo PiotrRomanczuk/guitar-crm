@@ -120,7 +120,7 @@ export default function UserDetail({ user, parentProfile, linkedStudents = [] }:
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }
               >
-                {isRegistered ? 'Active Account' : 'Shadow Account'}
+                {isRegistered ? 'Registered' : 'Unregistered'}
               </Badge>
               {getRolesBadges().map((role) => (
                 <Badge

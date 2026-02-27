@@ -14,6 +14,7 @@ interface UserProfile {
   isStudent: boolean | null;
   isActive: boolean;
   isRegistered: boolean;
+  studentStatus: 'active' | 'archived';
   created_at: string | null;
 }
 

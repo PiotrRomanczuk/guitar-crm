@@ -399,4 +399,158 @@ describe('completeOnboarding', () => {
       })
     );
   });
+
+  it('should save all onboarding steps to user_preferences table', async () => {
+    const userId = '923e4567-e89b-12d3-a456-426614174008';
+    mockGetUser.mockResolvedValue({
+      data: {
+        user: {
+          id: userId,
+          email: 'student@example.com',
+          user_metadata: { first_name: 'Alice', last_name: 'Smith' },
+        },
+      },
+      error: null,
+    });
+
+    // Reset mockAdminFrom to default behavior with tracking
+    mockAdminFrom.mockImplementation((_table: string) => ({
+      update: (data: unknown) => {
+        mockAdminUpdate(data);
+        return {
+          eq: (field: string, value: string) => {
+            mockAdminEq(field, value);
+            return Promise.resolve({ error: null });
+          },
+        };
+      },
+      upsert: (data: unknown, _options?: unknown) => {
+        mockAdminUpsert(data);
+        return Promise.resolve({ error: null });
+      },
+    }));
+
+    const fullOnboardingData: OnboardingData = {
+      role: 'student',
+      goals: ['Learn chords', 'Play songs', 'Perform live'],
+      skillLevel: 'beginner',
+      learningStyle: ['visual', 'hands-on'],
+      instrumentPreference: ['acoustic-guitar'],
+    };
+
+    await expect(completeOnboarding(fullOnboardingData)).rejects.toThrow(
+      'NEXT_REDIRECT'
+    );
+
+    // Step 1: Profile was updated with role
+    expect(mockAdminFrom).toHaveBeenCalledWith('profiles');
+    expect(mockAdminUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        first_name: 'Alice',
+        last_name: 'Smith',
+        is_student: true,
+        is_teacher: false,
+        onboarding_completed: true,
+      })
+    );
+
+    // Step 2: Preferences were persisted to user_preferences table
+    expect(mockAdminFrom).toHaveBeenCalledWith('user_preferences');
+    expect(mockAdminUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user_id: userId,
+        goals: ['Learn chords', 'Play songs', 'Perform live'],
+        skill_level: 'beginner',
+        learning_style: ['visual', 'hands-on'],
+        instrument_preference: ['acoustic-guitar'],
+      })
+    );
+
+    // Step 3: Redirect to dashboard
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/dashboard');
+    expect(mockRedirect).toHaveBeenCalledWith('/dashboard');
+  });
+
+  it('should upsert preferences on re-onboarding (not duplicate)', async () => {
+    const userId = 'a23e4567-e89b-12d3-a456-426614174009';
+    mockGetUser.mockResolvedValue({
+      data: {
+        user: {
+          id: userId,
+          email: 'student@example.com',
+          user_metadata: { first_name: 'Bob', last_name: 'Jones' },
+        },
+      },
+      error: null,
+    });
+
+    // Track all upsert calls with their options
+    const upsertCalls: { data: unknown; options: unknown }[] = [];
+    mockAdminFrom.mockImplementation((_table: string) => ({
+      update: (data: unknown) => {
+        mockAdminUpdate(data);
+        return {
+          eq: (field: string, value: string) => {
+            mockAdminEq(field, value);
+            return Promise.resolve({ error: null });
+          },
+        };
+      },
+      upsert: (data: unknown, options?: unknown) => {
+        upsertCalls.push({ data, options });
+        mockAdminUpsert(data);
+        return Promise.resolve({ error: null });
+      },
+    }));
+
+    // First onboarding
+    const firstData: OnboardingData = {
+      goals: ['Learn chords'],
+      skillLevel: 'beginner',
+      learningStyle: ['visual'],
+      instrumentPreference: ['acoustic-guitar'],
+    };
+
+    await expect(completeOnboarding(firstData)).rejects.toThrow(
+      'NEXT_REDIRECT'
+    );
+
+    // Second onboarding (re-onboarding with updated preferences)
+    const secondData: OnboardingData = {
+      goals: ['Master fingerpicking', 'Write songs'],
+      skillLevel: 'intermediate',
+      learningStyle: ['audio', 'practice'],
+      instrumentPreference: ['electric-guitar', 'bass'],
+    };
+
+    await expect(completeOnboarding(secondData)).rejects.toThrow(
+      'NEXT_REDIRECT'
+    );
+
+    // Both calls used upsert (not insert) with onConflict: 'user_id'
+    expect(upsertCalls).toHaveLength(2);
+    expect(upsertCalls[0].options).toEqual({ onConflict: 'user_id' });
+    expect(upsertCalls[1].options).toEqual({ onConflict: 'user_id' });
+
+    // Second call has updated data — it replaces, not duplicates
+    expect(upsertCalls[1].data).toEqual(
+      expect.objectContaining({
+        user_id: userId,
+        goals: ['Master fingerpicking', 'Write songs'],
+        skill_level: 'intermediate',
+        learning_style: ['audio', 'practice'],
+        instrument_preference: ['electric-guitar', 'bass'],
+      })
+    );
+
+    // insert was never called for user_preferences — only upsert
+    const insertCallsForPrefs = mockAdminInsert.mock.calls;
+    const prefsInserts = insertCallsForPrefs.filter(
+      (call: unknown[]) =>
+        call[0] &&
+        typeof call[0] === 'object' &&
+        'goals' in (call[0] as Record<string, unknown>)
+    );
+    expect(prefsInserts).toHaveLength(0);
+  });
 });

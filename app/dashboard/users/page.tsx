@@ -18,6 +18,7 @@ interface ProfileRow {
   is_student: boolean;
   is_active: boolean | null;
   is_shadow: boolean | null;
+  student_status: string | null;
   created_at: string | null;
 }
 
@@ -35,12 +36,13 @@ function toUserProfile(row: ProfileRow) {
     isStudent: row.is_student ?? false,
     isActive: row.is_active ?? true,
     isRegistered: !row.is_shadow,
+    studentStatus: (row.student_status as 'active' | 'archived') ?? 'active',
     created_at: row.created_at,
   };
 }
 
 const PROFILE_FIELDS =
-  'id, email, full_name, is_admin, is_teacher, is_student, is_active, is_shadow, created_at';
+  'id, email, full_name, is_admin, is_teacher, is_student, is_active, is_shadow, student_status, created_at';
 
 async function fetchInitialUsers() {
   const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
