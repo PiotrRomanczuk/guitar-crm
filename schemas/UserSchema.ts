@@ -27,7 +27,7 @@ export const UserSchema = z.object({
 export const UserInputSchema = z.object({
   email: z.union([z.string().email('Valid email is required'), z.literal('')]).optional(),
   username: z.string().optional(),
-  firstName: z.string().optional(),
+  firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().optional(),
   bio: z.string().optional(),
   isStudent: z.boolean().optional(),
@@ -37,6 +37,7 @@ export const UserInputSchema = z.object({
   canEdit: z.boolean().optional(),
   isTest: z.boolean().optional(),
   isActive: z.boolean().optional(),
+  isParent: z.boolean().optional(),
 });
 
 // User update schema (for partial updates)

@@ -35,6 +35,7 @@ interface UserProfile {
   isStudent: boolean | null;
   isActive: boolean;
   isRegistered: boolean;
+  studentStatus: 'active' | 'archived';
   created_at: string | null;
 }
 
@@ -55,11 +56,23 @@ function getDisplayName(user: UserProfile): string {
   // Prefer separate first/last name fields
   const name = [user.firstName, user.lastName].filter(Boolean).join(' ');
   if (name) return name;
-  // Fall back to full_name (single column, e.g. "Jan Kowalski")
-  if (user.full_name) return user.full_name;
+  // Fall back to full_name, but only if it's a real name (not email-derived)
+  if (user.full_name && !isEmailDerived(user)) return user.full_name;
   if (user.username) return user.username;
   // Last resort: local part of the email
   return user.email?.split('@')[0] ?? 'Unknown';
+}
+
+function isEmailDerived(user: UserProfile): boolean {
+  if (!user.full_name || !user.email) return false;
+  const localPart = user.email.split('@')[0];
+  return user.full_name === localPart;
+}
+
+function hasRealName(user: UserProfile): boolean {
+  if (user.firstName || user.lastName) return true;
+  if (user.full_name && !isEmailDerived(user)) return true;
+  return false;
 }
 
 function getInitials(user: UserProfile): string {
@@ -101,12 +114,10 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <p className="font-medium text-sm truncate">
+                  <p className={`text-sm truncate ${hasRealName(user) ? 'font-medium' : 'text-muted-foreground italic'}`}>
                     {getDisplayName(user)}
                   </p>
-                  {(user.firstName || user.lastName || user.full_name || user.username) && (
-                    <p className="text-xs text-muted-foreground truncate">{user.email || '(no email)'}</p>
-                  )}
+                  <p className="text-xs text-muted-foreground truncate">{user.email || '(no email)'}</p>
                 </div>
               </div>
               <DropdownMenu>
@@ -154,11 +165,16 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                   className={`h-2 w-2 rounded-full ${user.isActive ? 'bg-success' : 'bg-muted-foreground/40'}`}
                 />
                 <span className="text-xs text-muted-foreground">
-                  {user.isActive ? 'Active' : 'Inactive'}
+                  {user.isActive ? 'Enabled' : 'Disabled'}
                 </span>
                 {!user.isRegistered && (
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal">
-                    Shadow
+                    Unregistered
+                  </Badge>
+                )}
+                {user.studentStatus === 'archived' && (
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal bg-amber-500/10 text-amber-600 border-amber-500/30">
+                    Archived
                   </Badge>
                 )}
               </div>
@@ -184,7 +200,7 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                 <TableRow
                   key={user.id}
                   data-testid={`user-row-${user.id}`}
-                  className="relative hover:bg-muted/50 transition-colors"
+                  className="relative hover:bg-muted/50 transition-colors cursor-pointer"
                 >
                   <TableCell className="relative">
                     <Link
@@ -199,10 +215,8 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
-                        <p className="font-medium text-sm truncate">
-                          {user.firstName && user.lastName
-                            ? `${user.firstName} ${user.lastName}`
-                            : user.username || 'N/A'}
+                        <p className={`text-sm truncate ${hasRealName(user) ? 'font-medium' : 'text-muted-foreground italic'}`}>
+                          {getDisplayName(user)}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
                           {user.email || '(no email)'}
@@ -219,11 +233,16 @@ export default function UsersListTable({ users, onDelete }: UsersListTableProps)
                         className={`h-2 w-2 rounded-full flex-shrink-0 ${user.isActive ? 'bg-success' : 'bg-muted-foreground/40'}`}
                       />
                       <span className="text-sm text-muted-foreground">
-                        {user.isActive ? 'Active' : 'Inactive'}
+                        {user.isActive ? 'Enabled' : 'Disabled'}
                       </span>
                       {!user.isRegistered && (
                         <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal">
-                          Shadow
+                          Unregistered
+                        </Badge>
+                      )}
+                      {user.studentStatus === 'archived' && (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal bg-amber-500/10 text-amber-600 border-amber-500/30">
+                          Archived
                         </Badge>
                       )}
                     </div>

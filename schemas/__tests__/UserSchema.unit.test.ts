@@ -87,6 +87,7 @@ describe('UserSchema', () => {
 
     it('should accept all role flags', () => {
       const result = UserInputSchema.safeParse({
+        firstName: 'Test',
         isStudent: true,
         isTeacher: true,
         isAdmin: false,
@@ -105,6 +106,7 @@ describe('UserSchema', () => {
 
     it('should accept test user flag', () => {
       const result = UserInputSchema.safeParse({
+        firstName: 'Test',
         email: 'test@example.com',
         isTest: true,
       });
@@ -113,10 +115,22 @@ describe('UserSchema', () => {
 
     it('should accept isActive flag', () => {
       const result = UserInputSchema.safeParse({
+        firstName: 'Test',
         email: 'test@example.com',
         isActive: false,
       });
       expect(result.success).toBe(true);
+    });
+
+    it('should require firstName', () => {
+      const result = UserInputSchema.safeParse({
+        email: 'test@example.com',
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        const firstNameError = result.error.issues.find(i => i.path[0] === 'firstName');
+        expect(firstNameError).toBeDefined();
+      }
     });
   });
 

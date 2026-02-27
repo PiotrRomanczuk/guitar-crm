@@ -34,6 +34,7 @@ interface UserProfile {
   isStudent: boolean | null;
   isActive: boolean;
   isRegistered: boolean;
+  studentStatus: 'active' | 'archived';
   created_at: string | null;
 }
 
@@ -75,7 +76,7 @@ export default function UsersList({ initialUsers }: UsersListProps = {}) {
     setSearch('');
     setRoleFilter('');
     setActiveFilter('');
-    setStudentStatusFilter('active'); // Reset to default: active students
+    setStudentStatusFilter(''); // Reset all filters to show everything
   };
 
   return (
@@ -110,6 +111,12 @@ export default function UsersList({ initialUsers }: UsersListProps = {}) {
         <div className="p-4 text-sm text-destructive bg-destructive/10 rounded-lg">
           {error}
         </div>
+      )}
+
+      {!loading && !error && (
+        <p className="text-sm text-muted-foreground">
+          {users.length} user{users.length !== 1 ? 's' : ''}
+        </p>
       )}
 
       {loading ? (
