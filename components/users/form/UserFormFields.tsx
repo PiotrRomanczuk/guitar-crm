@@ -3,15 +3,26 @@ import { FormData } from '../hooks/useUserFormState';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { AvailableParent } from './UserForm';
 
 interface UserFormFieldsProps {
   formData: FormData;
   errors?: Record<string, string>;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (field: string) => void;
+  availableParents?: AvailableParent[];
+  onParentIdChange?: (value: string) => void;
 }
 
-export default function UserFormFields({ formData, errors = {}, onChange, onBlur }: UserFormFieldsProps) {
+export default function UserFormFields({
+  formData,
+  errors = {},
+  onChange,
+  onBlur,
+  availableParents = [],
+  onParentIdChange,
+}: UserFormFieldsProps) {
   const handleCheckboxChange = (name: string) => (checked: boolean) => {
     const event = {
       target: {
@@ -167,6 +178,32 @@ export default function UserFormFields({ formData, errors = {}, onChange, onBlur
           </div>
         </div>
       </div>
+
+      {/* Parent Selector (shown when user is a student and parents are available) */}
+      {formData.isStudent && availableParents.length > 0 && (
+        <div className="space-y-2">
+          <Label htmlFor="parentId">Parent / Guardian</Label>
+          <Select
+            value={formData.parentId ?? '__none__'}
+            onValueChange={(value) => onParentIdChange?.(value)}
+          >
+            <SelectTrigger id="parentId" data-testid="parentId-select">
+              <SelectValue placeholder="Select a parent..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">None</SelectItem>
+              {availableParents.map((parent) => (
+                <SelectItem key={parent.id} value={parent.id}>
+                  {parent.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Link this student to a parent/guardian account
+          </p>
+        </div>
+      )}
 
       {/* Active Status */}
       <div className="flex items-center space-x-2">

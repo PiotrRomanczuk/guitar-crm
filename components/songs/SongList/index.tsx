@@ -70,7 +70,7 @@ export default async function SongList({ searchParams }: SongListProps) {
     }) || [];
 
   // Fetch students for filter (only if admin or teacher)
-  let students: { id: string; full_name: string | null }[] = [];
+  let students: { id: string; full_name: string | null; student_status: string | null }[] = [];
 
   // We don't need songStudentMap anymore for client-side filtering,
   // but we might want to keep it if we want to show which students are assigned to a song in the list?
@@ -80,7 +80,7 @@ export default async function SongList({ searchParams }: SongListProps) {
   if (isAdmin || isTeacher) {
     const { data: studentsData } = await supabase
       .from('profiles')
-      .select('id, full_name')
+      .select('id, full_name, student_status')
       .eq('is_student', true)
       .order('full_name');
 

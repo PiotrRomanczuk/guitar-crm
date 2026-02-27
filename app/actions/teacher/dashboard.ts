@@ -218,7 +218,7 @@ export async function getTeacherDashboardData(): Promise<TeacherDashboardData> {
 
   const { data: todayLessons } = await supabase
     .from('lessons')
-    .select('*, profiles(full_name)')
+    .select('*, profiles!student_id(full_name)')
     .gte('scheduled_at', today.toISOString())
     .lt('scheduled_at', tomorrow.toISOString());
 

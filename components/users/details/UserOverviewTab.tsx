@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Music, BookOpen, CheckCircle2, Calendar, Plus, Users } from 'lucide-react';
 import type { StudentRepertoireWithSong } from '@/types/StudentRepertoire';
+import type { ParentProfile } from '@/types/ParentProfile';
 
 interface Lesson {
   id: string;
@@ -21,18 +22,12 @@ interface Assignment {
   due_date: string | null;
 }
 
-interface ParentInfo {
-  id: string;
-  full_name: string | null;
-  email: string;
-}
-
 interface UserOverviewTabProps {
   userId: string;
   lessons: Lesson[];
   repertoire: StudentRepertoireWithSong[];
   assignments: Assignment[];
-  parentProfile?: ParentInfo | null;
+  parentProfile?: ParentProfile | null;
 }
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
@@ -54,8 +49,16 @@ export default function UserOverviewTab({ userId, lessons, repertoire, assignmen
   const totalSongs = repertoire.length;
   const masteredSongs = repertoire.filter((r) => r.current_status === 'mastered').length;
   const activeSongs = repertoire.filter((r) => r.is_active).slice(0, 5);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const thirtyDaysFromNow = new Date(today);
+  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
   const upcomingLessons = lessons
-    .filter((l) => l.status === 'SCHEDULED')
+    .filter((l) => {
+      if (l.status !== 'SCHEDULED' || !l.date) return false;
+      const lessonDate = new Date(l.date);
+      return lessonDate >= today && lessonDate <= thirtyDaysFromNow;
+    })
     .sort((a, b) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime())
     .slice(0, 3);
   const activeAssignments = assignments

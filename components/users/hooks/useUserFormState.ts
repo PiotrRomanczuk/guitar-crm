@@ -18,6 +18,7 @@ export interface FormData {
   isParent: boolean;
   isActive: boolean;
   isShadow: boolean;
+  parentId: string | null;
 }
 
 interface InitialData {
@@ -32,6 +33,7 @@ interface InitialData {
   isParent?: boolean | null;
   isActive: boolean;
   isShadow?: boolean | null;
+  parentId?: string | null;
 }
 
 interface SaveUserPayload {
@@ -52,6 +54,7 @@ const createInitialData = (initial: InitialData | undefined): FormData => {
     isParent: false,
     isActive: true,
     isShadow: false,
+    parentId: null,
   };
 
   if (!initial) return defaultData;
@@ -67,6 +70,7 @@ const createInitialData = (initial: InitialData | undefined): FormData => {
     isParent: initial.isParent || defaultData.isParent,
     isActive: initial.isActive !== false,
     isShadow: initial.isShadow || defaultData.isShadow,
+    parentId: initial.parentId ?? defaultData.parentId,
   };
 };
 
@@ -198,5 +202,5 @@ export function useUserFormState(
       : 'Unknown error'
     : null;
 
-  return { formData, loading, error, validationErrors, handleChange, handleBlur, handleSubmit };
+  return { formData, loading, error, validationErrors, handleChange, handleBlur, handleSubmit, setFormData };
 }

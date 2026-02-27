@@ -1,0 +1,77 @@
+# Scheduled cron jobs via GitHub Actions
+#
+# Vercel Hobby plan limits cron to 1 daily invocation.
+# This workflow fills the gap for jobs that need higher frequency.
+#
+# TODO: Review whether 15-min frequency for notification queue is necessary
+#       — could event-driven processing (on insert) eliminate polling entirely?
+# TODO: Review admin-monitoring thresholds (failure >10%, bounce >5%, backlog >500)
+#       — are these right for current scale? Could run less often (every 4h)?
+# TODO: Add response body logging on failure for easier debugging
+# TODO: Consider adding the daily jobs here too so the Vercel cron dispatcher
+#       can be removed entirely (single source of truth for all schedules)
+#
+# Required GitHub Actions secrets:
+#   CRON_SECRET       - same value as the Vercel env var
+#   PRODUCTION_URL    - production app URL (e.g. https://strummy.app)
+
+name: Scheduled Cron Jobs
+
+on:
+  schedule:
+    # Every 15 minutes — notification queue + auth cleanup
+    - cron: "*/15 * * * *"
+    # Every hour at :00 — admin monitoring
+    - cron: "0 * * * *"
+
+  # Allow manual trigger for debugging
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Which job to run"
+        required: true
+        type: choice
+        options:
+          - all
+          - notification-queue
+          - admin-monitoring
+
+jobs:
+  notification-queue:
+    name: Process Notification Queue
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      (github.event.inputs.job == 'all' || github.event.inputs.job == 'notification-queue')
+      || github.event_name == 'schedule'
+    steps:
+      - name: Call notification queue endpoint
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.PRODUCTION_URL }}/api/cron/process-notification-queue")
+          echo "HTTP status: $response"
+          if [ "$response" -ge 500 ]; then
+            echo "::error::Notification queue cron failed with HTTP $response"
+            exit 1
+          fi
+
+  admin-monitoring:
+    name: Admin Monitoring
+    runs-on: ubuntu-latest
+    # Run every hour (only on the :00 schedule or manual trigger)
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      (github.event.inputs.job == 'all' || github.event.inputs.job == 'admin-monitoring')
+      || github.event.schedule == '0 * * * *'
+    steps:
+      - name: Call admin monitoring endpoint
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.PRODUCTION_URL }}/api/cron/admin-monitoring")
+          echo "HTTP status: $response"
+          if [ "$response" -ge 500 ]; then
+            echo "::error::Admin monitoring cron failed with HTTP $response"
+            exit 1
+          fi

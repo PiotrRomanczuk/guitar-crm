@@ -84,7 +84,7 @@ async function fetchInitialUsers() {
     query = query.in('id', allowedStudentIds);
   }
 
-  const { data } = await query.limit(50);
+  const { data } = await query.eq('student_status', 'active').limit(50);
 
   return (data ?? []).map((row) => toUserProfile(row as ProfileRow));
 }
