@@ -19,15 +19,15 @@ else
   exit 1
 fi
 
-# Quick TypeScript check
+# Quick TypeScript check (increased heap to avoid OOM on large codebases)
 echo "Running TypeScript check..."
-if npx tsc --noEmit > /dev/null 2>&1; then
+if NODE_OPTIONS="--max-old-space-size=4096" npx tsc --noEmit > /dev/null 2>&1; then
   echo "TypeScript check passed"
 else
   echo "TypeScript errors found"
   echo ""
   echo "Running TypeScript with details:"
-  npx tsc --noEmit
+  NODE_OPTIONS="--max-old-space-size=4096" npx tsc --noEmit
   echo ""
   echo "Fix the type errors above before pushing"
   exit 1

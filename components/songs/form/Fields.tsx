@@ -21,9 +21,10 @@ interface Props {
   sectionsState: {
     resources: boolean;
     musical: boolean;
+    lyrics: boolean;
     notes: boolean;
   };
-  onToggleSection: (section: 'resources' | 'musical' | 'notes') => void;
+  onToggleSection: (section: 'resources' | 'musical' | 'lyrics' | 'notes') => void;
 }
 
 export default function SongFormFields({
@@ -259,7 +260,32 @@ export default function SongFormFields({
         />
       </FieldGroup>
 
-      {/* Section 4: Teaching Notes (Collapsible) */}
+      {/* Section 4: Lyrics & Chords (Collapsible) */}
+      <FieldGroup
+        title="Lyrics & Chords"
+        description="Full song lyrics with chord annotations"
+        isOpen={sectionsState.lyrics}
+        onToggle={() => onToggleSection('lyrics')}
+        fieldCount={1}
+      >
+        <div className="space-y-2">
+          <Label htmlFor="lyrics_with_chords">Lyrics with Chords</Label>
+          <Textarea
+            id="lyrics_with_chords"
+            value={formData.lyrics_with_chords}
+            onChange={(e) => onChange('lyrics_with_chords', e.target.value)}
+            onBlur={() => onBlur('lyrics_with_chords')}
+            placeholder={`Am        C\nHello, it's me\nF              G\nI was wondering if after all these years...`}
+            rows={15}
+            className="resize-y font-mono text-sm"
+          />
+          {errors.lyrics_with_chords && (
+            <p className="text-xs text-destructive">{errors.lyrics_with_chords}</p>
+          )}
+        </div>
+      </FieldGroup>
+
+      {/* Section 5: Teaching Notes (Collapsible) */}
       <FieldGroup
         title="Teaching Notes"
         description="AI-generated teaching tips and practice suggestions"
