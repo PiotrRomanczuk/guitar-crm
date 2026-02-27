@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ui/mode-toggle';
+import { FontSwitcherDropdown } from './FontSwitcherDropdown';
 
 interface AppSidebarProps {
   isAdmin: boolean;
@@ -244,6 +245,7 @@ export function AppSidebar({ isAdmin, isTeacher, isStudent }: AppSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="flex items-center gap-2 px-2">
+              <FontSwitcherDropdown />
               <ModeToggle />
               <Button
                 variant="ghost"

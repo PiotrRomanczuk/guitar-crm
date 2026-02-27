@@ -12,6 +12,8 @@ import { HealthSummaryWidget } from '@/components/dashboard/health/HealthSummary
 import { GlobalSearch } from '@/components/dashboard/GlobalSearch';
 import { AuditLogSection } from '@/components/dashboard/admin/AuditLogSection';
 import { ServicesStatusWidget } from '@/components/dashboard/admin/ServicesStatusWidget';
+import { SongOfTheWeekCard } from '@/components/song-of-the-week';
+import type { SongOfTheWeekWithSong } from '@/types/SongOfTheWeek';
 import { staggerContainer } from '@/lib/animations';
 import { Users, BookOpen, Music, Shield, Activity, Database, Lock, Settings, FileText } from 'lucide-react';
 import Link from 'next/link';
@@ -35,9 +37,10 @@ interface AdminDashboardClientProps {
   user: { id: string; email?: string };
   profile: { full_name?: string } | null;
   viewMode?: 'admin' | 'teacher';
+  sotw?: SongOfTheWeekWithSong | null;
 }
 
-export function AdminDashboardClient({ stats, user, profile, viewMode }: AdminDashboardClientProps) {
+export function AdminDashboardClient({ stats, user, profile, viewMode, sotw }: AdminDashboardClientProps) {
   return (
     <div className="w-full max-w-full overflow-x-hidden min-w-0 px-1 sm:px-0">
       <div className="space-y-6 sm:space-y-8 lg:space-y-10 w-full max-w-full">
@@ -161,6 +164,9 @@ export function AdminDashboardClient({ stats, user, profile, viewMode }: AdminDa
             </CardContent>
           </Card>
         </div>
+
+        {/* Song of the Week Management */}
+        <SongOfTheWeekCard sotw={sotw ?? null} isAdmin />
 
         {/* Lower Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

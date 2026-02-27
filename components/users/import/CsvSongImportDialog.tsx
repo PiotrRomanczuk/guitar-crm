@@ -33,7 +33,7 @@ const STEP_DESCRIPTIONS: Record<string, string> = {
 export function CsvSongImportDialog({ studentId, open, onOpenChange }: CsvSongImportDialogProps) {
   const {
     step, rows, parseErrors, previewResults, importResult,
-    isLoading, error, authors, repertoireOnly, setRepertoireOnly,
+    isLoading, error, authors,
     handleCsvParse, handleAiParse, goToPreview, runImport, reset, setRows,
   } = useCsvSongImport(studentId);
 
@@ -62,8 +62,6 @@ export function CsvSongImportDialog({ studentId, open, onOpenChange }: CsvSongIm
             isLoading={isLoading}
             error={error}
             authors={authors}
-            repertoireOnly={repertoireOnly}
-            onRepertoireOnlyChange={setRepertoireOnly}
             onCsvParse={handleCsvParse}
             onAiParse={handleAiParse}
             onRowsChange={setRows}
@@ -76,7 +74,6 @@ export function CsvSongImportDialog({ studentId, open, onOpenChange }: CsvSongIm
             results={previewResults}
             isLoading={isLoading}
             error={error}
-            repertoireOnly={repertoireOnly}
             onImport={runImport}
             onBack={() => reset()}
           />

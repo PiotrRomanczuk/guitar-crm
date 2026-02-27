@@ -10,15 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { CheckCircle2, AlertTriangle, PlusCircle, Loader2 } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, PlusCircle, Loader2, Library } from 'lucide-react';
 import type { CsvSongImportRowResult } from '@/schemas/CsvSongImportSchema';
-import { getTodayEuropeanDate } from '@/app/actions/import-csv-songs.helpers';
 
 interface PreviewStepProps {
   results: CsvSongImportRowResult[];
   isLoading: boolean;
   error: string | null;
-  repertoireOnly?: boolean;
   onImport: () => void;
   onBack: () => void;
 }
@@ -34,7 +32,7 @@ function MatchBadge({ status, score, matchedTitle }: {
         <Badge variant="outline" className="bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20">
           <CheckCircle2 className="mr-1 h-3 w-3" />
           Matched {score ? `(${Math.round(score * 100)}%)` : ''}
-          {matchedTitle && <span className="ml-1 text-xs opacity-70">→ {matchedTitle}</span>}
+          {matchedTitle && <span className="ml-1 text-xs opacity-70">&rarr; {matchedTitle}</span>}
         </Badge>
       );
     case 'low_confidence':
@@ -42,7 +40,7 @@ function MatchBadge({ status, score, matchedTitle }: {
         <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20">
           <AlertTriangle className="mr-1 h-3 w-3" />
           Low match {score ? `(${Math.round(score * 100)}%)` : ''}
-          {matchedTitle && <span className="ml-1 text-xs opacity-70">→ {matchedTitle}</span>}
+          {matchedTitle && <span className="ml-1 text-xs opacity-70">&rarr; {matchedTitle}</span>}
         </Badge>
       );
     default:
@@ -55,10 +53,11 @@ function MatchBadge({ status, score, matchedTitle }: {
   }
 }
 
-export function PreviewStep({ results, isLoading, error, repertoireOnly, onImport, onBack }: PreviewStepProps) {
+export function PreviewStep({ results, isLoading, error, onImport, onBack }: PreviewStepProps) {
   const matched = results.filter((r) => r.matchStatus === 'matched').length;
   const lowConf = results.filter((r) => r.matchStatus === 'low_confidence').length;
   const newSongs = results.filter((r) => r.matchStatus === 'new').length;
+  const repertoire = results.filter((r) => r.isRepertoire).length;
   const errors = results.filter((r) => !r.success).length;
 
   return (
@@ -67,6 +66,7 @@ export function PreviewStep({ results, isLoading, error, repertoireOnly, onImpor
         {matched > 0 && <Badge variant="secondary" className="bg-green-500/10">{matched} matched</Badge>}
         {lowConf > 0 && <Badge variant="secondary" className="bg-yellow-500/10">{lowConf} low confidence</Badge>}
         {newSongs > 0 && <Badge variant="secondary" className="bg-blue-500/10">{newSongs} new</Badge>}
+        {repertoire > 0 && <Badge variant="secondary" className="bg-purple-500/10">{repertoire} repertoire</Badge>}
         {errors > 0 && <Badge variant="destructive">{errors} errors</Badge>}
       </div>
 
@@ -85,9 +85,10 @@ export function PreviewStep({ results, isLoading, error, repertoireOnly, onImpor
               <TableRow key={i} className={!row.success ? 'bg-destructive/5' : ''}>
                 <TableCell className="text-sm">
                   {row.date || (
-                    repertoireOnly
-                      ? <span className="text-muted-foreground italic">Repertoire</span>
-                      : <span>{getTodayEuropeanDate()} <span className="text-muted-foreground">(today)</span></span>
+                    <span className="inline-flex items-center gap-1 text-purple-600 dark:text-purple-400 italic">
+                      <Library className="h-3 w-3" />
+                      Repertoire
+                    </span>
                   )}
                 </TableCell>
                 <TableCell className="font-medium text-sm">{row.title}</TableCell>

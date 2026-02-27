@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { getTeacherStudentIds } from '@/lib/queries/teacher-students';
 
 export type TeacherDashboardData = {
   students: {
@@ -110,11 +111,11 @@ export async function getTeacherDashboardData(): Promise<TeacherDashboardData> {
 
   const supabase = await createClient();
 
-  // Fetch students using profiles table boolean flags
-  const { data: studentProfiles } = await supabase
-    .from('profiles')
-    .select('id, full_name, avatar_url')
-    .eq('is_student', true);
+  // Fetch only students taught by this teacher
+  const studentIds = await getTeacherStudentIds(supabase, user.id);
+  const { data: studentProfiles } = studentIds.length > 0
+    ? await supabase.from('profiles').select('id, full_name, avatar_url').in('id', studentIds)
+    : { data: [] };
 
   // Fetch stats for each student
   const students = await Promise.all(

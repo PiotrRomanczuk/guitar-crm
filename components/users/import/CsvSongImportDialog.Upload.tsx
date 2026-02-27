@@ -5,9 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Loader2, Upload, Sparkles, FileText } from 'lucide-react';
+import { Loader2, Upload, Sparkles, FileText, Info } from 'lucide-react';
 import type { CsvSongRow } from '@/schemas/CsvSongImportSchema';
 import { EditableSongList } from './CsvSongImportDialog.EditableSongList';
 
@@ -17,8 +15,6 @@ interface UploadStepProps {
   isLoading: boolean;
   error: string | null;
   authors?: string[];
-  repertoireOnly: boolean;
-  onRepertoireOnlyChange: (value: boolean) => void;
   onCsvParse: (text: string) => { rows: CsvSongRow[]; errors: Array<{ line: number; message: string }> };
   onAiParse: (text: string) => Promise<{ rows: CsvSongRow[]; errors: Array<{ line: number; message: string }> }>;
   onRowsChange: (rows: CsvSongRow[]) => void;
@@ -31,14 +27,11 @@ export function UploadStep({
   isLoading,
   error,
   authors,
-  repertoireOnly,
-  onRepertoireOnlyChange,
   onCsvParse,
   onAiParse,
   onRowsChange,
   onNext,
 }: UploadStepProps) {
-  const hasNoDates = rows.length > 0 && !rows.some((r) => r.date);
   const [freeText, setFreeText] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -172,25 +165,7 @@ export function UploadStep({
             )}
           </div>
 
-          {hasNoDates && (
-            <div className="flex items-center gap-3 rounded-md border p-3 bg-muted/40">
-              <Switch
-                id="repertoire-only"
-                checked={repertoireOnly}
-                onCheckedChange={onRepertoireOnlyChange}
-              />
-              <div>
-                <Label htmlFor="repertoire-only" className="cursor-pointer font-medium">
-                  Add to repertoire only
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  {repertoireOnly
-                    ? 'Songs will be added to the student\'s repertoire without creating any lessons.'
-                    : 'Songs will be linked to a lesson created for today\'s date.'}
-                </p>
-              </div>
-            </div>
-          )}
+          <RoutingBanner rows={rows} />
 
           <EditableSongList rows={rows} onRowsChange={onRowsChange} authors={authors} />
           <Button onClick={onNext} disabled={isLoading}>
@@ -200,5 +175,23 @@ export function UploadStep({
         </div>
       )}
     </Tabs>
+  );
+}
+
+function RoutingBanner({ rows }: { rows: CsvSongRow[] }) {
+  const withDates = rows.filter((r) => r.date).length;
+  const withoutDates = rows.filter((r) => !r.date).length;
+
+  if (withoutDates === 0) return null;
+
+  return (
+    <div className="flex items-start gap-2 rounded-md border p-3 bg-blue-500/5 border-blue-500/20">
+      <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+      <p className="text-sm text-blue-700 dark:text-blue-300">
+        {withDates === 0
+          ? 'All songs will be added to repertoire (no dates detected).'
+          : `${withoutDates} song${withoutDates > 1 ? 's' : ''} without dates will be added to repertoire. ${withDates} song${withDates > 1 ? 's' : ''} with dates will be linked to lessons.`}
+      </p>
+    </div>
   );
 }

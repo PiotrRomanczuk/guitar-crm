@@ -49,6 +49,7 @@ export default function DriveFilePreview({ file, onClose }: DriveFilePreviewProp
           duration_seconds: durationSeconds,
           thumbnail_url: thumbnailUrl,
           display_order: file.display_order,
+          video_type: 'tutorial',
           published_to_instagram: false,
           published_to_tiktok: false,
           published_to_youtube_shorts: false,

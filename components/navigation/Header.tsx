@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { RoleBasedNav } from './RoleBasedNav';
 import { ConnectionStatus } from './ConnectionStatus';
 import { ModeToggle } from '@/components/ui/mode-toggle';
+import { FontSwitcherDropdown, FontSwitcherMobile } from './FontSwitcherDropdown';
 
 function MobileMenu({
   open,
@@ -42,6 +43,7 @@ function MobileMenu({
           <span className="text-primary-foreground/90">Theme</span>
           <ModeToggle />
         </div>
+        <FontSwitcherMobile />
         {loading ? (
           <div className="text-primary-foreground/80">Loading...</div>
         ) : user ? (
@@ -110,6 +112,7 @@ function DesktopAuthControls({
 }) {
   return (
     <div className="hidden sm:flex items-center gap-2 sm:gap-3 lg:gap-4">
+      <FontSwitcherDropdown />
       <ModeToggle />
       {loading ? (
         <div className="text-primary-foreground/80 text-sm">Loading...</div>
