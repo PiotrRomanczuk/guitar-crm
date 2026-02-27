@@ -16,7 +16,7 @@ async function loadProfileFromDb(userId: string): Promise<ProfileEdit> {
 
   // If no profile exists yet, return empty form
   if (error && error.code === 'PGRST116') {
-    return { firstname: '', lastname: '', username: '', bio: '' };
+    return { firstname: '', lastname: '', username: '', bio: '', spotifyPlaylistUrl: '' };
   }
 
   if (error) throw error;
@@ -26,11 +26,17 @@ async function loadProfileFromDb(userId: string): Promise<ProfileEdit> {
     lastname: data.lastname || '',
     username: data.username || '',
     bio: data.bio || '',
+    spotifyPlaylistUrl: data.spotify_playlist_url || '',
   };
 }
 
 async function saveProfileToDb(userId: string, profileData: ProfileEdit) {
-  const validatedData = ProfileEditSchema.parse(profileData);
+  const { spotifyPlaylistUrl, ...rest } = ProfileEditSchema.parse(profileData);
+
+  const dbPayload = {
+    ...rest,
+    spotify_playlist_url: spotifyPlaylistUrl || null,
+  };
 
   const supabase = createClient();
   const { data: existingProfile } = await supabase
@@ -40,10 +46,10 @@ async function saveProfileToDb(userId: string, profileData: ProfileEdit) {
     .single();
 
   if (existingProfile) {
-    const { error } = await supabase.from('profiles').update(validatedData).eq('user_id', userId);
+    const { error } = await supabase.from('profiles').update(dbPayload).eq('user_id', userId);
     if (error) throw error;
   } else {
-    const { error } = await supabase.from('profiles').insert({ user_id: userId, ...validatedData });
+    const { error } = await supabase.from('profiles').insert({ user_id: userId, ...dbPayload });
     if (error) throw error;
   }
 }
@@ -55,6 +61,7 @@ export function useProfileData(user: { id: string } | null) {
     lastname: '',
     username: '',
     bio: '',
+    spotifyPlaylistUrl: '',
   });
 
   // Fetch profile data and populate form
