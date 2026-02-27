@@ -5,45 +5,20 @@ import * as Tone from 'tone';
 import { type NoteName } from '@/lib/music-theory';
 
 /**
- * Standard tuning with octave numbers for Tone.js
- * String 6 (low E) = E2, String 5 (A) = A2, String 4 (D) = D3,
- * String 3 (G) = G3, String 2 (B) = B3, String 1 (high E) = E4
+ * Calculate the correct note name and octave for a given string and fret.
+ * Uses absolute semitone position to avoid double-counting octave adjustments.
  */
-const _STRING_BASE_NOTES = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
-
-/**
- * Convert a NoteName and octave to Tone.js format (e.g., "C4")
- */
-function toToneNote(note: NoteName, octave: number): string {
-  return `${note}${octave}`;
-}
-
-/**
- * Calculate the octave and semitone offset for a given string and fret
- */
-function getNoteWithOctave(stringIndex: number, fret: number, note: NoteName): string {
-  // Start with the base octave for each string
-  const baseNotes = ['E', 'A', 'D', 'G', 'B', 'E'];
-  const baseOctaves = [2, 2, 3, 3, 3, 4];
-
-  // Calculate total semitones from the base note
+function getNoteWithOctave(stringIndex: number, fret: number): string {
+  const baseOctaves = [2, 2, 3, 3, 3, 4]; // E2, A2, D3, G3, B3, E4
   const chromaticNotes: NoteName[] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-  const baseNote = baseNotes[stringIndex];
-  const baseNoteIndex = chromaticNotes.indexOf(baseNote as NoteName);
-  const currentNoteIndex = chromaticNotes.indexOf(note);
+  const baseNotes: NoteName[] = ['E', 'A', 'D', 'G', 'B', 'E'];
 
-  // Calculate octave adjustment
-  let octave = baseOctaves[stringIndex];
-  if (currentNoteIndex < baseNoteIndex && fret > 0) {
-    octave += 1;
-  }
+  const baseNoteIndex = chromaticNotes.indexOf(baseNotes[stringIndex]);
+  const absolutePosition = baseOctaves[stringIndex] * 12 + baseNoteIndex + fret;
+  const resultOctave = Math.floor(absolutePosition / 12);
+  const resultNote = chromaticNotes[absolutePosition % 12];
 
-  // Add octave adjustments for higher frets
-  const totalSemitones = baseNoteIndex + fret;
-  const octaveAdjust = Math.floor(totalSemitones / 12);
-  octave += octaveAdjust;
-
-  return toToneNote(note, octave);
+  return `${resultNote}${resultOctave}`;
 }
 
 export interface GuitarAudioControls {
@@ -102,7 +77,7 @@ export function useGuitarAudio(): GuitarAudioControls {
   }, [volume]);
 
   const playNote = useCallback(
-    async (stringIndex: number, fret: number, note: NoteName) => {
+    async (stringIndex: number, fret: number, _note: NoteName) => {
       if (!synthRef.current || !isReady) return;
 
       try {
@@ -112,7 +87,7 @@ export function useGuitarAudio(): GuitarAudioControls {
         }
 
         // Calculate the correct octave based on string and fret
-        const toneNote = getNoteWithOctave(stringIndex, fret, note);
+        const toneNote = getNoteWithOctave(stringIndex, fret);
 
         // Play the note (short duration for plucked sound)
         synthRef.current.triggerAttackRelease(toneNote, '0.8n');

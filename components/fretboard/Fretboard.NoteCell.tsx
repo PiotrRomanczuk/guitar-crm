@@ -67,7 +67,16 @@ export function NoteCell({
     <td
       className={`relative h-10 border-r border-border/40 ${fret === 0 ? 'bg-muted/50 dark:bg-muted/30 w-12' : 'w-16'
         } ${onNoteClick ? 'cursor-pointer hover:bg-accent/20 transition-colors' : ''}`}
+      role="gridcell"
+      tabIndex={shouldShow ? 0 : -1}
+      aria-label={`${noteText}, string ${6 - stringIndex}, fret ${fret}`}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
     >
       {/* String line */}
       <div className="absolute inset-y-0 left-0 right-0 flex items-center">

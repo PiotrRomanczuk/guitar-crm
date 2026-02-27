@@ -4,7 +4,7 @@ import { TOTAL_FRETS, type NoteName } from '@/lib/music-theory';
 import { NoteCell } from './Fretboard.NoteCell';
 import { FRET_MARKERS, STRING_LABELS } from './fretboard.helpers';
 import { type FretboardState } from './useFretboard';
-import { useGuitarAudio } from './useGuitarAudio';
+import { type ActiveCell } from './useFretboardPlayback';
 import { type CAGEDActiveShape } from './caged.helpers';
 
 type FretboardGridProps = Pick<
@@ -16,13 +16,14 @@ type FretboardGridProps = Pick<
   | 'noteDisplayType'
   | 'showFunctionalColors'
   | 'rootNote'
-  | 'activeNoteIndex'
 > & {
+  activeCell: ActiveCell | null;
+  playNote: (stringIndex: number, fret: number, note: NoteName) => Promise<void>;
+  isReady: boolean;
   audioEnabled?: boolean;
   isTraining?: boolean;
   onSubmitNote?: (note: NoteName) => void;
   activeCAGEDShapes?: CAGEDActiveShape[];
-  positionCells?: Set<string> | null;
 };
 
 export function FretboardGrid({
@@ -33,14 +34,14 @@ export function FretboardGrid({
   noteDisplayType,
   showFunctionalColors,
   rootNote,
-  activeNoteIndex,
+  activeCell,
+  playNote,
+  isReady,
   audioEnabled = true,
   isTraining: _isTraining = false,
   onSubmitNote,
   activeCAGEDShapes = [],
-  positionCells,
 }: FretboardGridProps) {
-  const { playNote, isReady } = useGuitarAudio();
   const fretNumbers = Array.from({ length: TOTAL_FRETS + 1 }, (_, i) => i);
   // Reverse strings to show 1st string (high e) at top, 6th string (low E) at bottom
   const reversedFretboard = [...fretboard].reverse();
@@ -60,7 +61,7 @@ export function FretboardGrid({
 
   return (
     <div className="rounded-lg border border-border bg-card overflow-x-auto">
-      <table className="border-collapse w-full min-w-[900px]">
+      <table className="border-collapse w-full min-w-[900px]" role="grid">
         <thead>
           <FretNumberRow fretNumbers={fretNumbers} />
         </thead>
@@ -68,37 +69,39 @@ export function FretboardGrid({
           {reversedFretboard.map((stringNotes, displayStringIndex) => {
             const originalStringIndex = 5 - displayStringIndex;
             return (
-            <tr key={displayStringIndex} className="border-b border-border/30 last:border-b-0">
-              <td className="px-2 py-1 text-xs text-muted-foreground whitespace-nowrap font-mono w-16 text-right border-r-2 border-foreground/20">
-                {reversedLabels[displayStringIndex]}
-              </td>
-              {stringNotes.map((note, fret) => {
-                const inPosition = !positionCells || positionCells.has(`${originalStringIndex}-${fret}`);
-                return (
-                <NoteCell
-                  key={`${displayStringIndex}-${fret}`}
-                  note={note}
-                  fret={fret}
-                  stringIndex={displayStringIndex}
-                  highlightedNotes={highlightedNotes}
-                  useFlats={useFlats}
-                  showAllNotes={showAllNotes}
-                  noteDisplayType={noteDisplayType}
-                  showFunctionalColors={showFunctionalColors}
-                  rootNote={rootNote}
-                  isActive={activeNoteIndex !== null && highlightedNotes[activeNoteIndex] === note}
-                  inPosition={inPosition}
-                  cagedLabel={activeCAGEDShapes
-                    .filter((shape) =>
-                      shape.cells.some((cell) => cell.stringIndex === displayStringIndex && cell.fret === fret)
-                    )
-                    .map((shape) => shape.name)
-                    .join('/')}
-                  onNoteClick={audioEnabled ? handleNoteClick : undefined}
-                />
-                );
-              })}
-            </tr>
+              <tr key={displayStringIndex} className="border-b border-border/30 last:border-b-0">
+                <td className="px-2 py-1 text-xs text-muted-foreground whitespace-nowrap font-mono w-16 text-right border-r-2 border-foreground/20">
+                  {reversedLabels[displayStringIndex]}
+                </td>
+                {stringNotes.map((note, fret) => (
+                  <NoteCell
+                    key={`${displayStringIndex}-${fret}`}
+                    note={note}
+                    fret={fret}
+                    stringIndex={displayStringIndex}
+                    highlightedNotes={highlightedNotes}
+                    useFlats={useFlats}
+                    showAllNotes={showAllNotes}
+                    noteDisplayType={noteDisplayType}
+                    showFunctionalColors={showFunctionalColors}
+                    rootNote={rootNote}
+                    isActive={
+                      activeCell !== null &&
+                      originalStringIndex === activeCell.stringIndex &&
+                      fret === activeCell.fret
+                    }
+                    cagedLabel={activeCAGEDShapes
+                      .filter((shape) =>
+                        shape.cells.some(
+                          (cell) => cell.stringIndex === originalStringIndex && cell.fret === fret,
+                        ),
+                      )
+                      .map((shape) => shape.name)
+                      .join('/')}
+                    onNoteClick={audioEnabled ? handleNoteClick : undefined}
+                  />
+                ))}
+              </tr>
             );
           })}
         </tbody>
