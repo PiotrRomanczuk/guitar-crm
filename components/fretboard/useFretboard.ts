@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
   type NoteName,
   CHROMATIC_NOTES,
@@ -10,12 +10,13 @@ import {
 } from '@/lib/music-theory';
 import { useGuitarAudio } from './useGuitarAudio';
 import { type CAGEDShape, getActiveCAGEDShapes, type CAGEDActiveShape } from './caged.helpers';
-import { getScalePositions, buildPositionCellSet, type ScalePosition } from './positions.helpers';
+import { useFretboardTraining, type TrainingState, type TrainingActions } from './useFretboardTraining';
+import { useFretboardPlayback, type PlaybackState, type PlaybackActions, type ActiveCell } from './useFretboardPlayback';
 
 export type DisplayMode = 'scale' | 'chord' | 'none';
 export type NoteDisplayType = 'name' | 'interval';
 
-export interface FretboardState {
+export interface FretboardState extends TrainingState, PlaybackState {
   rootNote: NoteName;
   scaleKey: string;
   chordKey: string;
@@ -26,23 +27,15 @@ export interface FretboardState {
   showAllNotes: boolean;
   audioEnabled: boolean;
   volume: number;
-  isPlaying: boolean;
-  bpm: number;
-  activeNoteIndex: number | null;
-  isTraining: boolean;
-  targetNote: NoteName | null;
-  score: { correct: number; total: number };
-  trainingFeedback: 'correct' | 'wrong' | null;
   cagedShape: CAGEDShape | 'all' | 'none';
   activeCAGEDShapes: CAGEDActiveShape[];
-  scalePositions: ScalePosition[];
-  selectedPosition: number | 'all' | 'none';
-  positionCells: Set<string> | null;
   highlightedNotes: NoteName[];
   fretboard: NoteName[][];
+  playNote: (stringIndex: number, fret: number, note: NoteName) => Promise<void>;
+  isReady: boolean;
 }
 
-export interface FretboardActions {
+export interface FretboardActions extends TrainingActions, PlaybackActions {
   setRootNote: (note: NoteName) => void;
   setScaleKey: (key: string) => void;
   setChordKey: (key: string) => void;
@@ -52,13 +45,7 @@ export interface FretboardActions {
   toggleFlats: () => void;
   toggleShowAllNotes: () => void;
   toggleAudio: () => void;
-  togglePlayback: () => void;
-  setBpm: (bpm: number) => void;
-  startTraining: () => void;
-  stopTraining: () => void;
-  submitNote: (note: NoteName) => void;
   setCagedShape: (shape: CAGEDShape | 'all' | 'none') => void;
-  setSelectedPosition: (pos: number | 'all' | 'none') => void;
   setVolume: (volume: number) => void;
   clearSelection: () => void;
 }
@@ -73,133 +60,25 @@ export function useFretboard(): FretboardState & FretboardActions {
   const [useFlats, setUseFlats] = useState(false);
   const [showAllNotes, setShowAllNotes] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [bpm, setBpm] = useState(120);
-  const [activeNoteIndex, setActiveNoteIndex] = useState<number | null>(null);
-
-  const [isTraining, setIsTraining] = useState(false);
-  const [targetNote, setTargetNote] = useState<NoteName | null>(null);
-  const [score, setScore] = useState({ correct: 0, total: 0 });
-  const [trainingFeedback, setTrainingFeedback] = useState<'correct' | 'wrong' | null>(null);
-
   const [cagedShape, setCagedShape] = useState<CAGEDShape | 'all' | 'none'>('none');
-  const [selectedPosition, setSelectedPosition] = useState<number | 'all' | 'none'>('none');
 
-  const { volume, setVolume: setAudioVolume, playNote } = useGuitarAudio();
+  const { volume, setVolume: setAudioVolume, playNote, isReady } = useGuitarAudio();
 
   const fretboard = useMemo(() => buildFretboard(), []);
 
   const highlightedNotes = useMemo((): NoteName[] => {
-    if (displayMode === 'scale') {
-      return getScaleNotes(rootNote, scaleKey);
-    }
-    if (displayMode === 'chord') {
-      return getChordNotes(rootNote, chordKey);
-    }
+    if (displayMode === 'scale') return getScaleNotes(rootNote, scaleKey);
+    if (displayMode === 'chord') return getChordNotes(rootNote, chordKey);
     return [];
   }, [rootNote, scaleKey, chordKey, displayMode]);
 
-  const scalePositions = useMemo(() => {
-    if (displayMode !== 'scale' || highlightedNotes.length === 0) return [];
-    return getScalePositions(rootNote, highlightedNotes, fretboard);
-  }, [displayMode, rootNote, highlightedNotes, fretboard]);
-
-  const positionCells = useMemo(
-    () => buildPositionCellSet(scalePositions, selectedPosition),
-    [scalePositions, selectedPosition],
-  );
-
-  const handleSetRootNote = useCallback((note: NoteName) => {
-    setRootNote(note);
-    setSelectedPosition('none');
-  }, []);
-
-  const handleSetScaleKey = useCallback((key: string) => {
-    setScaleKey(key);
-    setSelectedPosition('none');
-  }, []);
+  const training = useFretboardTraining();
+  const playback = useFretboardPlayback(highlightedNotes, fretboard, playNote);
 
   const toggleFunctionalColors = useCallback(() => setShowFunctionalColors((prev) => !prev), []);
   const toggleFlats = useCallback(() => setUseFlats((prev) => !prev), []);
   const toggleShowAllNotes = useCallback(() => setShowAllNotes((prev) => !prev), []);
   const toggleAudio = useCallback(() => setAudioEnabled((prev) => !prev), []);
-  const togglePlayback = useCallback(() => setIsPlaying((prev) => !prev), []);
-
-  // Sequencer playback loop
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-
-    if (isPlaying && highlightedNotes.length > 0) {
-      const interval = (60 / bpm) * 1000;
-      let currentIndex = 0;
-
-      const playNextNote = () => {
-        const note = highlightedNotes[currentIndex];
-        // Find first occurrence on fretboard to play (prefer lower strings/higher frets or whatever is reasonable)
-        // For simplicity, let's just find the first string that has this note
-        let found = false;
-        for (let s = 0; s < 6; s++) {
-          for (let f = 0; f <= 15; f++) {
-            if (fretboard[s][f] === note) {
-              playNote(s, f, note);
-              found = true;
-              break;
-            }
-          }
-          if (found) break;
-        }
-
-        setActiveNoteIndex(currentIndex);
-        currentIndex = (currentIndex + 1) % highlightedNotes.length;
-        timer = setTimeout(playNextNote, interval);
-      };
-
-      playNextNote();
-    } else {
-      // Use queueMicrotask to avoid synchronous setState in effect body
-      queueMicrotask(() => setActiveNoteIndex(null));
-    }
-
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [isPlaying, highlightedNotes, bpm, playNote, fretboard]);
-
-  const startTraining = useCallback(() => {
-    setIsTraining(true);
-    setScore({ correct: 0, total: 0 });
-    const randomNote = CHROMATIC_NOTES[Math.floor(Math.random() * CHROMATIC_NOTES.length)];
-    setTargetNote(randomNote);
-    setTrainingFeedback(null);
-  }, []);
-
-  const stopTraining = useCallback(() => {
-    setIsTraining(false);
-    setTargetNote(null);
-    setTrainingFeedback(null);
-  }, []);
-
-  const submitNote = useCallback(
-    (note: NoteName) => {
-      if (!isTraining || !targetNote) return;
-
-      if (note === targetNote) {
-        setScore((prev) => ({ correct: prev.correct + 1, total: prev.total + 1 }));
-        setTrainingFeedback('correct');
-        // Pick new note after delay
-        setTimeout(() => {
-          const nextNote = CHROMATIC_NOTES[Math.floor(Math.random() * CHROMATIC_NOTES.length)];
-          setTargetNote(nextNote);
-          setTrainingFeedback(null);
-        }, 1000);
-      } else {
-        setScore((prev) => ({ ...prev, total: prev.total + 1 }));
-        setTrainingFeedback('wrong');
-        setTimeout(() => setTrainingFeedback(null), 1000);
-      }
-    },
-    [isTraining, targetNote],
-  );
 
   const activeCAGEDShapes = useMemo(() => {
     if (cagedShape === 'none') return [];
@@ -210,10 +89,9 @@ export function useFretboard(): FretboardState & FretboardActions {
 
   const clearSelection = useCallback(() => {
     setDisplayMode('none');
-    stopTraining();
+    training.stopTraining();
     setCagedShape('none');
-    setSelectedPosition('none');
-  }, [stopTraining]);
+  }, [training]);
 
   return {
     rootNote,
@@ -226,22 +104,16 @@ export function useFretboard(): FretboardState & FretboardActions {
     showAllNotes,
     audioEnabled,
     volume,
-    isPlaying,
-    bpm,
-    activeNoteIndex,
-    isTraining,
-    targetNote,
-    score,
-    trainingFeedback,
     cagedShape,
     activeCAGEDShapes,
-    scalePositions,
-    selectedPosition,
-    positionCells,
     highlightedNotes,
     fretboard,
-    setRootNote: handleSetRootNote,
-    setScaleKey: handleSetScaleKey,
+    playNote,
+    isReady,
+    ...training,
+    ...playback,
+    setRootNote,
+    setScaleKey,
     setChordKey,
     setDisplayMode,
     setNoteDisplayType,
@@ -249,16 +121,11 @@ export function useFretboard(): FretboardState & FretboardActions {
     toggleFlats,
     toggleShowAllNotes,
     toggleAudio,
-    togglePlayback,
-    setBpm,
-    startTraining,
-    stopTraining,
-    submitNote,
     setCagedShape,
-    setSelectedPosition,
     setVolume: setAudioVolume,
     clearSelection,
   };
 }
 
+export type { ActiveCell };
 export { CHROMATIC_NOTES };
