@@ -6,6 +6,7 @@ import { TeacherDashboardClient } from '@/components/dashboard/teacher/TeacherDa
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { getStudentDashboardData } from '@/app/actions/student/dashboard';
 import { getTeacherDashboardData } from '@/app/actions/teacher/dashboard';
+import { getCurrentSongOfTheWeek } from '@/app/actions/song-of-the-week';
 
 export default async function DashboardPage({
   searchParams,
@@ -19,13 +20,23 @@ export default async function DashboardPage({
     return <div>Please log in to access the dashboard.</div>;
   }
 
-  // Fetch user profile for full_name
+  // Fetch user profile and Song of the Week in parallel
   const supabase = await createClient();
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name')
-    .eq('id', user.id)
-    .single();
+  const [{ data: profile }, sotw] = await Promise.all([
+    supabase.from('profiles').select('full_name').eq('id', user.id).single(),
+    getCurrentSongOfTheWeek(),
+  ]);
+
+  // For students, check if the SOTW song is already in their repertoire
+  let sotwInRepertoire = false;
+  if (isStudent && sotw) {
+    const { count } = await supabase
+      .from('student_repertoire')
+      .select('id', { count: 'exact', head: true })
+      .eq('student_id', user.id)
+      .eq('song_id', sotw.song_id);
+    sotwInRepertoire = (count ?? 0) > 0;
+  }
 
   // Admin View (Explicitly requested)
   if (isAdmin && view === 'admin') {
@@ -64,6 +75,7 @@ export default async function DashboardPage({
         user={user}
         profile={profile}
         viewMode="admin"
+        sotw={sotw}
       />
     );
   }
@@ -78,6 +90,7 @@ export default async function DashboardPage({
         email={user.email}
         fullName={profile?.full_name}
         isAdmin={isAdmin}
+        sotw={sotw}
       />
     );
   }
@@ -86,7 +99,12 @@ export default async function DashboardPage({
   if (isStudent) {
     const studentData = await getStudentDashboardData();
     return (
-      <StudentDashboardClient data={studentData} email={user.email} />
+      <StudentDashboardClient
+        data={studentData}
+        email={user.email}
+        sotw={sotw}
+        sotwInRepertoire={sotwInRepertoire}
+      />
     );
   }
 

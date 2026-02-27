@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { calculateHealthScore, HealthFactors, HealthStatus } from '@/lib/utils/studentHealth';
+import { getTeacherStudentIds } from '@/lib/queries/teacher-students';
 
 export interface StudentHealth {
   id: string;
@@ -38,11 +39,11 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Get all students via profiles table boolean flags
-    const { data: studentProfiles } = await supabase
-      .from('profiles')
-      .select('id, full_name, email')
-      .eq('is_student', true);
+    // Get only students taught by this teacher
+    const studentIds = await getTeacherStudentIds(supabase, user.id);
+    const { data: studentProfiles } = studentIds.length > 0
+      ? await supabase.from('profiles').select('id, full_name, email').in('id', studentIds)
+      : { data: [] };
 
     if (!studentProfiles || studentProfiles.length === 0) {
       return NextResponse.json([]);

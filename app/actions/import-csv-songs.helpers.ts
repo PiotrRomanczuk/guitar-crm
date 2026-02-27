@@ -41,16 +41,13 @@ export function parseEuropeanDate(dateStr: string): string | null {
 
 /**
  * Group CSV rows by date string (original DD.MM.YYYY).
- * Rows with empty date are assigned today's date.
+ * Rows with empty date are skipped (they should be routed to repertoire).
  * Returns a Map of date -> rows for that date.
  */
 export function groupRowsByDate(rows: CsvSongRow[]): Map<string, CsvSongRow[]> {
-  const today = getTodayEuropeanDate();
   const groups = new Map<string, CsvSongRow[]>();
   for (const row of rows) {
-    if (!row.date) {
-      row.date = today;
-    }
+    if (!row.date) continue;
     const existing = groups.get(row.date) || [];
     existing.push(row);
     groups.set(row.date, existing);

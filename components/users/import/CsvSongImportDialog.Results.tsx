@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle2, XCircle, Music, BookOpen } from 'lucide-react';
+import { CheckCircle2, XCircle, Music, BookOpen, Library } from 'lucide-react';
 import type { CsvSongImportResult } from '@/schemas/CsvSongImportSchema';
 
 interface ResultsStepProps {
@@ -42,6 +42,15 @@ export function ResultsStep({ result, onClose }: ResultsStepProps) {
                   <p className="text-xs text-muted-foreground">{summary.lessonsExisting} already existed</p>
                 </div>
               </div>
+              {(summary.repertoireAdded ?? 0) > 0 && (
+                <div className="flex items-center gap-2">
+                  <Library className="h-4 w-4 text-purple-500" />
+                  <div>
+                    <p className="text-sm font-medium">{summary.repertoireAdded} repertoire</p>
+                    <p className="text-xs text-muted-foreground">Added to student repertoire</p>
+                  </div>
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 {summary.errors > 0 ? (
                   <XCircle className="h-4 w-4 text-destructive" />

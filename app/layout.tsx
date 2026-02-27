@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 
 import { AppShell } from '@/components/layout/AppShell';
 import { Providers } from '@/components/providers/QueryProvider';
@@ -7,22 +6,13 @@ import { Providers } from '@/components/providers/QueryProvider';
 import './globals.css';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { createLogger } from '@/lib/logger';
+import { getFontVariableClasses, getAllFontClasses } from '@/lib/fonts';
+import { FontProvider } from '@/lib/fonts/FontProvider';
+import { DYNAMIC_FONT_SWITCHING } from '@/lib/fonts/fonts.config';
 
 const log = createLogger('Layout');
 
 export const dynamic = 'force-dynamic';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
-
-const plusJakartaSans = Plus_Jakarta_Sans({ variable: '--font-plus-jakarta-sans', subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Strummy - Guitar Teaching Studio',
@@ -50,14 +40,29 @@ export default async function RootLayout({
   log.debug('RootLayout rendering');
   const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
   log.debug('User roles', { userId: user?.id, isAdmin, isTeacher, isStudent });
+
+  // When dynamic switching is enabled, load all fonts
+  // Otherwise, load only the active font scheme
+  const fontClasses = DYNAMIC_FONT_SWITCHING
+    ? getAllFontClasses()
+    : getFontVariableClasses();
+
+  const content = (
+    <Providers>
+      <AppShell user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent}>
+        {children}
+      </AppShell>
+    </Providers>
+  );
+
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${plusJakartaSans.variable}`} suppressHydrationWarning>
-      <body className={`antialiased font-sans`}>
-        <Providers>
-          <AppShell user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent}>
-            {children}
-          </AppShell>
-        </Providers>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${fontClasses} antialiased`}>
+        {DYNAMIC_FONT_SWITCHING ? (
+          <FontProvider>{content}</FontProvider>
+        ) : (
+          content
+        )}
       </body>
     </html>
   );
