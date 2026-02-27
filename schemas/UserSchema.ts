@@ -15,6 +15,7 @@ export const UserSchema = z.object({
   isStudent: z.boolean().default(true),
   isTeacher: z.boolean().default(false),
   isAdmin: z.boolean().default(false),
+  isParent: z.boolean().default(false),
   isShadow: z.boolean().default(false).optional(),
   canEdit: z.boolean().default(false),
   isTest: z.boolean().default(false),
@@ -72,6 +73,7 @@ export const UserFilterSchema = z.object({
   isStudent: z.boolean().optional(),
   isTeacher: z.boolean().optional(),
   isAdmin: z.boolean().optional(),
+  isParent: z.boolean().optional(),
 });
 
 // User sort schema
@@ -107,13 +109,14 @@ export const UserPasswordChangeSchema = z
 export const getUserRole = (user: z.infer<typeof UserSchema>): z.infer<typeof UserRoleEnum> => {
   if (user.isAdmin) return 'admin';
   if (user.isTeacher) return 'teacher';
+  // Parents without other roles default to student view
   return 'student';
 };
 
 // Helper function to check if user has permission
 export const hasPermission = (
   user: z.infer<typeof UserSchema>,
-  permission: 'edit' | 'admin' | 'teacher' | 'student'
+  permission: 'edit' | 'admin' | 'teacher' | 'student' | 'parent'
 ): boolean => {
   switch (permission) {
     case 'edit':
@@ -124,6 +127,8 @@ export const hasPermission = (
       return user.isTeacher || user.isAdmin;
     case 'student':
       return user.isStudent;
+    case 'parent':
+      return user.isParent;
     default:
       return false;
   }

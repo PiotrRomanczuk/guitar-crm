@@ -137,12 +137,12 @@ export default async function SongList({ searchParams }: SongListProps) {
   }) || []) as unknown as Song[];
 
   // Fetch students for filter (only if admin or teacher)
-  let students: { id: string; full_name: string | null }[] = [];
+  let students: { id: string; full_name: string | null; student_status: string | null }[] = [];
 
   if (isAdmin || isTeacher) {
     const { data: studentsData } = await supabase
       .from('profiles')
-      .select('id, full_name')
+      .select('id, full_name, student_status')
       .eq('is_student', true)
       .order('full_name');
 

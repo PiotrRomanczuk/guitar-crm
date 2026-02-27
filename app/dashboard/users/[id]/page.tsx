@@ -8,6 +8,7 @@ import { createLogger } from '@/lib/logger';
 import { UserDetailTabs } from '@/components/users/details/UserDetailTabs';
 import type { Lesson } from '@/components/users/details/UserDetailTabs';
 import type { StudentRepertoireWithSong } from '@/types/StudentRepertoire';
+import type { ParentProfile } from '@/types/ParentProfile';
 
 const log = createLogger('UserDetailPage');
 
@@ -43,12 +44,6 @@ interface UserProfile {
   is_shadow: boolean | null;
   is_parent: boolean;
   parent_id: string | null;
-}
-
-interface ParentProfile {
-  id: string;
-  full_name: string | null;
-  email: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

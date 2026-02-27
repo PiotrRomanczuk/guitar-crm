@@ -13,6 +13,7 @@ export async function getUserWithRolesSSR() {
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
+      isParent: false,
     };
   }
 
@@ -22,13 +23,14 @@ export async function getUserWithRolesSSR() {
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
+      isParent: false,
     };
   }
 
   // Fetch roles from profiles table boolean flags
   const { data: profile } = await supabase
     .from('profiles')
-    .select('is_admin, is_teacher, is_student')
+    .select('is_admin, is_teacher, is_student, is_parent')
     .eq('id', user.id)
     .single();
 
@@ -37,5 +39,6 @@ export async function getUserWithRolesSSR() {
     isAdmin: profile?.is_admin ?? false,
     isTeacher: profile?.is_teacher ?? false,
     isStudent: profile?.is_student ?? false,
+    isParent: profile?.is_parent ?? false,
   };
 }

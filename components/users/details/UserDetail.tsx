@@ -30,12 +30,7 @@ import { ExportButton } from '@/components/users/actions/ExportButton';
 import { CsvSongImportButton } from '@/components/users/import';
 import { MoreVertical, Edit, Trash2, User, FileText, Sparkles, Users } from 'lucide-react';
 import { toast } from 'sonner';
-
-interface RelatedProfile {
-  id: string;
-  full_name: string | null;
-  email: string;
-}
+import type { ParentProfile } from '@/types/ParentProfile';
 
 interface UserDetailProps {
   user: {
@@ -50,8 +45,8 @@ interface UserDetailProps {
     avatar_url: string | null;
     notes: string | null;
   };
-  parentProfile?: RelatedProfile | null;
-  linkedStudents?: RelatedProfile[];
+  parentProfile?: ParentProfile | null;
+  linkedStudents?: ParentProfile[];
 }
 
 export default function UserDetail({ user, parentProfile, linkedStudents = [] }: UserDetailProps) {

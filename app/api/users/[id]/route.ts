@@ -11,6 +11,7 @@ const UpdateUserSchema = z.object({
   isStudent: z.boolean().optional(),
   isParent: z.boolean().optional(),
   isActive: z.boolean().optional(),
+  parentId: z.string().uuid().nullable().optional(),
 });
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -26,7 +27,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, email, full_name, first_name, last_name, phone, notes, is_admin, is_teacher, is_student, is_shadow, is_active, student_status, created_at, updated_at')
+      .select('id, email, full_name, first_name, last_name, phone, notes, is_admin, is_teacher, is_student, is_shadow, is_active, is_parent, parent_id, student_status, created_at, updated_at')
       .eq('id', id)
       .single();
 
@@ -70,22 +71,48 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     const supabase = await createClient();
 
+    // Validate parentId if provided
+    if (body.parentId !== undefined) {
+      if (body.parentId === id) {
+        return Response.json({ error: 'A user cannot be their own parent' }, { status: 400 });
+      }
+      if (body.parentId !== null) {
+        const { data: parentProfile } = await supabase
+          .from('profiles')
+          .select('id, is_parent')
+          .eq('id', body.parentId)
+          .single();
+        if (!parentProfile) {
+          return Response.json({ error: 'Parent profile not found' }, { status: 400 });
+        }
+        if (!parentProfile.is_parent) {
+          return Response.json({ error: 'Target user is not marked as a parent' }, { status: 400 });
+        }
+      }
+    }
+
     let fullName = body.full_name;
     if (!fullName && (body.firstName || body.lastName)) {
       fullName = `${body.firstName || ''} ${body.lastName || ''}`.trim();
     }
 
+    const updatePayload: Record<string, unknown> = {
+      full_name: fullName,
+      is_admin: body.isAdmin,
+      is_teacher: body.isTeacher,
+      is_student: body.isStudent,
+      is_parent: body.isParent,
+      is_active: body.isActive,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (body.parentId !== undefined) {
+      updatePayload.parent_id = body.parentId;
+    }
+
     const { data, error } = await supabase
       .from('profiles')
-      .update({
-        full_name: fullName,
-        is_admin: body.isAdmin,
-        is_teacher: body.isTeacher,
-        is_student: body.isStudent,
-        is_parent: body.isParent,
-        is_active: body.isActive,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updatePayload)
       .eq('id', id)
       .select()
       .single();
