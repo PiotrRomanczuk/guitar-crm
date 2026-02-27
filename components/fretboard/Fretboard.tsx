@@ -22,6 +22,7 @@ type FretboardGridProps = Pick<
   isTraining?: boolean;
   onSubmitNote?: (note: NoteName) => void;
   activeCAGEDShapes?: CAGEDActiveShape[];
+  positionCells?: Set<string> | null;
 };
 
 export function FretboardGrid({
@@ -37,6 +38,7 @@ export function FretboardGrid({
   isTraining: _isTraining = false,
   onSubmitNote,
   activeCAGEDShapes = [],
+  positionCells,
 }: FretboardGridProps) {
   const { playNote, isReady } = useGuitarAudio();
   const fretNumbers = Array.from({ length: TOTAL_FRETS + 1 }, (_, i) => i);
@@ -63,12 +65,16 @@ export function FretboardGrid({
           <FretNumberRow fretNumbers={fretNumbers} />
         </thead>
         <tbody>
-          {reversedFretboard.map((stringNotes, displayStringIndex) => (
+          {reversedFretboard.map((stringNotes, displayStringIndex) => {
+            const originalStringIndex = 5 - displayStringIndex;
+            return (
             <tr key={displayStringIndex} className="border-b border-border/30 last:border-b-0">
               <td className="px-2 py-1 text-xs text-muted-foreground whitespace-nowrap font-mono w-16 text-right border-r-2 border-foreground/20">
                 {reversedLabels[displayStringIndex]}
               </td>
-              {stringNotes.map((note, fret) => (
+              {stringNotes.map((note, fret) => {
+                const inPosition = !positionCells || positionCells.has(`${originalStringIndex}-${fret}`);
+                return (
                 <NoteCell
                   key={`${displayStringIndex}-${fret}`}
                   note={note}
@@ -81,6 +87,7 @@ export function FretboardGrid({
                   showFunctionalColors={showFunctionalColors}
                   rootNote={rootNote}
                   isActive={activeNoteIndex !== null && highlightedNotes[activeNoteIndex] === note}
+                  inPosition={inPosition}
                   cagedLabel={activeCAGEDShapes
                     .filter((shape) =>
                       shape.cells.some((cell) => cell.stringIndex === displayStringIndex && cell.fret === fret)
@@ -89,9 +96,11 @@ export function FretboardGrid({
                     .join('/')}
                   onNoteClick={audioEnabled ? handleNoteClick : undefined}
                 />
-              ))}
+                );
+              })}
             </tr>
-          ))}
+            );
+          })}
         </tbody>
         <tfoot>
           <FretMarkerRow fretNumbers={fretNumbers} />

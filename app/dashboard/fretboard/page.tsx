@@ -44,7 +44,11 @@ export default function FretboardPage() {
     submitNote,
     cagedShape,
     activeCAGEDShapes,
+    scalePositions,
+    selectedPosition,
+    positionCells,
     setCagedShape,
+    setSelectedPosition,
     setVolume,
     clearSelection,
   } = useFretboard();
@@ -87,6 +91,9 @@ export default function FretboardPage() {
         onStopTraining={stopTraining}
         cagedShape={cagedShape}
         onCagedShapeChange={setCagedShape}
+        scalePositions={scalePositions}
+        selectedPosition={selectedPosition}
+        onPositionChange={setSelectedPosition}
         onToggleFlats={toggleFlats}
         onToggleAllNotes={toggleShowAllNotes}
         onToggleAudio={toggleAudio}
@@ -107,6 +114,7 @@ export default function FretboardPage() {
         isTraining={isTraining}
         onSubmitNote={submitNote}
         activeCAGEDShapes={activeCAGEDShapes}
+        positionCells={positionCells}
       />
 
       <FretboardInfo

@@ -23,6 +23,7 @@ interface NoteCellProps {
   showFunctionalColors: boolean;
   rootNote: NoteName;
   isActive?: boolean;
+  inPosition?: boolean;
   cagedLabel?: string;
   onNoteClick?: (stringIndex: number, fret: number, note: NoteName) => void;
 }
@@ -38,13 +39,14 @@ export function NoteCell({
   showFunctionalColors,
   rootNote,
   isActive,
+  inPosition = true,
   cagedLabel,
   onNoteClick,
 }: NoteCellProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const highlighted = isHighlighted(note, highlightedNotes);
   const root = isRoot(note, highlightedNotes);
-  const shouldShow = highlighted || showAllNotes || highlightedNotes.length === 0;
+  const shouldShow = (highlighted || showAllNotes || highlightedNotes.length === 0) && inPosition;
 
   const noteText =
     noteDisplayType === 'interval' && highlighted

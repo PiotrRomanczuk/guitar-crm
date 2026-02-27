@@ -10,6 +10,7 @@ import {
 } from '@/lib/music-theory';
 import { useGuitarAudio } from './useGuitarAudio';
 import { type CAGEDShape, getActiveCAGEDShapes, type CAGEDActiveShape } from './caged.helpers';
+import { getScalePositions, buildPositionCellSet, type ScalePosition } from './positions.helpers';
 
 export type DisplayMode = 'scale' | 'chord' | 'none';
 export type NoteDisplayType = 'name' | 'interval';
@@ -34,6 +35,9 @@ export interface FretboardState {
   trainingFeedback: 'correct' | 'wrong' | null;
   cagedShape: CAGEDShape | 'all' | 'none';
   activeCAGEDShapes: CAGEDActiveShape[];
+  scalePositions: ScalePosition[];
+  selectedPosition: number | 'all' | 'none';
+  positionCells: Set<string> | null;
   highlightedNotes: NoteName[];
   fretboard: NoteName[][];
 }
@@ -54,6 +58,7 @@ export interface FretboardActions {
   stopTraining: () => void;
   submitNote: (note: NoteName) => void;
   setCagedShape: (shape: CAGEDShape | 'all' | 'none') => void;
+  setSelectedPosition: (pos: number | 'all' | 'none') => void;
   setVolume: (volume: number) => void;
   clearSelection: () => void;
 }
@@ -78,6 +83,7 @@ export function useFretboard(): FretboardState & FretboardActions {
   const [trainingFeedback, setTrainingFeedback] = useState<'correct' | 'wrong' | null>(null);
 
   const [cagedShape, setCagedShape] = useState<CAGEDShape | 'all' | 'none'>('none');
+  const [selectedPosition, setSelectedPosition] = useState<number | 'all' | 'none'>('none');
 
   const { volume, setVolume: setAudioVolume, playNote } = useGuitarAudio();
 
@@ -92,6 +98,26 @@ export function useFretboard(): FretboardState & FretboardActions {
     }
     return [];
   }, [rootNote, scaleKey, chordKey, displayMode]);
+
+  const scalePositions = useMemo(() => {
+    if (displayMode !== 'scale' || highlightedNotes.length === 0) return [];
+    return getScalePositions(rootNote, highlightedNotes, fretboard);
+  }, [displayMode, rootNote, highlightedNotes, fretboard]);
+
+  const positionCells = useMemo(
+    () => buildPositionCellSet(scalePositions, selectedPosition),
+    [scalePositions, selectedPosition],
+  );
+
+  const handleSetRootNote = useCallback((note: NoteName) => {
+    setRootNote(note);
+    setSelectedPosition('none');
+  }, []);
+
+  const handleSetScaleKey = useCallback((key: string) => {
+    setScaleKey(key);
+    setSelectedPosition('none');
+  }, []);
 
   const toggleFunctionalColors = useCallback(() => setShowFunctionalColors((prev) => !prev), []);
   const toggleFlats = useCallback(() => setUseFlats((prev) => !prev), []);
@@ -186,6 +212,7 @@ export function useFretboard(): FretboardState & FretboardActions {
     setDisplayMode('none');
     stopTraining();
     setCagedShape('none');
+    setSelectedPosition('none');
   }, [stopTraining]);
 
   return {
@@ -208,10 +235,13 @@ export function useFretboard(): FretboardState & FretboardActions {
     trainingFeedback,
     cagedShape,
     activeCAGEDShapes,
+    scalePositions,
+    selectedPosition,
+    positionCells,
     highlightedNotes,
     fretboard,
-    setRootNote,
-    setScaleKey,
+    setRootNote: handleSetRootNote,
+    setScaleKey: handleSetScaleKey,
     setChordKey,
     setDisplayMode,
     setNoteDisplayType,
@@ -225,6 +255,7 @@ export function useFretboard(): FretboardState & FretboardActions {
     stopTraining,
     submitNote,
     setCagedShape,
+    setSelectedPosition,
     setVolume: setAudioVolume,
     clearSelection,
   };
