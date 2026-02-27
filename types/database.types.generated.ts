@@ -252,6 +252,7 @@ export type Database = {
           id: string
           key: Database["public"]["Enums"]["music_key"]
           level: Database["public"]["Enums"]["difficulty_level"]
+          lyrics_with_chords: string | null
           title: string
           ultimate_guitar_link: string
           updated_at: string
@@ -263,6 +264,7 @@ export type Database = {
           id?: string
           key: Database["public"]["Enums"]["music_key"]
           level: Database["public"]["Enums"]["difficulty_level"]
+          lyrics_with_chords?: string | null
           title: string
           ultimate_guitar_link: string
           updated_at?: string
@@ -274,6 +276,7 @@ export type Database = {
           id?: string
           key?: Database["public"]["Enums"]["music_key"]
           level?: Database["public"]["Enums"]["difficulty_level"]
+          lyrics_with_chords?: string | null
           title?: string
           ultimate_guitar_link?: string
           updated_at?: string

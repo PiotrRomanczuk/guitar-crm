@@ -50,6 +50,7 @@ export type SongFormData = {
   duration_ms: number | null;
   release_year: number | null;
   notes: string;
+  lyrics_with_chords: string;
 };
 
 const FORM_DEFAULTS: SongFormData = {
@@ -73,6 +74,7 @@ const FORM_DEFAULTS: SongFormData = {
   duration_ms: null,
   release_year: null,
   notes: '',
+  lyrics_with_chords: '',
 };
 
 /**
@@ -101,5 +103,6 @@ export function createFormData(song?: Song | null): SongFormData {
     duration_ms: song?.duration_ms ?? null,
     release_year: song?.release_year ?? null,
     notes: song?.notes || '',
+    lyrics_with_chords: song?.lyrics_with_chords || '',
   };
 }

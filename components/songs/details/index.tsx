@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import SongDetailHeader from './Header';
 import SongDetailInfo from './Info';
+import LyricsWithChords from './LyricsWithChords';
 import SongDetailActions from './Actions';
 import YouTubeEmbed from './YouTubeEmbed';
 import ImageGallery from './ImageGallery';
@@ -127,6 +128,7 @@ export default async function SongDetail({ songId, isAdmin = false, isTeacher = 
 
       <div className="space-y-8">
         <SongDetailInfo song={song} />
+        <LyricsWithChords song={song} />
         {videos.length === 0 && <YouTubeEmbed url={song.youtube_url} />}
         <ImageGallery images={song.gallery_images} />
         {videos.length > 0 && <VideoGallery songId={song.id} isTeacher={isAdmin || isTeacher} initialVideos={videos} />}
