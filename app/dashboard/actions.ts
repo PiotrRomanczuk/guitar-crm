@@ -87,7 +87,7 @@ async function findOrCreateAuthUser(
     type: 'magiclink',
     email: studentEmail,
     options: {
-      data: { is_student: true, full_name: studentEmail.split('@')[0] },
+      data: { is_student: true },
     },
   });
 
@@ -95,7 +95,7 @@ async function findOrCreateAuthUser(
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email: studentEmail,
       email_confirm: true,
-      user_metadata: { is_student: true, full_name: studentEmail.split('@')[0] },
+      user_metadata: { is_student: true },
     });
 
     if (createError) throw new Error(`Failed to create/find user: ${createError.message}`);
@@ -121,7 +121,7 @@ async function upsertStudentProfile(
     {
       id: userId,
       email: studentEmail,
-      full_name: studentEmail.split('@')[0],
+      full_name: null,
       is_student: true,
       is_teacher: false,
       is_admin: false,
@@ -165,7 +165,7 @@ async function cleanupOrphanProfiles(
     {
       id: userId,
       email: studentEmail,
-      full_name: studentEmail.split('@')[0],
+      full_name: null,
       is_student: true,
       is_teacher: false,
       is_admin: false,

@@ -70,7 +70,7 @@ export default function UsersListFilters({
         </div>
 
         <div className="space-y-2">
-          <Label>Account Status</Label>
+          <Label>Account</Label>
           <Select
             value={activeFilter || 'all'}
             onValueChange={(value) =>
@@ -82,8 +82,8 @@ export default function UsersListFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Users</SelectItem>
-              <SelectItem value="true">Active Account</SelectItem>
-              <SelectItem value="false">Inactive Account</SelectItem>
+              <SelectItem value="true">Enabled</SelectItem>
+              <SelectItem value="false">Disabled</SelectItem>
             </SelectContent>
           </Select>
         </div>

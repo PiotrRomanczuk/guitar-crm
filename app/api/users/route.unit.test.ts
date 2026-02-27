@@ -31,6 +31,7 @@ describe('Users API - GET endpoint', () => {
       is_student: true,
       is_shadow: false,
       is_active: true,
+      student_status: 'active',
       created_at: '2024-01-01T00:00:00Z',
       updated_at: '2024-01-01T00:00:00Z',
     },
@@ -43,6 +44,7 @@ describe('Users API - GET endpoint', () => {
       is_student: false,
       is_shadow: false,
       is_active: true,
+      student_status: null,
       created_at: '2024-01-02T00:00:00Z',
       updated_at: '2024-01-02T00:00:00Z',
     },
@@ -55,23 +57,9 @@ describe('Users API - GET endpoint', () => {
       is_student: true,
       is_shadow: true,
       is_active: true,
+      student_status: 'active',
       created_at: '2024-01-03T00:00:00Z',
       updated_at: '2024-01-03T00:00:00Z',
-    },
-  ];
-
-  const mockAuthUsers = [
-    {
-      id: 'user-1',
-      email: 'user1@example.com',
-      last_sign_in_at: '2024-01-15T00:00:00Z',
-      app_metadata: { providers: ['email'] },
-    },
-    {
-      id: 'user-2',
-      email: 'user2@example.com',
-      last_sign_in_at: null,
-      app_metadata: { providers: ['google'] },
     },
   ];
 
@@ -82,45 +70,8 @@ describe('Users API - GET endpoint', () => {
     (getUserWithRolesSSR as jest.Mock).mockResolvedValue(mockAdminUser);
   });
 
-  describe('N+1 Query Optimization', () => {
-    it('should fetch auth users in a single batch query instead of N individual queries', async () => {
-      // Mock the admin client's listUsers call counter
-      const listUsersCalls: unknown[] = [];
-      const getUserByIdCalls: unknown[] = [];
-
-      const mockSupabaseAdmin = {
-        auth: {
-          admin: {
-            listUsers: jest.fn((params) => {
-              listUsersCalls.push(params);
-              return Promise.resolve({
-                data: { users: mockAuthUsers },
-                error: null,
-              });
-            }),
-            getUserById: jest.fn((id) => {
-              getUserByIdCalls.push(id);
-              return Promise.resolve({
-                data: { user: mockAuthUsers.find((u) => u.id === id) },
-                error: null,
-              });
-            }),
-          },
-        },
-        from: jest.fn(() => ({
-          select: jest.fn(() => ({
-            eq: jest.fn(() => ({
-              single: jest.fn(() =>
-                Promise.resolve({ data: null, error: null })
-              ),
-            })),
-          })),
-        })),
-      };
-
-      (createAdminClient as jest.Mock).mockReturnValue(mockSupabaseAdmin);
-
-      // Mock regular client
+  describe('Registration status from is_shadow', () => {
+    it('should derive isRegistered from is_shadow without auth.users lookup', async () => {
       const mockSupabase = {
         from: jest.fn((table) => {
           if (table === 'profiles') {
@@ -158,151 +109,42 @@ describe('Users API - GET endpoint', () => {
       expect(response.status).toBe(200);
       const data = await response.json();
 
-      // Verify we got the data
       expect(data.data).toHaveLength(3);
 
-      // CRITICAL: Verify N+1 is fixed
-      // Should call listUsers (batch query) and NOT getUserById (individual queries)
-      expect(listUsersCalls.length).toBeGreaterThan(0);
-      expect(getUserByIdCalls.length).toBe(0);
-
-      console.log('✓ N+1 query pattern fixed: Using batch listUsers() instead of individual getUserById() calls');
-    });
-
-    it('should correctly map registration status from batched auth data', async () => {
-      const mockSupabaseAdmin = {
-        auth: {
-          admin: {
-            listUsers: jest.fn(() =>
-              Promise.resolve({
-                data: { users: mockAuthUsers },
-                error: null,
-              })
-            ),
-          },
-        },
-        from: jest.fn(() => ({
-          select: jest.fn(() => ({
-            eq: jest.fn(() => ({
-              single: jest.fn(() =>
-                Promise.resolve({ data: null, error: null })
-              ),
-            })),
-          })),
-        })),
-      };
-
-      (createAdminClient as jest.Mock).mockReturnValue(mockSupabaseAdmin);
-
-      const mockSupabase = {
-        from: jest.fn((table) => {
-          if (table === 'profiles') {
-            return {
-              select: jest.fn(() => ({
-                order: jest.fn(() => ({
-                  range: jest.fn(() =>
-                    Promise.resolve({
-                      data: mockProfiles,
-                      error: null,
-                      count: mockProfiles.length,
-                    })
-                  ),
-                })),
-              })),
-            };
-          }
-          return {
-            select: jest.fn(() => ({
-              eq: jest.fn(() => ({
-                single: jest.fn(() =>
-                  Promise.resolve({ data: null, error: null })
-                ),
-              })),
-            })),
-          };
-        }),
-      };
-
-      (createClient as jest.Mock).mockResolvedValue(mockSupabase);
-
-      const req = new NextRequest('http://localhost:3000/api/users');
-      const response = await GET(req);
-
-      expect(response.status).toBe(200);
-      const data = await response.json();
-
-      // Verify registration status is correctly mapped
+      // Non-shadow users → isRegistered: true
       const user1 = data.data.find((u: { id: string }) => u.id === 'user-1');
       const user2 = data.data.find((u: { id: string }) => u.id === 'user-2');
       const shadowUser = data.data.find((u: { id: string }) => u.id === 'user-3');
 
-      // user-1 has last_sign_in_at, should be registered
       expect(user1.isRegistered).toBe(true);
-
-      // user-2 has OAuth provider (google), should be registered
       expect(user2.isRegistered).toBe(true);
-
-      // shadow user not in auth.users, should be not registered
       expect(shadowUser.isRegistered).toBe(false);
+
+      // No admin client calls should be made in GET
+      expect(createAdminClient).not.toHaveBeenCalled();
     });
 
-    it('should skip fetching auth data for shadow users', async () => {
-      const onlyShadowProfiles = [mockProfiles[2]]; // Only shadow user
+    it('should include studentStatus in response defaulting to active', async () => {
+      const profilesWithStatus = [
+        { ...mockProfiles[0], student_status: 'archived' },
+        { ...mockProfiles[1], student_status: null },
+        { ...mockProfiles[2], student_status: 'active' },
+      ];
 
-      const listUsersCalls: unknown[] = [];
-
-      const mockSupabaseAdmin = {
-        auth: {
-          admin: {
-            listUsers: jest.fn((params) => {
-              listUsersCalls.push(params);
-              return Promise.resolve({
-                data: { users: [] },
-                error: null,
-              });
-            }),
-          },
-        },
+      const mockSupabase = {
         from: jest.fn(() => ({
           select: jest.fn(() => ({
-            eq: jest.fn(() => ({
-              single: jest.fn(() =>
-                Promise.resolve({ data: null, error: null })
+            order: jest.fn(() => ({
+              range: jest.fn(() =>
+                Promise.resolve({
+                  data: profilesWithStatus,
+                  error: null,
+                  count: profilesWithStatus.length,
+                })
               ),
             })),
           })),
         })),
-      };
-
-      (createAdminClient as jest.Mock).mockReturnValue(mockSupabaseAdmin);
-
-      const mockSupabase = {
-        from: jest.fn((table) => {
-          if (table === 'profiles') {
-            return {
-              select: jest.fn(() => ({
-                order: jest.fn(() => ({
-                  range: jest.fn(() =>
-                    Promise.resolve({
-                      data: onlyShadowProfiles,
-                      error: null,
-                      count: onlyShadowProfiles.length,
-                    })
-                  ),
-                })),
-              })),
-            };
-          }
-          return {
-            select: jest.fn(() => ({
-              eq: jest.fn(() => ({
-                single: jest.fn(() =>
-                  Promise.resolve({ data: null, error: null })
-                ),
-              })),
-            })),
-          };
-        }),
       };
 
       (createClient as jest.Mock).mockResolvedValue(mockSupabase);
@@ -311,9 +153,15 @@ describe('Users API - GET endpoint', () => {
       const response = await GET(req);
 
       expect(response.status).toBe(200);
+      const data = await response.json();
 
-      // Should not call listUsers since all users are shadow users
-      expect(listUsersCalls.length).toBe(0);
+      const user1 = data.data.find((u: { id: string }) => u.id === 'user-1');
+      const user2 = data.data.find((u: { id: string }) => u.id === 'user-2');
+      const user3 = data.data.find((u: { id: string }) => u.id === 'user-3');
+
+      expect(user1.studentStatus).toBe('archived');
+      expect(user2.studentStatus).toBe('active'); // null defaults to 'active'
+      expect(user3.studentStatus).toBe('active');
     });
   });
 
@@ -359,6 +207,7 @@ describe('Users API - GET endpoint', () => {
                     is_student: true,
                     is_shadow: false,
                     is_active: true,
+                    student_status: 'active',
                     created_at: '2024-01-01T00:00:00Z',
                     updated_at: '2024-01-01T00:00:00Z',
                   },
@@ -405,30 +254,6 @@ describe('Users API - GET endpoint', () => {
 
       (createClient as jest.Mock).mockResolvedValue(mockSupabase);
 
-      const mockSupabaseAdmin = {
-        auth: {
-          admin: {
-            listUsers: jest.fn(() =>
-              Promise.resolve({
-                data: { users: [mockAuthUsers[0]] },
-                error: null,
-              })
-            ),
-          },
-        },
-        from: jest.fn(() => ({
-          select: jest.fn(() => ({
-            eq: jest.fn(() => ({
-              single: jest.fn(() =>
-                Promise.resolve({ data: null, error: null })
-              ),
-            })),
-          })),
-        })),
-      };
-
-      (createAdminClient as jest.Mock).mockReturnValue(mockSupabaseAdmin);
-
       const req = new NextRequest('http://localhost:3000/api/users?search=John');
       const response = await GET(req);
 
@@ -443,7 +268,7 @@ describe('Users API - GET endpoint', () => {
         from: jest.fn(() => ({
           select: jest.fn(() => ({
             order: jest.fn(() => ({
-              range: jest.fn((start, end) => {
+              range: jest.fn((start: number, end: number) => {
                 expect(start).toBe(10);
                 expect(end).toBe(19);
                 return Promise.resolve({
@@ -458,30 +283,6 @@ describe('Users API - GET endpoint', () => {
       };
 
       (createClient as jest.Mock).mockResolvedValue(mockSupabase);
-
-      const mockSupabaseAdmin = {
-        auth: {
-          admin: {
-            listUsers: jest.fn(() =>
-              Promise.resolve({
-                data: { users: [] },
-                error: null,
-              })
-            ),
-          },
-        },
-        from: jest.fn(() => ({
-          select: jest.fn(() => ({
-            eq: jest.fn(() => ({
-              single: jest.fn(() =>
-                Promise.resolve({ data: null, error: null })
-              ),
-            })),
-          })),
-        })),
-      };
-
-      (createAdminClient as jest.Mock).mockReturnValue(mockSupabaseAdmin);
 
       const req = new NextRequest('http://localhost:3000/api/users?limit=10&offset=10');
       const response = await GET(req);
