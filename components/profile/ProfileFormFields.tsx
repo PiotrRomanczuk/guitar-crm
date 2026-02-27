@@ -124,6 +124,15 @@ export function ProfileFormFields({
 				value={formData.bio || ''}
 				onChange={(value) => onChange({ ...formData, bio: value })}
 			/>
+			<TextField
+				id='spotifyPlaylistUrl'
+				label='Spotify Playlist URL'
+				value={formData.spotifyPlaylistUrl || ''}
+				onChange={(value) =>
+					onChange({ ...formData, spotifyPlaylistUrl: value })
+				}
+				placeholder='https://open.spotify.com/playlist/...'
+			/>
 			<EmailField email={userEmail} />
 		</div>
 	);

@@ -1075,6 +1075,7 @@ export type Database = {
           deletion_scheduled_for: string | null;
           locked_until: string | null;
           failed_login_attempts: number | null;
+          spotify_playlist_url: string | null;
         };
         Insert: {
           avatar_url?: string | null;
@@ -1100,6 +1101,7 @@ export type Database = {
           deletion_scheduled_for?: string | null;
           locked_until?: string | null;
           failed_login_attempts?: number | null;
+          spotify_playlist_url?: string | null;
         };
         Update: {
           avatar_url?: string | null;
@@ -1125,6 +1127,7 @@ export type Database = {
           deletion_scheduled_for?: string | null;
           locked_until?: string | null;
           failed_login_attempts?: number | null;
+          spotify_playlist_url?: string | null;
         };
         Relationships: [];
       };
