@@ -5,6 +5,7 @@ import { SCALE_DEFINITIONS } from '@/lib/music-theory/scales';
 import { CHORD_DEFINITIONS } from '@/lib/music-theory/chords';
 import { type DisplayMode, type NoteDisplayType } from './useFretboard';
 import { type CAGEDShape } from './caged.helpers';
+import { type ScalePosition } from './positions.helpers';
 import { formatNoteDisplay } from './fretboard.helpers';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,9 @@ interface FretboardControlsProps {
   onStopTraining: () => void;
   cagedShape: CAGEDShape | 'all' | 'none';
   onCagedShapeChange: (shape: CAGEDShape | 'all' | 'none') => void;
+  scalePositions: ScalePosition[];
+  selectedPosition: number | 'all' | 'none';
+  onPositionChange: (pos: number | 'all' | 'none') => void;
   onToggleFlats: () => void;
   onToggleAllNotes: () => void;
   onClear: () => void;
@@ -72,6 +76,9 @@ export function FretboardControls({
   onStopTraining,
   cagedShape,
   onCagedShapeChange,
+  scalePositions,
+  selectedPosition,
+  onPositionChange,
   onToggleFlats,
   onToggleAllNotes,
   onClear,
@@ -129,6 +136,9 @@ export function FretboardControls({
       <div className="flex flex-wrap items-center gap-3">
         {displayMode === 'scale' && (
           <ScaleSelector scaleKey={scaleKey} onChange={onScaleChange} />
+        )}
+        {displayMode === 'scale' && scalePositions.length > 0 && (
+          <PositionSelector positions={scalePositions} value={selectedPosition} onChange={onPositionChange} />
         )}
         {displayMode === 'chord' && (
           <ChordSelector chordKey={chordKey} onChange={onChordChange} />
@@ -428,6 +438,45 @@ function BpmControl({
         className="w-24 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
       />
       <span className="text-xs text-muted-foreground w-8 text-right font-mono">{bpm}</span>
+    </div>
+  );
+}
+
+function PositionSelector({
+  positions,
+  value,
+  onChange,
+}: {
+  positions: ScalePosition[];
+  value: number | 'all' | 'none';
+  onChange: (value: number | 'all' | 'none') => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <label className="text-sm font-medium text-muted-foreground mr-1">Position:</label>
+      <ToggleGroup
+        type="single"
+        value={String(value)}
+        onValueChange={(val) => {
+          if (!val) return;
+          if (val === 'none' || val === 'all') onChange(val);
+          else onChange(Number(val));
+        }}
+        variant="outline"
+        size="sm"
+      >
+        <ToggleGroupItem value="none">None</ToggleGroupItem>
+        {positions.map((pos) => (
+          <ToggleGroupItem
+            key={pos.index}
+            value={String(pos.index)}
+            className={pos.hasRoot ? 'font-bold' : ''}
+          >
+            {pos.index}
+          </ToggleGroupItem>
+        ))}
+        <ToggleGroupItem value="all">All</ToggleGroupItem>
+      </ToggleGroup>
     </div>
   );
 }
