@@ -60,7 +60,7 @@ export function FretboardInfo({
         {highlightedNotes.map((note, i) => (
           <div
             key={`${note}-${i}`}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm ${getNoteColor(note, highlightedNotes)}`}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm ${getNoteColor(note, highlightedNotes, rootNote, true)}`}
           >
             <span className="font-semibold">
               {formatNote(note, useFlats)}

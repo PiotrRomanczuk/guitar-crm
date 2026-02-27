@@ -74,6 +74,11 @@ export const CHORD_DEFINITIONS: Record<string, ChordDefinition> = {
     intervals: [0, 3, 6, 9],
     description: 'Stacked minor 3rds. Symmetric, transitional.',
   },
+  /**
+   * Note: interval 14 maps to the same pitch class as 2 (major 2nd) via modulo 12.
+   * In interval display mode, this will show as "2" rather than "9".
+   * A future enhancement could track extended intervals for compound display.
+   */
   add9: {
     name: 'Add 9',
     suffix: 'add9',
