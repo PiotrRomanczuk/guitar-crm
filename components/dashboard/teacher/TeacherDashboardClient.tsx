@@ -16,7 +16,7 @@ import { NeedsAttentionCard } from '@/components/dashboard/NeedsAttentionCard';
 import { StudentPipeline } from '@/components/dashboard/pipeline/StudentPipeline';
 import { HealthAlertsBanner } from '@/components/dashboard/health/HealthAlertsBanner';
 import { HealthSummaryWidget } from '@/components/dashboard/health/HealthSummaryWidget';
-import { OpenRouterStatusWidget } from '@/components/dashboard/admin/OpenRouterStatusWidget';
+import { ServicesStatusWidget } from '@/components/dashboard/admin/ServicesStatusWidget';
 import { useDashboardStats, AdminStats as DashboardAdminStats } from '@/hooks/useDashboardStats';
 import { TeacherPerformance } from '@/components/dashboard/teacher/Performance';
 import {
@@ -147,7 +147,7 @@ export function TeacherDashboardClient({
             </div>
             <div className="sm:col-span-2 md:col-span-1 ultrawide:col-span-2 min-w-0 space-y-4">
               <HealthSummaryWidget />
-              {isAdmin && <OpenRouterStatusWidget />}
+              {isAdmin && <ServicesStatusWidget />}
             </div>
           </div>
         </DashboardSection>
