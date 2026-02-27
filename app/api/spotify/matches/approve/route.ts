@@ -76,6 +76,16 @@ export async function POST(request: Request) {
       throw updateError;
     }
 
+    // Reject any previous approved match for the same song+track to avoid
+    // unique constraint violation on (song_id, spotify_track_id, status)
+    await supabase
+      .from('spotify_matches')
+      .update({ status: 'rejected', review_notes: 'Replaced by newer match approval' })
+      .eq('song_id', songId)
+      .eq('spotify_track_id', match.spotify_track_id)
+      .eq('status', 'approved')
+      .neq('id', matchId);
+
     // Update the match status to approved
     const { error: statusError } = await supabase
       .from('spotify_matches')
