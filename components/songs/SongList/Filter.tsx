@@ -7,7 +7,9 @@ import { Search, X } from 'lucide-react';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -15,7 +17,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useState, useEffect } from 'react';
 
 interface Props {
-  students?: { id: string; full_name: string | null }[];
+  students?: { id: string; full_name: string | null; student_status: string | null }[];
 }
 
 export default function SongListFilter({ students }: Props) {
@@ -99,27 +101,47 @@ export default function SongListFilter({ students }: Props) {
         </div>
 
         {/* Student Filter */}
-        {students && students.length > 0 && (
-          <div className="space-y-2">
-            <Label htmlFor="student-filter">Filter by Student</Label>
-            <Select
-              value={searchParams.get('studentId') || 'all'}
-              onValueChange={(val) => handleFilterChange('studentId', val === 'all' ? null : val)}
-            >
-              <SelectTrigger id="student-filter">
-                <SelectValue placeholder="Select student" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Students</SelectItem>
-                {students.map((student) => (
-                  <SelectItem key={student.id} value={student.id}>
-                    {student.full_name || 'Unknown Student'}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        {students && students.length > 0 && (() => {
+          const activeStudents = students.filter((s) => s.student_status === 'active');
+          const otherStudents = students.filter((s) => s.student_status !== 'active');
+
+          return (
+            <div className="space-y-2">
+              <Label htmlFor="student-filter">Filter by Student</Label>
+              <Select
+                value={searchParams.get('studentId') || 'all'}
+                onValueChange={(val) => handleFilterChange('studentId', val === 'all' ? null : val)}
+              >
+                <SelectTrigger id="student-filter">
+                  <SelectValue placeholder="Select student" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Students</SelectItem>
+                  {activeStudents.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel>Active Students</SelectLabel>
+                      {activeStudents.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.full_name || 'Unknown Student'}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
+                  {otherStudents.length > 0 && (
+                    <SelectGroup>
+                      <SelectLabel>Other Students</SelectLabel>
+                      {otherStudents.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.full_name || 'Unknown Student'}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+          );
+        })()}
 
         {/* Reset Button */}
         <div className="flex items-end">

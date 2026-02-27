@@ -10,6 +10,7 @@ import UserLessons from './UserLessons';
 import UserAssignments from './UserAssignments';
 import UserRepertoireTab from './UserRepertoireTab';
 import type { StudentRepertoireWithSong } from '@/types/StudentRepertoire';
+import type { ParentProfile } from '@/types/ParentProfile';
 
 export interface Lesson {
   id: string;
@@ -29,19 +30,13 @@ export interface Assignment {
   status: string | null;
 }
 
-interface ParentInfo {
-  id: string;
-  full_name: string | null;
-  email: string;
-}
-
 interface UserDetailTabsProps {
   userId: string;
   activeTab: string;
   lessons: Lesson[];
   assignments: Assignment[];
   repertoire: StudentRepertoireWithSong[];
-  parentProfile?: ParentInfo | null;
+  parentProfile?: ParentProfile | null;
 }
 
 const TAB_CONFIG = [

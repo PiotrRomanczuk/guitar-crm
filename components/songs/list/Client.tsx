@@ -15,7 +15,7 @@ import { bulkSoftDeleteSongs } from '@/app/actions/songs';
 interface Props {
   initialSongs: Song[];
   isAdmin: boolean;
-  students?: { id: string; full_name: string | null }[];
+  students?: { id: string; full_name: string | null; student_status: string | null }[];
   selectedStudentId?: string;
   categories?: string[];
   authors?: string[];

@@ -46,7 +46,7 @@ export default function UsersList({ initialUsers }: UsersListProps = {}) {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'' | 'admin' | 'teacher' | 'student'>('');
   const [activeFilter, setActiveFilter] = useState<'' | 'true' | 'false'>('');
-  const [studentStatusFilter, setStudentStatusFilter] = useState<'' | 'active' | 'archived'>(''); // Empty = show all statuses
+  const [studentStatusFilter, setStudentStatusFilter] = useState<'' | 'active' | 'archived'>('active');
   const [userToDelete, setUserToDelete] = useState<{ id: string; email: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -76,7 +76,7 @@ export default function UsersList({ initialUsers }: UsersListProps = {}) {
     setSearch('');
     setRoleFilter('');
     setActiveFilter('');
-    setStudentStatusFilter(''); // Reset all filters to show everything
+    setStudentStatusFilter('active');
   };
 
   return (

@@ -32,7 +32,7 @@ export function useUsersList(
   studentStatusFilter: '' | 'active' | 'archived',
   initialUsers?: UserProfile[]
 ) {
-  const hasFilters = search || roleFilter || activeFilter || studentStatusFilter;
+  const isDefaultState = !search && !roleFilter && !activeFilter && studentStatusFilter === 'active';
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['users', search, roleFilter, activeFilter, studentStatusFilter],
@@ -47,7 +47,7 @@ export function useUsersList(
       return response.data || [];
     },
     enabled: true,
-    initialData: !hasFilters && initialUsers ? initialUsers : undefined,
+    initialData: isDefaultState && initialUsers ? initialUsers : undefined,
   });
 
   return {

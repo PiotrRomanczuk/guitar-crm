@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { RecentActivity } from '@/components/dashboard/admin/RecentActivity';
-import { CalendarEventsList } from '@/components/dashboard/calendar/CalendarEventsList';
+import { DashboardCalendarWidget } from '@/components/dashboard/calendar/DashboardCalendarWidget';
 import { PotentialUsersList } from '@/components/dashboard/admin/PotentialUsersList';
 import { BearerTokenDisplay } from '@/components/dashboard/BearerTokenDisplay';
 import { NotificationsAlertsSection } from '@/components/dashboard/NotificationsAlertsSection';
@@ -168,9 +168,11 @@ export function AdminDashboardClient({ stats, user, profile, viewMode }: AdminDa
           <PotentialUsersList />
         </div>
 
+        {/* Calendar Widget */}
+        <DashboardCalendarWidget />
+
         {/* Bottom Sections */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-10">
-          <CalendarEventsList limit={5} />
+        <div className="pb-10">
           <BearerTokenDisplay />
         </div>
       </div>

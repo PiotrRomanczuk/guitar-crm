@@ -2,6 +2,17 @@ import * as React from 'react';
 
 type LayoutMode = 'widescreen' | 'tablet' | 'mobile';
 
+function getLayoutMode(): LayoutMode {
+  if (typeof window === 'undefined') return 'mobile';
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const aspectRatio = width / height;
+
+  if (width >= 1024 && aspectRatio >= 1.2) return 'widescreen';
+  if (width >= 768) return 'tablet';
+  return 'mobile';
+}
+
 /**
  * Hook to detect display layout mode for responsive navigation.
  *
@@ -11,24 +22,10 @@ type LayoutMode = 'widescreen' | 'tablet' | 'mobile';
  * - Otherwise = mobile (horizontal nav + bottom nav)
  */
 export function useLayoutMode(): LayoutMode {
-  const [mode, setMode] = React.useState<LayoutMode>('mobile');
+  const [mode, setMode] = React.useState<LayoutMode>(getLayoutMode);
 
   React.useEffect(() => {
-    const check = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      const aspectRatio = width / height;
-
-      if (width >= 1024 && aspectRatio >= 1.2) {
-        setMode('widescreen');
-      } else if (width >= 768) {
-        setMode('tablet');
-      } else {
-        setMode('mobile');
-      }
-    };
-
-    check();
+    const check = () => setMode(getLayoutMode());
 
     window.addEventListener('resize', check);
     window.addEventListener('orientationchange', check);
