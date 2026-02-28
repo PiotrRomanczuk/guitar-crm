@@ -1,112 +1,111 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
-import { Music, Menu, X } from 'lucide-react';
+import Link from 'next/link';
+import { Moon, Sun, Menu, X } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 
+const links = [
+  { label: 'Features', href: '#features' },
+  { label: 'For Teachers', href: '#for-teachers' },
+  { label: 'For Students', href: '#for-students' },
+  { label: 'Pricing', href: '#pricing' },
+];
+
 export function LandingHeader() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
+  const [open, setOpen] = useState(false);
+
+  const toggleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#181511]/95 backdrop-blur-sm border-b border-amber-200 dark:border-[#3a2e22] px-6 lg:px-8 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-3">
-          <Music className="h-9 w-9 text-[#ec9c13]" />
-          <span className="text-gray-900 dark:text-white text-2xl font-bold tracking-tight">Strummy</span>
+    <nav className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
+      <div className="container mx-auto flex items-center justify-between h-16 px-4">
+        <Link href="/" className="text-2xl font-bold text-primary tracking-tight">
+          Strummy
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
-          <a
-            href="#features"
-            className="text-gray-600 dark:text-[#b9af9d] hover:text-[#ec9c13] transition-colors font-medium"
-          >
-            Features
-          </a>
-          <a
-            href="#testimonials"
-            className="text-gray-600 dark:text-[#b9af9d] hover:text-[#ec9c13] transition-colors font-medium"
-          >
-            Testimonials
-          </a>
-          <a
-            href="#"
-            className="text-gray-600 dark:text-[#b9af9d] hover:text-[#ec9c13] transition-colors font-medium"
-          >
-            Community
-          </a>
-        </nav>
+        {/* Desktop links */}
+        <div className="hidden md:flex items-center gap-8">
+          {links.map((l) => (
+            <a
+              key={l.label}
+              href={l.href}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {l.label}
+            </a>
+          ))}
+        </div>
 
-        {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-3">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Toggle theme"
+          >
+            {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
           <Link
             href="/sign-in"
-            className="text-gray-900 dark:text-white hover:text-[#ec9c13] transition-colors font-medium"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
-            Log In
+            Log in
           </Link>
-          <Button
-            asChild
-            className="bg-[#ec9c13] hover:bg-amber-600 text-[#181511] font-bold py-2 px-5 rounded-lg shadow-lg shadow-amber-900/20"
-          >
-            <Link href="/sign-up">Get Started</Link>
+          <Button asChild className="rounded-full px-5 text-sm font-semibold">
+            <Link href="/sign-up">Start Free Trial</Link>
           </Button>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden flex items-center justify-center p-2 text-gray-900 dark:text-white hover:text-[#ec9c13] transition-colors rounded-lg active:bg-black/5 dark:active:bg-white/5"
-        >
-          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        {/* Mobile menu toggle */}
+        <div className="flex md:hidden items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 text-muted-foreground"
+            aria-label="Toggle theme"
+          >
+            {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <button
+            onClick={() => setOpen(!open)}
+            className="p-2 text-foreground"
+            aria-label="Menu"
+          >
+            {open ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-[#181511] border-b border-amber-200 dark:border-[#3a2e22] px-6 py-4 space-y-4">
-          <a
-            href="#features"
-            className="block text-gray-600 dark:text-[#b9af9d] hover:text-[#ec9c13] transition-colors font-medium py-2"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Features
-          </a>
-          <a
-            href="#testimonials"
-            className="block text-gray-600 dark:text-[#b9af9d] hover:text-[#ec9c13] transition-colors font-medium py-2"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Testimonials
-          </a>
-          <a
-            href="#"
-            className="block text-gray-600 dark:text-[#b9af9d] hover:text-[#ec9c13] transition-colors font-medium py-2"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Community
-          </a>
-          <div className="pt-4 border-t border-amber-200 dark:border-[#3a2e22] flex flex-col gap-3">
+      {/* Mobile menu */}
+      {open && (
+        <div className="md:hidden border-t border-border bg-background px-4 pb-4 space-y-3">
+          {links.map((l) => (
+            <a
+              key={l.label}
+              href={l.href}
+              className="block py-2 text-sm font-medium text-muted-foreground"
+              onClick={() => setOpen(false)}
+            >
+              {l.label}
+            </a>
+          ))}
+          <div className="flex items-center gap-3 pt-2">
             <Link
               href="/sign-in"
-              className="text-gray-900 dark:text-white hover:text-[#ec9c13] transition-colors font-medium py-2"
-              onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-medium text-muted-foreground"
+              onClick={() => setOpen(false)}
             >
-              Log In
+              Log in
             </Link>
-            <Button
-              asChild
-              className="bg-[#ec9c13] hover:bg-amber-600 text-[#181511] font-bold w-full"
-            >
-              <Link href="/sign-up" onClick={() => setMobileMenuOpen(false)}>
-                Get Started
+            <Button asChild className="rounded-full px-5 text-sm font-semibold">
+              <Link href="/sign-up" onClick={() => setOpen(false)}>
+                Start Free Trial
               </Link>
             </Button>
           </div>
         </div>
       )}
-    </header>
+    </nav>
   );
 }

@@ -1,84 +1,67 @@
 'use client';
 
-import Link from 'next/link';
-import { Brain, Library, TrendingUp, ArrowRight } from 'lucide-react';
+import { Calendar, Music, TrendingUp, ClipboardList, Sparkles, Guitar } from 'lucide-react';
+import { AnimatedSection } from './AnimatedSection';
 
 const features = [
   {
-    icon: Brain,
-    title: 'AI Lesson Notes',
-    description:
-      'Auto-generate detailed summaries and practice plans after every lesson so you can focus entirely on teaching.',
+    icon: Calendar,
+    title: 'Smart Lesson Management',
+    desc: 'Schedule, track, and review lessons. Auto-generate lesson notes with AI. Sync with Google Calendar.',
   },
   {
-    icon: Library,
+    icon: Music,
     title: 'Song Library',
-    description:
-      'Access over 1000+ tabs, chords, and sheet music directly integrated into your dashboard for seamless lesson flow.',
+    desc: '1,000+ songs with tabs, chords, and sheet music. Spotify integration for instant metadata enrichment.',
   },
   {
     icon: TrendingUp,
-    title: 'Student Progress',
-    description:
-      'Track practice streaks, technical improvements, and repertoire growth visually to keep students motivated.',
+    title: 'Student Progress Tracking',
+    desc: "Visual progress charts, practice streaks, and skill tracking. See exactly where each student stands.",
+  },
+  {
+    icon: ClipboardList,
+    title: 'Assignments & Homework',
+    desc: 'Create assignments with templates, set due dates, and track completion. Students see everything in their dashboard.',
+  },
+  {
+    icon: Sparkles,
+    title: 'AI-Powered Insights',
+    desc: 'AI-generated lesson notes, smart song recommendations, and automated assignment generation.',
+  },
+  {
+    icon: Guitar,
+    title: 'Student Repertoire',
+    desc: 'Track every song each student is learning with difficulty ratings, progress percentages, and mastery status.',
   },
 ];
 
-function FeatureCard({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: typeof Brain;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="group relative overflow-hidden rounded-xl border border-amber-200 dark:border-[#3a2e22] bg-white dark:bg-[#221b10] p-8 transition-all hover:border-[#ec9c13]/50 hover:shadow-xl hover:shadow-[#ec9c13]/5 hover:-translate-y-1">
-      {/* Hover gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#ec9c13]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-      <div className="relative z-10 flex flex-col items-start gap-6 h-full">
-        {/* Icon */}
-        <div className="p-4 rounded-xl bg-amber-50 dark:bg-[#2e261d] text-[#d4880f] dark:text-[#ec9c13] border border-amber-200 dark:border-[#3a2e22] shadow-inner group-hover:bg-amber-100 dark:group-hover:bg-[#3a2e22] transition-colors">
-          <Icon className="h-7 w-7" />
-        </div>
-
-        {/* Content */}
-        <div className="flex-1">
-          <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{title}</h4>
-          <p className="text-gray-600 dark:text-[#b9af9d] leading-relaxed">{description}</p>
-        </div>
-
-        {/* Link */}
-        <Link
-          href="#"
-          className="inline-flex items-center text-[#d4880f] dark:text-[#ec9c13] font-bold text-sm hover:text-amber-600 dark:hover:text-amber-300 mt-auto"
-        >
-          Learn more
-          <ArrowRight className="w-4 h-4 ml-1" />
-        </Link>
-      </div>
-    </div>
-  );
-}
-
 export function LandingFeatures() {
   return (
-    <section id="features" className="px-6 lg:px-8 py-20 bg-amber-50/50 dark:bg-[#181511] flex flex-col gap-12 items-center">
-      {/* Header */}
-      <div className="flex flex-col gap-3 text-center max-w-3xl">
-        <h3 className="text-4xl font-bold text-gray-900 dark:text-white">Crafted Features</h3>
-        <p className="text-gray-600 dark:text-[#b9af9d] text-lg">
-          Everything you need to manage your studio effectively, built with precision.
-        </p>
-      </div>
+    <section id="features" className="py-24">
+      <div className="container mx-auto px-4">
+        <AnimatedSection className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-[-0.01em] text-foreground mb-4">
+            Everything you need to run your studio
+          </h2>
+          <p className="text-lg leading-[1.7] text-muted-foreground max-w-2xl mx-auto">
+            From scheduling to AI-powered insights, Strummy has it all.
+          </p>
+        </AnimatedSection>
 
-      {/* Feature cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-7xl">
-        {features.map((feature) => (
-          <FeatureCard key={feature.title} {...feature} />
-        ))}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((f, i) => (
+            <AnimatedSection key={f.title} delay={i * 0.08}>
+              <div className="group rounded-2xl border border-border bg-card p-6 landing-shadow-card hover:landing-shadow-card-hover transition-all duration-300 h-full">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <f.icon size={20} className="text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{f.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+              </div>
+            </AnimatedSection>
+          ))}
+        </div>
       </div>
     </section>
   );

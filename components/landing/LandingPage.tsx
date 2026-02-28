@@ -2,42 +2,29 @@
 
 import { LandingHeader } from './Landing.Header';
 import { LandingHero } from './Landing.Hero';
+import { LandingSocialProof } from './Landing.SocialProof';
 import { LandingFeatures } from './Landing.Features';
+import { LandingDashboardPreview } from './Landing.DashboardPreview';
+import { LandingRoles } from './Landing.Roles';
 import { LandingTestimonials } from './Landing.Testimonials';
+import { LandingIntegrations } from './Landing.Integrations';
 import { LandingCTA } from './Landing.CTA';
 import { LandingFooter } from './Landing.Footer';
 import { LandingChatButton } from './Landing.ChatButton';
 
 export function LandingPage() {
   return (
-    <div className="relative min-h-screen flex flex-col w-full mx-auto overflow-x-hidden bg-amber-50 dark:bg-[#221b10]">
-      {/* Wood texture background (dark mode only) */}
-      <div
-        className="fixed inset-0 z-0 opacity-0 dark:opacity-30 pointer-events-none"
-        style={{
-          backgroundImage: `url("https://www.transparenttextures.com/patterns/wood-pattern.png")`,
-        }}
-      />
-
-      {/* Light mode subtle pattern */}
-      <div
-        className="fixed inset-0 z-0 opacity-[0.03] dark:opacity-0 pointer-events-none"
-        style={{
-          backgroundImage: `url("https://www.transparenttextures.com/patterns/cream-paper.png")`,
-        }}
-      />
-
-      <div className="relative z-10 flex flex-col min-h-screen">
-        <LandingHeader />
-        <main className="flex-1 flex flex-col">
-          <LandingHero />
-          <LandingFeatures />
-          <LandingTestimonials />
-          <LandingCTA />
-        </main>
-        <LandingFooter />
-      </div>
-
+    <div className="min-h-screen bg-background">
+      <LandingHeader />
+      <LandingHero />
+      <LandingSocialProof />
+      <LandingFeatures />
+      <LandingDashboardPreview />
+      <LandingRoles />
+      <LandingTestimonials />
+      <LandingIntegrations />
+      <LandingCTA />
+      <LandingFooter />
       <LandingChatButton />
     </div>
   );
