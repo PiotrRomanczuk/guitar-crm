@@ -11,8 +11,6 @@ import {
   Guitar,
   BarChart,
   FileText,
-  Menu,
-  X,
   Music2,
   Zap,
 } from 'lucide-react';
@@ -20,16 +18,11 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ui/mode-toggle';
 import { DatabaseStatus } from '@/components/debug/DatabaseStatus';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from '@/components/ui/drawer';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,7 +42,6 @@ interface HorizontalNavProps {
 
 export function HorizontalNav({ user, isAdmin, isTeacher, isStudent }: HorizontalNavProps) {
   const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -234,51 +226,8 @@ export function HorizontalNav({ user, isAdmin, isTeacher, isStudent }: Horizonta
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Mobile Menu Toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={mobileMenuOpen}
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </Button>
         </div>
       </div>
-
-      {/* Mobile Menu Drawer (bottom sheet) */}
-      <Drawer open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <DrawerContent>
-          <DrawerHeader className="pb-2">
-            <DrawerTitle>Navigation</DrawerTitle>
-          </DrawerHeader>
-          <div className="px-4 pb-6 space-y-1">
-            {menuItems.map((item) => {
-              const isActive =
-                pathname === item.path ||
-                (item.path !== '/dashboard' && pathname.startsWith(item.path));
-              return (
-                <Link
-                  key={item.id}
-                  href={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors w-full min-h-[44px]',
-                    isActive
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                  )}
-                >
-                  <item.icon className="w-5 h-5" />
-                  {item.label}
-                </Link>
-              );
-            })}
-          </div>
-        </DrawerContent>
-      </Drawer>
     </nav>
   );
 }
