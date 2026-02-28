@@ -79,78 +79,122 @@ export function PotentialUsersList() {
       </CardHeader>
       <CardContent>
         <div className="max-h-[400px] overflow-y-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex flex-col gap-1">
-                      <span>{user.name}</span>
-                      {user.name === 'Unknown' && (
-                        <Badge
-                          variant="secondary"
-                          className="w-fit text-xs bg-warning/10 text-warning hover:bg-warning/10"
-                        >
-                          Check Details
-                        </Badge>
-                      )}
+          {users.length === 0 ? (
+            <p className="text-center text-muted-foreground py-4">
+              No potential users found from recent &apos;First Lesson&apos; events.
+            </p>
+          ) : (
+            <>
+              {/* Mobile card layout */}
+              <div className="sm:hidden space-y-3">
+                {users.map((user) => (
+                  <div key={user.id} className="p-3 rounded-lg border border-border space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm truncate">{user.name}</p>
+                        {user.name === 'Unknown' && (
+                          <Badge
+                            variant="secondary"
+                            className="w-fit text-xs bg-warning/10 text-warning hover:bg-warning/10 mt-1"
+                          >
+                            Check Details
+                          </Badge>
+                        )}
+                      </div>
+                      <InviteUserModal
+                        trigger={<Button size="sm">Convert</Button>}
+                        initialEmail={user.email}
+                        initialName={user.name}
+                        initialPhone={user.phone}
+                      />
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1 text-sm text-muted-foreground max-w-[200px]">
+                    <div className="flex flex-col gap-1 text-xs text-muted-foreground">
                       {user.email && (
                         <div className="flex items-center gap-2 min-w-0">
-                          <Mail className="w-3 h-3 shrink-0" /> <span className="truncate">{user.email}</span>
+                          <Mail className="w-3 h-3 shrink-0" />
+                          <span className="truncate">{user.email}</span>
                         </div>
                       )}
                       {user.phone && (
                         <div className="flex items-center gap-2">
-                          <Phone className="w-3 h-3" /> {user.phone}
+                          <Phone className="w-3 h-3 shrink-0" />
+                          <span>{user.phone}</span>
                         </div>
                       )}
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm text-muted-foreground">
-                      {user.name === 'Unknown' && user.originalSummary && (
-                        <div className="text-xs mb-1">Event: {user.originalSummary}</div>
-                      )}
-                      {!user.email && !user.phone && user.rawDescription && (
-                        <div className="text-xs bg-muted p-2 rounded whitespace-pre-wrap max-w-[200px]">
-                          {user.rawDescription.length > 100
-                            ? user.rawDescription.substring(0, 100) + '...'
-                            : user.rawDescription}
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <InviteUserModal
-                      trigger={<Button size="sm">Convert</Button>}
-                      initialEmail={user.email}
-                      initialName={user.name}
-                      initialPhone={user.phone}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-              {users.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground py-4">
-                    No potential users found from recent &apos;First Lesson&apos; events.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                  </div>
+                ))}
+              </div>
+              {/* Desktop table */}
+              <div className="hidden sm:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Contact</TableHead>
+                      <TableHead>Details</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">
+                          <div className="flex flex-col gap-1">
+                            <span>{user.name}</span>
+                            {user.name === 'Unknown' && (
+                              <Badge
+                                variant="secondary"
+                                className="w-fit text-xs bg-warning/10 text-warning hover:bg-warning/10"
+                              >
+                                Check Details
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col gap-1 text-sm text-muted-foreground max-w-[200px]">
+                            {user.email && (
+                              <div className="flex items-center gap-2 min-w-0">
+                                <Mail className="w-3 h-3 shrink-0" /> <span className="truncate">{user.email}</span>
+                              </div>
+                            )}
+                            {user.phone && (
+                              <div className="flex items-center gap-2">
+                                <Phone className="w-3 h-3" /> {user.phone}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm text-muted-foreground">
+                            {user.name === 'Unknown' && user.originalSummary && (
+                              <div className="text-xs mb-1">Event: {user.originalSummary}</div>
+                            )}
+                            {!user.email && !user.phone && user.rawDescription && (
+                              <div className="text-xs bg-muted p-2 rounded whitespace-pre-wrap max-w-[200px]">
+                                {user.rawDescription.length > 100
+                                  ? user.rawDescription.substring(0, 100) + '...'
+                                  : user.rawDescription}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <InviteUserModal
+                            trigger={<Button size="sm">Convert</Button>}
+                            initialEmail={user.email}
+                            initialName={user.name}
+                            initialPhone={user.phone}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>
