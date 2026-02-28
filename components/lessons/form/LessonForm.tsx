@@ -123,6 +123,7 @@ export default function LessonForm(props: UseLessonFormProps) {
           <LessonFormActions
             isSubmitting={isSubmitting}
             onCancel={() => router.push('/dashboard/lessons')}
+            isEditing={!!props.lessonId}
           />
         </form>
       </CardContent>
