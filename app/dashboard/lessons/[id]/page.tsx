@@ -80,7 +80,10 @@ async function fetchLesson(id: string): Promise<LessonDetail | null> {
 async function handleDeleteLesson(id: string) {
   'use server';
   const supabase = await createClient();
-  await supabase.from('lessons').delete().eq('id', id);
+  await supabase
+    .from('lessons')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id);
   redirect('/dashboard/lessons');
 }
 

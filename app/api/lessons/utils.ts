@@ -32,7 +32,7 @@ export async function handleLessonSongsUpdate(
     const newRecords = toInsert.map((songId) => ({
       lesson_id: lessonId,
       song_id: songId,
-      status: 'started', // Default status
+      status: 'to_learn', // Default status — consistent with create path
     }));
 
     const { error: insertError } = await supabase.from('lesson_songs').insert(newRecords);
