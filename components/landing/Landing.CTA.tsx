@@ -2,36 +2,31 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { AnimatedSection } from './AnimatedSection';
 
 export function LandingCTA() {
   return (
-    <section className="relative px-6 lg:px-8 py-24 bg-gradient-to-b from-amber-50 to-amber-100/50 dark:from-[#181511] dark:to-[#0f0d0a] text-center overflow-hidden">
-      {/* Top gradient line */}
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-amber-300 dark:via-[#3a2e22] to-transparent" />
-
-      <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
-        <h3 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          Ready to tune up your business?
-        </h3>
-        <p className="text-gray-600 dark:text-[#b9af9d] text-lg mb-10">
-          Join thousands of instructors elevating their teaching game today. Start your
-          14-day free trial.
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-          <Button
-            asChild
-            className="px-8 py-4 h-auto bg-[#ec9c13] hover:bg-amber-600 text-[#181511] font-bold rounded-lg shadow-lg shadow-amber-900/20 text-lg transition-transform hover:-translate-y-1"
-          >
-            <Link href="/sign-up">Get Started Now</Link>
-          </Button>
-          <Button
-            variant="outline"
-            className="px-8 py-4 h-auto bg-white dark:bg-[#2e261d] border border-[#ec9c13]/30 text-[#d4880f] dark:text-[#ec9c13] hover:bg-amber-50 dark:hover:bg-[#3a2e22] font-bold rounded-lg transition-all duration-300 text-lg"
-          >
-            View All Features
-          </Button>
-        </div>
+    <section className="py-24">
+      <div className="container mx-auto px-4">
+        <AnimatedSection>
+          <div className="landing-gradient-cta rounded-3xl p-12 md:p-16 text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-[-0.01em] text-white mb-4">
+              Ready to transform your teaching studio?
+            </h2>
+            <p className="text-lg leading-[1.7] text-white/80 max-w-xl mx-auto mb-8">
+              Join hundreds of guitar teachers who&apos;ve simplified their workflow.
+            </p>
+            <Button
+              asChild
+              className="rounded-full bg-card text-foreground hover:bg-card/90 px-10 py-6 text-base font-semibold shadow-lg"
+            >
+              <Link href="/sign-up">Start Your Free Trial</Link>
+            </Button>
+            <p className="text-sm text-white/60 mt-4">
+              No credit card required · Free for 14 days · Cancel anytime
+            </p>
+          </div>
+        </AnimatedSection>
       </div>
     </section>
   );

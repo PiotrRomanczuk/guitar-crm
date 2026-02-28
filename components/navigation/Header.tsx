@@ -261,12 +261,9 @@ export default function Header({
     return null;
   }
 
+  // Landing page has its own navbar with theme toggle
   if (pathname === '/') {
-    return (
-      <div className="absolute top-4 right-4 z-50">
-        <ModeToggle />
-      </div>
-    );
+    return null;
   }
 
   const handleSignOut = () => signOutAndRedirect(router, setMobileMenuOpen);
