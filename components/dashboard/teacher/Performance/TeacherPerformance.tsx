@@ -79,7 +79,15 @@ export function TeacherPerformance({ teacherId }: TeacherPerformanceProps) {
   const { metrics, trends } = data;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      <div className="flex flex-col gap-2">
+        <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+          Performance Metrics
+        </h2>
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
+          Track your teaching effectiveness and student progress over time.
+        </p>
+      </div>
       <MetricsGrid metrics={metrics} isLoading={false} />
       <Charts trends={trends} />
     </div>
