@@ -82,7 +82,7 @@ export function TeacherDashboardClient({
   const displayAdminStats = apiAdminStats || adminStats;
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden min-w-0 px-1 sm:px-0">
+    <div className="w-full max-w-full overflow-x-hidden min-w-0">
       <div className="space-y-5 sm:space-y-6 lg:space-y-8 ultrawide:space-y-10 w-full max-w-full">
         {/* Welcome Header */}
         <DashboardSection className="opacity-0 animate-fade-in">
@@ -168,17 +168,7 @@ export function TeacherDashboardClient({
 
         {/* Teacher Performance Metrics */}
         <DashboardSection>
-          <div className="space-y-4">
-            <div className="flex flex-col gap-2">
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
-                Performance Metrics
-              </h2>
-              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
-                Track your teaching effectiveness and student progress over time.
-              </p>
-            </div>
-            <TeacherPerformance />
-          </div>
+          <TeacherPerformance />
         </DashboardSection>
 
         {/* Student Management */}
@@ -222,7 +212,7 @@ export function TeacherDashboardClient({
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-5 portrait:grid-cols-5 lg:grid-cols-5 ultrawide:grid-cols-10 superwide:grid-cols-10 gap-3 sm:gap-4 lg:gap-5 ultrawide:gap-6 min-w-0 w-full">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-5 portrait:grid-cols-5 lg:grid-cols-5 ultrawide:grid-cols-10 superwide:grid-cols-10 gap-3 sm:gap-4 lg:gap-5 ultrawide:gap-6 min-w-0 w-full">
                 <div className="ultrawide:col-span-2 min-w-0">
                   <StatsCard
                     title="Total Users"

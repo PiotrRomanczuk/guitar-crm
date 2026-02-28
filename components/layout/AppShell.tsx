@@ -104,7 +104,7 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
   return (
     <>
       <HorizontalNav user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent} />
-      <main className="pt-16 pb-16 md:pb-0 min-h-screen bg-background">{children}</main>
+      <main className="pt-16 pb-16 md:pb-0 min-h-screen bg-background px-4 sm:px-6 md:px-8">{children}</main>
       <MobileBottomNav
         isAdmin={isAdmin}
         isTeacher={isTeacher}

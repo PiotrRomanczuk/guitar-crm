@@ -15,7 +15,7 @@ import { ServicesStatusWidget } from '@/components/dashboard/admin/ServicesStatu
 import { SongOfTheWeekCard } from '@/components/song-of-the-week';
 import type { SongOfTheWeekWithSong } from '@/types/SongOfTheWeek';
 import { staggerContainer } from '@/lib/animations';
-import { Users, BookOpen, Music, Shield, Activity, Database, Lock, Settings, FileText } from 'lucide-react';
+import { Users, BookOpen, Music, Shield, Activity, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 interface RecentUser {
@@ -42,7 +42,7 @@ interface AdminDashboardClientProps {
 
 export function AdminDashboardClient({ stats, user, profile, viewMode, sotw }: AdminDashboardClientProps) {
   return (
-    <div className="w-full max-w-full overflow-x-hidden min-w-0 px-1 sm:px-0">
+    <div className="w-full max-w-full overflow-x-hidden min-w-0">
       <div className="space-y-6 sm:space-y-8 lg:space-y-10 w-full max-w-full">
         {/* Header */}
         <motion.section
@@ -93,7 +93,7 @@ export function AdminDashboardClient({ stats, user, profile, viewMode, sotw }: A
             <Activity className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-semibold">System Metrics</h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <StatsCard
               title="Total Users"
               value={stats.totalUsers}
@@ -157,10 +157,8 @@ export function AdminDashboardClient({ stats, user, profile, viewMode, sotw }: A
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-2">
               <AdminActionLink href="/dashboard/users" icon={Users} label="User Management" />
-              <AdminActionLink href="/dashboard/settings" icon={Settings} label="System Settings" comingSoon />
-              <AdminActionLink href="/admin/logs" icon={FileText} label="Audit Logs" comingSoon />
-              <AdminActionLink href="/admin/database" icon={Database} label="Database Explorer" comingSoon />
-              <AdminActionLink href="/admin/security" icon={Lock} label="Security Policies" comingSoon />
+              <AdminActionLink href="/dashboard/songs" icon={Music} label="Song Library" />
+              <AdminActionLink href="/dashboard/logs" icon={FileText} label="Activity Logs" />
             </CardContent>
           </Card>
         </div>
@@ -186,28 +184,14 @@ export function AdminDashboardClient({ stats, user, profile, viewMode, sotw }: A
   );
 }
 
-function AdminActionLink({ href, icon: Icon, label, comingSoon }: { href: string, icon: React.ComponentType<{ className?: string }>, label: string, comingSoon?: boolean }) {
-  if (comingSoon) {
-    return (
-      <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30 opacity-60 cursor-not-allowed">
-        <div className="flex items-center gap-3">
-          <Icon className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">{label}</span>
-        </div>
-        <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground px-1.5 py-0.5 rounded bg-muted">Soon</span>
-      </div>
-    );
-  }
-
+function AdminActionLink({ href, icon: Icon, label }: { href: string, icon: React.ComponentType<{ className?: string }>, label: string }) {
   return (
     <Link href={href} className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group">
       <div className="flex items-center gap-3">
         <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
         <span className="text-sm font-medium group-hover:text-primary transition-colors">{label}</span>
       </div>
-      <motion.div whileHover={{ x: 3 }}>
-        <Shield className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-      </motion.div>
+      <Shield className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
     </Link>
   );
 }

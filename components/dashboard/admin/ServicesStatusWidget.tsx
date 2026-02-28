@@ -91,7 +91,7 @@ export function ServicesStatusWidget() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 pt-1">
+            <div className="grid grid-cols-1 xs:grid-cols-2 gap-x-3 gap-y-1.5 pt-1">
               {services.map((svc) => (
                 <div key={svc.key} className="flex items-center gap-1.5 min-w-0">
                   <span
@@ -102,7 +102,7 @@ export function ServicesStatusWidget() {
                     )}
                     title={svc.status}
                   />
-                  <span className="text-[11px] text-muted-foreground truncate">
+                  <span className="text-xs text-muted-foreground truncate">
                     {svc.label}
                   </span>
                 </div>
