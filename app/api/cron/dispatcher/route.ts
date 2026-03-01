@@ -37,6 +37,7 @@ import { GET as runWeeklyDigest } from '../weekly-digest/route';
 import { sendAdminSongReport } from '@/app/actions/email/send-admin-report';
 import { sendWeeklyInsights } from '@/app/actions/email/send-weekly-insights';
 import { updateStudentActivityStatus } from '@/lib/services/student-activity-service';
+import { syncAllTeacherCalendars } from '@/lib/services/calendar-sync-service';
 import { renewExpiringWebhooks, cleanupExpiredWebhooks } from '@/lib/services/webhook-renewal';
 import {
   processQueuedNotifications,
@@ -113,8 +114,12 @@ export async function GET(request: Request) {
       fn: () => runDriveVideoScan(authRequest).then((r) => r.json()),
     },
     {
-      name: 'update-student-status',
-      fn: () => updateStudentActivityStatus(),
+      name: 'sync-calendars-and-update-status',
+      fn: async () => {
+        const sync = await syncAllTeacherCalendars();
+        const status = await updateStudentActivityStatus();
+        return { sync, status };
+      },
     },
     {
       name: 'renew-webhooks',
