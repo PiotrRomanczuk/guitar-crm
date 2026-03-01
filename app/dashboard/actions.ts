@@ -72,7 +72,7 @@ export async function inviteUser(
   return { success: true, userId };
 }
 
-async function findOrCreateAuthUser(
+export async function findOrCreateAuthUser(
   supabaseAdmin: ReturnType<typeof createAdminClient>,
   studentEmail: string
 ): Promise<string> {
@@ -121,7 +121,7 @@ async function findOrCreateAuthUser(
   throw new Error('Could not obtain user ID for shadow user');
 }
 
-async function upsertStudentProfile(
+export async function upsertStudentProfile(
   supabaseAdmin: ReturnType<typeof createAdminClient>,
   userId: string,
   studentEmail: string
