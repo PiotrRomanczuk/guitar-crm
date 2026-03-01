@@ -137,7 +137,7 @@ export function StrummingPatternEditor({
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
           placeholder="D-DU-UDU or D DU UDU"
-          className="font-mono"
+          className="font-[family-name:--font-music]"
         />
       ) : (
         <div

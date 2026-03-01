@@ -29,7 +29,7 @@ export function SongChordsCard({ song }: Props) {
           </div>
           <h3 className="text-lg font-semibold">Chord Progression</h3>
         </div>
-        <div className="p-4 bg-muted/50 rounded-lg font-mono text-sm tracking-wide">
+        <div className="p-4 bg-muted/50 rounded-lg font-[family-name:--font-music] text-sm tracking-wide">
           {song.chords}
         </div>
       </CardContent>
