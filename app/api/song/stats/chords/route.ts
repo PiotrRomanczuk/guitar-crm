@@ -1,0 +1,36 @@
+import { NextResponse } from 'next/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { computeChordAnalysis } from '@/lib/services/chord-analytics';
+
+export async function GET() {
+  try {
+    const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!isAdmin && !isTeacher) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const adminClient = createAdminClient();
+
+    const { data: songs, error } = await adminClient
+      .from('songs')
+      .select('id, title, author, key, chords')
+      .is('deleted_at', null);
+
+    if (error) {
+      console.error('[ChordAnalysis] Query error:', error);
+      return NextResponse.json({ error: 'Database query failed' }, { status: 500 });
+    }
+
+    const result = computeChordAnalysis(songs ?? []);
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('[ChordAnalysis] Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

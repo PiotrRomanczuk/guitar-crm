@@ -30,3 +30,29 @@ export {
   getChordDisplayName,
   type ChordDefinition,
 } from './chords';
+
+export {
+  CHROMATIC_NOTES as CHROMATIC_SCALE,
+  NOTE_TO_SEMITONE,
+  MAJOR_SCALE_INTERVALS,
+  MINOR_SCALE_INTERVALS,
+  semitoneDistance,
+} from './chromatic';
+
+export {
+  parseChord,
+  parseChordsColumn,
+  type ParsedChord,
+} from './chord-parser';
+
+export {
+  chordToRomanNumeral,
+  chordsToRomanNumerals,
+  type RomanNumeralResult,
+} from './roman-numeral';
+
+export {
+  detectArchetypes,
+  ARCHETYPES,
+  type ProgressionArchetype,
+} from './progression-archetypes';
