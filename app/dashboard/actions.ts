@@ -2,6 +2,11 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import {
+  logInviteSent, logInviteFailed,
+  logShadowUserCreated,
+} from '@/lib/auth/auth-event-logger';
+import type { AuthEvent } from '@/components/dashboard/admin/auth-events/auth-events.helpers';
 
 export async function inviteUser(
   email: string,
@@ -40,9 +45,13 @@ export async function inviteUser(
       email
     );
 
-    if (inviteError) throw new Error(`Failed to invite user: ${inviteError.message}`);
+    if (inviteError) {
+      logInviteFailed(email, currentUser.id, inviteError.message);
+      throw new Error(`Failed to invite user: ${inviteError.message}`);
+    }
     if (!authData.user) throw new Error('User creation failed');
     userId = authData.user.id;
+    logInviteSent(email, currentUser.id, userId);
   }
 
   const updates: Record<string, unknown> = {
@@ -208,6 +217,7 @@ export async function createShadowUser(studentEmail: string) {
   const userId = await findOrCreateAuthUser(supabaseAdmin, studentEmail);
   await upsertStudentProfile(supabaseAdmin, userId, studentEmail);
 
+  logShadowUserCreated(studentEmail, user.id, userId);
   return { success: true, userId };
 }
 
@@ -288,4 +298,68 @@ export async function getAuditLogs(limit = 10) {
   }
 
   return data;
+}
+
+export interface AuthEventFilters {
+  email?: string;
+  eventType?: string;
+  success?: boolean;
+  fromDate?: string;
+  toDate?: string;
+  limit?: number;
+}
+
+export async function getAuthEvents(filters: AuthEventFilters = {}): Promise<AuthEvent[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('Unauthorized');
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.is_admin) {
+    throw new Error('Unauthorized: Admin access required');
+  }
+
+  const limit = filters.limit ?? 100;
+
+  // Use supabase client (RLS enforces admin-only SELECT)
+  let query = supabase
+    .from('auth_events' as never)
+    .select('*' as never)
+    .order('occurred_at' as never, { ascending: false } as never)
+    .limit(limit);
+
+  if (filters.email) {
+    query = query.ilike('user_email' as never, `%${filters.email}%` as never);
+  }
+  if (filters.eventType) {
+    query = query.eq('event_type' as never, filters.eventType as never);
+  }
+  if (filters.success !== undefined) {
+    query = query.eq('success' as never, filters.success as never);
+  }
+  if (filters.fromDate) {
+    query = query.gte('occurred_at' as never, filters.fromDate as never);
+  }
+  if (filters.toDate) {
+    query = query.lte('occurred_at' as never, filters.toDate as never);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching auth events:', error);
+    return [];
+  }
+
+  return (data ?? []) as unknown as AuthEvent[];
 }
