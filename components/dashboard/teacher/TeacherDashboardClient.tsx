@@ -9,7 +9,7 @@ import { SongLibrary } from '@/components/dashboard/teacher/SongLibrary';
 import { AssignmentList } from '@/components/dashboard/teacher/AssignmentList';
 import { LessonStatsOverview } from '@/components/dashboard/LessonStatsOverview';
 import { TodaysAgenda } from '@/components/dashboard/TodaysAgenda';
-import { NotificationsAlertsSection } from '@/components/dashboard/NotificationsAlertsSection';
+import { SongStatsOverview } from '@/components/dashboard/SongStatsOverview';
 import { WelcomeTour } from '@/components/dashboard/WelcomeTour';
 import { WeeklySummaryCard } from '@/components/dashboard/WeeklySummaryCard';
 import { NeedsAttentionCard } from '@/components/dashboard/NeedsAttentionCard';
@@ -111,9 +111,9 @@ export function TeacherDashboardClient({
           </div>
         </DashboardSection>
 
-        {/* Notifications & Alerts */}
+        {/* Song Statistics */}
         <DashboardSection>
-          <NotificationsAlertsSection />
+          <SongStatsOverview />
         </DashboardSection>
 
         {/* Health Alerts Banner */}
