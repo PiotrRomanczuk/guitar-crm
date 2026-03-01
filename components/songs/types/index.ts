@@ -5,6 +5,7 @@
 import type { Tables } from '@/lib/supabase';
 
 export type Song = Tables<'songs'>;
+export type SongSection = Tables<'song_sections'>;
 
 export type SongStatus = 'to_learn' | 'started' | 'remembered' | 'with_author' | 'mastered';
 

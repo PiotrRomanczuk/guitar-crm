@@ -5,6 +5,7 @@ import Image from 'next/image';
 import SongDetailHeader from './Header';
 import SongDetailInfo from './Info';
 import LyricsWithChords from './LyricsWithChords';
+import SongSections from './SongSections';
 import SongDetailActions from './Actions';
 import YouTubeEmbed from './YouTubeEmbed';
 import ImageGallery from './ImageGallery';
@@ -112,6 +113,8 @@ export default async function SongDetail({ songId, isAdmin = false, isTeacher = 
             author={song.author || 'Unknown'}
             level={song.level}
             songKey={song.key}
+            durationMs={song.duration_ms}
+            releaseYear={song.release_year}
           />
         </div>
 
@@ -128,6 +131,7 @@ export default async function SongDetail({ songId, isAdmin = false, isTeacher = 
 
       <div className="space-y-8">
         <SongDetailInfo song={song} />
+        <SongSections songId={song.id} />
         <LyricsWithChords song={song} />
         {videos.length === 0 && <YouTubeEmbed url={song.youtube_url} />}
         <ImageGallery images={song.gallery_images} />
