@@ -118,11 +118,12 @@ describe('Sidebar', () => {
       expect(screen.getAllByText('Students').length).toBeGreaterThan(0);
     });
 
-    it('shows analytics items: Song Stats, Lesson Stats, Activity Logs', () => {
+    it('shows analytics items: Song Stats, Lesson Stats, Chord Analysis, Logs', () => {
       render(<Sidebar user={adminUser} isAdmin={true} isTeacher={false} isStudent={false} />);
       expect(screen.getAllByText('Song Stats').length).toBeGreaterThan(0);
       expect(screen.getAllByText('Lesson Stats').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('Activity Logs').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Chord Analysis').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Logs').length).toBeGreaterThan(0);
     });
 
     it('shows new items: Health Monitor, Calendar, Fretboard, AI Assistant', () => {
@@ -159,7 +160,8 @@ describe('Sidebar', () => {
       expect(screen.queryByText('Students')).not.toBeInTheDocument();
       expect(screen.queryByText('Song Stats')).not.toBeInTheDocument();
       expect(screen.queryByText('Lesson Stats')).not.toBeInTheDocument();
-      expect(screen.queryByText('Activity Logs')).not.toBeInTheDocument();
+      expect(screen.queryByText('Chord Analysis')).not.toBeInTheDocument();
+      expect(screen.queryByText('Logs')).not.toBeInTheDocument();
       expect(screen.queryByText('Health Monitor')).not.toBeInTheDocument();
     });
   });

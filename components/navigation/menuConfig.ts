@@ -72,6 +72,7 @@ function getTeacherGroups(): MenuGroup[] {
       items: [
         { id: 'song-stats', label: 'Song Stats', icon: BarChart, path: '/dashboard/admin/stats/songs' },
         { id: 'lesson-stats', label: 'Lesson Stats', icon: BarChart, path: '/dashboard/admin/stats/lessons' },
+        { id: 'chord-analysis', label: 'Chord Analysis', icon: ListMusic, path: '/dashboard/admin/stats/chord-analysis' },
         { id: 'cohorts', label: 'Cohorts', icon: Users, path: '/dashboard/cohorts' },
         { id: 'logs', label: 'Logs', icon: FileText, path: '/dashboard/logs' },
       ],
