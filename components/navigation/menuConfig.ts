@@ -14,7 +14,6 @@ import {
   ListMusic,
   Bell,
   Zap,
-  Shield,
   type LucideIcon,
 } from 'lucide-react';
 
