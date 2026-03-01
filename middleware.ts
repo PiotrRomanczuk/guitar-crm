@@ -18,7 +18,7 @@ const CSP_HEADER = [
   // Fonts: self only
   "font-src 'self'",
   // API connections: self, Supabase REST + realtime (WSS), Google OAuth, Sentry
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://sentry.io https://*.sentry.io",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://sentry.io https://*.sentry.io https://us.i.posthog.com https://us-assets.i.posthog.com",
   // Frames: deny all (also enforced via X-Frame-Options)
   "frame-src 'none'",
   // Workers: self only (Next.js service worker)
@@ -170,6 +170,6 @@ export const config = {
      * - public folder
      * - sign-in, sign-up, forgot-password (auth pages)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*..*|sign-in|sign-up|forgot-password).*)',
+    '/((?!api|ingest|_next/static|_next/image|favicon.ico|.*..*|sign-in|sign-up|forgot-password).*)',
   ],
 };

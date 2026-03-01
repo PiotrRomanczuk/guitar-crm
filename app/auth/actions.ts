@@ -11,6 +11,12 @@ import {
 } from '@/lib/auth/account-lockout';
 import { updateLastSignIn } from '@/app/actions/account';
 import { isDisposableEmail } from '@/lib/auth/disposable-email-checker';
+import {
+	logSigninSuccess, logSigninFailure, logSigninLocked, logSigninRateLimited,
+	logSignupAttempt, logSignupSuccess, logSignupFailure,
+	logResendVerification,
+	logPasswordResetRequested, logPasswordResetFailed,
+} from '@/lib/auth/auth-event-logger';
 
 async function getClientIdentifier(email: string): Promise<string> {
 	const headersList = await headers();
@@ -41,12 +47,14 @@ export async function signIn(email: string, password: string) {
 	const rateLimit = await checkAuthRateLimit(identifier, 'login');
 	if (!rateLimit.allowed) {
 		console.warn(`[Auth] Rate limit exceeded for login: ${email}`);
+		logSigninRateLimited(email);
 		return rateLimitError('login', rateLimit.retryAfter!);
 	}
 
 	// Account lockout check
 	const lockout = await checkAccountLockout(email);
 	if (lockout.locked) {
+		logSigninLocked(email);
 		const minutes = Math.ceil((lockout.retryAfterMs ?? 0) / 60000);
 		return {
 			error: `Account temporarily locked due to too many failed attempts. Try again in ${minutes} minute${minutes !== 1 ? 's' : ''}.`,
@@ -62,6 +70,7 @@ export async function signIn(email: string, password: string) {
 
 	if (error) {
 		await incrementFailedAttempts(email);
+		logSigninFailure(email, error.message);
 
 		if (error.message === 'Invalid login credentials') {
 			return {
@@ -74,6 +83,7 @@ export async function signIn(email: string, password: string) {
 	if (data.user) {
 		await resetFailedAttempts(email);
 		await updateLastSignIn(data.user.id);
+		logSigninSuccess(email, data.user.id);
 
 		// Check for MFA requirement
 		const factors = data.user.factors ?? [];
@@ -121,6 +131,8 @@ export async function signUp(
 		return rateLimitError('sign-up', rateLimit.retryAfter!);
 	}
 
+	logSignupAttempt(email);
+
 	const supabase = await createClient();
 	const { data, error } = await supabase.auth.signUp({
 		email,
@@ -134,6 +146,7 @@ export async function signUp(
 	});
 
 	if (error) {
+		logSignupFailure(email, error.message);
 		if (error.message.includes('already registered') || error.message.includes('already been registered')) {
 			return {
 				error: 'This email is already registered. Please sign in or use "Forgot Password" to reset your password.',
@@ -144,12 +157,16 @@ export async function signUp(
 
 	// Shadow user detection: identities array is empty for admin-created accounts
 	if (data.user && (data.user.identities?.length ?? 0) === 0) {
+		logSignupFailure(email, 'Shadow user conflict');
 		return {
 			error: 'This email is associated with an invitation. Please check your email for the invitation link, or use "Forgot Password" to claim your account.',
 		};
 	}
 
 	if (data.user) {
+		// email_status: Supabase sends confirmation email if confirmations are enabled
+		const emailConfirmEnabled = !data.user.email_confirmed_at;
+		logSignupSuccess(email, data.user.id, emailConfirmEnabled ? 'sent' : 'skipped');
 		return { success: true };
 	}
 
@@ -171,9 +188,11 @@ export async function resendVerificationEmail(email: string) {
 	});
 
 	if (error) {
+		logResendVerification(email, false, error.message);
 		return { error: error.message };
 	}
 
+	logResendVerification(email, true);
 	return { success: true };
 }
 
@@ -203,8 +222,10 @@ export async function resetPassword(email: string) {
 
 	if (error) {
 		console.error(`[Auth] Password reset failed for ${email}:`, error.message);
+		logPasswordResetFailed(email, error.message);
 		return { error: error.message };
 	}
 
+	logPasswordResetRequested(email);
 	return { success: true };
 }

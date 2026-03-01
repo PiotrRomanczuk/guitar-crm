@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { usePostHog } from 'posthog-js/react';
 import { createClient } from '@/lib/supabase/client';
 import {
   Sidebar,
@@ -48,8 +49,10 @@ interface AppSidebarProps {
 
 export function AppSidebar({ isAdmin, isTeacher, isStudent }: AppSidebarProps) {
   const pathname = usePathname();
+  const posthog = usePostHog();
 
   const handleSignOut = async () => {
+    posthog.reset();
     const supabase = createClient();
     await supabase.auth.signOut();
     window.location.href = '/sign-in';
@@ -100,7 +103,7 @@ export function AppSidebar({ isAdmin, isTeacher, isStudent }: AppSidebarProps) {
             path: '/dashboard/admin/stats/lessons',
           },
           { id: 'cohorts', label: 'Cohorts', icon: Users, path: '/dashboard/cohorts' },
-          { id: 'logs', label: 'Activity Logs', icon: FileText, path: '/dashboard/logs' },
+          { id: 'logs', label: 'Logs', icon: FileText, path: '/dashboard/logs' },
           { id: 'health', label: 'Health', icon: Activity, path: '/dashboard/health' },
           { id: 'ai-history', label: 'AI History', icon: Sparkles, path: '/dashboard/ai/history' },
         ],
