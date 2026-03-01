@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
 
 interface ChapterNav {
@@ -49,8 +50,8 @@ export function TheoryChapterReader({
       </p>
 
       {/* Content */}
-      <div className="prose dark:prose-invert prose-headings:font-semibold prose-a:text-primary max-w-none whitespace-pre-wrap">
-        {lesson.content}
+      <div className="prose dark:prose-invert prose-headings:font-semibold prose-a:text-primary max-w-none">
+        <ReactMarkdown>{lesson.content}</ReactMarkdown>
       </div>
 
       {/* Chapter navigation */}
