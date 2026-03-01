@@ -145,7 +145,7 @@ export default function SongDetailInfo({ song }: Props) {
                 </Link>
               )}
             </div>
-            <div className="p-4 bg-muted/50 rounded-lg font-mono text-sm">{song.chords}</div>
+            <div className="p-4 bg-muted/50 rounded-lg font-[family-name:--font-music] text-sm">{song.chords}</div>
           </CardContent>
         </Card>
       )}

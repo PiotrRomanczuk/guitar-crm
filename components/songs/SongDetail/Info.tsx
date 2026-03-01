@@ -54,7 +54,7 @@ export default function SongDetailInfo({ song }: Props) {
         <Card className="bg-card border-border/50 shadow-sm">
           <CardContent className="p-6">
             <p className="font-medium mb-3 text-muted-foreground">Chords</p>
-            <div className="p-4 bg-muted/50 rounded-lg font-mono text-sm">{song.chords}</div>
+            <div className="p-4 bg-muted/50 rounded-lg font-[family-name:--font-music] text-sm">{song.chords}</div>
           </CardContent>
         </Card>
       )}
