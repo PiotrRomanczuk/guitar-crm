@@ -130,8 +130,8 @@ export function TeacherDashboardClient({
 
         {/* Stats Grid - Lesson Statistics and Today's Agenda */}
         <DashboardSection>
-          <div className="grid grid-cols-1 md:grid-cols-2 portrait:grid-cols-2 lg:grid-cols-3 ultrawide:grid-cols-4 superwide:grid-cols-5 gap-4 sm:gap-5 lg:gap-6 ultrawide:gap-8 min-w-0 w-full">
-            <div className="md:col-span-1 portrait:col-span-1 lg:col-span-2 ultrawide:col-span-3 superwide:col-span-4 min-w-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ultrawide:grid-cols-4 superwide:grid-cols-5 gap-4 sm:gap-5 lg:gap-6 ultrawide:gap-8 min-w-0 w-full">
+            <div className="md:col-span-1 lg:col-span-2 ultrawide:col-span-3 superwide:col-span-4 min-w-0">
               <LessonStatsOverview />
             </div>
             <div data-tour="todays-agenda" className="min-w-0">
@@ -142,7 +142,7 @@ export function TeacherDashboardClient({
 
         {/* Needs Attention, Weekly Summary, and Health */}
         <DashboardSection>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 portrait:grid-cols-3 lg:grid-cols-3 ultrawide:grid-cols-6 superwide:grid-cols-6 gap-4 sm:gap-5 lg:gap-6 ultrawide:gap-8 min-w-0 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 ultrawide:grid-cols-6 superwide:grid-cols-6 gap-4 sm:gap-5 lg:gap-6 ultrawide:gap-8 min-w-0 w-full">
             <div className="ultrawide:col-span-2 min-w-0">
               <NeedsAttentionCard />
             </div>
@@ -173,9 +173,9 @@ export function TeacherDashboardClient({
 
         {/* Student Management */}
         <DashboardSection>
-          <div className="grid grid-cols-1 md:grid-cols-2 portrait:grid-cols-2 lg:grid-cols-3 ultrawide:grid-cols-5 superwide:grid-cols-6 gap-4 sm:gap-5 lg:gap-6 ultrawide:gap-8 min-w-0 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ultrawide:grid-cols-5 superwide:grid-cols-6 gap-4 sm:gap-5 lg:gap-6 ultrawide:gap-8 min-w-0 w-full">
             <div
-              className="md:col-span-1 portrait:col-span-1 lg:col-span-2 ultrawide:col-span-3 superwide:col-span-4 space-y-4 sm:space-y-5 lg:space-y-6 min-w-0"
+              className="md:col-span-1 lg:col-span-2 ultrawide:col-span-3 superwide:col-span-4 space-y-4 sm:space-y-5 lg:space-y-6 min-w-0"
               data-tour="student-list"
             >
               <StudentList students={data.students} />
@@ -212,7 +212,7 @@ export function TeacherDashboardClient({
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-5 portrait:grid-cols-5 lg:grid-cols-5 ultrawide:grid-cols-10 superwide:grid-cols-10 gap-3 sm:gap-4 lg:gap-5 ultrawide:gap-6 min-w-0 w-full">
+              <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 ultrawide:grid-cols-10 superwide:grid-cols-10 gap-3 sm:gap-4 lg:gap-5 ultrawide:gap-6 min-w-0 w-full">
                 <div className="ultrawide:col-span-2 min-w-0">
                   <StatsCard
                     title="Total Users"
