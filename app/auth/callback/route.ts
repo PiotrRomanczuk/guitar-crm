@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { updateLastSignIn } from '@/app/actions/account';
+import { logEmailConfirmed } from '@/lib/auth/auth-event-logger';
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -21,6 +22,7 @@ export async function GET(request: Request) {
       } = await supabase.auth.getUser();
       if (user) {
         await updateLastSignIn(user.id);
+        logEmailConfirmed(user.email ?? '', user.id);
 
         const { data: profile } = await supabase
           .from('profiles')

@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
 
+import { Suspense } from 'react';
+
 import { AppShell } from '@/components/layout/AppShell';
 import { Providers } from '@/components/providers/QueryProvider';
+import { PostHogProvider } from '@/components/providers/PostHogProvider';
+import { PostHogPageView } from '@/components/providers/PostHogPageView';
+import { PostHogIdentify } from '@/components/providers/PostHogIdentify';
 
 import './globals.css';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
@@ -48,11 +53,23 @@ export default async function RootLayout({
     : getFontVariableClasses();
 
   const content = (
-    <Providers>
-      <AppShell user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent}>
-        {children}
-      </AppShell>
-    </Providers>
+    <PostHogProvider>
+      <Suspense fallback={null}>
+        <PostHogPageView />
+      </Suspense>
+      <PostHogIdentify
+        userId={user?.id ?? null}
+        email={user?.email ?? null}
+        isAdmin={isAdmin}
+        isTeacher={isTeacher}
+        isStudent={isStudent}
+      />
+      <Providers>
+        <AppShell user={user} isAdmin={isAdmin} isTeacher={isTeacher} isStudent={isStudent}>
+          {children}
+        </AppShell>
+      </Providers>
+    </PostHogProvider>
   );
 
   return (
