@@ -212,7 +212,7 @@ export function TeacherDashboardClient({
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 ultrawide:grid-cols-10 superwide:grid-cols-10 gap-3 sm:gap-4 lg:gap-5 ultrawide:gap-6 min-w-0 w-full">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-5 portrait:grid-cols-5 lg:grid-cols-5 ultrawide:grid-cols-10 superwide:grid-cols-10 gap-3 sm:gap-4 lg:gap-5 ultrawide:gap-6 min-w-0 w-full">
                 <div className="ultrawide:col-span-2 min-w-0">
                   <StatsCard
                     title="Total Users"
