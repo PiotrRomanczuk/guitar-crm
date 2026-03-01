@@ -422,7 +422,7 @@ export function StudentSongDetailPageClient() {
                   </div>
                   <h3 className="text-lg font-semibold">Strumming Pattern</h3>
                 </div>
-                <div className="p-4 bg-muted/50 rounded-lg font-mono text-lg tracking-wider">
+                <div className="p-4 bg-muted/50 rounded-lg font-[family-name:--font-music] text-lg tracking-wider">
                   {song.strumming_pattern}
                 </div>
               </CardContent>
@@ -438,7 +438,7 @@ export function StudentSongDetailPageClient() {
                   </div>
                   <h3 className="text-lg font-semibold">Chord Progression</h3>
                 </div>
-                <div className="p-4 bg-muted/50 rounded-lg font-mono text-sm tracking-wide">
+                <div className="p-4 bg-muted/50 rounded-lg font-[family-name:--font-music] text-sm tracking-wide">
                   {song.chords}
                 </div>
               </CardContent>
@@ -454,7 +454,7 @@ export function StudentSongDetailPageClient() {
                   </div>
                   <h3 className="text-lg font-semibold">Lyrics & Chords</h3>
                 </div>
-                <pre className="p-4 bg-muted/50 rounded-lg font-mono text-sm whitespace-pre-wrap max-h-[60vh] overflow-y-auto">
+                <pre className="p-4 bg-muted/50 rounded-lg font-[family-name:--font-music] text-sm whitespace-pre-wrap max-h-[60vh] overflow-y-auto">
                   {song.lyrics_with_chords}
                 </pre>
               </CardContent>

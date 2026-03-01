@@ -18,7 +18,7 @@ export default function LyricsWithChords({ song }: Props) {
           </div>
           <h3 className="text-lg font-semibold">Lyrics & Chords</h3>
         </div>
-        <pre className="p-4 bg-muted/50 rounded-lg font-mono text-sm whitespace-pre-wrap max-h-[60vh] overflow-y-auto">
+        <pre className="p-4 bg-muted/50 rounded-lg font-[family-name:--font-music] text-sm whitespace-pre-wrap max-h-[60vh] overflow-y-auto">
           {song.lyrics_with_chords}
         </pre>
       </CardContent>

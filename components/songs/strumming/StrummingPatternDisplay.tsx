@@ -161,7 +161,7 @@ function StrokeCell({ stroke, beat }: { stroke: Stroke; beat: string }) {
   return (
     <div className="flex flex-col items-center gap-0.5">
       <Icon className={config.color} />
-      <span className="text-[10px] font-mono text-muted-foreground">{beat}</span>
+      <span className="text-[10px] font-[family-name:--font-music] text-muted-foreground">{beat}</span>
     </div>
   );
 }
@@ -245,7 +245,7 @@ export function StrummingPatternDisplay({
         ))}
       </div>
       <Legend types={usedTypes} />
-      <p className="text-xs font-mono text-muted-foreground/60 mt-2">{pattern}</p>
+      <p className="text-xs font-[family-name:--font-music] text-muted-foreground/60 mt-2">{pattern}</p>
     </div>
   );
 

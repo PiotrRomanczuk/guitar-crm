@@ -277,7 +277,7 @@ export default function SongFormFields({
             onBlur={() => onBlur('lyrics_with_chords')}
             placeholder={`Am        C\nHello, it's me\nF              G\nI was wondering if after all these years...`}
             rows={15}
-            className="resize-y font-mono text-sm"
+            className="resize-y font-[family-name:--font-music] text-sm"
           />
           {errors.lyrics_with_chords && (
             <p className="text-xs text-destructive">{errors.lyrics_with_chords}</p>
