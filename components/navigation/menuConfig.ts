@@ -14,6 +14,7 @@ import {
   ListMusic,
   Bell,
   Zap,
+  Shield,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -74,6 +75,7 @@ function getTeacherGroups(): MenuGroup[] {
         { id: 'lesson-stats', label: 'Lesson Stats', icon: BarChart, path: '/dashboard/admin/stats/lessons' },
         { id: 'cohorts', label: 'Cohorts', icon: Users, path: '/dashboard/cohorts' },
         { id: 'logs', label: 'Activity Logs', icon: FileText, path: '/dashboard/logs' },
+        { id: 'auth-events', label: 'Auth Events', icon: Shield, path: '/dashboard/admin/auth-events' },
       ],
     },
     {

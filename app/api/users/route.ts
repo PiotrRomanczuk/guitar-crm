@@ -4,6 +4,7 @@ import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { randomUUID } from 'crypto';
 import { maskShadowEmail } from '@/lib/auth/shadow-email';
 import { z } from 'zod';
+import { logShadowUserCreated, logAdminUserCreated } from '@/lib/auth/auth-event-logger';
 
 const CreateUserSchema = z.object({
   email: z.string().email().optional().or(z.literal('')),
@@ -259,6 +260,7 @@ export async function POST(request: Request) {
         return Response.json({ error: 'Internal server error' }, { status: 500 });
       }
 
+      logShadowUserCreated(finalEmail, user.id, newId);
       return Response.json(profileData, { status: 201 });
     }
 
@@ -291,6 +293,7 @@ export async function POST(request: Request) {
     }
 
     const userId = authData.user.id;
+    logAdminUserCreated(email, user.id, userId);
 
     // Update the profile with additional fields (trigger creates basic profile)
     const { data: profileData, error: updateError } = await supabaseAdmin
