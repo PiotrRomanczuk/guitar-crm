@@ -1206,6 +1206,53 @@ export type Database = {
           },
         ];
       };
+      song_sections: {
+        Row: {
+          id: string;
+          song_id: string;
+          section_type: string;
+          section_number: number;
+          order_position: number;
+          chords: string[];
+          lyrics: string | null;
+          tab_notation: string | null;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          song_id: string;
+          section_type: string;
+          section_number?: number;
+          order_position: number;
+          chords?: string[];
+          lyrics?: string | null;
+          tab_notation?: string | null;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          song_id?: string;
+          section_type?: string;
+          section_number?: number;
+          order_position?: number;
+          chords?: string[];
+          lyrics?: string | null;
+          tab_notation?: string | null;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'song_sections_song_id_fkey';
+            columns: ['song_id'];
+            isOneToOne: false;
+            referencedRelation: 'songs';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       song_videos: {
         Row: {
           id: string;

@@ -8,7 +8,6 @@ import {
   Mic2,
   Tag,
   Clock,
-  Calendar,
   Timer,
   Waves,
 } from 'lucide-react';
@@ -16,12 +15,6 @@ import { Button } from '@/components/ui/button';
 
 interface Props {
   song: Song;
-}
-
-function formatDuration(ms: number): string {
-  const minutes = Math.floor(ms / 60000);
-  const seconds = ((ms % 60000) / 1000).toFixed(0);
-  return `${minutes}:${Number(seconds) < 10 ? '0' : ''}${seconds}`;
 }
 
 export default function SongDetailInfo({ song }: Props) {
@@ -52,34 +45,6 @@ export default function SongDetailInfo({ song }: Props) {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Time Sig.</p>
                 <p className="text-lg font-semibold mt-0.5">{song.time_signature}/4</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {song.duration_ms && (
-          <Card className="bg-card border-border/50 shadow-sm">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Clock className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Duration</p>
-                <p className="text-lg font-semibold mt-0.5">{formatDuration(song.duration_ms)}</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {song.release_year && (
-          <Card className="bg-card border-border/50 shadow-sm">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Calendar className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Released</p>
-                <p className="text-lg font-semibold mt-0.5">{song.release_year}</p>
               </div>
             </CardContent>
           </Card>
