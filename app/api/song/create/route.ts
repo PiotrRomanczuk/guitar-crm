@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { SongInputSchema } from '@/schemas/SongSchema';
 import { NextRequest, NextResponse } from 'next/server';
+import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
 
 export async function POST(request: NextRequest) {
 	try {
@@ -18,9 +19,16 @@ export async function POST(request: NextRequest) {
 		// Check if user has permission to create songs
 		const { data: profile } = await supabase
 			.from('profiles')
-			.select('is_admin, is_teacher')
+			.select('is_admin, is_teacher, is_development')
 			.eq('id', user.id)
 			.single();
+
+		if (profile?.is_development) {
+			return NextResponse.json(
+				{ error: TEST_ACCOUNT_MUTATION_ERROR },
+				{ status: 403 }
+			);
+		}
 
 		if (!profile || (!profile.is_admin && !profile.is_teacher)) {
 			return NextResponse.json(

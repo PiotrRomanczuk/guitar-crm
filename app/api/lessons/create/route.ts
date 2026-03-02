@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { LessonInputSchema, LessonSchema, type LessonInput } from '@/schemas';
+import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,6 +14,20 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check if user is a test/development account
+    const { data: devProfile } = await supabase
+      .from('profiles')
+      .select('is_development')
+      .eq('id', user.id)
+      .single();
+
+    if (devProfile?.is_development) {
+      return NextResponse.json(
+        { error: TEST_ACCOUNT_MUTATION_ERROR },
+        { status: 403 }
+      );
     }
 
     // Check if user has permission to create lessons (using user_roles)

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getTrack } from '@/lib/spotify';
 import type { SpotifyApiTrack } from '@/types/spotify';
 import { z } from 'zod';
+import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
 
 const ActionSchema = z.object({
   matchId: z.string().uuid(),
@@ -31,6 +32,17 @@ export async function POST(request: Request) {
 
   if (!profile?.is_admin && !profile?.is_teacher) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  // Check if user is a test/development account
+  const { data: devProfile } = await supabase
+    .from('profiles')
+    .select('is_development')
+    .eq('id', user.id)
+    .single();
+
+  if (devProfile?.is_development) {
+    return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
   }
 
   try {

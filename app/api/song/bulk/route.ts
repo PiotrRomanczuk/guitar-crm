@@ -5,6 +5,7 @@ import {
   SongImportSchema,
   SongImportValidationSchema,
 } from '@/schemas/SongSchema';
+import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,9 +23,13 @@ export async function POST(request: NextRequest) {
     // Check if user has permission
     const { data: profile } = await supabase
       .from('profiles')
-      .select('is_admin, is_teacher')
+      .select('is_admin, is_teacher, is_development')
       .eq('id', user.id)
       .single();
+
+    if (profile?.is_development) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
 
     if (!profile || (!profile.is_admin && !profile.is_teacher)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -185,9 +190,13 @@ export async function DELETE(request: NextRequest) {
     // Check if user is admin
     const { data: profile } = await supabase
       .from('profiles')
-      .select('is_admin')
+      .select('is_admin, is_development')
       .eq('id', user.id)
       .single();
+
+    if (profile?.is_development) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
 
     if (!profile || !profile.is_admin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

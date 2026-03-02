@@ -16,6 +16,7 @@ import {
   updateSongHandler,
   deleteSongHandler,
 } from './handlers';
+import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
 
 type SupabaseServerClient = SupabaseClient<Database>;
 
@@ -29,7 +30,7 @@ async function getOrCreateProfile(
 ) {
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('is_admin, is_teacher, is_student')
+    .select('is_admin, is_teacher, is_student, is_development')
     .eq('id', userId)
     .single();
 
@@ -44,7 +45,7 @@ async function getOrCreateProfile(
         is_student: true,
         is_teacher: false,
       })
-      .select('is_admin, is_teacher, is_student')
+      .select('is_admin, is_teacher, is_student, is_development')
       .single();
 
     if (createError) {
@@ -56,19 +57,21 @@ async function getOrCreateProfile(
       isAdmin: newProfile.is_admin,
       isTeacher: newProfile.is_teacher,
       isStudent: newProfile.is_student,
+      isDevelopment: newProfile.is_development ?? false,
     };
   }
 
   if (profileError) {
     console.error('Error fetching profile:', profileError);
     // Return a default profile for now to unblock testing
-    return { isAdmin: false, isTeacher: false, isStudent: true };
+    return { isAdmin: false, isTeacher: false, isStudent: true, isDevelopment: false };
   }
 
   return {
     isAdmin: profile.is_admin,
     isTeacher: profile.is_teacher,
     isStudent: profile.is_student,
+    isDevelopment: profile.is_development ?? false,
   };
 }
 
@@ -197,6 +200,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Error creating user profile' }, { status: 500 });
     }
 
+    if (profile.isDevelopment) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
+
     const body = await request.json();
 
     const result = await createSongHandler(supabase, user, profile, body);
@@ -260,6 +267,10 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Error creating user profile' }, { status: 500 });
     }
 
+    if (profile.isDevelopment) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
+
     const body = await request.json();
     const result = await updateSongHandler(supabase, user, profile, songId, body);
 
@@ -316,6 +327,10 @@ export async function DELETE(request: NextRequest) {
 
     if (!profile) {
       return NextResponse.json({ error: 'Error creating user profile' }, { status: 500 });
+    }
+
+    if (profile.isDevelopment) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
     }
 
     const result = await deleteSongHandler(supabase, user, profile, songId);

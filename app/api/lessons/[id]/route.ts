@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { updateLessonHandler, deleteLessonHandler } from '../handlers';
+import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
 
 /**
  * Helper to get user profile with roles
@@ -8,7 +9,7 @@ import { updateLessonHandler, deleteLessonHandler } from '../handlers';
 async function getUserProfile(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('is_admin, is_teacher, is_student')
+    .select('is_admin, is_teacher, is_student, is_development')
     .eq('id', userId)
     .single();
 
@@ -20,6 +21,7 @@ async function getUserProfile(supabase: Awaited<ReturnType<typeof createClient>>
     isAdmin: profile.is_admin,
     isTeacher: profile.is_teacher,
     isStudent: profile.is_student,
+    isDevelopment: profile.is_development ?? false,
   };
 }
 
@@ -112,6 +114,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
+    if (profile.isDevelopment) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
+
     const body = await request.json();
     const result = await updateLessonHandler(supabase, user, profile, id, body);
 
@@ -148,6 +154,10 @@ export async function DELETE(
     const profile = await getUserProfile(supabase, user.id);
     if (!profile) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    }
+
+    if (profile.isDevelopment) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
     }
 
     const result = await deleteLessonHandler(supabase, user, profile, id);

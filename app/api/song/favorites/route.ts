@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { UserFavoriteInputSchema } from '@/schemas/UserFavoriteSchema';
+import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
 
 export async function GET(req: NextRequest) {
   try {
@@ -87,9 +88,13 @@ export async function POST(req: NextRequest) {
     // Check if user is adding their own favorite or is admin via profiles boolean flags
     const { data: profile } = await supabase
       .from('profiles')
-      .select('is_admin')
+      .select('is_admin, is_development')
       .eq('id', user.id)
       .single();
+
+    if (profile?.is_development) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
 
     if (user.id !== user_id && !profile?.is_admin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -160,9 +165,13 @@ export async function DELETE(req: NextRequest) {
     // Check if user is removing their own favorite or is admin via profiles boolean flags
     const { data: profile } = await supabase
       .from('profiles')
-      .select('is_admin')
+      .select('is_admin, is_development')
       .eq('id', user.id)
       .single();
+
+    if (profile?.is_development) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
 
     if (user.id !== userId && !profile?.is_admin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

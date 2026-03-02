@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { AssignmentInputSchema } from '@/schemas/AssignmentSchema';
 import { getAssignmentsHandler, createAssignmentHandler } from './handlers';
+import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
 
 /**
  * Helper to get user profile with roles
@@ -9,7 +10,7 @@ import { getAssignmentsHandler, createAssignmentHandler } from './handlers';
 async function getUserProfile(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('is_admin, is_teacher, is_student')
+    .select('is_admin, is_teacher, is_student, is_development')
     .eq('id', userId)
     .single();
 
@@ -21,6 +22,7 @@ async function getUserProfile(supabase: Awaited<ReturnType<typeof createClient>>
     isAdmin: profile.is_admin,
     isTeacher: profile.is_teacher,
     isStudent: profile.is_student,
+    isDevelopment: profile.is_development ?? false,
   };
 }
 
@@ -113,6 +115,10 @@ export async function POST(request: NextRequest) {
 
     if (!profile) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    }
+
+    if (profile.isDevelopment) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
     }
 
     // Parse and validate input
