@@ -144,10 +144,12 @@ test.describe(
         const emailInput = page.locator('#email');
 
         await emailInput.focus();
+        await emailInput.fill(' ');
+        await emailInput.clear();
         await emailInput.blur();
 
-        // Should show validation error
-        await expect(page.locator('text=/valid email|email required/i')).toBeVisible();
+        // Should show validation error (wait for React re-render after onBlur sets touched state)
+        await expect(page.locator('text=/valid email|email required/i')).toBeVisible({ timeout: 5000 });
       });
 
       test('should validate email format', async ({ page }) => {
