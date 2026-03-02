@@ -61,7 +61,9 @@ export default async function SongList({ searchParams }: SongListProps) {
     : supabase.from('songs').select(SONG_LIST_COLUMNS, { count: 'exact' });
 
   if (params.search) {
-    songQuery = songQuery.or(`title.ilike.%${params.search}%,author.ilike.%${params.search}%`);
+    // Escape PostgREST special characters to prevent filter injection
+    const escaped = params.search.replace(/[%_\\,.()"']/g, '');
+    songQuery = songQuery.or(`title.ilike.%${escaped}%,author.ilike.%${escaped}%`);
   }
   if (params.level && params.level !== 'all') {
     songQuery = songQuery.eq('level', params.level);
@@ -90,7 +92,7 @@ export default async function SongList({ searchParams }: SongListProps) {
     console.error('Error fetching songs:', error);
     return (
       <div data-testid="song-list-error">
-        Error loading songs: {String(error.message)}
+        Something went wrong while loading songs. Please try again.
       </div>
     );
   }
