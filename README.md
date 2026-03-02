@@ -6,9 +6,11 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![Deploy](https://img.shields.io/badge/Live-strummy.app-black?style=for-the-badge&logo=vercel)](https://strummy.app)
 
-**This is not a portfolio project.** Strummy is a production SaaS platform actively used by a guitar teacher and their students for daily lesson management, scheduling, and progress tracking. Real lessons are booked through it, real notifications are sent, real Spotify data enriches the song library, and real Google Calendar events stay in sync.
+**This is not a portfolio project.** Strummy was born from a real problem I face every day as a guitar teacher: keeping track of what each student is working on. With 20+ active students, the single most common question at the start of a lesson is *"What were we doing last time?"* — and before Strummy, the answer lived in scattered notes, memory, and guesswork. Strummy replaces all of that with a single source of truth per student: their repertoire, lesson history, and progress — always one click away.
 
-Built solo over 4 months with **1,150+ commits**, **100 merged PRs**, **30 tagged releases**, and **124 database migrations** — and still shipping features weekly to real users at [strummy.app](https://strummy.app).
+It's a production SaaS platform currently in active pilot with **20–30 users** (teachers and students) testing daily workflows. Real lessons are booked through it, real notifications are sent, real Spotify data enriches the song library, and real Google Calendar events stay in sync.
+
+Built solo over 5 months with **1,200+ commits**, **100+ merged PRs**, **80+ tagged releases**, and **129 database migrations** — and still shipping features weekly to real users at [strummy.app](https://strummy.app).
 
 <p align="center">
   <img src="./public/screenshots/dashboard.png" alt="Strummy Dashboard" width="100%" />
@@ -23,11 +25,11 @@ Built solo over 4 months with **1,150+ commits**, **100 merged PRs**, **30 tagge
 | **Status** | **Live in production** — used daily by a guitar teacher and students at [strummy.app](https://strummy.app) |
 | **Codebase** | ~254,000 lines of TypeScript across 6,900+ source files |
 | **API Surface** | 107 REST endpoints + 30 Server Actions |
-| **Database** | 124 SQL migrations, 50+ RLS policies, 15+ tables, 13 custom enum types |
-| **Testing** | 1,021 test files (Jest unit/integration + Playwright E2E) |
+| **Database** | 129 SQL migrations, 50+ RLS policies, 15+ tables, 13 custom enum types |
+| **Testing** | 217 test files, 1,100+ test cases (Jest unit/integration + Playwright E2E) |
 | **CI/CD** | 11-job GitHub Actions pipeline with automated semantic versioning |
 | **External Integrations** | 8 services (Supabase, Spotify, Google Calendar, Drive, Gmail, OpenRouter, Ollama, Sentry) |
-| **Background Jobs** | 11 Vercel cron endpoints |
+| **Background Jobs** | 12 Vercel cron endpoints |
 | **AI Agents** | 9 domain-specific LLM agents with fallback templates |
 | **Components** | 46 shadcn/ui primitives + 94 domain-organized component directories |
 
@@ -44,6 +46,20 @@ This section highlights the problems that were genuinely difficult to solve — 
 **Solution:** A provider factory with an `auto` mode that tries local-first and falls back to cloud. On top of that, a full agent registry where each agent (e.g., `lesson-notes-assistant`, `song-normalization`) has its own specification, validation, permission checks, per-role rate limiting (Admin: 100/min, Teacher: 50/min, Student: 20/min), context-fetching strategy, and analytics logging.
 
 **The tricky part:** When AI is unavailable (both providers down, rate limit exceeded, or network issues), the system can't just fail — teachers are mid-lesson. Every agent has **fallback Markdown templates** that return structured, useful content so the UI never breaks. The queue manager handles batching with concurrency control, and streaming analytics track response quality in real-time to detect degradation before users notice.
+
+The 9 registered agents:
+
+| Agent | Purpose |
+|:---|:---|
+| Email Draft Generator | Lesson reminders, progress reports, payment notices, milestone celebrations |
+| Lesson Notes | Structured teaching documentation from lesson observations |
+| Assignment Generator | Personalized practice assignments based on repertoire + skill level |
+| Post-Lesson Summary | Session highlights, achievements, next steps |
+| Student Progress Insights | Detects patterns: plateau students, sprinters, returners, genre-locked learners |
+| Admin Dashboard Insights | Business metrics: retention rates, scheduling optimization, revenue trends |
+| Song Notes Assistant | Teaching tips, technique focus, BPM targets per song |
+| Song Normalization | Data standardization for Spotify fuzzy matching pipeline |
+| Chat Assistant | Conversational dashboard helper for teacher queries |
 
 **Key files:** `lib/ai/provider-factory.ts`, `lib/ai/registry/`, `lib/ai/queue-manager.ts`, `lib/ai/streaming-analytics.ts`
 
@@ -170,6 +186,40 @@ DB Triggers  -->  notification_queue table  -->  Cron processor  -->  Dual-chann
 
 ---
 
+### 8. Chord Progression Analyzer & Music Theory Engine
+
+**Problem:** The song library contains 500+ songs with raw chord data entered by teachers in inconsistent formats (CSV strings, Postgres arrays, shorthand like "Em7" vs "Emin7" vs "E-7"). The app needs to analyze these chords at scale — Roman numeral conversion, archetype detection (Pop I–V–vi–IV, Blues I–IV–V, Jazz ii–V–I), frequency distributions, and transition patterns — all computed from messy real-world data.
+
+**Solution:** A 5-layer computation engine:
+
+1. **Chord parser** — normalizes CSV strings, Postgres arrays, and slash chords across 12 chord types. Ordered regex matching disambiguates overlapping patterns (e.g., "Cm" = C minor vs. "Cmaj7" = C major 7th)
+2. **Roman numeral converter** — semitone-distance chromatic math maps any chord to its scale degree. Non-diatonic chords get accidentals (♭VII, ♯IV) via interval comparison against the key's scale tones
+3. **Archetype detector** — matches progressions against 7 canonical patterns (Pop, Blues, Jazz ii–V–I, Andalusian, Canon, 50s, Minor) using Roman numeral subsequence comparison with tolerance for substitutions
+4. **Analytics aggregation** — frequency distributions, chord transition matrices (which chord follows which), and progression deduplication across the full library
+5. **Dashboard** — 8 visualization components: KPIs, frequency bar chart, transition heatmap, archetype cards, theory table, progression length distribution, and progression bar chart
+
+**The tricky part:** The parser must handle teacher-entered chords where the same chord appears in many forms. Slash chords (G/B) need bass note separation before root analysis. The regex patterns must be evaluated in a specific order — longest match first — to avoid "Cmaj7" being parsed as "Cm" + "aj7". All of this runs client-side with memoized computations to keep the dashboard responsive.
+
+**Key files:** `lib/music-theory/chord-parser.ts`, `lib/music-theory/roman-numeral.ts`, `lib/music-theory/progression-archetypes.ts`, `lib/services/chord-analytics.ts`, `components/songs/chord-analysis/`
+
+---
+
+### 9. Student Repertoire State Machine
+
+**Problem:** Song progress was tracked per-lesson (`lesson_songs` table), but a teacher needs a single canonical answer: "What's this student's status on this song?" Status must only advance forward (you can't un-learn a song), and each student needs per-song overrides — preferred key, capo position, custom strumming pattern — that persist across lessons.
+
+**Solution:** A two-table architecture with a `BEFORE INSERT OR UPDATE` trigger cascade:
+
+- **`student_repertoire`** — single source of truth per student-song pair: status, per-student config (key, capo, strumming), practice metrics, self-rating, priority flag
+- **`lesson_songs`** — per-lesson entries linked to repertoire via `repertoire_id` FK
+- **`SECURITY DEFINER` trigger** — on every `lesson_songs` insert/update: auto-creates the repertoire entry if missing, links the FK, uses `array_position()` against a status enum array for **forward-only status comparison** (new status must have a higher index than current), and stamps `started_at`/`mastered_at` milestone timestamps
+
+**The tricky part:** The backfill migration had to merge data from two legacy sources (`lesson_songs` and an older progress tracking table) using `ON CONFLICT DO NOTHING` to handle overlaps. The trigger requires `SECURITY DEFINER` because it writes to `student_repertoire` from within a `lesson_songs` operation — without it, RLS policies on the repertoire table would block the trigger's writes depending on the calling user's role.
+
+**Key files:** `supabase/migrations/20260222000000_create_student_repertoire.sql`, `supabase/migrations/20260222000001_lesson_songs_status_cascade_trigger.sql`
+
+---
+
 ## Skills Demonstrated & Growth Areas
 
 This project pushed my abilities across multiple engineering disciplines:
@@ -177,15 +227,15 @@ This project pushed my abilities across multiple engineering disciplines:
 | Skill Area | What I Built | What I Learned |
 |:---|:---|:---|
 | **System Design** | Multi-layer architecture: App Router + Server Actions + REST API + background jobs + event-driven pipelines | How to decompose a monolith into clear layers without over-engineering; when to use Server Actions vs. API routes vs. cron jobs |
-| **Database Engineering** | 124 migrations, materialized views, PL/pgSQL triggers, atomic rate limiting via advisory locks, audit log with JSON diffs | Writing performant RLS policies (multi-JOIN in policy expressions), managing migration drift across environments, designing trigger-based event systems |
+| **Database Engineering** | 129 migrations, materialized views, PL/pgSQL triggers, atomic rate limiting via advisory locks, audit log with JSON diffs | Writing performant RLS policies (multi-JOIN in policy expressions), managing migration drift across environments, designing trigger-based event systems |
 | **API Integration Patterns** | Circuit breaker, exponential backoff with jitter, token caching, SSE streaming, webhook lifecycle management | Resilience engineering — building systems that degrade gracefully instead of failing catastrophically; handling every edge case in OAuth2 token lifecycle |
 | **Security Engineering** | HMAC token signing, CSP headers, RLS audit, injection prevention, RBAC at 3 layers (DB/middleware/component) | Thinking like an attacker — the IDOR and filter injection vulnerabilities were only found by systematically auditing every user-controlled input path |
 | **AI/LLM Integration** | Multi-provider factory, agent registry, streaming responses, fallback templates, per-role rate limiting | Designing AI features that work when AI is unavailable; prompt engineering for structured outputs; token estimation for cost control |
-| **Testing Strategy** | 1,021 test files, 3-layer pyramid (unit/integration/E2E), MSW for API mocking, Playwright across 7 device profiles | Writing meaningful E2E tests (user journeys, not UI snapshots); mocking Supabase at the right layer; integration test infrastructure design |
+| **Testing Strategy** | 217 test files with 1,100+ test cases, 3-layer pyramid (unit/integration/E2E), MSW for API mocking, Playwright across 7 device profiles | Writing meaningful E2E tests (user journeys, not UI snapshots); mocking Supabase at the right layer; integration test infrastructure design |
 | **DevOps & CI/CD** | 11-job pipeline, automated semantic versioning from branch names, preview deployments per PR, database migration deployment | Building CI that catches real issues (security audit + DB schema check as blocking gates) vs. CI that just runs tests |
 | **Real-Time Systems** | SSE streaming for calendar/Spotify sync, Supabase Realtime for notifications, cancellable long-running operations | Managing streaming lifecycle (cleanup on disconnect, explicit cancel, error); module-level state for tracking active streams |
 | **Domain Modeling** | CAGED position system, interval-based scale engine, octave arithmetic for audio synthesis, guitar tuning models | Encoding domain expertise as algorithms — the fretboard isn't a UI widget, it's a music theory engine with computed chromatic math |
-| **Operational Engineering** | 11 cron jobs (reminders, digests, queue drain, webhook renewal, drive scanner, status updates, monitoring), health dashboard, streaming analytics | Building systems that run unattended — dead letter queues, idempotent retries, distributed locking via `FOR UPDATE SKIP LOCKED`, cron registry with health checks |
+| **Operational Engineering** | 12 cron jobs (reminders, digests, queue drain, webhook renewal, drive scanner, status updates, monitoring), health dashboard, streaming analytics | Building systems that run unattended — dead letter queues, idempotent retries, distributed locking via `FOR UPDATE SKIP LOCKED`, cron registry with health checks |
 
 ---
 
@@ -240,13 +290,13 @@ This project pushed my abilities across multiple engineering disciplines:
                               +----------------+----------------+
                               |         Supabase               |
                               |  PostgreSQL + RLS + Realtime   |
-                              |  50+ policies | 124 migrations |
+                              |  50+ policies | 129 migrations |
                               |  Triggers -> Notification Queue|
                               +---------------------------------+
                                                |
                               +----------------+----------------+
                               |    Background Processing       |
-                              |  11 Vercel Cron Jobs           |
+                              |  12 Vercel Cron Jobs           |
                               |  Queue processor | Webhooks    |
                               |  Drive scanner | Digest emails |
                               +---------------------------------+
@@ -262,7 +312,7 @@ guitar-crm/
     api/                    # 107 REST endpoints organized by domain
       ai/                   #   AI playground, debug, chat streaming
       calendar/             #   Google Calendar sync, webhooks, SSE streaming
-      cron/                 #   11 background jobs (reminders, digests, scanners)
+      cron/                 #   12 background jobs (reminders, digests, scanners)
       spotify/              #   Search, sync, match approval with circuit breaker
       admin/                #   User management, drive videos, stats
     dashboard/              # Protected pages (admin, teacher, student views)
@@ -274,7 +324,7 @@ guitar-crm/
     services/               # 15 domain services (notification, calendar sync, matching)
     supabase/               # DB clients, helpers, dual-connection routing
   schemas/                  # 36 Zod validation schemas
-  supabase/migrations/      # 124 SQL files (schema, RLS, triggers, functions)
+  supabase/migrations/      # 129 SQL files (schema, RLS, triggers, functions)
   __tests__/                # Jest tests mirroring source structure
   tests/e2e/                # Playwright specs across 7 device profiles
   .github/workflows/        # 4 workflows (CI/CD, versioning, AI code review)
@@ -306,9 +356,14 @@ Monthly view with color-coded lesson density, daily agenda, and bidirectional Go
 <img src="./public/screenshots/calendar.png" alt="Calendar" width="100%" />
 
 ### Student Profiles
-Per-student detail page with repertoire tracking, lesson history, and PDF/Excel export.
+Per-student detail page with lesson stats, upcoming lessons, active songs, assignments, and teacher notes.
 
 <img src="./public/screenshots/student-profile.png" alt="Student profile" width="100%" />
+
+### Chord Progression Analysis
+Music theory dashboard: KPIs, Roman numeral progressions, archetype detection (Pop, Blues, Jazz ii-V-I), and chord distribution charts.
+
+<img src="./public/screenshots/chord-analysis.png" alt="Chord analysis" width="100%" />
 
 ### Profile & Account Security
 2FA (TOTP), session activity tracking, Google OAuth linking, and account deletion with 30-day grace period.
@@ -390,4 +445,4 @@ Push/PR
 
 ---
 
-*Solo-built over 4 months. 1,150+ commits. 100 PRs. 30 releases. Used daily by real teachers and students. Still shipping.*
+*Solo-built over 5 months. 1,200+ commits. 100+ PRs. 80+ releases. Used daily by 20–30 real teachers and students. Still shipping.*
