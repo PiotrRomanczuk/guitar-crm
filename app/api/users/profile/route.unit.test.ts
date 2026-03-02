@@ -48,6 +48,7 @@ describe('Users Profile API - GET', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const response = await GET();
@@ -60,6 +61,7 @@ describe('Users Profile API - GET', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     mockSelect.mockReturnValue({
@@ -88,6 +90,7 @@ describe('Users Profile API - PUT', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const request = new Request('http://localhost/api/users/profile', {
@@ -105,6 +108,7 @@ describe('Users Profile API - PUT', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     const request = new Request('http://localhost/api/users/profile', {
@@ -122,6 +126,7 @@ describe('Users Profile API - PUT', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     const request = new Request('http://localhost/api/users/profile', {
@@ -140,6 +145,7 @@ describe('Users Profile API - PUT', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     // Attempting to set is_admin should be ignored by Zod (not in schema)
@@ -160,6 +166,7 @@ describe('Users Profile API - PUT', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     const updatedProfile = { ...mockProfile, full_name: 'Jane Updated' };

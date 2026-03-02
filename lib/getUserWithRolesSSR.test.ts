@@ -49,7 +49,7 @@ describe('getUserWithRolesSSR', () => {
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
             single: jest.fn().mockResolvedValue({
-              data: { is_admin: true, is_teacher: true, is_student: false, is_parent: false },
+              data: { is_admin: true, is_teacher: true, is_student: false, is_parent: false, is_development: false },
               error: null,
             }),
           }),
@@ -64,6 +64,7 @@ describe('getUserWithRolesSSR', () => {
         isTeacher: true,
         isStudent: false,
         isParent: false,
+        isDevelopment: false,
       });
     });
   });
@@ -86,7 +87,7 @@ describe('getUserWithRolesSSR', () => {
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
             single: jest.fn().mockResolvedValue({
-              data: { is_admin: false, is_teacher: true, is_student: false, is_parent: false },
+              data: { is_admin: false, is_teacher: true, is_student: false, is_parent: false, is_development: false },
               error: null,
             }),
           }),
@@ -101,6 +102,7 @@ describe('getUserWithRolesSSR', () => {
         isTeacher: true,
         isStudent: false,
         isParent: false,
+        isDevelopment: false,
       });
     });
   });
@@ -123,7 +125,7 @@ describe('getUserWithRolesSSR', () => {
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
             single: jest.fn().mockResolvedValue({
-              data: { is_admin: false, is_teacher: false, is_student: true, is_parent: false },
+              data: { is_admin: false, is_teacher: false, is_student: true, is_parent: false, is_development: false },
               error: null,
             }),
           }),
@@ -138,6 +140,7 @@ describe('getUserWithRolesSSR', () => {
         isTeacher: false,
         isStudent: true,
         isParent: false,
+        isDevelopment: false,
       });
     });
   });
@@ -157,6 +160,7 @@ describe('getUserWithRolesSSR', () => {
         isTeacher: false,
         isStudent: false,
         isParent: false,
+        isDevelopment: false,
       });
     });
   });
@@ -194,6 +198,7 @@ describe('getUserWithRolesSSR', () => {
         isTeacher: false,
         isStudent: false,
         isParent: false,
+        isDevelopment: false,
       });
     });
   });
@@ -231,6 +236,7 @@ describe('getUserWithRolesSSR', () => {
         isTeacher: false,
         isStudent: false,
         isParent: false,
+        isDevelopment: false,
       });
     });
   });
@@ -268,6 +274,7 @@ describe('getUserWithRolesSSR', () => {
         isTeacher: false,
         isStudent: false,
         isParent: false,
+        isDevelopment: false,
       });
     });
   });
@@ -287,6 +294,7 @@ describe('getUserWithRolesSSR', () => {
         isTeacher: false,
         isStudent: false,
         isParent: false,
+        isDevelopment: false,
       });
     });
   });

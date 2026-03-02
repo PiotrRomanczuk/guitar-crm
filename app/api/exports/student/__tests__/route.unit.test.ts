@@ -53,6 +53,7 @@ describe('GET /api/exports/student/[id] - Access Control (STRUMMY-280)', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: false,
+        isDevelopment: false,
       });
 
       const request = createMockRequest('student-123');
@@ -73,6 +74,7 @@ describe('GET /api/exports/student/[id] - Access Control (STRUMMY-280)', () => {
         isAdmin: true,
         isTeacher: false,
         isStudent: false,
+        isDevelopment: false,
       });
 
       (userService.canViewUser as jest.Mock).mockReturnValue({
@@ -119,6 +121,7 @@ describe('GET /api/exports/student/[id] - Access Control (STRUMMY-280)', () => {
         isAdmin: false,
         isTeacher: true,
         isStudent: false,
+        isDevelopment: false,
       });
 
       (userRepository.getStudentIdsForTeacher as jest.Mock).mockResolvedValue([
@@ -172,6 +175,7 @@ describe('GET /api/exports/student/[id] - Access Control (STRUMMY-280)', () => {
         isAdmin: false,
         isTeacher: true,
         isStudent: false,
+        isDevelopment: false,
       });
 
       (userRepository.getStudentIdsForTeacher as jest.Mock).mockResolvedValue([
@@ -207,6 +211,7 @@ describe('GET /api/exports/student/[id] - Access Control (STRUMMY-280)', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: true,
+        isDevelopment: false,
       });
 
       (userService.canViewUser as jest.Mock).mockReturnValue({
@@ -251,6 +256,7 @@ describe('GET /api/exports/student/[id] - Access Control (STRUMMY-280)', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: true,
+        isDevelopment: false,
       });
 
       (userService.canViewUser as jest.Mock).mockReturnValue({
@@ -282,6 +288,7 @@ describe('GET /api/exports/student/[id] - Access Control (STRUMMY-280)', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: false,
+        isDevelopment: false,
       });
 
       (userService.canViewUser as jest.Mock).mockReturnValue({
@@ -307,6 +314,7 @@ describe('GET /api/exports/student/[id] - Access Control (STRUMMY-280)', () => {
         isAdmin: true,
         isTeacher: false,
         isStudent: false,
+        isDevelopment: false,
       });
 
       (userService.canViewUser as jest.Mock).mockReturnValue({
@@ -350,6 +358,7 @@ describe('GET /api/exports/student/[id] - Access Control (STRUMMY-280)', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: true,
+        isDevelopment: false,
       });
 
       (userService.canViewUser as jest.Mock).mockReturnValue({

@@ -19,6 +19,7 @@ describe('Users API - GET endpoint', () => {
     isAdmin: true,
     isTeacher: false,
     isStudent: false,
+    isDevelopment: false,
   };
 
   const mockProfiles = [
@@ -172,6 +173,7 @@ describe('Users API - GET endpoint', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: false,
+        isDevelopment: false,
       });
 
       const req = new NextRequest('http://localhost:3000/api/users');
@@ -188,6 +190,7 @@ describe('Users API - GET endpoint', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: true,
+        isDevelopment: false,
       };
 
       (getUserWithRolesSSR as jest.Mock).mockResolvedValue(studentUser);
@@ -298,6 +301,7 @@ describe('Users API - POST endpoint', () => {
     isAdmin: true,
     isTeacher: false,
     isStudent: false,
+    isDevelopment: false,
   };
 
   beforeEach(() => {
@@ -355,6 +359,7 @@ describe('Users API - POST endpoint', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const bodyData = JSON.stringify({
@@ -380,6 +385,7 @@ describe('Users API - POST endpoint', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const bodyData = JSON.stringify({

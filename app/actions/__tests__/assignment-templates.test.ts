@@ -95,6 +95,7 @@ describe('createAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const templateData = {
@@ -119,6 +120,7 @@ describe('createAssignmentTemplate', () => {
       isAdmin: true,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const templateData = {
@@ -142,6 +144,7 @@ describe('createAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     await expect(
@@ -161,6 +164,7 @@ describe('createAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     await expect(
@@ -178,6 +182,7 @@ describe('createAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     await expect(
@@ -204,6 +209,7 @@ describe('updateAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockSingle.mockResolvedValue({
@@ -231,6 +237,7 @@ describe('updateAssignmentTemplate', () => {
       isAdmin: true,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const updateData = {
@@ -255,6 +262,7 @@ describe('updateAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockSingle.mockResolvedValue({
@@ -281,6 +289,7 @@ describe('updateAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockSingle.mockResolvedValue({
@@ -302,6 +311,7 @@ describe('updateAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     await expect(
@@ -319,6 +329,7 @@ describe('updateAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     await expect(
@@ -341,6 +352,7 @@ describe('deleteAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockSingle.mockResolvedValue({
@@ -359,6 +371,7 @@ describe('deleteAssignmentTemplate', () => {
       isAdmin: true,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     await deleteAssignmentTemplate('template-id');
@@ -373,6 +386,7 @@ describe('deleteAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockSingle.mockResolvedValue({
@@ -390,6 +404,7 @@ describe('deleteAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockSingle.mockResolvedValue({
@@ -405,6 +420,7 @@ describe('deleteAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     await expect(deleteAssignmentTemplate('template-id')).rejects.toThrow('Unauthorized');
@@ -416,6 +432,7 @@ describe('deleteAssignmentTemplate', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     await expect(deleteAssignmentTemplate('template-id')).rejects.toThrow('Unauthorized');

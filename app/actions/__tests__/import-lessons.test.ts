@@ -82,6 +82,7 @@ describe('importLessonsFromGoogle', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockMatchStudentByEmail.mockResolvedValue({
@@ -155,6 +156,7 @@ describe('importLessonsFromGoogle', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockMatchStudentByEmail.mockResolvedValue({
@@ -226,6 +228,7 @@ describe('importLessonsFromGoogle', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockMatchStudentByEmail.mockResolvedValue({
@@ -275,6 +278,7 @@ describe('importLessonsFromGoogle', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockMatchStudentByEmail.mockResolvedValue({
@@ -336,6 +340,7 @@ describe('importLessonsFromGoogle', () => {
       isTeacher: false,
       isAdmin: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     const result = await importLessonsFromGoogle([]);
@@ -350,6 +355,7 @@ describe('importLessonsFromGoogle', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const manualStudentId = '423e4567-e89b-12d3-a456-426614174003';
@@ -412,6 +418,7 @@ describe('importLessonsFromGoogle', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockMatchStudentByEmail.mockResolvedValue({
@@ -470,6 +477,7 @@ describe('fetchGoogleEvents', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const mockEvents = [
@@ -499,6 +507,7 @@ describe('fetchGoogleEvents', () => {
       isTeacher: false,
       isAdmin: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     const result = await fetchGoogleEvents('2026-02-01', '2026-02-28');
@@ -514,6 +523,7 @@ describe('fetchGoogleEvents', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetCalendarEventsInRange.mockRejectedValue(new Error('Calendar API error'));
@@ -530,6 +540,7 @@ describe('fetchGoogleEvents', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetCalendarEventsInRange.mockRejectedValue('Unknown error string');

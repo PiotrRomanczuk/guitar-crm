@@ -32,6 +32,7 @@ describe('student-management actions', () => {
         user: { id: 'teacher-123' },
         isTeacher: true,
         isAdmin: false,
+        isDevelopment: false,
       });
 
       mockCreateShadowStudent.mockResolvedValueOnce({
@@ -65,6 +66,7 @@ describe('student-management actions', () => {
         user: { id: 'admin-123' },
         isTeacher: true, // Admin is also a teacher in terms of permissions
         isAdmin: true,
+        isDevelopment: false,
       });
 
       mockCreateShadowStudent.mockResolvedValueOnce({
@@ -87,6 +89,7 @@ describe('student-management actions', () => {
         user: null,
         isTeacher: false,
         isAdmin: false,
+        isDevelopment: false,
       });
 
       const result = await createStudentProfile('student@example.com', 'John', 'Doe');
@@ -103,6 +106,7 @@ describe('student-management actions', () => {
         user: { id: 'student-123' },
         isTeacher: false,
         isAdmin: false,
+        isDevelopment: false,
       });
 
       const result = await createStudentProfile('student@example.com', 'John', 'Doe');
@@ -119,6 +123,7 @@ describe('student-management actions', () => {
         user: { id: 'regular-user-123' },
         isTeacher: false,
         isAdmin: false,
+        isDevelopment: false,
       });
 
       const result = await createStudentProfile('student@example.com', 'John', 'Doe');
@@ -134,6 +139,7 @@ describe('student-management actions', () => {
         user: { id: 'teacher-123' },
         isTeacher: true,
         isAdmin: false,
+        isDevelopment: false,
       });
 
       mockCreateShadowStudent.mockResolvedValueOnce({
@@ -154,6 +160,7 @@ describe('student-management actions', () => {
         user: { id: 'teacher-123' },
         isTeacher: true,
         isAdmin: false,
+        isDevelopment: false,
       });
 
       mockCreateShadowStudent.mockResolvedValueOnce({

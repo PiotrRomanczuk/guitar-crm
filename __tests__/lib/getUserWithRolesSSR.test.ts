@@ -63,6 +63,7 @@ describe('getUserWithRolesSSR', () => {
         isAdmin: true,
         isTeacher: true,
         isStudent: false,
+        isDevelopment: false,
       });
     });
   });
@@ -99,6 +100,7 @@ describe('getUserWithRolesSSR', () => {
         isAdmin: false,
         isTeacher: true,
         isStudent: false,
+        isDevelopment: false,
       });
     });
   });
@@ -135,6 +137,7 @@ describe('getUserWithRolesSSR', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: true,
+        isDevelopment: false,
       });
     });
   });
@@ -153,6 +156,7 @@ describe('getUserWithRolesSSR', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: false,
+        isDevelopment: false,
       });
     });
   });
@@ -187,6 +191,7 @@ describe('getUserWithRolesSSR', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: false,
+        isDevelopment: false,
       });
     });
   });
@@ -221,6 +226,7 @@ describe('getUserWithRolesSSR', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: false,
+        isDevelopment: false,
       });
     });
   });
@@ -257,6 +263,7 @@ describe('getUserWithRolesSSR', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: false,
+        isDevelopment: false,
       });
     });
   });
@@ -275,6 +282,7 @@ describe('getUserWithRolesSSR', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: false,
+        isDevelopment: false,
       });
     });
   });

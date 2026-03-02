@@ -35,6 +35,7 @@ describe('GET /api/song/stats - Security (STRUMMY-262)', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const response = await GET();
@@ -50,6 +51,7 @@ describe('GET /api/song/stats - Security (STRUMMY-262)', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const response = await GET();
@@ -65,6 +67,7 @@ describe('GET /api/song/stats - Security (STRUMMY-262)', () => {
       isAdmin: true,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     // Mock successful stats fetch
@@ -89,6 +92,7 @@ describe('GET /api/song/stats - Security (STRUMMY-262)', () => {
       isAdmin: true,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     // We only test that getUserWithRolesSSR is called for role checking
