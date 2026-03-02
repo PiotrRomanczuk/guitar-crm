@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import { NotificationPreference, NotificationType } from '@/types/notifications';
 
 /**
@@ -76,6 +78,10 @@ export async function updateNotificationPreference(
   type: NotificationType,
   enabled: boolean
 ): Promise<ActionResult> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
 
   // Get current authenticated user
@@ -121,6 +127,10 @@ export async function updateAllNotificationPreferences(
   userId: string,
   enabled: boolean
 ): Promise<ActionResult> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
 
   // Get current authenticated user

@@ -1,6 +1,8 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation, assertNotTestAccount } from '@/lib/auth/test-account-guard';
 import type {
   AIConversation,
   AIConversationMessage,
@@ -28,6 +30,10 @@ export async function createConversation(params: {
   contextType?: AIContextType;
   contextId?: string;
 }): Promise<{ data?: AIConversation; error?: string }> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return { error: guard.error };
+
   try {
     const userId = await getAuthUserId();
     const supabase = await createClient();
@@ -126,6 +132,10 @@ export async function updateConversationTitle(
   id: string,
   title: string
 ): Promise<{ error?: string }> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return { error: guard.error };
+
   try {
     await getAuthUserId();
     const supabase = await createClient();
@@ -147,6 +157,10 @@ export async function archiveConversation(
   id: string,
   isArchived: boolean
 ): Promise<{ error?: string }> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return { error: guard.error };
+
   try {
     await getAuthUserId();
     const supabase = await createClient();
@@ -165,6 +179,10 @@ export async function archiveConversation(
 }
 
 export async function deleteConversation(id: string): Promise<{ error?: string }> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return { error: guard.error };
+
   try {
     await getAuthUserId();
     const supabase = await createClient();
@@ -190,6 +208,10 @@ export async function saveConversationMessages(params: {
   tokensUsed?: number;
   latencyMs?: number;
 }): Promise<{ error?: string }> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return { error: guard.error };
+
   try {
     await getAuthUserId();
     const supabase = await createClient();
@@ -241,6 +263,9 @@ export async function trackAIUsage(params: {
   latencyMs?: number;
   isError?: boolean;
 }): Promise<void> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  assertNotTestAccount(isDevelopment);
+
   try {
     const userId = await getAuthUserId();
     const supabase = await createClient();

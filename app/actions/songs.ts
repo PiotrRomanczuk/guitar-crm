@@ -3,10 +3,12 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { assertNotTestAccount } from '@/lib/auth/test-account-guard';
 import { SongStatusEnum } from '@/schemas/LessonSchema';
 
 export async function updateLessonSongStatus(lessonSongId: string, status: string) {
-  const { isAdmin, isTeacher } = await getUserWithRolesSSR();
+  const { isAdmin, isTeacher, isDevelopment } = await getUserWithRolesSSR();
+  assertNotTestAccount(isDevelopment);
 
   if (!isAdmin && !isTeacher) {
     throw new Error('Unauthorized');
@@ -101,7 +103,8 @@ export async function quickAssignSongToLesson(
   lessonId: string,
   initialStatus: string = 'to_learn'
 ): Promise<QuickAssignResult> {
-  const { isAdmin, isTeacher } = await getUserWithRolesSSR();
+  const { isAdmin, isTeacher, isDevelopment } = await getUserWithRolesSSR();
+  assertNotTestAccount(isDevelopment);
 
   if (!isAdmin && !isTeacher) {
     return { success: false, error: 'Unauthorized' };
@@ -216,7 +219,8 @@ export interface BulkDeleteResult {
 export async function bulkSoftDeleteSongs(
   songIds: string[]
 ): Promise<BulkDeleteResult> {
-  const { isAdmin, isTeacher, user } = await getUserWithRolesSSR();
+  const { isAdmin, isTeacher, user, isDevelopment } = await getUserWithRolesSSR();
+  assertNotTestAccount(isDevelopment);
 
   if (!isAdmin && !isTeacher) {
     return { success: false, deletedCount: 0, errors: ['Unauthorized'] };

@@ -19,6 +19,11 @@ import {
   trackAIUsage,
 } from '../ai-conversations';
 
+// Mock getUserWithRolesSSR
+jest.mock('@/lib/getUserWithRolesSSR', () => ({
+  getUserWithRolesSSR: jest.fn(() => Promise.resolve({ isDevelopment: false })),
+}));
+
 // ── Supabase mock helpers ────────────────────────────────────────
 
 const mockGetUser = jest.fn();

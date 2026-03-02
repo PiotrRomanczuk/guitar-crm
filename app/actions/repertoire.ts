@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import {
   CreateRepertoireInputSchema,
   UpdateRepertoireInputSchema,
@@ -61,6 +63,10 @@ export async function addSongToRepertoireAction(input: {
   priority?: string;
   assigned_by?: string;
 }): Promise<{ success: true; id: string } | { error: string }> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return { error: guard.error };
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -101,6 +107,10 @@ export async function updateRepertoireEntryAction(
   repertoireId: string,
   input: Record<string, unknown>
 ): Promise<{ success: true } | { error: string }> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return { error: guard.error };
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -153,6 +163,10 @@ export async function updateRepertoireEntryAction(
 export async function removeFromRepertoireAction(
   repertoireId: string
 ): Promise<{ success: true } | { error: string }> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return { error: guard.error };
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -195,6 +209,10 @@ export async function addSongToNextLessonAction(
   | { noLesson: true }
   | { error: string }
 > {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return { error: guard.error };
+
   const supabase = await createClient();
   const {
     data: { user },

@@ -3,13 +3,15 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { assertNotTestAccount } from '@/lib/auth/test-account-guard';
 import { AssignmentTemplateInputSchema, AssignmentTemplateUpdateSchema } from '@/schemas';
 import { z } from 'zod';
 
 export async function createAssignmentTemplate(
   data: z.infer<typeof AssignmentTemplateInputSchema>
 ) {
-  const { isAdmin, isTeacher, user } = await getUserWithRolesSSR();
+  const { isAdmin, isTeacher, user, isDevelopment } = await getUserWithRolesSSR();
+  assertNotTestAccount(isDevelopment);
 
   if ((!isAdmin && !isTeacher) || !user) {
     throw new Error('Unauthorized');
@@ -38,7 +40,8 @@ export async function createAssignmentTemplate(
 export async function updateAssignmentTemplate(
   data: z.infer<typeof AssignmentTemplateUpdateSchema>
 ) {
-  const { isAdmin, isTeacher, user } = await getUserWithRolesSSR();
+  const { isAdmin, isTeacher, user, isDevelopment } = await getUserWithRolesSSR();
+  assertNotTestAccount(isDevelopment);
 
   if ((!isAdmin && !isTeacher) || !user) {
     throw new Error('Unauthorized');
@@ -78,7 +81,8 @@ export async function updateAssignmentTemplate(
 }
 
 export async function deleteAssignmentTemplate(id: string) {
-  const { isAdmin, isTeacher, user } = await getUserWithRolesSSR();
+  const { isAdmin, isTeacher, user, isDevelopment } = await getUserWithRolesSSR();
+  assertNotTestAccount(isDevelopment);
 
   if ((!isAdmin && !isTeacher) || !user) {
     throw new Error('Unauthorized');

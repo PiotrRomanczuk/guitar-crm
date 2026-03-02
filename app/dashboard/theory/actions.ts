@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import { TheoryCourseInputSchema, TheoryLessonInputSchema } from '@/schemas/TheoryLessonSchema';
 
 // ============================================================================
@@ -65,6 +67,10 @@ export async function getTheoryCourse(courseId: string) {
 }
 
 export async function createTheoryCourse(input: unknown) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const parsed = TheoryCourseInputSchema.safeParse(input);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' };
@@ -107,6 +113,10 @@ export async function createTheoryCourse(input: unknown) {
 }
 
 export async function updateTheoryCourse(courseId: string, input: unknown) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const parsed = TheoryCourseInputSchema.safeParse(input);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' };
@@ -148,6 +158,10 @@ export async function updateTheoryCourse(courseId: string, input: unknown) {
 }
 
 export async function deleteTheoryCourse(courseId: string) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -190,6 +204,10 @@ export async function getTheoryLesson(lessonId: string) {
 }
 
 export async function createTheoryLesson(courseId: string, input: unknown) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const parsed = TheoryLessonInputSchema.safeParse(input);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' };
@@ -230,6 +248,10 @@ export async function createTheoryLesson(courseId: string, input: unknown) {
 }
 
 export async function updateTheoryLesson(lessonId: string, courseId: string, input: unknown) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const parsed = TheoryLessonInputSchema.safeParse(input);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' };
@@ -267,6 +289,10 @@ export async function updateTheoryLesson(lessonId: string, courseId: string, inp
 }
 
 export async function deleteTheoryLesson(lessonId: string, courseId: string) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -316,6 +342,10 @@ export async function getCourseAccess(courseId: string) {
 }
 
 export async function grantCourseAccess(courseId: string, userIds: string[]) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'Not authenticated' };
@@ -340,6 +370,10 @@ export async function grantCourseAccess(courseId: string, userIds: string[]) {
 }
 
 export async function revokeCourseAccess(courseId: string, userId: string) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
 
   const { error } = await supabase

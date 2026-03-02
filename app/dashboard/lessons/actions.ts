@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { Database } from '@/database.types';
 import { z } from 'zod';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation, assertNotTestAccount } from '@/lib/auth/test-account-guard';
 
 import { sendNotification, cancelPendingQueueEntries } from '@/lib/services/notification-service';
 
@@ -11,6 +13,10 @@ const songIdsSchema = z.array(z.string().uuid());
 const lessonSongStatusSchema = z.enum(['to_learn', 'started', 'remembered', 'with_author', 'mastered']);
 
 export async function sendLessonSummaryEmail(lessonId: string) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   console.log(`[sendLessonSummaryEmail] Starting for lessonId: ${lessonId}`);
   const supabase = await createClient();
 
@@ -102,6 +108,9 @@ export async function getAvailableSongs() {
 }
 
 export async function updateLessonSongs(lessonId: string, songIds: string[]) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  assertNotTestAccount(isDevelopment);
+
   const parsedLessonId = z.string().uuid().safeParse(lessonId);
   const parsedSongIds = songIdsSchema.safeParse(songIds);
   if (!parsedLessonId.success || !parsedSongIds.success) {
@@ -164,6 +173,9 @@ export async function updateLessonSongStatus(
   songId: string,
   status: Database['public']['Enums']['lesson_song_status']
 ) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  assertNotTestAccount(isDevelopment);
+
   const parsed = z.object({
     lessonId: z.string().uuid(),
     songId: z.string().uuid(),

@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import { SelfRatingSchema } from '@/schemas/SelfRatingSchema';
 import { createLogger } from '@/lib/logger';
 
@@ -11,6 +13,10 @@ export async function updateSelfRatingAction(
   repertoireId: string,
   rating: number
 ): Promise<{ success: true } | { error: string }> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return { error: guard.error };
+
   const supabase = await createClient();
 
   // 1. Auth check

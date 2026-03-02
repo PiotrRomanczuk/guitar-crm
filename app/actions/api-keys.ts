@@ -3,6 +3,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { generateApiKey, hashApiKey } from '@/lib/api-keys';
 import { revalidatePath } from 'next/cache';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 
 export interface ApiKey {
   id: string;
@@ -39,6 +41,10 @@ export async function getApiKeys(): Promise<{ success: boolean; data?: ApiKey[];
 export async function createApiKey(
   name: string
 ): Promise<{ success: boolean; apiKey?: string; error?: string }> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -70,6 +76,10 @@ export async function createApiKey(
 export async function revokeApiKey(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
   const {
     data: { user },

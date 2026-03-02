@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import {
   SongRequestFormSchema,
   SongRequestReviewSchema,
@@ -24,7 +25,9 @@ export interface SubmitSongRequestResult {
 export async function submitSongRequest(
   formData: SongRequestFormData
 ): Promise<SubmitSongRequestResult> {
-  const { user, isStudent } = await getUserWithRolesSSR();
+  const { user, isStudent, isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
 
   if (!user) {
     return { success: false, error: 'Not authenticated' };
@@ -117,7 +120,9 @@ export async function reviewSongRequest(
   requestId: string,
   reviewData: SongRequestReviewData
 ): Promise<ReviewSongRequestResult> {
-  const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
+  const { user, isAdmin, isTeacher, isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
 
   if (!user) {
     return { success: false, error: 'Not authenticated' };

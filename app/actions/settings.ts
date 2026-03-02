@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import type { UserSettings } from '@/schemas/SettingsSchema';
 
 /**
@@ -104,6 +106,10 @@ export async function getUserSettings(
 export async function saveUserSettings(
   settings: UserSettings
 ): Promise<ActionResult<UserSettings>> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
 
   const {
