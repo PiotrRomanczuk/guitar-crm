@@ -1,5 +1,16 @@
 # Strummy — Guitar Teacher CRM
 
+## Demo Access
+
+Try the app at [strummy.app](https://strummy.app) with these read-only demo accounts. All write operations (create, edit, delete) are disabled for demo users.
+
+| Role | Email | Password |
+|:-----|:------|:---------|
+| **Teacher** | `teacher@example.com` | `test123_teacher` |
+| **Student** | `student@example.com` | `test123_student` |
+
+---
+
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-11--job_pipeline-22c55e?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/PiotrRomanczuk/guitar-crm/actions)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com)
