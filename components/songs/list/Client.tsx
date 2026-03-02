@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import type { Song } from '../types';
 import SongListFilter from './Filter';
@@ -9,6 +11,7 @@ import SongListHeader from './Header';
 import SongListEmpty from './Empty';
 import BulkActionBar from './BulkActionBar';
 import BulkDeleteDialog from './BulkDeleteDialog';
+import PaginationControls from './PaginationControls';
 import { useSongSelection } from './useSongSelection';
 import { bulkSoftDeleteSongs } from '@/app/actions/songs';
 
@@ -19,10 +22,12 @@ interface Props {
   selectedStudentId?: string;
   categories?: string[];
   authors?: string[];
+  totalCount: number;
+  currentPage: number;
+  pageSize: number;
 }
 
 type SortField = 'title' | 'author' | 'level' | 'key' | 'updated_at';
-type SortDirection = 'asc' | 'desc';
 
 export function SongListClient({
   initialSongs,
@@ -31,72 +36,52 @@ export function SongListClient({
   selectedStudentId,
   categories,
   authors,
+  totalCount,
+  currentPage,
+  pageSize,
 }: Props) {
-  const [songs, setSongs] = useState<Song[]>(initialSongs);
-  const [sortBy, setSortBy] = useState<SortField>('updated_at');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
 
-  // Sync local state when server data changes (e.g., navigation)
-  useEffect(() => {
-    setSongs(initialSongs);
-  }, [initialSongs]);
+  // Read sort state from URL (server already sorted the data)
+  const VALID_SORT_FIELDS: SortField[] = ['title', 'author', 'level', 'key', 'updated_at'];
+  const sortByParam = searchParams.get('sortBy') as SortField | null;
+  const sortBy: SortField = sortByParam && VALID_SORT_FIELDS.includes(sortByParam) ? sortByParam : 'updated_at';
+  const sortDirParam = searchParams.get('sortDir');
+  const sortDirection = sortDirParam === 'asc' || sortDirParam === 'desc' ? sortDirParam : 'desc';
 
   const selection = useSongSelection();
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [bulkDeleteError, setBulkDeleteError] = useState<string | null>(null);
 
-  // Sort songs
-  const sortedSongs = [...songs].sort((a, b) => {
-    let aValue: string | number | null | undefined;
-    let bValue: string | number | null | undefined;
+  // Clear selection when page changes
+  useEffect(() => {
+    selection.clearSelection();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
 
-    switch (sortBy) {
-      case 'title':
-        aValue = a.title?.toLowerCase() || '';
-        bValue = b.title?.toLowerCase() || '';
-        break;
-      case 'author':
-        aValue = a.author?.toLowerCase() || '';
-        bValue = b.author?.toLowerCase() || '';
-        break;
-      case 'level':
-        // Sort order: beginner < intermediate < advanced
-        const levelOrder = { beginner: 1, intermediate: 2, advanced: 3 };
-        aValue = levelOrder[a.level as keyof typeof levelOrder] || 999;
-        bValue = levelOrder[b.level as keyof typeof levelOrder] || 999;
-        break;
-      case 'key':
-        aValue = a.key?.toLowerCase() || '';
-        bValue = b.key?.toLowerCase() || '';
-        break;
-      case 'updated_at':
-        aValue = a.updated_at || '';
-        bValue = b.updated_at || '';
-        break;
-    }
+  const handleSort = useCallback(
+    (field: SortField) => {
+      const params = new URLSearchParams(searchParams);
+      if (sortBy === field) {
+        params.set('sortDir', sortDirection === 'asc' ? 'desc' : 'asc');
+      } else {
+        params.set('sortBy', field);
+        params.set('sortDir', field === 'updated_at' ? 'desc' : 'asc');
+      }
+      params.delete('page');
+      router.replace(`${pathname}?${params.toString()}`);
+    },
+    [searchParams, pathname, router, sortBy, sortDirection]
+  );
 
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
-
-  const handleSort = (field: SortField) => {
-    if (sortBy === field) {
-      // Toggle direction if same field
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      // New field - default to ascending (except updated_at which defaults to desc)
-      setSortBy(field);
-      setSortDirection(field === 'updated_at' ? 'desc' : 'asc');
-    }
+  const handleDeleteSuccess = (_deletedSongId: string) => {
+    router.refresh();
   };
 
-  const songIds = sortedSongs.map((s) => s.id);
-
-  const handleDeleteSuccess = (deletedSongId: string) => {
-    setSongs((prev) => prev.filter((s) => s.id !== deletedSongId));
-  };
+  const songIds = initialSongs.map((s) => s.id);
 
   const handleBulkDelete = async () => {
     setBulkDeleting(true);
@@ -113,16 +98,12 @@ export function SongListClient({
         toast.error(`Failed to delete ${result.errors.length} ${result.errors.length === 1 ? 'song' : 'songs'}`);
       }
 
-      // Remove deleted songs from local state
-      // On partial failure, remove all selected since we can't determine which failed
-      // Server data will reconcile on next navigation
-      if (result.deletedCount > 0) {
-        const idsToRemove = new Set(selection.selectedIds);
-        setSongs((prev) => prev.filter((s) => !idsToRemove.has(s.id)));
-      }
-
       setBulkDeleteOpen(false);
       selection.clearSelection();
+
+      if (result.deletedCount > 0) {
+        router.refresh();
+      }
     } catch {
       setBulkDeleteError('An unexpected error occurred');
     } finally {
@@ -148,12 +129,12 @@ export function SongListClient({
         />
       )}
 
-      {songs.length === 0 ? (
+      {initialSongs.length === 0 ? (
         <SongListEmpty />
       ) : (
         <>
           <SongListTable
-            songs={sortedSongs}
+            songs={initialSongs}
             canDelete={isAdmin}
             onDeleteSuccess={handleDeleteSuccess}
             selectedStudentId={selectedStudentId}
@@ -165,6 +146,11 @@ export function SongListClient({
             sortBy={sortBy}
             sortDirection={sortDirection}
             onSort={handleSort}
+          />
+          <PaginationControls
+            currentPage={currentPage}
+            pageSize={pageSize}
+            totalCount={totalCount}
           />
         </>
       )}

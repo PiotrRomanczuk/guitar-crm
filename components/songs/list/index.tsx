@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { SongListClient } from './Client';
-import type { Song } from '../types';
+import { parseListParams } from './parseListParams';
+import { transformRawSongs } from './transformSongs';
 
 // Explicit columns for the song list query.
 // Excludes search_vector (tsvector/unknown type) which is not needed in the UI
@@ -39,38 +40,51 @@ export default async function SongList({ searchParams }: SongListProps) {
   }
 
   const supabase = await createClient();
+  const params = parseListParams(searchParams);
 
-  const studentId =
-    typeof searchParams?.studentId === 'string' ? searchParams.studentId : undefined;
-  const search = typeof searchParams?.search === 'string' ? searchParams.search : undefined;
-  const level = typeof searchParams?.level === 'string' ? searchParams.level : undefined;
-  // Virtual scrolling - fetch all songs (no pagination)
+  // Lightweight query for dropdown options (all songs, 2 columns only)
+  const { data: dropdownData } = await supabase.from('songs').select('category, author');
+  const categories = [...new Set((dropdownData || []).map((s) => s.category).filter(Boolean))] as string[];
+  categories.sort();
+  const authors = [...new Set((dropdownData || []).map((s) => s.author).filter(Boolean))] as string[];
+  authors.sort();
 
-  let songQuery;
+  // Build main query
+  let songQuery = params.studentId
+    ? supabase
+        .from('songs')
+        .select(
+          `${SONG_LIST_COLUMNS}, lesson_songs!inner(id, status, lessons!inner(student_id))`,
+          { count: 'exact' }
+        )
+        .eq('lesson_songs.lessons.student_id', params.studentId)
+    : supabase.from('songs').select(SONG_LIST_COLUMNS, { count: 'exact' });
 
-  if (studentId) {
-    songQuery = supabase
-      .from('songs')
-      .select(
-        `${SONG_LIST_COLUMNS}, lesson_songs!inner(id, status, lessons!inner(student_id))`,
-        { count: 'exact' }
-      )
-      .eq('lesson_songs.lessons.student_id', studentId);
-  } else {
-    songQuery = supabase.from('songs').select(SONG_LIST_COLUMNS, { count: 'exact' });
+  if (params.search) {
+    songQuery = songQuery.or(`title.ilike.%${params.search}%,author.ilike.%${params.search}%`);
+  }
+  if (params.level && params.level !== 'all') {
+    songQuery = songQuery.eq('level', params.level);
+  }
+  if (params.key && params.key !== 'all') {
+    songQuery = songQuery.eq('key', params.key);
+  }
+  if (params.category && params.category !== 'all') {
+    songQuery = songQuery.eq('category', params.category);
+  }
+  if (params.author && params.author !== 'all') {
+    songQuery = songQuery.eq('author', params.author);
+  }
+  if (!params.showDrafts) {
+    songQuery = songQuery.or('is_draft.is.null,is_draft.eq.false');
   }
 
-  if (search) {
-    songQuery = songQuery.or(`title.ilike.%${search}%,author.ilike.%${search}%`);
-  }
+  // Server-side sort + pagination
+  songQuery = songQuery.order(params.sortBy, { ascending: params.sortDir === 'asc' });
+  const offset = (params.currentPage - 1) * params.pageSize;
+  songQuery = songQuery.range(offset, offset + params.pageSize - 1);
 
-  if (level && level !== 'all') {
-    songQuery = songQuery.eq('level', level);
-  }
-
-  songQuery = songQuery.order('updated_at', { ascending: false }); // Most recently updated first
-
-  const { data: rawSongs, error } = await songQuery;
+  const { data: rawSongs, count, error } = await songQuery;
 
   if (error) {
     console.error('Error fetching songs:', error);
@@ -81,71 +95,17 @@ export default async function SongList({ searchParams }: SongListProps) {
     );
   }
 
-  // Transform songs: calculate stats and add status fields for student filtering
-  const songs = (rawSongs?.map((rawSong) => {
-    const { lesson_songs, ...song } = rawSong as unknown as Record<string, unknown> & {
-      lesson_songs?: Array<{
-        id: string;
-        status: string;
-        lessons: {
-          id: string;
-          student_id: string;
-          profile: { id: string; full_name: string | null } | null;
-        } | null;
-      }>;
-    };
-
-    // Calculate stats
-    const lessonSongsArray = lesson_songs || [];
-    const uniqueStudents = new Set(
-      lessonSongsArray
-        .map((ls) => ls.lessons?.student_id)
-        .filter(Boolean)
-    );
-
-    const statusCounts = lessonSongsArray.reduce(
-      (acc, ls) => {
-        const status = ls.status || 'to_learn';
-        acc[status] = (acc[status] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>
-    );
-
-    const stats = {
-      lessonCount: lessonSongsArray.length,
-      studentCount: uniqueStudents.size,
-      statusBreakdown: {
-        mastered: statusCounts.mastered || 0,
-        learning: statusCounts.learning || 0,
-        to_learn: statusCounts.to_learn || 0,
-      },
-    };
-
-    if (
-      studentId &&
-      lessonSongsArray.length > 0
-    ) {
-      return {
-        ...song,
-        status: lessonSongsArray[0].status,
-        lesson_song_id: lessonSongsArray[0].id,
-        stats,
-      };
-    }
-    return { ...song, stats };
-  }) || []) as unknown as Song[];
+  const totalCount = count ?? 0;
+  const songs = transformRawSongs(rawSongs, params.studentId);
 
   // Fetch students for filter (only if admin or teacher)
   let students: { id: string; full_name: string | null; student_status: string | null }[] = [];
-
   if (isAdmin || isTeacher) {
     const { data: studentsData } = await supabase
       .from('profiles')
       .select('id, full_name, student_status')
       .eq('is_student', true)
       .order('full_name');
-
     students = studentsData || [];
   }
 
@@ -154,7 +114,12 @@ export default async function SongList({ searchParams }: SongListProps) {
       initialSongs={songs}
       isAdmin={isAdmin || isTeacher}
       students={students}
-      selectedStudentId={studentId}
+      selectedStudentId={params.studentId}
+      categories={categories}
+      authors={authors}
+      totalCount={totalCount}
+      currentPage={params.currentPage}
+      pageSize={params.pageSize}
     />
   );
 }
