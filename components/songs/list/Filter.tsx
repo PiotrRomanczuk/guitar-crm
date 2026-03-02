@@ -69,6 +69,7 @@ export default function SongListFilter({ students, categories, authors }: Props)
     searchParams.get('author'),
     searchParams.get('studentId'),
     searchParams.get('showDrafts') === 'true' ? 'true' : null,
+    searchParams.get('missingChords') === 'true' ? 'true' : null,
   ].filter(Boolean).length;
 
   const hasFilters = activeFilterCount > 0 || !!searchParams.get('search');
@@ -208,20 +209,37 @@ export default function SongListFilter({ students, categories, authors }: Props)
         })()}
 
         <div className="flex items-end">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="show-drafts"
-              checked={searchParams.get('showDrafts') === 'true'}
-              onCheckedChange={(checked) =>
-                handleFilterChange('showDrafts', checked ? 'true' : null)
-              }
-            />
-            <Label
-              htmlFor="show-drafts"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-            >
-              Show Drafts
-            </Label>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="show-drafts"
+                checked={searchParams.get('showDrafts') === 'true'}
+                onCheckedChange={(checked) =>
+                  handleFilterChange('showDrafts', checked ? 'true' : null)
+                }
+              />
+              <Label
+                htmlFor="show-drafts"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                Show Drafts
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="missing-chords"
+                checked={searchParams.get('missingChords') === 'true'}
+                onCheckedChange={(checked) =>
+                  handleFilterChange('missingChords', checked ? 'true' : null)
+                }
+              />
+              <Label
+                htmlFor="missing-chords"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                Missing Chords
+              </Label>
+            </div>
           </div>
         </div>
 

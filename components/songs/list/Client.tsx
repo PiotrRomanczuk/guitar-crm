@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { Song } from '../types';
 import SongListFilter from './Filter';
@@ -9,6 +10,7 @@ import SongListHeader from './Header';
 import SongListEmpty from './Empty';
 import BulkActionBar from './BulkActionBar';
 import BulkDeleteDialog from './BulkDeleteDialog';
+import AnalyticsQuickAccess from './AnalyticsQuickAccess';
 import { useSongSelection } from './useSongSelection';
 import { bulkSoftDeleteSongs } from '@/app/actions/songs';
 
@@ -32,9 +34,17 @@ export function SongListClient({
   categories,
   authors,
 }: Props) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+
+  const VALID_SORT_FIELDS: SortField[] = ['title', 'author', 'level', 'key', 'updated_at'];
+  const sortByParam = searchParams.get('sortBy') as SortField | null;
+  const sortBy: SortField = sortByParam && VALID_SORT_FIELDS.includes(sortByParam) ? sortByParam : 'updated_at';
+  const sortDirParam = searchParams.get('sortDir');
+  const sortDirection: SortDirection = sortDirParam === 'asc' || sortDirParam === 'desc' ? sortDirParam : 'desc';
+
   const [songs, setSongs] = useState<Song[]>(initialSongs);
-  const [sortBy, setSortBy] = useState<SortField>('updated_at');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   // Sync local state when server data changes (e.g., navigation)
   useEffect(() => {
@@ -81,16 +91,19 @@ export function SongListClient({
     return 0;
   });
 
-  const handleSort = (field: SortField) => {
-    if (sortBy === field) {
-      // Toggle direction if same field
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      // New field - default to ascending (except updated_at which defaults to desc)
-      setSortBy(field);
-      setSortDirection(field === 'updated_at' ? 'desc' : 'asc');
-    }
-  };
+  const handleSort = useCallback(
+    (field: SortField) => {
+      const params = new URLSearchParams(searchParams);
+      if (sortBy === field) {
+        params.set('sortDir', sortDirection === 'asc' ? 'desc' : 'asc');
+      } else {
+        params.set('sortBy', field);
+        params.set('sortDir', field === 'updated_at' ? 'desc' : 'asc');
+      }
+      replace(`${pathname}?${params.toString()}`);
+    },
+    [searchParams, pathname, replace, sortBy, sortDirection]
+  );
 
   const songIds = sortedSongs.map((s) => s.id);
 
@@ -133,6 +146,8 @@ export function SongListClient({
   return (
     <div className="space-y-6">
       <SongListHeader canManageSongs={isAdmin} />
+
+      <AnalyticsQuickAccess visible={isAdmin} />
 
       <SongListFilter students={students} categories={categories} authors={authors} />
 
