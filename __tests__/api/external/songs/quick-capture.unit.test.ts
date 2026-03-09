@@ -17,6 +17,11 @@ jest.mock('@/lib/api/unified-db', () => ({
   },
 }));
 
+// Mock Spotify enrichment (returns null = no enrichment in unit tests)
+jest.mock('@/lib/services/spotify-enrichment', () => ({
+  searchSpotifyTrack: jest.fn().mockResolvedValue(null),
+}));
+
 import {
   extractBearerToken,
   authenticateWithBearerToken,

@@ -5,6 +5,7 @@ import {
   extractBearerToken,
   authenticateWithBearerToken,
 } from '@/lib/bearer-auth';
+import { searchSpotifyTrack } from '@/lib/services/spotify-enrichment';
 
 /**
  * Quick-capture schema — only title is required.
@@ -104,18 +105,33 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Build the song object with sensible defaults
+    // Try to enrich with Spotify metadata (non-blocking — fails gracefully)
+    let enriched = false;
+    let spotifyData: Awaited<ReturnType<typeof searchSpotifyTrack>> = null;
+    try {
+      spotifyData = await searchSpotifyTrack(title, author);
+    } catch (err) {
+      console.warn('[Quick Capture] Spotify enrichment failed:', err);
+    }
+
+    // Build the song object, merging Spotify data when available
     const songData: Record<string, unknown> = {
       title: title.trim(),
-      author: author?.trim() ?? 'Unknown Artist',
+      author: spotifyData?.artist ?? author?.trim() ?? 'Unknown Artist',
       level: 'beginner',
       key: 'C',
       short_title: title.length > 50 ? title.substring(0, 47) + '...' : null,
-      category: album?.trim() ?? null,
-      duration_ms: duration_ms ?? null,
-      spotify_link_url: spotify_link_url ?? null,
+      category: spotifyData?.album ?? album?.trim() ?? null,
+      duration_ms: spotifyData?.durationMs ?? duration_ms ?? null,
+      spotify_link_url: spotify_link_url ?? spotifyData?.spotifyUrl ?? null,
+      cover_image_url: spotifyData?.coverImageUrl ?? null,
+      release_year: spotifyData?.releaseYear ?? null,
       notes: notes ?? `Captured from AirPods on ${new Date().toLocaleDateString()}`,
     };
+
+    if (spotifyData) {
+      enriched = true;
+    }
 
     const result = await db.songs.create(songData);
 
@@ -136,6 +152,15 @@ export async function POST(request: NextRequest) {
         meta: {
           action: 'created',
           message: `"${title}" added to your library`,
+          enriched,
+          spotify: enriched
+            ? {
+                album: spotifyData?.album,
+                duration_ms: spotifyData?.durationMs,
+                release_year: spotifyData?.releaseYear,
+                cover_image: spotifyData?.coverImageUrl ? true : false,
+              }
+            : null,
           database: result.isLocal ? 'local' : 'remote',
         },
       },
