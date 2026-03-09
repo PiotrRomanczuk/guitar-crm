@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Music, BookOpen, Users,
-  BarChart, MoreHorizontal, type LucideIcon,
+  ClipboardList, MoreHorizontal, type LucideIcon,
 } from 'lucide-react';
 
 interface MobileBottomNavProps {
@@ -29,7 +29,7 @@ export function MobileBottomNav({ isStudent, onOpenSidebar }: MobileBottomNavPro
   const tabs = [
     ...SHARED_TABS,
     isStudent
-      ? { href: '/dashboard/stats', label: 'Stats', icon: BarChart }
+      ? { href: '/dashboard/assignments', label: 'Tasks', icon: ClipboardList }
       : { href: '/dashboard/users', label: 'Students', icon: Users },
   ];
 

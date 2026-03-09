@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Music2, Loader2 } from 'lucide-react';
+import { Music2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useStudentSongs } from './useStudentSongs';
 import { StudentSongFilterControls } from './StudentSongFilterControls';
 import { StudentSongCard } from './StudentSongCard';
@@ -22,8 +23,26 @@ export function StudentSongsPageClient() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background p-4 sm:p-8">
+        <div className="mb-6 sm:mb-8">
+          <Skeleton className="h-8 w-36 mb-2" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="bg-card rounded-xl border border-border p-4 sm:p-6">
+              <div className="flex items-start justify-between mb-4">
+                <Skeleton className="w-12 h-12 rounded-lg" />
+                <Skeleton className="h-5 w-20" />
+              </div>
+              <Skeleton className="h-6 w-40 mb-2" />
+              <Skeleton className="h-4 w-28 mb-4" />
+              <Skeleton className="h-4 w-32 mb-2" />
+              <Skeleton className="h-4 w-44 mb-6" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

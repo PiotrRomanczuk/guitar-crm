@@ -6,7 +6,9 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { BookOpen, User, ArrowRight, ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 
 interface StudentLessonView {
@@ -21,6 +23,32 @@ interface StudentLessonView {
     first_name: string;
     last_name: string;
   }>;
+}
+
+function LessonNotes({ notes }: { notes: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const isLong = notes.length > 100;
+
+  return (
+    <div className="bg-secondary/30 rounded-lg p-3 text-sm mt-2">
+      <p className={cn(
+        'text-muted-foreground italic',
+        !expanded && isLong && 'line-clamp-2'
+      )}>
+        &quot;{notes}&quot;
+      </p>
+      {isLong && (
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="text-xs text-primary mt-1 flex items-center gap-1"
+        >
+          {expanded ? 'Show less' : 'Read more'}
+          <ChevronDown className={cn('h-3 w-3 transition-transform', expanded && 'rotate-180')} />
+        </button>
+      )}
+    </div>
+  );
 }
 
 export function StudentLessonsPageClient() {
@@ -71,8 +99,28 @@ export function StudentLessonsPageClient() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background p-4 sm:p-8">
+        <div className="mb-6 sm:mb-8">
+          <Skeleton className="h-8 w-32 mb-2" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <div className="space-y-3 sm:space-y-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-card rounded-xl border border-border p-4 sm:p-6">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-5 w-48" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-5 w-36" />
+                    <Skeleton className="h-5 w-16" />
+                  </div>
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -127,33 +175,27 @@ export function StudentLessonsPageClient() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
                           <h3 className="font-semibold text-sm sm:text-base truncate">
                             {lesson.title}
                           </h3>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <Badge variant="outline" className="text-xs">
-                              {format(new Date(lesson.scheduled_at), 'MMM d, yyyy')}
-                            </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              {format(new Date(lesson.scheduled_at), 'h:mm a')}
-                            </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              {lesson.duration_minutes} min
-                            </Badge>
-                            <Badge
-                              variant={lesson.status === 'completed' ? 'default' : 'secondary'}
-                              className="text-xs"
-                            >
-                              {lesson.status === 'completed' ? 'Completed' : 'Scheduled'}
-                            </Badge>
-                          </div>
+                          <Badge
+                            variant={lesson.status === 'completed' ? 'default' : 'secondary'}
+                            className="text-xs w-fit"
+                          >
+                            {lesson.status === 'completed' ? 'Completed' : 'Scheduled'}
+                          </Badge>
                         </div>
+
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                          {format(new Date(lesson.scheduled_at), 'EEE, MMM d · h:mm a')}
+                          <span className="text-muted-foreground/60"> · {lesson.duration_minutes} min</span>
+                        </p>
 
                         <div className="flex items-center text-xs sm:text-sm text-muted-foreground mt-1 gap-2">
                           <User className="w-3 h-3 sm:w-4 sm:h-4" />
                           <span className="truncate">
-                            Teacher: {lesson.teacher?.[0]?.first_name}{' '}
+                            {lesson.teacher?.[0]?.first_name}{' '}
                             {lesson.teacher?.[0]?.last_name}
                           </span>
                         </div>
@@ -161,16 +203,12 @@ export function StudentLessonsPageClient() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    {lesson.notes && (
-                      <div className="hidden md:block md:max-w-xs lg:max-w-md bg-secondary/30 rounded-lg p-3 text-sm truncate">
-                        <p className="text-muted-foreground italic truncate">
-                          &quot;{lesson.notes}&quot;
-                        </p>
-                      </div>
-                    )}
+                  {lesson.notes && (
+                    <LessonNotes notes={lesson.notes} />
+                  )}
 
-                    <Button asChild variant="ghost" size="sm" className="ml-auto w-full md:w-auto">
+                  <div className="flex justify-end mt-2">
+                    <Button asChild variant="ghost" size="sm" className="w-full md:w-auto">
                       <Link href={`/dashboard/lessons/${lesson.id}`}>
                         View Details
                         <ArrowRight className="w-4 h-4 ml-2" />

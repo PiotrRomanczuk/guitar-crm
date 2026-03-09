@@ -22,14 +22,23 @@ interface MobileMoreMenuProps {
   isStudent: boolean;
 }
 
-function getMenuItems(isAdmin: boolean, isTeacher: boolean): MenuItem[] {
-  const items: MenuItem[] = [
-    { id: 'assignments', label: 'Assignments', icon: ClipboardList, path: '/dashboard/assignments' },
+function getMenuItems(isAdmin: boolean, isTeacher: boolean, isStudent: boolean): MenuItem[] {
+  const items: MenuItem[] = [];
+
+  // Students get Stats here (moved from bottom nav); non-students keep Assignments here
+  if (isStudent) {
+    items.push({ id: 'stats', label: 'Stats', icon: BarChart, path: '/dashboard/stats' });
+  } else {
+    items.push({ id: 'assignments', label: 'Assignments', icon: ClipboardList, path: '/dashboard/assignments' });
+  }
+
+  items.push(
     { id: 'calendar', label: 'Calendar', icon: Calendar, path: '/dashboard/calendar' },
     { id: 'theory', label: 'Theory', icon: GraduationCap, path: '/dashboard/theory' },
     { id: 'fretboard', label: 'Fretboard', icon: Grid3X3, path: '/dashboard/fretboard' },
     { id: 'settings', label: 'Settings', icon: Settings, path: '/dashboard/settings' },
-  ];
+  );
+
   if (isAdmin || isTeacher) {
     items.splice(4, 0,
       { id: 'skills', label: 'Skills', icon: Zap, path: '/dashboard/skills' },
@@ -42,9 +51,9 @@ function getMenuItems(isAdmin: boolean, isTeacher: boolean): MenuItem[] {
   return items;
 }
 
-export function MobileMoreMenu({ open, onOpenChange, isAdmin, isTeacher }: MobileMoreMenuProps) {
+export function MobileMoreMenu({ open, onOpenChange, isAdmin, isTeacher, isStudent }: MobileMoreMenuProps) {
   const pathname = usePathname();
-  const items = getMenuItems(isAdmin, isTeacher);
+  const items = getMenuItems(isAdmin, isTeacher, isStudent);
 
   const handleSignOut = async () => {
     const supabase = createClient();

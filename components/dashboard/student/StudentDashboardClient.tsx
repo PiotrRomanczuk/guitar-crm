@@ -102,12 +102,12 @@ export function StudentDashboardClient({ data, sotw, sotwInRepertoire = false }:
 
   // TODO: Add song_status to getStudentDashboardData recentSongs query
   // (select song_status from lesson_songs) so real statuses display here.
-  // Currently defaulting to 'started' since the dashboard action doesn't fetch statuses.
+  // Currently defaulting to 'learning' since the dashboard action doesn't fetch statuses.
   const practiceSongs: PracticeTodaySong[] = data.recentSongs.map((s) => ({
     id: s.id,
     title: s.title,
     artist: s.artist,
-    status: 'started' as const,
+    status: 'learning' as const,
     lastLessonDate: s.last_played,
   }));
 

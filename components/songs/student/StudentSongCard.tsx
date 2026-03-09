@@ -44,9 +44,6 @@ const statusLabels: Record<string, string> = {
   practicing: 'Practicing',
   improving: 'Improving',
   mastered: 'Mastered',
-  started: 'Started',
-  remembered: 'Remembered',
-  with_author: 'With Author',
 };
 
 interface StudentSongCardProps {
