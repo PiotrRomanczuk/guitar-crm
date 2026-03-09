@@ -96,9 +96,6 @@ describe('Quick Capture Integration: API Key → Spotify → Create', () => {
         durationMs: 258773,
         releaseDate: '1995-10-02',
         releaseYear: 1995,
-        popularity: 82,
-        previewUrl: null,
-        isrc: 'GBAYE9500110',
       });
 
       mockCreate.mockResolvedValue({

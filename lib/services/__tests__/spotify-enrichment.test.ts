@@ -1,34 +1,15 @@
-import {
-  getSpotifyToken,
-  searchSpotifyTrack,
-  clearTokenCache,
-} from '../spotify-enrichment';
+import { searchSpotifyTrack } from '../spotify-enrichment';
 
-// Save original env
-const originalEnv = process.env;
+// Mock the existing Spotify client
+jest.mock('@/lib/spotify', () => ({
+  searchTracks: jest.fn(),
+}));
 
-beforeEach(() => {
-  jest.clearAllMocks();
-  clearTokenCache();
-  process.env = {
-    ...originalEnv,
-    SPOTIFY_CLIENT_ID: 'test-client-id',
-    SPOTIFY_CLIENT_SECRET: 'test-client-secret',
-  };
-});
+import { searchTracks } from '@/lib/spotify';
 
-afterEach(() => {
-  process.env = originalEnv;
-  jest.restoreAllMocks();
-});
+const mockSearchTracks = searchTracks as jest.MockedFunction<typeof searchTracks>;
 
-const mockTokenResponse = {
-  access_token: 'mock-access-token',
-  token_type: 'Bearer',
-  expires_in: 3600,
-};
-
-const mockSearchResponse = {
+const mockSearchResult = {
   tracks: {
     items: [
       {
@@ -38,80 +19,26 @@ const mockSearchResponse = {
         album: {
           name: "(What's the Story) Morning Glory?",
           images: [
-            { url: 'https://i.scdn.co/image/640.jpg', width: 640, height: 640 },
-            { url: 'https://i.scdn.co/image/300.jpg', width: 300, height: 300 },
+            { url: 'https://i.scdn.co/image/640.jpg' },
+            { url: 'https://i.scdn.co/image/300.jpg' },
           ],
           release_date: '1995-10-02',
         },
         duration_ms: 258773,
-        popularity: 82,
-        preview_url: 'https://p.scdn.co/preview/abc',
         external_urls: { spotify: 'https://open.spotify.com/track/123' },
-        external_ids: { isrc: 'GBAYE9500110' },
       },
     ],
   },
 };
 
-describe('getSpotifyToken', () => {
-  it('should return null when credentials are missing', async () => {
-    delete process.env.SPOTIFY_CLIENT_ID;
-    const token = await getSpotifyToken();
-    expect(token).toBeNull();
-  });
-
-  it('should fetch a token from Spotify', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockTokenResponse),
-    });
-
-    const token = await getSpotifyToken();
-    expect(token).toBe('mock-access-token');
-    expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining('spotify.com'),
-      expect.objectContaining({ method: 'POST' })
-    );
-  });
-
-  it('should cache the token on subsequent calls', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockTokenResponse),
-    });
-
-    await getSpotifyToken();
-    await getSpotifyToken();
-    expect(fetch).toHaveBeenCalledTimes(1);
-  });
-
-  it('should return null on token request failure', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: false,
-      status: 401,
-    });
-
-    const token = await getSpotifyToken();
-    expect(token).toBeNull();
-  });
+beforeEach(() => {
+  jest.clearAllMocks();
 });
 
 describe('searchSpotifyTrack', () => {
-  beforeEach(() => {
-    // First call = token, second call = search
-    global.fetch = jest
-      .fn()
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockTokenResponse),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockSearchResponse),
-      });
-  });
-
   it('should return enriched metadata for a found track', async () => {
+    mockSearchTracks.mockResolvedValue(mockSearchResult);
+
     const result = await searchSpotifyTrack('Wonderwall', 'Oasis');
 
     expect(result).not.toBeNull();
@@ -122,52 +49,98 @@ describe('searchSpotifyTrack', () => {
     expect(result?.releaseYear).toBe(1995);
     expect(result?.spotifyUrl).toBe('https://open.spotify.com/track/123');
     expect(result?.coverImageUrl).toBe('https://i.scdn.co/image/640.jpg');
-    expect(result?.isrc).toBe('GBAYE9500110');
   });
 
-  it('should search with title only when no artist provided', async () => {
+  it('should build correct query with title and artist', async () => {
+    mockSearchTracks.mockResolvedValue(mockSearchResult);
+
+    await searchSpotifyTrack('Wonderwall', 'Oasis');
+
+    expect(mockSearchTracks).toHaveBeenCalledWith('track:Wonderwall artist:Oasis');
+  });
+
+  it('should build query with title only when no artist', async () => {
+    mockSearchTracks.mockResolvedValue(mockSearchResult);
+
     await searchSpotifyTrack('Wonderwall');
 
-    const searchCall = (fetch as jest.Mock).mock.calls[1];
-    expect(searchCall[0]).toContain('track%3AWonderwall');
-    expect(searchCall[0]).not.toContain('artist');
+    expect(mockSearchTracks).toHaveBeenCalledWith('track:Wonderwall');
   });
 
   it('should return null when no tracks found', async () => {
-    global.fetch = jest
-      .fn()
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockTokenResponse),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ tracks: { items: [] } }),
-      });
+    mockSearchTracks.mockResolvedValue({ tracks: { items: [] } });
 
     const result = await searchSpotifyTrack('Nonexistent Song 12345');
     expect(result).toBeNull();
   });
 
-  it('should return null when credentials are missing', async () => {
-    delete process.env.SPOTIFY_CLIENT_ID;
+  it('should propagate errors from the Spotify client', async () => {
+    mockSearchTracks.mockRejectedValue(new Error('Spotify API circuit breaker is open'));
+
+    await expect(searchSpotifyTrack('Wonderwall')).rejects.toThrow(
+      'circuit breaker'
+    );
+  });
+
+  it('should return null when result has no tracks property', async () => {
+    mockSearchTracks.mockResolvedValue({});
+
     const result = await searchSpotifyTrack('Wonderwall');
     expect(result).toBeNull();
   });
 
-  it('should return null on search API failure', async () => {
-    global.fetch = jest
-      .fn()
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockTokenResponse),
-      })
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 429,
-      });
+  it('should handle tracks with multiple artists', async () => {
+    mockSearchTracks.mockResolvedValue({
+      tracks: {
+        items: [
+          {
+            ...mockSearchResult.tracks.items[0],
+            artists: [{ name: 'Artist A' }, { name: 'Artist B' }],
+          },
+        ],
+      },
+    });
+
+    const result = await searchSpotifyTrack('Collab Song');
+    expect(result?.artist).toBe('Artist A, Artist B');
+  });
+
+  it('should handle album with no images', async () => {
+    mockSearchTracks.mockResolvedValue({
+      tracks: {
+        items: [
+          {
+            ...mockSearchResult.tracks.items[0],
+            album: {
+              ...mockSearchResult.tracks.items[0].album,
+              images: [],
+            },
+          },
+        ],
+      },
+    });
 
     const result = await searchSpotifyTrack('Wonderwall');
-    expect(result).toBeNull();
+    expect(result?.coverImageUrl).toBeNull();
+  });
+
+  it('should parse release year from different date formats', async () => {
+    // Year-only format (e.g., "1995")
+    mockSearchTracks.mockResolvedValue({
+      tracks: {
+        items: [
+          {
+            ...mockSearchResult.tracks.items[0],
+            album: {
+              ...mockSearchResult.tracks.items[0].album,
+              release_date: '2023',
+            },
+          },
+        ],
+      },
+    });
+
+    const result = await searchSpotifyTrack('Recent Song');
+    expect(result?.releaseYear).toBe(2023);
   });
 });
