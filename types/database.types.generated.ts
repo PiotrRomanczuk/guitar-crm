@@ -246,40 +246,88 @@ export type Database = {
       }
       songs: {
         Row: {
+          audio_files: Json | null
           author: string
+          capo_fret: number | null
+          category: string | null
           chords: string | null
+          cover_image_url: string | null
           created_at: string
+          deleted_at: string | null
+          duration_ms: number | null
+          gallery_images: string[] | null
           id: string
           key: Database["public"]["Enums"]["music_key"]
           level: Database["public"]["Enums"]["difficulty_level"]
           lyrics_with_chords: string | null
+          notes: string | null
+          release_year: number | null
+          short_title: string | null
+          spotify_link_url: string | null
+          strumming_pattern: string | null
+          tempo: number | null
+          tiktok_short_url: string | null
+          time_signature: number | null
           title: string
           ultimate_guitar_link: string
           updated_at: string
+          youtube_url: string | null
         }
         Insert: {
+          audio_files?: Json | null
           author: string
+          capo_fret?: number | null
+          category?: string | null
           chords?: string | null
+          cover_image_url?: string | null
           created_at?: string
+          deleted_at?: string | null
+          duration_ms?: number | null
+          gallery_images?: string[] | null
           id?: string
           key: Database["public"]["Enums"]["music_key"]
           level: Database["public"]["Enums"]["difficulty_level"]
           lyrics_with_chords?: string | null
+          notes?: string | null
+          release_year?: number | null
+          short_title?: string | null
+          spotify_link_url?: string | null
+          strumming_pattern?: string | null
+          tempo?: number | null
+          tiktok_short_url?: string | null
+          time_signature?: number | null
           title: string
           ultimate_guitar_link: string
           updated_at?: string
+          youtube_url?: string | null
         }
         Update: {
+          audio_files?: Json | null
           author?: string
+          capo_fret?: number | null
+          category?: string | null
           chords?: string | null
+          cover_image_url?: string | null
           created_at?: string
+          deleted_at?: string | null
+          duration_ms?: number | null
+          gallery_images?: string[] | null
           id?: string
           key?: Database["public"]["Enums"]["music_key"]
           level?: Database["public"]["Enums"]["difficulty_level"]
           lyrics_with_chords?: string | null
+          notes?: string | null
+          release_year?: number | null
+          short_title?: string | null
+          spotify_link_url?: string | null
+          strumming_pattern?: string | null
+          tempo?: number | null
+          tiktok_short_url?: string | null
+          time_signature?: number | null
           title?: string
           ultimate_guitar_link?: string
           updated_at?: string
+          youtube_url?: string | null
         }
         Relationships: []
       }
