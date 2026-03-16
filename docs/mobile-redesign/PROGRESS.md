@@ -208,13 +208,13 @@
 > **Branch**: `feature/STRUM-v2-analytics`
 > **Specs**: [14-statistics.md](./14-statistics.md), [13-student-health.md](./13-student-health.md), [12-cohorts.md](./12-cohorts.md)
 
-- [ ] Create `components/v2/stats/StatsOverview.tsx` — KPI cards + chart carousel
-- [ ] Create `components/v2/stats/ChartCarousel.tsx` — swipeable charts
-- [ ] Create `components/v2/stats/StudentStats.tsx` — progress ring
-- [ ] Create `components/v2/health/HealthDashboard.tsx` — card-based at-risk list
-- [ ] Create `components/v2/health/HealthCard.tsx` — student health card
-- [ ] Create `components/v2/cohorts/CohortDashboard.tsx` — sparkline cards
-- [ ] Test at 390px
+- [x] Create `components/v2/stats/StatsOverview.tsx` — KPI cards + chart carousel
+- [x] Create `components/v2/stats/ChartCarousel.tsx` — swipeable charts
+- [x] Create `components/v2/stats/StudentStats.tsx` — progress ring
+- [x] Create `components/v2/health/HealthDashboard.tsx` — card-based at-risk list
+- [x] Create `components/v2/health/HealthCard.tsx` — student health card
+- [x] Create `components/v2/cohorts/CohortDashboard.tsx` — sparkline cards
+- [x] Test at 390px
 
 ### Agent 4 — Admin Tools + Skills
 > **Branch**: `feature/STRUM-v2-admin`
