@@ -43,6 +43,7 @@ export default function SongListFilter({ students, categories, authors }: Props)
       } else {
         params.delete(key);
       }
+      params.delete('page');
       replace(`${pathname}?${params.toString()}`);
     },
     [searchParams, pathname, replace]

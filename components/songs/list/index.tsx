@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { SongListClient } from './Client';
-import type { Song } from '../types';
+import { parseListParams } from './parseListParams';
+import { transformRawSongs } from './transformSongs';
 
 // Explicit columns for the song list query.
 // Excludes search_vector (tsvector/unknown type) which is not needed in the UI
@@ -39,154 +40,88 @@ export default async function SongList({ searchParams }: SongListProps) {
   }
 
   const supabase = await createClient();
+  const params = parseListParams(searchParams);
 
-  const studentId =
-    typeof searchParams?.studentId === 'string' ? searchParams.studentId : undefined;
-  const search = typeof searchParams?.search === 'string' ? searchParams.search : undefined;
-  const level = typeof searchParams?.level === 'string' ? searchParams.level : undefined;
-  const key = typeof searchParams?.key === 'string' ? searchParams.key : undefined;
-  const category = typeof searchParams?.category === 'string' ? searchParams.category : undefined;
-  const author = typeof searchParams?.author === 'string' ? searchParams.author : undefined;
-  const showDrafts = searchParams?.showDrafts === 'true';
-  const missingChords = searchParams?.missingChords === 'true';
+  // Lightweight query for dropdown options (all songs, 2 columns only)
+  const { data: dropdownData } = await supabase.from('songs').select('category, author');
+  const categories = [...new Set((dropdownData || []).map((s) => s.category).filter(Boolean))] as string[];
+  categories.sort();
+  const authors = [...new Set((dropdownData || []).map((s) => s.author).filter(Boolean))] as string[];
+  authors.sort();
 
-  let songQuery;
+  // Build main query
+  let songQuery = params.studentId
+    ? supabase
+        .from('songs')
+        .select(
+          `${SONG_LIST_COLUMNS}, lesson_songs!inner(id, status, lessons!inner(student_id))`,
+          { count: 'exact' }
+        )
+        .eq('lesson_songs.lessons.student_id', params.studentId)
+    : supabase.from('songs').select(SONG_LIST_COLUMNS, { count: 'exact' });
 
-  if (studentId) {
-    songQuery = supabase
-      .from('songs')
-      .select(
-        `${SONG_LIST_COLUMNS}, lesson_songs!inner(id, status, lessons!inner(student_id))`,
-        { count: 'exact' }
-      )
-      .eq('lesson_songs.lessons.student_id', studentId);
-  } else {
-    songQuery = supabase.from('songs').select(SONG_LIST_COLUMNS, { count: 'exact' });
+  if (params.search) {
+    // Escape PostgREST special characters to prevent filter injection
+    const escaped = params.search.replace(/[%_\\,.()"']/g, '');
+    songQuery = songQuery.or(`title.ilike.%${escaped}%,author.ilike.%${escaped}%`);
   }
-
-  if (search) {
-    songQuery = songQuery.or(`title.ilike.%${search}%,author.ilike.%${search}%`);
+  if (params.level && params.level !== 'all') {
+    songQuery = songQuery.eq('level', params.level);
   }
-
-  if (level && level !== 'all') {
-    songQuery = songQuery.eq('level', level);
+  if (params.key && params.key !== 'all') {
+    songQuery = songQuery.eq('key', params.key);
   }
-
-  if (missingChords) {
-    songQuery = songQuery.is('chords', null);
+  if (params.category && params.category !== 'all') {
+    songQuery = songQuery.eq('category', params.category);
   }
-
-  if (key && key !== 'all') {
-    songQuery = songQuery.eq('key', key);
+  if (params.author && params.author !== 'all') {
+    songQuery = songQuery.eq('author', params.author);
   }
-
-  if (category && category !== 'all') {
-    songQuery = songQuery.eq('category', category);
-  }
-
-  if (author && author !== 'all') {
-    songQuery = songQuery.eq('author', author);
-  }
-
-  if (!showDrafts) {
+  if (!params.showDrafts) {
     songQuery = songQuery.or('is_draft.is.null,is_draft.eq.false');
   }
 
-  songQuery = songQuery.order('updated_at', { ascending: false }); // Most recently updated first
+  // Server-side sort + pagination
+  songQuery = songQuery.order(params.sortBy, { ascending: params.sortDir === 'asc' });
+  const offset = (params.currentPage - 1) * params.pageSize;
+  songQuery = songQuery.range(offset, offset + params.pageSize - 1);
 
-  const { data: rawSongs, error } = await songQuery;
+  const { data: rawSongs, count, error } = await songQuery;
 
   if (error) {
     console.error('Error fetching songs:', error);
     return (
       <div data-testid="song-list-error">
-        Error loading songs: {String(error.message)}
+        Something went wrong while loading songs. Please try again.
       </div>
     );
   }
 
-  // Transform songs: calculate stats and add status fields for student filtering
-  const songs = (rawSongs?.map((rawSong) => {
-    const { lesson_songs, ...song } = rawSong as unknown as Record<string, unknown> & {
-      lesson_songs?: Array<{
-        id: string;
-        status: string;
-        lessons: {
-          id: string;
-          student_id: string;
-          profile: { id: string; full_name: string | null } | null;
-        } | null;
-      }>;
-    };
-
-    // Calculate stats
-    const lessonSongsArray = lesson_songs || [];
-    const uniqueStudents = new Set(
-      lessonSongsArray
-        .map((ls) => ls.lessons?.student_id)
-        .filter(Boolean)
-    );
-
-    const statusCounts = lessonSongsArray.reduce(
-      (acc, ls) => {
-        const status = ls.status || 'to_learn';
-        acc[status] = (acc[status] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>
-    );
-
-    const stats = {
-      lessonCount: lessonSongsArray.length,
-      studentCount: uniqueStudents.size,
-      statusBreakdown: {
-        mastered: statusCounts.mastered || 0,
-        learning: statusCounts.learning || 0,
-        to_learn: statusCounts.to_learn || 0,
-      },
-    };
-
-    if (
-      studentId &&
-      lessonSongsArray.length > 0
-    ) {
-      return {
-        ...song,
-        status: lessonSongsArray[0].status,
-        lesson_song_id: lessonSongsArray[0].id,
-        stats,
-      };
-    }
-    return { ...song, stats };
-  }) || []) as unknown as Song[];
+  const totalCount = count ?? 0;
+  const songs = transformRawSongs(rawSongs, params.studentId);
 
   // Fetch students for filter (only if admin or teacher)
   let students: { id: string; full_name: string | null; student_status: string | null }[] = [];
-
   if (isAdmin || isTeacher) {
     const { data: studentsData } = await supabase
       .from('profiles')
       .select('id, full_name, student_status')
       .eq('is_student', true)
       .order('full_name');
-
     students = studentsData || [];
   }
-
-  // Extract unique categories and authors for filter dropdowns
-  const categories = [...new Set(songs.map((s) => s.category).filter(Boolean))] as string[];
-  categories.sort();
-  const authors = [...new Set(songs.map((s) => s.author).filter(Boolean))] as string[];
-  authors.sort();
 
   return (
     <SongListClient
       initialSongs={songs}
       isAdmin={isAdmin || isTeacher}
       students={students}
-      selectedStudentId={studentId}
+      selectedStudentId={params.studentId}
       categories={categories}
       authors={authors}
+      totalCount={totalCount}
+      currentPage={params.currentPage}
+      pageSize={params.pageSize}
     />
   );
 }
