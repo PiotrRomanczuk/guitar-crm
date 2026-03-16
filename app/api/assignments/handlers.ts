@@ -1,6 +1,7 @@
 import { AssignmentFilterSchema, AssignmentSortSchema } from '@/schemas/AssignmentSchema';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { queueNotification } from '@/lib/services/notification-service';
+import { logger } from '@/lib/logger';
 
 /**
  * Assignment API Handlers
@@ -60,8 +61,7 @@ function buildAssignmentQuery(supabase: SupabaseClient, userId: string, profile:
 /**
  * Apply additional filters to query
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function applyFilters(query: any, filters: Record<string, any>) {
+function applyFilters(query: ReturnType<typeof buildAssignmentQuery>, filters: Record<string, string | undefined>) {
   let result = query;
 
   if (filters.teacher_id) result = result.eq('teacher_id', filters.teacher_id);
@@ -109,13 +109,13 @@ export async function getAssignmentsHandler(
     const { data: assignments, error } = await query;
 
     if (error) {
-      console.error('Error fetching assignments:', error);
+      logger.error('Error fetching assignments:', error);
       return { error: 'Failed to fetch assignments', status: 500 };
     }
 
     return { assignments, status: 200 };
   } catch (error) {
-    console.error('Error in getAssignmentsHandler:', error);
+    logger.error('Error in getAssignmentsHandler:', error);
     return { error: 'Internal server error', status: 500 };
   }
 }
@@ -240,7 +240,7 @@ export async function createAssignmentHandler(
       .single();
 
     if (error) {
-      console.error('Error creating assignment:', error);
+      logger.error('Error creating assignment:', error);
       return { error: 'Failed to create assignment', status: 500 };
     }
 
@@ -273,13 +273,13 @@ export async function createAssignmentHandler(
         priority: 6,
       });
     } catch (notificationError) {
-      console.error('Failed to queue assignment notification:', notificationError);
+      logger.error('Failed to queue assignment notification:', notificationError);
       // Don't fail the assignment creation if notification fails
     }
 
     return { assignment, status: 201 };
   } catch (error) {
-    console.error('Error in createAssignmentHandler:', error);
+    logger.error('Error in createAssignmentHandler:', error);
     return { error: 'Internal server error', status: 500 };
   }
 }
@@ -320,7 +320,7 @@ export async function getAssignmentHandler(
 
     return { data: assignment, status: 200 };
   } catch (error) {
-    console.error('Error in getAssignmentHandler:', error);
+    logger.error('Error in getAssignmentHandler:', error);
     return { error: 'Internal server error', status: 500 };
   }
 }
@@ -397,13 +397,13 @@ export async function updateAssignmentHandler(
       .single();
 
     if (updateError) {
-      console.error('Error updating assignment:', updateError);
+      logger.error('Error updating assignment:', updateError);
       return { error: 'Failed to update assignment', status: 500 };
     }
 
     return { data: updatedAssignment, status: 200 };
   } catch (error) {
-    console.error('Error in updateAssignmentHandler:', error);
+    logger.error('Error in updateAssignmentHandler:', error);
     return { error: 'Internal server error', status: 500 };
   }
 }
@@ -442,13 +442,13 @@ export async function deleteAssignmentHandler(
       .eq('id', assignmentId);
 
     if (deleteError) {
-      console.error('Error deleting assignment:', deleteError);
+      logger.error('Error deleting assignment:', deleteError);
       return { error: 'Failed to delete assignment', status: 500 };
     }
 
     return { status: 200 };
   } catch (error) {
-    console.error('Error in deleteAssignmentHandler:', error);
+    logger.error('Error in deleteAssignmentHandler:', error);
     return { error: 'Internal server error', status: 500 };
   }
 }

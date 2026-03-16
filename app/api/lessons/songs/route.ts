@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { LessonSongSchema, type LessonSong } from '@/schemas';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -45,13 +46,13 @@ export async function GET(request: NextRequest) {
     const { data: lessonSongs, error } = await query;
 
     if (error) {
-      console.error('Error fetching lesson songs:', error);
+      logger.error('Error fetching lesson songs:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ lessonSongs: lessonSongs || [] });
   } catch (error) {
-    console.error('Error in lesson songs API:', error);
+    logger.error('Error in lesson songs API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
     try {
       validatedData = LessonSongSchema.parse(body);
     } catch (validationError) {
-      console.error('Lesson song input validation error:', validationError);
+      logger.error('Lesson song input validation error:', validationError);
       return NextResponse.json(
         { error: 'Invalid lesson song data', details: validationError },
         { status: 400 }
@@ -144,13 +145,13 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error assigning song to lesson:', error);
+      logger.error('Error assigning song to lesson:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json(lessonSong);
   } catch (error) {
-    console.error('Error in lesson song assignment API:', error);
+    logger.error('Error in lesson song assignment API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

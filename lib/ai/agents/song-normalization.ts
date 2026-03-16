@@ -7,6 +7,7 @@
 
 import type { AgentSpecification } from '../agent-registry';
 import { executeAgent } from '../agent-registry';
+import { logger } from '@/lib/logger';
 
 export interface SongNormalizationInput {
   title: string;
@@ -129,7 +130,8 @@ Please analyze and normalize this song data, providing a JSON response with clea
       };
     }
 
-    const content = response.result?.content || response.result || '';
+    const resultObj = response.result as Record<string, unknown> | null;
+    const content = resultObj?.content || response.result || '';
 
     // Try to parse as JSON
     try {
@@ -177,7 +179,7 @@ export async function generateBatchSongNormalization(
         await new Promise((resolve) => setTimeout(resolve, 250));
       }
     } catch (error) {
-      console.error(`Failed to normalize song ${i}:`, error);
+      logger.error(`Failed to normalize song ${i}:`, error);
       results.push(null);
     }
   }
@@ -204,7 +206,7 @@ export function extractNormalizationData(response: {
       const parsed = JSON.parse(response.content);
       return parsed as SongNormalizationResult;
     } catch (error) {
-      console.error('Failed to parse normalization response:', error);
+      logger.error('Failed to parse normalization response:', error);
       return null;
     }
   }

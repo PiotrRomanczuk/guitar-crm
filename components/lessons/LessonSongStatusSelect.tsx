@@ -11,6 +11,7 @@ import {
 import { updateLessonSongStatus } from '@/app/dashboard/lessons/actions';
 import { Database } from '@/database.types';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 type LessonSongStatus = Database['public']['Enums']['lesson_song_status'];
 
@@ -38,7 +39,7 @@ export function LessonSongStatusSelect({
         await updateLessonSongStatus(lessonId, songId, newStatus);
         toast.success('Status updated');
       } catch (error) {
-        console.error('Failed to update status:', error);
+        logger.error('Failed to update status:', error);
         setStatus(oldStatus); // Revert on error
         toast.error('Failed to update song status');
       }

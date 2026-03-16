@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -63,7 +64,7 @@ export async function POST(request: Request) {
       message: 'Match rejected',
     });
   } catch (error) {
-    console.error('Failed to reject match:', error);
+    logger.error('Failed to reject match:', error);
     return NextResponse.json(
       {
         error: 'Failed to reject match',

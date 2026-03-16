@@ -12,6 +12,7 @@ import { updateLessonSongStatus } from '@/app/actions/songs';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { useHaptic } from '@/hooks/use-haptic';
+import { logger } from '@/lib/logger';
 
 interface Props {
   lessonSongId: string;
@@ -61,7 +62,7 @@ export default function StatusSelect({ lessonSongId, currentStatus }: Props) {
         await updateLessonSongStatus(lessonSongId, newStatus);
         // Success - status already updated optimistically
       } catch (error) {
-        console.error(error);
+        logger.error('Failed to update status', error);
         haptic('error');
         toast.error('Failed to update status');
         // Rollback to previous status on error

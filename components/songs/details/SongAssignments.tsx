@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { EntityLink, StatusBadge, getStatusVariant, formatStatus } from '@/components/shared';
 import Link from 'next/link';
+import { logger } from '@/lib/logger';
 
 interface SongAssignment {
   id: string;
@@ -52,7 +53,7 @@ export default function SongAssignments({ songId }: Props) {
 
         setAssignments(data.assignments || []);
       } catch (err) {
-        console.error('Error fetching song assignments:', err);
+        logger.error('Error fetching song assignments:', err);
         setError(err instanceof Error ? err.message : 'Failed to load assignments');
       } finally {
         setLoading(false);

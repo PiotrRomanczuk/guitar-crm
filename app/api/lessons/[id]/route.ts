@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { updateLessonHandler, deleteLessonHandler } from '../handlers';
 import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
+import { logger } from '@/lib/logger';
 
 /**
  * Helper to get user profile with roles
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .single();
 
     if (error) {
-      console.error('Error fetching lesson:', error);
+      logger.error('Error fetching lesson:', error);
       if (error.code === 'PGRST116') {
         return NextResponse.json({ error: 'Lesson not found' }, { status: 404 });
       }
@@ -88,7 +89,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json(lesson);
   } catch (error) {
-    console.error('Error in lesson API:', error);
+    logger.error('Error in lesson API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -127,7 +128,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json(result.lesson, { status: result.status });
   } catch (error) {
-    console.error('Error in lesson update API:', error);
+    logger.error('Error in lesson update API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -168,7 +169,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true }, { status: result.status });
   } catch (error) {
-    console.error('Error in lesson delete API:', error);
+    logger.error('Error in lesson delete API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

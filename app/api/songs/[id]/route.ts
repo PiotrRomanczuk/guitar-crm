@@ -10,12 +10,13 @@ import {
 } from '@/lib/bearer-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
 
-    console.log('[API] GET /api/songs/[id] - Fetching song:', id);
+    logger.info('[API] GET /api/songs/[id] - Fetching song', { id });
 
     // Try bearer token first
     const authHeader = request.headers.get('authorization');
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     if (!user) {
-      console.log('[API] No authentication found');
+      logger.info('[API] No authentication found');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -45,19 +46,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .single();
 
     if (error) {
-      console.error('[API] Song query error:', error);
+      logger.error('[API] Song query error:', error);
       return NextResponse.json({ error: error.message || 'Failed to fetch song' }, { status: 404 });
     }
 
     if (!data) {
-      console.log('[API] Song not found:', id);
+      logger.info('[API] Song not found', { id });
       return NextResponse.json({ error: 'Song not found' }, { status: 404 });
     }
 
-    console.log('[API] Song found by user', user.userId, ':', data.id, data.title);
+    logger.info('[API] Song found by user', { userId: user.userId, songId: data.id, title: data.title });
     return NextResponse.json(data);
   } catch (err) {
-    console.error('[API] Exception:', err);
+    logger.error('[API] Exception:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

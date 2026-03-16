@@ -7,6 +7,7 @@ import {
 } from '@/lib/services/weekly-insights';
 import { generateWeeklyInsightsHtml } from '@/lib/email/templates/weekly-insights';
 import transporter from '@/lib/email/smtp-client';
+import { logger } from '@/lib/logger';
 
 interface SendWeeklyInsightsResult {
   success: boolean;
@@ -33,7 +34,7 @@ export async function sendWeeklyInsights(): Promise<SendWeeklyInsightsResult> {
       .eq('is_active', true);
 
     if (teachersError) {
-      console.error('[sendWeeklyInsights] Failed to fetch teachers:', teachersError);
+      logger.error('[sendWeeklyInsights] Failed to fetch teachers:', teachersError);
       return { success: false, emailsSent: 0, errors: [teachersError.message] };
     }
 
@@ -65,7 +66,7 @@ export async function sendWeeklyInsights(): Promise<SendWeeklyInsightsResult> {
         emailsSent++;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error(
+        logger.error(
           `[sendWeeklyInsights] Failed to send email to ${teacher.email}:`,
           errorMessage
         );
@@ -79,7 +80,7 @@ export async function sendWeeklyInsights(): Promise<SendWeeklyInsightsResult> {
       errors: errors.length > 0 ? errors : undefined,
     };
   } catch (error) {
-    console.error('[sendWeeklyInsights] Fatal error:', error);
+    logger.error('[sendWeeklyInsights] Fatal error:', error);
     return {
       success: false,
       emailsSent,

@@ -7,6 +7,7 @@ import { Music2, Guitar, ExternalLink, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SongWithStatus as Song } from '@/components/songs/types';
 import { createClient } from '@/lib/supabase/client';
+import { logger } from '@/lib/logger';
 
 const difficultyColors = {
   beginner: 'bg-success/10 text-success border-success/20',
@@ -84,7 +85,7 @@ export function StudentSongsPageClient() {
 
         setSongs(Array.from(processedSongsMap.values()));
       } catch (error) {
-        console.error('Error fetching songs:', error);
+        logger.error('Error fetching songs:', error);
       } finally {
         setLoading(false);
       }

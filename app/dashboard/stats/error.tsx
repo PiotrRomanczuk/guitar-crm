@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 
 /**
  * Error boundary for stats routes
@@ -17,7 +18,7 @@ export default function StatsError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[Stats Error]', error);
+    logger.error('[Stats Error]', error);
   }, [error]);
 
   return (

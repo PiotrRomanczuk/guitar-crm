@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { syncLessonsFromCalendar } from '@/app/dashboard/calendar-actions';
 import { QuickActionButton } from './QuickActionButton';
+import { logger } from '@/lib/logger';
 
 export function SyncCalendarModal() {
   const [open, setOpen] = useState(false);
@@ -30,7 +31,7 @@ export function SyncCalendarModal() {
           setEmail('');
         }
       } catch (error) {
-        console.error(error);
+        logger.error('Failed to sync calendar', error);
         if (error instanceof Error) {
           alert(`Failed to sync: ${error.message}`);
         } else {

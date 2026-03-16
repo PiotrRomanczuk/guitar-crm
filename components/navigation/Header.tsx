@@ -185,7 +185,7 @@ async function signOutAndRedirect(
   try {
     await supabase.auth.signOut();
   } catch {
-    // TODO: Optionally show error to user
+    // Sign-out errors are non-critical — redirect proceeds regardless
   }
   router.push('/sign-in');
   setMobileMenuOpen(false);

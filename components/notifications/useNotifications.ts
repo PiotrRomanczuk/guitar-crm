@@ -17,6 +17,7 @@ import {
   markAllNotificationsAsRead,
 } from '@/app/actions/in-app-notifications';
 import type { InAppNotification } from '@/lib/services/in-app-notification-service';
+import { logger } from '@/lib/logger';
 
 export interface UseNotificationsOptions {
   limit?: number;
@@ -82,7 +83,7 @@ export function useNotifications(userId?: string, options: UseNotificationsOptio
       const { data, error } = await query;
 
       if (error) {
-        console.error('[useNotifications] Fetch error:', error);
+        logger.error('[useNotifications] Fetch error:', error);
         setNotifications([]);
         setUnreadCount(0);
       } else {
@@ -90,7 +91,7 @@ export function useNotifications(userId?: string, options: UseNotificationsOptio
         setUnreadCount((data as InAppNotification[])?.filter((n) => !n.is_read).length || 0);
       }
     } catch (error) {
-      console.error('[useNotifications] Fetch exception:', error);
+      logger.error('[useNotifications] Fetch exception:', error);
       setNotifications([]);
       setUnreadCount(0);
     } finally {
@@ -154,7 +155,7 @@ export function useNotifications(userId?: string, options: UseNotificationsOptio
 
     if (!success) {
       // Revert optimistic update on failure
-      console.error('[useNotifications] Failed to mark as read');
+      logger.error('[useNotifications] Failed to mark as read');
       fetchNotifications();
     }
   }
@@ -173,7 +174,7 @@ export function useNotifications(userId?: string, options: UseNotificationsOptio
 
     if (!success) {
       // Revert optimistic update on failure
-      console.error('[useNotifications] Failed to mark all as read');
+      logger.error('[useNotifications] Failed to mark all as read');
       fetchNotifications();
     }
   }

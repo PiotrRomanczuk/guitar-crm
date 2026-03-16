@@ -16,6 +16,7 @@
  */
 
 import { createHmac, timingSafeEqual } from 'crypto';
+import { logger } from '@/lib/logger';
 
 const TOKEN_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 const PART_SEPARATOR = '~';
@@ -23,7 +24,7 @@ const PART_SEPARATOR = '~';
 function getSecret(): string | null {
   const secret = process.env.UNSUBSCRIBE_TOKEN_SECRET;
   if (!secret) {
-    console.warn(
+    logger.warn(
       '[unsubscribe-token] UNSUBSCRIBE_TOKEN_SECRET is not set. ' +
         'All unsubscribe requests will be rejected until the env var is configured.'
     );

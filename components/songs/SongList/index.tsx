@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { SongListClient } from './Client';
+import { logger } from '@/lib/logger';
 
 interface SongListProps {
   searchParams?: { [key: string]: string | string[] | undefined };
@@ -44,7 +45,7 @@ export default async function SongList({ searchParams }: SongListProps) {
   const { data: rawSongs, error } = await songQuery;
 
   if (error) {
-    console.error('Error fetching songs:', error);
+    logger.error('Error fetching songs:', error);
     return <div data-testid="song-list-error">Error loading songs: {error.message}</div>;
   }
 

@@ -19,6 +19,7 @@ import {
   sendDailyAdminSummary,
 } from '@/lib/services/notification-monitoring';
 import { verifyCronSecret } from '@/lib/auth/cron-auth';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,7 +40,7 @@ export async function GET(request: Request) {
       await checkFailureRate();
       results.failureCheck = 'completed';
     } catch (error) {
-      console.error('[Cron] Failure rate check error:', error);
+      logger.error('[Cron] Failure rate check error:', error);
       results.failureCheck = 'failed';
     }
 
@@ -47,7 +48,7 @@ export async function GET(request: Request) {
       await checkBounceRate();
       results.bounceCheck = 'completed';
     } catch (error) {
-      console.error('[Cron] Bounce rate check error:', error);
+      logger.error('[Cron] Bounce rate check error:', error);
       results.bounceCheck = 'failed';
     }
 
@@ -55,7 +56,7 @@ export async function GET(request: Request) {
       await checkQueueBacklog();
       results.queueCheck = 'completed';
     } catch (error) {
-      console.error('[Cron] Queue backlog check error:', error);
+      logger.error('[Cron] Queue backlog check error:', error);
       results.queueCheck = 'failed';
     }
 
@@ -66,7 +67,7 @@ export async function GET(request: Request) {
         await sendDailyAdminSummary();
         results.dailySummary = 'sent';
       } catch (error) {
-        console.error('[Cron] Daily summary error:', error);
+        logger.error('[Cron] Daily summary error:', error);
         results.dailySummary = 'failed';
       }
     }
@@ -77,7 +78,7 @@ export async function GET(request: Request) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('[Cron] Unexpected error in admin monitoring:', error);
+    logger.error('[Cron] Unexpected error in admin monitoring:', error);
     return NextResponse.json(
       { success: false, error: 'Internal Server Error' },
       { status: 500 }

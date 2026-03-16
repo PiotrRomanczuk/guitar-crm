@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 const TOKEN_ENDPOINT = `https://accounts.spotify.com/api/token`;
 const SEARCH_ENDPOINT = 'https://api.spotify.com/v1/search';
 const TRACK_ENDPOINT = 'https://api.spotify.com/v1/tracks';
@@ -65,7 +66,7 @@ const recordFailure = () => {
   if (consecutiveFailures >= CIRCUIT_BREAKER_THRESHOLD) {
     circuitBreakerOpen = true;
     circuitBreakerResetTime = Date.now() + CIRCUIT_BREAKER_RESET_TIMEOUT;
-    console.error(`Circuit breaker opened after ${consecutiveFailures} consecutive failures`);
+    logger.error(`Circuit breaker opened after ${consecutiveFailures} consecutive failures`);
   }
 };
 
@@ -143,7 +144,7 @@ const getAccessToken = async (retryCount = 0): Promise<{ access_token: string }>
         // Use default error message if parsing fails
       }
 
-      console.error(`Spotify Token Error (${response.status}):`, errorBody);
+      logger.error(`Spotify Token Error (${response.status}):`, errorBody);
 
       // Retry on 5xx server errors
       if (response.status >= 500 && retryCount < MAX_RETRIES) {
@@ -174,7 +175,7 @@ const getAccessToken = async (retryCount = 0): Promise<{ access_token: string }>
       throw error;
     }
     recordFailure();
-    console.error('Unexpected error getting access token:', error);
+    logger.error('Unexpected error getting access token:', error);
     throw new Error(`Failed to get Spotify access token: ${(error as Error).message}`);
   }
 };
@@ -188,7 +189,7 @@ const handleApiResponse = async (
   // Handle rate limiting
   if (response.status === 429) {
     const retryAfter = parseInt(response.headers.get('Retry-After') || '60', 10);
-    console.warn(`Rate limited on ${endpoint}. Retry after ${retryAfter} seconds`);
+    logger.warn(`Rate limited on ${endpoint}. Retry after ${retryAfter} seconds`);
 
     if (retryCount < MAX_RETRIES && retryFn) {
       const waitTime = retryAfter * 1000;
@@ -203,7 +204,7 @@ const handleApiResponse = async (
 
   // Handle token expiration
   if (response.status === 401) {
-    console.warn('Token expired, clearing cache');
+    logger.warn('Token expired, clearing cache');
     cachedToken = null;
     tokenExpiration = null;
 
@@ -231,7 +232,7 @@ const handleApiResponse = async (
       // Use status text if parsing fails
     }
 
-    console.error(`Spotify ${endpoint} Error (${response.status}):`, errorBody);
+    logger.error(`Spotify ${endpoint} Error (${response.status}):`, errorBody);
 
     // Retry on 5xx server errors
     if (response.status >= 500 && retryCount < MAX_RETRIES && retryFn) {
@@ -271,7 +272,7 @@ export const searchTracks = async (query: string, retryCount = 0) => {
     if (error instanceof SpotifyApiError) {
       throw error;
     }
-    console.error('Unexpected error searching tracks:', error);
+    logger.error('Unexpected error searching tracks:', error);
     throw new Error(`Failed to search Spotify tracks: ${(error as Error).message}`);
   }
 };
@@ -298,7 +299,7 @@ export const searchArtists = async (query: string, retryCount = 0) => {
     if (error instanceof SpotifyApiError) {
       throw error;
     }
-    console.error('Unexpected error searching artists:', error);
+    logger.error('Unexpected error searching artists:', error);
     throw new Error(`Failed to search Spotify artists: ${(error as Error).message}`);
   }
 };
@@ -322,7 +323,7 @@ export const getTrack = async (trackId: string, retryCount = 0) => {
     if (error instanceof SpotifyApiError) {
       throw error;
     }
-    console.error('Unexpected error getting track:', error);
+    logger.error('Unexpected error getting track:', error);
     throw new Error(`Failed to get Spotify track: ${(error as Error).message}`);
   }
 };
@@ -346,7 +347,7 @@ export const getAudioFeatures = async (trackId: string, retryCount = 0) => {
     if (error instanceof SpotifyApiError) {
       throw error;
     }
-    console.error('Unexpected error getting audio features:', error);
+    logger.error('Unexpected error getting audio features:', error);
     throw new Error(`Failed to get Spotify audio features: ${(error as Error).message}`);
   }
 };

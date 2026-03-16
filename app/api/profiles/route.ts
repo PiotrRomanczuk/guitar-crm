@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -18,13 +19,13 @@ export async function GET() {
       .order('full_name', { ascending: true });
 
     if (error) {
-      console.error('Error fetching profiles:', error);
+      logger.error('Error fetching profiles:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json(profiles || []);
   } catch (error) {
-    console.error('Error in profiles API:', error);
+    logger.error('Error in profiles API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

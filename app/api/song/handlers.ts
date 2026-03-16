@@ -3,6 +3,8 @@
 import type { Song } from '@/components/songs/types';
 import { SongInputSchema, SongDraftSchema } from '@/schemas/SongSchema';
 import { ZodError } from 'zod';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { logger } from '@/lib/logger';
 
 export interface SongQueryParams {
   level?: string;
@@ -83,8 +85,7 @@ function applySortAndPagination(
 }
 
 export async function getSongsHandler(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any,
+  supabase: SupabaseClient,
   user: { id: string } | null,
   profile: { isAdmin?: boolean } | null,
   query: SongQueryParams
@@ -119,12 +120,11 @@ export async function getSongsHandler(
     return { error: error.message, status: 500 };
   }
 
-  return { songs: songs || [], count, status: 200 };
+  return { songs: songs || [], count: count ?? undefined, status: 200 };
 }
 
 export async function createSongHandler(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any,
+  supabase: SupabaseClient,
   user: { id: string } | null,
   profile: { isAdmin?: boolean; isTeacher?: boolean } | null,
   body: unknown
@@ -159,7 +159,7 @@ export async function createSongHandler(
           status: 409,
         };
       }
-      console.error('Supabase insert error:', error.message);
+      logger.error('Supabase insert error:', error.message);
       return { error: error.message, status: 500 };
     }
 
@@ -177,8 +177,7 @@ export async function createSongHandler(
 }
 
 export async function updateSongHandler(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any,
+  supabase: SupabaseClient,
   user: { id: string } | null,
   profile: { isAdmin?: boolean; isTeacher?: boolean } | null,
   songId: string,
@@ -238,8 +237,7 @@ export interface CascadeInfo {
 }
 
 export async function deleteSongHandler(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any,
+  supabase: SupabaseClient,
   user: { id: string } | null,
   profile: { isAdmin?: boolean; isTeacher?: boolean } | null,
   songId: string
@@ -263,7 +261,7 @@ export async function deleteSongHandler(
     });
 
     if (error) {
-      console.error('Database error during song deletion:', error);
+      logger.error('Database error during song deletion:', error);
       return { error: error.message, status: 500 };
     }
 
@@ -280,7 +278,7 @@ export async function deleteSongHandler(
       },
     };
   } catch (err) {
-    console.error('Unexpected error during song deletion:', err);
+    logger.error('Unexpected error during song deletion:', err);
     return { error: 'Internal server error', status: 500 };
   }
 }

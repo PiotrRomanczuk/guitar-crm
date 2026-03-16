@@ -9,6 +9,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 type SupabaseClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -150,7 +151,7 @@ async function updateStudentStatus(
     .eq('id', studentId);
 
   if (updateError) {
-    console.error(`Failed to update student ${studentId}:`, updateError);
+    logger.error(`Failed to update student ${studentId}:`, updateError);
     return;
   }
 
@@ -169,6 +170,6 @@ async function updateStudentStatus(
     });
 
   if (historyError) {
-    console.error(`Failed to log history for student ${studentId}:`, historyError);
+    logger.error(`Failed to log history for student ${studentId}:`, historyError);
   }
 }

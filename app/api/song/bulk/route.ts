@@ -6,6 +6,7 @@ import {
   SongImportValidationSchema,
 } from '@/schemas/SongSchema';
 import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -164,7 +165,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error in bulk song import API:', error);
+    logger.error('Error in bulk song import API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -206,7 +207,7 @@ export async function DELETE(request: NextRequest) {
     const { error } = await supabase.from('songs').delete().in('id', ids);
 
     if (error) {
-      console.error('Error deleting songs:', error);
+      logger.error('Error deleting songs:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -215,7 +216,7 @@ export async function DELETE(request: NextRequest) {
       deleted_count: ids.length,
     });
   } catch (error) {
-    console.error('Error in bulk song delete API:', error);
+    logger.error('Error in bulk song delete API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

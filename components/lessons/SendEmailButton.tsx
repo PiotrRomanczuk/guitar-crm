@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { sendLessonSummaryEmail } from '@/app/dashboard/lessons/actions';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 interface SendEmailButtonProps {
   lessonId: string;
@@ -21,7 +22,7 @@ export default function SendEmailButton({ lessonId }: SendEmailButtonProps) {
         toast.error(result.error || 'Failed to send email');
       }
     } catch (error) {
-      console.error('Error sending email:', error);
+      logger.error('Error sending email:', error);
       toast.error('An unexpected error occurred');
     } finally {
       setIsSending(false);

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { AssignmentUpdateSchema } from '@/schemas/AssignmentSchema';
 import { getAssignmentHandler, updateAssignmentHandler, deleteAssignmentHandler } from './handlers';
 import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
+import { logger } from '@/lib/logger';
 
 /**
  * Helper to get user profile with roles
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       status: result.status,
     });
   } catch (error) {
-    console.error('Error in GET /api/assignments/[id]:', error);
+    logger.error('Error in GET /api/assignments/[id]:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -97,7 +98,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       status: result.status,
     });
   } catch (error) {
-    console.error('Error in PATCH /api/assignments/[id]:', error);
+    logger.error('Error in PATCH /api/assignments/[id]:', error);
 
     if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(
@@ -146,7 +147,7 @@ export async function DELETE(
       status: result.status,
     });
   } catch (error) {
-    console.error('Error in DELETE /api/assignments/[id]:', error);
+    logger.error('Error in DELETE /api/assignments/[id]:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

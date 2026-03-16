@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/popover';
 import { getExistingCategories, type CategoryWithCount } from '@/app/actions/songs';
 import { Label } from '@/components/ui/label';
+import { logger } from '@/lib/logger';
 
 interface CategoryComboboxProps {
   value: string;
@@ -56,7 +57,7 @@ export default function CategoryCombobox({ value, onChange, onBlur, error }: Cat
           setCategories(data);
         }
       } catch (err) {
-        console.error('Failed to fetch categories:', err);
+        logger.error('Failed to fetch categories:', err);
       } finally {
         if (mounted) {
           setLoading(false);

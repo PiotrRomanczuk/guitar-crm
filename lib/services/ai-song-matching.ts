@@ -9,6 +9,7 @@
 // AI response handling is now done through the song normalization agent
 import type { Database } from '@/database.types';
 import { calculateSimilarity } from '@/lib/utils/string-similarity';
+import { logger } from '@/lib/logger';
 
 type DatabaseSong = Database['public']['Tables']['songs']['Row'];
 
@@ -82,7 +83,7 @@ export async function analyzeAndNormalizeSong(song: DatabaseSong): Promise<AIAna
         reasoning: normalizationData.reasoning,
       };
     } else {
-      console.warn(`🤖 AI response parsing failed, using fallback`);
+      logger.warn(`🤖 AI response parsing failed, using fallback`);
 
       // Use fallback normalization
       const fallback = createFallbackNormalization({
@@ -100,7 +101,7 @@ export async function analyzeAndNormalizeSong(song: DatabaseSong): Promise<AIAna
       };
     }
   } catch (error) {
-    console.error('AI song analysis error:', error);
+    logger.error('AI song analysis error:', error);
 
     // Fallback to simple normalization
     return {

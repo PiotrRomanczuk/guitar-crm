@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { Database } from '@/types/database.types.generated';
 import { getSupabaseConfig } from './config';
+import { logger } from '@/lib/logger';
 
 /**
  * Profile roles interface
@@ -74,7 +75,7 @@ export async function getOrCreateProfile(
       .single();
 
     if (createError) {
-      console.error('[ServerUtils] Error creating profile:', createError);
+      logger.error('[ServerUtils] Error creating profile:', createError);
       return null;
     }
 
@@ -86,7 +87,7 @@ export async function getOrCreateProfile(
   }
 
   if (profileError) {
-    console.error('[ServerUtils] Error fetching profile:', profileError);
+    logger.error('[ServerUtils] Error fetching profile:', profileError);
     // Return a default profile for graceful degradation
     return { isAdmin: false, isTeacher: false, isStudent: true };
   }

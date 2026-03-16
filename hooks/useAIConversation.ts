@@ -12,6 +12,7 @@ import type {
   AIConversationSummary,
   AIConversationMessage,
 } from '@/types/ai-conversation';
+import { logger } from '@/lib/logger';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -38,7 +39,7 @@ export function useAIConversation() {
   const startNewConversation = useCallback(async (modelId: string): Promise<string | null> => {
     const { data, error } = await createConversation({ modelId });
     if (error || !data) {
-      console.error('[useAIConversation] startNew error:', error);
+      logger.error('[useAIConversation] startNew error:', error);
       return null;
     }
     setConversationId(data.id);
@@ -50,7 +51,7 @@ export function useAIConversation() {
     try {
       const { data, error } = await getConversation(id);
       if (error || !data) {
-        console.error('[useAIConversation] load error:', error);
+        logger.error('[useAIConversation] load error:', error);
         return [];
       }
       setConversationId(id);
@@ -71,7 +72,7 @@ export function useAIConversation() {
   const removeConversation = useCallback(async (id: string) => {
     const { error } = await deleteConversation(id);
     if (error) {
-      console.error('[useAIConversation] remove error:', error);
+      logger.error('[useAIConversation] remove error:', error);
       return;
     }
     if (conversationId === id) setConversationId(null);
@@ -81,7 +82,7 @@ export function useAIConversation() {
   const renameConversation = useCallback(async (id: string, title: string) => {
     const { error } = await updateConversationTitle(id, title);
     if (error) {
-      console.error('[useAIConversation] rename error:', error);
+      logger.error('[useAIConversation] rename error:', error);
       return;
     }
     await refreshConversationList();

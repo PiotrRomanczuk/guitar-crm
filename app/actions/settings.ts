@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import type { UserSettings } from '@/schemas/SettingsSchema';
+import { logger } from '@/lib/logger';
 
 /**
  * Database row shape for user_settings (snake_case columns).
@@ -88,7 +89,7 @@ export async function getUserSettings(
 
   if (error && error.code !== 'PGRST116') {
     // PGRST116 = "no rows returned" which is expected for new users
-    console.error('Error fetching user settings:', error);
+    logger.error('Error fetching user settings:', error);
     return { success: false, error: 'Failed to fetch user settings' };
   }
 
@@ -138,7 +139,7 @@ export async function saveUserSettings(
     .single();
 
   if (error) {
-    console.error('Error saving user settings:', error);
+    logger.error('Error saving user settings:', error);
     return { success: false, error: 'Failed to save user settings' };
   }
 

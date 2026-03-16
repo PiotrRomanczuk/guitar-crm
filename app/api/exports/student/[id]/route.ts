@@ -3,6 +3,7 @@ import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { canViewUser } from '@/lib/services/user.service';
 import { getStudentIdsForTeacher } from '@/lib/repositories/user.repository';
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -139,7 +140,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json({ error: 'Unsupported format' }, { status: 400 });
   } catch (error) {
-    console.error('Error in student export API:', error);
+    logger.error('Error in student export API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

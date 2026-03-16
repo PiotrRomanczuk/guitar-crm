@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface TemplateFormProps {
   initialData?: AssignmentTemplate;
@@ -68,7 +69,7 @@ export default function TemplateForm({ initialData, mode, userId }: TemplateForm
       // Navigate to templates list - router.push already refreshes the target page
       router.push('/dashboard/assignments/templates');
     } catch (err) {
-      console.error(err);
+      logger.error('Failed to save template', err);
       setError('Failed to save template');
     } finally {
       setLoading(false);

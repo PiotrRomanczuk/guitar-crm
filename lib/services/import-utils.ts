@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 // import { TablesInsert } from '@/types/database.types'; // Types are incorrect
 
 export type MatchStatus = 'MATCHED' | 'AMBIGUOUS' | 'NONE';
@@ -28,7 +29,7 @@ export async function matchStudentByEmail(email: string): Promise<StudentMatch> 
     // .eq('is_student', true); // Don't filter by is_student, we want to match any existing user to avoid duplicates
   
   if (error || !profiles) {
-    console.error('Error matching student:', error);
+    logger.error('Error matching student:', error);
     return { status: 'NONE', candidates: [] };
   }
   
@@ -85,7 +86,7 @@ export async function createShadowStudent(
     .single();
   
   if (error) {
-    console.error('Error creating shadow student:', error);
+    logger.error('Error creating shadow student:', error);
     return { success: false, error: error.message };
   }
   

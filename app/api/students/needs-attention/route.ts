@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { getTeacherStudentIds } from '@/lib/queries/teacher-students';
+import { logger } from '@/lib/logger';
 
 interface AttentionItem {
   id: string;
@@ -114,7 +115,7 @@ export async function GET() {
 
     return NextResponse.json(attentionItems);
   } catch (error) {
-    console.error('Error fetching needs attention:', error);
+    logger.error('Error fetching needs attention:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

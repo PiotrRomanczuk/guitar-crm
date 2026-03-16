@@ -24,6 +24,7 @@ import { getAssignableLessons, type AssignableLesson } from '@/app/dashboard/les
 import { quickAssignSongToLesson } from '@/app/actions/songs';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 interface QuickAssignDialogProps {
   isOpen: boolean;
@@ -69,7 +70,7 @@ export default function QuickAssignDialog({
           setFilteredLessons(data);
         })
         .catch((error) => {
-          console.error('Failed to fetch lessons:', error);
+          logger.error('Failed to fetch lessons:', error);
           toast.error('Failed to load lessons');
         })
         .finally(() => setLoading(false));
@@ -127,7 +128,7 @@ export default function QuickAssignDialog({
       onSuccess();
       onClose();
     } catch (error) {
-      console.error('Error assigning song:', error);
+      logger.error('Error assigning song:', error);
       toast.error('Failed to assign song');
     } finally {
       setAssigning(false);

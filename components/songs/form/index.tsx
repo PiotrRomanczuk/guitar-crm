@@ -31,7 +31,6 @@ export default function SongForm({ mode, song, onSuccess }: Props) {
       <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
         {mode === 'create' ? 'Create New Song' : 'Edit Song'}
       </h1>
-      {/* TODO: Extract submit / mutation logic to dedicated hook (useSongMutations) */}
       <SongFormContent mode={mode} song={song} onSuccess={handleSuccess} />
     </div>
   );

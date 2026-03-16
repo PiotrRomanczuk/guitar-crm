@@ -35,6 +35,7 @@ export {
 
 // Initialize agent registry on module load
 import { registerAllAgents } from './agent-specifications';
+import { logger } from '@/lib/logger';
 
 // Registration guard to prevent duplicate registration
 let agentsRegistered = false;
@@ -46,7 +47,7 @@ try {
     agentsRegistered = true;
   }
 } catch (error) {
-  console.error('[AI] Failed to register agents:', error);
+  logger.error('[AI] Failed to register agents:', error);
 }
 
 // Re-export commonly used functions

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { computeChordAnalysis } from '@/lib/services/chord-analytics';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -23,14 +24,14 @@ export async function GET() {
       .is('deleted_at', null);
 
     if (error) {
-      console.error('[ChordAnalysis] Query error:', error);
+      logger.error('[ChordAnalysis] Query error:', error);
       return NextResponse.json({ error: 'Database query failed' }, { status: 500 });
     }
 
     const result = computeChordAnalysis(songs ?? []);
     return NextResponse.json(result);
   } catch (error) {
-    console.error('[ChordAnalysis] Error:', error);
+    logger.error('[ChordAnalysis] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

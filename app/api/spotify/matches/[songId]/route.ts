@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: Request, { params }: { params: Promise<{ songId: string }> }) {
   const supabase = await createClient();
@@ -36,7 +37,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ song
 
     return NextResponse.json({ match });
   } catch (error) {
-    console.error('Failed to fetch match:', error);
+    logger.error('Failed to fetch match:', error);
     return NextResponse.json({ error: 'Failed to fetch match data' }, { status: 500 });
   }
 }

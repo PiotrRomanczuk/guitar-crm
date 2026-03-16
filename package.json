@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "NODE_OPTIONS='--max-http-header-size=65536' nodemon --exec next dev",
     "dev:3000": "NODE_OPTIONS='--max-http-header-size=65536' nodemon --exec \"PORT=3000 next dev\"",
-    "build": "next build",
+    "build": "NODE_OPTIONS='--max-old-space-size=4096' next build",
     "start": "next start",
     "lint": "eslint",
     "test": "jest",

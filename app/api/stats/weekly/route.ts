@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { startOfWeek, endOfWeek } from 'date-fns';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -48,7 +49,7 @@ export async function GET() {
       weekEnd: weekEnd.toISOString(),
     });
   } catch (error) {
-    console.error('Error fetching weekly summary:', error);
+    logger.error('Error fetching weekly summary:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

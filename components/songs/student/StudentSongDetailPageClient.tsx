@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -44,6 +42,7 @@ import {
   statusLabelsWithEmoji as statusLabels,
   formatDuration,
 } from './StudentSongs.constants';
+import { logger } from '@/lib/logger';
 
 function SongDetailsGrid({ song }: { song: Song }) {
   return (
@@ -240,7 +239,7 @@ export function StudentSongDetailPageClient() {
     const previousStatus = song.status;
     try {
       setUpdatingStatus(true);
-      setSong({ ...song, status: newStatus as any });
+      setSong({ ...song, status: newStatus as Song['status'] });
       const response = await fetch('/api/student/song-status', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -258,7 +257,7 @@ export function StudentSongDetailPageClient() {
       setHistoryKey((prev) => prev + 1);
       toast.success(`Song status updated to ${statusLabels[newStatus] || newStatus}!`);
     } catch (error) {
-      console.error('Error updating status:', error);
+      logger.error('Error updating status:', error);
       setSong({ ...song, status: previousStatus });
       toast.error('Failed to update song status. Please try again.');
     } finally {
@@ -310,15 +309,20 @@ export function StudentSongDetailPageClient() {
 
           if (lessonData) {
             const uniqueLessons = lessonData
-              .map((ls: any) => ls.lessons)
-              .filter((l: any): l is SongLesson => l !== null);
+              .map((ls) => {
+                // Supabase !inner join returns an array or single object
+                const lesson = ls.lessons;
+                if (Array.isArray(lesson)) return lesson[0] as SongLesson | undefined;
+                return lesson as SongLesson | null;
+              })
+              .filter((l): l is SongLesson => l != null);
             setLessons(uniqueLessons);
           }
         } else {
           setSong(null);
         }
       } catch (error) {
-        console.error('Error fetching song:', error);
+        logger.error('Error fetching song:', error);
       } finally {
         setLoading(false);
       }

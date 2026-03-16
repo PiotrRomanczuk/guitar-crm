@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Agent Registry Core
  *
@@ -35,7 +34,7 @@ const AGENT_FALLBACK_TEMPLATES: Record<string, string> = {
 };
 
 // Utility functions
-function hashInput(input: Record<string, any>): string {
+function hashInput(input: Record<string, unknown>): string {
   try {
     return Buffer.from(JSON.stringify(input)).toString('base64').substr(0, 16);
   } catch {
@@ -43,7 +42,7 @@ function hashInput(input: Record<string, any>): string {
   }
 }
 
-function getErrorCode(error: any): string {
+function getErrorCode(error: unknown): string {
   if (error instanceof Error) {
     if (error.message.includes('not found')) return 'AGENT_NOT_FOUND';
     if (error.message.includes('permission')) return 'PERMISSION_DENIED';
@@ -116,7 +115,9 @@ export async function executeAgentRequest(request: AgentRequest): Promise<AgentR
         executionTime: Date.now() - startTime,
         model: request.overrides?.model || agent.model || 'default',
         provider: 'auto',
-        tokensUsed: result?.usage?.total_tokens,
+        tokensUsed: (result as Record<string, unknown> | null)?.usage
+          ? ((result as Record<string, Record<string, number>>).usage?.total_tokens)
+          : undefined,
       },
       analytics: {
         requestId,
@@ -135,7 +136,7 @@ export async function executeAgentRequest(request: AgentRequest): Promise<AgentR
       model: request.overrides?.model || agent.model || 'default',
       latencyMs: Date.now() - startTime,
       success: true,
-      tokenCount: result?.usage?.total_tokens,
+      tokenCount: (result as Record<string, Record<string, number>> | null)?.usage?.total_tokens,
       userId: request.context.userId,
     });
 
@@ -210,7 +211,7 @@ export function getAgent(agentId: string): AgentSpecification | undefined {
 export function getAvailableAgents(userRole: string, _context?: string): AgentSpecification[] {
   return getAllAgents().filter((agent) => {
     // Check if user has permission
-    if (!agent.targetUsers.includes(userRole as any)) {
+    if (!agent.targetUsers.includes(userRole as AgentSpecification['targetUsers'][number])) {
       return false;
     }
 

@@ -5,6 +5,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { hashApiKey } from '@/lib/api-keys';
+import { logger } from '@/lib/logger';
 
 /**
  * Extract bearer token from Authorization header
@@ -36,7 +37,7 @@ export async function authenticateWithBearerToken(bearerToken: string) {
       .single();
 
     if (error || !apiKey || !apiKey.is_active) {
-      console.error('[Bearer Auth] Invalid or inactive API key');
+      logger.error('[Bearer Auth] Invalid or inactive API key');
       return null;
     }
 
@@ -62,7 +63,7 @@ export async function authenticateWithBearerToken(bearerToken: string) {
       profile,
     };
   } catch (error) {
-    console.error('[Bearer Auth] Error authenticating:', error);
+    logger.error('[Bearer Auth] Error authenticating:', error);
     return null;
   }
 }
@@ -98,7 +99,7 @@ export async function authenticateWithSession() {
       profile,
     };
   } catch (error) {
-    console.error('[Session Auth] Error authenticating:', error);
+    logger.error('[Session Auth] Error authenticating:', error);
     return null;
   }
 }

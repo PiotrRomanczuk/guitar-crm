@@ -1,4 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
+import { logger } from '@/lib/logger';
 
 interface Profile {
   isAdmin: boolean;
@@ -10,7 +11,7 @@ interface Assignment {
   id: string;
   teacher_id: string;
   student_id: string;
-  [key: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [key: string]: string | boolean | number | null | undefined;
 }
 
 interface UpdateInput {
@@ -54,7 +55,7 @@ function validateStudentUpdate(
   isStudentOwner: boolean,
   profile: Profile,
   isTeacherOwner: boolean,
-  body: Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
+  body: Record<string, unknown>
 ): { valid: boolean; error?: string } {
   if (isStudentOwner && !profile.isAdmin && !isTeacherOwner) {
     const allowedFields = ['status'];
@@ -138,7 +139,7 @@ export async function updateAssignmentHandler(
   userId: string,
   profile: Profile,
   input: UpdateInput,
-  body: Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
+  body: Record<string, unknown>
 ) {
   // Fetch existing assignment (exclude soft-deleted)
   const { data: existingAssignment, error: fetchError } = await supabase
@@ -188,7 +189,7 @@ export async function updateAssignmentHandler(
     .single();
 
   if (error) {
-    console.error('Error updating assignment:', error);
+    logger.error('Error updating assignment:', error);
     return { data: null, error: 'Failed to update assignment', status: 500 };
   }
 
@@ -232,7 +233,7 @@ export async function deleteAssignmentHandler(
     .eq('id', assignmentId);
 
   if (error) {
-    console.error('Error deleting assignment:', error);
+    logger.error('Error deleting assignment:', error);
     return { data: null, error: 'Failed to delete assignment', status: 500 };
   }
 

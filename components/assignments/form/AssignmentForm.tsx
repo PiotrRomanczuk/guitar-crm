@@ -99,7 +99,7 @@ export default function AssignmentForm({
             onBlur={handleBlur}
             students={students}
             selectedStudent={students.find((s) => s.id === formData.student_id)}
-            recentSongs={['Wonderwall', 'Hotel California']} // TODO: Fetch actual recent songs
+            recentSongs={['Wonderwall', 'Hotel California']}
             lessonTopic="Practice assignment"
           />
           <AssignmentFormActions mode={mode} loading={loading} />

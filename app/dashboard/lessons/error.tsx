@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Calendar, RefreshCw, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 
 /**
  * Error boundary for lessons routes
@@ -16,7 +17,7 @@ export default function LessonsError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[Lessons Error]', error);
+    logger.error('[Lessons Error]', error);
   }, [error]);
 
   return (

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAudioFeatures } from '@/lib/spotify';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 interface AudioFeaturesResponse {
   error?: { message: string; status: number };
@@ -44,7 +45,7 @@ export async function GET(request: Request) {
       duration_ms: features.duration_ms,
     });
   } catch (error) {
-    console.error('Spotify Features Error:', error);
+    logger.error('Spotify Features Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

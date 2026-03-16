@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 
 /**
  * Error boundary for health routes
@@ -17,7 +18,7 @@ export default function HealthError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[Health Error]', error);
+    logger.error('[Health Error]', error);
   }, [error]);
 
   return (

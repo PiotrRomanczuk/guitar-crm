@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { fetchAndSyncRecentEvents } from '@/lib/services/google-calendar-sync';
+import { logger } from '@/lib/logger';
 
 function validateToken(req: NextRequest): boolean {
   const secret = process.env.GOOGLE_CALENDAR_WEBHOOK_SECRET;
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error || !subscription) {
-    console.error('Webhook subscription not found:', { channelId, resourceId });
+    logger.error('Webhook subscription not found:', { channelId, resourceId });
     // Return 200 to stop Google from retrying if it's an invalid channel
     return NextResponse.json({ status: 'ignored' });
   }
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
   // Trigger sync for the user
   // We don't await this to return quickly to Google
   fetchAndSyncRecentEvents(subscription.user_id).catch((err) => {
-    console.error('Background sync failed:', err);
+    logger.error('Background sync failed:', err);
   });
 
   return NextResponse.json({ status: 'processed' });

@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, ClipboardList, Calendar, CheckCircle2, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 interface Assignment {
   id: string;
@@ -73,7 +74,7 @@ export function StudentAssignmentsPageClient() {
       setAssignments(data.assignments ?? data);
       // setError(null);
     } catch (err) {
-      console.error('Error loading assignments:', err);
+      logger.error('Error loading assignments:', err);
       // setError(err instanceof Error ? err.message : 'Error loading assignments');
     } finally {
       setLoading(false);

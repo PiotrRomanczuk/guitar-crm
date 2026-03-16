@@ -7,6 +7,7 @@ import {
   logShadowUserCreated,
 } from '@/lib/auth/auth-event-logger';
 import type { AuthEvent } from '@/components/dashboard/admin/auth-events/auth-events.helpers';
+import { logger } from '@/lib/logger';
 
 export async function inviteUser(
   email: string,
@@ -67,7 +68,7 @@ export async function inviteUser(
     .update(updates)
     .eq('id', userId);
 
-  if (profileError) console.error('Error updating profile:', profileError);
+  if (profileError) logger.error('Error updating profile:', profileError);
 
   return { success: true, userId };
 }
@@ -148,7 +149,7 @@ export async function upsertStudentProfile(
     return;
   }
 
-  console.error('Failed to upsert shadow profile:', error);
+  logger.error('Failed to upsert shadow profile:', error);
   throw new Error('Failed to ensure shadow profile exists');
 }
 
@@ -248,14 +249,14 @@ export async function deleteUser(userId: string) {
   const { error: profileError } = await supabaseAdmin.from('profiles').delete().eq('id', userId);
 
   if (profileError) {
-    console.error('Error deleting profile:', profileError);
+    logger.error('Error deleting profile:', profileError);
   }
 
   if (authUser?.user) {
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (error) {
-      console.error('Error deleting auth user:', error);
+      logger.error('Error deleting auth user:', error);
       if (!profileError) {
         return { success: true, warning: 'Profile deleted but auth user deletion failed' };
       }
@@ -293,7 +294,7 @@ export async function getAuditLogs(limit = 10) {
     .limit(limit);
 
   if (error) {
-    console.error('Error fetching audit logs:', error);
+    logger.error('Error fetching audit logs:', error);
     return [];
   }
 
@@ -357,7 +358,7 @@ export async function getAuthEvents(filters: AuthEventFilters = {}): Promise<Aut
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching auth events:', error);
+    logger.error('Error fetching auth events:', error);
     return [];
   }
 

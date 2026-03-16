@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { PaginationSchema } from "@/schemas/CommonSchema";
+import { logger } from '@/lib/logger';
 
 /**
  * Sanitizes a search string for safe use in PostgREST filter expressions.
@@ -81,7 +82,7 @@ export async function GET(req: NextRequest) {
     const { data: songs, error, count } = await query.order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error searching songs:", error);
+      logger.error("Error searching songs:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -103,7 +104,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error in song search API:", error);
+    logger.error("Error in song search API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

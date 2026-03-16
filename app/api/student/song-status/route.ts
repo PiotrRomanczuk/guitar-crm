@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { SongStatusEnum } from '@/schemas';
+import { logger } from '@/lib/logger';
 
 const SongStatusUpdateSchema = z.object({
   songId: z.string().uuid('songId must be a valid UUID'),
@@ -67,7 +68,7 @@ export async function PUT(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error updating song status:', error);
+      logger.error('Error updating song status:', error);
       return NextResponse.json({ error: 'Failed to update song status' }, { status: 500 });
     }
 
@@ -88,7 +89,7 @@ export async function PUT(request: NextRequest) {
       message: 'Song status updated successfully',
     });
   } catch (error) {
-    console.error('Error in song status update:', error);
+    logger.error('Error in song status update:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -132,13 +133,13 @@ export async function GET(request: NextRequest) {
       .order('changed_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching status history:', error);
+      logger.error('Error fetching status history:', error);
       return NextResponse.json({ error: 'Failed to fetch status history' }, { status: 500 });
     }
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('Error in status history fetch:', error);
+    logger.error('Error in status history fetch:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

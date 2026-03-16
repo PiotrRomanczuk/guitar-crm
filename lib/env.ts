@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 /**
  * Environment variable validation.
  * Import this module early (e.g., in instrumentation.ts) to catch
@@ -33,7 +34,7 @@ export function validateEnv() {
   }
 
   if (missing.length > 0) {
-    console.warn(
+    logger.warn(
       `[env] Missing required environment variables: ${missing.join(', ')}`
     );
   }

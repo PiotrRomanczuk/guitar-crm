@@ -12,6 +12,7 @@ import {
   computeSunburst,
   computeReleaseYearStats,
 } from './helpers';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -35,7 +36,7 @@ export async function GET() {
       .is('deleted_at', null);
 
     if (error) {
-      console.error('[SongStatsAdvanced] Query error:', error);
+      logger.error('[SongStatsAdvanced] Query error:', error);
       return NextResponse.json({ error: 'Database query failed' }, { status: 500 });
     }
 
@@ -54,7 +55,7 @@ export async function GET() {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('[SongStatsAdvanced] Error:', error);
+    logger.error('[SongStatsAdvanced] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

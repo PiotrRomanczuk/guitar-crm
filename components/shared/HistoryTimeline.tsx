@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock, User, FileEdit } from 'lucide-react';
 import { format } from 'date-fns';
+import { logger } from '@/lib/logger';
 
 interface HistoryRecord {
   id: string;
@@ -72,7 +73,7 @@ export function HistoryTimeline({ recordId, recordType, title }: HistoryTimeline
       if (error) throw error;
       setHistory((data as HistoryRecord[]) || []);
     } catch (err) {
-      console.error('Error loading history:', err);
+      logger.error('Error loading history:', err);
     } finally {
       setLoading(false);
     }

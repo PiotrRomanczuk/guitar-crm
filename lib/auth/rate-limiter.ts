@@ -6,6 +6,7 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin';
+import { logger } from '@/lib/logger';
 
 /**
  * Rate limiter configuration
@@ -69,7 +70,7 @@ export async function checkAuthRateLimit(
 
     if (countError) {
       // Fail closed — block on DB error for security
-      console.error('[RateLimit] DB error during rate limit check:', countError.message);
+      logger.error('[RateLimit] DB error during rate limit check:', countError.message);
       return { allowed: false, remaining: 0, resetTime: now + config.windowMs, retryAfter: 60 };
     }
 
@@ -97,7 +98,7 @@ export async function checkAuthRateLimit(
     };
   } catch (err) {
     // Fail closed — block on unexpected error for security
-    console.error('[RateLimit] Unexpected error during rate limit check:', err);
+    logger.error('[RateLimit] Unexpected error during rate limit check:', err);
     return { allowed: false, remaining: 0, resetTime: now + config.windowMs, retryAfter: 60 };
   }
 }

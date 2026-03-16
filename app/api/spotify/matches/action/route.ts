@@ -4,6 +4,7 @@ import { getTrack } from '@/lib/spotify';
 import type { SpotifyApiTrack } from '@/types/spotify';
 import { z } from 'zod';
 import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
+import { logger } from '@/lib/logger';
 
 const ActionSchema = z.object({
   matchId: z.string().uuid(),
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
             cover_image_url: trackData.album.images[0]?.url,
           };
         } catch (error) {
-          console.error('Failed to fetch alternative Spotify track:', error);
+          logger.error('Failed to fetch alternative Spotify track:', error);
           return NextResponse.json(
             { error: 'Failed to fetch alternative Spotify track data' },
             { status: 500 }
@@ -122,7 +123,7 @@ export async function POST(request: Request) {
         .single();
 
       if (updateError) {
-        console.error('❌ Update error:', updateError);
+        logger.error('❌ Update error:', updateError);
         return NextResponse.json(
           { error: `Failed to update song: ${updateError.message}` },
           { status: 500 }
@@ -138,7 +139,7 @@ export async function POST(request: Request) {
         .neq('id', matchId);
 
       if (deleteError) {
-        console.warn('⚠️  Could not delete old matches:', deleteError.message);
+        logger.warn('Could not delete old matches', { error: deleteError.message });
         // Continue anyway - this is not critical
       }
 
@@ -154,7 +155,7 @@ export async function POST(request: Request) {
         .single();
 
       if (approveError) {
-        console.error('❌ Approve error:', approveError);
+        logger.error('❌ Approve error:', approveError);
         return NextResponse.json(
           { error: `Failed to mark as approved: ${approveError.message}` },
           { status: 500 }
@@ -180,7 +181,7 @@ export async function POST(request: Request) {
         .single();
 
       if (rejectError) {
-        console.error('❌ Reject error:', rejectError);
+        logger.error('❌ Reject error:', rejectError);
         return NextResponse.json(
           { error: `Failed to mark as rejected: ${rejectError.message}` },
           { status: 500 }
@@ -194,7 +195,7 @@ export async function POST(request: Request) {
       });
     }
   } catch (error) {
-    console.error('Error processing match action:', error);
+    logger.error('Error processing match action:', error);
     return NextResponse.json({ error: 'Failed to process match action' }, { status: 500 });
   }
 }

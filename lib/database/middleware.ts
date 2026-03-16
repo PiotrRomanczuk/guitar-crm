@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/database.types';
+import { logger } from '@/lib/logger';
 
 // ============================================
 // TYPES
@@ -314,9 +315,9 @@ export function logDatabaseOperation(
   const timestamp = new Date().toISOString();
 
   if (details) {
-    console.log(`${prefix} [${timestamp}] ${operation}`, details);
+    logger.info(`${prefix} [${timestamp}] ${operation}`, details);
   } else {
-    console.log(`${prefix} [${timestamp}] ${operation}`);
+    logger.info(`${prefix} [${timestamp}] ${operation}`);
   }
 }
 

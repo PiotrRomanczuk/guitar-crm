@@ -2,6 +2,7 @@
 
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { logger } from '@/lib/logger';
 
 interface Props {
   lessonId: string;
@@ -29,7 +30,7 @@ export default function LessonDeleteButton({ lessonId }: Props) {
         router.push('/dashboard/lessons');
         router.refresh();
       } catch (error) {
-        console.error('Error deleting lesson:', error);
+        logger.error('Error deleting lesson:', error);
         alert('Failed to delete lesson');
       }
     });

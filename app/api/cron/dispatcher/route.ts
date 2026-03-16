@@ -9,18 +9,6 @@
  * called directly (e.g. from GitHub Actions for higher-frequency jobs).
  *
  * Schedule: Daily at 6:00 AM UTC
- *
- * TODO: Extract inline logic from lesson-reminders, assignment-due-reminders,
- *       assignment-overdue-check, drive-video-scan, and weekly-digest routes
- *       into dedicated service functions — then this dispatcher can call services
- *       directly instead of importing route handlers.
- * TODO: Add per-job timeout (e.g. 10s) so a single slow job can't block the
- *       entire dispatcher within the maxDuration window.
- * TODO: Evaluate whether all daily jobs truly need to run daily — some
- *       (drive-video-scan, renew-webhooks) could be weekly.
- * TODO: Add structured logging / Sentry breadcrumbs per job for observability.
- * TODO: Consider moving ALL scheduling to GitHub Actions and removing the
- *       Vercel cron entirely for a single source of truth.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -50,6 +38,7 @@ import {
   checkQueueBacklog,
   sendDailyAdminSummary,
 } from '@/lib/services/notification-monitoring';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -67,7 +56,7 @@ async function runJob(name: string, fn: () => Promise<unknown>): Promise<JobResu
     await fn();
     return { name, status: 'success', durationMs: Date.now() - start };
   } catch (error) {
-    console.error(`[Dispatcher] Job "${name}" failed:`, error);
+    logger.error(`[Dispatcher] Job "${name}" failed:`, error);
     return {
       name,
       status: 'error',

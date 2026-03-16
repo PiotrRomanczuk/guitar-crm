@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import { TheoryCourseInputSchema, TheoryLessonInputSchema } from '@/schemas/TheoryLessonSchema';
+import { logger } from '@/lib/logger';
 
 // ============================================================================
 // COURSES
@@ -24,7 +25,7 @@ export async function getTheoryCourses() {
     .order('sort_order', { ascending: true });
 
   if (error) {
-    console.error('[getTheoryCourses] Error:', error);
+    logger.error('[getTheoryCourses] Error:', error);
     return [];
   }
 
@@ -52,7 +53,7 @@ export async function getTheoryCourse(courseId: string) {
     .single();
 
   if (error) {
-    console.error('[getTheoryCourse] Error:', error);
+    logger.error('[getTheoryCourse] Error:', error);
     return null;
   }
 
@@ -104,7 +105,7 @@ export async function createTheoryCourse(input: unknown) {
     .single();
 
   if (error) {
-    console.error('[createTheoryCourse] Error:', error);
+    logger.error('[createTheoryCourse] Error:', error);
     return { success: false, error: error.message };
   }
 
@@ -148,7 +149,7 @@ export async function updateTheoryCourse(courseId: string, input: unknown) {
     .eq('id', courseId);
 
   if (error) {
-    console.error('[updateTheoryCourse] Error:', error);
+    logger.error('[updateTheoryCourse] Error:', error);
     return { success: false, error: error.message };
   }
 
@@ -170,7 +171,7 @@ export async function deleteTheoryCourse(courseId: string) {
     .eq('id', courseId);
 
   if (error) {
-    console.error('[deleteTheoryCourse] Error:', error);
+    logger.error('[deleteTheoryCourse] Error:', error);
     return { success: false, error: error.message };
   }
 
@@ -196,7 +197,7 @@ export async function getTheoryLesson(lessonId: string) {
     .single();
 
   if (error) {
-    console.error('[getTheoryLesson] Error:', error);
+    logger.error('[getTheoryLesson] Error:', error);
     return null;
   }
 
@@ -239,7 +240,7 @@ export async function createTheoryLesson(courseId: string, input: unknown) {
     .single();
 
   if (error) {
-    console.error('[createTheoryLesson] Error:', error);
+    logger.error('[createTheoryLesson] Error:', error);
     return { success: false, error: error.message };
   }
 
@@ -279,7 +280,7 @@ export async function updateTheoryLesson(lessonId: string, courseId: string, inp
     .eq('id', lessonId);
 
   if (error) {
-    console.error('[updateTheoryLesson] Error:', error);
+    logger.error('[updateTheoryLesson] Error:', error);
     return { success: false, error: error.message };
   }
 
@@ -301,7 +302,7 @@ export async function deleteTheoryLesson(lessonId: string, courseId: string) {
     .eq('id', lessonId);
 
   if (error) {
-    console.error('[deleteTheoryLesson] Error:', error);
+    logger.error('[deleteTheoryLesson] Error:', error);
     return { success: false, error: error.message };
   }
 
@@ -326,7 +327,7 @@ export async function getCourseAccess(courseId: string) {
     .order('granted_at', { ascending: false });
 
   if (error) {
-    console.error('[getCourseAccess] Error:', error);
+    logger.error('[getCourseAccess] Error:', error);
     return [];
   }
 
@@ -361,7 +362,7 @@ export async function grantCourseAccess(courseId: string, userIds: string[]) {
     .upsert(rows, { onConflict: 'course_id,user_id' });
 
   if (error) {
-    console.error('[grantCourseAccess] Error:', error);
+    logger.error('[grantCourseAccess] Error:', error);
     return { success: false, error: error.message };
   }
 
@@ -383,7 +384,7 @@ export async function revokeCourseAccess(courseId: string, userId: string) {
     .eq('user_id', userId);
 
   if (error) {
-    console.error('[revokeCourseAccess] Error:', error);
+    logger.error('[revokeCourseAccess] Error:', error);
     return { success: false, error: error.message };
   }
 
@@ -402,7 +403,7 @@ export async function getStudentsList() {
     .order('full_name');
 
   if (error) {
-    console.error('[getStudentsList] Error:', error);
+    logger.error('[getStudentsList] Error:', error);
     return [];
   }
 

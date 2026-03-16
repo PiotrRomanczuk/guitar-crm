@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface Props {
   songId: string;
@@ -33,7 +34,7 @@ export default function SongDetailActions({ songId, isAdmin = false, isTeacher =
       // Optionally reload or redirect
       window.location.href = '/dashboard/songs';
     } catch (error) {
-      console.error('Delete error:', error);
+      logger.error('Delete error:', error);
       alert('Failed to delete song');
       setDeleting(false);
     }

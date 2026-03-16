@@ -8,6 +8,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { watchCalendar } from '@/lib/google';
+import { logger } from '@/lib/logger';
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -63,7 +64,7 @@ export async function findExpiringWebhooks(): Promise<WebhookSubscription[]> {
     .lt('expiration', expirationThreshold);
 
   if (error) {
-    console.error('Error fetching expiring webhooks:', error);
+    logger.error('Error fetching expiring webhooks:', error);
     return [];
   }
 
@@ -112,7 +113,7 @@ async function renewWebhook(subscription: WebhookSubscription): Promise<RenewalR
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error(`✗ Failed to renew webhook for user ${subscription.user_id}:`, errorMessage);
+    logger.error(`✗ Failed to renew webhook for user ${subscription.user_id}:`, errorMessage);
 
     return {
       success: false,
@@ -180,7 +181,7 @@ export async function cleanupExpiredWebhooks(): Promise<number> {
     .select();
 
   if (error) {
-    console.error('Error cleaning up expired webhooks:', error);
+    logger.error('Error cleaning up expired webhooks:', error);
     return 0;
   }
 

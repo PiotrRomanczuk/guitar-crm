@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { SongExportSchema } from "@/schemas/SongSchema";
+import { logger } from '@/lib/logger';
 
 export async function GET(req: NextRequest) {
   try {
@@ -67,7 +68,7 @@ export async function GET(req: NextRequest) {
     const { data: songs, error } = await query.order("title", { ascending: true });
 
     if (error) {
-      console.error("Error fetching songs for export:", error);
+      logger.error("Error fetching songs for export:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -125,7 +126,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error in song export API:", error);
+    logger.error("Error in song export API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

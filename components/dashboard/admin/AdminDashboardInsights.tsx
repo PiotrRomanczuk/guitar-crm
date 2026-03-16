@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BarChart3, TrendingUp, Loader2, Users, Calendar, Music } from 'lucide-react';
 import { generateAdminInsightsStream } from '@/app/actions/ai';
+import { logger } from '@/lib/logger';
 
 interface AdminStats {
   totalUsers: number;
@@ -73,7 +74,7 @@ export function AdminDashboardInsights({ adminStats }: Props) {
 
       setLastUpdated(new Date());
     } catch (error) {
-      console.error('Error generating admin insights:', error);
+      logger.error('Error generating admin insights:', error);
       setInsights('An error occurred while generating insights.');
     } finally {
       setLoading(false);

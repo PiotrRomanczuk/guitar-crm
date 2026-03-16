@@ -13,6 +13,7 @@ import VideoGallery from '../videos/VideoGallery';
 import type { Song } from '../types';
 import type { SongVideo } from '@/types/SongVideo';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 interface Props {
   songId: string;
@@ -32,7 +33,7 @@ async function loadSongData(songId: string): Promise<Song | null> {
       .single();
 
     if (error) {
-      console.error('[SongDetail Server] Supabase error:', error);
+      logger.error('[SongDetail Server] Supabase error:', error);
       return null;
     }
 
@@ -42,7 +43,7 @@ async function loadSongData(songId: string): Promise<Song | null> {
 
     return data as Song;
   } catch (err) {
-    console.error('[SongDetail Server] Exception:', err);
+    logger.error('[SongDetail Server] Exception:', err);
     return null;
   }
 }
@@ -57,12 +58,12 @@ async function loadVideos(songId: string): Promise<SongVideo[]> {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('[SongDetail Server] Videos fetch error:', error);
+      logger.error('[SongDetail Server] Videos fetch error:', error);
       return [];
     }
     return data as SongVideo[];
   } catch (err) {
-    console.error('[SongDetail Server] Videos exception:', err);
+    logger.error('[SongDetail Server] Videos exception:', err);
     return [];
   }
 }

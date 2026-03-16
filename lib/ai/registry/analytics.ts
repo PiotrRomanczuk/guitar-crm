@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Agent Analytics and Logging
  *
@@ -7,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import type { AgentSpecification, AgentRequest, AgentResponse } from './types';
+import { logger } from '@/lib/logger';
 
 /**
  * Agent Analytics Data
@@ -108,7 +108,7 @@ export async function logExecution(
     });
   } catch (error) {
     // DB logging is best-effort — don't break the request
-    console.warn('[AgentAnalytics] Failed to log execution to database:', error);
+    logger.warn('[AgentAnalytics] Failed to log execution to database', { error: String(error) });
   }
 }
 
@@ -122,7 +122,7 @@ export async function getDatabaseAnalytics(
   totalExecutions: number;
   successRate: number;
   averageExecutionTime: number;
-  recentActivity: any[];
+  recentActivity: Record<string, unknown>[];
 }> {
   try {
     const supabase = await createClient();
@@ -161,7 +161,7 @@ export async function getDatabaseAnalytics(
       recentActivity: logs.slice(0, 10),
     };
   } catch (error) {
-    console.error('[AgentAnalytics] Failed to fetch database analytics:', error);
+    logger.error('[AgentAnalytics] Failed to fetch database analytics:', error);
     return {
       totalExecutions: 0,
       successRate: 0,
@@ -248,7 +248,7 @@ export async function getPerformanceMetrics(
       topErrors,
     };
   } catch (error) {
-    console.error('[AgentAnalytics] Failed to fetch performance metrics:', error);
+    logger.error('[AgentAnalytics] Failed to fetch performance metrics:', error);
     return {
       executionCount: 0,
       successRate: 0,
@@ -287,11 +287,11 @@ export function logAIOperation(entry: AIOperationLog): void {
   };
 
   if (entry.level === 'error') {
-    console.error('[AI]', JSON.stringify(payload));
+    logger.error('[AI] Log entry', undefined, payload);
   } else if (entry.level === 'warn') {
-    console.warn('[AI]', JSON.stringify(payload));
+    logger.warn('[AI] Log entry', payload);
   } else {
-    console.log('[AI]', JSON.stringify(payload));
+    logger.info('[AI] Log entry', payload);
   }
 }
 

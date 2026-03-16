@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { CheckCircle2, Circle, Clock } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface UserSkillsProps {
   studentId: string;
@@ -72,7 +73,7 @@ export default function UserSkills({ studentId, initialSkills }: UserSkillsProps
       }
       toast.success('Status updated');
     } catch (error) {
-      console.error('Error updating status:', error);
+      logger.error('Error updating status:', error);
       toast.error('Failed to update status');
       // Revert optimistic update
       setSkills(

@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 /**
  * Streaming Analytics
  *
@@ -135,7 +136,7 @@ export function completeStreamingSession(
 
   // Log to console in development
   if (process.env.NODE_ENV === 'development') {
-    console.log('[Streaming Analytics]', {
+    logger.info('[Streaming Analytics]', {
       sessionId,
       agentId: metrics.agentId,
       modelId: metrics.modelId,
@@ -185,7 +186,7 @@ function sendToAnalytics(metrics: StreamingMetrics, summary: PerformanceSummary)
     // Could also send to other analytics services here
     // e.g., PostHog, Mixpanel, Google Analytics, etc.
   } catch (error) {
-    console.error('[Streaming Analytics] Failed to send metrics:', error);
+    logger.error('[Streaming Analytics] Failed to send metrics:', error);
   }
 }
 

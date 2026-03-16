@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { logger } from '@/lib/logger';
 
 const LessonTemplateInputSchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
@@ -47,13 +48,13 @@ export async function GET(request: NextRequest) {
     const { data: templates, error } = await query;
 
     if (error) {
-      console.error("Error fetching lesson templates:", error);
+      logger.error("Error fetching lesson templates:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ templates: templates || [] });
   } catch (error) {
-    console.error("Error in lesson templates API:", error);
+    logger.error("Error in lesson templates API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -116,13 +117,13 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error("Error creating lesson template:", error);
+      logger.error("Error creating lesson template:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json(template);
   } catch (error) {
-    console.error("Error in lesson template creation API:", error);
+    logger.error("Error in lesson template creation API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

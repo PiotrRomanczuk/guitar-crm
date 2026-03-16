@@ -2,6 +2,7 @@
 
 import { getAvailableModels } from '@/app/actions/ai';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 export interface AIStatus {
     status: 'connected' | 'error' | 'loading';
@@ -66,7 +67,7 @@ export async function checkOpenRouterStatus(): Promise<AIStatus> {
         };
 
     } catch (error) {
-        console.error('AI Status Check Failed:', error);
+        logger.error('AI Status Check Failed:', error);
         return {
             status: 'error',
             provider: 'Unknown',

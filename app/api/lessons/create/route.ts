@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { LessonInputSchema, LessonSchema, type LessonInput } from '@/schemas';
 import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
     try {
       validatedData = LessonInputSchema.parse(body);
     } catch (validationError) {
-      console.error('Lesson input validation error:', validationError);
+      logger.error('Lesson input validation error:', validationError);
       return NextResponse.json(
         { error: 'Invalid lesson data', details: validationError },
         { status: 400 }
@@ -87,7 +88,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error creating lesson:', error);
+      logger.error('Error creating lesson:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -96,11 +97,11 @@ export async function POST(request: NextRequest) {
       const validatedLesson = LessonSchema.parse(lesson);
       return NextResponse.json(validatedLesson);
     } catch (validationError) {
-      console.error('Created lesson validation error:', validationError);
+      logger.error('Created lesson validation error:', validationError);
       return NextResponse.json({ error: 'Invalid lesson data' }, { status: 500 });
     }
   } catch (error) {
-    console.error('Error in lesson creation API:', error);
+    logger.error('Error in lesson creation API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

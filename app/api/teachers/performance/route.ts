@@ -6,6 +6,7 @@ import {
   type TeacherPerformanceMetrics,
   type TeacherLessonTrend,
 } from '@/lib/services/teacher-performance';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/teachers/performance
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (metricsError) {
-      console.error('[API /api/teachers/performance] Metrics error:', metricsError);
+      logger.error('[API /api/teachers/performance] Metrics error:', metricsError);
       return NextResponse.json(
         { error: 'Failed to fetch performance metrics' },
         { status: 500 }
@@ -83,7 +84,7 @@ export async function GET(request: NextRequest) {
       .order('month', { ascending: true });
 
     if (trendsError) {
-      console.error('[API /api/teachers/performance] Trends error:', trendsError);
+      logger.error('[API /api/teachers/performance] Trends error:', trendsError);
       return NextResponse.json({ error: 'Failed to fetch lesson trends' }, { status: 500 });
     }
 
@@ -102,7 +103,7 @@ export async function GET(request: NextRequest) {
       trends,
     });
   } catch (error) {
-    console.error('[API /api/teachers/performance] ERROR:', error);
+    logger.error('[API /api/teachers/performance] ERROR:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

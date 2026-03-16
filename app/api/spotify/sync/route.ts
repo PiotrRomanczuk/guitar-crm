@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { searchSongsWithAI } from '@/lib/services/enhanced-spotify-search';
 import type { Database } from '@/database.types';
+import { logger } from '@/lib/logger';
 
 type DatabaseSong = Database['public']['Tables']['songs']['Row'];
 
@@ -221,7 +222,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(results);
   } catch (error) {
-    console.error('❌ AI-enhanced sync failed:', error);
+    logger.error('❌ AI-enhanced sync failed:', error);
 
     return NextResponse.json(
       {

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { checkSongDuplicate } from '@/app/actions/songs';
+import { logger } from '@/lib/logger';
 
 interface Props {
   mode: 'create' | 'edit';
@@ -162,7 +163,7 @@ export default function SongFormContent({ mode, song, onSuccess }: Props) {
         }));
       }
     } catch (error) {
-      console.error('Failed to fetch audio features', error);
+      logger.error('Failed to fetch audio features', error);
     }
   };
 

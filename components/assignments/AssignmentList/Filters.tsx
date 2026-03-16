@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { logger } from '@/lib/logger';
 
 interface Student {
   id: string;
@@ -54,7 +55,7 @@ export function Filters({
           setStudents(result.data || []);
         }
       } catch (error) {
-        console.error('Failed to fetch students', error);
+        logger.error('Failed to fetch students', error);
       }
     };
     fetchStudents();

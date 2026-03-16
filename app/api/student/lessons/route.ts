@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { getLessonsHandler } from '../../lessons/handlers';
+import { logger } from '@/lib/logger';
 
 /**
  * Helper to get user profile with roles
@@ -101,7 +102,7 @@ export async function GET(request: NextRequest) {
 			{ status: 200 }
 		);
 	} catch (error) {
-		console.error('Error in student lessons API:', error);
+		logger.error('Error in student lessons API:', error);
 		return NextResponse.json(
 			{ error: 'Internal server error' },
 			{ status: 500 }

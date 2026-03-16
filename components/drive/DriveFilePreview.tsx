@@ -23,7 +23,6 @@ export default function DriveFilePreview({ file, onClose }: DriveFilePreviewProp
 
     case 'video': {
       // Convert DriveFile to SongVideo format for existing VideoPlayer
-      // TODO: Create a generic VideoPlayer that accepts DriveFile
       const durationSeconds =
         file.metadata && 'duration_seconds' in file.metadata &&
         typeof file.metadata.duration_seconds === 'number'
@@ -65,7 +64,6 @@ export default function DriveFilePreview({ file, onClose }: DriveFilePreviewProp
     }
 
     case 'image':
-      // TODO: Create ImageViewer component
       return null;
 
     case 'document':

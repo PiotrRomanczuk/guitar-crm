@@ -12,6 +12,7 @@
  */
 
 import { generateUnsubscribeToken } from '@/lib/notifications/unsubscribe-token';
+import { logger } from '@/lib/logger';
 
 export interface BaseEmailTemplateOptions {
   subject: string;
@@ -58,7 +59,7 @@ function getUnsubscribeLink(
       const token = generateUnsubscribeToken(recipientUserId, notificationType);
       return `${baseUrl}/api/notifications/unsubscribe?token=${encodeURIComponent(token)}`;
     } catch (err) {
-      console.warn('[base-template] Could not generate signed unsubscribe token:', err);
+      logger.warn('[base-template] Could not generate signed unsubscribe token', { error: String(err) });
     }
   }
 

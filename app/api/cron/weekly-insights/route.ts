@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sendWeeklyInsights } from '@/app/actions/email/send-weekly-insights';
 import { verifyCronSecret } from '@/lib/auth/cron-auth';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
         emailsSent: result.emailsSent,
       });
     } else {
-      console.error('[Cron] Failed to send weekly insights:', result.errors);
+      logger.error('[Cron] Failed to send weekly insights:', result.errors);
       return NextResponse.json(
         {
           success: false,
@@ -33,7 +34,7 @@ export async function GET(request: Request) {
       );
     }
   } catch (error) {
-    console.error('[Cron] Unexpected error:', error);
+    logger.error('[Cron] Unexpected error:', error);
     return NextResponse.json(
       { success: false, error: 'Internal Server Error' },
       { status: 500 }

@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { assertNotTestAccount } from '@/lib/auth/test-account-guard';
 import { SongStatusEnum } from '@/schemas/LessonSchema';
+import { logger } from '@/lib/logger';
 
 export async function updateLessonSongStatus(lessonSongId: string, status: string) {
   const { isAdmin, isTeacher, isDevelopment } = await getUserWithRolesSSR();
@@ -28,7 +29,7 @@ export async function updateLessonSongStatus(lessonSongId: string, status: strin
     .eq('id', lessonSongId);
 
   if (error) {
-    console.error('Error updating lesson song status:', error);
+    logger.error('Error updating lesson song status:', error);
     throw new Error('Failed to update status');
   }
 
@@ -67,7 +68,7 @@ export async function getExistingCategories(): Promise<CategoryWithCount[]> {
     .neq('category', '');
 
   if (error) {
-    console.error('Error fetching categories:', error);
+    logger.error('Error fetching categories:', error);
     return [];
   }
 
@@ -157,7 +158,7 @@ export async function quickAssignSongToLesson(
     );
 
   if (error) {
-    console.error('Error assigning song to lesson:', error);
+    logger.error('Error assigning song to lesson:', error);
     return { success: false, error: 'Failed to assign song' };
   }
 

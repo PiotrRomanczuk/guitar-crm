@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { calculateHealthScore, HealthFactors, HealthStatus } from '@/lib/utils/studentHealth';
 import { getTeacherStudentIds } from '@/lib/queries/teacher-students';
+import { logger } from '@/lib/logger';
 
 export interface StudentHealth {
   id: string;
@@ -125,7 +126,7 @@ export async function GET() {
 
     return NextResponse.json(studentHealthData);
   } catch (error) {
-    console.error('Error fetching student health:', error);
+    logger.error('Error fetching student health:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

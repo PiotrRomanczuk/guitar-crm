@@ -13,6 +13,7 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { useLayoutMode } from '@/hooks/use-is-widescreen';
 import { useKeyboardViewport } from '@/hooks/use-keyboard-viewport';
 import { NotificationBell } from '@/components/notifications';
+import { logger } from '@/lib/logger';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -39,7 +40,7 @@ export function AppShell({ children, user, isAdmin, isTeacher, isStudent }: AppS
   const _useMobileNav = showNavigation && layoutMode === 'mobile';
 
   const { isLocal } = getSupabaseConfig();
-  console.log('AppShell:', {
+  logger.info('AppShell:', {
     pathname,
     hasUser: !!user,
     isAuthPage,

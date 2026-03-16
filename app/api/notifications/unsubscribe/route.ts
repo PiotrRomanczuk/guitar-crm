@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { NotificationType, NOTIFICATION_TYPE_INFO } from '@/types/notifications';
 import { verifyUnsubscribeToken } from '@/lib/notifications/unsubscribe-token';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/notifications/unsubscribe
@@ -71,7 +72,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (profileError || !profile) {
-      console.error('User not found for unsubscribe:', profileError);
+      logger.error('User not found for unsubscribe:', profileError);
       return NextResponse.redirect(
         new URL('/unsubscribe?error=user_not_found', request.url)
       );
@@ -85,7 +86,7 @@ export async function GET(request: NextRequest) {
       .eq('notification_type', notificationType);
 
     if (updateError) {
-      console.error('Error updating notification preference:', updateError);
+      logger.error('Error updating notification preference:', updateError);
       return NextResponse.redirect(
         new URL('/unsubscribe?error=update_failed', request.url)
       );
@@ -98,7 +99,7 @@ export async function GET(request: NextRequest) {
       )
     );
   } catch (error) {
-    console.error('Unsubscribe error:', error);
+    logger.error('Unsubscribe error:', error);
     return NextResponse.redirect(
       new URL('/unsubscribe?error=server_error', request.url)
     );

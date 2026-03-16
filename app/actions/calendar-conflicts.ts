@@ -6,6 +6,7 @@ import {
   resolveConflictManually,
   autoResolveOldConflicts,
 } from '@/lib/services/sync-conflict-resolver';
+import { logger } from '@/lib/logger';
 
 interface ConflictData {
   remote_title?: string;
@@ -52,7 +53,7 @@ export async function fetchPendingConflicts(): Promise<{
       conflicts: conflicts as Conflict[],
     };
   } catch (error) {
-    console.error('Error fetching conflicts:', error);
+    logger.error('Error fetching conflicts:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to fetch conflicts',
@@ -84,7 +85,7 @@ export async function resolveConflict(
 
     return result;
   } catch (error) {
-    console.error('Error resolving conflict:', error);
+    logger.error('Error resolving conflict:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to resolve conflict',
@@ -119,7 +120,7 @@ export async function autoResolveOldConflictsAction(): Promise<{
       failed: result.failed,
     };
   } catch (error) {
-    console.error('Error auto-resolving conflicts:', error);
+    logger.error('Error auto-resolving conflicts:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to auto-resolve conflicts',

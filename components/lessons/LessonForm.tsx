@@ -7,6 +7,7 @@ import { ProfileSelect } from './LessonForm.ProfileSelect';
 import { SongSelect } from './LessonForm.SongSelect';
 import { LessonFormFields } from './LessonForm.Fields';
 import { LessonFormActions } from './LessonForm.Actions';
+import { logger } from '@/lib/logger';
 
 export default function LessonForm(props: UseLessonFormProps) {
   const router = useRouter();
@@ -26,12 +27,12 @@ export default function LessonForm(props: UseLessonFormProps) {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('[LessonForm] Form submitted', formData);
+    logger.info('[LessonForm] Form submitted', { formData: JSON.stringify(formData) });
     setIsSubmitting(true);
 
     try {
       const result = await handleSubmit();
-      console.log('[LessonForm] Submit result:', result);
+      logger.info('[LessonForm] Submit result:', result);
       if (result.success) {
         if (props.lessonId) {
           router.push(`/dashboard/lessons/${props.lessonId}`);

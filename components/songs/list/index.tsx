@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { SongListClient } from './Client';
 import type { Song } from '../types';
+import { logger } from '@/lib/logger';
 
 // Explicit columns for the song list query.
 // Excludes search_vector (tsvector/unknown type) which is not needed in the UI
@@ -73,7 +74,7 @@ export default async function SongList({ searchParams }: SongListProps) {
   const { data: rawSongs, error } = await songQuery;
 
   if (error) {
-    console.error('Error fetching songs:', error);
+    logger.error('Error fetching songs:', error);
     return (
       <div data-testid="song-list-error">
         Error loading songs: {String(error.message)}

@@ -342,16 +342,14 @@ export async function getUsersWithStats(
   }
 
   // Map aggregated counts
-  const mappedData = (data || []).map((user) => ({
-    ...user,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    lessons_count: Array.isArray((user as any).lessons) ? (user as any).lessons.length : 0,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    assignments_count: Array.isArray((user as any).assignments)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ? (user as any).assignments.length
-      : 0,
-  })) as UserWithStats[];
+  const mappedData = (data || []).map((user) => {
+    const userRecord = user as Record<string, unknown>;
+    return {
+      ...user,
+      lessons_count: Array.isArray(userRecord.lessons) ? userRecord.lessons.length : 0,
+      assignments_count: Array.isArray(userRecord.assignments) ? userRecord.assignments.length : 0,
+    };
+  }) as UserWithStats[];
 
   return { data: mappedData, count: count || 0, error: null };
 }

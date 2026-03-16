@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { AlertTriangle, RefreshCw, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 
 interface RouteErrorProps {
   error: Error & { digest?: string };
@@ -36,7 +37,7 @@ export function RouteError({
   backHref = '/dashboard',
 }: RouteErrorProps) {
   useEffect(() => {
-    console.error(`[${context} Error]`, error);
+    logger.error(`[${context} Error]`, error);
   }, [error, context]);
 
   return (

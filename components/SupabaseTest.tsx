@@ -36,7 +36,7 @@ export default function SupabaseTest() {
 // 			try {
 // 				const { data, error } = await supabase.from('profiles').select('*');
 
-// 				console.log(data);
+// 				logger.info(data);
 // 				if (error) {
 // 					setError(error.message);
 // 				} else {

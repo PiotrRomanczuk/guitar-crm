@@ -19,6 +19,7 @@ import { generateEmailDraftStream } from '@/app/actions/ai';
 import { useAIStream } from '@/hooks/useAIStream';
 import { AIAssistButton } from '@/components/lessons/shared/AIAssistButton';
 import { AIStreamingStatus } from '@/components/ai';
+import { logger } from '@/lib/logger';
 
 interface Student {
   id: string;
@@ -48,9 +49,8 @@ export function EmailDraftGenerator({ students }: Props) {
 
   // Streaming action wrapper
   const streamAction = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async function* (params: any, _signal?: AbortSignal) {
-      yield* generateEmailDraftStream(params);
+    async function* (params: Record<string, unknown>, _signal?: AbortSignal) {
+      yield* generateEmailDraftStream(params as Parameters<typeof generateEmailDraftStream>[0]);
     },
     []
   );
@@ -74,7 +74,7 @@ export function EmailDraftGenerator({ students }: Props) {
       }
     },
     onError: (error) => {
-      console.error('[EmailDraftGenerator] Streaming error:', error);
+      logger.error('[EmailDraftGenerator] Streaming error:', error);
     },
   });
 
@@ -142,7 +142,7 @@ export function EmailDraftGenerator({ students }: Props) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error('Failed to copy email:', error);
+      logger.error('Failed to copy email:', error);
     }
   };
 

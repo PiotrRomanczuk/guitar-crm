@@ -8,6 +8,7 @@
 import type { AIProvider } from './types';
 import { createOpenRouterProvider } from './providers/openrouter';
 import { createOllamaProvider } from './providers/ollama';
+import { logger } from '@/lib/logger';
 
 export type ProviderType = 'openrouter' | 'ollama' | 'auto';
 
@@ -87,7 +88,7 @@ const autoSelectProvider = async (): Promise<AIProvider> => {
   }
 
   // Default to OpenRouter even if not configured (will show error to user)
-  console.warn('[AIProviderFactory] No providers available, defaulting to OpenRouter');
+  logger.warn('[AIProviderFactory] No providers available, defaulting to OpenRouter');
   return openrouter;
 };
 

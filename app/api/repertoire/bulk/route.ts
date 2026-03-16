@@ -7,6 +7,7 @@ import {
   type StudentRepertoireType,
 } from '@/schemas/StudentRepertoireSchema';
 import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -139,7 +140,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(results);
   } catch (error) {
-    console.error('Error in bulk repertoire creation API:', error);
+    logger.error('Error in bulk repertoire creation API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

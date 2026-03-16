@@ -1,58 +1,93 @@
 /**
- * Environment-aware logger for server-side debugging
- * Only logs in development mode, silent in production
- * Compatible with Edge runtime (middleware) and Node.js
+ * Structured logger with Sentry integration.
+ *
+ * - `logger` -- default singleton for quick usage
+ * - `createLogger(prefix)` -- namespaced logger for a specific module
+ *
+ * Levels:
+ *   debug  -- dev-only (verbose), no Sentry
+ *   info   -- dev console + Sentry breadcrumb
+ *   warn   -- always console.warn + Sentry breadcrumb
+ *   error  -- always console.error + Sentry captureException / captureMessage
  */
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+import * as Sentry from '@sentry/nextjs';
 
-interface LogContext {
-  [key: string]: unknown;
-}
+type LogContext = Record<string, unknown>;
 
-// Check environment - works in both Edge and Node.js runtimes
-const isDevelopment = typeof process !== 'undefined' && process.env?.NODE_ENV === 'development';
-const isVerbose = typeof process !== 'undefined' && process.env?.LOG_VERBOSE === 'true';
+// Edge-safe env checks
+const isDev =
+  typeof process !== 'undefined' &&
+  process.env?.NODE_ENV === 'development';
 
-/**
- * Format log message with timestamp and context
- */
-function formatMessage(
-  level: LogLevel,
+function fmt(
+  level: string,
   prefix: string,
   message: string,
-  context?: LogContext
+  context?: LogContext,
 ): string {
-  const timestamp = new Date().toISOString();
-  const contextStr = context ? ` ${JSON.stringify(context)}` : '';
-  return `[${timestamp}] [${level.toUpperCase()}] [${prefix}] ${message}${contextStr}`;
+  const ts = new Date().toISOString();
+  const ctx = context ? ` ${JSON.stringify(context)}` : '';
+  return `[${ts}] [${level}] [${prefix}] ${message}${ctx}`;
 }
 
-/**
- * Create a namespaced logger for a specific module
- */
-export function createLogger(prefix: string) {
+function makeLogger(prefix: string) {
   return {
+    /** Debug -- dev only, no Sentry */
     debug(message: string, context?: LogContext) {
-      if (isDevelopment && isVerbose) {
-        console.log(formatMessage('debug', prefix, message, context));
-      }
+      if (isDev) console.log(fmt('DEBUG', prefix, message, context));
     },
+
+    /** Info -- dev console + Sentry breadcrumb */
     info(message: string, context?: LogContext) {
-      if (isDevelopment) {
-        console.log(formatMessage('info', prefix, message, context));
-      }
+      if (isDev) console.log(fmt('INFO', prefix, message, context));
+      Sentry.addBreadcrumb({
+        message: `[${prefix}] ${message}`,
+        data: context,
+        level: 'info',
+      });
     },
+
+    /** Warn -- always log + Sentry breadcrumb */
     warn(message: string, context?: LogContext) {
-      if (isDevelopment) {
-        console.warn(formatMessage('warn', prefix, message, context));
-      }
+      console.warn(fmt('WARN', prefix, message, context));
+      Sentry.addBreadcrumb({
+        message: `[${prefix}] ${message}`,
+        data: context,
+        level: 'warning',
+      });
     },
-    error(message: string, context?: LogContext) {
-      // Errors are always logged (but could be sent to Sentry in production)
-      console.error(formatMessage('error', prefix, message, context));
+
+    /** Error -- always log + Sentry capture */
+    error(
+      message: string,
+      error?: unknown,
+      context?: LogContext,
+    ) {
+      console.error(
+        fmt('ERROR', prefix, message, context),
+        error ?? '',
+      );
+      if (error instanceof Error) {
+        Sentry.captureException(error, {
+          extra: { message, prefix, ...context },
+        });
+      } else {
+        Sentry.captureMessage(`[${prefix}] ${message}`, {
+          level: 'error',
+          extra: { error, prefix, ...context },
+        });
+      }
     },
   };
+}
+
+/** Default (un-prefixed) logger for quick usage */
+export const logger = makeLogger('app');
+
+/** Create a namespaced logger -- keeps backward compat with old API */
+export function createLogger(prefix: string) {
+  return makeLogger(prefix);
 }
 
 // Pre-configured loggers for common modules

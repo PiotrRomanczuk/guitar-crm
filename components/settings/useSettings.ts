@@ -6,6 +6,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { queryClient } from '@/lib/query-client';
 import { getUserSettings, saveUserSettings } from '@/app/actions/settings';
 import type { UserSettings } from '@/schemas/SettingsSchema';
+import { logger } from '@/lib/logger';
 
 const DEFAULT_SETTINGS: UserSettings = {
   emailNotifications: true,
@@ -22,7 +23,7 @@ const DEFAULT_SETTINGS: UserSettings = {
 async function fetchSettingsFromServer(userId: string): Promise<UserSettings> {
   const result = await getUserSettings(userId);
   if (!result.success || !result.settings) {
-    console.error('Failed to fetch settings from server:', result.error);
+    logger.error('Failed to fetch settings from server:', result.error);
     return DEFAULT_SETTINGS;
   }
   return result.settings;

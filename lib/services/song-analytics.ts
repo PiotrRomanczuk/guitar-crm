@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { Database } from '@/database.types';
+import { logger } from '@/lib/logger';
 
 type Song = Database['public']['Tables']['songs']['Row'];
 
@@ -36,7 +37,7 @@ export async function getSongDatabaseStatistics(): Promise<SongDatabaseStats> {
     .order('title');
 
   if (error) {
-    console.error('Error fetching songs for analytics:', error);
+    logger.error('Error fetching songs for analytics:', error);
     throw new Error(`Failed to fetch songs: ${error.message}`);
   }
 

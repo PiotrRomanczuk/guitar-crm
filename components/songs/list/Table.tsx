@@ -11,6 +11,7 @@ import { Music } from 'lucide-react';
 import EmptyState from '@/components/shared/EmptyState';
 import SortableHeader from './Table.SortableHeader';
 import { SongMobileCard, SongDesktopRow } from './Table.SongRow';
+import { logger } from '@/lib/logger';
 
 type SortField = 'title' | 'author' | 'level' | 'key' | 'updated_at';
 type SortDirection = 'asc' | 'desc';
@@ -61,12 +62,12 @@ export default function SongListTable({
         .select('*', { count: 'exact', head: true })
         .eq('song_id', song.id);
       if (error) {
-        console.error('Error checking assignments:', error);
+        logger.error('Error checking assignments:', error);
       }
       setAssignmentCount(count || 0);
       setSongToDelete(song);
     } catch (err) {
-      console.error('Unexpected error in handleDeleteClick:', err);
+      logger.error('Unexpected error in handleDeleteClick:', err);
     } finally {
       setCheckingId(null);
       setDeleteError(null);
@@ -99,7 +100,7 @@ export default function SongListTable({
       setDeletingSongId(null);
       onDeleteSuccess?.(deletedId);
     } catch (error) {
-      console.error('Delete failed:', error);
+      logger.error('Delete failed:', error);
       setDeleteError(error instanceof Error ? error.message : 'Failed to delete song');
       setDeletingSongId(null);
     }

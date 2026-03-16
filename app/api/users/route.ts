@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto';
 import { maskShadowEmail } from '@/lib/auth/shadow-email';
 import { z } from 'zod';
 import { logShadowUserCreated, logAdminUserCreated } from '@/lib/auth/auth-event-logger';
+import { logger } from '@/lib/logger';
 
 const CreateUserSchema = z.object({
   email: z.string().email().optional().or(z.literal('')),
@@ -167,7 +168,7 @@ export async function GET(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error fetching users:', error);
+    logger.error('Error fetching users:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -188,7 +189,7 @@ export async function POST(request: Request) {
       }
       rawBody = JSON.parse(text);
     } catch (e) {
-      console.error('Error parsing JSON body:', e);
+      logger.error('Error parsing JSON body:', e);
       return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
@@ -288,7 +289,7 @@ export async function POST(request: Request) {
     });
 
     if (authError) {
-      console.error('Error creating auth user:', authError);
+      logger.error('Error creating auth user:', authError);
       return Response.json({ error: authError.message }, { status: 500 });
     }
 
@@ -312,7 +313,7 @@ export async function POST(request: Request) {
       .single();
 
     if (updateError) {
-      console.error('Error updating profile:', updateError);
+      logger.error('Error updating profile:', updateError);
       // Profile was created by trigger, just couldn't update extra fields
       // Return success anyway with basic data
       return Response.json({ id: userId, email: email }, { status: 201 });
@@ -320,7 +321,7 @@ export async function POST(request: Request) {
 
     return Response.json(profileData, { status: 201 });
   } catch (error) {
-    console.error('Error creating user:', error);
+    logger.error('Error creating user:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -20,6 +20,7 @@ import { Trash2, BookOpen } from 'lucide-react';
 import StatusSelect from './StatusSelect';
 
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 interface Props {
   songs: (Song | SongWithStatus)[];
@@ -57,27 +58,27 @@ export default function SongListTable({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const handleDeleteClick = async (song: Song) => {
-    console.log('🎸 [FRONTEND] handleDeleteClick called for song:', song.id);
+    logger.info('[FRONTEND] handleDeleteClick called', { songId: song.id });
     setCheckingId(song.id);
 
     try {
       const supabase = getSupabaseBrowserClient();
-      console.log('🎸 [FRONTEND] Checking assignments for song:', song.id);
+      logger.info('[FRONTEND] Checking assignments for song', { songId: song.id });
       const { count, error } = await supabase
         .from('lesson_songs')
         .select('*', { count: 'exact', head: true })
         .eq('song_id', song.id);
 
       if (error) {
-        console.error('🎸 [FRONTEND] Error checking assignments:', error);
+        logger.error('🎸 [FRONTEND] Error checking assignments:', error);
       } else {
-        console.log('🎸 [FRONTEND] Assignment count:', count);
+        logger.info('[FRONTEND] Assignment count', { count });
       }
 
       setAssignmentCount(count || 0);
       setSongToDelete(song);
     } catch (err) {
-      console.error('🎸 [FRONTEND] Unexpected error in handleDeleteClick:', err);
+      logger.error('🎸 [FRONTEND] Unexpected error in handleDeleteClick:', err);
     } finally {
       setCheckingId(null);
       setDeleteError(null);
@@ -121,7 +122,7 @@ export default function SongListTable({
       onDeleteSuccess?.();
       router.refresh();
     } catch (error) {
-      console.error('🎸 [FRONTEND] Delete failed:', error);
+      logger.error('🎸 [FRONTEND] Delete failed:', error);
       setDeleteError(error instanceof Error ? error.message : 'Failed to delete song');
       setDeletingSongId(null);
     }

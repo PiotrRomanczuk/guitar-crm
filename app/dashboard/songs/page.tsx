@@ -11,6 +11,7 @@ type Props = {
 
 import { createClient } from '@supabase/supabase-js';
 import type { Song } from '@/components/songs/types';
+import { logger } from '@/lib/logger';
 
 export default async function SongsPage(props: Props) {
   const searchParams = await props.searchParams;
@@ -49,7 +50,7 @@ export default async function SongsPage(props: Props) {
       .eq('lessons.student_id', user.id);
 
     if (error) {
-      console.error('[SongsPage] Error fetching student songs:', error);
+      logger.error('[SongsPage] Error fetching student songs:', error);
     }
 
     const processedSongsMap = new Map<string, Song>();

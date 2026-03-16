@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { VALID_STATUS_TRANSITIONS } from '@/schemas/AssignmentSchema';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 interface Assignment {
   id: string;
@@ -76,7 +77,7 @@ export function StudentAssignmentsPageClient() {
       setAssignments(data.assignments ?? data);
       // setError(null);
     } catch (err) {
-      console.error('Error loading assignments:', err);
+      logger.error('Error loading assignments:', err);
       // setError(err instanceof Error ? err.message : 'Error loading assignments');
     } finally {
       setLoading(false);
@@ -103,7 +104,7 @@ export function StudentAssignmentsPageClient() {
       toast.success(`Assignment marked as ${newStatus.replace(/_/g, ' ')}`);
     } catch (err) {
       toast.error('Failed to update assignment status');
-      console.error(err);
+      logger.error('Failed to update assignment status', err);
     }
   };
 

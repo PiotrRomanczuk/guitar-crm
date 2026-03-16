@@ -29,7 +29,7 @@ const CSP_HEADER = [
   'upgrade-insecure-requests',
 ].join('; ');
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   log.info(`${request.method} ${request.nextUrl.pathname}`);
   log.debug('Request cookies', {
     cookies: request.cookies

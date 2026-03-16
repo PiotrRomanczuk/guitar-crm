@@ -1,4 +1,5 @@
 import { getSupabaseConfig } from '../supabase/config';
+import { logger } from '@/lib/logger';
 
 export interface DatabaseEndpoint {
   baseUrl: string;
@@ -66,7 +67,7 @@ export class DatabaseRouter {
         };
       }
     } catch (error) {
-      console.error('❌ [DatabaseRouter] Failed to determine endpoint:', error);
+      logger.error('❌ [DatabaseRouter] Failed to determine endpoint:', error);
       throw new Error('Database configuration not available');
     }
   }
@@ -115,12 +116,12 @@ export class DatabaseRouter {
       };
 
       if (!response.ok) {
-        console.error(`${logPrefix} Request failed:`, result.error);
+        logger.error(`${logPrefix} Request failed:`, result.error);
       }
 
       return result;
     } catch (error) {
-      console.error(`${logPrefix} Network error:`, error);
+      logger.error(`${logPrefix} Network error:`, error);
       return {
         data: null as T,
         error: error as Error,

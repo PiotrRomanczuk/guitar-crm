@@ -31,6 +31,7 @@ import {
   type UpdateUserInput,
   type UserWithStats,
 } from '@/lib/repositories/user.repository';
+import { logger } from '@/lib/logger';
 
 // ============================================================================
 // TYPES
@@ -265,7 +266,7 @@ export async function getUserService(
       data: result.data,
     };
   } catch (error) {
-    console.error('Error in getUserService:', error);
+    logger.error('Error in getUserService:', error);
     return {
       success: false,
       error: 'Internal server error',
@@ -315,7 +316,7 @@ export async function getUsersList(
       },
     };
   } catch (error) {
-    console.error('Error in getUsersList:', error);
+    logger.error('Error in getUsersList:', error);
     return {
       success: false,
       error: 'Internal server error',
@@ -372,7 +373,7 @@ export async function getUsersListWithStats(
       },
     };
   } catch (error) {
-    console.error('Error in getUsersListWithStats:', error);
+    logger.error('Error in getUsersListWithStats:', error);
     return {
       success: false,
       error: 'Internal server error',
@@ -435,7 +436,7 @@ export async function createUser(
       data: result.data,
     };
   } catch (error) {
-    console.error('Error in createUser:', error);
+    logger.error('Error in createUser:', error);
     return {
       success: false,
       error: 'Internal server error',
@@ -511,7 +512,7 @@ export async function updateUser(
       data: result.data,
     };
   } catch (error) {
-    console.error('Error in updateUser:', error);
+    logger.error('Error in updateUser:', error);
     return {
       success: false,
       error: 'Internal server error',
@@ -572,7 +573,7 @@ export async function deleteUser(
       data: undefined,
     };
   } catch (error) {
-    console.error('Error in deleteUser:', error);
+    logger.error('Error in deleteUser:', error);
     return {
       success: false,
       error: 'Internal server error',

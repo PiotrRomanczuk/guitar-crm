@@ -5,6 +5,7 @@ import { generateAssignmentStream } from '@/app/actions/ai';
 import { useAIStream } from '@/hooks/useAIStream';
 import { AIAssistButton } from '@/components/lessons/shared/AIAssistButton';
 import { AIStreamingStatus } from '@/components/ai';
+import { logger } from '@/lib/logger';
 
 interface Props {
   studentName: string;
@@ -31,9 +32,8 @@ export function AssignmentAI({
 }: Props) {
   // Streaming action wrapper
   const streamAction = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async function* (params: any, _signal?: AbortSignal) {
-      yield* generateAssignmentStream(params);
+    async function* (params: Record<string, unknown>, _signal?: AbortSignal) {
+      yield* generateAssignmentStream(params as Parameters<typeof generateAssignmentStream>[0]);
     },
     []
   );
@@ -44,7 +44,7 @@ export function AssignmentAI({
       onAssignmentGenerated(content);
     },
     onError: (error) => {
-      console.error('[AssignmentAI] Streaming error:', error);
+      logger.error('[AssignmentAI] Streaming error:', error);
       onAssignmentGenerated('Error generating assignment. Please try again.');
     },
   });

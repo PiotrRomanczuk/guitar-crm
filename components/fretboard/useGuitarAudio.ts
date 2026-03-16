@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import * as Tone from 'tone';
 import { type NoteName } from '@/lib/music-theory';
+import { logger } from '@/lib/logger';
 
 /**
  * Calculate the correct note name and octave for a given string and fret.
@@ -53,7 +54,7 @@ export function useGuitarAudio(): GuitarAudioControls {
         synthRef.current.volume.value = volume;
         setIsReady(true);
       } catch (error) {
-        console.error('Failed to initialize audio:', error);
+        logger.error('Failed to initialize audio:', error);
       }
     };
 
@@ -92,7 +93,7 @@ export function useGuitarAudio(): GuitarAudioControls {
         // Play the note (short duration for plucked sound)
         synthRef.current.triggerAttackRelease(toneNote, '0.8n');
       } catch (error) {
-        console.error('Failed to play note:', error);
+        logger.error('Failed to play note:', error);
       }
     },
     [isReady],

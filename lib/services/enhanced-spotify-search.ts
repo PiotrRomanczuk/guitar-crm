@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Enhanced Spotify Search Service
  *
@@ -15,6 +14,7 @@ import {
   type SpotifyTrack,
 } from './ai-song-matching';
 import type { Database } from '@/database.types';
+import { logger } from '@/lib/logger';
 
 type DatabaseSong = Database['public']['Tables']['songs']['Row'];
 
@@ -96,7 +96,7 @@ export async function searchSongWithAI(
           });
 
           // Sort by score
-          scoredTracks.sort((a: any, b: any) => b.score - a.score);
+          scoredTracks.sort((a, b) => b.score - a.score);
 
           const topTrack = scoredTracks[0];
 
@@ -111,7 +111,7 @@ export async function searchSongWithAI(
               reasoning: `Found via query: ${query}`,
               suggestions: scoredTracks
                 .slice(1, 3)
-                .map((t: any) => `${t.track.name} by ${t.track.artists[0]?.name} (${t.score}%)`),
+                .map((t) => `${t.track.name} by ${t.track.artists[0]?.name} (${t.score}%)`),
             };
           }
 
@@ -124,7 +124,7 @@ export async function searchSongWithAI(
         // Rate limiting delay
         await new Promise((resolve) => setTimeout(resolve, 150));
       } catch (error) {
-        console.error(`❌ Error executing query "${query}":`, error);
+        logger.error(`❌ Error executing query "${query}":`, error);
         continue;
       }
     }
@@ -165,7 +165,7 @@ export async function searchSongWithAI(
       queriesUsed,
     };
   } catch (error) {
-    console.error('Enhanced search error:', error);
+    logger.error('Enhanced search error:', error);
 
     return {
       song,

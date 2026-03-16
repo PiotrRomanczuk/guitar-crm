@@ -19,6 +19,7 @@ import {
   createCardSection,
   createSubsectionHeading,
 } from '@/lib/email/templates/base-template';
+import { logger } from '@/lib/logger';
 
 // ============================================================================
 // ADMIN EMAIL HELPERS
@@ -36,7 +37,7 @@ async function getAdminEmails(): Promise<string[]> {
     .eq('is_admin', true);
 
   if (error || !admins) {
-    console.error('Failed to fetch admin emails:', error);
+    logger.error('Failed to fetch admin emails:', error);
     return [];
   }
 
@@ -53,7 +54,7 @@ async function sendAdminEmail(
   const adminEmails = await getAdminEmails();
 
   if (adminEmails.length === 0) {
-    console.warn('No admin emails found for alert');
+    logger.warn('No admin emails found for alert');
     return;
   }
 
@@ -67,7 +68,7 @@ async function sendAdminEmail(
 
     // Email sent successfully
   } catch (error) {
-    console.error('Failed to send admin email:', error);
+    logger.error('Failed to send admin email:', error);
     throw error;
   }
 }
@@ -108,7 +109,7 @@ export async function checkFailureRate(): Promise<void> {
     .gte('created_at', oneHourAgo);
 
   if (error || !logs) {
-    console.error('Failed to check failure rate:', error);
+    logger.error('Failed to check failure rate:', error);
     return;
   }
 
@@ -233,7 +234,7 @@ export async function checkBounceRate(): Promise<void> {
   };
 
   if (error) {
-    console.error('Failed to check bounce rate:', error);
+    logger.error('Failed to check bounce rate:', error);
     return;
   }
 
@@ -319,7 +320,7 @@ export async function checkQueueBacklog(): Promise<void> {
     .order('created_at', { ascending: true });
 
   if (error) {
-    console.error('Failed to check queue backlog:', error);
+    logger.error('Failed to check queue backlog:', error);
     return;
   }
 
@@ -393,7 +394,7 @@ export async function sendDailyAdminSummary(): Promise<void> {
     .gte('created_at', yesterday);
 
   if (error || !logs) {
-    console.error('Failed to fetch daily summary data:', error);
+    logger.error('Failed to fetch daily summary data:', error);
     return;
   }
 

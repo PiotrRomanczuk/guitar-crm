@@ -3,6 +3,7 @@
 import { getSongDatabaseStatistics } from '@/lib/services/song-analytics';
 import { generateAdminSongReportHtml } from '@/lib/email/templates/admin-song-report';
 import transporter from '@/lib/email/smtp-client';
+import { logger } from '@/lib/logger';
 
 export async function sendAdminSongReport() {
   try {
@@ -29,7 +30,7 @@ export async function sendAdminSongReport() {
     return { success: true, messageId: info.messageId };
 
   } catch (error) {
-    console.error('[sendAdminSongReport] Failed to send report:', error);
+    logger.error('[sendAdminSongReport] Failed to send report:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }

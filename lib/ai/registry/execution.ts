@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Agent Execution Engine
  *
@@ -11,6 +10,7 @@ import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
 import type { AgentSpecification, AgentRequest } from './types';
 import { fetchContextData } from './context-fetcher';
 import { mapToOllamaModel } from '../model-mappings';
+import { logger } from '@/lib/logger';
 
 const MAX_CONTEXT_VALUE_LENGTH = 5000;
 
@@ -48,8 +48,8 @@ function sanitizeContextValue(text: string): string {
 export async function executeAgent(
   request: AgentRequest,
   agent: AgentSpecification,
-  executionContext: Record<string, any>
-): Promise<any> {
+  executionContext: Record<string, unknown>
+): Promise<unknown> {
   const provider = await getAIProvider();
 
   // Get the appropriate model for this provider
@@ -89,8 +89,8 @@ export async function executeAgent(
 export async function prepareContext(
   request: AgentRequest,
   agent: AgentSpecification
-): Promise<Record<string, any>> {
-  const context: Record<string, any> = {};
+): Promise<Record<string, unknown>> {
+  const context: Record<string, unknown> = {};
 
   // Fetch required context data
   for (const contextKey of agent.requiredContext) {
@@ -111,7 +111,7 @@ export async function prepareContext(
       context[contextKey] = await fetchContextData(contextKey, request.context);
     } catch (error) {
       // Optional context failures are non-blocking
-      console.warn(`[AgentExecution] Failed to fetch optional context: ${contextKey}`, error);
+      logger.warn(`[AgentExecution] Failed to fetch optional context: ${contextKey}`, { error: String(error) });
       context[contextKey] = null;
     }
   }
@@ -122,7 +122,7 @@ export async function prepareContext(
 /**
  * Build system prompt with injected context data
  */
-function buildSystemPrompt(agent: AgentSpecification, context: Record<string, any>): string {
+function buildSystemPrompt(agent: AgentSpecification, context: Record<string, unknown>): string {
   let prompt = agent.systemPrompt;
 
   const contextEntries = Object.entries(context).filter(
@@ -145,7 +145,7 @@ function buildSystemPrompt(agent: AgentSpecification, context: Record<string, an
 /**
  * Build user message from input fields
  */
-function buildUserMessage(input: Record<string, any>, agent: AgentSpecification): string {
+function buildUserMessage(input: Record<string, unknown>, agent: AgentSpecification): string {
   const messageParts: string[] = [];
 
   for (const field of agent.inputValidation.allowedFields) {
@@ -169,7 +169,7 @@ export function generateRequestId(): string {
 /**
  * Create hash of input data for analytics
  */
-export function hashInput(input: Record<string, any>): string {
+export function hashInput(input: Record<string, unknown>): string {
   try {
     return Buffer.from(JSON.stringify(input)).toString('base64').substr(0, 16);
   } catch {

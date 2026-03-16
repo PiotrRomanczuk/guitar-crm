@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 
 /**
  * Error boundary for logs routes
@@ -17,7 +18,7 @@ export default function LogsError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[Logs Error]', error);
+    logger.error('[Logs Error]', error);
   }, [error]);
 
   return (

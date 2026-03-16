@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -67,7 +68,7 @@ export async function GET(request: NextRequest) {
     // Get lesson completion rates
     const { data: allLessons, error: lessonsError } = await baseQuery;
     if (lessonsError) {
-      console.error('Error fetching lessons for analytics:', lessonsError);
+      logger.error('Error fetching lessons for analytics:', lessonsError);
       return NextResponse.json({ error: lessonsError.message }, { status: 500 });
     }
 
@@ -254,7 +255,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(analytics);
   } catch (error) {
-    console.error('Error in lesson analytics API:', error);
+    logger.error('Error in lesson analytics API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import TemplateList from '@/components/assignments/templates/TemplateList';
 import Link from 'next/link';
+import { logger } from '@/lib/logger';
 
 export default async function TemplatesPage() {
   const supabase = await createClient();
@@ -38,7 +39,7 @@ export default async function TemplatesPage() {
   const { data: templates, error } = await query;
 
   if (error) {
-    console.error('Error fetching templates:', error);
+    logger.error('Error fetching templates:', error);
   }
 
   return (

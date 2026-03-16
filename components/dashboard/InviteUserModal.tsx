@@ -23,6 +23,7 @@ import { QuickActionButton } from './QuickActionButton';
 import { InviteUserSchema } from '@/schemas/InviteUserSchema';
 import FormAlert from '@/components/shared/FormAlert';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 interface InviteUserModalProps {
   trigger?: React.ReactNode;
@@ -137,7 +138,7 @@ export function InviteUserModal({ trigger, initialEmail = '', initialName = '', 
           });
         }
       } catch (err) {
-        console.error(err);
+        logger.error('Failed to invite user', err);
         setError(err instanceof Error ? err.message : 'An unexpected error occurred.');
       }
     });

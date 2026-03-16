@@ -11,10 +11,17 @@ import { StepIndicator } from '@/components/ui/step-indicator';
 import { SelectableCard } from '@/components/ui/selectable-card';
 import { Music, BarChart2, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
+
+interface OnboardingUser {
+  user_metadata?: {
+    first_name?: string;
+    full_name?: string;
+  };
+}
 
 interface OnboardingFormProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  user: any;
+  user: OnboardingUser;
 }
 
 interface FieldErrors {
@@ -157,7 +164,7 @@ export function OnboardingForm({ user }: OnboardingFormProps) {
         toast.success('Profile set up successfully!');
       }
     } catch (err) {
-      console.error('Onboarding error:', err);
+      logger.error('Onboarding error:', err);
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);

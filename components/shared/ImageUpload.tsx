@@ -8,6 +8,7 @@ import { X, Upload, Loader2, Star } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 interface ImageUploadProps {
   value: string[];
@@ -56,7 +57,7 @@ export default function ImageUpload({
       onChange([...value, ...newUrls]);
       toast.success('Images uploaded successfully');
     } catch (error) {
-      console.error('Error uploading image:', error);
+      logger.error('Error uploading image:', error);
       toast.error('Failed to upload image');
     } finally {
       setIsUploading(false);

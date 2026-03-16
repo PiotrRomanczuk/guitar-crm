@@ -6,6 +6,7 @@ import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { assertNotTestAccount } from '@/lib/auth/test-account-guard';
 import { AssignmentTemplateInputSchema, AssignmentTemplateUpdateSchema } from '@/schemas';
 import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 export async function createAssignmentTemplate(
   data: z.infer<typeof AssignmentTemplateInputSchema>
@@ -30,7 +31,7 @@ export async function createAssignmentTemplate(
   });
 
   if (error) {
-    console.error('Error creating assignment template:', error);
+    logger.error('Error creating assignment template:', error);
     throw new Error('Failed to create assignment template');
   }
 
@@ -73,7 +74,7 @@ export async function updateAssignmentTemplate(
     .eq('id', result.data.id);
 
   if (error) {
-    console.error('Error updating assignment template:', error);
+    logger.error('Error updating assignment template:', error);
     throw new Error('Failed to update assignment template');
   }
 
@@ -106,7 +107,7 @@ export async function deleteAssignmentTemplate(id: string) {
   const { error } = await supabase.from('assignment_templates').delete().eq('id', id);
 
   if (error) {
-    console.error('Error deleting assignment template:', error);
+    logger.error('Error deleting assignment template:', error);
     throw new Error('Failed to delete assignment template');
   }
 

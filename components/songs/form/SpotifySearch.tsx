@@ -7,6 +7,7 @@ import { Search, Loader2, Music } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { SpotifyTrack } from '@/types/spotify';
 import Image from 'next/image';
+import { logger } from '@/lib/logger';
 
 interface Props {
   onSelect: (track: SpotifyTrack) => void;
@@ -30,7 +31,7 @@ export default function SpotifySearch({ onSelect }: Props) {
         setResults(data.tracks);
       }
     } catch (error) {
-      console.error('Search failed', error);
+      logger.error('Search failed', error);
     } finally {
       setLoading(false);
     }

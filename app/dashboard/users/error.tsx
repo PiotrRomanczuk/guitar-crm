@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Users, RefreshCw, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 
 /**
  * Error boundary for users routes
@@ -16,7 +17,7 @@ export default function UsersError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[Users Error]', error);
+    logger.error('[Users Error]', error);
   }, [error]);
 
   return (

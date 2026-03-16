@@ -27,6 +27,7 @@ import {
 import { Plus, Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
+import { logger } from '@/lib/logger';
 
 interface Template {
   id: string;
@@ -74,7 +75,7 @@ export function AddAssignmentDialog({ lessonId, studentId, teacherId }: AddAssig
       if (error) throw error;
       setTemplates(data || []);
     } catch (err) {
-      console.error('Error loading templates:', err);
+      logger.error('Error loading templates:', err);
     }
   };
 
@@ -106,7 +107,7 @@ export function AddAssignmentDialog({ lessonId, studentId, teacherId }: AddAssig
         });
 
         if (templateError) {
-          console.error('Error creating template:', templateError);
+          logger.error('Error creating template:', templateError);
           // Continue anyway - we'll still create the assignment
         }
       }
@@ -132,7 +133,7 @@ export function AddAssignmentDialog({ lessonId, studentId, teacherId }: AddAssig
       // Note: Consider passing onSuccess callback instead of router.refresh()
       // For now, removed to prevent table restart - new assignment will appear on next navigation
     } catch (err) {
-      console.error('Error creating assignment:', err);
+      logger.error('Error creating assignment:', err);
       alert('Failed to create assignment. Please try again.');
     } finally {
       setLoading(false);

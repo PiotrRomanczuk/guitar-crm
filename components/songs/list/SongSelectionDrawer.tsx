@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Music, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import { logger } from '@/lib/logger';
 
 interface Song {
   id: string;
@@ -77,7 +78,7 @@ export function SongSelectionDrawer({ open, onClose, onConfirm }: SongSelectionD
       if (error) throw error;
       setSongs(data || []);
     } catch (error) {
-      console.error('Failed to load songs:', error);
+      logger.error('Failed to load songs:', error);
       toast.error('Failed to load songs');
     } finally {
       setLoading(false);

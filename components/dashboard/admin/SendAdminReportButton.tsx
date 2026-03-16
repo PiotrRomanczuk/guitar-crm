@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { sendAdminSongReport } from '@/app/actions/email/send-admin-report';
 import { toast } from 'sonner';
 import { Mail, Loader2 } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 export function SendAdminReportButton() {
   const [isSending, setIsSending] = useState(false);
@@ -18,7 +19,7 @@ export function SendAdminReportButton() {
         toast.error(result.error || 'Failed to send report');
       }
     } catch (error) {
-      console.error('Error sending report:', error);
+      logger.error('Error sending report:', error);
       toast.error('An unexpected error occurred');
     } finally {
       setIsSending(false);

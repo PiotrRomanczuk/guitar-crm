@@ -17,6 +17,7 @@ import {
 	logResendVerification,
 	logPasswordResetRequested, logPasswordResetFailed,
 } from '@/lib/auth/auth-event-logger';
+import { logger } from '@/lib/logger';
 
 async function getClientIdentifier(email: string): Promise<string> {
 	const headersList = await headers();
@@ -46,7 +47,7 @@ export async function signIn(email: string, password: string) {
 	const identifier = await getClientIdentifier(email);
 	const rateLimit = await checkAuthRateLimit(identifier, 'login');
 	if (!rateLimit.allowed) {
-		console.warn(`[Auth] Rate limit exceeded for login: ${email}`);
+		logger.warn(`[Auth] Rate limit exceeded for login: ${email}`);
 		logSigninRateLimited(email);
 		return rateLimitError('login', rateLimit.retryAfter!);
 	}
@@ -127,7 +128,7 @@ export async function signUp(
 	const identifier = await getClientIdentifier(email);
 	const rateLimit = await checkAuthRateLimit(identifier, 'signup');
 	if (!rateLimit.allowed) {
-		console.warn(`[Auth] Rate limit exceeded for signup: ${email}`);
+		logger.warn(`[Auth] Rate limit exceeded for signup: ${email}`);
 		return rateLimitError('sign-up', rateLimit.retryAfter!);
 	}
 
@@ -177,7 +178,7 @@ export async function resendVerificationEmail(email: string) {
 	const identifier = await getClientIdentifier(email);
 	const rateLimit = await checkAuthRateLimit(identifier, 'resendEmail');
 	if (!rateLimit.allowed) {
-		console.warn(`[Auth] Rate limit exceeded for resend email: ${email}`);
+		logger.warn(`[Auth] Rate limit exceeded for resend email: ${email}`);
 		return rateLimitError('resend', rateLimit.retryAfter!);
 	}
 
@@ -201,7 +202,7 @@ export async function resetPassword(email: string) {
 	const rateLimit = await checkAuthRateLimit(identifier, 'passwordReset');
 
 	if (!rateLimit.allowed) {
-		console.warn(
+		logger.warn(
 			`[Auth] Rate limit exceeded for password reset: ${email}, retry after ${rateLimit.retryAfter}s`
 		);
 		return rateLimitError('password reset', rateLimit.retryAfter!);
@@ -212,7 +213,7 @@ export async function resetPassword(email: string) {
 	const origin = headersList.get('origin') || process.env.NEXT_PUBLIC_SITE_URL;
 
 	if (!origin) {
-		console.error('[Auth] Could not determine origin for password reset redirect');
+		logger.error('[Auth] Could not determine origin for password reset redirect');
 		return { error: 'Configuration error: Could not determine site origin' };
 	}
 
@@ -221,7 +222,7 @@ export async function resetPassword(email: string) {
 	});
 
 	if (error) {
-		console.error(`[Auth] Password reset failed for ${email}:`, error.message);
+		logger.error(`[Auth] Password reset failed for ${email}:`, error.message);
 		logPasswordResetFailed(email, error.message);
 		return { error: error.message };
 	}

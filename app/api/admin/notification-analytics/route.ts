@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import type { NotificationAnalytics, NotificationType } from '@/types/notifications';
+import { logger } from '@/lib/logger';
 
 /**
  * Helper to get user profile with roles from profiles table boolean flags
@@ -67,7 +68,7 @@ export async function GET(request: NextRequest) {
       .gte('created_at', startDate.toISOString());
 
     if (logsError) {
-      console.error('Error fetching notification logs:', logsError);
+      logger.error('Error fetching notification logs:', logsError);
       return NextResponse.json({ error: 'Failed to fetch analytics' }, { status: 500 });
     }
 
@@ -124,7 +125,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(analytics, { status: 200 });
   } catch (error) {
-    console.error('Error in notification analytics API:', error);
+    logger.error('Error in notification analytics API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

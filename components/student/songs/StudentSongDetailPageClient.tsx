@@ -9,6 +9,7 @@ import { ArrowLeft, Guitar, Music2, ExternalLink, Calendar, Clock, Loader2 } fro
 import { cn } from '@/lib/utils';
 import type { SongWithStatus as Song } from '@/components/songs/types';
 import { createClient } from '@/lib/supabase/client';
+import { logger } from '@/lib/logger';
 
 const difficultyColors = {
   beginner: 'bg-green-500/10 text-green-500 border-green-500/20',
@@ -91,7 +92,7 @@ export function StudentSongDetailPageClient() {
           setSong(null);
         }
       } catch (error) {
-        console.error('Error fetching song:', error);
+        logger.error('Error fetching song:', error);
       } finally {
         setLoading(false);
       }

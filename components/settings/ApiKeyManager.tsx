@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 
 interface ApiKey {
   id: string;
@@ -42,7 +43,7 @@ export function ApiKeyManager() {
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Error fetching API keys:', err);
+      logger.error('Error fetching API keys:', err);
     } finally {
       setLoading(false);
     }
@@ -78,7 +79,7 @@ export function ApiKeyManager() {
       await fetchApiKeys();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Error creating API key:', err);
+      logger.error('Error creating API key:', err);
     } finally {
       setCreating(false);
     }
@@ -103,7 +104,7 @@ export function ApiKeyManager() {
       await fetchApiKeys();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Error deleting API key:', err);
+      logger.error('Error deleting API key:', err);
     }
   }
 

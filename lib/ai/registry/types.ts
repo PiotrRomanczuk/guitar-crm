@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Agent Registry Types and Interfaces
  *
@@ -72,13 +71,13 @@ export interface AgentContext {
   entityType?: string;
 
   // Additional Context Data
-  contextData: Record<string, any>;
+  contextData: Record<string, unknown>;
 }
 
 // Agent Execution Request
 export interface AgentRequest {
   agentId: string;
-  input: Record<string, any>;
+  input: Record<string, unknown>;
   context: AgentContext;
   overrides?: {
     model?: string;
@@ -90,11 +89,11 @@ export interface AgentRequest {
 // Agent Execution Response
 export interface AgentResponse {
   success: boolean;
-  result?: any;
+  result?: unknown;
   error?: {
     code: string;
     message: string;
-    details?: any;
+    details?: unknown;
   };
   metadata: {
     agentId: string;

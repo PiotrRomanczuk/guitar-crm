@@ -10,6 +10,7 @@ import type {
   AIConversationSummary,
   AIContextType,
 } from '@/types/ai-conversation';
+import { logger } from '@/lib/logger';
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -53,7 +54,7 @@ export async function createConversation(params: {
     if (error) return { error: error.message };
     return { data: data as AIConversation };
   } catch (err) {
-    console.error('[AI Conversations] create error:', err);
+    logger.error('[AI Conversations] create error:', err);
     return { error: err instanceof Error ? err.message : 'Failed to create conversation' };
   }
 }
@@ -88,7 +89,7 @@ export async function listConversations(
     if (error) return { data: [], total: 0, error: error.message };
     return { data: (data as AIConversationSummary[]) ?? [], total: count ?? 0 };
   } catch (err) {
-    console.error('[AI Conversations] list error:', err);
+    logger.error('[AI Conversations] list error:', err);
     return { data: [], total: 0, error: err instanceof Error ? err.message : 'Failed to list conversations' };
   }
 }
@@ -123,7 +124,7 @@ export async function getConversation(
       },
     };
   } catch (err) {
-    console.error('[AI Conversations] get error:', err);
+    logger.error('[AI Conversations] get error:', err);
     return { error: err instanceof Error ? err.message : 'Failed to get conversation' };
   }
 }
@@ -148,7 +149,7 @@ export async function updateConversationTitle(
     if (error) return { error: error.message };
     return {};
   } catch (err) {
-    console.error('[AI Conversations] updateTitle error:', err);
+    logger.error('[AI Conversations] updateTitle error:', err);
     return { error: err instanceof Error ? err.message : 'Failed to update title' };
   }
 }
@@ -173,7 +174,7 @@ export async function archiveConversation(
     if (error) return { error: error.message };
     return {};
   } catch (err) {
-    console.error('[AI Conversations] archive error:', err);
+    logger.error('[AI Conversations] archive error:', err);
     return { error: err instanceof Error ? err.message : 'Failed to archive conversation' };
   }
 }
@@ -195,7 +196,7 @@ export async function deleteConversation(id: string): Promise<{ error?: string }
     if (error) return { error: error.message };
     return {};
   } catch (err) {
-    console.error('[AI Conversations] delete error:', err);
+    logger.error('[AI Conversations] delete error:', err);
     return { error: err instanceof Error ? err.message : 'Failed to delete conversation' };
   }
 }
@@ -252,7 +253,7 @@ export async function saveConversationMessages(params: {
 
     return {};
   } catch (err) {
-    console.error('[AI Conversations] saveMessages error:', err);
+    logger.error('[AI Conversations] saveMessages error:', err);
     return { error: err instanceof Error ? err.message : 'Failed to save messages' };
   }
 }
@@ -301,6 +302,6 @@ export async function trackAIUsage(params: {
       });
     }
   } catch (err) {
-    console.error('[AI Usage] track error:', err);
+    logger.error('[AI Usage] track error:', err);
   }
 }

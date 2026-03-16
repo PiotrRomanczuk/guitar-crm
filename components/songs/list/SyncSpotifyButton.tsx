@@ -16,6 +16,7 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { Card } from '@/components/ui/card';
 import { SongSelectionDrawer } from './SongSelectionDrawer';
+import { logger } from '@/lib/logger';
 
 interface SyncProgress {
   completed: number;
@@ -54,7 +55,7 @@ export function SyncSpotifyButton() {
       setProgress(null);
       setSyncId(null);
     } catch (error) {
-      console.error('Failed to stop sync:', error);
+      logger.error('Failed to stop sync:', error);
       toast.error('Failed to stop sync');
     }
   };
@@ -213,7 +214,7 @@ export function SyncSpotifyButton() {
         }
       }
     } catch (error: unknown) {
-      console.error('Sync error:', error);
+      logger.error('Sync error:', error);
       toast.error('Sync Failed', {
         description: error instanceof Error ? error.message : 'An unknown error occurred',
         duration: 6000,

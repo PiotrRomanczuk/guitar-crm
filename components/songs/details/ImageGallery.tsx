@@ -21,11 +21,6 @@ export default function ImageGallery({ images }: Props) {
             <ImageIcon className="w-5 h-5 text-primary" />
             Gallery
           </CardTitle>
-          {/* TODO: Implement add image functionality */}
-          {/* <Button variant="ghost" size="sm" className="h-8">
-            <Plus className="w-4 h-4 mr-1" />
-            Add Image
-          </Button> */}
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">

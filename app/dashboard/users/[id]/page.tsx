@@ -46,8 +46,7 @@ interface UserProfile {
   parent_id: string | null;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function fetchUserData(supabase: SupabaseClient<any>, userId: string) {
+async function fetchUserData(supabase: SupabaseClient, userId: string) {
   // Fetch lessons (map scheduled_at → date for UI compatibility)
   const { data: rawLessons } = await supabase
     .from('lessons')

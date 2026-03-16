@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 
 /**
  * Error boundary for dashboard routes
@@ -18,7 +19,7 @@ export default function DashboardError({
 }) {
   useEffect(() => {
     // Log error to console (Sentry integration would go here)
-    console.error('[Dashboard Error]', error);
+    logger.error('[Dashboard Error]', error);
   }, [error]);
 
   return (
