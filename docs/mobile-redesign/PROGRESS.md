@@ -184,14 +184,14 @@
 > **Branch**: `feature/STRUM-v2-calendar-notifications`
 > **Specs**: [07-calendar.md](./07-calendar.md), [08-notifications.md](./08-notifications.md)
 
-- [ ] Create `components/v2/calendar/Calendar.tsx` — agenda default on mobile
-- [ ] Create `components/v2/calendar/AgendaView.tsx` — list-based agenda
-- [ ] Create `components/v2/calendar/WeekStrip.tsx` — horizontal week selector
-- [ ] Create `components/v2/calendar/EventSheet.tsx` — bottom sheet
-- [ ] Create `components/v2/notifications/NotificationCenter.tsx` — grouped, swipeable
-- [ ] Create `components/v2/notifications/NotificationItem.tsx` — swipeable row
-- [ ] Create `components/v2/notifications/NotificationBell.tsx` — enhanced bell
-- [ ] Test at 390px
+- [x] Create `components/v2/calendar/Calendar.tsx` — agenda default on mobile
+- [x] Create `components/v2/calendar/AgendaView.tsx` — list-based agenda
+- [x] Create `components/v2/calendar/WeekStrip.tsx` — horizontal week selector
+- [x] Create `components/v2/calendar/EventSheet.tsx` — bottom sheet
+- [x] Create `components/v2/notifications/NotificationCenter.tsx` — grouped, swipeable
+- [x] Create `components/v2/notifications/NotificationItem.tsx` — swipeable row
+- [x] Create `components/v2/notifications/NotificationBell.tsx` — enhanced bell
+- [x] Test at 390px
 
 ### Agent 2 — Profile/Settings + Theory
 > **Branch**: `feature/STRUM-v2-settings-theory`
