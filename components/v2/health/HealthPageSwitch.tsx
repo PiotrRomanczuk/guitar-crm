@@ -13,9 +13,9 @@ interface HealthPageSwitchProps {
  * Reads the UI version cookie and renders the appropriate version.
  */
 export function HealthPageSwitch({ v1Content }: HealthPageSwitchProps) {
-  const { isV2 } = useUIVersion();
+  const { version } = useUIVersion();
 
-  if (isV2) {
+  if (version === 'v2') {
     return <HealthDashboard />;
   }
 
