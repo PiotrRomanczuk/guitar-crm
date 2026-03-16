@@ -1,6 +1,6 @@
 import { CohortAnalytics } from '@/components/dashboard/cohorts';
 import { CohortDashboard } from '@/components/v2/cohorts';
-import { getUIVersion } from '@/lib/ui-version';
+import { getUIVersion } from '@/lib/ui-version.server';
 
 export const metadata = {
   title: 'Cohort Analytics | Guitar CRM',

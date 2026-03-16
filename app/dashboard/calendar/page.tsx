@@ -4,7 +4,7 @@ import { CalendarSkeleton } from '@/components/ui/skeleton-screens';
 import { Calendar as V2Calendar } from '@/components/v2/calendar';
 import { CalendarSkeleton as V2CalendarSkeleton } from '@/components/v2/calendar';
 import { getGoogleEvents } from '@/app/dashboard/calendar-actions';
-import { getUIVersion } from '@/lib/ui-version';
+import { getUIVersion } from '@/lib/ui-version.server';
 import { isGuitarLesson, type GoogleEvent } from '@/lib/calendar/calendar-utils';
 
 export default async function CalendarPage() {

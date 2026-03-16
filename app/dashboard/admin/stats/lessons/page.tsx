@@ -1,7 +1,7 @@
 import { LessonStatsPageEnhanced as LessonStatsPageClient } from '@/components/lessons/stats';
 import { StatsOverview } from '@/components/v2/stats';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
-import { getUIVersion } from '@/lib/ui-version';
+import { getUIVersion } from '@/lib/ui-version.server';
 import { redirect } from 'next/navigation';
 
 export default async function LessonStatsPage() {
