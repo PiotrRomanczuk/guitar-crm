@@ -224,7 +224,7 @@
 - [x] Create `components/v2/admin/HealthCheck.tsx` — service status
 - [x] Create `components/v2/admin/SpotifyQueue.tsx` — swipeable queue
 - [x] Create `components/v2/admin/LogViewer.tsx` — mobile log display
-- [x] Create `components/v2/skills/SkillBrowser.tsx` — chip-based browser
+- [ ] Create `components/v2/skills/SkillBrowser.tsx` — chip-based browser (DEFERRED — feature not needed yet)
 - [x] Test at 390px
 
 ---
