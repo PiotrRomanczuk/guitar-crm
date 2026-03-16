@@ -197,12 +197,12 @@
 > **Branch**: `feature/STRUM-v2-settings-theory`
 > **Specs**: [09-profile-settings.md](./09-profile-settings.md), [10-theory-courses.md](./10-theory-courses.md)
 
-- [ ] Create `components/v2/settings/Settings.tsx` — grouped iOS-style
-- [ ] Create `components/v2/profile/Profile.tsx` — mobile profile editor
-- [ ] Create `components/v2/theory/CourseList.tsx` — course cards
-- [ ] Create `components/v2/theory/ChapterReader.tsx` — mobile reader
-- [ ] Create `components/v2/theory/CourseForm.tsx` — step wizard
-- [ ] Test at 390px
+- [x] Create `components/v2/settings/Settings.tsx` — grouped iOS-style
+- [x] Create `components/v2/profile/Profile.tsx` — mobile profile editor
+- [x] Create `components/v2/theory/CourseList.tsx` — course cards
+- [x] Create `components/v2/theory/ChapterReader.tsx` — mobile reader
+- [x] Create `components/v2/theory/CourseForm.tsx` — step wizard
+- [x] Test at 390px (lint passes, manual test needed)
 
 ### Agent 3 — Statistics + Health + Cohorts
 > **Branch**: `feature/STRUM-v2-analytics`
