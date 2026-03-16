@@ -148,15 +148,15 @@
 > **Branch**: `feature/STRUM-v2-assignments-repertoire`
 > **Specs**: [04-assignments.md](./04-assignments.md), [05-student-repertoire.md](./05-student-repertoire.md)
 
-- [ ] Create `components/v2/assignments/AssignmentList.tsx` — card list with urgency
-- [ ] Create `components/v2/assignments/AssignmentList.Desktop.tsx`
-- [ ] Create `components/v2/assignments/AssignmentDetail.tsx` — mobile detail
-- [ ] Create `components/v2/assignments/AssignmentForm.tsx` — step wizard
-- [ ] Create `components/v2/assignments/TemplateList.tsx` — template cards
-- [ ] Create `components/v2/repertoire/RepertoireList.tsx` — priority sections
-- [ ] Create `components/v2/repertoire/RepertoireCard.tsx` — rich card
-- [ ] Create `components/v2/repertoire/SelfRating.tsx` — 48px touch stars
-- [ ] Create `components/v2/repertoire/AddSongSheet.tsx` — bottom sheet
+- [x] Create `components/v2/assignments/AssignmentList.tsx` — card list with urgency
+- [x] Create `components/v2/assignments/AssignmentList.Desktop.tsx`
+- [x] Create `components/v2/assignments/AssignmentDetail.tsx` — mobile detail
+- [x] Create `components/v2/assignments/AssignmentForm.tsx` — step wizard
+- [x] Create `components/v2/assignments/TemplateList.tsx` — template cards
+- [x] Create `components/v2/repertoire/RepertoireList.tsx` — priority sections
+- [x] Create `components/v2/repertoire/RepertoireCard.tsx` — rich card
+- [x] Create `components/v2/repertoire/SelfRating.tsx` — 48px touch stars
+- [x] Create `components/v2/repertoire/AddSongSheet.tsx` — bottom sheet
 - [ ] Wire into pages with cookie check
 - [ ] Test CRUD at 390px as Teacher and Student
 
