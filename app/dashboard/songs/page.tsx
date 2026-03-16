@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation';
 import { StudentSongsPageClient } from '@/components/songs/student/StudentSongsPageClient';
 import { SongRequestButton } from '@/components/songs/requests/SongRequestButton';
 import { SongRequestQueue } from '@/components/songs/requests/SongRequestQueue';
+import { SongListPageV2 } from '@/components/v2/songs/SongListPage';
+import { getUIVersion } from '@/lib/ui-version.server';
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -11,7 +13,10 @@ type Props = {
 
 export default async function SongsPage(props: Props) {
   const searchParams = await props.searchParams;
-  const { user, isAdmin, isTeacher, isStudent } = await getUserWithRolesSSR();
+  const [{ user, isAdmin, isTeacher, isStudent }, uiVersion] = await Promise.all([
+    getUserWithRolesSSR(),
+    getUIVersion(),
+  ]);
 
   if (!user) {
     redirect('/sign-in');
@@ -26,6 +31,10 @@ export default async function SongsPage(props: Props) {
         </div>
       </div>
     );
+  }
+
+  if (uiVersion === 'v2') {
+    return <SongListPageV2 />;
   }
 
   return (

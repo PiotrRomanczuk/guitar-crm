@@ -133,16 +133,16 @@
 > **Branch**: `feature/STRUM-v2-songs`
 > **Spec**: [03-songs.md](./03-songs.md)
 
-- [ ]Create `components/v2/songs/SongList.tsx` — enhanced mobile cards + filter chips
-- [ ]Create `components/v2/songs/SongList.Desktop.tsx` — desktop table
-- [ ]Create `components/v2/songs/SongDetail.tsx` — tabbed mobile detail
-- [ ]Create `components/v2/songs/SongDetail.Desktop.tsx` — side-panel detail
-- [ ]Create `components/v2/songs/SongForm.tsx` — generalized from MobileSongForm
-- [ ]Create `components/v2/songs/LyricsViewer.tsx` — mobile chord/lyric display
-- [ ]Create `components/v2/songs/VideoPlayer.tsx` — responsive video
-- [ ]Wire into song pages with cookie check
-- [ ]Reuse all hooks: `useSongList`, `useSongMutation`, `useSongDetail`, etc.
-- [ ]Test CRUD at 390px, 768px, 1440px as Teacher and Student
+- [x] Create `components/v2/songs/SongList.tsx` — enhanced mobile cards + filter chips
+- [x] Create `components/v2/songs/SongList.Desktop.tsx` — desktop table
+- [x] Create `components/v2/songs/SongDetail.tsx` — tabbed mobile detail
+- [x] Create `components/v2/songs/SongDetail.Desktop.tsx` — side-panel detail
+- [x] Create `components/v2/songs/SongForm.tsx` — generalized from MobileSongForm
+- [x] Create `components/v2/songs/LyricsViewer.tsx` — mobile chord/lyric display
+- [x] Create `components/v2/songs/VideoPlayer.tsx` — responsive video
+- [x] Wire into song pages with cookie check
+- [x] Reuse all hooks: `useSongList`, `useSongMutation`, `useSongDetail`, etc.
+- [ ] Test CRUD at 390px, 768px, 1440px as Teacher and Student
 
 ### Agent 3 — Assignments + Repertoire
 > **Branch**: `feature/STRUM-v2-assignments-repertoire`
