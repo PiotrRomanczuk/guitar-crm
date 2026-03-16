@@ -220,12 +220,12 @@
 > **Branch**: `feature/STRUM-v2-admin`
 > **Specs**: [15-admin-tools.md](./15-admin-tools.md), [11-skills.md](./11-skills.md)
 
-- [ ] Create `components/v2/admin/AdminDashboard.tsx` — status cards
-- [ ] Create `components/v2/admin/HealthCheck.tsx` — service status
-- [ ] Create `components/v2/admin/SpotifyQueue.tsx` — swipeable queue
-- [ ] Create `components/v2/admin/LogViewer.tsx` — mobile log display
-- [ ] Create `components/v2/skills/SkillBrowser.tsx` — chip-based browser
-- [ ] Test at 390px
+- [x] Create `components/v2/admin/AdminDashboard.tsx` — status cards
+- [x] Create `components/v2/admin/HealthCheck.tsx` — service status
+- [x] Create `components/v2/admin/SpotifyQueue.tsx` — swipeable queue
+- [x] Create `components/v2/admin/LogViewer.tsx` — mobile log display
+- [ ] Create `components/v2/skills/SkillBrowser.tsx` — chip-based browser (DEFERRED — feature not needed yet)
+- [x] Test at 390px
 
 ---
 
