@@ -5,3 +5,7 @@ export { default as EmptyState } from './EmptyState';
 export { default as RelatedItemsSection } from './RelatedItemsSection';
 export { default as StatusBadge, getStatusVariant, formatStatus } from './StatusBadge';
 export { default as Breadcrumbs } from './Breadcrumbs';
+
+// Form primitives
+export { default as StepWizardForm } from './StepWizardForm';
+export { FormFieldText, FormFieldTextarea, FormFieldSelect } from './FormField';

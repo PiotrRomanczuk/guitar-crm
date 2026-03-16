@@ -6,10 +6,12 @@ import Link from 'next/link';
 import { Dispatch, SetStateAction } from 'react';
 import { AssignmentFormFields } from './AssignmentForm.Fields';
 import { AssignmentFormActions } from './AssignmentForm.Actions';
+import MobileAssignmentForm from './MobileAssignmentForm';
 import { useAssignmentForm } from './useAssignmentForm';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { useFormErrorFocus } from '@/hooks/use-form-error-focus';
+import { useMediaQuery } from '@/hooks/use-media-query';
 import { toast } from 'sonner';
 
 interface Student {
@@ -40,6 +42,7 @@ export default function AssignmentForm({
   students = [],
 }: AssignmentFormProps) {
   const router = useRouter();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,7 +79,7 @@ export default function AssignmentForm({
         href="/dashboard/assignments"
         className="text-primary hover:underline mb-6 inline-block"
       >
-        ← Back to assignments
+        &larr; Back to assignments
       </Link>
 
       <div className="bg-card rounded-lg shadow-md p-4 sm:p-6 lg:p-8 max-w-2xl">
@@ -92,17 +95,29 @@ export default function AssignmentForm({
             </Alert>
           )}
 
-          <AssignmentFormFields
-            formData={formData}
-            fieldErrors={fieldErrors}
-            onChange={handleFieldChange}
-            onBlur={handleBlur}
-            students={students}
-            selectedStudent={students.find((s) => s.id === formData.student_id)}
-            recentSongs={['Wonderwall', 'Hotel California']}
-            lessonTopic="Practice assignment"
-          />
-          <AssignmentFormActions mode={mode} loading={loading} />
+          {isMobile ? (
+            <MobileAssignmentForm
+              formData={formData}
+              errors={fieldErrors}
+              students={students}
+              onChange={handleFieldChange}
+              onBlur={handleBlur}
+            />
+          ) : (
+            <>
+              <AssignmentFormFields
+                formData={formData}
+                fieldErrors={fieldErrors}
+                onChange={handleFieldChange}
+                onBlur={handleBlur}
+                students={students}
+                selectedStudent={students.find((s) => s.id === formData.student_id)}
+                recentSongs={['Wonderwall', 'Hotel California']}
+                lessonTopic="Practice assignment"
+              />
+              <AssignmentFormActions mode={mode} loading={loading} />
+            </>
+          )}
         </form>
       </div>
     </div>
