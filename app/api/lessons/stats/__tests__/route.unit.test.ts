@@ -43,6 +43,7 @@ describe('GET /api/lessons/stats - Security (STRUMMY-262)', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const request = createMockRequest();
@@ -59,6 +60,7 @@ describe('GET /api/lessons/stats - Security (STRUMMY-262)', () => {
       isAdmin: true,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     // Mock RPC call
@@ -77,6 +79,7 @@ describe('GET /api/lessons/stats - Security (STRUMMY-262)', () => {
       isAdmin: true,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     // We only test that getUserWithRolesSSR is called for role checking

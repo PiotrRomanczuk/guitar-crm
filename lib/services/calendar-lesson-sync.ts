@@ -9,6 +9,7 @@ import {
   updateGoogleCalendarEvent,
   deleteGoogleCalendarEvent,
 } from '@/lib/google';
+import { logger } from '@/lib/logger';
 
 type SupabaseClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -54,7 +55,7 @@ async function getStudentEmail(
     .single();
 
   if (error || !data) {
-    console.error('Failed to fetch student email:', error);
+    logger.error('Failed to fetch student email:', error);
     return null;
   }
 
@@ -79,7 +80,7 @@ export async function syncLessonCreation(
     // Get student email
     const studentEmail = await getStudentEmail(supabase, lessonData.student_id);
     if (!studentEmail) {
-      console.warn('Cannot sync lesson to Google Calendar: student has no email');
+      logger.warn('Cannot sync lesson to Google Calendar: student has no email');
       return;
     }
 
@@ -100,7 +101,7 @@ export async function syncLessonCreation(
     // Lesson synced to Google Calendar
   } catch (error) {
     // Log error but don't fail the lesson creation
-    console.error('Failed to sync lesson to Google Calendar:', error);
+    logger.error('Failed to sync lesson to Google Calendar:', error);
   }
 }
 
@@ -143,7 +144,7 @@ export async function syncLessonUpdate(
     // Lesson updated in Google Calendar
   } catch (error) {
     // Log error but don't fail the lesson update
-    console.error('Failed to update Google Calendar event:', error);
+    logger.error('Failed to update Google Calendar event:', error);
   }
 }
 
@@ -183,6 +184,6 @@ export async function syncLessonDeletion(
     // Lesson deleted from Google Calendar
   } catch (error) {
     // Log error but don't fail the lesson deletion
-    console.error('Failed to delete Google Calendar event:', error);
+    logger.error('Failed to delete Google Calendar event:', error);
   }
 }

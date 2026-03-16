@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import { matchStudentByEmail, createShadowStudent } from '@/lib/services/import-utils';
 import { Database } from '@/database.types';
 import { getCalendarEventsInRange } from '@/lib/google';
@@ -20,8 +21,10 @@ export interface ImportEvent {
 }
 
 export async function importLessonsFromGoogle(events: ImportEvent[]) {
-  const { user, isTeacher } = await getUserWithRolesSSR();
-  
+  const { user, isTeacher, isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   if (!user || !isTeacher) {
     return { success: false, error: 'Unauthorized' };
   }

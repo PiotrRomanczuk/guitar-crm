@@ -1,11 +1,11 @@
 'use client';
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useCallback } from 'react';
 import { generateLessonNotesStream } from '@/app/actions/ai';
 import { useAIStream } from '@/hooks/useAIStream';
 import { AIAssistButton } from '@/components/lessons/shared/AIAssistButton';
 import { AIStreamingStatus } from '@/components/ai';
+import { logger } from '@/lib/logger';
 
 interface Props {
   studentName: string;
@@ -32,8 +32,8 @@ export function LessonNotesAI({
 }: Props) {
   // Streaming action wrapper
   const streamAction = useCallback(
-    async function* (params: any, _signal?: AbortSignal) {
-      yield* generateLessonNotesStream(params);
+    async function* (params: Record<string, unknown>, _signal?: AbortSignal) {
+      yield* generateLessonNotesStream(params as Parameters<typeof generateLessonNotesStream>[0]);
     },
     []
   );
@@ -44,7 +44,7 @@ export function LessonNotesAI({
       onNotesGenerated(content);
     },
     onError: (error) => {
-      console.error('[LessonNotesAI] Streaming error:', error);
+      logger.error('[LessonNotesAI] Streaming error:', error);
       onNotesGenerated('Error generating notes. Please try again.');
     },
   });

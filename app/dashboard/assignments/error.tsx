@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { ClipboardList, RefreshCw, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 
 /**
  * Error boundary for assignments routes
@@ -16,7 +17,7 @@ export default function AssignmentsError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[Assignments Error]', error);
+    logger.error('[Assignments Error]', error);
   }, [error]);
 
   return (

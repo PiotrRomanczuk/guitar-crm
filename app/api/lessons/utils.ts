@@ -1,4 +1,5 @@
 import { Lesson, LessonInput } from '@/schemas/LessonSchema';
+import { logger } from '@/lib/logger';
 
 // Helper types for query building
 type SupabaseClientType = Awaited<
@@ -37,7 +38,7 @@ export async function handleLessonSongsUpdate(
 
     const { error: insertError } = await supabase.from('lesson_songs').insert(newRecords);
     if (insertError) {
-      console.error('Error inserting lesson songs:', insertError);
+      logger.error('Error inserting lesson songs:', insertError);
     }
   }
 }
@@ -92,7 +93,7 @@ export async function addSongsToLesson(
   const { error: songsError } = await supabase.from('lesson_songs').insert(lessonSongs);
 
   if (songsError) {
-    console.error('Error adding songs to lesson:', songsError);
+    logger.error('Error adding songs to lesson:', songsError);
   }
 }
 
@@ -157,8 +158,7 @@ export function transformLessonData(lesson: Lesson & { scheduled_at?: string }) 
  * Maps date + start_time -> scheduled_at
  */
 export function prepareLessonForDb(lessonData: Partial<LessonInput>) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const dbData: any = { ...lessonData };
+  const dbData: Record<string, unknown> = { ...lessonData };
 
   // Combine date and start_time into scheduled_at (if date is provided)
   if (lessonData.date) {

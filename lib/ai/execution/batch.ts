@@ -9,6 +9,7 @@ import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { executeAgent, type AgentResponse } from '../agent-registry';
 import { buildAgentContext } from './context';
 import { createErrorResponse } from './response-utils';
+import { logger } from '@/lib/logger';
 
 /**
  * Check if an agent is available for the current user
@@ -134,7 +135,7 @@ export async function getAvailableAgents(): Promise<
       available: true,
     }));
   } catch (error) {
-    console.error('[AgentExecution] Failed to get available agents:', error);
+    logger.error('[AgentExecution] Failed to get available agents:', error);
     return [];
   }
 }

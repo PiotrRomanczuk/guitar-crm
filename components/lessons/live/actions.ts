@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 const updateNotesSchema = z.object({
   lessonId: z.string().uuid(),
@@ -23,7 +24,7 @@ export async function updateLessonNotes(lessonId: string, notes: string) {
     .eq('id', parsed.data.lessonId);
 
   if (error) {
-    console.error('Error updating lesson notes:', error);
+    logger.error('Error updating lesson notes:', error);
     throw new Error('Failed to save lesson notes');
   }
 

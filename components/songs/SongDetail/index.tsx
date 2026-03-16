@@ -8,6 +8,7 @@ import YouTubeEmbed from './YouTubeEmbed';
 import ImageGallery from './ImageGallery';
 import type { Song } from '../types';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 interface Props {
   songId: string;
@@ -17,7 +18,7 @@ interface Props {
 
 async function loadSongData(songId: string): Promise<Song | null> {
   try {
-    console.log('[SongDetail Server] Loading song directly from Supabase:', songId);
+    logger.info('[SongDetail Server] Loading song directly from Supabase', { songId });
 
     const supabase = await createClient();
 
@@ -29,29 +30,29 @@ async function loadSongData(songId: string): Promise<Song | null> {
       .single();
 
     if (error) {
-      console.error('[SongDetail Server] Supabase error:', error);
+      logger.error('[SongDetail Server] Supabase error:', error);
       return null;
     }
 
     if (!data) {
-      console.log('[SongDetail Server] Song not found:', songId);
+      logger.info('[SongDetail Server] Song not found', { songId });
       return null;
     }
 
-    console.log('[SongDetail Server] Song loaded:', data.id, data.title);
+    logger.info('[SongDetail Server] Song loaded', { id: data.id, title: data.title });
     return data as Song;
   } catch (err) {
-    console.error('[SongDetail Server] Exception:', err);
+    logger.error('[SongDetail Server] Exception:', err);
     return null;
   }
 }
 
 export default async function SongDetail({ songId, isAdmin = false, isTeacher = false }: Props) {
-  console.log('[SongDetail Server Component] Rendering songId:', songId);
+  logger.info('[SongDetail Server Component] Rendering', { songId });
 
   const song = await loadSongData(songId);
 
-  console.log('[SongDetail Server Component] Got song data:', !!song);
+  logger.info('[SongDetail Server Component] Got song data', { hasSong: !!song });
 
   if (!song) {
     return (

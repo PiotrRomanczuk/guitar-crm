@@ -3,6 +3,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { generateApiKey, hashApiKey } from '@/lib/api-keys';
 import { revalidatePath } from 'next/cache';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
+import { logger } from '@/lib/logger';
 
 export interface ApiKey {
   id: string;
@@ -29,7 +32,7 @@ export async function getApiKeys(): Promise<{ success: boolean; data?: ApiKey[];
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching API keys:', error);
+    logger.error('Error fetching API keys:', error);
     return { success: false, error: 'Failed to fetch API keys' };
   }
 
@@ -39,6 +42,10 @@ export async function getApiKeys(): Promise<{ success: boolean; data?: ApiKey[];
 export async function createApiKey(
   name: string
 ): Promise<{ success: boolean; apiKey?: string; error?: string }> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -59,7 +66,7 @@ export async function createApiKey(
   });
 
   if (error) {
-    console.error('Error creating API key:', error);
+    logger.error('Error creating API key:', error);
     return { success: false, error: 'Failed to create API key' };
   }
 
@@ -70,6 +77,10 @@ export async function createApiKey(
 export async function revokeApiKey(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -86,7 +97,7 @@ export async function revokeApiKey(
     .eq('user_id', user.id);
 
   if (error) {
-    console.error('Error revoking API key:', error);
+    logger.error('Error revoking API key:', error);
     return { success: false, error: 'Failed to revoke API key' };
   }
 

@@ -12,9 +12,7 @@ interface Props {
 }
 
 export default function SongFormGuard({ mode, songId, onSuccess }: Props) {
-  // NOTE: SSR roles should be passed in from parent in future; for now we optimistically allow admin-only client side by reading a global injected flag.
-  // TODO: Accept an isAdmin prop from parent SSR component instead of relying on fallback.
-  // Fallback: show form; server-side API will still enforce authorization.
+  // Server-side API enforces authorization; client renders form optimistically.
   const router = useRouter();
 
   const { song, loading, error } = useSong(songId || '');

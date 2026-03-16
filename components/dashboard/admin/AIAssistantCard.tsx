@@ -28,6 +28,7 @@ import { useAIStream } from '@/hooks/useAIStream';
 import { AIStreamingStatus } from '@/components/ai';
 import { AIAssistantCardMessages } from './AIAssistantCard.Messages';
 import { AIConversationHistory } from './AIConversationHistory';
+import { logger } from '@/lib/logger';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -100,7 +101,7 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
       refreshConversationList();
     },
     onError: (error) => {
-      console.error('[AIAssistantCard] Streaming error:', error);
+      logger.error('[AIAssistantCard] Streaming error:', error);
       // Remove the empty assistant message on error
       setMessages((prev) => prev.slice(0, -1));
     },
@@ -132,7 +133,7 @@ export function AIAssistantCard({ firstName }: AIAssistantCardProps) {
     if (!activeConvId) {
       activeConvId = await startNewConversation(selectedModel);
       if (!activeConvId) {
-        console.error('[AIAssistantCard] Failed to create conversation');
+        logger.error('[AIAssistantCard] Failed to create conversation');
         return;
       }
     }

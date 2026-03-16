@@ -9,6 +9,7 @@ import {
   VideoMatchResult,
   SongRecord,
 } from './drive-video-matcher';
+import { logger } from '@/lib/logger';
 
 export interface SyncOptions {
   /** The Drive folder name to scan (default: "07_Guitar Videos") */
@@ -221,7 +222,7 @@ export async function syncDriveVideosToSongs(
         .select('id');
 
       if (error) {
-        console.error(`Batch insert error (${i}–${i + batch.length}):`, error.message);
+        logger.error(`Batch insert error (${i}–${i + batch.length}):`, error.message);
       } else {
         inserted += data?.length || batch.length;
       }

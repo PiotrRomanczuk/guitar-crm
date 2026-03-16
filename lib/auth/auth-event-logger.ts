@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin';
 import { headers } from 'next/headers';
+import { logger } from '@/lib/logger';
 
 type AuthEventType =
   | 'signup_attempted' | 'signup_succeeded' | 'signup_failed'
@@ -61,13 +62,13 @@ export async function logAuthEvent(payload: AuthEventPayload): Promise<string | 
       .single();
 
     if (error) {
-      console.error('[AuthEventLogger] Failed to log event:', error.message);
+      logger.error('[AuthEventLogger] Failed to log event:', error.message);
       return null;
     }
 
     return (data as { id: string } | null)?.id ?? null;
   } catch (err) {
-    console.error('[AuthEventLogger] Unexpected error:', err);
+    logger.error('[AuthEventLogger] Unexpected error:', err);
     return null;
   }
 }

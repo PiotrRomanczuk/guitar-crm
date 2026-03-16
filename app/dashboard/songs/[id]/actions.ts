@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { Database } from '@/database.types';
+import { logger } from '@/lib/logger';
 
 export type SongStudentItem = {
   studentId: string;
@@ -32,7 +33,7 @@ export async function getSongStudents(songId: string): Promise<SongStudentItem[]
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching song students:', error);
+    logger.error('Error fetching song students:', error);
     throw new Error('Failed to fetch song students');
   }
 

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import {
   CsvSongImportRequestSchema,
   type CsvSongRow,
@@ -13,7 +14,10 @@ import { parseEuropeanDate, groupRowsByDate, findOrCreateSong } from './import-c
 export async function importCsvSongs(
   input: unknown
 ): Promise<CsvSongImportResult> {
-  const { user, isTeacher, isAdmin } = await getUserWithRolesSSR();
+  const { user, isTeacher, isAdmin, isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   if (!user || (!isTeacher && !isAdmin)) {
     return { success: false, error: 'Unauthorized' };
   }

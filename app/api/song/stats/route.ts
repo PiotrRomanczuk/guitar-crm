@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -24,7 +25,7 @@ export async function GET() {
       .select('*', { count: 'exact', head: true });
 
     if (countError) {
-      console.error('[SongStats] Error counting songs:', countError);
+      logger.error('[SongStats] Error counting songs:', countError);
     }
 
     // Get songs by level
@@ -112,7 +113,7 @@ export async function GET() {
       songsWithoutChords: (totalSongs || 0) - (songsWithChords || 0),
     });
   } catch (error) {
-    console.error('Error in song stats API:', error);
+    logger.error('Error in song stats API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

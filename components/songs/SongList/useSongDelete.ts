@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { logger } from '@/lib/logger';
 
 export function useSongDelete(onSuccess?: () => void) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -19,7 +20,7 @@ export function useSongDelete(onSuccess?: () => void) {
 
       onSuccess?.();
     } catch (err) {
-      console.error('🎸 [FRONTEND] Delete failed:', err);
+      logger.error('🎸 [FRONTEND] Delete failed:', err);
       setError(err instanceof Error ? err.message : 'Failed to delete song');
     } finally {
       setIsDeleting(false);

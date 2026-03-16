@@ -8,6 +8,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 type SupabaseClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -190,7 +191,7 @@ async function storeConflictForReview(
   });
 
   if (error) {
-    console.error('Failed to store conflict for review:', error);
+    logger.error('Failed to store conflict for review:', error);
   }
 }
 
@@ -224,7 +225,7 @@ export async function getPendingConflicts(
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Failed to fetch pending conflicts:', error);
+    logger.error('Failed to fetch pending conflicts:', error);
     return [];
   }
 

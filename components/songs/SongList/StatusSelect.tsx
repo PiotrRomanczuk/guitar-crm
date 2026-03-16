@@ -11,6 +11,7 @@ import {
 import { updateLessonSongStatus } from '@/app/actions/songs';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
+import { logger } from '@/lib/logger';
 
 interface Props {
   lessonSongId: string;
@@ -54,7 +55,7 @@ export default function StatusSelect({ lessonSongId, currentStatus }: Props) {
         await updateLessonSongStatus(lessonSongId, newStatus);
         toast.success('Status updated');
       } catch (error) {
-        console.error(error);
+        logger.error('Failed to update status', error);
         toast.error('Failed to update status');
         setStatus(currentStatus); // Revert on error
       }

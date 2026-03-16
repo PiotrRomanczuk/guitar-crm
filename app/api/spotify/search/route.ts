@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { searchTracks, searchArtists } from '@/lib/spotify';
 import { SpotifyApiTrack, SpotifyApiArtist } from '@/types/spotify';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: Request) {
   // Require authenticated user
@@ -65,7 +66,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ results });
     }
   } catch (error) {
-    console.error('Spotify Search Error:', error);
+    logger.error('Spotify Search Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

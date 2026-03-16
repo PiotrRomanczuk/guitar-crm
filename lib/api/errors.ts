@@ -4,6 +4,7 @@
  */
 
 import { ZodError } from 'zod';
+import { logger } from '@/lib/logger';
 
 /**
  * Standard API error response format
@@ -175,7 +176,7 @@ export function safeParse<T>(
  * Use in catch blocks of API routes
  */
 export function handleApiError(error: unknown): ApiErrorResponse {
-  console.error('[API Error]', error);
+  logger.error('[API Error]', error);
 
   if (error instanceof ApiError) {
     return error.toResponse();

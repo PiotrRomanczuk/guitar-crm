@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Retry Logic with Exponential Backoff
  *
@@ -35,13 +34,14 @@ export const DEFAULT_RETRY_CONFIG: RetryConfig = {
 /**
  * Check if an error is retryable based on configuration
  */
-function isRetryableError(error: any, config: RetryConfig): boolean {
+function isRetryableError(error: unknown, config: RetryConfig): boolean {
   if (!config.retryableErrors || config.retryableErrors.length === 0) {
     return true; // Retry all errors if no specific errors defined
   }
 
-  const errorMessage = error?.message || String(error);
-  const errorCode = error?.code || error?.status || '';
+  const errorObj = error as { message?: string; code?: string; status?: number } | null;
+  const errorMessage = errorObj?.message || String(error);
+  const errorCode = errorObj?.code || errorObj?.status || '';
 
   return config.retryableErrors.some(
     (retryable) =>
@@ -77,7 +77,7 @@ export async function withRetry<T>(
   fn: () => Promise<T>,
   config: RetryConfig = DEFAULT_RETRY_CONFIG
 ): Promise<T> {
-  let lastError: any;
+  let lastError: unknown;
 
   for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
     try {

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import type { AIGeneration, AIGenerationFilters } from '@/types/ai-generation';
+import { logger } from '@/lib/logger';
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -42,13 +43,13 @@ export async function getAIGenerations(filters: AIGenerationFilters = {}): Promi
     const { data, count, error } = await query;
 
     if (error) {
-      console.error('[AI History] getAIGenerations error:', error);
+      logger.error('[AI History] getAIGenerations error:', error);
       return { data: [], total: 0, error: error.message };
     }
 
     return { data: (data as AIGeneration[]) ?? [], total: count ?? 0 };
   } catch (error) {
-    console.error('[AI History] Unexpected error:', error);
+    logger.error('[AI History] Unexpected error:', error);
     return {
       data: [],
       total: 0,
@@ -82,7 +83,7 @@ export async function toggleAIGenerationStar(id: string): Promise<{ success: boo
 
     return { success: true };
   } catch (error) {
-    console.error('[AI History] toggleStar error:', error);
+    logger.error('[AI History] toggleStar error:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to toggle star',
@@ -105,7 +106,7 @@ export async function deleteAIGeneration(id: string): Promise<{ success: boolean
 
     return { success: true };
   } catch (error) {
-    console.error('[AI History] delete error:', error);
+    logger.error('[AI History] delete error:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to delete generation',

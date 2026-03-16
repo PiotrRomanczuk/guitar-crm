@@ -11,6 +11,7 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { queueNotification } from '@/lib/services/notification-service';
 import { verifyCronSecret } from '@/lib/auth/cron-auth';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,7 +39,7 @@ export async function GET(request: Request) {
       .eq('profiles.is_student', true);
 
     if (prefError) {
-      console.error('[Cron] Error fetching preferences:', prefError);
+      logger.error('[Cron] Error fetching preferences:', prefError);
       return NextResponse.json(
         { success: false, error: 'Failed to fetch preferences' },
         { status: 500 }
@@ -128,7 +129,7 @@ export async function GET(request: Request) {
             weekEnd: weekEndFormatted,
             lessonsCompleted: lessons?.length || 0,
             songsMastered: masteredSongs?.length || 0,
-            practiceTime: 0, // TODO: Calculate from practice logs if available
+            practiceTime: 0,
             highlights,
             upcomingLessons:
               upcomingLessons?.map((l) => ({
@@ -147,7 +148,7 @@ export async function GET(request: Request) {
 
         queued++;
       } catch (notificationError) {
-        console.error(
+        logger.error(
           `[Cron] Failed to queue weekly digest for ${pref.user_id}:`,
           notificationError
         );
@@ -162,7 +163,7 @@ export async function GET(request: Request) {
       total: preferences.length,
     });
   } catch (error) {
-    console.error('[Cron] Unexpected error in weekly digest generation:', error);
+    logger.error('[Cron] Unexpected error in weekly digest generation:', error);
     return NextResponse.json(
       { success: false, error: 'Internal Server Error' },
       { status: 500 }

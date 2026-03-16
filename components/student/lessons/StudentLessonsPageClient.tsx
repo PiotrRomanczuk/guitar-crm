@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/lib/logger';
 
 interface LessonWithDetails {
   id: string;
@@ -67,20 +68,20 @@ export function StudentLessonsPageClient() {
         if (error) throw error;
 
         // Transform data to match LessonWithDetails interface
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const transformedLessons: LessonWithDetails[] = (data || []).map((lesson: any) => ({
+        // Supabase FK joins may return arrays; extract first element
+        const transformedLessons: LessonWithDetails[] = (data || []).map((lesson) => ({
           id: lesson.id,
           scheduled_at: lesson.scheduled_at,
           status: lesson.status,
           notes: lesson.notes,
           lesson_teacher_number: lesson.lesson_teacher_number,
-          teacher: lesson.teacher,
-          student: lesson.student,
+          teacher: Array.isArray(lesson.teacher) ? lesson.teacher[0] ?? null : lesson.teacher,
+          student: Array.isArray(lesson.student) ? lesson.student[0] ?? null : lesson.student,
         }));
 
         setLessons(transformedLessons);
       } catch (error) {
-        console.error('Error fetching lessons:', error);
+        logger.error('Error fetching lessons:', error);
       } finally {
         setLoading(false);
       }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Ollama Local LLM Provider
  *
@@ -14,6 +13,7 @@ import type {
   AIModelInfo,
 } from '../types';
 import { withRetry, AI_PROVIDER_RETRY_CONFIG } from '../retry';
+import { logger } from '@/lib/logger';
 
 // Default Ollama configuration
 const createDefaultConfig = (config?: Partial<AIProviderConfig>): AIProviderConfig => ({
@@ -31,7 +31,7 @@ const listModels = async (config: AIProviderConfig): Promise<AIModelInfo[]> => {
     });
 
     if (!response.ok) {
-      console.error('[Ollama] Failed to fetch models');
+      logger.error('[Ollama] Failed to fetch models');
       return LOCAL_FALLBACK_MODELS;
     }
 
@@ -49,7 +49,7 @@ const listModels = async (config: AIProviderConfig): Promise<AIModelInfo[]> => {
       isLocal: true,
     }));
   } catch (error) {
-    console.error('[Ollama] Error listing models:', error);
+    logger.error('[Ollama] Error listing models:', error);
     return LOCAL_FALLBACK_MODELS;
   }
 };
@@ -81,12 +81,12 @@ const complete = async (
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => 'Unknown error');
-        console.error('[Ollama] API Error:', errorText);
+        logger.error('[Ollama] API Error:', errorText);
 
         // Create error with status for retry logic
-        const error: any = new Error(`Ollama API Error: ${response.statusText}`);
-        error.status = response.status;
-        throw error;
+        const apiError = new Error(`Ollama API Error: ${response.statusText}`);
+        (apiError as Error & { status: number }).status = response.status;
+        throw apiError;
       }
 
       const data = await response.json();
@@ -101,7 +101,7 @@ const complete = async (
         },
       };
     } catch (error) {
-      console.error('[Ollama] Request failed:', error);
+      logger.error('[Ollama] Request failed:', error);
 
       if (error instanceof Error) {
         if (error.name === 'AbortError') {

@@ -4,7 +4,9 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { existsSync } from 'fs';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import path from 'path';
+import { logger } from '@/lib/logger';
 
 const execAsync = promisify(exec);
 
@@ -14,7 +16,9 @@ export async function performDatabaseBackup() {
       return { success: false, error: 'Database backup is only available in development' };
     }
 
-    const { isAdmin } = await getUserWithRolesSSR();
+    const { isAdmin, isDevelopment } = await getUserWithRolesSSR();
+    const guard = guardTestAccountMutation(isDevelopment);
+    if (guard) return guard;
 
     if (!isAdmin) {
       return { success: false, error: 'Unauthorized: Only admins can perform backups' };
@@ -36,7 +40,7 @@ export async function performDatabaseBackup() {
     });
 
     if (stderr) {
-      console.error('[backup] stderr output during backup');
+      logger.error('[backup] stderr output during backup');
     }
 
     return { success: true, message: 'Backup completed successfully' };

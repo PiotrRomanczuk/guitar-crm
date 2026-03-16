@@ -1,5 +1,10 @@
 import { requestEmailChange, requestAccountDeletion, cancelAccountDeletion, updateLastSignIn } from '../account';
 
+// Mock getUserWithRolesSSR
+jest.mock('@/lib/getUserWithRolesSSR', () => ({
+	getUserWithRolesSSR: jest.fn(() => Promise.resolve({ isDevelopment: false })),
+}));
+
 // Mock Supabase clients
 const mockGetUser = jest.fn();
 const mockUpdateUser = jest.fn();

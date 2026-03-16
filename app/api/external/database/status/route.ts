@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbRouter } from '@/lib/api/database-router';
 import { db, unifiedDB } from '@/lib/api/unified-db';
 import { extractBearerToken, authenticateWithBearerToken } from '@/lib/bearer-auth';
+import { logger } from '@/lib/logger';
 
 /**
  * Database Status API
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('❌ [Database Status] Error:', error);
+    logger.error('❌ [Database Status] Error:', error);
     return NextResponse.json(
       {
         error: 'Failed to get database status',
@@ -144,7 +145,7 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   } catch (error) {
-    console.error('❌ [Database Status] POST Error:', error);
+    logger.error('❌ [Database Status] POST Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

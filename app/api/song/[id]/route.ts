@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from '@/lib/logger';
 
 export async function GET(
   req: NextRequest,
@@ -37,7 +38,7 @@ export async function GET(
     
     return NextResponse.json(song);
   } catch (error) {
-    console.error(`Error in song API:`, error);
+    logger.error(`Error in song API:`, error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

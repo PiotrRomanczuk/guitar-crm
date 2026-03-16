@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock, User, Music2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { logger } from '@/lib/logger';
 
 interface SongStatusHistoryRecord {
   id: string;
@@ -74,13 +75,13 @@ export function SongStatusHistory({ songId, studentId, title }: SongStatusHistor
       const { data, error } = await query;
 
       if (error) {
-        console.error('Song status history query error:', error);
+        logger.error('Song status history query error:', error);
         throw error;
       }
 
       setHistory(data || []);
     } catch (err) {
-      console.error('Error loading song status history:', {
+      logger.error('Error loading song status history:', {
         error: err,
         message: err instanceof Error ? err.message : 'Unknown error',
         songId,

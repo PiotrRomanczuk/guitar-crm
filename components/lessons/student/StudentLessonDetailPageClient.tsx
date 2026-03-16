@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 import { LessonDetailsCard, LessonSongsList, LessonAssignmentsList } from '@/components/lessons';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import { Database } from '@/database.types';
+import { logger } from '@/lib/logger';
 
 type LessonDetail = LessonWithProfiles & {
   lesson_songs: {
@@ -86,7 +87,7 @@ export function StudentLessonDetailPageClient() {
           setLesson(null);
         }
       } catch (error) {
-        console.error('Error fetching lesson:', error);
+        logger.error('Error fetching lesson:', error);
       } finally {
         setLoading(false);
       }

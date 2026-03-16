@@ -18,6 +18,7 @@ import {
   getQueueStats,
   getQueueMessage,
 } from '@/lib/ai/queue-manager';
+import { logger } from '@/lib/logger';
 
 /**
  * Streaming status states
@@ -103,7 +104,7 @@ export function useAIStream<T = Record<string, unknown>>(
     async (params: T) => {
       // Prevent multiple simultaneous streams
       if (isStreamingRef.current) {
-        console.warn('[useAIStream] Already streaming, ignoring start request');
+        logger.warn('[useAIStream] Already streaming, ignoring start request');
         return;
       }
 

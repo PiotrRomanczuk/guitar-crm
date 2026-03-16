@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import {
   SongRequestFormSchema,
   SongRequestReviewSchema,
@@ -11,6 +12,7 @@ import {
   type SongRequestRow,
   type SongRequestWithStudent,
 } from '@/schemas/SongRequestSchema';
+import { logger } from '@/lib/logger';
 
 export interface SubmitSongRequestResult {
   success: boolean;
@@ -24,7 +26,9 @@ export interface SubmitSongRequestResult {
 export async function submitSongRequest(
   formData: SongRequestFormData
 ): Promise<SubmitSongRequestResult> {
-  const { user, isStudent } = await getUserWithRolesSSR();
+  const { user, isStudent, isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
 
   if (!user) {
     return { success: false, error: 'Not authenticated' };
@@ -54,7 +58,7 @@ export async function submitSongRequest(
     .single();
 
   if (error) {
-    console.error('[submitSongRequest] Error:', error);
+    logger.error('[submitSongRequest] Error:', error);
     return { success: false, error: 'Failed to submit request' };
   }
 
@@ -98,7 +102,7 @@ export async function getSongRequests(
   const { data, error } = await query;
 
   if (error) {
-    console.error('[getSongRequests] Error:', error);
+    logger.error('[getSongRequests] Error:', error);
     return { requests: [], error: 'Failed to load requests' };
   }
 
@@ -117,7 +121,9 @@ export async function reviewSongRequest(
   requestId: string,
   reviewData: SongRequestReviewData
 ): Promise<ReviewSongRequestResult> {
-  const { user, isAdmin, isTeacher } = await getUserWithRolesSSR();
+  const { user, isAdmin, isTeacher, isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
 
   if (!user) {
     return { success: false, error: 'Not authenticated' };
@@ -143,7 +149,7 @@ export async function reviewSongRequest(
     .eq('id', requestId);
 
   if (error) {
-    console.error('[reviewSongRequest] Error:', error);
+    logger.error('[reviewSongRequest] Error:', error);
     return { success: false, error: 'Failed to review request' };
   }
 

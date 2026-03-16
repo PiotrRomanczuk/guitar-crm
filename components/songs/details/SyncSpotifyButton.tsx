@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Progress } from '@/components/ui/progress';
 import { Card } from '@/components/ui/card';
 import { SpotifyMatchDialog } from './SpotifyMatchDialog';
+import { logger } from '@/lib/logger';
 
 interface SyncSpotifyButtonProps {
   songId: string;
@@ -84,7 +85,7 @@ export function SyncSpotifyButton({
         setShowMatchDialog(true);
       }
     } catch (error) {
-      console.error('Failed to fetch match data:', error);
+      logger.error('Failed to fetch match data:', error);
       toast.info('Match needs review', {
         description: 'Check the Spotify Matches page to review this match',
       });
@@ -203,7 +204,7 @@ export function SyncSpotifyButton({
         }
       }
     } catch (error: unknown) {
-      console.error('Sync error:', error);
+      logger.error('Sync error:', error);
       toast.error('Sync failed', {
         description: error instanceof Error ? error.message : 'An unknown error occurred',
       });
@@ -222,7 +223,7 @@ export function SyncSpotifyButton({
       setStatus({ syncing: false, progress: 0, message: '' });
       setSyncId(null);
     } catch (error) {
-      console.error('Failed to stop sync:', error);
+      logger.error('Failed to stop sync:', error);
     }
   };
 

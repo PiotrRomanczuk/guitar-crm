@@ -93,6 +93,7 @@ function mockAuth(
     isAdmin: roles.isAdmin ?? false,
     isTeacher: roles.isTeacher ?? false,
     isStudent: roles.isStudent ?? false,
+    isDevelopment: false,
   });
 }
 
@@ -378,6 +379,7 @@ describe('addSotwToRepertoire', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: true,
+        isDevelopment: false,
       });
 
     const qb = createMockQueryBuilder(null);
@@ -403,6 +405,7 @@ describe('addSotwToRepertoire', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: true,
+        isDevelopment: false,
       });
 
     const qb = createMockQueryBuilder(MOCK_SOTW);
@@ -435,6 +438,7 @@ describe('addSotwToRepertoire', () => {
         isAdmin: false,
         isTeacher: false,
         isStudent: true,
+        isDevelopment: false,
       });
 
     const qb = createMockQueryBuilder(MOCK_SOTW);

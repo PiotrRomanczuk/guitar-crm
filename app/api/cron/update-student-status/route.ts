@@ -11,6 +11,7 @@
 import { NextResponse } from 'next/server';
 import { updateStudentActivityStatus } from '@/lib/services/student-activity-service';
 import { verifyCronSecret } from '@/lib/auth/cron-auth';
+import { logger } from '@/lib/logger';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('[Cron] Student status update failed:', error);
+    logger.error('[Cron] Student status update failed:', error);
 
     return NextResponse.json(
       {

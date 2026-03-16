@@ -28,9 +28,8 @@ export function SongNotesAI({ songData, currentNotes, onNotesGenerated, disabled
 
   // Generate from scratch
   const generateStream = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async function* (params: any, _signal?: AbortSignal) {
-      yield* generateSongNotesStream(params);
+    async function* (params: Record<string, unknown>, _signal?: AbortSignal) {
+      yield* generateSongNotesStream(params as Parameters<typeof generateSongNotesStream>[0]);
     },
     []
   );
@@ -42,9 +41,8 @@ export function SongNotesAI({ songData, currentNotes, onNotesGenerated, disabled
 
   // Enhance existing notes
   const enhanceStream = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async function* (params: any, _signal?: AbortSignal) {
-      yield* enhanceSongNotesStream(params);
+    async function* (params: Record<string, unknown>, _signal?: AbortSignal) {
+      yield* enhanceSongNotesStream(params as Parameters<typeof enhanceSongNotesStream>[0]);
     },
     []
   );

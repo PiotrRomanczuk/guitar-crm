@@ -2,6 +2,7 @@ import { getGoogleOAuth2Client } from '@/lib/google';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { NextRequest } from 'next/server';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -42,13 +43,13 @@ export async function GET(request: NextRequest) {
     });
 
     if (dbError) {
-      console.error('Error storing tokens:', dbError);
+      logger.error('Error storing tokens:', dbError);
       return redirect('/dashboard?error=db_error');
     }
 
     return redirect('/dashboard?success=google_connected');
   } catch (error) {
-    console.error('Error exchanging code for tokens:', error);
+    logger.error('Error exchanging code for tokens:', error);
     return redirect('/dashboard?error=token_exchange_error');
   }
 }

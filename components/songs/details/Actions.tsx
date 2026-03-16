@@ -22,6 +22,7 @@ import {
 import { Pencil, Trash2, MoreVertical } from 'lucide-react';
 import { SyncSpotifyButton } from './SyncSpotifyButton';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 interface Props {
   songId: string;
@@ -55,7 +56,7 @@ export default function SongDetailActions({
 
       window.location.href = '/dashboard/songs';
     } catch (error) {
-      console.error('Delete error:', error);
+      logger.error('Delete error:', error);
       toast.error('Failed to delete song');
       setDeleting(false);
       setDialogOpen(false);

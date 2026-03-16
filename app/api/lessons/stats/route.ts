@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { NextRequest, NextResponse } from 'next/server';
 import { LessonStatusEnum } from '@/schemas';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
     const { count: totalLessons, error: totalError } = await buildQuery();
 
     if (totalError) {
-      console.error('[LessonStats] Error getting total lessons:', totalError);
+      logger.error('[LessonStats] Error getting total lessons:', totalError);
       return NextResponse.json({ error: totalError.message }, { status: 500 });
     }
 
@@ -126,7 +127,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(stats);
   } catch (error) {
-    console.error('[LessonStats] Internal error:', error);
+    logger.error('[LessonStats] Internal error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

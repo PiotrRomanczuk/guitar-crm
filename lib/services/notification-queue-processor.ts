@@ -26,6 +26,7 @@ import {
 } from '@/lib/logging/notification-logger';
 import type { NotificationType } from '@/types/notifications';
 import { sendNotification } from './notification-service';
+import { logger } from '@/lib/logger';
 
 /**
  * Check if student emails are enabled via environment variable.
@@ -263,7 +264,7 @@ export async function retryFailedNotifications(): Promise<{ retried: number; fai
 
         retried++;
       } catch (error) {
-        console.error(`Failed to retry notification ${notification.id}:`, error);
+        logger.error(`Failed to retry notification ${notification.id}:`, error);
         const errorMessage = error instanceof Error ? error.message : 'Retry failed';
 
         // Increment retry count and update error (using retry handler)

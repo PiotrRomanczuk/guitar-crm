@@ -3,6 +3,7 @@ import { matchStudentByEmail, createShadowStudent } from '@/lib/services/import-
 import { TablesInsert } from '@/types/database.types';
 import { getCalendarEventsInRange } from '@/lib/google';
 import { isGuitarLesson } from '@/lib/calendar/calendar-utils';
+import { logger } from '@/lib/logger';
 
 export interface ImportEvent {
   googleEventId: string;
@@ -119,7 +120,7 @@ export async function fetchAndSyncRecentEvents(userId: string) {
       details: result,
     };
   } catch (error) {
-    console.error('Error syncing events:', error);
+    logger.error('Error syncing events:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }

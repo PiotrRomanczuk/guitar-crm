@@ -4,6 +4,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 export async function DELETE(
   request: NextRequest,
@@ -41,13 +42,13 @@ export async function DELETE(
     const { error: deleteError } = await supabase.from('api_keys').delete().eq('id', id);
 
     if (deleteError) {
-      console.error('[API Keys] Error deleting key:', deleteError);
+      logger.error('[API Keys] Error deleting key:', deleteError);
       return NextResponse.json({ error: deleteError.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error('[API Keys] Exception:', error);
+    logger.error('[API Keys] Exception:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

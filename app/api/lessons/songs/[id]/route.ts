@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { 
   SongStatusEnum
 } from "@/schemas";
+import { logger } from '@/lib/logger';
 
 export async function GET(
   request: NextRequest,
@@ -32,7 +33,7 @@ export async function GET(
       .single();
 
     if (error) {
-      console.error("Error fetching lesson song:", error);
+      logger.error("Error fetching lesson song:", error);
       if (error.code === 'PGRST116') {
         return NextResponse.json({ error: "Lesson song assignment not found" }, { status: 404 });
       }
@@ -45,7 +46,7 @@ export async function GET(
 
     return NextResponse.json(lessonSong);
   } catch (error) {
-    console.error("Error in lesson song API:", error);
+    logger.error("Error in lesson song API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -110,7 +111,7 @@ export async function PUT(
       .single();
 
     if (error) {
-      console.error("Error updating lesson song:", error);
+      logger.error("Error updating lesson song:", error);
       if (error.code === 'PGRST116') {
         return NextResponse.json({ error: "Lesson song assignment not found" }, { status: 404 });
       }
@@ -119,7 +120,7 @@ export async function PUT(
 
     return NextResponse.json(lessonSong);
   } catch (error) {
-    console.error("Error in lesson song update API:", error);
+    logger.error("Error in lesson song update API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -160,7 +161,7 @@ export async function DELETE(
       .eq("id", id);
 
     if (error) {
-      console.error("Error deleting lesson song:", error);
+      logger.error("Error deleting lesson song:", error);
       if (error.code === 'PGRST116') {
         return NextResponse.json({ error: "Lesson song assignment not found" }, { status: 404 });
       }
@@ -169,7 +170,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error in lesson song delete API:", error);
+    logger.error("Error in lesson song delete API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

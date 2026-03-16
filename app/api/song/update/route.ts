@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { SongUpdateSchema } from "@/schemas/SongSchema";
+import { TEST_ACCOUNT_MUTATION_ERROR } from "@/lib/auth/test-account-guard";
+import { logger } from '@/lib/logger';
 
 export async function PUT(request: NextRequest) {
   try {
@@ -16,9 +18,13 @@ export async function PUT(request: NextRequest) {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("is_admin, is_teacher")
+      .select("is_admin, is_teacher, is_development")
       .eq("id", user.id)
       .single();
+
+    if (profile?.is_development) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
 
     if (!profile?.is_admin && !profile?.is_teacher) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -62,13 +68,13 @@ export async function PUT(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error("Error updating song", error);
+      logger.error("Error updating song", error);
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json({ data: updatedSong }, { status: 200 });
   } catch (error) {
-    console.error("Unexpected error in song update API:", error);
+    logger.error("Unexpected error in song update API:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -4,6 +4,7 @@ import {
   type ActivityLogInput,
   type ActivityLog,
 } from '@/schemas/ActivityLogSchema';
+import { logger } from '@/lib/logger';
 
 type ActivityData = Record<string, string | number | boolean | null>;
 type ActivityDataInput = Record<string, string | number | boolean | null | undefined>;
@@ -44,12 +45,12 @@ export async function logActivity(
     const validated = ActivityLogInputSchema.parse(activity);
     const { error } = await supabase.from('user_activity_logs').insert([validated]);
     if (error) {
-      console.error('Error logging activity:', error);
+      logger.error('Error logging activity:', error);
       return { success: false, error: error.message };
     }
     return { success: true };
   } catch (error) {
-    console.error('Error in logActivity:', error);
+    logger.error('Error in logActivity:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
@@ -151,12 +152,12 @@ export async function getUserActivityLogs(
       .order('timestamp', { ascending: false })
       .range(offset, offset + limit - 1);
     if (error) {
-      console.error('Error fetching activity logs:', error);
+      logger.error('Error fetching activity logs:', error);
       return { success: false, error: error.message };
     }
     return { success: true, data: data as ActivityLog[] };
   } catch (error) {
-    console.error('Error in getUserActivityLogs:', error);
+    logger.error('Error in getUserActivityLogs:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
@@ -174,7 +175,7 @@ export async function getUserActivityStats(
       .eq('user_id', userId)
       .gte('timestamp', startDate.toISOString());
     if (error) {
-      console.error('Error fetching activity stats:', error);
+      logger.error('Error fetching activity stats:', error);
       return { success: false, error: error.message };
     }
     const stats = {
@@ -188,7 +189,7 @@ export async function getUserActivityStats(
     });
     return { success: true, data: stats };
   } catch (error) {
-    console.error('Error in getUserActivityStats:', error);
+    logger.error('Error in getUserActivityStats:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
@@ -209,7 +210,7 @@ export async function deleteOldActivityLogs(
     if (deleteError) return { success: false, error: deleteError.message };
     return { success: true, count: countData?.length || 0 };
   } catch (error) {
-    console.error('Error in deleteOldActivityLogs:', error);
+    logger.error('Error in deleteOldActivityLogs:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }

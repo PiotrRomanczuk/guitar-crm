@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Strummy is a student management system for guitar teachers built with Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, and Supabase (PostgreSQL, Auth, RLS).
 
-**Current Version**: 0.83.0
+**Current Version**: 0.110.5
 
 ## Commands
 
@@ -119,7 +119,7 @@ Task(subagent_type="test-engineer", prompt="...")
 - Screenshots for UI features
 
 **Tags & Releases**: https://github.com/PiotrRomanczuk/guitar-crm/tags
-**Current Release**: v0.83.0 (Auth Registration System: 23 Improvements)
+**Current Release**: v0.110.5
 
 ## Architecture
 

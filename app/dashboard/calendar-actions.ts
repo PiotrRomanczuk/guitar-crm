@@ -7,6 +7,7 @@ import { google, calendar_v3 } from 'googleapis';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { createShadowUser } from './actions';
 import { isGuitarLesson } from '@/lib/calendar/calendar-utils';
+import { logger } from '@/lib/logger';
 
 async function getAuthenticatedCalendarClient(userId: string) {
   const supabase = await createClient();
@@ -44,7 +45,7 @@ async function getAuthenticatedCalendarClient(userId: string) {
         .eq('provider', 'google');
       oauth2Client.setCredentials(credentials);
     } catch (refreshError) {
-      console.error('Error refreshing access token:', refreshError);
+      logger.error('Error refreshing access token:', refreshError);
       throw new Error('Failed to refresh Google access token');
     }
   }
@@ -80,7 +81,7 @@ export async function getGoogleEvents() {
     if (error instanceof Error && error.message === 'Google Calendar not connected') {
       return null;
     }
-    console.error('Error fetching calendar events:', error);
+    logger.error('Error fetching calendar events:', error);
     throw new Error('Failed to fetch calendar events');
   }
 }
@@ -114,7 +115,7 @@ export async function getPotentialCustomerEvents() {
     if (error instanceof Error && error.message === 'Google Calendar not connected') {
       return null;
     }
-    console.error('Error fetching potential customer events:', error);
+    logger.error('Error fetching potential customer events:', error);
     throw new Error('Failed to fetch potential customer events');
   }
 }
@@ -178,7 +179,7 @@ export async function syncLessonsFromCalendar(studentEmail: string, studentId?: 
 
     return { success: true, count: createdCount };
   } catch (error) {
-    console.error('Error syncing lessons:', error);
+    logger.error('Error syncing lessons:', error);
     throw new Error('Failed to sync lessons');
   }
 }
@@ -229,14 +230,14 @@ export async function syncAllLessonsFromCalendar() {
 
           if (created) totalSynced++;
         } catch (err) {
-          console.error(`Failed to sync event ${event.id} for student ${email}:`, err);
+          logger.error(`Failed to sync event ${event.id} for student ${email}:`, err);
         }
       }
     }
 
     return { success: true, count: totalSynced };
   } catch (error) {
-    console.error('Error syncing all lessons:', error);
+    logger.error('Error syncing all lessons:', error);
     throw new Error('Failed to sync all lessons');
   }
 }
@@ -265,7 +266,7 @@ async function updateLesson(
     })
     .eq('id', lessonId);
 
-  if (error) console.error('Error updating lesson:', error);
+  if (error) logger.error('Error updating lesson:', error);
 }
 
 async function createLesson(
@@ -295,7 +296,7 @@ async function createLesson(
   });
 
   if (error) {
-    console.error('Error inserting lesson:', error);
+    logger.error('Error inserting lesson:', error);
     return false;
   }
   return true;

@@ -15,6 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { getAvailableSongs, updateLessonSongs } from '@/app/dashboard/lessons/actions';
 import { Loader2, Search } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface Song {
   id: string;
@@ -47,7 +48,7 @@ export function LessonSongSelector({
       getAvailableSongs()
         .then(setSongs)
         .catch((err) => {
-          console.error(err);
+          logger.error('Failed to load songs', err);
           setError('Failed to load songs');
         })
         .finally(() => setLoading(false));
@@ -79,7 +80,7 @@ export function LessonSongSelector({
       await updateLessonSongs(lessonId, selectedIds);
       setOpen(false);
     } catch (err) {
-      console.error(err);
+      logger.error('Failed to save songs', err);
       setError('Failed to save songs');
     } finally {
       setSaving(false);

@@ -65,6 +65,7 @@ describe('enableCalendarWebhook', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetAppConfig.mockReturnValue({
@@ -100,6 +101,7 @@ describe('enableCalendarWebhook', () => {
       isTeacher: false,
       isAdmin: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     const result = await enableCalendarWebhook();
@@ -115,6 +117,7 @@ describe('enableCalendarWebhook', () => {
       isTeacher: false,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const result = await enableCalendarWebhook();
@@ -129,6 +132,7 @@ describe('enableCalendarWebhook', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetAppConfig.mockReturnValue({
@@ -149,6 +153,7 @@ describe('enableCalendarWebhook', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetAppConfig.mockReturnValue({
@@ -169,6 +174,7 @@ describe('enableCalendarWebhook', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetAppConfig.mockReturnValue({
@@ -194,6 +200,7 @@ describe('enableCalendarWebhook', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetAppConfig.mockReturnValue({
@@ -218,6 +225,7 @@ describe('enableCalendarWebhook', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetAppConfig.mockReturnValue({
@@ -246,6 +254,7 @@ describe('enableCalendarWebhook', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetAppConfig.mockReturnValue({
@@ -266,6 +275,7 @@ describe('enableCalendarWebhook', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetAppConfig.mockReturnValue({

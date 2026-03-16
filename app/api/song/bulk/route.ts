@@ -5,6 +5,8 @@ import {
   SongImportSchema,
   SongImportValidationSchema,
 } from '@/schemas/SongSchema';
+import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,9 +24,13 @@ export async function POST(request: NextRequest) {
     // Check if user has permission
     const { data: profile } = await supabase
       .from('profiles')
-      .select('is_admin, is_teacher')
+      .select('is_admin, is_teacher, is_development')
       .eq('id', user.id)
       .single();
+
+    if (profile?.is_development) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
 
     if (!profile || (!profile.is_admin && !profile.is_teacher)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -159,7 +165,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error in bulk song import API:', error);
+    logger.error('Error in bulk song import API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -185,9 +191,13 @@ export async function DELETE(request: NextRequest) {
     // Check if user is admin
     const { data: profile } = await supabase
       .from('profiles')
-      .select('is_admin')
+      .select('is_admin, is_development')
       .eq('id', user.id)
       .single();
+
+    if (profile?.is_development) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
 
     if (!profile || !profile.is_admin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -197,7 +207,7 @@ export async function DELETE(request: NextRequest) {
     const { error } = await supabase.from('songs').delete().in('id', ids);
 
     if (error) {
-      console.error('Error deleting songs:', error);
+      logger.error('Error deleting songs:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -206,7 +216,7 @@ export async function DELETE(request: NextRequest) {
       deleted_count: ids.length,
     });
   } catch (error) {
-    console.error('Error in bulk song delete API:', error);
+    logger.error('Error in bulk song delete API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

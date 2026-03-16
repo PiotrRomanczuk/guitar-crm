@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BookOpen, User, ArrowRight, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { logger } from '@/lib/logger';
 
 interface StudentLessonView {
   id: string;
@@ -60,7 +61,7 @@ export function StudentLessonsPageClient() {
 
         setLessons(data || []);
       } catch (error) {
-        console.error('Error fetching lessons:', error);
+        logger.error('Error fetching lessons:', error);
       } finally {
         setLoading(false);
       }

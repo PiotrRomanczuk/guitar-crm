@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { useFormErrorFocus } from '@/hooks/use-form-error-focus';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 export default function LessonForm(props: UseLessonFormProps) {
   const router = useRouter();
@@ -51,7 +52,7 @@ export default function LessonForm(props: UseLessonFormProps) {
         }
       }
     } catch (err) {
-      console.error('[LessonForm] Exception during submission:', err);
+      logger.error('[LessonForm] Exception during submission:', err);
     } finally {
       setIsSubmitting(false);
     }

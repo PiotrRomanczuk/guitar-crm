@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { UserFavoriteInputSchema } from '@/schemas/UserFavoriteSchema';
+import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
+import { logger } from '@/lib/logger';
 
 export async function GET(req: NextRequest) {
   try {
@@ -46,7 +48,7 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching favorites:', error);
+      logger.error('Error fetching favorites:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -55,7 +57,7 @@ export async function GET(req: NextRequest) {
       total: favorites?.length || 0,
     });
   } catch (error) {
-    console.error('Error in favorites API:', error);
+    logger.error('Error in favorites API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -87,9 +89,13 @@ export async function POST(req: NextRequest) {
     // Check if user is adding their own favorite or is admin via profiles boolean flags
     const { data: profile } = await supabase
       .from('profiles')
-      .select('is_admin')
+      .select('is_admin, is_development')
       .eq('id', user.id)
       .single();
+
+    if (profile?.is_development) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
 
     if (user.id !== user_id && !profile?.is_admin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -127,13 +133,13 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error adding favorite:', error);
+      logger.error('Error adding favorite:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json(favorite);
   } catch (error) {
-    console.error('Error in add favorite API:', error);
+    logger.error('Error in add favorite API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -160,9 +166,13 @@ export async function DELETE(req: NextRequest) {
     // Check if user is removing their own favorite or is admin via profiles boolean flags
     const { data: profile } = await supabase
       .from('profiles')
-      .select('is_admin')
+      .select('is_admin, is_development')
       .eq('id', user.id)
       .single();
+
+    if (profile?.is_development) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
 
     if (user.id !== userId && !profile?.is_admin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -176,13 +186,13 @@ export async function DELETE(req: NextRequest) {
       .eq('song_id', songId);
 
     if (error) {
-      console.error('Error removing favorite:', error);
+      logger.error('Error removing favorite:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error in remove favorite API:', error);
+    logger.error('Error in remove favorite API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

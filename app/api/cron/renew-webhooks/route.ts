@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { renewExpiringWebhooks, cleanupExpiredWebhooks } from '@/lib/services/webhook-renewal';
 import { verifyCronSecret } from '@/lib/auth/cron-auth';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('Cron job failed:', error);
+    logger.error('Cron job failed:', error);
 
     return NextResponse.json(
       {

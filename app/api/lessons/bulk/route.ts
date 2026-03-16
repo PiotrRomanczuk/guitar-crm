@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { LessonInputSchema, LessonSchema, type LessonInput, type Lesson } from '@/schemas';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(results);
   } catch (error) {
-    console.error('Error in bulk lesson creation API:', error);
+    logger.error('Error in bulk lesson creation API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -269,7 +270,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(results);
   } catch (error) {
-    console.error('Error in bulk lesson update API:', error);
+    logger.error('Error in bulk lesson update API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -369,7 +370,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json(results);
   } catch (error) {
-    console.error('Error in bulk lesson deletion API:', error);
+    logger.error('Error in bulk lesson deletion API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

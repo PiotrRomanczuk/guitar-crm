@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin';
+import { logger } from '@/lib/logger';
 
 export const MAX_FAILED_ATTEMPTS = 5;
 export const LOCKOUT_DURATION_MS = 30 * 60 * 1000; // 30 minutes
@@ -52,7 +53,7 @@ export async function incrementFailedAttempts(email: string): Promise<void> {
 
 	if (newCount >= MAX_FAILED_ATTEMPTS) {
 		updates.locked_until = new Date(Date.now() + LOCKOUT_DURATION_MS).toISOString();
-		console.warn(`[Auth] Account locked for ${email} after ${newCount} failed attempts`);
+		logger.warn(`[Auth] Account locked for ${email} after ${newCount} failed attempts`);
 	}
 
 	await supabase

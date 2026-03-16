@@ -100,9 +100,7 @@ export function StudentDashboardClient({ data, sotw, sotwInRepertoire = false }:
       : 'pending') as 'pending' | 'completed' | 'overdue',
   }));
 
-  // TODO: Add song_status to getStudentDashboardData recentSongs query
-  // (select song_status from lesson_songs) so real statuses display here.
-  // Currently defaulting to 'started' since the dashboard action doesn't fetch statuses.
+  // Defaults to 'started' since the dashboard action doesn't fetch individual song statuses
   const practiceSongs: PracticeTodaySong[] = data.recentSongs.map((s) => ({
     id: s.id,
     title: s.title,

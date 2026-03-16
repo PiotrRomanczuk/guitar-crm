@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Agent Context Data Fetchers
  *
@@ -9,11 +8,15 @@
 
 import { createClient } from '@/lib/supabase/server';
 import type { AgentContext } from './types';
+import { logger } from '@/lib/logger';
+
+// Helper type for the Supabase client returned by createClient()
+type SupabaseClientType = Awaited<ReturnType<typeof createClient>>;
 
 /**
  * Fetch context data based on context key
  */
-export async function fetchContextData(contextKey: string, context: AgentContext): Promise<any> {
+export async function fetchContextData(contextKey: string, context: AgentContext): Promise<unknown> {
   const supabase = await createClient();
 
   switch (contextKey) {
@@ -67,7 +70,7 @@ export async function fetchContextData(contextKey: string, context: AgentContext
 /**
  * Fetch current user profile
  */
-async function fetchCurrentUser(supabase: any, userId: string) {
+async function fetchCurrentUser(supabase: SupabaseClientType, userId: string) {
   const { data: user, error } = await supabase
     .from('profiles')
     .select('*')
@@ -84,7 +87,7 @@ async function fetchCurrentUser(supabase: any, userId: string) {
 /**
  * Fetch current student data
  */
-async function fetchCurrentStudent(supabase: any, context: AgentContext) {
+async function fetchCurrentStudent(supabase: SupabaseClientType, context: AgentContext) {
   if (context.entityType === 'student' && context.entityId) {
     const { data: student, error } = await supabase
       .from('profiles')
@@ -104,7 +107,7 @@ async function fetchCurrentStudent(supabase: any, context: AgentContext) {
 /**
  * Fetch recent lessons
  */
-async function fetchRecentLessons(supabase: any, context: AgentContext) {
+async function fetchRecentLessons(supabase: SupabaseClientType, context: AgentContext) {
   // RLS enforces access; additionally scope by userId when available [BMS-112]
   let query = supabase
     .from('lessons')
@@ -119,7 +122,7 @@ async function fetchRecentLessons(supabase: any, context: AgentContext) {
   const { data: lessons, error } = await query;
 
   if (error) {
-    console.warn('[ContextFetcher] Failed to fetch recent lessons:', error.message);
+    logger.warn('[ContextFetcher] Failed to fetch recent lessons', { error: error.message });
     return [];
   }
 
@@ -129,13 +132,14 @@ async function fetchRecentLessons(supabase: any, context: AgentContext) {
 /**
  * Fetch student data for analysis
  */
-async function fetchStudentData(supabase: any, context: AgentContext) {
+async function fetchStudentData(supabase: SupabaseClientType, context: AgentContext) {
   // Fetch multiple students if specified in context
-  if (context.contextData.studentIds) {
+  const studentIds = context.contextData.studentIds as string[] | undefined;
+  if (studentIds) {
     const { data: students, error } = await supabase
       .from('profiles')
       .select('*')
-      .in('id', context.contextData.studentIds);
+      .in('id', studentIds);
 
     if (error) {
       throw new Error(`Failed to fetch student data: ${error.message}`);
@@ -150,7 +154,7 @@ async function fetchStudentData(supabase: any, context: AgentContext) {
 /**
  * Fetch lesson history
  */
-async function fetchLessonHistory(supabase: any, context: AgentContext) {
+async function fetchLessonHistory(supabase: SupabaseClientType, context: AgentContext) {
   let query = supabase
     .from('lessons')
     .select('*')
@@ -164,7 +168,7 @@ async function fetchLessonHistory(supabase: any, context: AgentContext) {
   const { data: lessons, error } = await query;
 
   if (error) {
-    console.warn('[ContextFetcher] Failed to fetch lesson history:', error.message);
+    logger.warn('[ContextFetcher] Failed to fetch lesson history', { error: error.message });
     return [];
   }
 
@@ -174,7 +178,7 @@ async function fetchLessonHistory(supabase: any, context: AgentContext) {
 /**
  * Fetch assignment history
  */
-async function fetchAssignmentHistory(supabase: any, context: AgentContext) {
+async function fetchAssignmentHistory(supabase: SupabaseClientType, context: AgentContext) {
   let query = supabase
     .from('assignments')
     .select('*')
@@ -188,7 +192,7 @@ async function fetchAssignmentHistory(supabase: any, context: AgentContext) {
   const { data: assignments, error } = await query;
 
   if (error) {
-    console.warn('[ContextFetcher] Failed to fetch assignment history:', error.message);
+    logger.warn('[ContextFetcher] Failed to fetch assignment history', { error: error.message });
     return [];
   }
 
@@ -198,16 +202,17 @@ async function fetchAssignmentHistory(supabase: any, context: AgentContext) {
 /**
  * Fetch assignment song details
  */
-async function fetchAssignmentSong(supabase: any, context: AgentContext) {
-  if (context.contextData.songInfo?.title) {
+async function fetchAssignmentSong(supabase: SupabaseClientType, context: AgentContext) {
+  const songInfo = context.contextData.songInfo as { title?: string } | undefined;
+  if (songInfo?.title) {
     const { data: song, error } = await supabase
       .from('songs')
       .select('*')
-      .eq('title', context.contextData.songInfo.title)
+      .eq('title', songInfo.title)
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.warn(`Song not found: ${context.contextData.songInfo.title}`);
+      logger.warn(`Song not found: ${songInfo.title}`);
     }
 
     return song;
@@ -219,7 +224,7 @@ async function fetchAssignmentSong(supabase: any, context: AgentContext) {
 /**
  * Fetch lesson details
  */
-async function fetchLessonDetails(supabase: any, context: AgentContext) {
+async function fetchLessonDetails(supabase: SupabaseClientType, context: AgentContext) {
   if (context.entityType === 'lesson' && context.entityId) {
     const { data: lesson, error } = await supabase
       .from('lessons')
@@ -240,7 +245,7 @@ async function fetchLessonDetails(supabase: any, context: AgentContext) {
 /**
  * Fetch school statistics
  */
-async function fetchSchoolStats(supabase: any) {
+async function fetchSchoolStats(supabase: SupabaseClientType) {
   try {
     const [usersResult, lessonsResult, songsResult] = await Promise.all([
       supabase.from('profiles').select('id', { count: 'exact', head: true }),
@@ -254,7 +259,7 @@ async function fetchSchoolStats(supabase: any) {
       totalSongs: songsResult.count || 0,
     };
   } catch (error) {
-    console.warn('Failed to fetch school stats:', error);
+    logger.warn('Failed to fetch school stats', { error: String(error) });
     return { totalUsers: 0, totalLessons: 0, totalSongs: 0 };
   }
 }
@@ -262,7 +267,7 @@ async function fetchSchoolStats(supabase: any) {
 /**
  * Fetch enrollment data
  */
-async function fetchEnrollmentData(supabase: any) {
+async function fetchEnrollmentData(supabase: SupabaseClientType) {
   try {
     const { data: recentUsers, error } = await supabase
       .from('profiles')
@@ -276,7 +281,7 @@ async function fetchEnrollmentData(supabase: any) {
 
     return recentUsers || [];
   } catch (error) {
-    console.warn('Failed to fetch enrollment data:', error);
+    logger.warn('Failed to fetch enrollment data', { error: String(error) });
     return [];
   }
 }
@@ -284,7 +289,7 @@ async function fetchEnrollmentData(supabase: any) {
 /**
  * Fetch revenue data (placeholder - implement based on your billing system)
  */
-async function fetchRevenueData(_supabase: any) {
+async function fetchRevenueData(_supabase: SupabaseClientType) {
   // Not yet implemented — return null so agents know data is unavailable [BMS-116]
   return null;
 }
@@ -292,7 +297,7 @@ async function fetchRevenueData(_supabase: any) {
 /**
  * Fetch lessons scoped to a specific student (last 5)
  */
-async function fetchStudentLessons(supabase: any, context: AgentContext) {
+async function fetchStudentLessons(supabase: SupabaseClientType, context: AgentContext) {
   if (context.entityType !== 'student' || !context.entityId) {
     return [];
   }
@@ -305,7 +310,7 @@ async function fetchStudentLessons(supabase: any, context: AgentContext) {
     .limit(5);
 
   if (error) {
-    console.warn('[ContextFetcher] Failed to fetch student lessons:', error.message);
+    logger.warn('[ContextFetcher] Failed to fetch student lessons', { error: error.message });
     return [];
   }
 
@@ -315,7 +320,7 @@ async function fetchStudentLessons(supabase: any, context: AgentContext) {
 /**
  * Fetch assignments scoped to a specific student
  */
-async function fetchStudentAssignments(supabase: any, context: AgentContext) {
+async function fetchStudentAssignments(supabase: SupabaseClientType, context: AgentContext) {
   if (context.entityType !== 'student' || !context.entityId) {
     return [];
   }
@@ -328,7 +333,7 @@ async function fetchStudentAssignments(supabase: any, context: AgentContext) {
     .limit(10);
 
   if (error) {
-    console.warn('[ContextFetcher] Failed to fetch student assignments:', error.message);
+    logger.warn('[ContextFetcher] Failed to fetch student assignments', { error: error.message });
     return [];
   }
 
@@ -338,7 +343,7 @@ async function fetchStudentAssignments(supabase: any, context: AgentContext) {
 /**
  * Fetch repertoire (songs + statuses) scoped to a specific student
  */
-async function fetchStudentRepertoire(supabase: any, context: AgentContext) {
+async function fetchStudentRepertoire(supabase: SupabaseClientType, context: AgentContext) {
   if (context.entityType !== 'student' || !context.entityId) {
     return [];
   }
@@ -364,7 +369,7 @@ async function fetchStudentRepertoire(supabase: any, context: AgentContext) {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.warn('[ContextFetcher] Failed to fetch student repertoire:', error.message);
+    logger.warn('[ContextFetcher] Failed to fetch student repertoire', { error: error.message });
     return [];
   }
 
@@ -373,7 +378,11 @@ async function fetchStudentRepertoire(supabase: any, context: AgentContext) {
   // Deduplicate by song, keeping most recent status
   const songMap = new Map<string, { title: string; author: string; status: string }>();
   for (const item of data) {
-    const song = item.songs;
+    // Supabase join may return array or single object
+    const rawSong = item.songs;
+    const song = Array.isArray(rawSong)
+      ? (rawSong[0] as { id: string; title: string; author: string } | undefined)
+      : (rawSong as { id: string; title: string; author: string } | null);
     if (song && !songMap.has(song.id)) {
       songMap.set(song.id, {
         title: song.title,

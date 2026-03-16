@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { getLessonsHandler, createLessonHandler } from './handlers';
+import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
+import { logger } from '@/lib/logger';
 
 /**
  * Helper to get user profile with roles
@@ -8,7 +10,7 @@ import { getLessonsHandler, createLessonHandler } from './handlers';
 async function getUserProfile(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('is_admin, is_teacher, is_student')
+    .select('is_admin, is_teacher, is_student, is_development')
     .eq('id', userId)
     .single();
 
@@ -20,6 +22,7 @@ async function getUserProfile(supabase: Awaited<ReturnType<typeof createClient>>
     isAdmin: profile.is_admin,
     isTeacher: profile.is_teacher,
     isStudent: profile.is_student,
+    isDevelopment: profile.is_development ?? false,
   };
 }
 
@@ -77,7 +80,7 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error in lessons API:', error);
+    logger.error('Error in lessons API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -102,6 +105,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
+    if (profile.isDevelopment) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
+
     const body = await request.json();
     const result = await createLessonHandler(supabase, user, profile, body);
 
@@ -111,7 +118,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result.lesson, { status: result.status });
   } catch (error) {
-    console.error('Error in lesson creation API:', error);
+    logger.error('Error in lesson creation API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/dashboard/stats
@@ -167,8 +168,8 @@ export async function GET(_request: NextRequest) {
       stats: {},
     });
   } catch (error) {
-    console.error('[API /api/dashboard/stats] ERROR:', error);
-    console.error(
+    logger.error('[API /api/dashboard/stats] ERROR:', error);
+    logger.error(
       '[API /api/dashboard/stats] Error stack:',
       error instanceof Error ? error.stack : 'No stack trace'
     );

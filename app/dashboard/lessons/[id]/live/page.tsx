@@ -3,6 +3,7 @@ import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { createClient } from '@/lib/supabase/server';
 import { LiveLessonView } from '@/components/lessons/live';
 import { Database } from '@/database.types';
+import { logger } from '@/lib/logger';
 
 interface LiveLessonPageProps {
   params: Promise<{ id: string }>;
@@ -48,7 +49,7 @@ async function fetchLessonForLive(id: string): Promise<LessonRow | null> {
     .single();
 
   if (error || !data) {
-    console.error('Error fetching lesson for live view:', error);
+    logger.error('Error fetching lesson for live view:', error);
     return null;
   }
 

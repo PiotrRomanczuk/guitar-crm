@@ -9,7 +9,6 @@ interface AudioPlayerProps {
 
 /**
  * Audio player component for drive files.
- * TODO: Implement full audio player with waveform visualization.
  */
 export default function AudioPlayer({ file, onClose }: AudioPlayerProps) {
   const streamUrl = `/api/drive/files/${file.id}/stream`;

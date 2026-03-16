@@ -16,6 +16,7 @@ import { Play, Pause, Square, Timer, Music } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 interface Song {
   id: string;
@@ -105,7 +106,7 @@ export function PracticeTimerCard({ songs, className }: PracticeTimerCardProps) 
       // Reset the timer after successful save
       resetTimer();
     } catch (error) {
-      console.error('Error saving practice session:', error);
+      logger.error('Error saving practice session:', error);
       toast.error('Failed to save session. Please try again.');
     } finally {
       setIsSubmitting(false);

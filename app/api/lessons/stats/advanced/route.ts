@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 interface LessonRow {
   id: string;
@@ -247,7 +248,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('[AdvancedLessonStats] Error:', error);
+    logger.error('[AdvancedLessonStats] Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

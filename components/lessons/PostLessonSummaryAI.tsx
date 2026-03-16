@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import { generatePostLessonSummaryStream } from '@/app/actions/ai';
 import { useAIStream } from '@/hooks/useAIStream';
 import { AIAssistButton } from '@/components/lessons/shared/AIAssistButton';
 import { AIStreamingStatus } from '@/components/ai';
+import { logger } from '@/lib/logger';
 
 interface Props {
   studentName: string;
@@ -39,8 +39,8 @@ export function PostLessonSummaryAI({
 
   // Streaming action wrapper
   const streamAction = useCallback(
-    async function* (params: any, _signal?: AbortSignal) {
-      yield* generatePostLessonSummaryStream(params);
+    async function* (params: Record<string, unknown>, _signal?: AbortSignal) {
+      yield* generatePostLessonSummaryStream(params as Parameters<typeof generatePostLessonSummaryStream>[0]);
     },
     []
   );
@@ -52,7 +52,7 @@ export function PostLessonSummaryAI({
       onSummaryGenerated?.(content);
     },
     onError: (error) => {
-      console.error('[PostLessonSummaryAI] Streaming error:', error);
+      logger.error('[PostLessonSummaryAI] Streaming error:', error);
       const errorMsg = 'Error generating summary. Please try again.';
       setSummary(errorMsg);
       onSummaryGenerated?.(errorMsg);
@@ -81,7 +81,7 @@ export function PostLessonSummaryAI({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error('Failed to copy summary:', error);
+      logger.error('Failed to copy summary:', error);
     }
   };
 

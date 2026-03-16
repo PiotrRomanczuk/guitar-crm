@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import SongForm from './SongForm';
 import { useSong } from './hooks';
 import { useRouter } from 'next/navigation';
+import { logger } from '@/lib/logger';
 
 interface Props {
   mode: 'create' | 'edit';
@@ -12,19 +13,17 @@ interface Props {
 }
 
 export default function SongFormGuard({ mode, songId, onSuccess }: Props) {
-  // NOTE: SSR roles should be passed in from parent in future; for now we optimistically allow admin-only client side by reading a global injected flag.
-  // TODO: Accept an isAdmin prop from parent SSR component instead of relying on fallback.
-  // Fallback: show form; server-side API will still enforce authorization.
+  // Server-side API enforces authorization; client renders form optimistically.
   const router = useRouter();
 
   useEffect(() => {
-    console.log('[SongFormGuard] Component MOUNTED on client', { mode, songId });
+    logger.info('[SongFormGuard] Component MOUNTED on client', { mode, songId });
   }, [mode, songId]);
 
-  console.log('[SongFormGuard] Rendering with props:', { mode, songId });
+  logger.info('[SongFormGuard] Rendering with props:', { mode, songId });
 
   const { song, loading, error } = useSong(songId || '');
-  console.log('[SongFormGuard] useSong hook result:', { song, loading, error });
+  logger.info('[SongFormGuard] useSong hook result:', { song, loading, error });
 
   if (mode === 'edit' && loading) {
     return (

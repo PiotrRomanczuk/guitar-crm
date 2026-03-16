@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { watchCalendar } from '@/lib/google';
 import { getAppConfig } from '@/lib/config';
+import { logger } from '@/lib/logger';
 
 export async function enableCalendarWebhook() {
   const { user, isTeacher } = await getUserWithRolesSSR();
@@ -16,13 +17,13 @@ export async function enableCalendarWebhook() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || apiUrl?.replace(/\/$/, '');
 
   if (!appUrl) {
-    console.error('Missing NEXT_PUBLIC_APP_URL or NEXT_PUBLIC_API_BASE_URL');
+    logger.error('Missing NEXT_PUBLIC_APP_URL or NEXT_PUBLIC_API_BASE_URL');
     return { success: false, error: 'Server configuration error: Missing App URL' };
   }
 
   // Google Webhooks require HTTPS. Localhost is not supported without a tunnel (e.g. ngrok).
   if (appUrl.includes('localhost') && !appUrl.includes('ngrok')) {
-    console.warn('Google Calendar Webhooks require HTTPS and a public URL. Localhost will fail.');
+    logger.warn('Google Calendar Webhooks require HTTPS and a public URL. Localhost will fail.');
     // We can return a specific error to the UI so the user knows they need a tunnel
     return {
       success: false,
@@ -55,7 +56,7 @@ export async function enableCalendarWebhook() {
 
     return { success: true };
   } catch (error) {
-    console.error('Error enabling webhook:', error);
+    logger.error('Error enabling webhook:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }

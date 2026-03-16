@@ -12,6 +12,7 @@
 import { createContext, useContext, useLayoutEffect, useState, type ReactNode } from 'react';
 import { ACTIVE_FONT_SCHEME, FONT_SCHEMES, DYNAMIC_FONT_SWITCHING } from './fonts.config';
 import { getFontVariableClassesForScheme } from './index';
+import { logger } from '@/lib/logger';
 
 type FontContextType = {
   currentScheme: string;
@@ -61,7 +62,7 @@ export function FontProvider({ children }: { children: ReactNode }) {
 
   const setScheme = (scheme: string) => {
     if (!FONT_SCHEMES[scheme]) {
-      console.warn(`Font scheme "${scheme}" not found`);
+      logger.warn(`Font scheme "${scheme}" not found`);
       return;
     }
 

@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 /**
  * Database Connection Layer
  *
@@ -164,9 +165,9 @@ export function logDbOperation(
 ): void {
   const prefix = getLogPrefix(type);
   if (details) {
-    console.log(`${prefix} ${operation}`, details);
+    logger.info(`${prefix} ${operation}`, details);
   } else {
-    console.log(`${prefix} ${operation}`);
+    logger.info(`${prefix} ${operation}`);
   }
 }
 

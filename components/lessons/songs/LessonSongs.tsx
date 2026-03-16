@@ -7,6 +7,7 @@ import {
   getStatusVariant,
   formatStatus,
 } from '@/components/shared';
+import { logger } from '@/lib/logger';
 
 interface LessonSong {
   id: string;
@@ -42,7 +43,7 @@ export default function LessonSongs({ lessonId }: Props) {
 
         setSongs(data.songs || []);
       } catch (err) {
-        console.error('Error fetching lesson songs:', err);
+        logger.error('Error fetching lesson songs:', err);
         setError(err instanceof Error ? err.message : 'Failed to load songs');
       } finally {
         setLoading(false);

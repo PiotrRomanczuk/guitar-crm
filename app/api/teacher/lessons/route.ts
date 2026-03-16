@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { getLessonsHandler, createLessonHandler } from '../../lessons/handlers';
+import { logger } from '@/lib/logger';
 
 /**
  * Helper to get user profile with roles from profiles table boolean flags
@@ -81,7 +82,7 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error in teacher lessons API:', error);
+    logger.error('Error in teacher lessons API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -127,7 +128,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result.lesson, { status: result.status });
   } catch (error) {
-    console.error('Error in teacher lesson creation API:', error);
+    logger.error('Error in teacher lesson creation API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

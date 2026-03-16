@@ -16,6 +16,11 @@ import {
 } from '../notification-preferences';
 import { NotificationType } from '@/types/notifications';
 
+// Mock getUserWithRolesSSR
+jest.mock('@/lib/getUserWithRolesSSR', () => ({
+  getUserWithRolesSSR: jest.fn(() => Promise.resolve({ isDevelopment: false })),
+}));
+
 // Mock createClient
 const mockSupabaseClient = {
   auth: {

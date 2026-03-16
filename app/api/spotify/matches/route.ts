@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -72,7 +73,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error('Error fetching pending matches:', error);
+    logger.error('Error fetching pending matches:', error);
     return NextResponse.json({ error: 'Failed to fetch pending matches' }, { status: 500 });
   }
 }

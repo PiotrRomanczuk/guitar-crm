@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -37,13 +38,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       .order('due_date', { ascending: false });
 
     if (error) {
-      console.error('Error fetching song assignments:', error);
+      logger.error('Error fetching song assignments:', error);
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 
     return NextResponse.json({ assignments });
   } catch (error) {
-    console.error('Unexpected error:', error);
+    logger.error('Unexpected error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

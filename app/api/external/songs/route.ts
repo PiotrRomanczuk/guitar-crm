@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/api/unified-db';
 import { extractBearerToken, authenticateWithBearerToken } from '@/lib/bearer-auth';
+import { logger } from '@/lib/logger';
 
 /**
  * External Songs API Handler
@@ -85,7 +86,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('❌ [External API] Songs GET error:', error);
+    logger.error('❌ [External API] Songs GET error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -153,7 +154,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('❌ [External API] Songs POST error:', error);
+    logger.error('❌ [External API] Songs POST error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

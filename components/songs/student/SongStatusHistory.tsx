@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { History, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 interface StatusChange {
   id: string;
@@ -60,7 +61,7 @@ export function SongStatusHistory({ songId, className }: SongStatusHistoryProps)
           setHistory(result.data || []);
         }
       } catch (error) {
-        console.error('Failed to fetch status history:', error);
+        logger.error('Failed to fetch status history:', error);
       } finally {
         setLoading(false);
       }

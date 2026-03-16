@@ -31,6 +31,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { VALID_STATUS_TRANSITIONS } from '@/schemas/AssignmentSchema';
+import { logger } from '@/lib/logger';
 
 interface Assignment {
   id: string;
@@ -103,7 +104,7 @@ export default function AssignmentsList() {
         )
       );
     } catch (err) {
-      console.error('Failed to update status:', err);
+      logger.error('Failed to update status:', err);
     }
   };
 
@@ -119,7 +120,7 @@ export default function AssignmentsList() {
       setAssignments((prev) => prev.filter((a) => a.id !== assignmentToDelete));
       setAssignmentToDelete(null);
     } catch (err) {
-      console.error(err);
+      logger.error('Error deleting assignment', err);
       setError(err instanceof Error ? err.message : 'Error deleting assignment');
       setAssignmentToDelete(null);
     }

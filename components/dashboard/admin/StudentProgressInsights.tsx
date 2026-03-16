@@ -13,6 +13,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Brain, Loader2, User, Calendar } from 'lucide-react';
 import { analyzeStudentProgressStream } from '@/app/actions/ai';
+import { logger } from '@/lib/logger';
 
 interface Student {
   id: string;
@@ -51,7 +52,7 @@ export function StudentProgressInsights({ students }: Props) {
         setInsights(String(chunk));
       }
     } catch (error) {
-      console.error('Error analyzing student progress:', error);
+      logger.error('Error analyzing student progress:', error);
       setInsights('An error occurred while analyzing progress.');
     } finally {
       setLoading(false);

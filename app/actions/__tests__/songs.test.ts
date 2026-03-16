@@ -58,6 +58,7 @@ describe('songs actions', () => {
       mockGetUserWithRolesSSR.mockResolvedValueOnce({
         isAdmin: true,
         isTeacher: false,
+        isDevelopment: false,
       });
 
       await updateLessonSongStatus(validLessonSongId, 'mastered');
@@ -71,6 +72,7 @@ describe('songs actions', () => {
       mockGetUserWithRolesSSR.mockResolvedValueOnce({
         isAdmin: false,
         isTeacher: true,
+        isDevelopment: false,
       });
 
       await updateLessonSongStatus(validLessonSongId, 'started');
@@ -84,6 +86,7 @@ describe('songs actions', () => {
       mockGetUserWithRolesSSR.mockResolvedValueOnce({
         isAdmin: false,
         isTeacher: false,
+        isDevelopment: false,
       });
 
       await expect(
@@ -97,6 +100,7 @@ describe('songs actions', () => {
       mockGetUserWithRolesSSR.mockResolvedValueOnce({
         isAdmin: true,
         isTeacher: false,
+        isDevelopment: false,
       });
 
       await updateLessonSongStatus(validLessonSongId, 'to_learn');
@@ -108,6 +112,7 @@ describe('songs actions', () => {
       mockGetUserWithRolesSSR.mockResolvedValueOnce({
         isAdmin: true,
         isTeacher: false,
+        isDevelopment: false,
       });
 
       await updateLessonSongStatus(validLessonSongId, 'started');
@@ -119,6 +124,7 @@ describe('songs actions', () => {
       mockGetUserWithRolesSSR.mockResolvedValueOnce({
         isAdmin: true,
         isTeacher: false,
+        isDevelopment: false,
       });
 
       await updateLessonSongStatus(validLessonSongId, 'remembered');
@@ -130,6 +136,7 @@ describe('songs actions', () => {
       mockGetUserWithRolesSSR.mockResolvedValueOnce({
         isAdmin: true,
         isTeacher: false,
+        isDevelopment: false,
       });
 
       await updateLessonSongStatus(validLessonSongId, 'with_author');
@@ -141,6 +148,7 @@ describe('songs actions', () => {
       mockGetUserWithRolesSSR.mockResolvedValueOnce({
         isAdmin: true,
         isTeacher: false,
+        isDevelopment: false,
       });
 
       await updateLessonSongStatus(validLessonSongId, 'mastered');
@@ -152,6 +160,7 @@ describe('songs actions', () => {
       mockGetUserWithRolesSSR.mockResolvedValueOnce({
         isAdmin: true,
         isTeacher: false,
+        isDevelopment: false,
       });
 
       await expect(
@@ -165,6 +174,7 @@ describe('songs actions', () => {
       mockGetUserWithRolesSSR.mockResolvedValueOnce({
         isAdmin: true,
         isTeacher: false,
+        isDevelopment: false,
       });
 
       // Override the mock to return an error

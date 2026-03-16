@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 const UpdateUserSchema = z.object({
   full_name: z.string().optional(),
@@ -37,7 +38,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
     return Response.json(data, { status: 200 });
   } catch (error) {
-    console.error('Error fetching user:', error);
+    logger.error('Error fetching user:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -65,7 +66,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       }
       body = result.data;
     } catch (e) {
-      console.error('Error parsing JSON body:', e);
+      logger.error('Error parsing JSON body:', e);
       return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
 
@@ -123,7 +124,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     return Response.json(data, { status: 200 });
   } catch (error) {
-    console.error('Error updating user:', error);
+    logger.error('Error updating user:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -147,7 +148,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     return Response.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error('Error deleting user:', error);
+    logger.error('Error deleting user:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

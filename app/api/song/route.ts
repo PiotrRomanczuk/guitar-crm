@@ -1,8 +1,3 @@
-// TODO: File exceeds 300 lines (currently 303). Needs refactoring:
-//   - Extract GET handler logic to separate handler file (similar to lessons/handlers.ts pattern)
-//   - Extract POST/PUT/DELETE handlers to separate functions
-//   - Move Supabase client creation to shared utility
-//   - Consider splitting by HTTP method into separate route files
 
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
@@ -16,6 +11,8 @@ import {
   updateSongHandler,
   deleteSongHandler,
 } from './handlers';
+import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
+import { logger } from '@/lib/logger';
 
 type SupabaseServerClient = SupabaseClient<Database>;
 
@@ -29,7 +26,7 @@ async function getOrCreateProfile(
 ) {
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('is_admin, is_teacher, is_student')
+    .select('is_admin, is_teacher, is_student, is_development')
     .eq('id', userId)
     .single();
 
@@ -44,11 +41,11 @@ async function getOrCreateProfile(
         is_student: true,
         is_teacher: false,
       })
-      .select('is_admin, is_teacher, is_student')
+      .select('is_admin, is_teacher, is_student, is_development')
       .single();
 
     if (createError) {
-      console.error('Error creating profile:', createError);
+      logger.error('Error creating profile:', createError);
       return null;
     }
 
@@ -56,19 +53,21 @@ async function getOrCreateProfile(
       isAdmin: newProfile.is_admin,
       isTeacher: newProfile.is_teacher,
       isStudent: newProfile.is_student,
+      isDevelopment: newProfile.is_development ?? false,
     };
   }
 
   if (profileError) {
-    console.error('Error fetching profile:', profileError);
+    logger.error('Error fetching profile:', profileError);
     // Return a default profile for now to unblock testing
-    return { isAdmin: false, isTeacher: false, isStudent: true };
+    return { isAdmin: false, isTeacher: false, isStudent: true, isDevelopment: false };
   }
 
   return {
     isAdmin: profile.is_admin,
     isTeacher: profile.is_teacher,
     isStudent: profile.is_student,
+    isDevelopment: profile.is_development ?? false,
   };
 }
 
@@ -147,7 +146,7 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('GET /api/song error:', error);
+    logger.error('GET /api/song error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -164,7 +163,7 @@ export async function POST(request: NextRequest) {
     try {
       config = getSupabaseConfig();
     } catch (configError) {
-      console.error('[API/Songs] Supabase config error:', configError);
+      logger.error('[API/Songs] Supabase config error:', configError);
       return NextResponse.json({ error: 'Database configuration error' }, { status: 500 });
     }
 
@@ -197,6 +196,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Error creating user profile' }, { status: 500 });
     }
 
+    if (profile.isDevelopment) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
+
     const body = await request.json();
 
     const result = await createSongHandler(supabase, user, profile, body);
@@ -207,7 +210,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result.song, { status: result.status });
   } catch (error) {
-    console.error('[API/Songs] POST /api/song error:', error);
+    logger.error('[API/Songs] POST /api/song error:', error);
     return NextResponse.json(
       {
         error: 'Internal server error',
@@ -260,6 +263,10 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Error creating user profile' }, { status: 500 });
     }
 
+    if (profile.isDevelopment) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
+
     const body = await request.json();
     const result = await updateSongHandler(supabase, user, profile, songId, body);
 
@@ -269,7 +276,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(result.song, { status: result.status });
   } catch (error) {
-    console.error('PUT /api/song error:', error);
+    logger.error('PUT /api/song error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -318,6 +325,10 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Error creating user profile' }, { status: 500 });
     }
 
+    if (profile.isDevelopment) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
+
     const result = await deleteSongHandler(supabase, user, profile, songId);
 
     if (result.error) {
@@ -332,7 +343,7 @@ export async function DELETE(request: NextRequest) {
       { status: result.status }
     );
   } catch (error) {
-    console.error('DELETE /api/song error:', error);
+    logger.error('DELETE /api/song error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

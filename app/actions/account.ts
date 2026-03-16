@@ -2,10 +2,16 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 
 const DELETION_GRACE_PERIOD_DAYS = 30;
 
 export async function requestEmailChange(newEmail: string) {
+	const { isDevelopment } = await getUserWithRolesSSR();
+	const guard = guardTestAccountMutation(isDevelopment);
+	if (guard) return { error: guard.error };
+
 	const supabase = await createClient();
 	const {
 		data: { user },
@@ -29,6 +35,10 @@ export async function requestEmailChange(newEmail: string) {
 }
 
 export async function requestAccountDeletion() {
+	const { isDevelopment } = await getUserWithRolesSSR();
+	const guard = guardTestAccountMutation(isDevelopment);
+	if (guard) return { error: guard.error };
+
 	const supabase = await createClient();
 	const {
 		data: { user },
@@ -63,6 +73,10 @@ export async function requestAccountDeletion() {
 }
 
 export async function cancelAccountDeletion() {
+	const { isDevelopment } = await getUserWithRolesSSR();
+	const guard = guardTestAccountMutation(isDevelopment);
+	if (guard) return { error: guard.error };
+
 	const supabase = await createClient();
 	const {
 		data: { user },

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 interface Song {
   id: string;
@@ -86,7 +87,7 @@ export async function GET(req: Request) {
       .limit(limit);
 
     if (error) {
-      console.error('Error fetching status history:', error);
+      logger.error('Error fetching status history:', error);
       return NextResponse.json({ error: 'Failed to fetch status history' }, { status: 500 });
     }
 
@@ -133,7 +134,7 @@ export async function GET(req: Request) {
       totalChanges: data.length,
     });
   } catch (error) {
-    console.error('Error in status history fetch:', error);
+    logger.error('Error in status history fetch:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

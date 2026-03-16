@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/songs/[id]/lessons
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching song lessons:', error);
+      logger.error('Error fetching song lessons:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json({ lessons: transformedLessons });
   } catch (error) {
-    console.error('Error in song lessons API:', error);
+    logger.error('Error in song lessons API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

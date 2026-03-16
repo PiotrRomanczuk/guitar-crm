@@ -4,14 +4,21 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { Database } from '@/database.types';
 import { z } from 'zod';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation, assertNotTestAccount } from '@/lib/auth/test-account-guard';
 
 import { sendNotification, cancelPendingQueueEntries } from '@/lib/services/notification-service';
+import { logger } from '@/lib/logger';
 
 const songIdsSchema = z.array(z.string().uuid());
 const lessonSongStatusSchema = z.enum(['to_learn', 'started', 'remembered', 'with_author', 'mastered']);
 
 export async function sendLessonSummaryEmail(lessonId: string) {
-  console.log(`[sendLessonSummaryEmail] Starting for lessonId: ${lessonId}`);
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
+  logger.info(`[sendLessonSummaryEmail] Starting for lessonId: ${lessonId}`);
   const supabase = await createClient();
 
   try {
@@ -40,7 +47,7 @@ export async function sendLessonSummaryEmail(lessonId: string) {
       .single();
 
     if (error) {
-      console.error('Error fetching lesson details for email:', error);
+      logger.error('Error fetching lesson details for email:', error);
       return { success: false, error: `Failed to fetch lesson details: ${error.message}` };
     }
 
@@ -73,17 +80,17 @@ export async function sendLessonSummaryEmail(lessonId: string) {
     });
 
     if (!result.success) {
-      console.error('[sendLessonSummaryEmail] Notification service failed:', result.error);
+      logger.error('[sendLessonSummaryEmail] Notification service failed:', result.error);
       return { success: false, error: result.error || 'Failed to send email' };
     }
 
     // Cancel any pending queued recap for this lesson (from DB trigger)
     await cancelPendingQueueEntries('lesson', lessonId, 'lesson_recap');
 
-    console.log('[sendLessonSummaryEmail] Email sent successfully via notification service');
+    logger.info('[sendLessonSummaryEmail] Email sent successfully via notification service');
     return { success: true };
   } catch (error) {
-    console.error('[sendLessonSummaryEmail] Exception:', error);
+    logger.error('[sendLessonSummaryEmail] Exception:', error);
     return { success: false, error: 'Internal server error' };
   }
 }
@@ -94,7 +101,7 @@ export async function getAvailableSongs() {
   const { data, error } = await supabase.from('songs').select('id, title, author').order('title');
 
   if (error) {
-    console.error('Error fetching songs:', error);
+    logger.error('Error fetching songs:', error);
     throw new Error('Failed to fetch songs');
   }
 
@@ -102,6 +109,9 @@ export async function getAvailableSongs() {
 }
 
 export async function updateLessonSongs(lessonId: string, songIds: string[]) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  assertNotTestAccount(isDevelopment);
+
   const parsedLessonId = z.string().uuid().safeParse(lessonId);
   const parsedSongIds = songIdsSchema.safeParse(songIds);
   if (!parsedLessonId.success || !parsedSongIds.success) {
@@ -117,7 +127,7 @@ export async function updateLessonSongs(lessonId: string, songIds: string[]) {
     .eq('lesson_id', lessonId);
 
   if (fetchError) {
-    console.error('Error fetching existing lesson songs:', fetchError);
+    logger.error('Error fetching existing lesson songs:', fetchError);
     throw new Error('Failed to update lesson songs');
   }
 
@@ -135,7 +145,7 @@ export async function updateLessonSongs(lessonId: string, songIds: string[]) {
       .in('song_id', songsToRemove);
 
     if (deleteError) {
-      console.error('Error deleting removed lesson songs:', deleteError);
+      logger.error('Error deleting removed lesson songs:', deleteError);
       throw new Error('Failed to update lesson songs');
     }
   }
@@ -151,7 +161,7 @@ export async function updateLessonSongs(lessonId: string, songIds: string[]) {
     );
 
     if (insertError) {
-      console.error('Error inserting new lesson songs:', insertError);
+      logger.error('Error inserting new lesson songs:', insertError);
       throw new Error('Failed to update lesson songs');
     }
   }
@@ -164,6 +174,9 @@ export async function updateLessonSongStatus(
   songId: string,
   status: Database['public']['Enums']['lesson_song_status']
 ) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  assertNotTestAccount(isDevelopment);
+
   const parsed = z.object({
     lessonId: z.string().uuid(),
     songId: z.string().uuid(),
@@ -182,7 +195,7 @@ export async function updateLessonSongStatus(
     .eq('song_id', songId);
 
   if (error) {
-    console.error('Error updating lesson song status:', error);
+    logger.error('Error updating lesson song status:', error);
     throw new Error('Failed to update lesson song status');
   }
 
@@ -229,7 +242,7 @@ export async function getAssignableLessons(): Promise<AssignableLesson[]> {
     .order('scheduled_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching assignable lessons:', error);
+    logger.error('Error fetching assignable lessons:', error);
     throw new Error('Failed to fetch lessons');
   }
 

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getTrack } from '@/lib/spotify';
 import { SpotifyApiTrack } from '@/types/spotify';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 /**
  * Extract Spotify track ID from various URL formats:
@@ -72,7 +73,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ track: result });
   } catch (error) {
-    console.error('Spotify Track Fetch Error:', error);
+    logger.error('Spotify Track Fetch Error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch track from Spotify' },
       { status: 500 }

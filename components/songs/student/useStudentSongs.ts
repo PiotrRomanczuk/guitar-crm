@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import type { SongWithStatus as Song } from '@/components/songs/types';
 import { statusLabels } from './StudentSongs.constants';
+import { logger } from '@/lib/logger';
 
 type SortField = 'name' | 'author' | 'difficulty' | 'status';
 type FilterState = {
@@ -65,7 +66,7 @@ export function useStudentSongs() {
       );
       toast.success(`Song status updated to ${statusLabels[newStatus] || newStatus}!`);
     } catch (error) {
-      console.error('Error updating song status:', error);
+      logger.error('Error updating song status:', error);
       toast.error('Failed to update song status. Please try again.');
     } finally {
       setUpdatingStatus(null);
@@ -123,7 +124,7 @@ export function useStudentSongs() {
         });
         setSongs(Array.from(seen.values()));
       } catch (error) {
-        console.error('Error fetching songs:', error);
+        logger.error('Error fetching songs:', error);
       } finally {
         setLoading(false);
       }

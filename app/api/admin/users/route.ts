@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -39,7 +40,7 @@ export async function GET() {
 
     return NextResponse.json({ users: users || [] });
   } catch (error) {
-    console.error('Error fetching users:', error);
+    logger.error('Error fetching users:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

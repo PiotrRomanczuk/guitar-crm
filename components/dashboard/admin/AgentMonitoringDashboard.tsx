@@ -7,7 +7,6 @@
  */
 
 'use client';
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +24,8 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { agentRegistry, getAnalytics } from '@/lib/ai/agent-registry';
+import type { AgentResponse } from '@/lib/ai/registry/types';
+import { logger } from '@/lib/logger';
 
 interface AgentStats {
   agentId: string;
@@ -32,7 +33,7 @@ interface AgentStats {
   totalExecutions: number;
   successRate: number;
   averageExecutionTime: number;
-  recentExecutions: any[];
+  recentExecutions: AgentResponse[];
   category: string;
 }
 
@@ -69,7 +70,7 @@ export function AgentMonitoringDashboard() {
 
       setAgentStats(stats);
     } catch (error) {
-      console.error('Failed to load agent stats:', error);
+      logger.error('Failed to load agent stats:', error);
     } finally {
       setLoading(false);
     }

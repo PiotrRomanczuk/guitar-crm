@@ -4,9 +4,16 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import type { OnboardingData } from '@/types/onboarding';
+import { logger } from '@/lib/logger';
 
 export async function completeOnboarding(onboardingData: OnboardingData) {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -40,7 +47,7 @@ export async function completeOnboarding(onboardingData: OnboardingData) {
       .eq('id', user.id);
 
     if (profileError) {
-      console.error('Error updating profile:', profileError);
+      logger.error('Error updating profile:', profileError);
       return { error: 'Failed to update profile' };
     }
 
@@ -56,12 +63,12 @@ export async function completeOnboarding(onboardingData: OnboardingData) {
       }, { onConflict: 'user_id' });
 
     if (prefsError) {
-      console.error('Error saving preferences:', prefsError);
+      logger.error('Error saving preferences:', prefsError);
       // Non-fatal: profile was updated, preferences failed
       // User can still proceed — preferences can be set later in settings
     }
   } catch (error) {
-    console.error('Onboarding error:', error);
+    logger.error('Onboarding error:', error);
     return { error: 'An unexpected error occurred' };
   }
 

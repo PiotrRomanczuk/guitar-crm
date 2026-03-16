@@ -13,6 +13,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { NotificationType } from '@/types/notifications';
 import type { Database } from '@/database.types';
+import { logger } from '@/lib/logger';
 
 // ============================================================================
 // TYPES
@@ -86,13 +87,13 @@ export async function createInAppNotification(
       .single();
 
     if (error) {
-      console.error('[in-app-notification-service] Create error:', error);
+      logger.error('[in-app-notification-service] Create error:', error);
       return null;
     }
 
     return data;
   } catch (error) {
-    console.error('[in-app-notification-service] Create exception:', error);
+    logger.error('[in-app-notification-service] Create exception:', error);
     return null;
   }
 }
@@ -113,13 +114,13 @@ export async function markAsRead(notificationId: string): Promise<boolean> {
       .eq('id', notificationId);
 
     if (error) {
-      console.error('[in-app-notification-service] Mark as read error:', error);
+      logger.error('[in-app-notification-service] Mark as read error:', error);
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error('[in-app-notification-service] Mark as read exception:', error);
+    logger.error('[in-app-notification-service] Mark as read exception:', error);
     return false;
   }
 }
@@ -141,13 +142,13 @@ export async function markAllAsRead(userId: string): Promise<boolean> {
       .eq('is_read', false);
 
     if (error) {
-      console.error('[in-app-notification-service] Mark all as read error:', error);
+      logger.error('[in-app-notification-service] Mark all as read error:', error);
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error('[in-app-notification-service] Mark all as read exception:', error);
+    logger.error('[in-app-notification-service] Mark all as read exception:', error);
     return false;
   }
 }
@@ -166,13 +167,13 @@ export async function getUnreadCount(userId: string): Promise<number> {
       .eq('is_read', false);
 
     if (error) {
-      console.error('[in-app-notification-service] Get unread count error:', error);
+      logger.error('[in-app-notification-service] Get unread count error:', error);
       return 0;
     }
 
     return count || 0;
   } catch (error) {
-    console.error('[in-app-notification-service] Get unread count exception:', error);
+    logger.error('[in-app-notification-service] Get unread count exception:', error);
     return 0;
   }
 }
@@ -203,13 +204,13 @@ export async function getUserNotifications(
     const { data, error } = await query;
 
     if (error) {
-      console.error('[in-app-notification-service] Get notifications error:', error);
+      logger.error('[in-app-notification-service] Get notifications error:', error);
       return [];
     }
 
     return data || [];
   } catch (error) {
-    console.error('[in-app-notification-service] Get notifications exception:', error);
+    logger.error('[in-app-notification-service] Get notifications exception:', error);
     return [];
   }
 }

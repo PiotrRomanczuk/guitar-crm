@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import { revalidatePath } from 'next/cache';
 import { SetSongOfTheWeekSchema } from '@/schemas/SongOfTheWeekSchema';
 import { addSongToRepertoireAction } from '@/app/actions/repertoire';
@@ -47,7 +48,10 @@ export async function getCurrentSongOfTheWeek(): Promise<SongOfTheWeekWithSong |
 export async function setSongOfTheWeek(
   input: unknown
 ): Promise<{ success: true } | { error: string }> {
-  const { user, isAdmin } = await getUserWithRolesSSR();
+  const { user, isAdmin, isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return { error: guard.error };
+
   if (!user || !isAdmin) {
     return { error: 'Unauthorized — admin access required' };
   }
@@ -92,7 +96,10 @@ export async function setSongOfTheWeek(
 export async function deactivateSongOfTheWeek(
   id: string
 ): Promise<{ success: true } | { error: string }> {
-  const { user, isAdmin } = await getUserWithRolesSSR();
+  const { user, isAdmin, isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return { error: guard.error };
+
   if (!user || !isAdmin) {
     return { error: 'Unauthorized — admin access required' };
   }
@@ -115,7 +122,10 @@ export async function deactivateSongOfTheWeek(
 export async function addSotwToRepertoire(): Promise<
   { success: true; id: string } | { error: string }
 > {
-  const { user, isStudent } = await getUserWithRolesSSR();
+  const { user, isStudent, isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return { error: guard.error };
+
   if (!user || !isStudent) {
     return { error: 'Unauthorized — student access required' };
   }

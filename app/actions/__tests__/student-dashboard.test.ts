@@ -64,6 +64,7 @@ describe('getStudentDashboardData', () => {
       isStudent: true,
       isTeacher: false,
       isAdmin: false,
+      isDevelopment: false,
     });
 
     mockFrom.mockImplementation((table: string) => {
@@ -226,6 +227,7 @@ describe('getStudentDashboardData', () => {
       isStudent: false,
       isTeacher: false,
       isAdmin: false,
+      isDevelopment: false,
     });
 
     await expect(getStudentDashboardData()).rejects.toThrow('User not authenticated');
@@ -239,6 +241,7 @@ describe('getStudentDashboardData', () => {
       isStudent: true,
       isTeacher: false,
       isAdmin: false,
+      isDevelopment: false,
     });
 
     mockFrom.mockImplementation((table: string) => {
@@ -268,6 +271,7 @@ describe('getStudentDashboardData', () => {
       isStudent: true,
       isTeacher: false,
       isAdmin: false,
+      isDevelopment: false,
     });
 
     mockFrom.mockImplementation((table: string) => {
@@ -331,6 +335,7 @@ describe('getStudentDashboardData', () => {
       isStudent: true,
       isTeacher: false,
       isAdmin: false,
+      isDevelopment: false,
     });
 
     mockFrom.mockImplementation((table: string) => {
@@ -368,6 +373,7 @@ describe('getStudentDashboardData', () => {
       isStudent: true,
       isTeacher: false,
       isAdmin: false,
+      isDevelopment: false,
     });
 
     mockFrom.mockImplementation((table: string) => {
@@ -433,6 +439,7 @@ describe('getStudentDashboardData', () => {
       isStudent: true,
       isTeacher: false,
       isAdmin: false,
+      isDevelopment: false,
     });
 
     mockFrom.mockImplementation((table: string) => {
@@ -494,6 +501,7 @@ describe('getStudentDashboardData', () => {
       isStudent: true,
       isTeacher: false,
       isAdmin: false,
+      isDevelopment: false,
     });
 
     mockFrom.mockImplementation((table: string) => {

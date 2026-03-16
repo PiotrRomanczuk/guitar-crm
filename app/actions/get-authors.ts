@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 /**
  * Fetches distinct, non-empty author names from the songs table.
@@ -18,7 +19,7 @@ export async function getDistinctAuthors(): Promise<string[]> {
     .order('author');
 
   if (error) {
-    console.error('Error fetching distinct authors:', error);
+    logger.error('Error fetching distinct authors:', error);
     return [];
   }
 

@@ -10,6 +10,7 @@ import { LessonSongsList, LessonDetailsCard, LessonAssignmentsList, PostLessonPr
 import { StudentLessonDetailPageClient } from '@/components/lessons/student/StudentLessonDetailPageClient';
 import { HistoryTimeline } from '@/components/shared/HistoryTimeline';
 import { Skeleton } from '@/components/ui/skeleton';
+import { logger } from '@/lib/logger';
 
 interface LessonDetailPageProps {
   params: Promise<{ id: string }>;
@@ -66,13 +67,13 @@ async function fetchLesson(id: string): Promise<LessonDetail | null> {
       .single();
 
     if (error || !data) {
-      console.error('Error fetching lesson:', error);
+      logger.error('Error fetching lesson:', error);
       return null;
     }
 
     return data as unknown as LessonDetail;
   } catch (err) {
-    console.error('Exception fetching lesson:', err);
+    logger.error('Exception fetching lesson:', err);
     return null;
   }
 }

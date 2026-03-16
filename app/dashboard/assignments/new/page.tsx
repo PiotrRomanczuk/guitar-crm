@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { AssignmentForm } from '@/components/assignments';
 import { redirect } from 'next/navigation';
+import { logger } from '@/lib/logger';
 
 interface NewAssignmentPageProps {
   searchParams: Promise<{
@@ -27,7 +28,7 @@ export default async function NewAssignmentPage({ searchParams }: NewAssignmentP
     .eq('is_student', true);
 
   if (error) {
-    console.error('Error fetching students:', error);
+    logger.error('Error fetching students:', error);
   }
 
   let initialData = undefined;

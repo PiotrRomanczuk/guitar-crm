@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { startOfDay, endOfDay } from 'date-fns';
+import { logger } from '@/lib/logger';
 
 export interface DashboardNotification {
   id: string;
@@ -152,7 +153,7 @@ export async function GET() {
 
     return NextResponse.json(notifications);
   } catch (error) {
-    console.error('Error fetching dashboard notifications:', error);
+    logger.error('Error fetching dashboard notifications:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

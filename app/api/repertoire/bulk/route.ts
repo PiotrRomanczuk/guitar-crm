@@ -6,6 +6,8 @@ import {
   type CreateRepertoireInput,
   type StudentRepertoireType,
 } from '@/schemas/StudentRepertoireSchema';
+import { TEST_ACCOUNT_MUTATION_ERROR } from '@/lib/auth/test-account-guard';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,9 +24,13 @@ export async function POST(request: NextRequest) {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('is_admin, is_teacher')
+      .select('is_admin, is_teacher, is_development')
       .eq('id', user.id)
       .single();
+
+    if (profile?.is_development) {
+      return NextResponse.json({ error: TEST_ACCOUNT_MUTATION_ERROR }, { status: 403 });
+    }
 
     if (!profile || (!profile.is_admin && !profile.is_teacher)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -134,7 +140,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(results);
   } catch (error) {
-    console.error('Error in bulk repertoire creation API:', error);
+    logger.error('Error in bulk repertoire creation API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

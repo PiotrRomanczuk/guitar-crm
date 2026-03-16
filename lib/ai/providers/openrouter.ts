@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * OpenRouter AI Provider
  *
@@ -14,6 +13,7 @@ import type {
   AIStreamChunk,
 } from '../types';
 import { withRetry, AI_PROVIDER_RETRY_CONFIG } from '../retry';
+import { logger } from '@/lib/logger';
 
 // Functional implementation
 
@@ -74,12 +74,12 @@ const complete = async (
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('[OpenRouter] API Error:', errorData);
+        logger.error('[OpenRouter] API Error:', errorData);
 
         // Create error with status code for retry logic
-        const error: any = new Error(`OpenRouter API Error: ${response.statusText}`);
-        error.status = response.status;
-        throw error;
+        const apiError = new Error(`OpenRouter API Error: ${response.statusText}`);
+        (apiError as Error & { status: number }).status = response.status;
+        throw apiError;
       }
 
       const data = await response.json();
@@ -97,7 +97,7 @@ const complete = async (
       };
     }, AI_PROVIDER_RETRY_CONFIG);
   } catch (error) {
-    console.error('[OpenRouter] Request failed:', error);
+    logger.error('[OpenRouter] Request failed:', error);
 
     if (error instanceof Error) {
       return {
@@ -147,7 +147,7 @@ async function* completeStream(
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('[OpenRouter] Streaming API Error:', errorData);
+      logger.error('[OpenRouter] Streaming API Error:', errorData);
       yield {
         content: '',
         finishReason: 'error',
@@ -157,7 +157,7 @@ async function* completeStream(
     }
 
     if (!response.body) {
-      console.error('[OpenRouter] No response body for streaming');
+      logger.error('[OpenRouter] No response body for streaming');
       yield {
         content: '',
         finishReason: 'error',
@@ -256,7 +256,7 @@ async function* completeStream(
                 return;
               }
             } catch (parseError) {
-              console.error('[OpenRouter] Failed to parse SSE chunk:', parseError);
+              logger.error('[OpenRouter] Failed to parse SSE chunk:', parseError);
               // Continue processing other chunks
             }
           }
@@ -266,7 +266,7 @@ async function* completeStream(
       reader.releaseLock();
     }
   } catch (error) {
-    console.error('[OpenRouter] Streaming request failed:', error);
+    logger.error('[OpenRouter] Streaming request failed:', error);
 
     // Check if error is due to cancellation
     if (signal?.aborted) {

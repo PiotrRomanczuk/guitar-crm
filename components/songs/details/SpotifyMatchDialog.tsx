@@ -1,5 +1,5 @@
 'use client';
-/* eslint-disable @typescript-eslint/no-explicit-any, react/no-unescaped-entities */
+/* eslint-disable react/no-unescaped-entities */
 
 import { useState, useEffect, useCallback } from 'react';
 import {
@@ -18,6 +18,7 @@ import { CheckCircle2, XCircle, Music, ExternalLink, Clock, Search, Loader2 } fr
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { logger } from '@/lib/logger';
 
 interface SpotifyMatchData {
   matchId: string;
@@ -38,6 +39,25 @@ interface SpotifyMatchData {
   confidence: number;
   searchQuery: string;
   reason: string;
+}
+
+interface SpotifyAlbum {
+  name: string;
+  images: { url: string }[];
+  release_date: string;
+}
+
+interface SpotifySearchResult {
+  id: string;
+  name: string;
+  artist: string;
+  album: string | SpotifyAlbum;
+  coverUrl: string | null;
+  duration_ms?: number;
+  popularity?: number;
+  artists?: { name: string }[];
+  external_urls?: { spotify: string };
+  preview_url?: string | null;
 }
 
 interface SpotifyMatchDialogProps {
@@ -63,11 +83,18 @@ function SpotifyTrackCard({
   selectedTrack,
   matchData,
 }: {
-  selectedTrack: any | null;
+  selectedTrack: SpotifySearchResult | null;
   matchData: SpotifyMatchData;
 }) {
   const track = selectedTrack;
   const suggested = matchData.spotifyTrack;
+
+  // Helper to extract album data from the union type
+  const albumObj = track?.album && typeof track.album === 'object' ? track.album as SpotifyAlbum : null;
+  const albumName = albumObj?.name || (typeof track?.album === 'string' ? track.album : null) || suggested.album;
+  const albumCoverUrl = albumObj?.images?.[0]?.url || suggested.coverImage;
+  const albumReleaseDate = albumObj?.release_date || suggested.releaseDate;
+
   return (
     <Card className="p-4 border-primary/50">
       <div className="text-sm font-medium text-muted-foreground mb-3">
@@ -75,9 +102,9 @@ function SpotifyTrackCard({
       </div>
       <div className="flex gap-4">
         <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-muted border border-border">
-          {track?.album?.images?.[0]?.url || suggested.coverImage ? (
+          {albumCoverUrl ? (
             <Image
-              src={track?.album?.images?.[0]?.url || suggested.coverImage}
+              src={albumCoverUrl}
               alt={track?.name || suggested.name}
               width={96}
               height={96}
@@ -97,9 +124,9 @@ function SpotifyTrackCard({
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2 text-xs">
-            <div><span className="text-muted-foreground">Album:</span><div className="truncate">{track?.album?.name || suggested.album}</div></div>
+            <div><span className="text-muted-foreground">Album:</span><div className="truncate">{albumName}</div></div>
             <div><span className="text-muted-foreground">Duration:</span><div>{formatDuration(track?.duration_ms || suggested.duration)}</div></div>
-            <div><span className="text-muted-foreground">Released:</span><div>{track?.album?.release_date || suggested.releaseDate}</div></div>
+            <div><span className="text-muted-foreground">Released:</span><div>{albumReleaseDate}</div></div>
             <div><span className="text-muted-foreground">Popularity:</span><div>{track?.popularity || suggested.popularity}/100</div></div>
           </div>
           <div className="flex gap-2 pt-2">
@@ -111,7 +138,7 @@ function SpotifyTrackCard({
             </Button>
             {(track?.preview_url || suggested.previewUrl) && (
               <Button variant="outline" size="sm" asChild className="gap-1">
-                <a href={track?.preview_url || suggested.previewUrl} target="_blank" rel="noopener noreferrer">
+                <a href={track?.preview_url ?? suggested.previewUrl ?? '#'} target="_blank" rel="noopener noreferrer">
                   <Music className="w-3 h-3" />
                   Preview
                 </a>
@@ -129,9 +156,9 @@ function SearchResultList({
   selectedTrackId,
   onSelect,
 }: {
-  results: any[];
+  results: SpotifySearchResult[];
   selectedTrackId: string | undefined;
-  onSelect: (track: any) => void;
+  onSelect: (track: SpotifySearchResult) => void;
 }) {
   if (results.length === 0) return null;
   return (
@@ -163,7 +190,7 @@ function SearchResultList({
             <div className="flex-1 min-w-0">
               <div className="font-medium text-sm truncate">{track.name}</div>
               <div className="text-xs text-muted-foreground truncate">
-                {track.artist} • {track.album}
+                {track.artist} • {typeof track.album === 'string' ? track.album : track.album?.name}
               </div>
             </div>
             {selectedTrackId === track.id && (
@@ -179,9 +206,9 @@ function SearchResultList({
 export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDialogProps) {
   const [processing, setProcessing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<SpotifySearchResult[]>([]);
   const [searching, setSearching] = useState(false);
-  const [selectedTrack, setSelectedTrack] = useState<any | null>(null);
+  const [selectedTrack, setSelectedTrack] = useState<SpotifySearchResult | null>(null);
   const router = useRouter();
 
   // Debounced auto-fetch for Spotify search
@@ -204,7 +231,7 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
       const data = await response.json();
       setSearchResults(data.results || []);
     } catch (error) {
-      console.error('Search error:', error);
+      logger.error('Search error:', error);
       setSearchResults([]);
     } finally {
       setSearching(false);
@@ -226,7 +253,7 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
 
   if (!matchData) return null;
 
-  const handleSelectTrack = (track: any) => {
+  const handleSelectTrack = (track: SpotifySearchResult) => {
     setSelectedTrack(track);
     toast.success('Track selected', {
       description: 'Click "Approve & Apply" to use this match',
@@ -277,7 +304,7 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
       router.refresh();
       onClose();
     } catch (error) {
-      console.error('Approval error:', error);
+      logger.error('Approval error:', error);
       toast.error('Failed to approve match', {
         description: error instanceof Error ? error.message : 'Unknown error',
       });
@@ -309,7 +336,7 @@ export function SpotifyMatchDialog({ open, onClose, matchData }: SpotifyMatchDia
 
       onClose();
     } catch (error) {
-      console.error('Rejection error:', error);
+      logger.error('Rejection error:', error);
       toast.error('Failed to reject match', {
         description: error instanceof Error ? error.message : 'Unknown error',
       });

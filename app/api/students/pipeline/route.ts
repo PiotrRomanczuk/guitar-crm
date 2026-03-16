@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { getTeacherStudentIds } from '@/lib/queries/teacher-students';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -167,7 +168,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('Error fetching pipeline data:', error);
+    logger.error('Error fetching pipeline data:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

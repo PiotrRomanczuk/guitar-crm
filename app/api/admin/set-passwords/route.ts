@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 // Use server-side only env var (never NEXT_PUBLIC_ for secrets)
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -6,11 +7,11 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABAS
 
 export async function POST(req: NextRequest) {
   if (!SERVICE_ROLE_KEY) {
-    console.error('SERVICE_ROLE_KEY env var is required');
+    logger.error('SERVICE_ROLE_KEY env var is required');
     return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
   }
   if (!SUPABASE_URL) {
-    console.error('SUPABASE_URL env var is required');
+    logger.error('SUPABASE_URL env var is required');
     return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
   }
 

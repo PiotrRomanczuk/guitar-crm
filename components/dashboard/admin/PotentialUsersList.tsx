@@ -15,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { logger } from '@/lib/logger';
 
 interface GoogleEvent {
   id: string;
@@ -57,7 +58,7 @@ export function PotentialUsersList() {
           setUsers(uniqueUsers);
         }
       } catch (err) {
-        console.error(err);
+        logger.error('Failed to load potential users', err);
       } finally {
         setLoading(false);
       }

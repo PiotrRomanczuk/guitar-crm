@@ -11,6 +11,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getGoogleOAuth2Client } from '@/lib/google';
 import { isGuitarLesson } from '@/lib/calendar/calendar-utils';
 import { findOrCreateAuthUser, upsertStudentProfile } from '@/app/dashboard/actions';
+import { logger } from '@/lib/logger';
 
 interface CalendarSyncResult {
   teachersSynced: number;
@@ -48,7 +49,7 @@ export async function syncAllTeacherCalendars(): Promise<CalendarSyncResult> {
       result.lessonsImported += counts.imported;
       result.lessonsSkipped += counts.skipped;
     } catch (err) {
-      console.error(`[CalendarSync] Teacher ${integration.user_id} failed:`, err);
+      logger.error(`[CalendarSync] Teacher ${integration.user_id} failed:`, err);
       result.errors.push({
         teacherId: integration.user_id,
         error: err instanceof Error ? err.message : String(err),
@@ -132,13 +133,13 @@ async function syncTeacherCalendar(
       });
 
       if (insertError) {
-        console.error(`[CalendarSync] Insert failed for event ${event.id}:`, insertError);
+        logger.error(`[CalendarSync] Insert failed for event ${event.id}:`, insertError);
         skipped++;
       } else {
         imported++;
       }
     } catch (err) {
-      console.error(`[CalendarSync] Event ${event.id} processing failed:`, err);
+      logger.error(`[CalendarSync] Event ${event.id} processing failed:`, err);
       skipped++;
     }
   }

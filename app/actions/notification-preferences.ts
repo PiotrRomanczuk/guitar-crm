@@ -2,7 +2,10 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
+import { guardTestAccountMutation } from '@/lib/auth/test-account-guard';
 import { NotificationPreference, NotificationType } from '@/types/notifications';
+import { logger } from '@/lib/logger';
 
 /**
  * Result type for server actions
@@ -56,7 +59,7 @@ export async function getUserNotificationPreferences(
     .order('notification_type', { ascending: true });
 
   if (error) {
-    console.error('Error fetching notification preferences:', error);
+    logger.error('Error fetching notification preferences:', error);
     return { success: false, error: 'Failed to fetch notification preferences' };
   }
 
@@ -76,6 +79,10 @@ export async function updateNotificationPreference(
   type: NotificationType,
   enabled: boolean
 ): Promise<ActionResult> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
 
   // Get current authenticated user
@@ -100,7 +107,7 @@ export async function updateNotificationPreference(
     .eq('notification_type', type);
 
   if (error) {
-    console.error('Error updating notification preference:', error);
+    logger.error('Error updating notification preference:', error);
     return { success: false, error: 'Failed to update notification preference' };
   }
 
@@ -121,6 +128,10 @@ export async function updateAllNotificationPreferences(
   userId: string,
   enabled: boolean
 ): Promise<ActionResult> {
+  const { isDevelopment } = await getUserWithRolesSSR();
+  const guard = guardTestAccountMutation(isDevelopment);
+  if (guard) return guard;
+
   const supabase = await createClient();
 
   // Get current authenticated user
@@ -144,7 +155,7 @@ export async function updateAllNotificationPreferences(
     .eq('user_id', userId);
 
   if (error) {
-    console.error('Error updating all notification preferences:', error);
+    logger.error('Error updating all notification preferences:', error);
     return { success: false, error: 'Failed to update all notification preferences' };
   }
 

@@ -5,6 +5,7 @@ import {
   type CohortDimension,
   type CohortMetric,
 } from '@/lib/services/cohort-analytics';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/cohorts/analytics
@@ -115,7 +116,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('[API /api/cohorts/analytics] ERROR:', error);
+    logger.error('[API /api/cohorts/analytics] ERROR:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

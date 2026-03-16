@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, TrendingDown, TrendingUp, Clock } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { logger } from '@/lib/logger';
 
 interface AtRiskStudent {
   id: string;
@@ -124,7 +125,7 @@ export function StudentActivityWidget() {
 
       setAtRiskStudents(atRiskData);
     } catch (error) {
-      console.error('Failed to load activity data:', error);
+      logger.error('Failed to load activity data:', error);
     } finally {
       setLoading(false);
     }

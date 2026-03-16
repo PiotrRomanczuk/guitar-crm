@@ -85,7 +85,7 @@ async function applyRoleBasedFiltering(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<{ query: any } | { lessons: []; count: number; status: number }> {
   if (!profile) {
-    console.error('applyRoleBasedFiltering called with null profile');
+    logger.error('applyRoleBasedFiltering called with null profile');
     return { lessons: [], count: 0, status: 500 };
   }
 
@@ -146,7 +146,7 @@ function applySortAndPagination(
   }
 
   if (!query || typeof query.order !== 'function') {
-    console.error('applySortAndPagination received invalid query object');
+    logger.error('applySortAndPagination received invalid query object');
     throw new Error('Invalid query object passed to applySortAndPagination');
   }
 
@@ -294,7 +294,7 @@ export async function createLessonHandler(
     const { data, error } = await insertLessonRecord(supabase, lessonData);
 
     if (error) {
-      console.error('Supabase insert error:', error);
+      logger.error('Supabase insert error:', error);
       return { error: error.message, status: 500 };
     }
 
@@ -318,6 +318,7 @@ export async function createLessonHandler(
 }
 
 import { handleLessonSongsUpdate } from './utils';
+import { logger } from '@/lib/logger';
 
 export async function updateLessonHandler(
   supabase: SupabaseClient,

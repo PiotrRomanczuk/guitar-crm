@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
+import { logger } from '@/lib/logger';
 
 /**
  * Auth state with role flags
@@ -64,7 +65,7 @@ export function useAuth(): AuthState {
       // Default: no roles
       return { isAdmin: false, isTeacher: false, isStudent: false };
     } catch (err) {
-      console.error('[useAuth] Error fetching roles:', err);
+      logger.error('[useAuth] Error fetching roles:', err);
       return { isAdmin: false, isTeacher: false, isStudent: false };
     }
   }, []);

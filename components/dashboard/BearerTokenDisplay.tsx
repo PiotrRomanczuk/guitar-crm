@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 
 export function BearerTokenDisplay() {
   const [token, setToken] = useState<string | null>(null);
@@ -29,7 +30,7 @@ export function BearerTokenDisplay() {
           setToken(null);
         }
       } catch (error) {
-        console.error('Failed to fetch API keys:', error);
+        logger.error('Failed to fetch API keys:', error);
       } finally {
         setLoading(false);
       }
@@ -49,7 +50,7 @@ export function BearerTokenDisplay() {
       });
 
       if (!response.ok) {
-        console.error('Failed to create token');
+        logger.error('Failed to create token');
         return;
       }
 
@@ -57,7 +58,7 @@ export function BearerTokenDisplay() {
       setToken(data.key);
       setCopied(false);
     } catch (error) {
-      console.error('Failed to create token:', error);
+      logger.error('Failed to create token:', error);
     }
   };
 

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 const TeacherAvailabilityInputSchema = z.object({
 	teacher_id: z.string().uuid('teacher_id must be a valid UUID'),
@@ -56,7 +57,7 @@ export async function GET(request: NextRequest) {
 			await availabilityQuery;
 
 		if (availabilityError) {
-			console.error('Error fetching teacher availability:', availabilityError);
+			logger.error('Error fetching teacher availability:', availabilityError);
 			return NextResponse.json(
 				{ error: availabilityError.message },
 				{ status: 500 }
@@ -85,7 +86,7 @@ export async function GET(request: NextRequest) {
 		const { data: lessons, error: lessonsError } = await lessonsQuery;
 
 		if (lessonsError) {
-			console.error('Error fetching scheduled lessons:', lessonsError);
+			logger.error('Error fetching scheduled lessons:', lessonsError);
 			return NextResponse.json(
 				{ error: lessonsError.message },
 				{ status: 500 }
@@ -98,7 +99,7 @@ export async function GET(request: NextRequest) {
 			teacherId,
 		});
 	} catch (error) {
-		console.error('Error in lesson schedule API:', error);
+		logger.error('Error in lesson schedule API:', error);
 		return NextResponse.json(
 			{ error: 'Internal server error' },
 			{ status: 500 }
@@ -159,7 +160,7 @@ export async function POST(request: NextRequest) {
 			.eq('date', date);
 
 		if (conflictError) {
-			console.error('Error checking availability conflicts:', conflictError);
+			logger.error('Error checking availability conflicts:', conflictError);
 			return NextResponse.json(
 				{ error: conflictError.message },
 				{ status: 500 }
@@ -187,13 +188,13 @@ export async function POST(request: NextRequest) {
 			.single();
 
 		if (error) {
-			console.error('Error creating teacher availability:', error);
+			logger.error('Error creating teacher availability:', error);
 			return NextResponse.json({ error: error.message }, { status: 500 });
 		}
 
 		return NextResponse.json(availability);
 	} catch (error) {
-		console.error('Error in lesson schedule creation API:', error);
+		logger.error('Error in lesson schedule creation API:', error);
 		return NextResponse.json(
 			{ error: 'Internal server error' },
 			{ status: 500 }

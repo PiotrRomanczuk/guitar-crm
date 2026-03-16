@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/lib/logger';
 
 interface AIErrorBoundaryProps {
   children: React.ReactNode;
@@ -44,7 +45,7 @@ export class AIErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('[AIErrorBoundary] Caught error:', error, errorInfo);
+    logger.error('[AIErrorBoundary] Caught error', error, { componentStack: errorInfo.componentStack ?? undefined });
   }
 
   handleRetry = () => {

@@ -104,6 +104,7 @@ describe('getTeacherDashboardData', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetTeacherStudentIds.mockResolvedValue(['student-1', 'student-2']);
@@ -203,6 +204,7 @@ describe('getTeacherDashboardData', () => {
       isTeacher: false,
       isAdmin: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetTeacherStudentIds.mockResolvedValue([]);
@@ -231,6 +233,7 @@ describe('getTeacherDashboardData', () => {
       isTeacher: false,
       isAdmin: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     await expect(getTeacherDashboardData()).rejects.toThrow('Unauthorized');
@@ -244,6 +247,7 @@ describe('getTeacherDashboardData', () => {
       isTeacher: false,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     await expect(getTeacherDashboardData()).rejects.toThrow('Unauthorized');
@@ -256,6 +260,7 @@ describe('getTeacherDashboardData', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetTeacherStudentIds.mockResolvedValue(['student-1']);
@@ -300,6 +305,7 @@ describe('getTeacherDashboardData', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetTeacherStudentIds.mockResolvedValue(['student-1']);
@@ -341,6 +347,7 @@ describe('getTeacherDashboardData', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetTeacherStudentIds.mockResolvedValue([]);
@@ -379,6 +386,7 @@ describe('getTeacherDashboardData', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetTeacherStudentIds.mockResolvedValue(['student-1', 'student-2', 'student-3']);
@@ -452,6 +460,7 @@ describe('getTeacherDashboardData', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetTeacherStudentIds.mockResolvedValue(['beginner', 'intermediate', 'advanced']);
@@ -506,6 +515,7 @@ describe('getTeacherDashboardData', () => {
       isTeacher: true,
       isAdmin: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockGetTeacherStudentIds.mockResolvedValue([]);

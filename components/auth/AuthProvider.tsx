@@ -2,6 +2,7 @@
 
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 
 interface AuthContextType {
   user: { id: string; email?: string } | null;
@@ -47,7 +48,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
           await fetchUserRoles(session.user.id);
         }
       } catch (error) {
-        console.error('Error getting session:', error);
+        logger.error('Error getting session:', error);
       } finally {
         setLoading(false);
       }
@@ -90,7 +91,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         setIsStudent(profile.is_student || false);
       }
     } catch (error) {
-      console.error('Error fetching user roles:', error);
+      logger.error('Error fetching user roles:', error);
     }
   };
 

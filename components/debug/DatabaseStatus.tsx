@@ -7,6 +7,7 @@ import { Server, Laptop, RefreshCw, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 interface DatabaseStatusProps {
   className?: string;
@@ -46,7 +47,7 @@ export function DatabaseStatus({ className, variant = 'fixed' }: DatabaseStatusP
       try {
         supabase = createClient();
       } catch (err) {
-        console.error('[DatabaseStatus] Failed to create Supabase client:', err);
+        logger.error('[DatabaseStatus] Failed to create Supabase client:', err);
         setConnectionStatus('error');
         return;
       }

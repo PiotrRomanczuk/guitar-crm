@@ -6,6 +6,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { hashApiKey } from '@/lib/api-keys';
 import type { User } from '@supabase/supabase-js';
+import { logger } from '@/lib/logger';
 
 export interface AuthResult {
   user: User | null;
@@ -64,7 +65,7 @@ async function validateApiKey(apiKey: string): Promise<AuthResult> {
     .then(() => {
       // Silent update - don't block request
     }, (err) => {
-      console.error('Failed to update API key last_used_at:', err);
+      logger.error('Failed to update API key last_used_at:', err);
     });
 
   // Get user details from auth.users

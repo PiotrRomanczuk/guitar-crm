@@ -71,6 +71,7 @@ describe('submitSongRequest', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const result = await submitSongRequest({ title: 'Wonderwall' });
@@ -84,6 +85,7 @@ describe('submitSongRequest', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const result = await submitSongRequest({ title: 'Wonderwall' });
@@ -97,6 +99,7 @@ describe('submitSongRequest', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     const result = await submitSongRequest({ title: '' });
@@ -110,6 +113,7 @@ describe('submitSongRequest', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     mockSingle.mockResolvedValue({ data: mockSongRequest, error: null });
@@ -133,6 +137,7 @@ describe('submitSongRequest', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     mockSingle.mockResolvedValue({ data: null, error: { message: 'DB error' } });
@@ -153,6 +158,7 @@ describe('getSongRequests', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const result = await getSongRequests();
@@ -166,6 +172,7 @@ describe('getSongRequests', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     mockEqChain.mockResolvedValue({ data: [mockSongRequest], error: null });
@@ -184,6 +191,7 @@ describe('getSongRequests', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockOrderChain.mockResolvedValue({ data: [mockSongRequest], error: null });
@@ -200,6 +208,7 @@ describe('getSongRequests', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockEqChain.mockResolvedValue({ data: [], error: null });
@@ -219,6 +228,7 @@ describe('reviewSongRequest', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
+      isDevelopment: false,
     });
 
     const result = await reviewSongRequest('id', { status: 'approved' });
@@ -232,6 +242,7 @@ describe('reviewSongRequest', () => {
       isAdmin: false,
       isTeacher: false,
       isStudent: true,
+      isDevelopment: false,
     });
 
     const result = await reviewSongRequest('id', { status: 'approved' });
@@ -245,6 +256,7 @@ describe('reviewSongRequest', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     // @ts-expect-error - testing invalid status on purpose
@@ -259,6 +271,7 @@ describe('reviewSongRequest', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockEqChain.mockResolvedValue({ data: null, error: null });
@@ -280,6 +293,7 @@ describe('reviewSongRequest', () => {
       isAdmin: false,
       isTeacher: true,
       isStudent: false,
+      isDevelopment: false,
     });
 
     mockEqChain.mockResolvedValue({ data: null, error: { message: 'DB error' } });

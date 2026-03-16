@@ -4,6 +4,7 @@ import {
   LessonStatusEnum,
   type LessonWithProfiles 
 } from "@/schemas";
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -104,7 +105,7 @@ export async function GET(request: NextRequest) {
     const { data: lessons, error, count } = await supabaseQuery;
 
     if (error) {
-      console.error("Error searching lessons:", error);
+      logger.error("Error searching lessons:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -117,7 +118,7 @@ export async function GET(request: NextRequest) {
           validatedLessons.push(lesson as LessonWithProfiles);
         }
       } catch (validationError) {
-        console.error("Lesson validation error:", validationError);
+        logger.error("Lesson validation error:", validationError);
         // Continue with other lessons even if one fails validation
       }
     }
@@ -130,7 +131,7 @@ export async function GET(request: NextRequest) {
       hasMore: validatedLessons.length === limit
     });
   } catch (error) {
-    console.error("Error in lesson search API:", error);
+    logger.error("Error in lesson search API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

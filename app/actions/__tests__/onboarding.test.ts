@@ -12,6 +12,11 @@
 import { completeOnboarding } from '../onboarding';
 import type { OnboardingData } from '@/types/onboarding';
 
+// Mock getUserWithRolesSSR
+jest.mock('@/lib/getUserWithRolesSSR', () => ({
+  getUserWithRolesSSR: jest.fn(() => Promise.resolve({ isDevelopment: false })),
+}));
+
 // Mock Supabase client
 const mockGetUser = jest.fn();
 

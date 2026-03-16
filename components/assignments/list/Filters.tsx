@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { FilterChips } from '@/components/ui/filter-chips';
 import { Search } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface Student {
   id: string;
@@ -61,7 +62,7 @@ export function Filters({
           setStudents(result.data || []);
         }
       } catch (error) {
-        console.error('Failed to fetch students', error);
+        logger.error('Failed to fetch students', error);
       }
     };
     fetchStudents();

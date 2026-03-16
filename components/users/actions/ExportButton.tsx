@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Download, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface ExportButtonProps {
   userId: string;
@@ -44,7 +45,7 @@ export function ExportButton({
       a.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Export failed:', error);
+      logger.error('Export failed:', error);
       alert('Failed to export. Please try again.');
     } finally {
       setIsExporting(false);

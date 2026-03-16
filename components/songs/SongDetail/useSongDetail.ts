@@ -7,6 +7,7 @@ import { queryClient } from '@/lib/query-client';
 import { apiClient } from '@/lib/api-client';
 import type { Song } from '../types';
 import { useEffect, useState } from 'react';
+import { logger } from '@/lib/logger';
 
 interface DeleteResult {
   success: boolean;
@@ -16,33 +17,30 @@ interface DeleteResult {
 
 async function loadSongDetail(songId: string): Promise<Song | undefined> {
   if (!songId) {
-    console.log('[SongDetail] No songId provided');
+    logger.info('[SongDetail] No songId provided');
     return undefined;
   }
 
-  console.log('[SongDetail] Starting to load song:', songId);
+  logger.info('[SongDetail] Starting to load song', { songId });
 
   try {
     const supabase = getSupabaseBrowserClient();
-    console.log('[SongDetail] Supabase client created');
+    logger.info('[SongDetail] Supabase client created');
 
-    // Verify we have a session before querying
-    console.log('[SongDetail] Checking session...');
+    logger.info('[SongDetail] Checking session...');
     const { data: sessionData } = await supabase.auth.getSession();
-    console.log(
-      '[SongDetail] Session data:',
-      sessionData.session ? 'AUTHENTICATED' : 'NOT_AUTHENTICATED'
-    );
+    logger.info('[SongDetail] Session data', {
+      status: sessionData.session ? 'AUTHENTICATED' : 'NOT_AUTHENTICATED',
+    });
 
     if (!sessionData.session) {
-      console.error('[SongDetail] No session found');
+      logger.error('[SongDetail] No session found');
       throw new Error('Not authenticated. Please sign in.');
     }
 
-    console.log('[SongDetail] User ID:', sessionData.session.user.id);
+    logger.info('[SongDetail] User ID', { userId: sessionData.session.user.id });
 
-    // Try to get the song - RLS policies will handle access control
-    console.log('[SongDetail] Querying songs table for ID:', songId);
+    logger.info('[SongDetail] Querying songs table', { songId });
     const { data, error: fetchError } = await supabase
       .from('songs')
       .select('*')
@@ -50,22 +48,21 @@ async function loadSongDetail(songId: string): Promise<Song | undefined> {
       .is('deleted_at', null)
       .single();
 
-    console.log('[SongDetail] Query response:', { data: !!data, error: !!fetchError });
+    logger.info('[SongDetail] Query response', { data: !!data, error: !!fetchError });
 
     if (fetchError) {
-      console.error('[SongDetail] Supabase error:', {
+      logger.error('[SongDetail] Supabase error', fetchError, {
         code: fetchError.code,
         message: fetchError.message,
         details: fetchError.details,
         hint: fetchError.hint,
       });
 
-      // Handle specific Supabase errors
       if (fetchError.code === 'PGRST116') {
-        console.error('[SongDetail] Error PGRST116: No rows found');
+        logger.error('[SongDetail] Error PGRST116: No rows found');
         throw new Error('Song not found or has been deleted');
       } else if (fetchError.code === 'PGRST501') {
-        console.error('[SongDetail] Error PGRST501: RLS policy blocked access');
+        logger.error('[SongDetail] Error PGRST501: RLS policy blocked access');
         throw new Error('You do not have permission to view this song');
       }
 
@@ -73,14 +70,14 @@ async function loadSongDetail(songId: string): Promise<Song | undefined> {
     }
 
     if (!data) {
-      console.error('[SongDetail] No data returned');
+      logger.error('[SongDetail] No data returned');
       throw new Error('Song not found');
     }
 
-    console.log('[SongDetail] Song loaded successfully:', data.id, data.title);
+    logger.info('[SongDetail] Song loaded successfully', { id: data.id, title: data.title });
     return data as Song;
   } catch (err) {
-    console.error('[SongDetail] Error in loadSongDetail:', err);
+    logger.error('[SongDetail] Error in loadSongDetail', err);
     throw err;
   }
 }
@@ -96,38 +93,27 @@ export function useSongDetail(songId: string, onDeleted?: () => void) {
   const [localError, setLocalError] = useState<string | null>(null);
   const [lastFetchedId, setLastFetchedId] = useState<string | null>(null);
 
-  console.log(
-    '[useSongDetail Hook] RENDER START - songId:',
-    songId,
-    'lastFetchedId:',
-    lastFetchedId
-  );
+  logger.debug('[useSongDetail] RENDER START', { songId, lastFetchedId });
 
-  // Track if we've already attempted to fetch this songId
   const shouldFetch = songId && songId !== lastFetchedId;
 
-  console.log('[useSongDetail Hook] RENDER - shouldFetch:', shouldFetch);
+  logger.debug('[useSongDetail] RENDER', { shouldFetch });
 
-  // First useEffect - just to verify effects are running
   useEffect(() => {
-    console.log('[useSongDetail Hook] VERIFICATION EFFECT - This proves useEffect CAN run');
+    logger.debug('[useSongDetail] VERIFICATION EFFECT - useEffect running');
     return () => {
-      console.log('[useSongDetail Hook] VERIFICATION CLEANUP - Effect cleanup works');
+      logger.debug('[useSongDetail] VERIFICATION CLEANUP');
     };
   }, []);
 
-  // Second useEffect - the actual data fetching
   useEffect(() => {
     if (!shouldFetch) {
-      console.log(
-        '[useSongDetail Hook] DATA FETCH EFFECT - Skipping (already fetched or no songId)'
-      );
+      logger.debug('[useSongDetail] DATA FETCH EFFECT - Skipping (already fetched or no songId)');
       return;
     }
 
-    console.log('[useSongDetail Hook] DATA FETCH EFFECT - Starting fetch for songId:', songId);
+    logger.debug('[useSongDetail] DATA FETCH EFFECT - Starting fetch', { songId });
 
-    // Mark that we're fetching this ID
     setLastFetchedId(songId);
     setLocalLoading(true);
     setLocalError(null);
@@ -136,19 +122,19 @@ export function useSongDetail(songId: string, onDeleted?: () => void) {
 
     const fetchData = async () => {
       try {
-        console.log('[useSongDetail Hook] ASYNC - Calling loadSongDetail for:', songId);
+        logger.debug('[useSongDetail] ASYNC - Calling loadSongDetail', { songId });
         const data = await loadSongDetail(songId);
-        console.log('[useSongDetail Hook] ASYNC - Got response, data exists:', !!data);
+        logger.debug('[useSongDetail] ASYNC - Got response', { dataExists: !!data });
 
         if (isMounted) {
-          console.log('[useSongDetail Hook] ASYNC - Setting local state');
+          logger.debug('[useSongDetail] ASYNC - Setting local state');
           setLocalData(data || null);
           setLocalError(null);
           setLocalLoading(false);
         }
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
-        console.error('[useSongDetail Hook] ASYNC - Error:', errorMsg);
+        logger.error('[useSongDetail] ASYNC - Error', err);
 
         if (isMounted) {
           setLocalError(errorMsg);
@@ -161,7 +147,7 @@ export function useSongDetail(songId: string, onDeleted?: () => void) {
     fetchData();
 
     return () => {
-      console.log('[useSongDetail Hook] DATA FETCH CLEANUP - Component unmounting');
+      logger.debug('[useSongDetail] DATA FETCH CLEANUP - Component unmounting');
       isMounted = false;
     };
   }, [shouldFetch, songId, lastFetchedId]);
@@ -183,7 +169,7 @@ export function useSongDetail(songId: string, onDeleted?: () => void) {
   };
 
   const refetch = () => {
-    console.log('[useSongDetail Hook] REFETCH - refetch() called for songId:', songId);
+    logger.debug('[useSongDetail] REFETCH - refetch() called', { songId });
     setLocalLoading(true);
     setLocalError(null);
 
@@ -191,16 +177,16 @@ export function useSongDetail(songId: string, onDeleted?: () => void) {
 
     const fetchSong = async () => {
       try {
-        console.log('[useSongDetail Hook] REFETCH - Starting fetch');
+        logger.debug('[useSongDetail] REFETCH - Starting fetch');
         const data = await loadSongDetail(songId);
         if (isMounted) {
-          console.log('[useSongDetail Hook] REFETCH - Setting data');
+          logger.debug('[useSongDetail] REFETCH - Setting data');
           setLocalData(data || null);
           setLocalError(null);
         }
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
-        console.error('[useSongDetail Hook] REFETCH - Error:', errorMsg);
+        logger.error('[useSongDetail] REFETCH - Error', err);
         if (isMounted) {
           setLocalError(errorMsg);
           setLocalData(null);
@@ -219,8 +205,8 @@ export function useSongDetail(songId: string, onDeleted?: () => void) {
     };
   };
 
-  console.log('[useSongDetail Hook] RETURN - returning state:', {
-    song: !!localData ? { id: localData.id, title: localData.title } : null,
+  logger.debug('[useSongDetail] RETURN - returning state', {
+    song: localData ? { id: localData.id, title: localData.title } : null,
     loading: localLoading,
     error: localError,
   });

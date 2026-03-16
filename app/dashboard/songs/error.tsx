@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Music, RefreshCw, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 
 /**
  * Error boundary for songs routes
@@ -16,7 +17,7 @@ export default function SongsError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[Songs Error]', error);
+    logger.error('[Songs Error]', error);
   }, [error]);
 
   return (

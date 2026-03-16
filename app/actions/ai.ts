@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, max-lines */
+/* eslint-disable max-lines */
 
 'use server';
 
-import { getAIProvider, isAIError, type AIMessage, type AIModelInfo } from '@/lib/ai';
+import { getAIProvider, isAIError, type AIMessage, type AIModelInfo, type AIProvider } from '@/lib/ai';
 import { DEFAULT_AI_MODEL } from '@/lib/ai-models';
 import { executeAgent } from '@/lib/ai/registry';
 import { mapToOllamaModel } from '@/lib/ai/model-mappings';
@@ -31,7 +31,7 @@ async function saveAIGeneration(data: {
   agentId?: string;
   modelId?: string;
   provider?: string;
-  inputParams: Record<string, any>;
+  inputParams: Record<string, unknown>;
   outputContent: string;
   isSuccessful?: boolean;
   errorMessage?: string;
@@ -57,7 +57,7 @@ async function saveAIGeneration(data: {
       context_entity_id: data.contextEntityId ?? null,
     });
   } catch (err) {
-    console.error('[AI] Failed to save generation:', err);
+    logger.error('[AI] Failed to save generation:', err);
   }
 }
 
@@ -95,7 +95,7 @@ async function* createAIStream(
  * Falls back to fake streaming if provider doesn't support completeStream()
  */
 async function* createAIStreamFromProvider(
-  provider: any,
+  provider: AIProvider,
   request: {
     model: string;
     messages: AIMessage[];
@@ -126,7 +126,7 @@ async function* createAIStreamFromProvider(
       return;
     } catch (error) {
       // If streaming fails, log error and fall through to non-streaming fallback
-      console.error('[AI Stream] Streaming failed, falling back to non-streaming:', error);
+      logger.error('[AI Stream] Streaming failed, falling back to non-streaming:', error);
     }
   }
 
@@ -147,8 +147,8 @@ async function* createAIStreamFromProvider(
  */
 async function* executeAgentStream(
   agentId: string,
-  input: Record<string, any>,
-  context: Record<string, any> = {},
+  input: Record<string, unknown>,
+  context: Record<string, unknown> = {},
   options?: { delayMs?: number; chunkSize?: number },
   generationType?: AIGenerationType
 ) {
@@ -177,7 +177,11 @@ async function* executeAgentStream(
       return;
     }
 
-    const content = String(result.result?.content || result.result || 'No content generated.');
+    const agentResult = result.result as Record<string, unknown> | string | null;
+    const content = String(
+      (typeof agentResult === 'object' && agentResult !== null ? agentResult.content : agentResult)
+      || 'No content generated.'
+    );
 
     if (generationType) {
       saveAIGeneration({
@@ -201,7 +205,7 @@ async function* executeAgentStream(
         errorMessage: errorMsg,
       });
     }
-    console.error(`[${agentId}] Stream error:`, error);
+    logger.error(`[${agentId}] Stream error:`, error);
     yield `Error: ${errorMsg}`;
   }
 }
@@ -210,7 +214,7 @@ async function* executeAgentStream(
  * Map OpenRouter model IDs to appropriate local models for Ollama
  */
 export async function getProviderAppropriateModel(
-  provider: any,
+  provider: AIProvider,
   requestedModel: string
 ): Promise<string> {
   // If using Ollama, map OpenRouter models to local equivalents
@@ -236,6 +240,7 @@ import {
   formatAgentError,
   isAgentSuccess,
 } from '@/lib/ai/agent-execution';
+import { logger } from '@/lib/logger';
 
 /**
  * LEGACY: Generate AI response using the configured provider
@@ -338,10 +343,10 @@ export async function* generateAIResponseStream(
         assistantMessage: fullContent,
         modelId: providerModel,
         latencyMs,
-      }).catch((e) => console.error('[AI] saveConversationMessages error:', e));
+      }).catch((e) => logger.error('[AI] saveConversationMessages error:', e));
     }
     trackAIUsage({ modelId: providerModel, latencyMs }).catch((e) =>
-      console.error('[AI] trackAIUsage error:', e),
+      logger.error('[AI] trackAIUsage error:', e),
     );
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Failed to generate AI response.';
@@ -352,7 +357,7 @@ export async function* generateAIResponseStream(
       isSuccessful: false,
       errorMessage: errorMsg,
     });
-    console.error('[AI Stream] Error:', error);
+    logger.error('[AI Stream] Error:', error);
     yield `Error: ${errorMsg}`;
   }
 }
@@ -381,8 +386,10 @@ export async function generateAIResponse(
       return { error: err };
     }
 
-    const result = extractAgentResult(response) as any;
-    const content = result?.content || String(result) || '';
+    const result = extractAgentResult(response) as Record<string, unknown> | string;
+    const content = typeof result === 'object' && result !== null
+      ? String(result.content || '')
+      : String(result || '');
 
     saveAIGeneration({
       generationType: 'chat',
@@ -395,7 +402,7 @@ export async function generateAIResponse(
     return { content };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Failed to generate AI response.';
-    console.error('[AI] generateAIResponse error:', error);
+    logger.error('[AI] generateAIResponse error:', error);
     saveAIGeneration({
       generationType: 'chat',
       agentId: 'chat-assistant',
@@ -427,7 +434,7 @@ export async function getAvailableModels(): Promise<{
       providerName: provider.name,
     };
   } catch (error) {
-    console.error('[AI] Failed to fetch models:', error);
+    logger.error('[AI] Failed to fetch models:', error);
     return {
       error: error instanceof Error ? error.message : 'Failed to fetch available models.',
     };
@@ -494,8 +501,8 @@ export async function generateLessonNotes(params: {
       return { success: false, notes: '', error: err };
     }
 
-    const result = extractAgentResult(response) as any;
-    const notes = result.content || result;
+    const result = extractAgentResult(response) as Record<string, unknown>;
+    const notes = String(result.content || result);
 
     saveAIGeneration({
       generationType: 'lesson_notes',
@@ -507,7 +514,7 @@ export async function generateLessonNotes(params: {
     return { success: true, notes };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Failed to generate lesson notes';
-    console.error('[AI] generateLessonNotes error:', error);
+    logger.error('[AI] generateLessonNotes error:', error);
     saveAIGeneration({
       generationType: 'lesson_notes',
       agentId: 'lesson-notes-assistant',
@@ -576,8 +583,8 @@ export async function generateAssignment(params: {
       return { success: false, assignment: '', error: err };
     }
 
-    const result = extractAgentResult(response) as any;
-    const assignment = result.content || result;
+    const result = extractAgentResult(response) as Record<string, unknown>;
+    const assignment = String(result.content || result);
 
     saveAIGeneration({
       generationType: 'assignment',
@@ -589,7 +596,7 @@ export async function generateAssignment(params: {
     return { success: true, assignment };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Failed to generate assignment';
-    console.error('[AI] generateAssignment error:', error);
+    logger.error('[AI] generateAssignment error:', error);
     saveAIGeneration({
       generationType: 'assignment',
       agentId: 'assignment-generator',
@@ -661,10 +668,10 @@ export async function generateEmailDraft(params: {
       return { success: false, subject: '', body: '', error: err };
     }
 
-    const result = extractAgentResult(response) as any;
+    const result = extractAgentResult(response) as Record<string, unknown>;
 
     // Parse the AI response to extract subject and body
-    const content = result.content || result;
+    const content = String(result.content || result);
     let subject = 'Generated Email';
     let body = content;
 
@@ -685,7 +692,7 @@ export async function generateEmailDraft(params: {
     return { success: true, subject, body };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Failed to generate email draft';
-    console.error('[AI] generateEmailDraft error:', error);
+    logger.error('[AI] generateEmailDraft error:', error);
     saveAIGeneration({
       generationType: 'email_draft',
       agentId: 'email-draft-generator',
@@ -760,8 +767,8 @@ export async function generatePostLessonSummary(params: {
       return { success: false, summary: '', error: err };
     }
 
-    const result = extractAgentResult(response) as any;
-    const summary = result.content || result;
+    const result = extractAgentResult(response) as Record<string, unknown>;
+    const summary = String(result.content || result);
 
     saveAIGeneration({
       generationType: 'post_lesson_summary',
@@ -773,7 +780,7 @@ export async function generatePostLessonSummary(params: {
     return { success: true, summary };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Failed to generate post-lesson summary';
-    console.error('[AI] generatePostLessonSummary error:', error);
+    logger.error('[AI] generatePostLessonSummary error:', error);
     saveAIGeneration({
       generationType: 'post_lesson_summary',
       agentId: 'post-lesson-summary',
@@ -800,11 +807,11 @@ export async function generatePostLessonSummary(params: {
  * Analyze student progress with streaming
  */
 export async function* analyzeStudentProgressStream(params: {
-  studentData: any;
+  studentData: Record<string, unknown>;
   studentId?: string;
   timePeriod?: string;
-  lessonHistory?: any;
-  skillAssessments?: any;
+  lessonHistory?: Record<string, unknown>[];
+  skillAssessments?: Record<string, unknown>[];
 }) {
   const context = params.studentId
     ? { entityId: params.studentId, entityType: 'student' }
@@ -839,8 +846,8 @@ export async function analyzeStudentProgress(params: {
       return { success: false, insights: '', error: err };
     }
 
-    const result = extractAgentResult(response) as any;
-    const insights = result.content || result;
+    const result = extractAgentResult(response) as Record<string, unknown>;
+    const insights = String(result.content || result);
 
     saveAIGeneration({
       generationType: 'student_progress',
@@ -852,7 +859,7 @@ export async function analyzeStudentProgress(params: {
     return { success: true, insights };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Failed to analyze student progress';
-    console.error('[AI] analyzeStudentProgress error:', error);
+    logger.error('[AI] analyzeStudentProgress error:', error);
     saveAIGeneration({
       generationType: 'student_progress',
       agentId: 'student-progress-insights',
@@ -953,7 +960,7 @@ INSTRUCTIONS:
     });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Failed to enhance notes';
-    console.error('[AI] enhanceSongNotesStream error:', error);
+    logger.error('[AI] enhanceSongNotesStream error:', error);
     saveAIGeneration({
       generationType: 'song_notes',
       inputParams: params,
@@ -972,7 +979,7 @@ INSTRUCTIONS:
  * Generate admin insights with streaming
  */
 export async function* generateAdminInsightsStream(params: {
-  dashboardData: any;
+  dashboardData: Record<string, unknown>;
   timeframe?: string;
   focusAreas?: string[];
 }) {
@@ -1013,8 +1020,8 @@ export async function generateAdminInsights(params: {
       return { success: false, insights: '', error: err };
     }
 
-    const result = extractAgentResult(response) as any;
-    const insights = result.content || result;
+    const result = extractAgentResult(response) as Record<string, unknown>;
+    const insights = String(result.content || result);
 
     saveAIGeneration({
       generationType: 'admin_insights',
@@ -1026,7 +1033,7 @@ export async function generateAdminInsights(params: {
     return { success: true, insights };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Failed to generate admin insights';
-    console.error('[AI] generateAdminInsights error:', error);
+    logger.error('[AI] generateAdminInsights error:', error);
     saveAIGeneration({
       generationType: 'admin_insights',
       agentId: 'admin-dashboard-insights',

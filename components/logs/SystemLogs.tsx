@@ -17,6 +17,7 @@ import {
 import { Clock, User, FileEdit, Music2, BookOpen, ClipboardList } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
+import { logger } from '@/lib/logger';
 
 interface LogEntry {
   id: string;
@@ -212,7 +213,7 @@ export function SystemLogs() {
         );
       }
     } catch (err) {
-      console.error('Error loading users:', err);
+      logger.error('Error loading users:', err);
     }
   }, []);
 
@@ -360,7 +361,7 @@ export function SystemLogs() {
 
       setLogs(allLogs);
     } catch (err) {
-      console.error('Error loading logs:', err);
+      logger.error('Error loading logs:', err);
     } finally {
       setLoading(false);
     }

@@ -9,7 +9,6 @@ interface PdfViewerProps {
 
 /**
  * PDF viewer component for drive files.
- * TODO: Implement full PDF viewer with page navigation.
  */
 export default function PdfViewer({ file, onClose }: PdfViewerProps) {
   const streamUrl = `/api/drive/files/${file.id}/stream`;

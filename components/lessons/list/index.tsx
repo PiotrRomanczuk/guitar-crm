@@ -3,6 +3,7 @@ import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { LessonListClient } from '@/components/lessons/list/Client';
 import { LessonWithProfiles } from '@/schemas/LessonSchema';
 import { transformLessonData } from '@/app/api/lessons/utils';
+import { logger } from '@/lib/logger';
 
 interface LessonListProps {
   searchParams?: { [key: string]: string | string[] | undefined };
@@ -64,7 +65,7 @@ export default async function LessonList({ searchParams }: LessonListProps) {
   const { data: rawLessons, error } = await lessonQuery;
 
   if (error) {
-    console.error('Error fetching lessons:', error);
+    logger.error('Error fetching lessons:', error);
     return <div data-testid="lesson-list-error">Error loading lessons: {error.message}</div>;
   }
 
