@@ -164,15 +164,15 @@
 > **Branch**: `feature/STRUM-v2-users`
 > **Spec**: [06-users-students.md](./06-users-students.md)
 
-- [ ]Create `components/v2/users/UserList.tsx` — card-based student list
-- [ ]Create `components/v2/users/UserList.Desktop.tsx` — desktop table
-- [ ]Create `components/v2/users/UserDetail.tsx` — swipeable tab detail
-- [ ]Create `components/v2/users/UserDetail.Desktop.tsx` — multi-panel
-- [ ]Create `components/v2/users/UserForm.tsx` — step wizard
-- [ ]Create `components/v2/users/InviteFlow.tsx` — simplified mobile invite
-- [ ]Wire into user pages with cookie check
-- [ ]Reuse `useUsersList`, `useUserFormState` hooks
-- [ ]Test CRUD at 390px as Teacher/Admin
+- [x] Create `components/v2/users/UserList.tsx` — card-based student list
+- [x] Create `components/v2/users/UserList.Desktop.tsx` — desktop table
+- [x] Create `components/v2/users/UserDetail.tsx` — swipeable tab detail
+- [x] Create `components/v2/users/UserDetail.Desktop.tsx` — multi-panel
+- [x] Create `components/v2/users/UserForm.tsx` — step wizard
+- [x] Create `components/v2/users/InviteFlow.tsx` — simplified mobile invite
+- [x] Wire into user pages with cookie check
+- [x] Reuse `useUsersList`, `useUserFormState` hooks
+- [ ] Test CRUD at 390px as Teacher/Admin
 
 ---
 
