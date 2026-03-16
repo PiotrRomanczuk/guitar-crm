@@ -9,16 +9,19 @@ import {
   FileText,
   ChevronRight,
 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 
-interface AttentionItem {
+export interface AttentionItem {
   id: string;
   studentId: string;
   studentName: string;
   reason: 'no_recent_lesson' | 'overdue_assignment' | 'inactive';
   daysAgo: number;
   actionUrl: string;
+}
+
+interface AttentionWidgetProps {
+  items: AttentionItem[];
 }
 
 const reasonStyles = {
@@ -45,21 +48,9 @@ const reasonStyles = {
   },
 } as const;
 
-async function fetchNeedsAttention(): Promise<AttentionItem[]> {
-  const response = await fetch('/api/students/needs-attention');
-  if (!response.ok) throw new Error('Failed to fetch');
-  return response.json();
-}
-
-export function AttentionWidget() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['needs-attention'],
-    queryFn: fetchNeedsAttention,
-    refetchInterval: 120000,
-  });
-
-  const items = data?.slice(0, 4) ?? [];
-  const totalCount = data?.length ?? 0;
+export function AttentionWidget({ items }: AttentionWidgetProps) {
+  const displayItems = items.slice(0, 4);
+  const totalCount = items.length;
 
   return (
     <div className="bg-card rounded-xl border border-border p-4 space-y-3">
@@ -77,16 +68,7 @@ export function AttentionWidget() {
       </div>
 
       {/* Content */}
-      {isLoading ? (
-        <div className="space-y-2">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-14 bg-muted rounded-lg animate-pulse"
-            />
-          ))}
-        </div>
-      ) : items.length === 0 ? (
+      {displayItems.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-6 text-center">
           <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center mb-2">
             <AlertCircle className="h-5 w-5 text-green-500" />
@@ -104,7 +86,7 @@ export function AttentionWidget() {
           className="space-y-2"
         >
           <AnimatePresence mode="popLayout">
-            {items.map((item) => {
+            {displayItems.map((item) => {
               const style = reasonStyles[item.reason];
               const Icon = style.icon;
 

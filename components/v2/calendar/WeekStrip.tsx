@@ -105,15 +105,16 @@ export function WeekStrip({ selectedDate, onSelectDate, eventDates = [] }: WeekS
               )}>
                 {format(day, 'd')}
               </span>
-              {/* Event indicator dot */}
-              <div className="h-1.5 w-1.5 rounded-full" aria-hidden="true">
-                {dayHasEvent && (
-                  <div className={cn(
+              {/* Event indicator dot — only render when day has events */}
+              {dayHasEvent && (
+                <div
+                  className={cn(
                     'h-1.5 w-1.5 rounded-full',
                     isSelected ? 'bg-primary-foreground' : 'bg-primary'
-                  )} />
-                )}
-              </div>
+                  )}
+                  aria-hidden="true"
+                />
+              )}
             </motion.button>
           );
         })}

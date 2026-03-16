@@ -29,6 +29,11 @@ function ConfidenceIndicator({ score }: { score: number }) {
   );
 }
 
+interface ActionLoading {
+  matchId: string;
+  action: 'approve' | 'reject';
+}
+
 export function MatchCard({
   match,
   activeTab,
@@ -38,12 +43,14 @@ export function MatchCard({
 }: {
   match: SpotifyMatch;
   activeTab: TabValue;
-  actionLoading: string | null;
+  actionLoading: ActionLoading | null;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
 }) {
   const isActionable = activeTab === 'pending';
-  const isLoading = actionLoading === match.id;
+  const isApproving = actionLoading?.matchId === match.id && actionLoading.action === 'approve';
+  const isRejecting = actionLoading?.matchId === match.id && actionLoading.action === 'reject';
+  const isLoading = isApproving || isRejecting;
 
   const content = (
     <div className="bg-card rounded-xl border border-border p-4 active:bg-muted/50 transition-colors">
@@ -77,7 +84,7 @@ export function MatchCard({
             onClick={() => onApprove(match.id)}
             disabled={isLoading}
           >
-            {isLoading ? (
+            {isApproving ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
@@ -93,7 +100,7 @@ export function MatchCard({
             onClick={() => onReject(match.id)}
             disabled={isLoading}
           >
-            {isLoading ? (
+            {isRejecting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>

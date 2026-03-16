@@ -68,6 +68,7 @@ export default function AppShellDesktopV2({
                     <Link
                       key={item.id}
                       href={item.path}
+                      aria-current={active ? 'page' : undefined}
                       className={cn(
                         'flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors',
                         active

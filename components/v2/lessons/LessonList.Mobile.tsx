@@ -108,10 +108,8 @@ function LessonCard({
   role: string;
   onTap: () => void;
 }) {
-  // @ts-expect-error - scheduled_at exists in DB but not in strict schema type
-  const displayDate = lesson.date || lesson.scheduled_at;
-  // @ts-expect-error - scheduled_at exists in DB but not in strict schema type
-  const displayTime = lesson.start_time || lesson.scheduled_at;
+  const displayDate = lesson.date ?? lesson.scheduled_at ?? null;
+  const displayTime = lesson.start_time ?? lesson.scheduled_at ?? null;
 
   return (
     <button
@@ -167,13 +165,7 @@ function LessonCard({
   );
 }
 
-function LessonListEmpty({
-  canCreate,
-  router,
-}: {
-  canCreate: boolean;
-  router: ReturnType<typeof useRouter>;
-}) {
+function LessonListEmpty({ canCreate, router }: { canCreate: boolean; router: ReturnType<typeof useRouter> }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
@@ -181,9 +173,7 @@ function LessonListEmpty({
       </div>
       <h3 className="text-base font-semibold mb-1">No lessons found</h3>
       <p className="text-sm text-muted-foreground mb-6 max-w-xs">
-        {canCreate
-          ? 'Schedule your first lesson to get started.'
-          : 'No upcoming lessons scheduled yet.'}
+        {canCreate ? 'Schedule your first lesson to get started.' : 'No upcoming lessons scheduled yet.'}
       </p>
       {canCreate && (
         <button
@@ -191,8 +181,7 @@ function LessonListEmpty({
           onClick={() => router.push('/dashboard/lessons/new')}
           className={cn(
             'inline-flex items-center gap-2 px-4 py-2 rounded-lg',
-            'bg-primary text-primary-foreground text-sm font-medium',
-            'min-h-[44px]'
+            'bg-primary text-primary-foreground text-sm font-medium min-h-[44px]'
           )}
         >
           <Plus className="h-4 w-4" />

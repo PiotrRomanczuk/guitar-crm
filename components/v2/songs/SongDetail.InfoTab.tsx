@@ -31,7 +31,7 @@ export function InfoTab({ song }: InfoTabProps) {
     <div className="space-y-4">
       {/* Metadata grid */}
       {metaItems.length > 0 && (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {metaItems.map((item) => (
             <div
               key={item.label}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeIn } from '@/lib/animations/variants';
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
@@ -26,16 +26,23 @@ export function OnboardingV2({ firstName }: OnboardingV2Props) {
     learningStyle: [], instrumentPreference: [],
   });
 
-  const canAdvance = useCallback((): boolean => {
+  const canAdvance = (): boolean => {
     if (step === 1) return formData.role != null;
     if (step === 2) return formData.skillLevel != null;
     if (step === 3) return formData.goals.length > 0;
     return true;
-  }, [step, formData.role, formData.skillLevel, formData.goals.length]);
+  };
+
+  const getStepError = (currentStep: number): string => {
+    if (currentStep === 1) return 'Please select a role';
+    if (currentStep === 2) return 'Please select your skill level';
+    if (currentStep === 3) return 'Please select at least one goal';
+    return 'Please complete all required fields';
+  };
 
   const handleSubmit = async () => {
     const result = OnboardingSchema.safeParse(formData);
-    if (!result.success) { toast.error('Please complete all required fields'); return; }
+    if (!result.success) { toast.error(getStepError(step)); return; }
     setLoading(true);
     try {
       const res = await completeOnboarding(formData);
@@ -50,7 +57,7 @@ export function OnboardingV2({ firstName }: OnboardingV2Props) {
 
   const handleNext = async () => {
     if (!canAdvance()) {
-      toast.error(step === 1 ? 'Please select a role' : 'Please complete this step');
+      toast.error(getStepError(step));
       return;
     }
     if (step === 3) { await handleSubmit(); return; }

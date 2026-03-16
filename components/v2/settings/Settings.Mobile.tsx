@@ -68,7 +68,7 @@ export function SettingsMobile({
                 <select
                   value={settings.theme}
                   onChange={(e) => updateSetting('theme', e.target.value as 'light' | 'dark' | 'system')}
-                  className="text-sm bg-transparent text-muted-foreground border-none focus:ring-0 text-right"
+                  className="text-sm bg-transparent text-foreground border border-border rounded-md px-2 py-1.5 text-right focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 >
                   <option value="light">Light</option>
                   <option value="dark">Dark</option>
@@ -83,7 +83,7 @@ export function SettingsMobile({
                 <select
                   value={settings.language}
                   onChange={(e) => updateSetting('language', e.target.value as 'en' | 'pl' | 'es' | 'de' | 'fr')}
-                  className="text-sm bg-transparent text-muted-foreground border-none focus:ring-0 text-right"
+                  className="text-sm bg-transparent text-foreground border border-border rounded-md px-2 py-1.5 text-right focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 >
                   <option value="en">English</option>
                   <option value="pl">Polski</option>

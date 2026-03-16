@@ -37,6 +37,11 @@ export function NotificationItem({
   const actionsOpacity = useTransform(x, [-SWIPE_THRESHOLD, 0], [1, 0]);
   const constraintRef = useRef<HTMLDivElement>(null);
 
+  // Compute drag constraint based on number of visible action buttons
+  const actionButtonCount =
+    (!notification.is_read ? 1 : 0) + (onDismiss ? 1 : 0);
+  const dragLeftConstraint = -(actionButtonCount * 72);
+
   const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (info.offset.x < -SWIPE_THRESHOLD) {
       // Snapped open — actions visible
@@ -77,7 +82,7 @@ export function NotificationItem({
       <motion.div
         style={{ x }}
         drag="x"
-        dragConstraints={{ left: -144, right: 0 }}
+        dragConstraints={{ left: dragLeftConstraint, right: 0 }}
         dragElastic={0.1}
         onDragEnd={handleDragEnd}
         className={cn(

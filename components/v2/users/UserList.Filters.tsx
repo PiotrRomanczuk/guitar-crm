@@ -98,8 +98,8 @@ function FilterChip({
       type="button"
       onClick={onClick}
       className={cn(
-        'shrink-0 h-9 px-4 rounded-full text-sm font-medium transition-colors',
-        'border border-border min-h-[36px]',
+        'shrink-0 h-11 px-4 rounded-full text-sm font-medium transition-colors',
+        'border border-border min-h-[44px]',
         active
           ? 'bg-primary text-primary-foreground border-primary'
           : 'bg-card text-muted-foreground'

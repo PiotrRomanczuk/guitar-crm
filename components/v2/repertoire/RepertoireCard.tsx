@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { Music, Keyboard, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Music, Keyboard, ChevronRight, Edit } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import type { StudentRepertoireWithSong } from '@/types/StudentRepertoire';
 import { SelfRating } from './SelfRating';
 
@@ -36,6 +38,7 @@ interface RepertoireCardProps {
  * Shows song title, author, status, key/capo, priority, self-rating, and last practiced.
  */
 export function RepertoireCard({ item, viewMode = 'teacher' }: RepertoireCardProps) {
+  const router = useRouter();
   const hasKeyOverride = item.preferred_key && item.preferred_key !== item.song.key;
   const hasCapo = item.capo_fret !== null && item.capo_fret > 0;
 
@@ -116,7 +119,7 @@ export function RepertoireCard({ item, viewMode = 'teacher' }: RepertoireCardPro
         </p>
       )}
 
-      {/* Row 4: Self-rating (student view) or last practiced */}
+      {/* Row 4: Self-rating (student view) or actions (teacher view) */}
       {viewMode === 'student' ? (
         <SelfRating
           repertoireId={item.id}
@@ -125,21 +128,34 @@ export function RepertoireCard({ item, viewMode = 'teacher' }: RepertoireCardPro
         />
       ) : (
         <div className="flex items-center justify-between">
-          {item.self_rating !== null && (
-            <SelfRating
-              repertoireId={item.id}
-              currentRating={item.self_rating}
-              updatedAt={item.self_rating_updated_at}
-              isReadOnly
-            />
-          )}
-          <Link
-            href={`/dashboard/songs/${item.song_id}`}
-            className="p-2.5 rounded-lg hover:bg-muted/50 transition-colors"
-            aria-label={`View ${item.song.title}`}
-          >
-            <ChevronRight className="h-5 w-5 text-muted-foreground/40" />
-          </Link>
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {item.self_rating !== null && (
+              <SelfRating
+                repertoireId={item.id}
+                currentRating={item.self_rating}
+                updatedAt={item.self_rating_updated_at}
+                isReadOnly
+              />
+            )}
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="min-h-[44px] min-w-[44px]"
+              onClick={() => router.push(`/dashboard/songs/${item.song_id}`)}
+              aria-label={`Edit ${item.song.title} in repertoire`}
+            >
+              <Edit className="h-4 w-4 text-muted-foreground" />
+            </Button>
+            <Link
+              href={`/dashboard/songs/${item.song_id}`}
+              className="p-2.5 rounded-lg hover:bg-muted/50 transition-colors"
+              aria-label={`View ${item.song.title}`}
+            >
+              <ChevronRight className="h-5 w-5 text-muted-foreground/40" />
+            </Link>
+          </div>
         </div>
       )}
 

@@ -1,10 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Plus, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { staggerContainer, listItem } from '@/lib/animations/variants';
 import { MobilePageShell } from '@/components/v2/primitives/MobilePageShell';
@@ -12,16 +10,20 @@ import { FloatingActionButton } from '@/components/v2/primitives/FloatingActionB
 import { SwipeableListItem } from '@/components/v2/primitives/SwipeableListItem';
 import { useUsersList } from '@/components/users/hooks/useUsersList';
 import { deleteUser } from '@/app/dashboard/actions';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { UserListSkeleton } from './UserList.Skeleton';
 import { UserListFilters } from './UserList.Filters';
-import {
-  getDisplayName,
-  getInitials,
-  getRoleDisplay,
-  hasRealName,
-} from './types';
+import { UserCard, UserListEmptyState } from './UserList.MobileCards';
+import { getDisplayName } from './types';
 import type { UserProfile } from './types';
 
 interface UserListMobileProps {
@@ -38,6 +40,8 @@ export function UserListMobile({ initialUsers }: UserListMobileProps) {
   const [studentStatusFilter, setStudentStatusFilter] = useState<
     '' | 'active' | 'archived'
   >('active');
+  const [deleteTarget, setDeleteTarget] = useState<UserProfile | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { users, loading, error, refetch } = useUsersList(
     search,
@@ -47,17 +51,26 @@ export function UserListMobile({ initialUsers }: UserListMobileProps) {
     initialUsers
   );
 
-  const handleDelete = async (userId: string) => {
+  const handleDeleteRequest = useCallback((user: UserProfile) => {
+    setDeleteTarget(user);
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deleteTarget || isDeleting) return;
+    setIsDeleting(true);
     try {
-      await deleteUser(userId);
+      await deleteUser(deleteTarget.id);
       toast.success('User deleted');
       refetch();
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : 'Failed to delete user'
       );
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
     }
-  };
+  }, [deleteTarget, isDeleting, refetch]);
 
   return (
     <MobilePageShell
@@ -91,7 +104,7 @@ export function UserListMobile({ initialUsers }: UserListMobileProps) {
       {loading ? (
         <UserListSkeleton />
       ) : users.length === 0 ? (
-        <EmptyState />
+        <UserListEmptyState />
       ) : (
         <motion.div
           variants={staggerContainer}
@@ -103,7 +116,7 @@ export function UserListMobile({ initialUsers }: UserListMobileProps) {
             <motion.div key={user.id} variants={listItem}>
               <SwipeableListItem
                 onEdit={() => router.push(`/dashboard/users/${user.id}/edit`)}
-                onDelete={() => handleDelete(user.id)}
+                onDelete={() => handleDeleteRequest(user)}
               >
                 <UserCard user={user} />
               </SwipeableListItem>
@@ -111,88 +124,32 @@ export function UserListMobile({ initialUsers }: UserListMobileProps) {
           ))}
         </motion.div>
       )}
+
+      <AlertDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete User</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete{' '}
+              <strong>{deleteTarget ? getDisplayName(deleteTarget) : ''}</strong>?
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </MobilePageShell>
-  );
-}
-
-function UserCard({ user }: { user: UserProfile }) {
-  return (
-    <Link
-      href={`/dashboard/users/${user.id}`}
-      className="block bg-card rounded-xl border border-border p-4
-                 active:bg-muted/50 transition-colors"
-    >
-      <div className="flex items-center gap-3">
-        <Avatar className="h-10 w-10 shrink-0">
-          <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
-            {getInitials(user)}
-          </AvatarFallback>
-        </Avatar>
-
-        <div className="flex-1 min-w-0">
-          <p
-            className={`text-sm truncate ${
-              hasRealName(user) ? 'font-medium' : 'text-muted-foreground italic'
-            }`}
-          >
-            {getDisplayName(user)}
-          </p>
-          <p className="text-xs text-muted-foreground truncate">
-            {user.email || '(no email)'}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-1.5 shrink-0">
-          <span
-            className={`h-2 w-2 rounded-full ${
-              user.isActive ? 'bg-green-500' : 'bg-muted-foreground/40'
-            }`}
-          />
-          <StatusBadge user={user} />
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border">
-        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium border bg-muted text-muted-foreground border-border">
-          {getRoleDisplay(user)}
-        </span>
-        {user.studentStatus === 'archived' && (
-          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium border bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20">
-            Archived
-          </span>
-        )}
-      </div>
-    </Link>
-  );
-}
-
-function StatusBadge({ user }: { user: UserProfile }) {
-  if (!user.isRegistered) {
-    return (
-      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium border bg-muted text-muted-foreground border-border">
-        Unregistered
-      </span>
-    );
-  }
-  return null;
-}
-
-function EmptyState() {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
-        <Users className="h-6 w-6 text-muted-foreground" />
-      </div>
-      <h3 className="text-base font-semibold mb-1">No students found</h3>
-      <p className="text-sm text-muted-foreground mb-6 max-w-xs">
-        Add your first student to start tracking their progress.
-      </p>
-      <Button asChild size="sm">
-        <Link href="/dashboard/users/new">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Student
-        </Link>
-      </Button>
-    </div>
   );
 }

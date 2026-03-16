@@ -24,7 +24,7 @@ export function LogEntryRow({ entry }: { entry: LogEntry }) {
           <Icon className={`h-3.5 w-3.5 ${config.color}`} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-foreground leading-snug">
+          <p className="text-sm text-foreground leading-snug break-words">
             {entry.message}
           </p>
           <div className="flex items-center gap-2 mt-1">
@@ -39,9 +39,11 @@ export function LogEntryRow({ entry }: { entry: LogEntry }) {
             )}
           </div>
           {expanded && entry.details && (
-            <pre className="mt-2 text-xs bg-muted/50 p-2 rounded-lg overflow-x-auto font-mono text-muted-foreground">
-              {entry.details}
-            </pre>
+            <div className="mt-2 overflow-x-auto -mx-1 px-1">
+              <pre className="text-xs bg-muted/50 p-2 rounded-lg font-mono text-muted-foreground whitespace-pre min-w-0">
+                {entry.details}
+              </pre>
+            </div>
           )}
         </div>
       </div>

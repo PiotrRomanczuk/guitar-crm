@@ -1,6 +1,7 @@
 'use client';
 
-import { Youtube } from 'lucide-react';
+import { useState } from 'react';
+import { Youtube, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface VideoPlayerProps {
@@ -24,10 +25,14 @@ function getYouTubeId(url: string): string | null {
  * - Maintains 16:9 aspect ratio at all viewports
  * - Rounded corners with border
  * - Shows empty state when no valid URL provided
+ * - Loading skeleton while iframe loads
+ * - Error fallback if iframe fails
  * - Accessible iframe title
  */
 export function VideoPlayer({ url, className }: VideoPlayerProps) {
   const videoId = url ? getYouTubeId(url) : null;
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   if (!videoId) {
     return (
@@ -51,13 +56,41 @@ export function VideoPlayer({ url, className }: VideoPlayerProps) {
     );
   }
 
+  if (hasError) {
+    return (
+      <div
+        className={cn(
+          'aspect-video rounded-lg bg-muted border border-border',
+          'flex items-center justify-center',
+          className
+        )}
+      >
+        <div className="text-center p-6">
+          <AlertTriangle className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+          <p className="text-sm font-medium text-muted-foreground">
+            Video unavailable
+          </p>
+          <p className="text-xs text-muted-foreground/70 mt-1">
+            The video could not be loaded. It may have been removed or is restricted.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
-        'aspect-video rounded-lg overflow-hidden border border-border bg-muted',
+        'aspect-video rounded-lg overflow-hidden border border-border bg-muted relative',
         className
       )}
     >
+      {/* Loading skeleton */}
+      {!isLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center animate-pulse">
+          <Youtube className="h-12 w-12 text-muted-foreground/30" />
+        </div>
+      )}
       <iframe
         width="100%"
         height="100%"
@@ -65,7 +98,9 @@ export function VideoPlayer({ url, className }: VideoPlayerProps) {
         title="YouTube video player"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullScreen
-        className="w-full h-full"
+        className={cn('w-full h-full', !isLoaded && 'opacity-0')}
+        onLoad={() => setIsLoaded(true)}
+        onError={() => setHasError(true)}
       />
     </div>
   );

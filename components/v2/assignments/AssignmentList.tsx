@@ -2,26 +2,26 @@
 
 import { lazy, Suspense, useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ClipboardList, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useLayoutMode } from '@/hooks/use-is-widescreen';
 import { useAssignmentList } from '@/components/assignments/hooks/useAssignmentList';
 import { staggerContainer, listItem } from '@/lib/animations/variants';
 import type { Assignment } from '@/components/assignments/hooks/useAssignment';
+import { CollapsibleFilterBar } from '@/components/v2/primitives/CollapsibleFilterBar';
+import { FloatingActionButton } from '@/components/v2/primitives/FloatingActionButton';
 import { AssignmentListSkeleton } from './AssignmentList.Skeleton';
 import { AssignmentCardMobile } from './AssignmentCard.Mobile';
 
 const DesktopView = lazy(() => import('./AssignmentList.Desktop'));
 
-type StatusFilter = 'all' | 'not_started' | 'in_progress' | 'overdue' | 'completed';
-
-const FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
+const FILTER_OPTIONS = [
   { value: 'overdue', label: 'Overdue' },
   { value: 'in_progress', label: 'In Progress' },
   { value: 'not_started', label: 'Not Started' },
   { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
 ];
 
 interface AssignmentListProps {
@@ -53,10 +53,11 @@ interface MobileViewProps {
 }
 
 function MobileView({ assignments, isLoading, canCreate }: MobileViewProps) {
-  const [filter, setFilter] = useState<StatusFilter>('all');
+  const router = useRouter();
+  const [filter, setFilter] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
-    if (filter === 'all') return assignments;
+    if (!filter) return assignments;
     return assignments.filter((a) => a.status === filter);
   }, [assignments, filter]);
 
@@ -64,24 +65,11 @@ function MobileView({ assignments, isLoading, canCreate }: MobileViewProps) {
 
   return (
     <div className="px-4 space-y-4">
-      {/* Filter chips */}
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4">
-        {FILTER_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => setFilter(opt.value)}
-            className={cn(
-              'shrink-0 h-9 px-4 rounded-full text-sm font-medium transition-colors',
-              'border border-border min-h-[44px]',
-              filter === opt.value
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-card text-muted-foreground'
-            )}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
+      <CollapsibleFilterBar
+        filters={FILTER_OPTIONS}
+        active={filter}
+        onChange={setFilter}
+      />
 
       {filtered.length === 0 ? (
         <EmptyState canCreate={canCreate} />
@@ -96,19 +84,10 @@ function MobileView({ assignments, isLoading, canCreate }: MobileViewProps) {
       )}
 
       {canCreate && (
-        <Link
-          href="/dashboard/assignments/new"
-          className={cn(
-            'fixed right-4 z-40 rounded-full shadow-lg',
-            'bg-primary text-primary-foreground',
-            'w-14 h-14 flex items-center justify-center',
-            'bottom-[calc(4rem+env(safe-area-inset-bottom)+1rem)]',
-            'active:scale-95 transition-transform'
-          )}
-          aria-label="Create assignment"
-        >
-          <Plus className="h-6 w-6" />
-        </Link>
+        <FloatingActionButton
+          onClick={() => router.push('/dashboard/assignments/new')}
+          label="Create assignment"
+        />
       )}
     </div>
   );

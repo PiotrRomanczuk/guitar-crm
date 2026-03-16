@@ -52,8 +52,9 @@ export function ProfileV2({ userId, userEmail }: ProfileV2WrapperProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
         <Spinner size="lg" />
+        <p className="text-sm text-muted-foreground">Loading your profile...</p>
       </div>
     );
   }

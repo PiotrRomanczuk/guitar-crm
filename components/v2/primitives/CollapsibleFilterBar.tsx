@@ -69,10 +69,10 @@ function FilterChip({ label, active, onClick }: FilterChipProps) {
       onClick={onClick}
       className={cn(
         'inline-flex items-center justify-center',
-        'h-9 px-4 rounded-full',
+        'h-11 px-4 rounded-full',
         'text-sm font-medium whitespace-nowrap',
         'transition-colors',
-        'min-h-[36px]',
+        'min-h-[44px]',
         active
           ? 'bg-primary text-primary-foreground'
           : 'bg-muted text-muted-foreground hover:bg-muted/80'

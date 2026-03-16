@@ -84,7 +84,7 @@ export function AddSongContent({ studentId, onClose }: AddSongContentProps) {
             {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Search'}
           </Button>
         </div>
-        <div className="max-h-[300px] overflow-y-auto space-y-1">
+        <div className="max-h-[40vh] overflow-y-auto space-y-1">
           {results.length === 0 && !isSearching && query && (
             <p className="text-sm text-muted-foreground text-center py-6">
               No songs found. Try a different search.

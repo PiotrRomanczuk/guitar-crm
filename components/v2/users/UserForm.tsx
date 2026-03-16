@@ -55,7 +55,9 @@ export function UserFormV2({
     } as ChangeEvent<HTMLInputElement>);
   };
 
-  // Desktop: render as standard form (not wizard)
+  // Desktop: intentionally lazy-loads the v1 UserForm which already provides
+  // a full-featured desktop layout with all fields visible at once.
+  // The v2 step-wizard is mobile-only; desktop users prefer the single-page form.
   if (mode !== 'mobile') {
     return (
       <Suspense

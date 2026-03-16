@@ -51,6 +51,8 @@ export function AssignmentForm({
   const canAdvance = useCallback(() => {
     if (step === 0) return !!studentId;
     if (step === 1) return title.trim().length > 0;
+    // Final step: validate all required fields from previous steps are present
+    if (step === 2) return !!studentId && title.trim().length > 0;
     return true;
   }, [step, studentId, title]);
 

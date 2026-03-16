@@ -19,11 +19,12 @@ import { toast } from 'sonner';
 import { addSotwToRepertoire } from '@/app/actions/song-of-the-week';
 import type { SongOfTheWeekWithSong } from '@/types/SongOfTheWeek';
 
+/** Design system STATUS_STYLES pattern (section 8 of V2_DESIGN_SYSTEM.md) */
 const DIFFICULTY_STYLES: Record<string, string> = {
   beginner: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20',
-  intermediate: 'bg-primary/10 text-primary border-primary/20',
+  intermediate: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20',
   advanced: 'bg-destructive/10 text-destructive border-destructive/20',
-};
+} as const;
 
 interface SOTWCardContentProps {
   sotw: SongOfTheWeekWithSong;
@@ -84,13 +85,13 @@ export function SOTWCardContent({ sotw, isStudent, sotwInRepertoire }: SOTWCardC
       {hasResources && (
         <div className="flex flex-wrap gap-2">
           {song.youtube_url && (
-            <ResourceLink href={song.youtube_url} icon={Youtube} label="YouTube" className="bg-red-500 hover:bg-red-600" />
+            <ResourceLink href={song.youtube_url} icon={Youtube} label="YouTube" className="bg-red-500 dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-700" />
           )}
           {song.ultimate_guitar_link && (
-            <ResourceLink href={song.ultimate_guitar_link} icon={FileText} label="Tabs" className="bg-yellow-500 hover:bg-yellow-600" />
+            <ResourceLink href={song.ultimate_guitar_link} icon={FileText} label="Tabs" className="bg-yellow-500 dark:bg-yellow-600 hover:bg-yellow-600 dark:hover:bg-yellow-700" />
           )}
           {song.spotify_link_url && (
-            <ResourceLink href={song.spotify_link_url} icon={Play} label="Spotify" className="bg-green-500 hover:bg-green-600" />
+            <ResourceLink href={song.spotify_link_url} icon={Play} label="Spotify" className="bg-green-500 dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-700" />
           )}
         </div>
       )}

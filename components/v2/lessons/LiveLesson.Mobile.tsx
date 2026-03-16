@@ -1,13 +1,17 @@
 'use client';
 
+import { useCallback, useTransition } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Music, ArrowLeft, CircleStop, FileText } from 'lucide-react';
+import { Music, ArrowLeft, CircleStop, FileText, CheckCircle2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { staggerContainer, listItem } from '@/lib/animations/variants';
 import { Button } from '@/components/ui/button';
 import { LiveSongCard } from '@/components/lessons/live/LiveSongCard';
 import { LiveLessonNotes } from '@/components/lessons/live/LiveLessonNotes';
+import { updateLessonStatus } from '@/components/lessons/live/actions';
 import { formatLessonDate } from './lesson.helpers';
 import type { LiveLessonV2Props } from './LiveLesson';
 
@@ -17,8 +21,23 @@ import type { LiveLessonV2Props } from './LiveLesson';
  * Sticky top bar with student name and end/back button.
  */
 export function LiveLessonMobile({ lesson }: LiveLessonV2Props) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const songsWithData = lesson.lessonSongs.filter((ls) => ls.song !== null);
   const isCompleted = lesson.status === 'COMPLETED';
+
+  const handleComplete = useCallback(() => {
+    startTransition(async () => {
+      try {
+        await updateLessonStatus(lesson.id, 'COMPLETED');
+        toast.success('Lesson marked as completed');
+        router.push(`/dashboard/lessons/${lesson.id}`);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Failed to complete lesson';
+        toast.error(message);
+      }
+    });
+  }, [lesson.id, router]);
 
   return (
     <div className="flex flex-col min-h-[calc(100dvh-4rem)]">
@@ -113,6 +132,20 @@ export function LiveLessonMobile({ lesson }: LiveLessonV2Props) {
             initialNotes={lesson.notes ?? ''}
           />
         </div>
+
+        {/* Complete lesson button */}
+        {!isCompleted && (
+          <div className="pt-2 border-t border-border">
+            <Button
+              onClick={handleComplete}
+              disabled={isPending}
+              className="w-full gap-2 min-h-[44px] bg-green-600 hover:bg-green-700 text-white dark:bg-green-600 dark:hover:bg-green-700"
+            >
+              <CheckCircle2 className="h-5 w-5" />
+              {isPending ? 'Completing...' : 'Mark Lesson as Completed'}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

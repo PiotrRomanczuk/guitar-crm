@@ -16,7 +16,13 @@ const HealthDesktop = lazy(() => import('./HealthDashboard.Desktop'));
 
 async function fetchStudentHealth(): Promise<HealthCardStudent[]> {
   const response = await fetch('/api/students/health');
-  if (!response.ok) throw new Error('Failed to fetch student health');
+  if (!response.ok) {
+    const status = response.status;
+    if (status === 401) throw new Error('Not authenticated. Please sign in.');
+    if (status === 403) throw new Error('You do not have permission to view health data.');
+    if (status >= 500) throw new Error('Server error. Please try again later.');
+    throw new Error(`Failed to load health data (HTTP ${status}).`);
+  }
   return response.json();
 }
 
@@ -57,6 +63,7 @@ function MobileHealthDashboard() {
     queryKey: ['student-health'],
     queryFn: fetchStudentHealth,
     refetchInterval: 180000,
+    refetchOnWindowFocus: false,
   });
 
   const filtered = useMemo(() => {
@@ -81,7 +88,7 @@ function MobileHealthDashboard() {
     <MobilePageShell
       title="Student Health"
       subtitle={alertCount > 0 ? `${alertCount} need attention` : 'All students healthy'}
-      actions={
+      headerActions={
         <Button
           variant="ghost"
           size="icon"
@@ -102,7 +109,7 @@ function MobileHealthDashboard() {
               key={f.value}
               onClick={() => setActiveFilter(f.value)}
               className={cn(
-                'shrink-0 h-9 px-4 rounded-full text-sm font-medium transition-colors border',
+                'shrink-0 h-11 min-h-[44px] px-4 rounded-full text-sm font-medium transition-colors border',
                 activeFilter === f.value
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'bg-card text-muted-foreground border-border',
@@ -118,7 +125,14 @@ function MobileHealthDashboard() {
           <HealthSkeleton />
         ) : error ? (
           <div className="text-center py-8 text-destructive text-sm">
-            Failed to load health data. Pull to refresh.
+            {error instanceof Error ? error.message : 'Failed to load health data.'}{' '}
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="underline text-primary"
+            >
+              Try again
+            </button>
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center">

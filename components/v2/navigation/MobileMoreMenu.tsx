@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -24,7 +25,17 @@ export function MobileMoreMenuV2({
   open, onOpenChange, isAdmin, isTeacher, isStudent,
 }: MobileMoreMenuProps) {
   const pathname = usePathname();
+  const prevPathnameRef = useRef(pathname);
   const groups = getMenuGroups({ isAdmin, isTeacher, isStudent });
+
+  // Close the menu whenever the route changes (covers browser back/forward,
+  // programmatic navigation, and any other navigation besides link clicks).
+  useEffect(() => {
+    if (prevPathnameRef.current !== pathname && open) {
+      onOpenChange(false);
+    }
+    prevPathnameRef.current = pathname;
+  }, [pathname, open, onOpenChange]);
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -60,6 +71,7 @@ export function MobileMoreMenuV2({
                       key={item.id}
                       href={item.path}
                       onClick={() => onOpenChange(false)}
+                      aria-current={active ? 'page' : undefined}
                       className={cn(
                         'flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium',
                         'transition-colors min-h-[44px]',

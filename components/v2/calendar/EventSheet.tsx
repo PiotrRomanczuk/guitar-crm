@@ -107,9 +107,12 @@ export function EventSheet({ event, open, onOpenChange }: EventSheetProps) {
                     Attendees
                   </p>
                   <div className="space-y-1">
-                    {attendees.map((attendee) => (
-                      <p key={attendee.email} className="text-sm text-foreground truncate">
-                        {attendee.email}
+                    {attendees.map((attendee, index) => (
+                      <p
+                        key={attendee.email ?? `attendee-${index}`}
+                        className="text-sm text-foreground truncate"
+                      >
+                        {attendee.email ?? 'No email provided'}
                       </p>
                     ))}
                   </div>

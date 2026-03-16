@@ -12,7 +12,7 @@ import { MobilePageShell } from '@/components/v2/primitives/MobilePageShell';
 import { CollapsibleFilterBar } from '@/components/v2/primitives/CollapsibleFilterBar';
 import { FloatingActionButton } from '@/components/v2/primitives/FloatingActionButton';
 import { SwipeableListItem } from '@/components/v2/primitives/SwipeableListItem';
-import { fastStaggerContainer, listItem } from '@/lib/animations/variants';
+import { fastStaggerContainer, listItem, safeVariants } from '@/lib/animations/variants';
 import type { SongListV2Props } from './SongList';
 import type { SongWithStatus } from '@/components/songs/types';
 import { SongListEmpty } from './SongList.Empty';
@@ -80,13 +80,13 @@ export function SongListMobile({ songs, isTeacher, onRefresh }: SongListV2Props)
         <SongListEmpty isTeacher={isTeacher} hasFilters={!!search || !!levelFilter} />
       ) : (
         <motion.div
-          variants={fastStaggerContainer}
+          variants={safeVariants(fastStaggerContainer)}
           initial="hidden"
           animate="visible"
           className="space-y-2"
         >
           {filtered.map((song) => (
-            <motion.div key={song.id} variants={listItem}>
+            <motion.div key={song.id} variants={safeVariants(listItem)}>
               <SongCard song={song} isTeacher={isTeacher} onRefresh={onRefresh} />
             </motion.div>
           ))}

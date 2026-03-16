@@ -74,6 +74,7 @@ export function LyricsViewer({ text, className }: LyricsViewerProps) {
 
       {/* Lyrics content */}
       <pre
+        aria-label="Song lyrics with chord annotations"
         className={cn(
           'whitespace-pre-wrap break-words',
           'p-4 rounded-lg',

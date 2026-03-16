@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import useLessonForm from '@/components/lessons/hooks/useLessonForm';
 import { useSongs } from '@/components/lessons/hooks/useSongs';
-import { StepWizardForm, MobilePageShell, FullScreenSearchPicker } from '@/components/v2/primitives';
+import { StepWizardForm, MobilePageShell } from '@/components/v2/primitives';
 import { StudentStep, SongsStep, ScheduleStep, NotesStep } from './LessonForm.Steps';
+import { StudentPicker, SongPicker } from './LessonForm.Pickers';
 import type { LessonFormData } from '@/components/lessons/hooks/useLessonForm';
 
 interface LessonFormV2Props {
@@ -44,6 +45,8 @@ export function LessonFormV2({ initialData, lessonId }: LessonFormV2Props) {
       if (result?.success) {
         toast.success(lessonId ? 'Lesson updated' : 'Lesson created');
         router.push('/dashboard/lessons?created=true');
+      } else if (result && !result.success) {
+        toast.error(result.error || 'Failed to save lesson');
       }
     },
     [handleSubmit, router, lessonId]
@@ -77,6 +80,23 @@ export function LessonFormV2({ initialData, lessonId }: LessonFormV2Props) {
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-12 bg-muted rounded-lg animate-pulse" />
           ))}
+        </div>
+      </MobilePageShell>
+    );
+  }
+
+  if (error && students.length === 0) {
+    return (
+      <MobilePageShell title={lessonId ? 'Edit Lesson' : 'New Lesson'}>
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+          <p className="text-sm text-destructive mb-4">{error}</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="text-sm text-primary underline"
+          >
+            Try again
+          </button>
         </div>
       </MobilePageShell>
     );
@@ -141,59 +161,19 @@ export function LessonFormV2({ initialData, lessonId }: LessonFormV2Props) {
         />
       </form>
 
-      <FullScreenSearchPicker
+      <StudentPicker
         open={studentPickerOpen}
         onOpenChange={setStudentPickerOpen}
-        placeholder="Search students..."
-        items={students}
-        filterFn={(s, q) => {
-          const lower = q.toLowerCase();
-          return (
-            (s.full_name?.toLowerCase().includes(lower) ?? false) ||
-            s.email.toLowerCase().includes(lower)
-          );
-        }}
-        renderItem={(s) => (
-          <div>
-            <p className="text-sm font-medium">{s.full_name || s.email}</p>
-            {s.full_name && (
-              <p className="text-xs text-muted-foreground">{s.email}</p>
-            )}
-          </div>
-        )}
+        students={students}
         onSelect={handleStudentSelect}
-        keyExtractor={(s) => s.id}
-        emptyMessage="No students found"
-        title="Select Student"
       />
 
-      <FullScreenSearchPicker
+      <SongPicker
         open={songPickerOpen}
         onOpenChange={setSongPickerOpen}
-        placeholder="Search songs..."
-        items={songs}
-        filterFn={(s, q) => {
-          const lower = q.toLowerCase();
-          return (
-            s.title.toLowerCase().includes(lower) ||
-            s.author.toLowerCase().includes(lower)
-          );
-        }}
-        renderItem={(s) => (
-          <div className="flex items-center justify-between w-full">
-            <div>
-              <p className="text-sm font-medium">{s.title}</p>
-              <p className="text-xs text-muted-foreground">{s.author}</p>
-            </div>
-            {formData.song_ids?.includes(s.id) && (
-              <span className="text-primary text-xs font-medium">Selected</span>
-            )}
-          </div>
-        )}
+        songs={songs}
+        selectedSongIds={formData.song_ids ?? []}
         onSelect={toggleSong}
-        keyExtractor={(s) => s.id}
-        emptyMessage="No songs found"
-        title="Select Songs"
       />
     </MobilePageShell>
   );

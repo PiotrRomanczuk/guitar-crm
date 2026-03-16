@@ -57,7 +57,7 @@ export function SelfRating({
   return (
     <div className="space-y-1">
       <div
-        className={cn('flex items-center gap-0.5', !isReadOnly && 'cursor-pointer')}
+        className={cn('flex items-center gap-1', !isReadOnly && 'cursor-pointer')}
         onMouseLeave={() => setHoveredStar(null)}
         role={isReadOnly ? undefined : 'radiogroup'}
         aria-label="Self-assessment rating"

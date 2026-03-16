@@ -63,7 +63,7 @@ export function ProgressRing({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className={cn('transition-[stroke-dashoffset] duration-700 ease-out', color)}
+          className={cn('transition-[stroke-dashoffset] duration-700 ease-out will-change-[stroke-dashoffset]', color)}
           style={{ stroke: 'currentColor' }}
         />
       </svg>

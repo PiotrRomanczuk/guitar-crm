@@ -5,11 +5,11 @@ import { staggerContainer, listItem } from '@/lib/animations/variants';
 import { StatsWidget } from './widgets/StatsWidget';
 import { AgendaWidget } from './widgets/AgendaWidget';
 import { AttentionWidget } from './widgets/AttentionWidget';
-import { SongOfTheWeekCard } from '@/components/song-of-the-week';
-import { StudentList } from '@/components/dashboard/teacher/StudentList';
-import { SongLibrary } from '@/components/dashboard/teacher/SongLibrary';
-import { RecentActivity } from '@/components/dashboard/student/RecentActivity';
-import { ProgressChart } from '@/components/dashboard/student/ProgressChart';
+import { ActivityWidget } from './widgets/ActivityWidget';
+import { ChartWidget } from './widgets/ChartWidget';
+import { StudentsWidget } from './widgets/StudentsWidget';
+import { SongsWidget } from './widgets/SongsWidget';
+import { SOTWCard } from '@/components/v2/song-of-the-week';
 import type { TeacherDashboardV2Props } from './TeacherDashboard';
 
 export default function TeacherDashboardDesktop({
@@ -42,7 +42,7 @@ export default function TeacherDashboardDesktop({
         pendingAssignments={data.stats.pendingAssignments}
       />
 
-      {/* Two-column layout: Agenda + Attention */}
+      {/* Two-column: Agenda + Attention */}
       <motion.div
         variants={staggerContainer}
         initial="hidden"
@@ -53,26 +53,26 @@ export default function TeacherDashboardDesktop({
           <AgendaWidget items={data.agenda} />
         </motion.div>
         <motion.div variants={listItem}>
-          <AttentionWidget />
+          <AttentionWidget items={data.needsAttention} />
         </motion.div>
       </motion.div>
 
       {/* Song of the Week */}
-      {sotw && <SongOfTheWeekCard sotw={sotw} isAdmin={isAdmin} />}
+      {sotw && <SOTWCard sotw={sotw} isAdmin={isAdmin} />}
 
       {/* Three-column: Students + Songs + Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <StudentList students={data.students} />
-          <SongLibrary songs={data.songs} />
+          <StudentsWidget students={data.students} />
+          <SongsWidget songs={data.songs} />
         </div>
-        <div className="space-y-6">
-          <RecentActivity activities={data.activities} />
+        <div>
+          <ActivityWidget activities={data.activities} />
         </div>
       </div>
 
       {/* Chart */}
-      <ProgressChart data={data.chartData} />
+      <ChartWidget data={data.chartData} />
     </div>
   );
 }

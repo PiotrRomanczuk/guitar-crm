@@ -83,7 +83,7 @@ export function AssignmentDetail({ assignmentId, canEdit = false }: AssignmentDe
         <InfoCard icon={Calendar} label="Due Date" value={assignment.due_date ? format(new Date(assignment.due_date), 'MMM d, yyyy') : 'No due date'} highlight={assignment.status === 'overdue'} />
       </div>
 
-      <div className="space-y-2">
+      <div className="sticky bottom-0 bg-background py-4 pb-safe space-y-2">
         <h2 className="text-base font-semibold">Actions</h2>
         <div className="flex flex-wrap gap-2">
           {assignment.status === 'not_started' && (

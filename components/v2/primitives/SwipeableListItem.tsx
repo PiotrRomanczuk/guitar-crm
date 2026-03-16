@@ -103,9 +103,11 @@ export function SwipeableListItem({
               handleClose();
             }}
             className={cn(
-              'flex items-center justify-center text-white',
+              'flex items-center justify-center',
               'w-[72px] h-full',
-              action.variant === 'destructive' ? 'bg-destructive' : 'bg-primary'
+              action.variant === 'destructive'
+                ? 'bg-destructive text-destructive-foreground'
+                : 'bg-primary text-primary-foreground'
             )}
             aria-label={action.label}
           >

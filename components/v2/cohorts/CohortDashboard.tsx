@@ -74,7 +74,7 @@ function MobileCohortDashboard() {
                 key={d.value}
                 onClick={() => setDimension(d.value)}
                 className={cn(
-                  'shrink-0 h-9 px-4 rounded-full text-sm font-medium transition-colors border',
+                  'shrink-0 h-11 min-h-[44px] px-4 rounded-full text-sm font-medium transition-colors border',
                   dimension === d.value
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-card text-muted-foreground border-border',
@@ -97,7 +97,7 @@ function MobileCohortDashboard() {
                 key={m.value}
                 onClick={() => setMetric(m.value)}
                 className={cn(
-                  'shrink-0 h-9 px-4 rounded-full text-sm font-medium transition-colors border',
+                  'shrink-0 h-11 min-h-[44px] px-4 rounded-full text-sm font-medium transition-colors border',
                   metric === m.value
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-card text-muted-foreground border-border',

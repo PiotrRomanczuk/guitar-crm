@@ -3,20 +3,18 @@
 import { lazy, Suspense, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Music, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useLayoutMode } from '@/hooks/use-is-widescreen';
 import { staggerContainer, listItem } from '@/lib/animations/variants';
 import { groupRepertoireItems } from '@/components/users/details/repertoire.helpers';
 import type { StudentRepertoireWithSong } from '@/types/StudentRepertoire';
+import { CollapsibleFilterBar } from '@/components/v2/primitives/CollapsibleFilterBar';
+import { FloatingActionButton } from '@/components/v2/primitives/FloatingActionButton';
 import { RepertoireCard } from './RepertoireCard';
 import { Button } from '@/components/ui/button';
 
 const DesktopView = lazy(() => import('./RepertoireList.Desktop'));
 
-type StatusFilter = 'all' | 'to_learn' | 'started' | 'remembered' | 'with_author' | 'mastered';
-
-const FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
+const FILTER_OPTIONS = [
   { value: 'to_learn', label: 'To Learn' },
   { value: 'started', label: 'Started' },
   { value: 'remembered', label: 'Remembered' },
@@ -77,10 +75,10 @@ function MobileRepertoireList({
   viewMode,
   onAddSong,
 }: RepertoireListProps) {
-  const [filter, setFilter] = useState<StatusFilter>('all');
+  const [filter, setFilter] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
-    if (filter === 'all') return repertoire;
+    if (!filter) return repertoire;
     return repertoire.filter((r) => r.current_status === filter);
   }, [repertoire, filter]);
 
@@ -90,24 +88,11 @@ function MobileRepertoireList({
 
   return (
     <div className="px-4 space-y-4">
-      {/* Filter chips */}
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4">
-        {FILTER_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => setFilter(opt.value)}
-            className={cn(
-              'shrink-0 h-9 px-4 rounded-full text-sm font-medium transition-colors',
-              'border border-border min-h-[44px]',
-              filter === opt.value
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-card text-muted-foreground'
-            )}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
+      <CollapsibleFilterBar
+        filters={FILTER_OPTIONS}
+        active={filter}
+        onChange={setFilter}
+      />
 
       {/* Grouped list */}
       {grouped.length === 0 || (grouped.length === 1 && grouped[0].items.length === 0) ? (
@@ -141,19 +126,10 @@ function MobileRepertoireList({
 
       {/* FAB for adding songs (teacher view) */}
       {viewMode === 'teacher' && onAddSong && (
-        <button
+        <FloatingActionButton
           onClick={onAddSong}
-          className={cn(
-            'fixed right-4 z-40 rounded-full shadow-lg',
-            'bg-primary text-primary-foreground',
-            'w-14 h-14 flex items-center justify-center',
-            'bottom-[calc(4rem+env(safe-area-inset-bottom)+1rem)]',
-            'active:scale-95 transition-transform'
-          )}
-          aria-label="Add song to repertoire"
-        >
-          <Plus className="h-6 w-6" />
-        </button>
+          label="Add song to repertoire"
+        />
       )}
     </div>
   );

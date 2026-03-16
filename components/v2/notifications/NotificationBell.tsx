@@ -31,7 +31,7 @@ interface NotificationBellProps {
  * - Ring animation on new notifications
  * - Larger touch target (44px) on mobile
  */
-export function NotificationBellV2({ userId }: NotificationBellProps) {
+export function NotificationBell({ userId }: NotificationBellProps) {
   const mode = useLayoutMode();
   const { notifications, unreadCount, markAsRead, markAllAsRead } =
     useNotifications(userId, { limit: 10 });
@@ -104,7 +104,7 @@ export function NotificationBellV2({ userId }: NotificationBellProps) {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-96 p-0" align="end" sideOffset={8}>
+      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-96 p-0" align="end" sideOffset={8}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
           <h3 className="font-semibold text-sm">Notifications</h3>

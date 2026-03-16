@@ -78,17 +78,25 @@ export function SongDetailMobile({ song, isTeacher, onDelete }: SongDetailV2Prop
 
       {/* Tab bar */}
       {tabs.length > 1 && (
-        <div className="flex border-b border-border -mx-4 px-4">
+        <div
+          className="flex border-b border-border -mx-4 px-4"
+          role="tablist"
+          aria-label="Song details"
+        >
           {tabs.map((tab) => (
             <button
               key={tab.key}
               type="button"
+              role="tab"
+              id={`tab-${tab.key}`}
+              aria-selected={activeTab === tab.key}
+              aria-controls={`tabpanel-${tab.key}`}
               onClick={() => setActiveTab(tab.key)}
               className={cn(
                 'flex-1 py-3 text-sm font-medium text-center transition-colors min-h-[44px]',
                 activeTab === tab.key
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-muted-foreground'
+                  ? 'text-primary border-b-[3px] border-primary'
+                  : 'text-muted-foreground border-b border-transparent'
               )}
             >
               {tab.label}
@@ -98,9 +106,15 @@ export function SongDetailMobile({ song, isTeacher, onDelete }: SongDetailV2Prop
       )}
 
       {/* Tab content */}
-      {activeTab === 'info' && <InfoTab song={song} />}
-      {activeTab === 'lyrics' && <LyricsViewer text={song.lyrics_with_chords ?? ''} />}
-      {activeTab === 'video' && <VideoPlayer url={song.youtube_url ?? ''} />}
+      <div
+        role="tabpanel"
+        id={`tabpanel-${activeTab}`}
+        aria-labelledby={`tab-${activeTab}`}
+      >
+        {activeTab === 'info' && <InfoTab song={song} />}
+        {activeTab === 'lyrics' && <LyricsViewer text={song.lyrics_with_chords ?? ''} />}
+        {activeTab === 'video' && <VideoPlayer url={song.youtube_url ?? ''} />}
+      </div>
 
       {/* Actions sheet */}
       {isTeacher && (

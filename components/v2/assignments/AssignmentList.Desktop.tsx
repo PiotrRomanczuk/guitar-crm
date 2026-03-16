@@ -9,10 +9,10 @@ import { format } from 'date-fns';
 
 const STATUS_STYLES = {
   not_started: 'bg-muted text-muted-foreground border-border',
-  in_progress: 'bg-primary/10 text-primary border-primary/20',
-  completed: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20',
-  overdue: 'bg-destructive/10 text-destructive border-destructive/20',
-  cancelled: 'bg-muted text-muted-foreground border-border',
+  in_progress: 'bg-primary/10 text-primary dark:text-primary border-primary/20 dark:border-primary/30',
+  completed: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20 dark:border-green-500/30',
+  overdue: 'bg-destructive/10 text-destructive dark:text-red-400 border-destructive/20 dark:border-destructive/30',
+  cancelled: 'bg-muted text-muted-foreground border-border dark:border-border',
 } as const;
 
 const STATUS_LABELS: Record<string, string> = {

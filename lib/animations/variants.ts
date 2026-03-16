@@ -1,4 +1,5 @@
-import { Variants } from 'framer-motion';
+import { Variants, Transition } from 'framer-motion';
+import { getReducedMotion } from '@/hooks/use-reduced-motion';
 
 /**
  * Staggered container - wrap lists with this
@@ -163,3 +164,51 @@ export const subtleHover = {
   whileTap: { scale: 0.98 },
   transition: { type: 'spring', stiffness: 400, damping: 25 },
 };
+
+// ---------------------------------------------------------------------------
+// Reduced-motion support
+// ---------------------------------------------------------------------------
+
+/** Instant transition with no visible animation */
+const instantTransition: Transition = { duration: 0 };
+
+/**
+ * Returns a Variants object that skips all animation when the user prefers
+ * reduced motion. Pass in the normal variants and get back either the
+ * original or a "jump to end state" version.
+ *
+ * Usage:
+ * ```tsx
+ * <motion.div variants={safeVariants(staggerContainer)} ...>
+ * ```
+ */
+export function safeVariants(variants: Variants): Variants {
+  if (!getReducedMotion()) return variants;
+
+  const safe: Variants = {};
+  for (const key of Object.keys(variants)) {
+    const value = variants[key];
+    if (typeof value === 'object' && value !== null) {
+      safe[key] = { ...value, transition: instantTransition };
+    } else {
+      safe[key] = value;
+    }
+  }
+  return safe;
+}
+
+/**
+ * Returns motion props that are disabled when the user prefers reduced motion.
+ * Works for non-Variants props like whileHover / whileTap.
+ *
+ * Usage:
+ * ```tsx
+ * <motion.div {...safeMotionProps(hoverLift)} />
+ * ```
+ */
+export function safeMotionProps(
+  props: Record<string, unknown>
+): Record<string, unknown> {
+  if (!getReducedMotion()) return props;
+  return {};
+}

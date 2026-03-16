@@ -5,7 +5,7 @@ import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pencil, Trash2, MoreHorizontal, Calendar, User, Music, FileText, Hash } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { cardEntrance } from '@/lib/animations/variants';
+import { cardEntrance, staggerContainer, listItem } from '@/lib/animations/variants';
 import { MobilePageShell } from '@/components/v2/primitives/MobilePageShell';
 import { BottomActionSheet } from '@/components/v2/primitives/BottomActionSheet';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,7 @@ interface LessonSongItem {
 }
 
 interface LessonDetailV2Props {
-  lesson: LessonWithProfiles & {
+  lesson: Omit<LessonWithProfiles, 'lesson_songs'> & {
     lesson_songs: LessonSongItem[];
     assignments: {
       id: string;
@@ -46,10 +46,8 @@ export function LessonDetailV2({
   const isCompleted = lesson.status === 'COMPLETED';
   const isCancelled = lesson.status === 'CANCELLED';
 
-  // @ts-expect-error - scheduled_at in DB not in strict type
-  const displayDate = lesson.date || lesson.scheduled_at;
-  // @ts-expect-error - scheduled_at in DB not in strict type
-  const displayTime = lesson.start_time || lesson.scheduled_at;
+  const displayDate = lesson.date ?? lesson.scheduled_at ?? null;
+  const displayTime = lesson.start_time ?? lesson.scheduled_at ?? null;
 
   const handleLiveMode = useCallback(
     () => router.push(`/dashboard/lessons/${lesson.id}/live`),
@@ -142,22 +140,30 @@ export function LessonDetailV2({
               Songs ({lesson.lesson_songs.length})
             </span>
           </div>
-          <div className="space-y-1">
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+            className="space-y-1"
+          >
             {lesson.lesson_songs
               .filter((ls) => ls.song !== null)
-              .map((ls, idx) => (
-                <div
-                  key={idx}
-                  className={cn(
-                    'flex items-center justify-between',
-                    'bg-card rounded-lg border border-border px-4 py-3',
-                    'min-h-[44px]'
-                  )}
-                >
-                  <p className="text-sm font-medium truncate">{ls.song!.title}</p>
-                </div>
+              .map((ls) => (
+                <motion.div key={ls.id} variants={listItem}>
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/dashboard/songs/${ls.song!.id}`)}
+                    className={cn(
+                      'w-full text-left flex items-center justify-between',
+                      'bg-card rounded-lg border border-border px-4 py-3',
+                      'min-h-[44px] active:bg-muted/50 transition-colors'
+                    )}
+                  >
+                    <p className="text-sm font-medium truncate">{ls.song!.title}</p>
+                  </button>
+                </motion.div>
               ))}
-          </div>
+          </motion.div>
         </div>
       )}
 

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type PanInfo } from 'framer-motion';
 import { toast } from 'sonner';
 import { fadeIn } from '@/lib/animations/variants';
 import { MobilePageShell } from '@/components/v2/primitives/MobilePageShell';
@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { HeaderActions, DeleteDialog } from './UserDetail.Actions';
-import { UserDetailTabBar } from './UserDetail.TabBar';
+import { UserDetailTabBar, getTabIndex, getTabAtIndex } from './UserDetail.TabBar';
 import { UserDetailTabContent } from './UserDetail.TabContent';
 import type { TabValue } from './UserDetail.TabBar';
 import type { UserDetailV2Props } from './UserDetail';
@@ -38,6 +38,26 @@ export function UserDetailMobile({
       setShowDeleteDialog(false);
     }
   }, [user.id, router]);
+
+  const [swipeDirection, setSwipeDirection] = useState(0);
+
+  const handleSwipe = useCallback(
+    (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      const SWIPE_THRESHOLD = 50;
+      if (Math.abs(info.offset.x) < SWIPE_THRESHOLD) return;
+
+      const currentIndex = getTabIndex(activeTab);
+      const direction = info.offset.x > 0 ? -1 : 1;
+      const nextIndex = currentIndex + direction;
+      const nextTab = getTabAtIndex(nextIndex);
+
+      if (nextTab !== activeTab) {
+        setSwipeDirection(direction);
+        setActiveTab(nextTab);
+      }
+    },
+    [activeTab]
+  );
 
   const initials = user.full_name
     ? user.full_name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -104,13 +124,20 @@ export function UserDetailMobile({
 
       <UserDetailTabBar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" custom={swipeDirection}>
         <motion.div
           key={activeTab}
-          initial={{ opacity: 0, x: 20 }}
+          custom={swipeDirection}
+          initial={{ opacity: 0, x: swipeDirection >= 0 ? 60 : -60 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
+          exit={{ opacity: 0, x: swipeDirection >= 0 ? -60 : 60 }}
           transition={{ duration: 0.2 }}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.15}
+          onDragEnd={handleSwipe}
+          role="tabpanel"
+          aria-label={`${activeTab} tab content`}
         >
           <UserDetailTabContent
             activeTab={activeTab}

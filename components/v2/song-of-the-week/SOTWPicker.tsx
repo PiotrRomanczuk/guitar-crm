@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useTransition } from 'react';
+import { useState, useCallback, useEffect, useTransition } from 'react';
 import { Loader2, Music2 } from 'lucide-react';
 import { FullScreenSearchPicker } from '@/components/v2/primitives/FullScreenSearchPicker';
 import { Button } from '@/components/ui/button';
@@ -30,20 +30,24 @@ interface SOTWPickerProps {
  * Step 2: Add teacher message + confirm.
  */
 export function SOTWPicker({ onClose }: SOTWPickerProps) {
-  const [songs, setSongs] = useState<SongResult[] | null>(null);
+  const [songs, setSongs] = useState<SongResult[]>([]);
+  const [isLoadingSongs, setIsLoadingSongs] = useState(true);
   const [selectedSong, setSelectedSong] = useState<SongResult | null>(null);
   const [teacherMessage, setTeacherMessage] = useState('');
   const [isPending, startTransition] = useTransition();
 
-  // Load songs on first render (conditional setState pattern — no effect needed)
-  if (songs === null) {
-    setSongs([]);
+  // Load songs on mount (isLoadingSongs starts as true)
+  useEffect(() => {
+    let cancelled = false;
     searchSongsForSotw('').then((result) => {
+      if (cancelled) return;
       if (!('error' in result)) {
         setSongs(result.songs);
       }
+      setIsLoadingSongs(false);
     });
-  }
+    return () => { cancelled = true; };
+  }, []);
 
   const handleSelect = useCallback((song: SongResult) => {
     setSelectedSong(song);
@@ -105,12 +109,12 @@ export function SOTWPicker({ onClose }: SOTWPickerProps) {
           if (!nextOpen) onClose();
         }}
         placeholder="Search songs..."
-        items={songs ?? []}
+        items={songs}
         filterFn={filterFn}
         renderItem={renderItem}
         onSelect={handleSelect}
         keyExtractor={(song) => song.id}
-        emptyMessage="No songs found"
+        emptyMessage={isLoadingSongs ? 'Loading songs...' : 'No songs found'}
         title="Select Song of the Week"
       />
     );

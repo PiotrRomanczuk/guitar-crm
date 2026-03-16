@@ -37,12 +37,22 @@ function parseEvent(event: GoogleEvent): ParsedEvent | null {
 function getTimeLabel(parsed: ParsedEvent): string {
   if (parsed.isAllDay) return 'All day';
   const start = format(parsed.startTime, 'h:mm a');
-  const end = parsed.endTime ? format(parsed.endTime, 'h:mm a') : '';
-  return end ? `${start} - ${end}` : start;
+  if (!parsed.endTime) return start;
+
+  const spansMidnight =
+    !isSameDay(parsed.startTime, parsed.endTime) &&
+    parsed.endTime.getTime() !== parsed.startTime.getTime();
+
+  const endLabel = spansMidnight
+    ? `${format(parsed.endTime, 'h:mm a')} (+1d)`
+    : format(parsed.endTime, 'h:mm a');
+
+  return `${start} - ${endLabel}`;
 }
 
 function getAttendeeNames(event: GoogleEvent): string[] {
   return (event.attendees || [])
+    .filter((a): a is { email: string; responseStatus?: string } => !!a.email)
     .map((a) => a.email.split('@')[0])
     .slice(0, 2);
 }

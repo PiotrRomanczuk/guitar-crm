@@ -22,7 +22,10 @@ const TAB_FILTERS = [
 export function SpotifyQueueV2() {
   const [matches, setMatches] = useState<SpotifyMatch[]>([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<{
+    matchId: string;
+    action: 'approve' | 'reject';
+  } | null>(null);
   const [activeTab, setActiveTab] = useState<TabValue>('pending');
   const [pagination, setPagination] = useState<PaginationInfo>({
     page: 1,
@@ -60,7 +63,7 @@ export function SpotifyQueueV2() {
     matchId: string,
     action: 'approve' | 'reject'
   ) => {
-    setActionLoading(matchId);
+    setActionLoading({ matchId, action });
     try {
       const res = await fetch('/api/spotify/matches/action', {
         method: 'POST',
@@ -153,7 +156,7 @@ export function SpotifyQueueV2() {
                 <MatchCard
                   match={match}
                   activeTab={activeTab}
-                  actionLoading={actionLoading}
+                  actionLoading={actionLoading?.matchId === match.id ? actionLoading : null}
                   onApprove={(id) => handleAction(id, 'approve')}
                   onReject={(id) => handleAction(id, 'reject')}
                 />

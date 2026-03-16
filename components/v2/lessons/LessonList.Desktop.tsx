@@ -119,10 +119,8 @@ function DesktopRow({
   showTeacherColumn: boolean;
   showActions: boolean;
 }) {
-  // @ts-expect-error - scheduled_at in DB but not in strict type
-  const displayDate = lesson.date || lesson.scheduled_at;
-  // @ts-expect-error - scheduled_at in DB but not in strict type
-  const displayTime = lesson.start_time || lesson.scheduled_at;
+  const displayDate = lesson.date ?? lesson.scheduled_at ?? null;
+  const displayTime = lesson.start_time ?? lesson.scheduled_at ?? null;
 
   return (
     <TableRow className="hover:bg-muted/50 transition-colors border-border">

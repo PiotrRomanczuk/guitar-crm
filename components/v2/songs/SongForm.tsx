@@ -26,7 +26,9 @@ interface SongFormV2Props {
 
 export function SongFormV2({ song, mode }: SongFormV2Props) {
   const router = useRouter();
-  const [formData, setFormData] = useState<SongFormData>(() => createFormData(song));
+  const [formData, setFormData] = useState<SongFormData>(() =>
+    mode === 'create' ? createFormData(null) : createFormData(song)
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { isSubmitting, saveSong } = useSongMutation({

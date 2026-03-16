@@ -48,13 +48,13 @@ export function formatLessonTime(timeString: string | null | undefined): string 
 export function getLessonStatusStyle(status: string | null | undefined): string {
   switch (status) {
     case 'COMPLETED':
-      return 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20';
+      return 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20 dark:border-green-500/30';
     case 'CANCELLED':
-      return 'bg-destructive/10 text-destructive border-destructive/20';
+      return 'bg-destructive/10 text-destructive dark:text-red-400 border-destructive/20 dark:border-destructive/30';
     case 'IN_PROGRESS':
-      return 'bg-primary/10 text-primary border-primary/20';
+      return 'bg-primary/10 text-primary dark:text-primary border-primary/20 dark:border-primary/30';
     case 'SCHEDULED':
-      return 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20';
+      return 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20 dark:border-yellow-500/30';
     default:
       return 'bg-muted text-muted-foreground border-border';
   }

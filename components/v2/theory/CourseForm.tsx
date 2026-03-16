@@ -110,6 +110,7 @@ export function CourseFormV2({ mode, courseId, defaultValues }: CourseFormV2Prop
           formData={formData as unknown as Record<string, unknown>}
           errors={errors}
           submitLabel={isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Course' : 'Save Changes'}
+          submitDisabled={isSubmitting}
         />
       </form>
     </MobilePageShell>

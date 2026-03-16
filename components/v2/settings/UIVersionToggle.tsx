@@ -1,5 +1,7 @@
 'use client';
 
+import { useCallback } from 'react';
+import { toast } from 'sonner';
 import { useUIVersion } from '@/hooks/use-ui-version';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -18,6 +20,14 @@ interface UIVersionToggleProps {
 export function UIVersionToggle({ className }: UIVersionToggleProps) {
   const { version, toggle, pending } = useUIVersion();
   const isV2 = version === 'v2';
+
+  const handleToggle = useCallback(() => {
+    try {
+      toggle();
+    } catch {
+      toast.error('Failed to switch UI version. Please try again.');
+    }
+  }, [toggle]);
 
   return (
     <div
@@ -57,7 +67,7 @@ export function UIVersionToggle({ className }: UIVersionToggleProps) {
       <Switch
         id="ui-version-toggle"
         checked={isV2}
-        onCheckedChange={toggle}
+        onCheckedChange={handleToggle}
         disabled={pending}
         aria-label={isV2 ? 'Switch to classic UI' : 'Switch to new mobile UI'}
       />

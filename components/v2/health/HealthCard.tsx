@@ -79,16 +79,17 @@ export function HealthCard({ student, onSendMessage }: HealthCardProps) {
         {student.recommendedAction}
       </p>
 
-      {/* Row 4: Actions */}
+      {/* Row 4: Actions -- icon-only below 390px, icon+label above */}
       <div className="flex items-center gap-1 pt-1 border-t border-border">
         <Link href={`/dashboard/lessons?student=${student.id}`} className="flex-1">
           <Button
             variant="ghost"
             size="sm"
             className="w-full min-h-[44px] text-xs gap-1.5"
+            aria-label={`Schedule lesson for ${student.name}`}
           >
-            <Calendar className="h-3.5 w-3.5" />
-            Schedule
+            <Calendar className="h-4 w-4 shrink-0" />
+            <span className="hidden min-[400px]:inline">Schedule</span>
           </Button>
         </Link>
         <Button
@@ -96,18 +97,20 @@ export function HealthCard({ student, onSendMessage }: HealthCardProps) {
           size="sm"
           className="flex-1 min-h-[44px] text-xs gap-1.5"
           onClick={() => onSendMessage?.(student.id)}
+          aria-label={`Message ${student.name}`}
         >
-          <Mail className="h-3.5 w-3.5" />
-          Message
+          <Mail className="h-4 w-4 shrink-0" />
+          <span className="hidden min-[400px]:inline">Message</span>
         </Button>
         <Link href={`/dashboard/users/${student.id}`} className="flex-1">
           <Button
             variant="ghost"
             size="sm"
             className="w-full min-h-[44px] text-xs gap-1.5"
+            aria-label={`View ${student.name}'s profile`}
           >
-            <User className="h-3.5 w-3.5" />
-            Profile
+            <User className="h-4 w-4 shrink-0" />
+            <span className="hidden min-[400px]:inline">Profile</span>
           </Button>
         </Link>
       </div>

@@ -1,11 +1,12 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { staggerContainer, listItem } from '@/lib/animations/variants';
+import { staggerContainer, listItem, safeVariants } from '@/lib/animations/variants';
 import { MobilePageShell } from '@/components/v2/primitives/MobilePageShell';
 import { StatsWidget } from './widgets/StatsWidget';
 import { AgendaWidget } from './widgets/AgendaWidget';
 import { AttentionWidget } from './widgets/AttentionWidget';
+import { SwipeableWidgets } from './widgets/SwipeableWidgets';
 import { QuickActionsFAB } from './widgets/QuickActions';
 import { SOTWCard } from '@/components/v2/song-of-the-week';
 import type { TeacherDashboardV2Props } from './TeacherDashboard';
@@ -28,13 +29,13 @@ export function TeacherDashboardMobile({
       fab={<QuickActionsFAB />}
     >
       <motion.div
-        variants={staggerContainer}
+        variants={safeVariants(staggerContainer)}
         initial="hidden"
         animate="visible"
         className="space-y-4"
       >
         {/* Stats overview */}
-        <motion.div variants={listItem}>
+        <motion.div variants={safeVariants(listItem)}>
           <StatsWidget
             totalStudents={data.stats.totalStudents}
             songsInLibrary={data.stats.songsInLibrary}
@@ -43,26 +44,24 @@ export function TeacherDashboardMobile({
           />
         </motion.div>
 
-        {/* Today's agenda */}
-        <motion.div variants={listItem}>
-          <AgendaWidget items={data.agenda} />
-        </motion.div>
-
-        {/* Needs attention */}
-        <motion.div variants={listItem}>
-          <AttentionWidget />
+        {/* Swipeable: Agenda + Attention */}
+        <motion.div variants={safeVariants(listItem)}>
+          <SwipeableWidgets labels={['Agenda', 'Needs Attention']}>
+            <AgendaWidget items={data.agenda} />
+            <AttentionWidget items={data.needsAttention} />
+          </SwipeableWidgets>
         </motion.div>
 
         {/* Song of the Week */}
         {sotw && (
-          <motion.div variants={listItem}>
+          <motion.div variants={safeVariants(listItem)}>
             <SOTWCard sotw={sotw} isAdmin={isAdmin} />
           </motion.div>
         )}
 
         {/* Recent students - compact card list */}
         {data.students.length > 0 && (
-          <motion.div variants={listItem}>
+          <motion.div variants={safeVariants(listItem)}>
             <StudentCards students={data.students.slice(0, 5)} />
           </motion.div>
         )}

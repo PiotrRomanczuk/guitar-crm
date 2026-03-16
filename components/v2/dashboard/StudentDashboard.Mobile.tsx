@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { staggerContainer, listItem, cardEntrance } from '@/lib/animations/variants';
+import { staggerContainer, listItem, cardEntrance, safeVariants } from '@/lib/animations/variants';
 import { MobilePageShell } from '@/components/v2/primitives/MobilePageShell';
 import { SOTWCard } from '@/components/v2/song-of-the-week';
 import { StatPills } from './student-widgets/StatPills';
@@ -25,18 +25,18 @@ export function StudentDashboardMobile({
       showBack={false}
     >
       <motion.div
-        variants={staggerContainer}
+        variants={safeVariants(staggerContainer)}
         initial="hidden"
         animate="visible"
         className="space-y-4"
       >
         {/* Section 1: Stat pills */}
-        <motion.div variants={listItem}>
+        <motion.div variants={safeVariants(listItem)}>
           <StatPills stats={data.stats} />
         </motion.div>
 
         {/* Section 2: What's Next card */}
-        <motion.div variants={cardEntrance}>
+        <motion.div variants={safeVariants(cardEntrance)}>
           <WhatsNextCard
             nextLesson={data.nextLesson}
             topAssignment={data.assignments[0] ?? null}
@@ -45,7 +45,7 @@ export function StudentDashboardMobile({
 
         {/* Section 3: Practice Focus */}
         {sotw && (
-          <motion.div variants={listItem}>
+          <motion.div variants={safeVariants(listItem)}>
             <SOTWCard
               sotw={sotw}
               sotwInRepertoire={sotwInRepertoire}
@@ -54,12 +54,12 @@ export function StudentDashboardMobile({
           </motion.div>
         )}
 
-        <motion.div variants={listItem}>
+        <motion.div variants={safeVariants(listItem)}>
           <PracticeSongList songs={data.recentSongs.slice(0, 4)} />
         </motion.div>
 
         {/* Section 4: Quick links */}
-        <motion.div variants={listItem}>
+        <motion.div variants={safeVariants(listItem)}>
           <QuickLinks totalAssignments={data.stats.activeAssignments} />
         </motion.div>
       </motion.div>

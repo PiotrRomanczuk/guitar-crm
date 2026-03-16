@@ -15,7 +15,13 @@ import type { HealthStatus } from '@/lib/utils/studentHealth';
 
 async function fetchStudentHealth(): Promise<StudentHealth[]> {
   const response = await fetch('/api/students/health');
-  if (!response.ok) throw new Error('Failed to fetch student health');
+  if (!response.ok) {
+    const status = response.status;
+    if (status === 401) throw new Error('Not authenticated. Please sign in.');
+    if (status === 403) throw new Error('You do not have permission to view health data.');
+    if (status >= 500) throw new Error('Server error. Please try again later.');
+    throw new Error(`Failed to load health data (HTTP ${status}).`);
+  }
   return response.json();
 }
 
@@ -34,6 +40,7 @@ export default function HealthDesktop() {
     queryKey: ['student-health'],
     queryFn: fetchStudentHealth,
     refetchInterval: 180000,
+    refetchOnWindowFocus: false,
   });
 
   const filtered = useMemo(() => {
