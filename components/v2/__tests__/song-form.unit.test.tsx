@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 // Mock framer-motion
@@ -8,7 +8,7 @@ jest.mock('framer-motion', () => ({
     div: ({
       children,
       className,
-      ...rest
+      ..._rest
     }: {
       children?: React.ReactNode;
       className?: string;
@@ -95,7 +95,7 @@ jest.mock('@/components/songs/form/useSongMutation', () => ({
 jest.mock('@/components/shared/StepWizardForm', () => {
   return function MockStepWizardForm({
     steps,
-    formData,
+    formData: _formData,
     submitLabel,
   }: {
     steps: Array<{ label: string; content: React.ReactNode; requiredFields?: string[] }>;

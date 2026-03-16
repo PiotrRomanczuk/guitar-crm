@@ -8,7 +8,7 @@ jest.mock('framer-motion', () => ({
     div: ({
       children,
       className,
-      ...rest
+      ..._rest
     }: {
       children?: React.ReactNode;
       className?: string;
@@ -33,10 +33,6 @@ jest.mock('@/lib/animations/variants', () => ({
 jest.mock('sonner', () => ({
   toast: { success: jest.fn(), error: jest.fn() },
 }));
-// Access via require after mock setup
-const getMockToast = () =>
-  jest.requireMock<{ toast: { success: jest.Mock; error: jest.Mock } }>('sonner').toast;
-
 // Mock lucide-react
 jest.mock('lucide-react', () => ({
   ArrowLeft: () => <span data-testid="icon-arrow-left" />,
