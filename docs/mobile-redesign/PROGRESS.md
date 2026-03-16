@@ -1,7 +1,8 @@
 # Mobile Redesign — Implementation Progress
 
 > **Last updated**: 2026-03-16
-> **Branch**: `feature/STRUM-mobile-redesign-docs` (specs), implementation branches per wave
+> **Base branch**: `main` (all feature specs + design system merged)
+> **Implementation**: one branch per wave (see branch names below)
 
 ## Required Reading (BEFORE writing any code)
 
@@ -35,7 +36,7 @@
 ### Step 3: v2 Directory Structure
 - [ ] Create `components/v2/` directory tree mirroring domains
 - [ ] Create `components/v2/primitives/MobilePageShell.tsx` — page header + scroll + safe area
-- [ ] Create `components/v2/primitives/StepWizardForm.tsx` — generalized from `MobileSongForm.tsx`
+- [ ] Move `components/shared/StepWizardForm.tsx` → `components/v2/primitives/StepWizardForm.tsx` (already exists, extend if needed)
 - [ ] Create `components/v2/primitives/SwipeableListItem.tsx` — list row with swipe actions
 - [ ] Create `components/v2/primitives/BottomActionSheet.tsx` — extends existing Drawer
 - [ ] Create `components/v2/primitives/CollapsibleFilterBar.tsx` — horizontal scroll filter chips
