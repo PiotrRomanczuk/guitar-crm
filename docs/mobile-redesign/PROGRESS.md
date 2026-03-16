@@ -119,15 +119,15 @@
 > **Branch**: `feature/STRUM-v2-lessons`
 > **Spec**: [02-lessons.md](./02-lessons.md)
 
-- [ ]Create `components/v2/lessons/LessonList.tsx` — card-based list
-- [ ]Create `components/v2/lessons/LessonList.Desktop.tsx` — table view
-- [ ]Create `components/v2/lessons/LessonDetail.tsx` — mobile detail
-- [ ]Create `components/v2/lessons/LessonForm.tsx` — step wizard (Student → Songs → Schedule → Notes)
-- [ ]Create `components/v2/lessons/LiveLesson.tsx` — mobile live mode
-- [ ]Create `components/v2/lessons/LiveLesson.Desktop.tsx` — desktop live mode
-- [ ]Wire into lesson pages with cookie check
-- [ ]Reuse all existing hooks: `useLessonList`, `useLessonForm`, `useSongs`, `useProfiles`
-- [ ]Test CRUD at 390px, 768px, 1440px as Teacher and Student
+- [x] Create `components/v2/lessons/LessonList.tsx` — card-based list
+- [x] Create `components/v2/lessons/LessonList.Desktop.tsx` — table view
+- [x] Create `components/v2/lessons/LessonDetail.tsx` — mobile detail
+- [x] Create `components/v2/lessons/LessonForm.tsx` — step wizard (Student → Songs → Schedule → Notes)
+- [x] Create `components/v2/lessons/LiveLesson.tsx` — mobile live mode
+- [x] Create `components/v2/lessons/LiveLesson.Desktop.tsx` — desktop live mode
+- [x] Wire into lesson pages with cookie check
+- [x] Reuse all existing hooks: `useLessonList`, `useLessonForm`, `useSongs`, `useProfiles`
+- [ ] Test CRUD at 390px, 768px, 1440px as Teacher and Student
 
 ### Agent 2 — Songs
 > **Branch**: `feature/STRUM-v2-songs`
