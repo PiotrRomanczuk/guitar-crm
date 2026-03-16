@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { staggerContainer, listItem, cardEntrance } from '@/lib/animations/variants';
 import { MobilePageShell } from '@/components/v2/primitives/MobilePageShell';
-import { SongOfTheWeekCard } from '@/components/song-of-the-week';
+import { SOTWCard } from '@/components/v2/song-of-the-week';
 import { StatPills } from './student-widgets/StatPills';
 import { WhatsNextCard } from './student-widgets/WhatsNextCard';
 import { PracticeSongList } from './student-widgets/PracticeSongList';
@@ -46,7 +46,7 @@ export function StudentDashboardMobile({
         {/* Section 3: Practice Focus */}
         {sotw && (
           <motion.div variants={listItem}>
-            <SongOfTheWeekCard
+            <SOTWCard
               sotw={sotw}
               sotwInRepertoire={sotwInRepertoire}
               isStudent

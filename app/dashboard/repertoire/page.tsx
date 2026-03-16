@@ -1,10 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import UserRepertoireTab from '@/components/users/details/UserRepertoireTab';
+import { RepertoireList as RepertoireListV2 } from '@/components/v2/repertoire';
+import { MobilePageShell } from '@/components/v2/primitives/MobilePageShell';
+import { getUIVersion } from '@/lib/ui-version.server';
 import type { StudentRepertoireWithSong } from '@/types/StudentRepertoire';
 
 export default async function RepertoirePage() {
-  const supabase = await createClient();
+  const [supabase, uiVersion] = await Promise.all([createClient(), getUIVersion()]);
 
   const {
     data: { user },
@@ -42,6 +45,18 @@ export default async function RepertoirePage() {
     )
     .eq('student_id', user.id)
     .order('priority', { ascending: true });
+
+  if (uiVersion === 'v2') {
+    return (
+      <MobilePageShell title="My Repertoire" subtitle="Rate each song to track your confidence level.">
+        <RepertoireListV2
+          repertoire={(repertoire as unknown as StudentRepertoireWithSong[]) || []}
+          userId={user.id}
+          viewMode="student"
+        />
+      </MobilePageShell>
+    );
+  }
 
   return (
     <main className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">

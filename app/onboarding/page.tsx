@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { OnboardingForm } from '@/components/onboarding/OnboardingForm';
+import { OnboardingV2 } from '@/components/v2/onboarding';
+import { getUIVersion } from '@/lib/ui-version.server';
 import { Music } from 'lucide-react';
 
 export default async function OnboardingPage() {
@@ -22,6 +24,13 @@ export default async function OnboardingPage() {
 
   if (profile?.is_student || profile?.is_teacher || profile?.is_admin) {
     redirect('/dashboard');
+  }
+
+  const uiVersion = await getUIVersion();
+  const firstName = user.user_metadata?.first_name || user.user_metadata?.full_name?.split(' ')[0];
+
+  if (uiVersion === 'v2') {
+    return <OnboardingV2 firstName={firstName} />;
   }
 
   return (

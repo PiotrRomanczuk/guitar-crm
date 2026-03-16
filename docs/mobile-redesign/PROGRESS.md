@@ -66,47 +66,47 @@
 - [x] Create `components/v2/navigation/MobileMoreMenu.tsx` — grouped drawer using menuConfig
 - [x] Create `components/v2/navigation/Header.tsx` — compact v2 header with blur backdrop
 - [x] Wire v2 shell into `AppShell.tsx` via cookie toggle
-- [ ] Test at 390px, 768px, 1440px
-- [ ] Dark mode verified
+- [x] Test at 390px, 768px, 1440px
+- [x] Dark mode verified
 
 ### Agent 2 — Teacher Dashboard
-> **Branch**: `feature/STRUM-v2-teacher-dashboard`
+> **Branch**: `feature/STRUM-v2-foundation`
 > **Spec**: [01-dashboard.md](./01-dashboard.md)
 
-- [ ] Create `components/v2/dashboard/TeacherDashboard.tsx` — mobile card stack
-- [ ] Create `components/v2/dashboard/TeacherDashboard.Desktop.tsx` — desktop grid
-- [ ] Create `components/v2/dashboard/widgets/AgendaWidget.tsx`
-- [ ] Create `components/v2/dashboard/widgets/StatsWidget.tsx`
-- [ ] Create `components/v2/dashboard/widgets/AttentionWidget.tsx`
-- [ ] Create `components/v2/dashboard/widgets/QuickActions.tsx` — FAB + action sheet
-- [ ] Wire into dashboard page with cookie check
-- [ ] Reuse `getTeacherDashboardData()` server action (no backend changes)
-- [ ] Test Teacher role at 390px, 768px, 1440px
+- [x] Create `components/v2/dashboard/TeacherDashboard.tsx` — mobile card stack
+- [x] Create `components/v2/dashboard/TeacherDashboard.Desktop.tsx` — desktop grid
+- [x] Create `components/v2/dashboard/widgets/AgendaWidget.tsx`
+- [x] Create `components/v2/dashboard/widgets/StatsWidget.tsx`
+- [x] Create `components/v2/dashboard/widgets/AttentionWidget.tsx`
+- [x] Create `components/v2/dashboard/widgets/QuickActions.tsx` — FAB + action sheet
+- [x] Wire into dashboard page with cookie check
+- [x] Reuse `getTeacherDashboardData()` server action (no backend changes)
+- [x] Test Teacher role at 390px, 768px, 1440px
 
 ### Agent 3 — Student Dashboard + Song of the Week
-> **Branch**: `feature/STRUM-v2-student-dashboard`
+> **Branch**: `feature/STRUM-v2-foundation`
 > **Specs**: [01-dashboard.md](./01-dashboard.md), [18-song-of-the-week.md](./18-song-of-the-week.md)
 
-- [ ] Create `components/v2/dashboard/StudentDashboard.tsx` — mobile card layout
-- [ ] Create `components/v2/dashboard/StudentDashboard.Desktop.tsx`
-- [ ] Create `components/v2/song-of-the-week/SOTWCard.tsx` — prominent mobile card
-- [ ] Create `components/v2/song-of-the-week/SOTWPicker.tsx` — full-screen picker (admin)
-- [ ] Wire into dashboard page with cookie check
-- [ ] Reuse `getStudentDashboardData()` and `getCurrentSongOfTheWeek()` (no backend changes)
-- [ ] Test Student role at 390px, 768px, 1440px
+- [x] Create `components/v2/dashboard/StudentDashboard.tsx` — mobile card layout
+- [x] Create `components/v2/dashboard/StudentDashboard.Desktop.tsx`
+- [x] Create `components/v2/song-of-the-week/SOTWCard.tsx` — prominent mobile card (existing SongOfTheWeekCard reused)
+- [x] Create `components/v2/song-of-the-week/SOTWPicker.tsx` — full-screen picker (admin)
+- [x] Wire into dashboard page with cookie check
+- [x] Reuse `getStudentDashboardData()` and `getCurrentSongOfTheWeek()` (no backend changes)
+- [x] Test Student role at 390px, 768px, 1440px
 
 ### Agent 4 — Onboarding + Settings Toggle
-> **Branch**: `feature/STRUM-v2-onboarding`
+> **Branch**: `feature/STRUM-v2-foundation`
 > **Specs**: [19-onboarding.md](./19-onboarding.md), [09-profile-settings.md](./09-profile-settings.md)
 
-- [ ] Create `components/v2/onboarding/Onboarding.tsx` — full-screen step wizard
-- [ ] Create `components/v2/onboarding/StepRole.tsx` — large card role selection
-- [ ] Create `components/v2/onboarding/StepSkillLevel.tsx` — visual skill picker
-- [ ] Create `components/v2/onboarding/StepGoals.tsx` — chip-based goals
-- [ ] Create `components/v2/onboarding/StepWelcome.tsx` — welcome animation
-- [ ] Create `components/v2/settings/UIVersionToggle.tsx` — v1/v2 switch in settings
-- [ ] Reuse `completeOnboarding()` server action
-- [ ] Test at 390px
+- [x] Create `components/v2/onboarding/Onboarding.tsx` — full-screen step wizard
+- [x] Create `components/v2/onboarding/StepRole.tsx` — large card role selection
+- [x] Create `components/v2/onboarding/StepSkillLevel.tsx` — visual skill picker
+- [x] Create `components/v2/onboarding/StepGoals.tsx` — chip-based goals
+- [x] Create `components/v2/onboarding/StepWelcome.tsx` — welcome animation
+- [x] Create `components/v2/settings/UIVersionToggle.tsx` — v1/v2 switch in settings
+- [x] Reuse `completeOnboarding()` server action
+- [x] Test at 390px (onboarding redirects completed users — expected; settings toggle verified)
 
 ---
 
@@ -119,60 +119,60 @@
 > **Branch**: `feature/STRUM-v2-lessons`
 > **Spec**: [02-lessons.md](./02-lessons.md)
 
-- [ ]Create `components/v2/lessons/LessonList.tsx` — card-based list
-- [ ]Create `components/v2/lessons/LessonList.Desktop.tsx` — table view
-- [ ]Create `components/v2/lessons/LessonDetail.tsx` — mobile detail
-- [ ]Create `components/v2/lessons/LessonForm.tsx` — step wizard (Student → Songs → Schedule → Notes)
-- [ ]Create `components/v2/lessons/LiveLesson.tsx` — mobile live mode
-- [ ]Create `components/v2/lessons/LiveLesson.Desktop.tsx` — desktop live mode
-- [ ]Wire into lesson pages with cookie check
-- [ ]Reuse all existing hooks: `useLessonList`, `useLessonForm`, `useSongs`, `useProfiles`
-- [ ]Test CRUD at 390px, 768px, 1440px as Teacher and Student
+- [x] Create `components/v2/lessons/LessonList.tsx` — card-based list
+- [x] Create `components/v2/lessons/LessonList.Desktop.tsx` — table view
+- [x] Create `components/v2/lessons/LessonDetail.tsx` — mobile detail
+- [x] Create `components/v2/lessons/LessonForm.tsx` — step wizard (Student → Songs → Schedule → Notes)
+- [x] Create `components/v2/lessons/LiveLesson.tsx` — mobile live mode
+- [x] Create `components/v2/lessons/LiveLesson.Desktop.tsx` — desktop live mode
+- [x] Wire into lesson pages with cookie check
+- [x] Reuse all existing hooks: `useLessonList`, `useLessonForm`, `useSongs`, `useProfiles`
+- [ ] Test CRUD at 390px, 768px, 1440px as Teacher and Student
 
 ### Agent 2 — Songs
 > **Branch**: `feature/STRUM-v2-songs`
 > **Spec**: [03-songs.md](./03-songs.md)
 
-- [ ]Create `components/v2/songs/SongList.tsx` — enhanced mobile cards + filter chips
-- [ ]Create `components/v2/songs/SongList.Desktop.tsx` — desktop table
-- [ ]Create `components/v2/songs/SongDetail.tsx` — tabbed mobile detail
-- [ ]Create `components/v2/songs/SongDetail.Desktop.tsx` — side-panel detail
-- [ ]Create `components/v2/songs/SongForm.tsx` — generalized from MobileSongForm
-- [ ]Create `components/v2/songs/LyricsViewer.tsx` — mobile chord/lyric display
-- [ ]Create `components/v2/songs/VideoPlayer.tsx` — responsive video
-- [ ]Wire into song pages with cookie check
-- [ ]Reuse all hooks: `useSongList`, `useSongMutation`, `useSongDetail`, etc.
-- [ ]Test CRUD at 390px, 768px, 1440px as Teacher and Student
+- [x] Create `components/v2/songs/SongList.tsx` — enhanced mobile cards + filter chips
+- [x] Create `components/v2/songs/SongList.Desktop.tsx` — desktop table
+- [x] Create `components/v2/songs/SongDetail.tsx` — tabbed mobile detail
+- [x] Create `components/v2/songs/SongDetail.Desktop.tsx` — side-panel detail
+- [x] Create `components/v2/songs/SongForm.tsx` — generalized from MobileSongForm
+- [x] Create `components/v2/songs/LyricsViewer.tsx` — mobile chord/lyric display
+- [x] Create `components/v2/songs/VideoPlayer.tsx` — responsive video
+- [x] Wire into song pages with cookie check
+- [x] Reuse all hooks: `useSongList`, `useSongMutation`, `useSongDetail`, etc.
+- [ ] Test CRUD at 390px, 768px, 1440px as Teacher and Student
 
 ### Agent 3 — Assignments + Repertoire
 > **Branch**: `feature/STRUM-v2-assignments-repertoire`
 > **Specs**: [04-assignments.md](./04-assignments.md), [05-student-repertoire.md](./05-student-repertoire.md)
 
-- [ ]Create `components/v2/assignments/AssignmentList.tsx` — card list with urgency
-- [ ]Create `components/v2/assignments/AssignmentList.Desktop.tsx`
-- [ ]Create `components/v2/assignments/AssignmentDetail.tsx` — mobile detail
-- [ ]Create `components/v2/assignments/AssignmentForm.tsx` — step wizard
-- [ ]Create `components/v2/assignments/TemplateList.tsx` — template cards
-- [ ]Create `components/v2/repertoire/RepertoireList.tsx` — priority sections
-- [ ]Create `components/v2/repertoire/RepertoireCard.tsx` — rich card
-- [ ]Create `components/v2/repertoire/SelfRating.tsx` — 48px touch stars
-- [ ]Create `components/v2/repertoire/AddSongSheet.tsx` — bottom sheet
-- [ ]Wire into pages with cookie check
-- [ ]Test CRUD at 390px as Teacher and Student
+- [x] Create `components/v2/assignments/AssignmentList.tsx` — card list with urgency
+- [x] Create `components/v2/assignments/AssignmentList.Desktop.tsx`
+- [x] Create `components/v2/assignments/AssignmentDetail.tsx` — mobile detail
+- [x] Create `components/v2/assignments/AssignmentForm.tsx` — step wizard
+- [x] Create `components/v2/assignments/TemplateList.tsx` — template cards
+- [x] Create `components/v2/repertoire/RepertoireList.tsx` — priority sections
+- [x] Create `components/v2/repertoire/RepertoireCard.tsx` — rich card
+- [x] Create `components/v2/repertoire/SelfRating.tsx` — 48px touch stars
+- [x] Create `components/v2/repertoire/AddSongSheet.tsx` — bottom sheet
+- [x] Wire into pages with cookie check
+- [ ] Test CRUD at 390px as Teacher and Student
 
 ### Agent 4 — Users/Students
 > **Branch**: `feature/STRUM-v2-users`
 > **Spec**: [06-users-students.md](./06-users-students.md)
 
-- [ ]Create `components/v2/users/UserList.tsx` — card-based student list
-- [ ]Create `components/v2/users/UserList.Desktop.tsx` — desktop table
-- [ ]Create `components/v2/users/UserDetail.tsx` — swipeable tab detail
-- [ ]Create `components/v2/users/UserDetail.Desktop.tsx` — multi-panel
-- [ ]Create `components/v2/users/UserForm.tsx` — step wizard
-- [ ]Create `components/v2/users/InviteFlow.tsx` — simplified mobile invite
-- [ ]Wire into user pages with cookie check
-- [ ]Reuse `useUsersList`, `useUserFormState` hooks
-- [ ]Test CRUD at 390px as Teacher/Admin
+- [x] Create `components/v2/users/UserList.tsx` — card-based student list
+- [x] Create `components/v2/users/UserList.Desktop.tsx` — desktop table
+- [x] Create `components/v2/users/UserDetail.tsx` — swipeable tab detail
+- [x] Create `components/v2/users/UserDetail.Desktop.tsx` — multi-panel
+- [x] Create `components/v2/users/UserForm.tsx` — step wizard
+- [x] Create `components/v2/users/InviteFlow.tsx` — simplified mobile invite
+- [x] Wire into user pages with cookie check
+- [x] Reuse `useUsersList`, `useUserFormState` hooks
+- [ ] Test CRUD at 390px as Teacher/Admin
 
 ---
 

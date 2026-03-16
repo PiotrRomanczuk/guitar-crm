@@ -44,7 +44,7 @@ export default function AppShellDesktopV2({
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 bottom-0 w-60 bg-card border-r border-border flex flex-col z-40">
         {/* Logo */}
-        <div className="h-14 flex items-center gap-2.5 px-4 border-b border-border shrink-0">
+        <Link href="/dashboard" className="h-14 flex items-center gap-2.5 px-4 border-b border-border shrink-0 hover:bg-muted/50 transition-colors">
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
             <Guitar className="w-4.5 h-4.5 text-primary" />
           </div>
@@ -52,7 +52,7 @@ export default function AppShellDesktopV2({
             <h1 className="font-semibold text-sm leading-tight">Strummy</h1>
             <p className="text-[10px] text-muted-foreground leading-tight">{roleLabel}</p>
           </div>
-        </div>
+        </Link>
 
         {/* Navigation groups */}
         <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">

@@ -7,7 +7,7 @@ import { StatsWidget } from './widgets/StatsWidget';
 import { AgendaWidget } from './widgets/AgendaWidget';
 import { AttentionWidget } from './widgets/AttentionWidget';
 import { QuickActionsFAB } from './widgets/QuickActions';
-import { SongOfTheWeekCard } from '@/components/song-of-the-week';
+import { SOTWCard } from '@/components/v2/song-of-the-week';
 import type { TeacherDashboardV2Props } from './TeacherDashboard';
 
 export function TeacherDashboardMobile({
@@ -56,7 +56,7 @@ export function TeacherDashboardMobile({
         {/* Song of the Week */}
         {sotw && (
           <motion.div variants={listItem}>
-            <SongOfTheWeekCard sotw={sotw} isAdmin={isAdmin} />
+            <SOTWCard sotw={sotw} isAdmin={isAdmin} />
           </motion.div>
         )}
 
