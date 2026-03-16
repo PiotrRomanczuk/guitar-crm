@@ -58,7 +58,7 @@ async function main() {
     try {
       await Promise.race([
         page.evaluate(
-          (opts) => (window as any).figma.captureForDesign({
+          (opts) => (window as unknown as { figma: { captureForDesign: (o: { captureId: string; endpoint: string; selector: string }) => Promise<unknown> } }).figma.captureForDesign({
             captureId: opts.captureId,
             endpoint: opts.endpoint,
             selector: 'body',
@@ -68,7 +68,7 @@ async function main() {
         new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 30000)),
       ]);
       console.log(`  Done (resolved)`);
-    } catch (err) {
+    } catch (_err) {
       console.log(`  Submitted (promise didn't resolve, but capture was likely sent)`);
     }
 

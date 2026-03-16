@@ -1,6 +1,5 @@
 import { chromium } from 'playwright';
 import fs from 'fs';
-import path from 'path';
 
 const BASE_URL = 'http://localhost:3000';
 const CAPTURE_SCRIPT_URL = 'https://mcp.figma.com/mcp/html-to-design/capture.js';

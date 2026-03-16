@@ -57,7 +57,7 @@ async function main() {
   // Trigger capture
   console.log('Triggering Figma capture...');
   const result = await page.evaluate((opts) => {
-    return (window as any).figma.captureForDesign({
+    return (window as unknown as { figma: { captureForDesign: (o: { captureId: string; endpoint: string; selector: string }) => Promise<unknown> } }).figma.captureForDesign({
       captureId: opts.captureId,
       endpoint: opts.endpoint,
       selector: 'body',
