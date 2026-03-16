@@ -44,7 +44,11 @@ export default async function SongList({ searchParams }: SongListProps) {
     typeof searchParams?.studentId === 'string' ? searchParams.studentId : undefined;
   const search = typeof searchParams?.search === 'string' ? searchParams.search : undefined;
   const level = typeof searchParams?.level === 'string' ? searchParams.level : undefined;
-  // Virtual scrolling - fetch all songs (no pagination)
+  const key = typeof searchParams?.key === 'string' ? searchParams.key : undefined;
+  const category = typeof searchParams?.category === 'string' ? searchParams.category : undefined;
+  const author = typeof searchParams?.author === 'string' ? searchParams.author : undefined;
+  const showDrafts = searchParams?.showDrafts === 'true';
+  const missingChords = searchParams?.missingChords === 'true';
 
   let songQuery;
 
@@ -66,6 +70,26 @@ export default async function SongList({ searchParams }: SongListProps) {
 
   if (level && level !== 'all') {
     songQuery = songQuery.eq('level', level);
+  }
+
+  if (missingChords) {
+    songQuery = songQuery.is('chords', null);
+  }
+
+  if (key && key !== 'all') {
+    songQuery = songQuery.eq('key', key);
+  }
+
+  if (category && category !== 'all') {
+    songQuery = songQuery.eq('category', category);
+  }
+
+  if (author && author !== 'all') {
+    songQuery = songQuery.eq('author', author);
+  }
+
+  if (!showDrafts) {
+    songQuery = songQuery.or('is_draft.is.null,is_draft.eq.false');
   }
 
   songQuery = songQuery.order('updated_at', { ascending: false }); // Most recently updated first
@@ -149,12 +173,20 @@ export default async function SongList({ searchParams }: SongListProps) {
     students = studentsData || [];
   }
 
+  // Extract unique categories and authors for filter dropdowns
+  const categories = [...new Set(songs.map((s) => s.category).filter(Boolean))] as string[];
+  categories.sort();
+  const authors = [...new Set(songs.map((s) => s.author).filter(Boolean))] as string[];
+  authors.sort();
+
   return (
     <SongListClient
       initialSongs={songs}
       isAdmin={isAdmin || isTeacher}
       students={students}
       selectedStudentId={studentId}
+      categories={categories}
+      authors={authors}
     />
   );
 }

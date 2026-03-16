@@ -1,7 +1,11 @@
 import { createAdminClient } from '@/lib/supabase/admin';
-import { Database } from '@/database.types';
+import { parseChordsColumn } from '@/lib/music-theory/chord-parser';
 
-type Song = Database['public']['Tables']['songs']['Row'];
+export interface SongSummary {
+  id: string;
+  title: string;
+  author: string | null;
+}
 
 export interface SongDatabaseStats {
   totalSongs: number;
@@ -18,20 +22,20 @@ export interface SongDatabaseStats {
     withGalleryImages: number;
   };
   missing: {
-    chords: Pick<Song, 'id' | 'title' | 'author'>[];
-    youtube: Pick<Song, 'id' | 'title' | 'author'>[];
-    ultimateGuitar: Pick<Song, 'id' | 'title' | 'author'>[];
-    galleryImages: Pick<Song, 'id' | 'title' | 'author'>[];
+    chords: SongSummary[];
+    youtube: SongSummary[];
+    ultimateGuitar: SongSummary[];
+    galleryImages: SongSummary[];
   };
 }
 
 export async function getSongDatabaseStatistics(): Promise<SongDatabaseStats> {
   const supabase = createAdminClient();
 
-  // Fetch all songs that are not deleted
+  // Fetch only the columns needed for database statistics
   const { data: songs, error } = await supabase
     .from('songs')
-    .select('*')
+    .select('id, title, author, chords, youtube_url, ultimate_guitar_link, gallery_images')
     .is('deleted_at', null)
     .order('title');
 
@@ -73,7 +77,12 @@ export async function getSongDatabaseStatistics(): Promise<SongDatabaseStats> {
     totalSongs > 0 ? Math.round((count / totalSongs) * 100) : 0;
 
   // Map to simple objects for the report
-  const mapToSummary = (s: Song) => ({ id: s.id, title: s.title, author: s.author });
+  // title is NOT NULL in DB; narrow select infers string | null
+  const mapToSummary = (s: { id: string; title: string | null; author: string | null }): SongSummary => ({
+    id: s.id,
+    title: s.title ?? '',
+    author: s.author,
+  });
 
   return {
     totalSongs,
@@ -96,4 +105,77 @@ export async function getSongDatabaseStatistics(): Promise<SongDatabaseStats> {
       galleryImages: missingGalleryImages.map(mapToSummary),
     },
   };
+}
+
+// --- Chord Coverage Stats ---
+
+export interface ChordCoverageSong {
+  id: string;
+  title: string | null;
+  author: string | null;
+  chordCount: number;
+}
+
+export interface ChordCoverageTier {
+  count: number;
+  songs: ChordCoverageSong[];
+}
+
+export interface ChordCoverageStats {
+  total: number;
+  analyzable: ChordCoverageTier;
+  missingKey: ChordCoverageTier;
+  unparseable: ChordCoverageTier;
+  missingChords: ChordCoverageTier;
+}
+
+export async function getChordCoverageStats(): Promise<ChordCoverageStats> {
+  const supabase = createAdminClient();
+
+  const { data: songs, error } = await supabase
+    .from('songs')
+    .select('id, title, author, key, chords')
+    .is('deleted_at', null)
+    .order('title');
+
+  if (error) {
+    throw new Error(`Failed to fetch songs for chord coverage: ${error.message}`);
+  }
+
+  const tiers: ChordCoverageStats = {
+    total: songs?.length ?? 0,
+    analyzable: { count: 0, songs: [] },
+    missingKey: { count: 0, songs: [] },
+    unparseable: { count: 0, songs: [] },
+    missingChords: { count: 0, songs: [] },
+  };
+
+  for (const song of songs ?? []) {
+    const hasChords = song.chords && song.chords.trim() !== '';
+    if (!hasChords) {
+      tiers.missingChords.count++;
+      tiers.missingChords.songs.push({ id: song.id, title: song.title, author: song.author, chordCount: 0 });
+      continue;
+    }
+
+    const parsed = parseChordsColumn(song.chords);
+    if (parsed.length === 0) {
+      tiers.unparseable.count++;
+      tiers.unparseable.songs.push({ id: song.id, title: song.title, author: song.author, chordCount: 0 });
+      continue;
+    }
+
+    const hasKey = song.key && song.key.trim() !== '';
+    const entry: ChordCoverageSong = { id: song.id, title: song.title, author: song.author, chordCount: parsed.length };
+
+    if (!hasKey) {
+      tiers.missingKey.count++;
+      tiers.missingKey.songs.push(entry);
+    } else {
+      tiers.analyzable.count++;
+      tiers.analyzable.songs.push(entry);
+    }
+  }
+
+  return tiers;
 }
