@@ -3,10 +3,12 @@ import { DashboardPageContent } from '@/components/dashboard/Dashboard';
 import { AdminDashboardClient } from '@/components/dashboard/admin/AdminDashboardClient';
 import { StudentDashboardClient } from '@/components/dashboard/student/StudentDashboardClient';
 import { TeacherDashboardClient } from '@/components/dashboard/teacher/TeacherDashboardClient';
+import { TeacherDashboardV2, StudentDashboardV2 } from '@/components/v2/dashboard';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { getStudentDashboardData } from '@/app/actions/student/dashboard';
 import { getTeacherDashboardData } from '@/app/actions/teacher/dashboard';
 import { getCurrentSongOfTheWeek } from '@/app/actions/song-of-the-week';
+import { getUIVersion } from '@/lib/ui-version.server';
 
 export default async function DashboardPage({
   searchParams,
@@ -82,7 +84,22 @@ export default async function DashboardPage({
 
   // Teacher View (Default for teachers AND admins)
   if (isTeacher || isAdmin) {
-    const teacherData = await getTeacherDashboardData();
+    const [teacherData, uiVersion] = await Promise.all([
+      getTeacherDashboardData(),
+      getUIVersion(),
+    ]);
+
+    if (uiVersion === 'v2') {
+      return (
+        <TeacherDashboardV2
+          data={teacherData}
+          email={user.email}
+          fullName={profile?.full_name}
+          isAdmin={isAdmin}
+          sotw={sotw}
+        />
+      );
+    }
 
     return (
       <TeacherDashboardClient
@@ -97,7 +114,22 @@ export default async function DashboardPage({
 
   // Student Dashboard
   if (isStudent) {
-    const studentData = await getStudentDashboardData();
+    const [studentData, uiVersion] = await Promise.all([
+      getStudentDashboardData(),
+      getUIVersion(),
+    ]);
+
+    if (uiVersion === 'v2') {
+      return (
+        <StudentDashboardV2
+          data={studentData}
+          email={user.email}
+          sotw={sotw}
+          sotwInRepertoire={sotwInRepertoire}
+        />
+      );
+    }
+
     return (
       <StudentDashboardClient
         data={studentData}

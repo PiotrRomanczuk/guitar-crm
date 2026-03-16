@@ -27,28 +27,28 @@
 > **Blocks**: Waves 2-5
 
 ### Step 2: v1/v2 Toggle System
-- [ ] Add `strummy-ui-version` cookie utility (`lib/ui-version.ts`) — read/write cookie, default `v1`
-- [ ] Modify `app/dashboard/layout.tsx` — pass UI version to AppShell
-- [ ] Modify `components/layout/AppShell.tsx` — conditionally render v1 or v2 shell
-- [ ] Add `useUIVersion()` hook for client components to check version
-- [ ] Add server-side `getUIVersion()` helper for RSC pages
+- [x] Add `strummy-ui-version` cookie utility (`lib/ui-version.ts`) — read/write cookie, default `v1`
+- [x] Modify `app/layout.tsx` — pass UI version to AppShell (done at root level, covers all pages)
+- [x] Modify `components/layout/AppShell.tsx` — conditionally render v1 or v2 shell
+- [x] Add `useUIVersion()` hook for client components to check version
+- [x] Add server-side `getUIVersion()` helper for RSC pages
 
 ### Step 3: v2 Directory Structure
-- [ ] Create `components/v2/` directory tree mirroring domains
-- [ ] Create `components/v2/primitives/MobilePageShell.tsx` — page header + scroll + safe area
-- [ ] Move `components/shared/StepWizardForm.tsx` → `components/v2/primitives/StepWizardForm.tsx` (already exists, extend if needed)
-- [ ] Create `components/v2/primitives/SwipeableListItem.tsx` — list row with swipe actions
-- [ ] Create `components/v2/primitives/BottomActionSheet.tsx` — extends existing Drawer
-- [ ] Create `components/v2/primitives/CollapsibleFilterBar.tsx` — horizontal scroll filter chips
-- [ ] Create `components/v2/primitives/FloatingActionButton.tsx` — primary creation FAB
-- [ ] Create `components/v2/primitives/FullScreenSearchPicker.tsx` — mobile search overlay
-- [ ] Create `components/v2/primitives/index.ts` — barrel exports
+- [x] Create `components/v2/` directory tree mirroring domains
+- [x] Create `components/v2/primitives/MobilePageShell.tsx` — page header + scroll + safe area
+- [x] Move `components/shared/StepWizardForm.tsx` → `components/v2/primitives/StepWizardForm.tsx` (re-export)
+- [x] Create `components/v2/primitives/SwipeableListItem.tsx` — list row with swipe actions
+- [x] Create `components/v2/primitives/BottomActionSheet.tsx` — extends existing Drawer
+- [x] Create `components/v2/primitives/CollapsibleFilterBar.tsx` — horizontal scroll filter chips
+- [x] Create `components/v2/primitives/FloatingActionButton.tsx` — primary creation FAB
+- [x] Create `components/v2/primitives/FullScreenSearchPicker.tsx` — mobile search overlay
+- [x] Create `components/v2/primitives/index.ts` — barrel exports (all primitives)
 
 ### Step 3b: v2 Component Architecture Pattern
-- [ ] Create `hooks/use-ui-version.ts` — `useUIVersion()` hook
-- [ ] Create `components/v2/primitives/withLayoutMode.tsx` — mobile/desktop switching HOC/pattern
-- [ ] Verify `useLayoutMode()` and `useKeyboardViewport()` work with v2 shell
-- [ ] Add v2 toggle to Settings page (`components/settings/`) — "Try new mobile UI" switch
+- [x] Create `hooks/use-ui-version.ts` — `useUIVersion()` hook
+- [x] Create `components/v2/primitives/withLayoutMode.tsx` — mobile/desktop switching HOC/pattern
+- [x] Verify `useLayoutMode()` and `useKeyboardViewport()` work with v2 shell
+- [x] Add v2 toggle to Settings page (`components/settings/`) — "Try new mobile UI" switch
 
 ---
 
@@ -58,14 +58,14 @@
 > **Blocks**: Wave 3 (features depend on nav shell)
 
 ### Agent 1 — Navigation Shell
-> **Branch**: `feature/STRUM-v2-nav-shell`
+> **Branch**: `feature/STRUM-v2-foundation`
 
-- [ ] Create `components/v2/navigation/AppShell.tsx` — v2 mobile shell
-- [ ] Create `components/v2/navigation/AppShell.Desktop.tsx` — v2 desktop shell
-- [ ] Create `components/v2/navigation/MobileBottomNav.tsx` — redesigned bottom nav
-- [ ] Create `components/v2/navigation/MobileMoreMenu.tsx` — redesigned more menu
-- [ ] Create `components/v2/navigation/Header.tsx` — v2 header
-- [ ] Wire v2 shell into `AppShell.tsx` via cookie toggle
+- [x] Create `components/v2/navigation/AppShell.tsx` — v2 mobile shell (responsive, lazy-loads desktop)
+- [x] Create `components/v2/navigation/AppShell.Desktop.tsx` — v2 desktop sidebar layout
+- [x] Create `components/v2/navigation/MobileBottomNav.tsx` — animated bottom nav with active indicator
+- [x] Create `components/v2/navigation/MobileMoreMenu.tsx` — grouped drawer using menuConfig
+- [x] Create `components/v2/navigation/Header.tsx` — compact v2 header with blur backdrop
+- [x] Wire v2 shell into `AppShell.tsx` via cookie toggle
 - [ ] Test at 390px, 768px, 1440px
 - [ ] Dark mode verified
 
@@ -119,60 +119,60 @@
 > **Branch**: `feature/STRUM-v2-lessons`
 > **Spec**: [02-lessons.md](./02-lessons.md)
 
-- [ ] Create `components/v2/lessons/LessonList.tsx` — card-based list
-- [ ] Create `components/v2/lessons/LessonList.Desktop.tsx` — table view
-- [ ] Create `components/v2/lessons/LessonDetail.tsx` — mobile detail
-- [ ] Create `components/v2/lessons/LessonForm.tsx` — step wizard (Student → Songs → Schedule → Notes)
-- [ ] Create `components/v2/lessons/LiveLesson.tsx` — mobile live mode
-- [ ] Create `components/v2/lessons/LiveLesson.Desktop.tsx` — desktop live mode
-- [ ] Wire into lesson pages with cookie check
-- [ ] Reuse all existing hooks: `useLessonList`, `useLessonForm`, `useSongs`, `useProfiles`
-- [ ] Test CRUD at 390px, 768px, 1440px as Teacher and Student
+- [ ]Create `components/v2/lessons/LessonList.tsx` — card-based list
+- [ ]Create `components/v2/lessons/LessonList.Desktop.tsx` — table view
+- [ ]Create `components/v2/lessons/LessonDetail.tsx` — mobile detail
+- [ ]Create `components/v2/lessons/LessonForm.tsx` — step wizard (Student → Songs → Schedule → Notes)
+- [ ]Create `components/v2/lessons/LiveLesson.tsx` — mobile live mode
+- [ ]Create `components/v2/lessons/LiveLesson.Desktop.tsx` — desktop live mode
+- [ ]Wire into lesson pages with cookie check
+- [ ]Reuse all existing hooks: `useLessonList`, `useLessonForm`, `useSongs`, `useProfiles`
+- [ ]Test CRUD at 390px, 768px, 1440px as Teacher and Student
 
 ### Agent 2 — Songs
 > **Branch**: `feature/STRUM-v2-songs`
 > **Spec**: [03-songs.md](./03-songs.md)
 
-- [ ] Create `components/v2/songs/SongList.tsx` — enhanced mobile cards + filter chips
-- [ ] Create `components/v2/songs/SongList.Desktop.tsx` — desktop table
-- [ ] Create `components/v2/songs/SongDetail.tsx` — tabbed mobile detail
-- [ ] Create `components/v2/songs/SongDetail.Desktop.tsx` — side-panel detail
-- [ ] Create `components/v2/songs/SongForm.tsx` — generalized from MobileSongForm
-- [ ] Create `components/v2/songs/LyricsViewer.tsx` — mobile chord/lyric display
-- [ ] Create `components/v2/songs/VideoPlayer.tsx` — responsive video
-- [ ] Wire into song pages with cookie check
-- [ ] Reuse all hooks: `useSongList`, `useSongMutation`, `useSongDetail`, etc.
-- [ ] Test CRUD at 390px, 768px, 1440px as Teacher and Student
+- [ ]Create `components/v2/songs/SongList.tsx` — enhanced mobile cards + filter chips
+- [ ]Create `components/v2/songs/SongList.Desktop.tsx` — desktop table
+- [ ]Create `components/v2/songs/SongDetail.tsx` — tabbed mobile detail
+- [ ]Create `components/v2/songs/SongDetail.Desktop.tsx` — side-panel detail
+- [ ]Create `components/v2/songs/SongForm.tsx` — generalized from MobileSongForm
+- [ ]Create `components/v2/songs/LyricsViewer.tsx` — mobile chord/lyric display
+- [ ]Create `components/v2/songs/VideoPlayer.tsx` — responsive video
+- [ ]Wire into song pages with cookie check
+- [ ]Reuse all hooks: `useSongList`, `useSongMutation`, `useSongDetail`, etc.
+- [ ]Test CRUD at 390px, 768px, 1440px as Teacher and Student
 
 ### Agent 3 — Assignments + Repertoire
 > **Branch**: `feature/STRUM-v2-assignments-repertoire`
 > **Specs**: [04-assignments.md](./04-assignments.md), [05-student-repertoire.md](./05-student-repertoire.md)
 
-- [ ] Create `components/v2/assignments/AssignmentList.tsx` — card list with urgency
-- [ ] Create `components/v2/assignments/AssignmentList.Desktop.tsx`
-- [ ] Create `components/v2/assignments/AssignmentDetail.tsx` — mobile detail
-- [ ] Create `components/v2/assignments/AssignmentForm.tsx` — step wizard
-- [ ] Create `components/v2/assignments/TemplateList.tsx` — template cards
-- [ ] Create `components/v2/repertoire/RepertoireList.tsx` — priority sections
-- [ ] Create `components/v2/repertoire/RepertoireCard.tsx` — rich card
-- [ ] Create `components/v2/repertoire/SelfRating.tsx` — 48px touch stars
-- [ ] Create `components/v2/repertoire/AddSongSheet.tsx` — bottom sheet
-- [ ] Wire into pages with cookie check
-- [ ] Test CRUD at 390px as Teacher and Student
+- [ ]Create `components/v2/assignments/AssignmentList.tsx` — card list with urgency
+- [ ]Create `components/v2/assignments/AssignmentList.Desktop.tsx`
+- [ ]Create `components/v2/assignments/AssignmentDetail.tsx` — mobile detail
+- [ ]Create `components/v2/assignments/AssignmentForm.tsx` — step wizard
+- [ ]Create `components/v2/assignments/TemplateList.tsx` — template cards
+- [ ]Create `components/v2/repertoire/RepertoireList.tsx` — priority sections
+- [ ]Create `components/v2/repertoire/RepertoireCard.tsx` — rich card
+- [ ]Create `components/v2/repertoire/SelfRating.tsx` — 48px touch stars
+- [ ]Create `components/v2/repertoire/AddSongSheet.tsx` — bottom sheet
+- [ ]Wire into pages with cookie check
+- [ ]Test CRUD at 390px as Teacher and Student
 
 ### Agent 4 — Users/Students
 > **Branch**: `feature/STRUM-v2-users`
 > **Spec**: [06-users-students.md](./06-users-students.md)
 
-- [ ] Create `components/v2/users/UserList.tsx` — card-based student list
-- [ ] Create `components/v2/users/UserList.Desktop.tsx` — desktop table
-- [ ] Create `components/v2/users/UserDetail.tsx` — swipeable tab detail
-- [ ] Create `components/v2/users/UserDetail.Desktop.tsx` — multi-panel
-- [ ] Create `components/v2/users/UserForm.tsx` — step wizard
-- [ ] Create `components/v2/users/InviteFlow.tsx` — simplified mobile invite
-- [ ] Wire into user pages with cookie check
-- [ ] Reuse `useUsersList`, `useUserFormState` hooks
-- [ ] Test CRUD at 390px as Teacher/Admin
+- [ ]Create `components/v2/users/UserList.tsx` — card-based student list
+- [ ]Create `components/v2/users/UserList.Desktop.tsx` — desktop table
+- [ ]Create `components/v2/users/UserDetail.tsx` — swipeable tab detail
+- [ ]Create `components/v2/users/UserDetail.Desktop.tsx` — multi-panel
+- [ ]Create `components/v2/users/UserForm.tsx` — step wizard
+- [ ]Create `components/v2/users/InviteFlow.tsx` — simplified mobile invite
+- [ ]Wire into user pages with cookie check
+- [ ]Reuse `useUsersList`, `useUserFormState` hooks
+- [ ]Test CRUD at 390px as Teacher/Admin
 
 ---
 
