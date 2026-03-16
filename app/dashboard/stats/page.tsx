@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserWithRolesSSR } from '@/lib/getUserWithRolesSSR';
 import { StudentStatsPageClient } from '@/components/dashboard/student/StudentStatsPageClient';
 import { StudentStats } from '@/components/v2/stats';
-import { getUIVersion } from '@/lib/ui-version';
+import { getUIVersion } from '@/lib/ui-version.server';
 import { redirect } from 'next/navigation';
 
 export default async function StudentStatsPage() {
